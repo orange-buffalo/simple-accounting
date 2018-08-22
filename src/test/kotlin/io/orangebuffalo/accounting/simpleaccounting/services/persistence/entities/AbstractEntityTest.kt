@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.persistence
+package io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

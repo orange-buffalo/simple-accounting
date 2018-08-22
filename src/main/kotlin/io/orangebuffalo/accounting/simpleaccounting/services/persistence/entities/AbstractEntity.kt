@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.persistence
+package io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities
 
 import java.util.concurrent.atomic.AtomicLong
 import javax.persistence.*

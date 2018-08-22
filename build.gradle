@@ -57,9 +57,11 @@ dependencies {
     compile('org.flywaydb:flyway-core')
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     compile("org.jetbrains.kotlin:kotlin-reflect")
+
     runtime('com.h2database:h2')
-    compile('org.springframework.boot:spring-boot-starter-jta-atomikos')
+
     compileOnly('org.projectlombok:lombok')
+
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('io.projectreactor:reactor-test')
     testCompile('org.junit.jupiter:junit-jupiter-api')

@@ -1,11 +1,10 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.persistence.admin
+package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos
 
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.admin.entities.PlatformUser
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -14,12 +13,11 @@ import javax.persistence.EntityManager
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
-@Transactional(ADMIN_TRANSACTION_MANAGER)
+@Transactional
 @TestPropertySource(properties = ["logging.level.org.hibernate.SQL=DEBUG"])
 class PlatformUserRepositoryTest {
 
     @Autowired
-    @Qualifier(ADMIN_ENTITY_MANAGER)
     lateinit var entityManager: EntityManager
 
     @Autowired
