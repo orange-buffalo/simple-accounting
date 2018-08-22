@@ -18,6 +18,10 @@ class DatabaseMigrationService(
         migrateUserSchemas()
     }
 
+    fun createUserSchema(schemaName: String) {
+        migrateUserSchema(schemaName)
+    }
+
     private fun migrateUserSchemas() {
         multiTenancyService.getTenantsSchemas()
             .forEach(this::migrateUserSchema)

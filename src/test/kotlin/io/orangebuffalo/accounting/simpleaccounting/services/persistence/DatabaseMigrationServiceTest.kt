@@ -19,7 +19,7 @@ internal class DatabaseMigrationServiceTest {
     @BeforeEach
     fun setup() {
         dataSource = HikariDataSource().apply {
-            jdbcUrl = "jdbc:h2:mem:test-db"
+            jdbcUrl = "jdbc:h2:mem:test-db-" + System.currentTimeMillis()
             driverClassName = "org.h2.Driver"
         }
         jdbcTemplate = JdbcTemplate(dataSource)
@@ -59,6 +59,12 @@ internal class DatabaseMigrationServiceTest {
 
     @Test
     fun `Should create a new tenant schema on demand`() {
-        //TODO
+        migrationService.createUserSchema("user_42")
+
+        val actualTablesInNewSchema = jdbcTemplate.query("show tables from \"user_42\"") { rs, _ -> rs.getString(1); }
+            .map { it.toLowerCase() }
+
+        assertThat(actualTablesInNewSchema)
+            .contains("tax")
     }
 }
