@@ -53,11 +53,12 @@ dependencyManagement {
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('org.springframework.boot:spring-boot-starter-webflux')
+    compile('org.springframework.boot:spring-boot-starter-security')
     compile('com.fasterxml.jackson.module:jackson-module-kotlin')
-    compile('org.flywaydb:flyway-core')
     compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     compile("org.jetbrains.kotlin:kotlin-reflect")
 
+    runtime('org.flywaydb:flyway-core')
     runtime('com.h2database:h2')
 
     compileOnly('org.projectlombok:lombok')
@@ -65,6 +66,7 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('io.projectreactor:reactor-test')
     testCompile('org.junit.jupiter:junit-jupiter-api')
+    testCompile('org.springframework.security:spring-security-test')
     // todo do we still use it?
 //    testCompile('org.mockito:mockito-junit-jupiter:2.21.0')
     testRuntime('org.junit.jupiter:junit-jupiter-engine')
