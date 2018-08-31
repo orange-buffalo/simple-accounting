@@ -1,0 +1,17 @@
+plugins {
+  id "com.moowork.node" version "1.2.0"
+}
+
+node {
+  download = false
+}
+
+task buildFrontend(type: NpmTask) {
+  args = ['run', 'build']
+}
+
+buildFrontend.dependsOn(npmInstall)
+
+task build {
+  dependsOn(buildFrontend)
+}
