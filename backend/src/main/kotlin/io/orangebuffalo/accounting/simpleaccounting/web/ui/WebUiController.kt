@@ -1,0 +1,23 @@
+package io.orangebuffalo.accounting.simpleaccounting.web.ui
+
+import org.springframework.core.io.ClassPathResource
+import org.springframework.http.MediaType
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseBody
+
+@Controller
+class WebUiController {
+
+    @RequestMapping("/admin/**", produces = [MediaType.TEXT_HTML_VALUE])
+    @ResponseBody
+    fun getAdminPage(): ClassPathResource {
+        return ClassPathResource("META-INF/pages/admin/index.html")
+    }
+
+    @RequestMapping("/user/**", produces = [MediaType.TEXT_HTML_VALUE])
+    @ResponseBody
+    fun getUserPage(): ClassPathResource {
+        return ClassPathResource("META-INF/pages/user/index.html")
+    }
+}
