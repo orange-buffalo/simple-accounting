@@ -73,7 +73,9 @@ dependencies {
 
 sourceSets {
     main {
-        output.dir("$buildDir/generated-resources/main", builtBy: 'copyFrontend')
+        // TODO add task dependency later, to speed up builds in development it is disabled
+        output.dir("$buildDir/generated-resources/main")
+//        output.dir("$buildDir/generated-resources/main", builtBy: 'copyFrontend')
     }
 }
 
