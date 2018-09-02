@@ -83,14 +83,14 @@ task copyFrontend(type: DefaultTask) {
     copy {
         from project(':frontend').file('dist')
         exclude 'admin/**'
-        exclude 'user/**'
+        exclude 'app/**'
         into "$buildDir/generated-resources/main/META-INF/resources"
     }
 
     copy {
         from project(':frontend').file('dist')
         include 'admin/**'
-        include 'user/**'
+        include 'app/**'
         into "$buildDir/generated-resources/main/META-INF/pages"
     }
 

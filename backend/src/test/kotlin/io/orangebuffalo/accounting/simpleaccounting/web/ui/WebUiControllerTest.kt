@@ -64,8 +64,8 @@ internal class WebUiControllerTest {
     }
 
     @Test
-    fun `Should serve user page without authentication`() {
-        client.get().uri("/user")
+    fun `Should serve app page without authentication`() {
+        client.get().uri("/app")
                 .accept(TEXT_HTML)
                 .exchange()
                 .expectStatus().isOk

@@ -7,9 +7,9 @@ module.exports = {
     },
 
     user: {
-      entry: 'src/user/main.js',
+      entry: 'src/app/main.js',
       template: 'public/index.html',
-      filename: 'user/index.html'
+      filename: 'app/index.html'
     },
   }   ,
 
@@ -19,7 +19,7 @@ module.exports = {
      historyApiFallback: {
       rewrites: [
         { from: /^\/admin/, to: '/admin/index.html' },
-        { from: /^\/user/, to: '/user/index.html' },
+        { from: /^\/app/, to: '/app/index.html' },
         { from: /./, to: '/views/404.html' }
       ]
     } ,

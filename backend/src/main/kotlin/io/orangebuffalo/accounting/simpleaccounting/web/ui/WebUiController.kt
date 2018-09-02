@@ -15,9 +15,9 @@ class WebUiController {
         return ClassPathResource("META-INF/pages/admin/index.html")
     }
 
-    @RequestMapping("/user/**", produces = [MediaType.TEXT_HTML_VALUE])
+    @RequestMapping("/app/**", produces = [MediaType.TEXT_HTML_VALUE])
     @ResponseBody
-    fun getUserPage(): ClassPathResource {
-        return ClassPathResource("META-INF/pages/user/index.html")
+    fun getAppPage(): ClassPathResource {
+        return ClassPathResource("META-INF/pages/app/index.html")
     }
 }
