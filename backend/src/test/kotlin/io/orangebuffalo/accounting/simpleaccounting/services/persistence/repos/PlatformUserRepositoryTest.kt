@@ -25,7 +25,11 @@ class PlatformUserRepositoryTest {
 
     @Test
     fun `Should load an entity saved by entity manager`() {
-        val platformUser = PlatformUser()
+        val platformUser = PlatformUser(
+                userName = "Fry",
+                passwordHash = "qwerty",
+                isAdmin = false
+        )
         entityManager.persist(platformUser)
         entityManager.flush()
         entityManager.clear()
@@ -36,6 +40,9 @@ class PlatformUserRepositoryTest {
             .allSatisfy { actualUser ->
                 assertThat(actualUser.id).isEqualTo(platformUser.id)
                 assertThat(actualUser.version).isEqualTo(0)
+                assertThat(actualUser.userName).isEqualTo("Fry")
+                assertThat(actualUser.passwordHash).isEqualTo("qwerty")
+                assertThat(actualUser.isAdmin).isEqualTo(false)
             }
     }
 }

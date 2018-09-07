@@ -46,7 +46,7 @@ internal class WebUiControllerTest {
 
     @Test
     fun `Should serve js without authentication`() {
-        client.get().uri("/js/some.js")
+        client.get().uri("/static/js/some.js")
                 .exchange()
                 .expectStatus().isNotFound
     }
