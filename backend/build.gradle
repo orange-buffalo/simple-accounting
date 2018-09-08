@@ -57,9 +57,12 @@ dependencies {
     compile('org.jetbrains.kotlin:kotlin-stdlib-jdk8')
     compile('org.jetbrains.kotlin:kotlin-reflect')
     compile('io.github.microutils:kotlin-logging:1.6.10')
+    compile('io.jsonwebtoken:jjwt-api:0.10.5')
 
     runtime('org.flywaydb:flyway-core')
     runtime('com.h2database:h2')
+    runtime('io.jsonwebtoken:jjwt-impl:0.10.5')
+    runtime('io.jsonwebtoken:jjwt-jackson:0.10.5')
 
     compileOnly('org.projectlombok:lombok')
 
@@ -67,6 +70,8 @@ dependencies {
     testCompile('io.projectreactor:reactor-test')
     testCompile('org.junit.jupiter:junit-jupiter-api')
     testCompile('org.springframework.security:spring-security-test')
+    testCompile('net.javacrumbs.json-unit:json-unit-assertj:2.0.0.RC1')
+    testCompile('com.nhaarman:mockito-kotlin:1.6.0')
     // todo do we still use it?
 //    testCompile('org.mockito:mockito-junit-jupiter:2.21.0')
     testRuntime('org.junit.jupiter:junit-jupiter-engine')
