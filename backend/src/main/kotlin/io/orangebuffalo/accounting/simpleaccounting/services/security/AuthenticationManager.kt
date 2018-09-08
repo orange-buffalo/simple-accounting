@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono
 
 @Service
 class AuthenticationManager(
-        private val jpaUserDetailsService: JpaUserDetailsService
+        private val jpaUserDetailsService: UserNamePasswordAuthenticationProvider
 ) : ReactiveAuthenticationManager {
 
     override fun authenticate(authentication: Authentication): Mono<Authentication> {
