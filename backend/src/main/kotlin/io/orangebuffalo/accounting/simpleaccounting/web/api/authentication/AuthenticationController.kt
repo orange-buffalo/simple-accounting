@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
+import javax.validation.Valid
 import kotlin.reflect.full.cast
 
 @RestController
@@ -21,7 +22,7 @@ class AuthenticationController(
 ) {
 
     @PostMapping("login", consumes = [APPLICATION_JSON_VALUE], produces = [APPLICATION_JSON_VALUE])
-    fun login(@RequestBody loginRequest: Mono<LoginRequest>): Mono<LoginResponse> {
+    fun login(@Valid @RequestBody loginRequest: Mono<LoginRequest>): Mono<LoginResponse> {
         return loginRequest
                 .map { UsernamePasswordAuthenticationToken(it.userName, it.password) }
                 .flatMap(authenticationManager::authenticate)

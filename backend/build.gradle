@@ -63,6 +63,7 @@ dependencies {
     runtime('com.h2database:h2')
     runtime('io.jsonwebtoken:jjwt-impl:0.10.5')
     runtime('io.jsonwebtoken:jjwt-jackson:0.10.5')
+    runtime('org.glassfish:javax.el:3.0.1-b10')
 
     compileOnly('org.projectlombok:lombok')
 
