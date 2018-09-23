@@ -6,6 +6,7 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions.resources
@@ -23,6 +24,7 @@ class WebConfig {
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange()
                 .pathMatchers("/favicon.ico").permitAll()
                 .pathMatchers("/static/**").permitAll()
@@ -31,6 +33,9 @@ class WebConfig {
                 .pathMatchers("/api/login").permitAll()
                 .and()
                 .csrf().disable()
+                .httpBasic().disable()
+                .formLogin().disable()
+                .logout().disable()
                 .build()
     }
 
