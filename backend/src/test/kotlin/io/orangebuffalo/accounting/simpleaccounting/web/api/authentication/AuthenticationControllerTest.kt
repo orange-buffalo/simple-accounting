@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
 import com.nhaarman.mockito_kotlin.argThat
 import com.nhaarman.mockito_kotlin.doReturn
+import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.security.JwtService
@@ -18,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -188,6 +190,32 @@ class AuthenticationControllerTest {
                                 .containsIgnoringCase("password")
                                 .containsIgnoringCase("must not be blank")
                     }
+        }
+    }
+
+    @Nested
+    @DisplayName("When requesting /api/admin, ")
+    inner class AdminApiTest {
+
+        @Test
+        fun `should return 401 if token is missing`() {
+            client.post().uri("/api/admin")
+                    .contentType(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isUnauthorized
+                    .expectBody().isEmpty
+        }
+
+        @Test
+        fun `should return 400 if token is broken`() {
+            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
+
+            client.post().uri("/api/admin")
+                    .header("Authorization", "Bearer token")
+                    .contentType(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isBadRequest
+                    .expectBody().isEmpty
         }
     }
 
