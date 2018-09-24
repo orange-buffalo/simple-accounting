@@ -4,7 +4,6 @@ import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.User
 import java.util.*
 
@@ -61,7 +60,7 @@ class JwtServiceTest {
     fun `Should fail on invalid token`() {
         val jwtService = JwtService()
 
-        val actualException = assertThrows<BadCredentialsException> {
+        val actualException = assertThrows<BadTokenException> {
             jwtService.validateTokenAndBuildUserDetails(BAD_TOKEN)
         }
         assertThat(actualException.message).isEqualTo("Bad token $BAD_TOKEN")

@@ -1,9 +1,9 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
+import io.orangebuffalo.accounting.simpleaccounting.services.security.BadTokenException
 import io.orangebuffalo.accounting.simpleaccounting.services.security.JwtService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
@@ -21,7 +21,7 @@ class TokenAuthenticationFilter(
             try {
                 val userDetails = jwtService.validateTokenAndBuildUserDetails(bearerToken)
 
-            } catch (ex: BadCredentialsException) {
+            } catch (_: BadTokenException) {
                 exchange.response.statusCode = HttpStatus.BAD_REQUEST
                 return Mono.empty()
             }
