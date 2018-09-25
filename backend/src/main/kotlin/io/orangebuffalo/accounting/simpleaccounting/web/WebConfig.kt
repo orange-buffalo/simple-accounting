@@ -1,10 +1,10 @@
 package io.orangebuffalo.accounting.simpleaccounting.web
 
-import io.orangebuffalo.accounting.simpleaccounting.services.security.JwtService
 import io.orangebuffalo.accounting.simpleaccounting.web.api.authentication.TokenAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
+import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
@@ -27,7 +27,8 @@ class WebConfig {
     @Bean
     fun securityWebFilterChain(
             http: ServerHttpSecurity,
-            tokenAuthenticationFilter: TokenAuthenticationFilter): SecurityWebFilterChain {
+            tokenAuthenticationFilter: TokenAuthenticationFilter,
+            errorHandlerFilter: ErrorHandlerFilter): SecurityWebFilterChain {
         return http
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange()
@@ -37,6 +38,7 @@ class WebConfig {
                 .pathMatchers("/app/**").permitAll()
                 .pathMatchers("/api/login").permitAll()
                 .and()
+                .addFilterAt(errorHandlerFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .addFilterAt(tokenAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf().disable()
                 .httpBasic().disable()
@@ -46,7 +48,12 @@ class WebConfig {
     }
 
     @Bean
-    fun tokenAuthenticationFilter(jwtService: JwtService): TokenAuthenticationFilter {
-        return TokenAuthenticationFilter(jwtService)
+    fun tokenAuthenticationFilter(authenticationManager: ReactiveAuthenticationManager): TokenAuthenticationFilter {
+        return TokenAuthenticationFilter(authenticationManager)
+    }
+
+    @Bean
+    fun errorHandlerFilter(): ErrorHandlerFilter {
+        return ErrorHandlerFilter()
     }
 }

@@ -2,18 +2,19 @@ package io.orangebuffalo.accounting.simpleaccounting.services.security
 
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PlatformUserService
+import io.orangebuffalo.accounting.simpleaccounting.services.security.core.ReactiveAuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-@Service
+@Component
 class UserNamePasswordAuthenticationProvider(
         private val platformUserService: PlatformUserService,
         private val passwordEncoder: PasswordEncoder

@@ -1,7 +1,8 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.security
+package io.orangebuffalo.accounting.simpleaccounting.services.security.jwt
 
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -27,7 +28,7 @@ class JwtService {
                     .parseClaimsJws(token)
 
         } catch (ex: JwtException) {
-            throw BadTokenException("Bad token $token", ex)
+            throw BadCredentialsException("Bad token $token", ex)
         }
 
         return User.builder()

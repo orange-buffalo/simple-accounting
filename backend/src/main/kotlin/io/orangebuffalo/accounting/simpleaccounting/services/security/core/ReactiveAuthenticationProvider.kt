@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.security
+package io.orangebuffalo.accounting.simpleaccounting.services.security.core
 
 import org.springframework.security.core.Authentication
 import reactor.core.publisher.Mono

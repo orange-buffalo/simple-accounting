@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.security
+package io.orangebuffalo.accounting.simpleaccounting.services.security.core
 
 import org.springframework.security.authentication.ProviderNotFoundException
 import org.springframework.security.authentication.ReactiveAuthenticationManager
@@ -9,11 +9,11 @@ import reactor.core.publisher.Mono
 
 @Service
 class AuthenticationManager(
-        private val jpaUserDetailsService: UserNamePasswordAuthenticationProvider
+        private val providers: List<ReactiveAuthenticationProvider>
 ) : ReactiveAuthenticationManager {
 
     override fun authenticate(authentication: Authentication): Mono<Authentication> {
-        return Flux.fromIterable(listOf(jpaUserDetailsService))
+        return Flux.fromIterable(providers)
                 .filter { it.supports(authentication::class) }
                 .flatMap { it.authenticate(authentication) }
                 .next()

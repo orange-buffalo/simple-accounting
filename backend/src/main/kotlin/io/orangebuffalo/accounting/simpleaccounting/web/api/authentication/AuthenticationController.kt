@@ -1,7 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
-import io.orangebuffalo.accounting.simpleaccounting.services.security.AuthenticationManager
-import io.orangebuffalo.accounting.simpleaccounting.services.security.JwtService
+import io.orangebuffalo.accounting.simpleaccounting.services.security.core.AuthenticationManager
+import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
