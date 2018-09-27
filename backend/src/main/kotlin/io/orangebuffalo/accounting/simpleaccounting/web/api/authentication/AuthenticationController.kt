@@ -1,6 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
-import io.orangebuffalo.accounting.simpleaccounting.services.security.core.AuthenticationManager
+import io.orangebuffalo.accounting.simpleaccounting.services.security.core.DelegatingReactiveAuthenticationManager
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -17,7 +17,7 @@ import kotlin.reflect.full.cast
 @RestController
 @RequestMapping("api")
 class AuthenticationController(
-        private val authenticationManager: AuthenticationManager,
+        private val authenticationManager: DelegatingReactiveAuthenticationManager,
         private val jwtService: JwtService
 ) {
 

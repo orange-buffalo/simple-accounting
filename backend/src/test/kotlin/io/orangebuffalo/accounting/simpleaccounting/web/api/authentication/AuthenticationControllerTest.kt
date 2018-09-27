@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.userdetails.User
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -203,19 +204,101 @@ class AuthenticationControllerTest {
                     .contentType(APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isUnauthorized
-                    .expectBody().isEmpty
         }
 
         @Test
-        fun `should return 403 if token is broken`() {
+        fun `should return 401 if token is broken`() {
             whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
 
             client.post().uri("/api/admin")
                     .header("Authorization", "Bearer token")
                     .contentType(APPLICATION_JSON)
                     .exchange()
+                    .expectStatus().isUnauthorized
+        }
+
+        @Test
+        fun `should return 403 if token belongs to a user`() {
+            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
+                    .roles("USER")
+                    .username("Fry")
+                    .password("token")
+                    .build()
+
+            client.post().uri("/api/admin")
+                    .header("Authorization", "Bearer token")
+                    .contentType(APPLICATION_JSON)
+                    .exchange()
                     .expectStatus().isForbidden
-                    .expectBody().isEmpty
+        }
+
+        @Test
+        fun `should return successful response if token belongs to an admin`() {
+            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
+                    .roles("ADMIN")
+                    .username("Professor Farnsworth")
+                    .password("token")
+                    .build()
+
+            client.post().uri("/api/admin")
+                    .header("Authorization", "Bearer token")
+                    .contentType(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isNotFound
+        }
+    }
+
+    @Nested
+    @DisplayName("When requesting /api/user, ")
+    inner class UserApiTest {
+
+        @Test
+        fun `should return 401 if token is missing`() {
+            client.post().uri("/api/user")
+                    .contentType(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isUnauthorized
+        }
+
+        @Test
+        fun `should return 401 if token is broken`() {
+            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
+
+            client.post().uri("/api/user")
+                    .header("Authorization", "Bearer token")
+                    .contentType(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isUnauthorized
+        }
+
+        @Test
+        fun `should return 403 if token belongs to an admin`() {
+            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
+                    .roles("ADMIN")
+                    .username("Professor Farnsworth")
+                    .password("token")
+                    .build()
+
+            client.post().uri("/api/user")
+                    .header("Authorization", "Bearer token")
+                    .contentType(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isForbidden
+        }
+
+        @Test
+        fun `should return successful response if token belongs to a user`() {
+            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
+                    .roles("USER")
+                    .username("Fry")
+                    .password("token")
+                    .build()
+
+            client.post().uri("/api/user")
+                    .header("Authorization", "Bearer token")
+                    .contentType(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isNotFound
         }
     }
 

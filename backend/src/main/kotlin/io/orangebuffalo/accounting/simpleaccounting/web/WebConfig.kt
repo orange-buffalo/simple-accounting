@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web
 
-import io.orangebuffalo.accounting.simpleaccounting.web.api.authentication.TokenAuthenticationFilter
+import io.orangebuffalo.accounting.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.function.server.RouterFunction
@@ -27,8 +29,9 @@ class WebConfig {
     @Bean
     fun securityWebFilterChain(
             http: ServerHttpSecurity,
-            tokenAuthenticationFilter: TokenAuthenticationFilter,
-            errorHandlerFilter: ErrorHandlerFilter): SecurityWebFilterChain {
+            @Qualifier("jwtTokenAuthenticationFilter") jwtTokenAuthenticationFilter: AuthenticationWebFilter
+    ): SecurityWebFilterChain {
+
         return http
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange()
@@ -37,9 +40,10 @@ class WebConfig {
                 .pathMatchers("/admin/**").permitAll()
                 .pathMatchers("/app/**").permitAll()
                 .pathMatchers("/api/login").permitAll()
+                .pathMatchers("/api/admin/**").hasRole("ADMIN")
+                .pathMatchers("/api/user/**").hasRole("USER")
                 .and()
-                .addFilterAt(errorHandlerFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-                .addFilterAt(tokenAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(jwtTokenAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf().disable()
                 .httpBasic().disable()
                 .formLogin().disable()
@@ -48,12 +52,17 @@ class WebConfig {
     }
 
     @Bean
-    fun tokenAuthenticationFilter(authenticationManager: ReactiveAuthenticationManager): TokenAuthenticationFilter {
-        return TokenAuthenticationFilter(authenticationManager)
+    fun jwtTokenAuthenticationConverter(): JwtTokenAuthenticationConverter {
+        return JwtTokenAuthenticationConverter()
     }
 
     @Bean
-    fun errorHandlerFilter(): ErrorHandlerFilter {
-        return ErrorHandlerFilter()
+    fun jwtTokenAuthenticationFilter(
+            authenticationManager: ReactiveAuthenticationManager,
+            jwtTokenAuthenticationConverter: JwtTokenAuthenticationConverter): AuthenticationWebFilter {
+
+        return AuthenticationWebFilter(authenticationManager).apply {
+            setAuthenticationConverter(jwtTokenAuthenticationConverter)
+        }
     }
 }

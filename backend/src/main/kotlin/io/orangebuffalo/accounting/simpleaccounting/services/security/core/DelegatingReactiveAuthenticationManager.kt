@@ -8,7 +8,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
-class AuthenticationManager(
+class DelegatingReactiveAuthenticationManager(
         private val providers: List<ReactiveAuthenticationProvider>
 ) : ReactiveAuthenticationManager {
 

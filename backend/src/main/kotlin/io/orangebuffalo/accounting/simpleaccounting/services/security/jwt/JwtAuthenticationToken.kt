@@ -8,6 +8,10 @@ class JwtAuthenticationToken(
         val user: UserDetails? = null
 ) : AbstractAuthenticationToken(user?.authorities) {
 
+    init {
+        isAuthenticated = user != null
+    }
+
     override fun getCredentials(): Any {
         return token
     }
