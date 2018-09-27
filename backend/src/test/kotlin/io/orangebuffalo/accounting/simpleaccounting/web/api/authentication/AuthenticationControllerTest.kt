@@ -2,13 +2,11 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
 import com.nhaarman.mockito_kotlin.argThat
 import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,8 +17,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.core.userdetails.User
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -30,6 +26,7 @@ import javax.persistence.EntityManager
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@DisplayName("When requesting /api/login, ")
 class AuthenticationControllerTest {
 
     @MockBean
@@ -41,265 +38,152 @@ class AuthenticationControllerTest {
     @Autowired
     lateinit var client: WebTestClient
 
-    @Nested
-    @DisplayName("When requesting /api/login, ")
-    inner class LoginApiTest {
+    @Test
+    fun `should return a JWT token for valid user login credentials`() {
+        whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
 
-        @Test
-        fun `should return a JWT token for valid user login credentials`() {
-            whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
+        whenever(jwtService.buildJwtToken(argThat {
+            username == "Fry"
+                    && password == "qwertyHash"
+                    && authorities.size == 1
+                    && authorities.iterator().next().authority == "ROLE_USER"
+        })) doReturn "jwtTokenForFry"
 
-            whenever(jwtService.buildJwtToken(argThat {
-                username == "Fry"
-                        && password == "qwertyHash"
-                        && authorities.size == 1
-                        && authorities.iterator().next().authority == "ROLE_USER"
-            })) doReturn "jwtTokenForFry"
-
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .syncBody(LoginRequest(
-                            userName = "Fry",
-                            password = "qwerty"
-                    ))
-                    .exchange()
-                    .expectStatus().isOk
-                    .expectBody()
-                    .jsonPath("$.token").isEqualTo("jwtTokenForFry")
-        }
-
-        @Test
-        fun `should return a JWT token for valid admin login credentials`() {
-            whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
-
-            whenever(jwtService.buildJwtToken(argThat {
-                username == "Farnsworth"
-                        && password == "qwertyHash"
-                        && authorities.size == 1
-                        && authorities.iterator().next().authority == "ROLE_ADMIN"
-            })) doReturn "jwtTokenForFarnsworth"
-
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .syncBody(LoginRequest(
-                            userName = "Farnsworth",
-                            password = "qwerty"
-                    ))
-                    .exchange()
-                    .expectStatus().isOk
-                    .expectBody()
-                    .jsonPath("$.token").isEqualTo("jwtTokenForFarnsworth")
-        }
-
-        @Test
-        fun `should return 403 when user is unknown`() {
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .syncBody(LoginRequest(
-                            userName = "Roberto",
-                            password = "qwerty"
-                    ))
-                    .exchange()
-                    .expectStatus().isForbidden
-                    .expectBody().isEmpty
-        }
-
-        @Test
-        fun `should return 403 when password does not match`() {
-            whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
-
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .syncBody(LoginRequest(
-                            userName = "Fry",
-                            password = "qwerty"
-                    ))
-                    .exchange()
-                    .expectStatus().isForbidden
-                    .expectBody().isEmpty
-        }
-
-        @Test
-        fun `should return 400 when request body is empty`() {
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isBadRequest
-                    .expectBody<String>()
-                    .consumeWith {
-                        assertThat(it.responseBody).containsIgnoringCase("request body is missing")
-                    }
-        }
-
-        @Test
-        fun `should return 400 on invalid request body`() {
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .syncBody("{}")
-                    .exchange()
-                    .expectStatus().isBadRequest
-                    .expectBody<String>()
-                    .consumeWith {
-                        assertThat(it.responseBody).containsIgnoringCase("value failed for JSON property userName")
-                    }
-        }
-
-        @Test
-        fun `should return 400 on non-json request body`() {
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .syncBody("hello")
-                    .exchange()
-                    .expectStatus().isBadRequest
-                    .expectBody<String>()
-                    .consumeWith {
-                        assertThat(it.responseBody).containsIgnoringCase("JSON decoding error")
-                    }
-        }
-
-        @Test
-        fun `should return 400 when username is missing in a request`() {
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .syncBody(LoginRequest(
-                            userName = "",
-                            password = "qwerty"
-                    ))
-                    .exchange()
-                    .expectStatus().isBadRequest
-                    .expectBody<String>()
-                    .consumeWith {
-                        assertThat(it.responseBody)
-                                .containsIgnoringCase("username")
-                                .containsIgnoringCase("must not be blank")
-                    }
-        }
-
-        @Test
-        fun `Should return 400 when password is missing in a login request`() {
-            client.post().uri("/api/login")
-                    .contentType(APPLICATION_JSON)
-                    .syncBody(LoginRequest(
-                            userName = "Fry",
-                            password = ""
-                    ))
-                    .exchange()
-                    .expectStatus().isBadRequest
-                    .expectBody<String>()
-                    .consumeWith {
-                        assertThat(it.responseBody)
-                                .containsIgnoringCase("password")
-                                .containsIgnoringCase("must not be blank")
-                    }
-        }
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .syncBody(LoginRequest(
+                        userName = "Fry",
+                        password = "qwerty"
+                ))
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.token").isEqualTo("jwtTokenForFry")
     }
 
-    @Nested
-    @DisplayName("When requesting /api/admin, ")
-    inner class AdminApiTest {
+    @Test
+    fun `should return a JWT token for valid admin login credentials`() {
+        whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
 
-        @Test
-        fun `should return 401 if token is missing`() {
-            client.post().uri("/api/admin")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isUnauthorized
-        }
+        whenever(jwtService.buildJwtToken(argThat {
+            username == "Farnsworth"
+                    && password == "qwertyHash"
+                    && authorities.size == 1
+                    && authorities.iterator().next().authority == "ROLE_ADMIN"
+        })) doReturn "jwtTokenForFarnsworth"
 
-        @Test
-        fun `should return 401 if token is broken`() {
-            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
-
-            client.post().uri("/api/admin")
-                    .header("Authorization", "Bearer token")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isUnauthorized
-        }
-
-        @Test
-        fun `should return 403 if token belongs to a user`() {
-            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
-                    .roles("USER")
-                    .username("Fry")
-                    .password("token")
-                    .build()
-
-            client.post().uri("/api/admin")
-                    .header("Authorization", "Bearer token")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isForbidden
-        }
-
-        @Test
-        fun `should return successful response if token belongs to an admin`() {
-            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
-                    .roles("ADMIN")
-                    .username("Professor Farnsworth")
-                    .password("token")
-                    .build()
-
-            client.post().uri("/api/admin")
-                    .header("Authorization", "Bearer token")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isNotFound
-        }
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .syncBody(LoginRequest(
+                        userName = "Farnsworth",
+                        password = "qwerty"
+                ))
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.token").isEqualTo("jwtTokenForFarnsworth")
     }
 
-    @Nested
-    @DisplayName("When requesting /api/user, ")
-    inner class UserApiTest {
+    @Test
+    fun `should return 403 when user is unknown`() {
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .syncBody(LoginRequest(
+                        userName = "Roberto",
+                        password = "qwerty"
+                ))
+                .exchange()
+                .expectStatus().isForbidden
+                .expectBody().isEmpty
+    }
 
-        @Test
-        fun `should return 401 if token is missing`() {
-            client.post().uri("/api/user")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isUnauthorized
-        }
+    @Test
+    fun `should return 403 when password does not match`() {
+        whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        @Test
-        fun `should return 401 if token is broken`() {
-            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .syncBody(LoginRequest(
+                        userName = "Fry",
+                        password = "qwerty"
+                ))
+                .exchange()
+                .expectStatus().isForbidden
+                .expectBody().isEmpty
+    }
 
-            client.post().uri("/api/user")
-                    .header("Authorization", "Bearer token")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isUnauthorized
-        }
+    @Test
+    fun `should return 400 when request body is empty`() {
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isBadRequest
+                .expectBody<String>()
+                .consumeWith {
+                    assertThat(it.responseBody).containsIgnoringCase("request body is missing")
+                }
+    }
 
-        @Test
-        fun `should return 403 if token belongs to an admin`() {
-            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
-                    .roles("ADMIN")
-                    .username("Professor Farnsworth")
-                    .password("token")
-                    .build()
+    @Test
+    fun `should return 400 on invalid request body`() {
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .syncBody("{}")
+                .exchange()
+                .expectStatus().isBadRequest
+                .expectBody<String>()
+                .consumeWith {
+                    assertThat(it.responseBody).containsIgnoringCase("value failed for JSON property userName")
+                }
+    }
 
-            client.post().uri("/api/user")
-                    .header("Authorization", "Bearer token")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isForbidden
-        }
+    @Test
+    fun `should return 400 on non-json request body`() {
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .syncBody("hello")
+                .exchange()
+                .expectStatus().isBadRequest
+                .expectBody<String>()
+                .consumeWith {
+                    assertThat(it.responseBody).containsIgnoringCase("JSON decoding error")
+                }
+    }
 
-        @Test
-        fun `should return successful response if token belongs to a user`() {
-            whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
-                    .roles("USER")
-                    .username("Fry")
-                    .password("token")
-                    .build()
+    @Test
+    fun `should return 400 when username is missing in a request`() {
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .syncBody(LoginRequest(
+                        userName = "",
+                        password = "qwerty"
+                ))
+                .exchange()
+                .expectStatus().isBadRequest
+                .expectBody<String>()
+                .consumeWith {
+                    assertThat(it.responseBody)
+                            .containsIgnoringCase("username")
+                            .containsIgnoringCase("must not be blank")
+                }
+    }
 
-            client.post().uri("/api/user")
-                    .header("Authorization", "Bearer token")
-                    .contentType(APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isNotFound
-        }
+    @Test
+    fun `Should return 400 when password is missing in a login request`() {
+        client.post().uri("/api/login")
+                .contentType(APPLICATION_JSON)
+                .syncBody(LoginRequest(
+                        userName = "Fry",
+                        password = ""
+                ))
+                .exchange()
+                .expectStatus().isBadRequest
+                .expectBody<String>()
+                .consumeWith {
+                    assertThat(it.responseBody)
+                            .containsIgnoringCase("password")
+                            .containsIgnoringCase("must not be blank")
+                }
     }
 
     @TestConfiguration
