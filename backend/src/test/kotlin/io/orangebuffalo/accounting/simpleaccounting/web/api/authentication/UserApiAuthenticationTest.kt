@@ -8,11 +8,9 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.ApplicationContext
-import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.User
@@ -22,6 +20,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("When requesting /api/user, ")
+@AutoConfigureWebTestClient
 class UserApiAuthenticationTest {
 
     @MockBean
@@ -77,14 +76,5 @@ class UserApiAuthenticationTest {
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isNotFound
-    }
-
-    @TestConfiguration
-    class Config {
-
-        @Bean
-        fun webClient(applicationContext: ApplicationContext): WebTestClient {
-            return WebTestClient.bindToApplicationContext(applicationContext).build()
-        }
     }
 }
