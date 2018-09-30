@@ -17,9 +17,11 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
+private const val USER_PATH = "/api/v1/user"
+
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@DisplayName("When requesting /api/user, ")
+@DisplayName("When requesting $USER_PATH, ")
 @AutoConfigureWebTestClient
 class UserApiAuthenticationTest {
 
@@ -31,7 +33,7 @@ class UserApiAuthenticationTest {
 
     @Test
     fun `should return 401 if token is missing`() {
-        client.post().uri("/api/user")
+        client.post().uri(USER_PATH)
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isUnauthorized
@@ -41,7 +43,7 @@ class UserApiAuthenticationTest {
     fun `should return 401 if token is broken`() {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
 
-        client.post().uri("/api/user")
+        client.post().uri(USER_PATH)
                 .header("Authorization", "Bearer token")
                 .contentType(APPLICATION_JSON)
                 .exchange()
@@ -56,7 +58,7 @@ class UserApiAuthenticationTest {
                 .password("token")
                 .build()
 
-        client.post().uri("/api/user")
+        client.post().uri(USER_PATH)
                 .header("Authorization", "Bearer token")
                 .contentType(APPLICATION_JSON)
                 .exchange()
@@ -71,7 +73,7 @@ class UserApiAuthenticationTest {
                 .password("token")
                 .build()
 
-        client.post().uri("/api/user")
+        client.post().uri(USER_PATH)
                 .header("Authorization", "Bearer token")
                 .contentType(APPLICATION_JSON)
                 .exchange()

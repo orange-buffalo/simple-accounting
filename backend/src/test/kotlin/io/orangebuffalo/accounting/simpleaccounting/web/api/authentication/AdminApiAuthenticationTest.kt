@@ -17,9 +17,11 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
+private const val ADMIN_PATH = "/api/v1/admin"
+
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@DisplayName("When requesting /api/admin, ")
+@DisplayName("When requesting $ADMIN_PATH, ")
 @AutoConfigureWebTestClient
 class AdminApiAuthenticationTest {
 
@@ -31,7 +33,7 @@ class AdminApiAuthenticationTest {
 
     @Test
     fun `should return 401 if token is missing`() {
-        client.post().uri("/api/admin")
+        client.post().uri(ADMIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isUnauthorized
@@ -41,7 +43,7 @@ class AdminApiAuthenticationTest {
     fun `should return 401 if token is broken`() {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
 
-        client.post().uri("/api/admin")
+        client.post().uri(ADMIN_PATH)
                 .header("Authorization", "Bearer token")
                 .contentType(APPLICATION_JSON)
                 .exchange()
@@ -56,7 +58,7 @@ class AdminApiAuthenticationTest {
                 .password("token")
                 .build()
 
-        client.post().uri("/api/admin")
+        client.post().uri(ADMIN_PATH)
                 .header("Authorization", "Bearer token")
                 .contentType(APPLICATION_JSON)
                 .exchange()
@@ -71,7 +73,7 @@ class AdminApiAuthenticationTest {
                 .password("token")
                 .build()
 
-        client.post().uri("/api/admin")
+        client.post().uri(ADMIN_PATH)
                 .header("Authorization", "Bearer token")
                 .contentType(APPLICATION_JSON)
                 .exchange()

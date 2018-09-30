@@ -24,11 +24,13 @@ import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.support.TransactionTemplate
 import javax.persistence.EntityManager
 
+private const val LOGIN_PATH = "/api/v1/auth/login"
+
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@DisplayName("When requesting /api/login, ")
+@DisplayName("When requesting $LOGIN_PATH, ")
 @AutoConfigureWebTestClient
-class AuthenticationControllerTest {
+class LoginControllerTest {
 
     @MockBean
     lateinit var passwordEncoder: PasswordEncoder
@@ -50,7 +52,7 @@ class AuthenticationControllerTest {
                     && authorities.iterator().next().authority == "ROLE_USER"
         })) doReturn "jwtTokenForFry"
 
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .syncBody(LoginRequest(
                         userName = "Fry",
@@ -73,7 +75,7 @@ class AuthenticationControllerTest {
                     && authorities.iterator().next().authority == "ROLE_ADMIN"
         })) doReturn "jwtTokenForFarnsworth"
 
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .syncBody(LoginRequest(
                         userName = "Farnsworth",
@@ -87,7 +89,7 @@ class AuthenticationControllerTest {
 
     @Test
     fun `should return 403 when user is unknown`() {
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .syncBody(LoginRequest(
                         userName = "Roberto",
@@ -102,7 +104,7 @@ class AuthenticationControllerTest {
     fun `should return 403 when password does not match`() {
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .syncBody(LoginRequest(
                         userName = "Fry",
@@ -115,7 +117,7 @@ class AuthenticationControllerTest {
 
     @Test
     fun `should return 400 when request body is empty`() {
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isBadRequest
@@ -127,7 +129,7 @@ class AuthenticationControllerTest {
 
     @Test
     fun `should return 400 on invalid request body`() {
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .syncBody("{}")
                 .exchange()
@@ -140,7 +142,7 @@ class AuthenticationControllerTest {
 
     @Test
     fun `should return 400 on non-json request body`() {
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .syncBody("hello")
                 .exchange()
@@ -153,7 +155,7 @@ class AuthenticationControllerTest {
 
     @Test
     fun `should return 400 when username is missing in a request`() {
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .syncBody(LoginRequest(
                         userName = "",
@@ -171,7 +173,7 @@ class AuthenticationControllerTest {
 
     @Test
     fun `Should return 400 when password is missing in a login request`() {
-        client.post().uri("/api/login")
+        client.post().uri(LOGIN_PATH)
                 .contentType(APPLICATION_JSON)
                 .syncBody(LoginRequest(
                         userName = "Fry",

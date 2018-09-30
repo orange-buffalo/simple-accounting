@@ -21,6 +21,8 @@ import org.springframework.web.reactive.function.server.ServerResponse
 @EnableWebFlux
 @EnableWebFluxSecurity
 class WebConfig {
+
+    //TODO move to static resources controller
     @Bean
     fun staticResourceRouter(): RouterFunction<ServerResponse> {
         return resources("/**", ClassPathResource("META-INF/resources/"))
@@ -39,9 +41,9 @@ class WebConfig {
                 .pathMatchers("/static/**").permitAll()
                 .pathMatchers("/admin/**").permitAll()
                 .pathMatchers("/app/**").permitAll()
-                .pathMatchers("/api/login").permitAll()
-                .pathMatchers("/api/admin/**").hasRole("ADMIN")
-                .pathMatchers("/api/user/**").hasRole("USER")
+                .pathMatchers("/api/v1/auth/**").permitAll()
+                .pathMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                .pathMatchers("/api/v1/user/**").hasRole("USER")
                 .and()
                 .addFilterAt(jwtTokenAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf().disable()

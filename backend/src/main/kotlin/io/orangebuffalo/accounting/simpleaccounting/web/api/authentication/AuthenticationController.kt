@@ -15,7 +15,7 @@ import javax.validation.Valid
 import kotlin.reflect.full.cast
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("api/v1/auth")
 class AuthenticationController(
         private val authenticationManager: DelegatingReactiveAuthenticationManager,
         private val jwtService: JwtService
