@@ -23,9 +23,7 @@ module.exports = {
         { from: /./, to: '/views/404.html' }
       ]
     } ,
-    port: 9091
-    // proxy: {
-    //
-    // }
+    port: 9091,
+    proxy: 'http://localhost:9393'
   }
 }

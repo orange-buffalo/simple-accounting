@@ -1,5 +1,6 @@
 <template>
-  <div class="about">
-    <h1>This is an about admin page</h1>
+  <div>
+    <h1>About admin page</h1>
+    <router-link to="/">Home</router-link>
   </div>
 </template>
