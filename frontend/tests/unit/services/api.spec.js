@@ -1,6 +1,5 @@
 import {assert} from 'chai'
-import * as apiStoreModule from '@/services/api-store'
-import api from '@/services/api'
+import {initApi, api} from '@/services/api'
 
 require('jsdom-global')(null, {
   url: "http://localhost/"
@@ -9,19 +8,24 @@ require('jsdom-global')(null, {
 describe('api service', () => {
 
   let server;
-  let jwtTokenStub;
+  let storeStub = {
+    state: {
+      api: {
+        jwtToken: undefined
+      }
+    }
+  }
 
   beforeEach(() => {
     let sinon = require('sinon')
     server = sinon.useFakeServer();
     global.XMLHttpRequest = global.window.XMLHttpRequest
-    jwtTokenStub = sinon.stub(apiStoreModule.store.state, 'jwtToken')
+    initApi(storeStub)
   });
 
   afterEach(() => {
     server.restore();
     global.XMLHttpRequest = global.window.XMLHttpRequest
-    jwtTokenStub.restore()
   });
 
   function respond() {
@@ -29,7 +33,7 @@ describe('api service', () => {
   }
 
   it('adds a token to headers when present', (done) => {
-    jwtTokenStub.get(() => 'token')
+    storeStub.state.api.jwtToken = 'token'
 
     server.respondWith([200, {}, ""])
 
@@ -45,7 +49,7 @@ describe('api service', () => {
   })
 
   it('does not set Authorization token when token is not defined', (done) => {
-    jwtTokenStub.get(() => undefined)
+    storeStub.state.api.jwtToken = undefined
 
     server.respondWith([200, {}, ""])
 

@@ -1,15 +1,17 @@
 import axios from 'axios'
-import apiStore from './api-store'
 
 const _api = axios.create({
   baseURL: '/api/v1',
   timeout: 2000
 })
 
+let $store
+
 _api.interceptors.request.use(
     config => {
-      if (apiStore.state.jwtToken) {
-        config.headers['Authorization'] = `Bearer: ${apiStore.state.jwtToken}`
+      let jwtToken = $store.state.api.jwtToken
+      if (jwtToken) {
+        config.headers['Authorization'] = `Bearer: ${jwtToken}`
       }
       return config;
     },
@@ -25,3 +27,6 @@ _api.interceptors.response.use(
 
 export default _api
 export const api = _api
+export const initApi = function (store) {
+  $store = store
+}

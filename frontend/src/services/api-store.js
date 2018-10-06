@@ -1,9 +1,6 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+let _apiStore = {
+  namespaced: true,
 
-Vue.use(Vuex)
-
-let _apiStore = new Vuex.Store({
   state: {
      jwtToken: null
   },
@@ -17,7 +14,7 @@ let _apiStore = new Vuex.Store({
   actions: {
 
   }
-})
+}
 
 export default _apiStore
 export const store = _apiStore
