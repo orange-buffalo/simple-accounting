@@ -1,5 +1,6 @@
 import {assert} from 'chai'
-import {initApi, api} from '@/services/api'
+import {initApi, api, LOGIN_REQUIRED_EVENT} from '@/services/api'
+import * as eventBus from 'eventbusjs'
 
 require('jsdom-global')(null, {
   url: "http://localhost/"
@@ -7,7 +8,7 @@ require('jsdom-global')(null, {
 
 describe('api service', () => {
 
-  let server;
+  let server
   let storeStub = {
     state: {
       api: {
@@ -15,21 +16,24 @@ describe('api service', () => {
       }
     }
   }
+  let dispatchStub
 
   beforeEach(() => {
     let sinon = require('sinon')
     server = sinon.useFakeServer();
     global.XMLHttpRequest = global.window.XMLHttpRequest
     initApi(storeStub)
-  });
+    dispatchStub = sinon.stub(eventBus, 'dispatch')
+  })
 
   afterEach(() => {
     server.restore();
     global.XMLHttpRequest = global.window.XMLHttpRequest
-  });
+    dispatchStub.restore()
+  })
 
   function respond() {
-    setTimeout(() => server.respond(), 0);
+    setTimeout(() => server.respond(), 0)
   }
 
   it('adds a token to headers when present', (done) => {
@@ -57,6 +61,34 @@ describe('api service', () => {
         .then(() => {
           assert.equal(server.requests.length, 1)
           assert.notProperty(server.requests[0].requestHeaders, 'Authorization')
+          done()
+        })
+        .catch(done)
+
+    respond()
+  })
+
+  it('fires "' + LOGIN_REQUIRED_EVENT + '" event when 401 is received', (done) => {
+    server.respondWith([401, {}, ""])
+
+    api.get('/api-call')
+        .then(() => {
+          done(Error('should not call success callback'))
+        })
+        .catch(() => {
+          assert(dispatchStub.withArgs(LOGIN_REQUIRED_EVENT).calledOnce, 'expecting event about required login')
+          done()
+        })
+
+    respond()
+  })
+
+  it('does not fire any events on successful responses', (done) => {
+    server.respondWith([200, {}, ""])
+
+    api.get('/api-call')
+        .then(() => {
+          assert(dispatchStub.notCalled, 'expecting no events')
           done()
         })
         .catch(done)
