@@ -19,8 +19,10 @@
     "@vue/cli-service": "^3.0.4",
     "@vue/test-utils": "^1.0.0-beta.25",
     "chai": "^4.2.0",
+    "mocha": "^5.2.0",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
+    "sinon": "^6.3.5",
     "vue-template-compiler": "^2.5.17"
   },
   "postcss": {
