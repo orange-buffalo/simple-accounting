@@ -12,6 +12,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions.resources
@@ -64,6 +65,8 @@ class WebConfig {
             jwtTokenAuthenticationConverter: JwtTokenAuthenticationConverter): AuthenticationWebFilter {
 
         return AuthenticationWebFilter(authenticationManager).apply {
+            setRequiresAuthenticationMatcher(
+                    ServerWebExchangeMatchers.pathMatchers("/api/v1/admin/**", "/api/v1/user/**"))
             setAuthenticationConverter(jwtTokenAuthenticationConverter)
         }
     }
