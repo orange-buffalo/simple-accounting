@@ -34,4 +34,12 @@ class RestApiControllerAdvice {
                 .body(exception.message))
     }
 
+    @ExceptionHandler
+    fun onException(exception: ApiValidationException): Mono<ResponseEntity<String>> {
+        logger.info(exception) { "Bad request: $exception" }
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exception.message))
+    }
+
 }

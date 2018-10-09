@@ -1,9 +1,12 @@
 package io.orangebuffalo.accounting.simpleaccounting.web
 
 import io.orangebuffalo.accounting.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
+import io.orangebuffalo.accounting.simpleaccounting.web.api.utils.ApiPageRequestResolver
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.core.io.ClassPathResource
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
@@ -14,19 +17,27 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.web.reactive.config.EnableWebFlux
+import org.springframework.web.reactive.config.WebFluxConfigurer
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions.resources
 import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer
 
 @Configuration
 @EnableWebFlux
 @EnableWebFluxSecurity
-class WebConfig {
+class WebConfig(
+        @Autowired(required = false) private val adapterRegistry: ReactiveAdapterRegistry = ReactiveAdapterRegistry()
+) : WebFluxConfigurer {
 
     //TODO move to static resources controller
     @Bean
     fun staticResourceRouter(): RouterFunction<ServerResponse> {
         return resources("/**", ClassPathResource("META-INF/resources/"))
+    }
+
+    override fun configureArgumentResolvers(configurer: ArgumentResolverConfigurer) {
+        configurer.addCustomResolver(ApiPageRequestResolver(adapterRegistry))
     }
 
     @Bean
