@@ -1,7 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.admin
 
-import io.orangebuffalo.accounting.simpleaccounting.web.api.utils.ApiDto
-import io.orangebuffalo.accounting.simpleaccounting.web.api.utils.ApiPageRequest
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiDto
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired

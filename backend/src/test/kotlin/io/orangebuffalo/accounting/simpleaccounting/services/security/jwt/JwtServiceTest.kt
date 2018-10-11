@@ -8,7 +8,8 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.User
 import java.util.*
 
-const val BAD_TOKEN = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJGcnkiLCJhdXRob3JpdGllcyI6WyJST0xFX0RFTElWRVJZX0JPWSJdfQ.invalid"
+private const val BAD_TOKEN =
+        "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJGcnkiLCJhdXRob3JpdGllcyI6WyJST0xFX0RFTElWRVJZX0JPWSJdfQ.invalid"
 
 class JwtServiceTest {
 

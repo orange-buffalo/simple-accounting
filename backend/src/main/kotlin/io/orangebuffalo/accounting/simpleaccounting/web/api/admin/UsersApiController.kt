@@ -1,5 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.admin
 
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -51,5 +54,15 @@ class UsersApiController {
 
 data class ApiUser(
         var userName: String,
-        var id: Long,
+        var id: Long?,
         var version: Int)
+
+@Component
+class ApiUserPropertyMap
+    : ApiDtoMapperAdapter<PlatformUser, ApiUser>(PlatformUser::class.java, ApiUser::class.java) {
+
+    override fun map(source: PlatformUser): ApiUser = ApiUser(
+            userName = source.userName,
+            id = source.id,
+            version = source.version)
+}

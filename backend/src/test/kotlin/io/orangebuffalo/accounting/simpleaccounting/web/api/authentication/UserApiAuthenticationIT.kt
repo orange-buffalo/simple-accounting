@@ -23,7 +23,7 @@ private const val USER_PATH = "/api/v1/user"
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("When requesting $USER_PATH, ")
 @AutoConfigureWebTestClient
-class UserApiAuthenticationTest {
+class UserApiAuthenticationIT {
 
     @MockBean
     lateinit var jwtService: JwtService

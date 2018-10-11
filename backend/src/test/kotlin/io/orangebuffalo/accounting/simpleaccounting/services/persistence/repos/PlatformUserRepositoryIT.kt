@@ -15,7 +15,7 @@ import javax.persistence.EntityManager
 @SpringBootTest
 @Transactional
 @TestPropertySource(properties = ["logging.level.org.hibernate.SQL=DEBUG"])
-class PlatformUserRepositoryTest {
+class PlatformUserRepositoryIT {
 
     @Autowired
     lateinit var entityManager: EntityManager

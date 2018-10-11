@@ -102,3 +102,11 @@ task copyFrontend(type: DefaultTask) {
 
     dependsOn ':frontend:build'
 }
+
+test {
+    useJUnitPlatform()
+
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+}

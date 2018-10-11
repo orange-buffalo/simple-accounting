@@ -23,7 +23,7 @@ private const val ADMIN_PATH = "/api/v1/admin"
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("When requesting $ADMIN_PATH, ")
 @AutoConfigureWebTestClient
-class AdminApiAuthenticationTest {
+class AdminApiAuthenticationIT {
 
     @MockBean
     lateinit var jwtService: JwtService

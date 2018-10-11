@@ -1,7 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web
 
 import io.orangebuffalo.accounting.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
-import io.orangebuffalo.accounting.simpleaccounting.web.api.utils.ApiPageRequestResolver
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequestResolver
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean

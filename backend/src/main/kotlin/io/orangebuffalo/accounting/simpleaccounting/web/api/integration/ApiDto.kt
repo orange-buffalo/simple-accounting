@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.web.api.utils
+package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import kotlin.reflect.KClass
 

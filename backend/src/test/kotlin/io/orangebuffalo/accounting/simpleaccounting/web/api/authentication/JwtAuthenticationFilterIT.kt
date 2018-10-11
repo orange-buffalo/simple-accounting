@@ -17,7 +17,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
-class JwtAuthenticationFilterTest {
+class JwtAuthenticationFilterIT {
 
     @MockBean
     lateinit var jwtService: JwtService

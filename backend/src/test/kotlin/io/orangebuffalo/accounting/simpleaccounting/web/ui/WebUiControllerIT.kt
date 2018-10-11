@@ -14,7 +14,7 @@ import org.springframework.test.web.reactive.server.expectBody
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-internal class WebUiControllerTest {
+internal class WebUiControllerIT {
 
     @Autowired
     lateinit var applicationContext: ApplicationContext

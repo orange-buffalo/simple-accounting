@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.web.api.utils
+package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import org.springframework.core.MethodParameter
 import org.springframework.core.ReactiveAdapterRegistry
@@ -7,7 +7,6 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.reactive.result.method.SyncHandlerMethodArgumentResolver
 import org.springframework.web.server.ServerWebExchange
 
-//@Component
 class ApiPageRequestResolver(
         adapterRegistry: ReactiveAdapterRegistry
 ) : HandlerMethodArgumentResolverSupport(adapterRegistry), SyncHandlerMethodArgumentResolver {

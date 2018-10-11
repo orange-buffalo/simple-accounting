@@ -30,7 +30,7 @@ private const val LOGIN_PATH = "/api/v1/auth/login"
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("When requesting $LOGIN_PATH, ")
 @AutoConfigureWebTestClient
-class LoginControllerTest {
+class LoginControllerIT {
 
     @MockBean
     lateinit var passwordEncoder: PasswordEncoder
