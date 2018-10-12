@@ -15,8 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.core.MethodParameter
 import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.http.codec.HttpMessageWriter
 import org.springframework.http.codec.ServerCodecConfigurer
@@ -91,33 +89,6 @@ internal class ApiPageResultHandlerTest {
         assertThat(actualException.message).startsWith("Missing @ApiDto at")
     }
 
-    @Test
-    fun `should map the page`() {
-        val mono = handler.handleResult(serverWebExchange, HandlerResult(
-                this,
-                Mono.just(PageImpl<RepositoryUser>(
-                        listOf(
-                                RepositoryUser(
-                                        "Leela",
-                                        1,
-                                        0,
-                                        "&#@*(@#(MG;dfd6yrtFdl3'0s*^"
-                                ),
-                                RepositoryUser(
-                                        "Fry",
-                                        2,
-                                        1,
-                                        "qwerty"
-                                )
-                        ),
-                        PageRequest.of(2, 10),
-                        42
-                )),
-                getMethodParameter("apiPageCall")
-        ))
-        mono.block()
-    }
-
     private fun getMethodParameter(methodName: String): MethodParameter {
         return MethodParameter.forExecutable(
                 TestController::class.java.getDeclaredMethod(methodName), -1)
@@ -139,28 +110,5 @@ internal class ApiPageResultHandlerTest {
         fun nonMonoControllerMethod(): Page<*> {
             return Page.empty<Any>()
         }
-
-        @GetMapping
-        @ApiDto(ApiUser::class)
-        fun apiPageCall(): Mono<Page<RepositoryUser>> {
-            return Mono.empty()
-        }
     }
-
-    data class ApiUser(
-            var userName: String,
-            var id: Long,
-            var version: Int)
-
-    data class RepositoryUser(
-            var userName: String,
-            var id: Long,
-            var version: Int,
-            var password: String)
 }
-
-
-
-
-
-

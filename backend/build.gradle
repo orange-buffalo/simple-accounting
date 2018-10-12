@@ -107,6 +107,6 @@ test {
     useJUnitPlatform()
 
     beforeTest { descriptor ->
-        logger.lifecycle("Running test: " + descriptor)
+        logger.lifecycle("Running test: $descriptor")
     }
 }
