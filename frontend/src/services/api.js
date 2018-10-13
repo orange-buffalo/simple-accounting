@@ -12,7 +12,7 @@ _api.interceptors.request.use(
     config => {
       let jwtToken = $store.state.api.jwtToken
       if (jwtToken) {
-        config.headers['Authorization'] = `Bearer: ${jwtToken}`
+        config.headers['Authorization'] = `Bearer ${jwtToken}`
       }
       return config;
     },

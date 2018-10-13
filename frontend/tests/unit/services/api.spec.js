@@ -44,7 +44,7 @@ describe('api service', () => {
     api.get('/api-call')
         .then(() => {
           assert.equal(server.requests.length, 1)
-          assert.include(server.requests[0].requestHeaders, {'Authorization': 'Bearer: token'})
+          assert.include(server.requests[0].requestHeaders, {'Authorization': 'Bearer token'})
           done()
         })
         .catch(done)
