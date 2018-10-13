@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 import org.springframework.core.MethodParameter
 import org.springframework.core.ReactiveAdapterRegistry
+import org.springframework.data.domain.Sort
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -136,6 +137,17 @@ internal class ApiPageRequestResolverTest {
         queryParams.add("page", "o_O")
 
         invokeResolveArgumentAndAssertValidationError("Invalid 'page' parameter value 'o_O'")
+    }
+
+    @Test
+    fun `should set the default sorting to 'by ID'`() {
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest()
+
+        assertThat(resolvedPageRequest.page).isNotNull
+        assertThat(resolvedPageRequest.page.sort).isNotNull
+        val idOrder = resolvedPageRequest.page.sort.getOrderFor("id")
+        assertThat(idOrder).isNotNull
+        assertThat(idOrder?.direction).isEqualTo(Sort.Direction.DESC)
     }
 
     private fun invokeResolveArgumentAndAssertValidationError(expectedMessage: String) {

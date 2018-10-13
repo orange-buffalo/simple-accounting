@@ -7,6 +7,7 @@ import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationExcepti
 import org.springframework.core.MethodParameter
 import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.BindingContext
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolverSupport
@@ -37,8 +38,22 @@ class ApiPageRequestResolver(
                     validateAndGetParameter("page", 0, exchange.request.queryParams)
                             .map { pageNumber -> PageRequest.of(pageNumber, pageRequest.pageSize) }
                 }
+                .flatMap { pageRequest ->
+                    validateAndGetSort(exchange.request.queryParams)
+                            .map { sort -> PageRequest.of(
+                                    pageRequest.pageNumber,
+                                    pageRequest.pageSize,
+                                    sort)
+                            }
+                }
                 .map { page -> ApiPageRequest(page = page) }
                 .fold({ pageRequest -> Mono.just(pageRequest) }, { error -> Mono.error(error) })
+    }
+
+    private fun validateAndGetSort(queryParams: MultiValueMap<String, String>): Result<Sort, ApiValidationException> {
+        return Result.of {
+            Sort.by(Sort.Direction.DESC, "id")
+        }
     }
 
     private fun validateAndGetParameter(
