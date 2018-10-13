@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.admin
 
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiDto
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
@@ -13,19 +14,22 @@ import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/api/v1/admin/users")
-class UsersApiController {
+class UsersApiController(
+        private val userService: PlatformUserService
+) {
 
     @GetMapping
     @ApiDto(ApiUser::class)
     fun getUsers(pageRequest: ApiPageRequest): Mono<Page<PlatformUser>> {
-        return Mono.empty()
+        return userService.getUsers(pageRequest.page)
     }
 }
 
 data class ApiUser(
         var userName: String,
         var id: Long?,
-        var version: Int)
+        var version: Int,
+        var admin: Boolean)
 
 @Component
 class ApiUserPropertyMap
@@ -34,5 +38,6 @@ class ApiUserPropertyMap
     override fun map(source: PlatformUser): ApiUser = ApiUser(
             userName = source.userName,
             id = source.id,
-            version = source.version)
+            version = source.version,
+            admin = source.isAdmin)
 }
