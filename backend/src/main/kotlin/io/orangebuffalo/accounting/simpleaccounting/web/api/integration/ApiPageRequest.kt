@@ -1,4 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
-class ApiPageRequest {
-}
+import org.springframework.data.domain.Pageable
+
+class ApiPageRequest(
+        val page: Pageable
+)

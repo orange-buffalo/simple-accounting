@@ -39,6 +39,7 @@ compileTestKotlin {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencyManagement {
@@ -58,6 +59,7 @@ dependencies {
     compile('org.jetbrains.kotlin:kotlin-reflect')
     compile('io.github.microutils:kotlin-logging:1.6.10')
     compile('io.jsonwebtoken:jjwt-api:0.10.5')
+    compile('com.github.kittinunf.result:result:1.5.0')
 
     runtime('org.flywaydb:flyway-core')
     runtime('com.h2database:h2')
