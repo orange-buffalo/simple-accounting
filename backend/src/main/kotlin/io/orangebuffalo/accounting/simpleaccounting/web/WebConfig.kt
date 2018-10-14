@@ -8,12 +8,15 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.core.io.ClassPathResource
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
+import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.web.reactive.config.EnableWebFlux
@@ -22,6 +25,7 @@ import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.RouterFunctions.resources
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer
+import reactor.core.publisher.Mono
 
 @Configuration
 @EnableWebFlux
@@ -57,12 +61,23 @@ class WebConfig(
                 .pathMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .pathMatchers("/api/v1/user/**").hasRole("USER")
                 .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(bearerAuthenticationEntryPoint())
+                .and()
                 .addFilterAt(jwtTokenAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf().disable()
                 .httpBasic().disable()
                 .formLogin().disable()
                 .logout().disable()
                 .build()
+    }
+
+    private fun bearerAuthenticationEntryPoint() = ServerAuthenticationEntryPoint { exchange, _ ->
+        Mono.fromRunnable {
+            val response = exchange.response
+            response.statusCode = HttpStatus.UNAUTHORIZED
+            response.headers.set("WWW-Authenticate", "Bearer")
+        }
     }
 
     @Bean
@@ -79,6 +94,8 @@ class WebConfig(
             setRequiresAuthenticationMatcher(
                     ServerWebExchangeMatchers.pathMatchers("/api/v1/admin/**", "/api/v1/user/**"))
             setAuthenticationConverter(jwtTokenAuthenticationConverter)
+            setAuthenticationFailureHandler(
+                    ServerAuthenticationEntryPointFailureHandler(bearerAuthenticationEntryPoint()))
         }
     }
 }

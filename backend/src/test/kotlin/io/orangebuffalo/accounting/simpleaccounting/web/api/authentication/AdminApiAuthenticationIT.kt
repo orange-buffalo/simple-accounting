@@ -37,6 +37,7 @@ class AdminApiAuthenticationIT {
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isUnauthorized
+                .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
     }
 
     @Test
@@ -48,6 +49,7 @@ class AdminApiAuthenticationIT {
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isUnauthorized
+                .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
     }
 
     @Test
