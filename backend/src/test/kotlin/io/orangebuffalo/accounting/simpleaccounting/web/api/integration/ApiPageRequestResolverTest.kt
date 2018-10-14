@@ -128,7 +128,7 @@ internal class ApiPageRequestResolverTest {
         val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest()
 
         assertThat(resolvedPageRequest.page).isNotNull
-        assertThat(resolvedPageRequest.page.pageNumber).isEqualTo(7)
+        assertThat(resolvedPageRequest.page.pageNumber).isEqualTo(6)
         assertThat(resolvedPageRequest.page.pageSize).isEqualTo(10)
     }
 

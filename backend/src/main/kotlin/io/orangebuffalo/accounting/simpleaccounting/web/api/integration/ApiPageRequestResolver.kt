@@ -35,8 +35,8 @@ class ApiPageRequestResolver(
         return validateAndGetParameter("limit", 10, exchange.request.queryParams)
                 .map { PageRequest.of(0, it) }
                 .flatMap { pageRequest ->
-                    validateAndGetParameter("page", 0, exchange.request.queryParams)
-                            .map { pageNumber -> PageRequest.of(pageNumber, pageRequest.pageSize) }
+                    validateAndGetParameter("page", 1, exchange.request.queryParams)
+                            .map { pageNumber -> PageRequest.of(pageNumber - 1, pageRequest.pageSize) }
                 }
                 .flatMap { pageRequest ->
                     validateAndGetSort(exchange.request.queryParams)
