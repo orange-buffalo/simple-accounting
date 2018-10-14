@@ -1,10 +1,16 @@
 import axios from 'axios'
 import EventBus from 'eventbusjs'
 
+const CancelToken = axios.CancelToken;
+
 const _api = axios.create({
   baseURL: '/api/v1',
   timeout: 2000
 })
+
+_api.createCancelToken = function () {
+  return CancelToken.source()
+}
 
 let $store
 
