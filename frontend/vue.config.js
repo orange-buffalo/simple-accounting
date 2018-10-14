@@ -24,6 +24,7 @@ module.exports = {
       ]
     },
     port: 9091,
-    proxy: 'http://localhost:9393'
+    proxy: 'http://localhost:9393',
+    disableHostCheck: true
   }
 }
