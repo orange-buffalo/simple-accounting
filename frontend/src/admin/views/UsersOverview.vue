@@ -2,23 +2,18 @@
   <div>
     <router-link to="/">Home</router-link>
     <br/>
-    <data-table stripe>
+    <data-table stripe api-path="/admin/users">
       <el-table-column
-          prop="date"
-          label="Date"
-          sortable="custom"
-          width="180">
+          prop="userName"
+          label="Username"
+         >
       </el-table-column>
       <el-table-column
-          prop="name"
-          label="Name"
-          sortable="custom"
-          width="180">
-      </el-table-column>
-      <el-table-column
-          prop="address"
-          sortable="custom"
-          label="Address">
+          label="Is Administrator?"
+         >
+        <template slot-scope="scope">
+          {{ scope.row.admin ? 'Yes' : 'No' }}
+      </template>
       </el-table-column>
     </data-table>
   </div>
