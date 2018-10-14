@@ -1,7 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.admin
 
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PlatformUserService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiDto
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter

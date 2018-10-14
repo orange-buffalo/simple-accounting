@@ -1,7 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.security
 
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PlatformUserService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.core.ReactiveAuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken

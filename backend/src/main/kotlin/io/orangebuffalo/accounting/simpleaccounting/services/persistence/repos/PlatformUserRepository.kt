@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.CrudRepository
 import java.util.*
 
-interface PlatformUserRepository : CrudRepository<PlatformUser, Long?> {
+interface PlatformUserRepository : CrudRepository<PlatformUser, Long> {
 
     fun findByUserName(userName: String): Optional<PlatformUser>
 
