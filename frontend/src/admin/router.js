@@ -28,6 +28,10 @@ export default new Router({
           path: '/users',
           component: () => import(/* webpackChunkName: "users" */ './views/UsersOverview.vue')
         },
+          {
+          path: '/users/create',
+          component: () => import(/* webpackChunkName: "users" */ './views/UsersOverview/CreateUser.vue')
+        },
 
         {
           path: '*',

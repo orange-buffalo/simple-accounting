@@ -1,19 +1,24 @@
 <template>
   <el-container>
     <el-main>
-      <h1>Login page</h1>
+      <h1>New user</h1>
       <el-form ref="form"
                :model="form"
-               :rules="formValidationRules"
-               label-width="120px">
+               :rules="formValidationRules">
         <el-form-item label="Username" prop="userName">
           <el-input v-model="form.userName"></el-input>
         </el-form-item>
         <el-form-item label="Password" prop="password">
           <el-input type="password" v-model="form.password"></el-input>
         </el-form-item>
+        <el-form-item label="Confirm Password" prop="confirmPassword">
+          <el-input type="password" v-model="form.confirmPassword"></el-input>
+        </el-form-item>
+        <el-form-item label="Admin?" prop="admin">
+          <el-checkbox v-model="form.admin"></el-checkbox>
+        </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="login">Login</el-button>
+          <el-button type="primary" @click="saveUser">Save</el-button>
         </el-form-item>
       </el-form>
     </el-main>
@@ -26,13 +31,15 @@
   import {mapMutations} from 'vuex'
 
   export default {
-    name: 'login',
+    name: 'CreateUser',
 
     data: function () {
       return {
         form: {
           userName: '',
-          password: ''
+          password: '',
+          confirmPassword: '',
+          admin: false
         },
         formValidationRules: {
           userName: [
@@ -40,36 +47,39 @@
           ],
           password: [
             {required: true, message: 'Please input Activity name', trigger: 'blur'}
+          ],
+          confirmPassword: [
+            {required: true, message: 'Please input Activity name', trigger: 'blur'},
+            {
+              validator: (rule, value, callback) => {
+                if (value !== this.form.password) {
+                  callback(new Error('Two inputs don\'t match!'));
+                }
+                else {
+                  callback();
+                }
+              },
+              trigger: 'blur'
+            }
           ]
         }
       }
     },
 
     methods: {
-      ...mapMutations({
-        updateJwtToken: 'api/updateJwtToken'
-      }),
 
-      login: function () {
+      saveUser: function () {
         this.$refs.form.validate((valid) => {
           if (valid) {
+            console.log('saving')
             api
-                .post('/auth/login', {
+                .post('/admin/users', {
                   userName: this.form.userName,
                   password: this.form.password,
-                  rememberMe: false
+                  admin: this.form.admin
                 })
                 .then(response => {
-                  this.updateJwtToken(response.data.token)
-                  this.$router.push('/')
-                })
-                .catch(() => {
-                  this.$refs.form.clearValidate()
-                  this.$message({
-                    showClose: true,
-                    message: 'Login failed',
-                    type: 'error'
-                  });
+                  this.$router.push('/users')
                 })
           }
         })

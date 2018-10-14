@@ -6,36 +6,58 @@ import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiDto
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
 import org.springframework.data.domain.Page
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
+import javax.validation.Valid
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 
 @RestController
 @RequestMapping("/api/v1/admin/users")
 class UsersApiController(
-        private val userService: PlatformUserService
+        private val userService: PlatformUserService,
+        private val userDtoMapper: UserDtoMapper,
+        private val passwordEncoder: PasswordEncoder
 ) {
 
     @GetMapping
-    @ApiDto(ApiUser::class)
+    @ApiDto(UserDto::class)
     fun getUsers(pageRequest: ApiPageRequest): Mono<Page<PlatformUser>> {
         return userService.getUsers(pageRequest.page)
     }
+
+    @PostMapping
+    fun createUser(@RequestBody @Valid user: Mono<CreateUserDto>): Mono<UserDto> {
+        return user
+                .map {
+                    PlatformUser(
+                            userName = it.userName!!,
+                            passwordHash = passwordEncoder.encode(it.password!!),
+                            isAdmin = it.admin!!)
+                }
+                .flatMap { userService.save(it) }
+                .map { userDtoMapper.map(it) }
+    }
 }
 
-data class ApiUser(
+data class UserDto(
         var userName: String,
         var id: Long?,
         var version: Int,
         var admin: Boolean)
 
-@Component
-class ApiUserPropertyMap
-    : ApiDtoMapperAdapter<PlatformUser, ApiUser>(PlatformUser::class.java, ApiUser::class.java) {
+data class CreateUserDto(
+        @field:NotBlank var userName: String?,
+        @field:NotNull var admin: Boolean?,
+        @field:NotBlank var password: String?)
 
-    override fun map(source: PlatformUser): ApiUser = ApiUser(
+@Component
+class UserDtoMapper
+    : ApiDtoMapperAdapter<PlatformUser, UserDto>(PlatformUser::class.java, UserDto::class.java) {
+
+    override fun map(source: PlatformUser): UserDto = UserDto(
             userName = source.userName,
             id = source.id,
             version = source.version,

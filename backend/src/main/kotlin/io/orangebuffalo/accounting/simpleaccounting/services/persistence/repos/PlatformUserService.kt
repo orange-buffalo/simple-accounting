@@ -24,4 +24,9 @@ class PlatformUserService(
                 .subscribeOn(Schedulers.elastic())
     }
 
+    fun save(user: PlatformUser): Mono<PlatformUser> {
+        return Mono.fromCallable { userRepository.save(user) }
+                .subscribeOn(Schedulers.elastic())
+    }
+
 }
