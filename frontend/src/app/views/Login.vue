@@ -24,6 +24,7 @@
 
   import api from '@/services/api'
   import {mapMutations} from 'vuex'
+  import EventBus from 'eventbusjs'
 
   export default {
     name: 'login',
@@ -61,7 +62,7 @@
                 })
                 .then(response => {
                   this.updateJwtToken(response.data.token)
-                  this.$router.push('/')
+                  EventBus.dispatch('successful-login')
                 })
                 .catch(() => {
                   this.$refs.form.clearValidate()

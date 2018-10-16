@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home'
 import UserApp from './views/UserApp'
 import Login from './views/Login'
+import WorkspaceSetup from './views/WorkspaceSetup'
 
 Vue.use(Router)
 
@@ -14,6 +15,12 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: Login
+    },
+
+    {
+      path: '/workspace-setup',
+      name: 'workspace-setup',
+      component: WorkspaceSetup
     },
 
     {

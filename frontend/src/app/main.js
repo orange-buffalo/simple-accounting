@@ -22,3 +22,14 @@ initApi(store)
 EventBus.addEventListener(LOGIN_REQUIRED_EVENT, () => {
   router.push('/login')
 })
+
+EventBus.addEventListener('successful-login', () => {
+  store.dispatch('workspaces/loadWorkspaces').then(() => {
+    if (!store.state.workspaces.currentWorkspace) {
+      router.push('/workspace-setup')
+    }
+    else {
+      this.$router.push('/')
+    }
+  })
+})
