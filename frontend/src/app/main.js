@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import {initApi, LOGIN_REQUIRED_EVENT} from '@/services/api'
+import {initApi, LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT} from '@/services/api'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import EventBus from 'eventbusjs'
@@ -23,13 +23,13 @@ EventBus.addEventListener(LOGIN_REQUIRED_EVENT, () => {
   router.push('/login')
 })
 
-EventBus.addEventListener('successful-login', () => {
+EventBus.addEventListener(SUCCESSFUL_LOGIN_EVENT, () => {
   store.dispatch('workspaces/loadWorkspaces').then(() => {
     if (!store.state.workspaces.currentWorkspace) {
       router.push('/workspace-setup')
     }
     else {
-      this.$router.push('/')
+      router.push('/')
     }
   })
 })

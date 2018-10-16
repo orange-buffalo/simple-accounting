@@ -9,10 +9,6 @@ let _apiStore = {
     updateJwtToken(state, token) {
       state.jwtToken = token
     }
-  },
-
-  actions: {
-
   }
 }
 
