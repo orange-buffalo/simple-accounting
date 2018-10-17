@@ -4,12 +4,12 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUs
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
 import org.springframework.stereotype.Component
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.security.Principal
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 
 @RestController
 @RequestMapping("/api/v1/user/workspaces")
@@ -23,6 +23,23 @@ class WorkspacesApiController(
         return principal.flatMapMany { platformUserService.getUserWorkspaces(it.name) }
                 .map { mapper.map(it) }
     }
+
+    @PostMapping
+    fun createWorkspace(
+            principal: Mono<Principal>,
+            @RequestBody createWorkspaceRequest: Mono<CreateWorkspaceDto>
+    ): Mono<WorkspaceDto> = principal
+            .flatMap { platformUserService.getUserByUserName(it.name) }
+            .flatMap { owner ->
+                createWorkspaceRequest.map {
+                    Workspace(name = it.name,
+                            taxEnabled = it.taxEnabled,
+                            multiCurrencyEnabled = it.multiCurrencyEnabled,
+                            defaultCurrency = it.defaultCurrency,
+                            owner = owner)
+                }.flatMap { platformUserService.createWorkspace(it) }
+            }
+            .map { mapper.map(it) }
 }
 
 data class WorkspaceDto(
@@ -32,6 +49,12 @@ data class WorkspaceDto(
         var taxEnabled: Boolean,
         var multiCurrencyEnabled: Boolean,
         val defaultCurrency: String)
+
+data class CreateWorkspaceDto(
+        @field:NotBlank var name: String,
+        @field:NotNull var taxEnabled: Boolean,
+        @field:NotNull var multiCurrencyEnabled: Boolean,
+        @field:NotBlank val defaultCurrency: String)
 
 @Component
 class WorkspaceDtoMapper

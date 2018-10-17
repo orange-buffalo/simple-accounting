@@ -2,9 +2,12 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PlatformUserRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
+import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -29,6 +33,12 @@ internal class WorkspacesApiControllerIT {
     
     @Autowired
     lateinit var workspaceRepo: WorkspaceRepository
+
+    @Autowired
+    lateinit var userRepository: PlatformUserRepository
+
+    @Autowired
+    lateinit var dbHelper: DbHelper
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
@@ -63,6 +73,38 @@ internal class WorkspacesApiControllerIT {
                 }
     }
 
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Leela")
+    fun `should create a new workspace`() {
+        val workspaceId = dbHelper.getNextId()
+
+        client.post()
+                .uri("/api/v1/user/workspaces")
+                .contentType(MediaType.APPLICATION_JSON)
+                .syncBody("""{
+                    "name": "wp",
+                    "taxEnabled": false,
+                    "multiCurrencyEnabled": true,
+                    "defaultCurrency": "GPB"
+                }""")
+                .exchange()
+                .expectStatus().isOk
+                .expectThatJsonBody {
+                    isEqualTo(json("""{
+                        name: "wp",
+                        id: $workspaceId,
+                        version: 0,
+                        taxEnabled: false,
+                        multiCurrencyEnabled: true,
+                        defaultCurrency: "GPB"
+                    }"""))
+                }
+
+        val leela = userRepository.findByUserName("Leela")
+        val newWorkspace = workspaceRepo.findById(workspaceId)
+        assertThat(newWorkspace.map(Workspace::owner)).isEqualTo(leela)
+    }
+
     @TestConfiguration
     class Config {
         @Bean
@@ -88,6 +130,12 @@ internal class WorkspacesApiControllerIT {
 
                 entityManager.persist(PlatformUser(
                         userName = "Farnsworth",
+                        passwordHash = "qwertyHash",
+                        isAdmin = false
+                ))
+
+                entityManager.persist(PlatformUser(
+                        userName = "Leela",
                         passwordHash = "qwertyHash",
                         isAdmin = false
                 ))

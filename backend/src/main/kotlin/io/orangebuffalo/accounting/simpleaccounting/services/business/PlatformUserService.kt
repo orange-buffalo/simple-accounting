@@ -39,4 +39,8 @@ class PlatformUserService(
                 .subscribeOn(Schedulers.elastic())
     }
 
+    fun createWorkspace(workspace: Workspace): Mono<Workspace> {
+        return Mono.fromCallable { workspaceRepository.save(workspace) }
+                .subscribeOn(Schedulers.elastic())
+    }
 }
