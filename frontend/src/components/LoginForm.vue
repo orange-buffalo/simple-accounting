@@ -25,7 +25,7 @@
   import api from '@/services/api'
 
   export default {
-    name: 'login',
+    name: 'LoginForm',
 
     data: function () {
       return {

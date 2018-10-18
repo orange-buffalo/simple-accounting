@@ -14,6 +14,11 @@ let _workspacesStore = {
       if (payload.length > 0) {
         state.currentWorkspace = payload[0]
       }
+    },
+
+    createWorkspace(state, workspace) {
+      state.workspaces.push(workspace)
+      state.currentWorkspace = workspace
     }
   },
 
