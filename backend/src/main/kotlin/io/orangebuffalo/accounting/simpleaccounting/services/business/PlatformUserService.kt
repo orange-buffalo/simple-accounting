@@ -1,7 +1,9 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CategoryRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PlatformUserRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import org.springframework.data.domain.Page
@@ -14,7 +16,8 @@ import reactor.core.scheduler.Schedulers
 @Service
 class PlatformUserService(
         private val userRepository: PlatformUserRepository,
-        private val workspaceRepository: WorkspaceRepository
+        private val workspaceRepository: WorkspaceRepository,
+        private val categoryRepository: CategoryRepository
 ) {
 
     fun getUserByUserName(userName: String): Mono<PlatformUser> {
@@ -41,6 +44,11 @@ class PlatformUserService(
 
     fun createWorkspace(workspace: Workspace): Mono<Workspace> {
         return Mono.fromCallable { workspaceRepository.save(workspace) }
+                .subscribeOn(Schedulers.elastic())
+    }
+
+    fun getUserCategories(userName: String): Flux<Category> {
+        return Flux.fromStream { categoryRepository.findAllByWorkspaceOwnerUserName(userName).stream() }
                 .subscribeOn(Schedulers.elastic())
     }
 }
