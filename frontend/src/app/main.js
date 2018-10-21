@@ -6,10 +6,21 @@ import {initApi, LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT} from '@/services/
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import EventBus from 'eventbusjs'
+import Router from 'vue-router'
 
 Vue.config.productionTip = false
 
 Vue.use(ElementUI);
+
+router.beforeEach((to, from, next) => {
+  if (to.name !== 'login' && !store.getters['api/isLoggedIn']) {
+    next({name: 'login'})
+  }
+  else {
+    next()
+  }
+})
+Vue.use(Router)
 
 new Vue({
   router,

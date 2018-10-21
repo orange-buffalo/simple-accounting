@@ -9,6 +9,12 @@ let _apiStore = {
     updateJwtToken(state, token) {
       state.jwtToken = token
     }
+  },
+
+  getters: {
+    isLoggedIn: state => {
+      return state.jwtToken != null
+    }
   }
 }
 
