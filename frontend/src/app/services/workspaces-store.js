@@ -19,6 +19,10 @@ let _workspacesStore = {
     createWorkspace(state, workspace) {
       state.workspaces.push(workspace)
       state.currentWorkspace = workspace
+    },
+
+    createCategory(state, category) {
+      state.currentWorkspace.categories.push(category)
     }
   },
 

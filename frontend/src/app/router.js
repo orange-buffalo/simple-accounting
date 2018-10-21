@@ -30,12 +30,13 @@ export default new Router({
         },
         {
           path: 'settings/categories',
+          name: 'settings-categories',
           component: () => import(/* webpackChunkName: "settings-categories" */ './views/settings/categories/Categories.vue')
         },
         {
           path: 'settings/categories/create',
           name: 'create-new-category',
-          component: () => import(/* webpackChunkName: "settings-categories" */ './views/settings/categories/Categories.vue')
+          component: () => import(/* webpackChunkName: "settings-categories" */ './views/settings/categories/CreateCategory.vue')
         },
         {
           path: '*',
