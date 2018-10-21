@@ -32,6 +32,15 @@ export default new Router({
           component: Home
         },
         {
+          path: 'settings/categories',
+          component: () => import(/* webpackChunkName: "settings-categories" */ './views/settings/categories/Categories.vue')
+        },
+        {
+          path: 'settings/categories/create',
+          name: 'create-new-category',
+          component: () => import(/* webpackChunkName: "settings-categories" */ './views/settings/categories/Categories.vue')
+        },
+        {
           path: '*',
           redirect: '/'
         }
