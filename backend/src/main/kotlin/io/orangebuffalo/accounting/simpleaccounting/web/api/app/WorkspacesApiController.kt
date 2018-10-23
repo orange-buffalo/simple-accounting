@@ -4,7 +4,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUs
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -17,7 +16,8 @@ import javax.validation.constraints.NotNull
 @RequestMapping("/api/v1/user/workspaces")
 class WorkspacesApiController(
     private val platformUserService: PlatformUserService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    private val extensions: ApiControllersExtensions
 ) {
 
     @GetMapping
@@ -52,20 +52,20 @@ class WorkspacesApiController(
 
     @PostMapping
     fun createWorkspace(
-        principal: Mono<Principal>,
         @RequestBody @Valid createWorkspaceRequest: Mono<CreateWorkspaceDto>
-    ): Mono<WorkspaceDto> = principal
-        .flatMap { platformUserService.getUserByUserName(it.name) }
-        .flatMap { owner ->
-            createWorkspaceRequest.map {
-                Workspace(
-                    name = it.name,
-                    taxEnabled = it.taxEnabled,
-                    multiCurrencyEnabled = it.multiCurrencyEnabled,
-                    defaultCurrency = it.defaultCurrency,
-                    owner = owner
-                )
-            }.flatMap { platformUserService.createWorkspace(it) }
+    ): Mono<WorkspaceDto> = extensions
+        .withCurrentUser { owner ->
+            createWorkspaceRequest
+                .map {
+                    Workspace(
+                        name = it.name,
+                        taxEnabled = it.taxEnabled,
+                        multiCurrencyEnabled = it.multiCurrencyEnabled,
+                        defaultCurrency = it.defaultCurrency,
+                        owner = owner
+                    )
+                }
+                .flatMap { platformUserService.createWorkspace(it) }
         }
         .map { mapWorkspaceDto(it, emptyList()) }
 
@@ -74,31 +74,21 @@ class WorkspacesApiController(
         principal: Mono<Principal>,
         @PathVariable workspaceId: Long,
         @RequestBody @Valid createCategoryRequest: Mono<CreateCategoryDto>
-    ): Mono<CategoryDto> = principal
-        .flatMap { platformUserService.getUserByUserName(it.name) }
-        .flatMap { currentUser ->
-            workspaceService.getWorkspace(workspaceId)
-                .flatMap { workspace ->
-                    if (workspace.owner == currentUser) {
-                        createCategoryRequest
-                            .flatMap { categoryRequest ->
-                                workspaceService.createCategory(
-                                    Category(
-                                        name = categoryRequest.name,
-                                        workspace = workspace,
-                                        expense = categoryRequest.expense,
-                                        income = categoryRequest.income,
-                                        description = categoryRequest.description
-                                    )
-                                )
-                            }
-                            .map(::mapCategoryDto)
-                    } else {
-                        Mono.defer {
-                            Mono.error<CategoryDto>(ApiValidationException("Workspace $workspaceId cannot be found"))
-                        }
-                    }
+    ): Mono<CategoryDto> = extensions
+        .withAccessibleWorkspace(workspaceId) { workspace ->
+            createCategoryRequest
+                .flatMap { categoryRequest ->
+                    workspaceService.createCategory(
+                        Category(
+                            name = categoryRequest.name,
+                            workspace = workspace,
+                            expense = categoryRequest.expense,
+                            income = categoryRequest.income,
+                            description = categoryRequest.description
+                        )
+                    )
                 }
+                .map(::mapCategoryDto)
         }
 }
 
