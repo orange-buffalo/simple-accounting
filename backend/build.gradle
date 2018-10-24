@@ -20,6 +20,7 @@ apply plugin: 'kotlin-jpa'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'kotlin-kapt'
 
 group = 'io.orangebuffalo.accounting'
 version = '0.0.1-SNAPSHOT'
@@ -60,6 +61,8 @@ dependencies {
     compile('io.github.microutils:kotlin-logging:1.6.10')
     compile('io.jsonwebtoken:jjwt-api:0.10.5')
     compile('com.github.kittinunf.result:result:1.5.0')
+    
+    kapt 'org.springframework.boot:spring-boot-configuration-processor'
 
     runtime('org.flywaydb:flyway-core')
     runtime('com.h2database:h2')

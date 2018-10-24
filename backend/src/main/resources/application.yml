@@ -14,3 +14,9 @@ spring:
 
 server:
   port: 9393
+
+simpleaccounting:
+  documents:
+    storage:
+      local-fs:
+        base-directory: ./local-dev/documents
