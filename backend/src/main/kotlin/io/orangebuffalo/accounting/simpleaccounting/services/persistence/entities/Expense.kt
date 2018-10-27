@@ -41,10 +41,6 @@ class Expense(
     var percentOnBusinessInBps: Int,
 
     @field:Column(length = 1024)
-    var notes: String?,
-
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "expense_workspace_fk"))
-    val workspace: Workspace
+    var notes: String?
 
 ) : AbstractEntity()

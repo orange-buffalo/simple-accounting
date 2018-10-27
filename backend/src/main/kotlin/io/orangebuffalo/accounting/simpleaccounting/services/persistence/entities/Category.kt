@@ -7,7 +7,7 @@ class Category(
 
         @field:Column(nullable = false) var name: String,
 
-        @field:Column(length = 1024) var description: String?,
+        @field:Column(length = 1024) var description: String? = null,
 
         @field:ManyToOne(optional = false)
         @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "category_workspace_fk"))
