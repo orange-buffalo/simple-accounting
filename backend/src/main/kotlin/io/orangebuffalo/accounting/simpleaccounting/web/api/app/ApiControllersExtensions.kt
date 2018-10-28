@@ -23,14 +23,12 @@ class ApiControllersExtensions(
         workspaceService.getWorkspace(workspaceId)
             .flatMap { workspace ->
                 if (workspace.owner == currentUser) {
-                    consumer(workspace)
+                    Mono.just(workspace)
                 } else {
-                    Mono.empty()
+                    Mono.error<Workspace>(ApiValidationException("Workspace $workspaceId cannot be found"))
                 }
             }
-            .switchIfEmpty(Mono.defer {
-                Mono.error<T>(ApiValidationException("Workspace $workspaceId cannot be found"))
-            })
+            .flatMap { consumer(it) }
     }
 
     fun <T> withCurrentUser(
