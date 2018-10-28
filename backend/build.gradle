@@ -79,6 +79,7 @@ dependencies {
     testCompile('net.javacrumbs.json-unit:json-unit-assertj:2.0.0.RC1')
     testCompile('com.nhaarman:mockito-kotlin:1.6.0')
     testCompile('org.mockito:mockito-junit-jupiter:2.21.0')
+    testCompile('org.flywaydb:flyway-core')
     testRuntime('org.junit.jupiter:junit-jupiter-engine')
 }
 

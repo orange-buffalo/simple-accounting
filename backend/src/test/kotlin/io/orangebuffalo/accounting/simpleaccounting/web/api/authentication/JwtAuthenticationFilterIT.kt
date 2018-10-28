@@ -17,22 +17,21 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
-class JwtAuthenticationFilterIT {
+class JwtAuthenticationFilterIT(
+    @Autowired val client: WebTestClient
+) {
 
     @MockBean
     lateinit var jwtService: JwtService
-
-    @Autowired
-    lateinit var client: WebTestClient
 
     @Test
     fun `When requesting non-guarded path, should not fail if token is broken`() {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
 
         client.post().uri("/api/v1/auth/non-guarded")
-                .header("Authorization", "Bearer token")
-                .contentType(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isNotFound
+            .header("Authorization", "Bearer token")
+            .contentType(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isNotFound
     }
 }

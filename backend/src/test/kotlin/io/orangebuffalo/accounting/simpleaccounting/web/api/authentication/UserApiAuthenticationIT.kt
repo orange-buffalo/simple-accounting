@@ -23,21 +23,20 @@ private const val USER_PATH = "/api/v1/user"
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DisplayName("When requesting $USER_PATH, ")
 @AutoConfigureWebTestClient
-class UserApiAuthenticationIT {
+class UserApiAuthenticationIT(
+    @Autowired val client: WebTestClient
+) {
 
     @MockBean
     lateinit var jwtService: JwtService
 
-    @Autowired
-    lateinit var client: WebTestClient
-
     @Test
     fun `should return 401 if token is missing`() {
         client.post().uri(USER_PATH)
-                .contentType(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isUnauthorized
-                .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
+            .contentType(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isUnauthorized
+            .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
     }
 
     @Test
@@ -45,40 +44,40 @@ class UserApiAuthenticationIT {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
 
         client.post().uri(USER_PATH)
-                .header("Authorization", "Bearer token")
-                .contentType(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isUnauthorized
-                .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
+            .header("Authorization", "Bearer token")
+            .contentType(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isUnauthorized
+            .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
     }
 
     @Test
     fun `should return 403 if token belongs to an admin`() {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
-                .roles("ADMIN")
-                .username("Professor Farnsworth")
-                .password("token")
-                .build()
+            .roles("ADMIN")
+            .username("Professor Farnsworth")
+            .password("token")
+            .build()
 
         client.post().uri(USER_PATH)
-                .header("Authorization", "Bearer token")
-                .contentType(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isForbidden
+            .header("Authorization", "Bearer token")
+            .contentType(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isForbidden
     }
 
     @Test
     fun `should return successful response if token belongs to a user`() {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
-                .roles("USER")
-                .username("Fry")
-                .password("token")
-                .build()
+            .roles("USER")
+            .username("Fry")
+            .password("token")
+            .build()
 
         client.post().uri(USER_PATH)
-                .header("Authorization", "Bearer token")
-                .contentType(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isNotFound
+            .header("Authorization", "Bearer token")
+            .contentType(APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isNotFound
     }
 }
