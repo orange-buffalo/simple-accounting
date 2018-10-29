@@ -36,7 +36,12 @@ export default new Router({
         {
           path: 'settings/categories/create',
           name: 'create-new-category',
-          component: () => import(/* webpackChunkName: "settings-categories" */ './views/settings/categories/CreateCategory.vue')
+          component: () => import(/* webpackChunkName: "create-new-category" */ './views/settings/categories/CreateCategory.vue')
+        },
+          {
+          path: 'expenses',
+          name: 'expenses-overview',
+          component: () => import(/* webpackChunkName: "expenses-overview" */ './views/expenses/ExpensesOverview.vue')
         },
         {
           path: '*',
