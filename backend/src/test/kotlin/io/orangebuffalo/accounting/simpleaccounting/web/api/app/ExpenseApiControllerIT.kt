@@ -76,4 +76,50 @@ internal class ExpenseApiControllerIT(
             assertThat(it.category).isEqualTo(fry.slurmCategory)
         }
     }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return expenses of current user`(fry: Fry) {
+        client.get()
+            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                inPath("$.pageNumber").isNumber.isEqualTo("1")
+                inPath("$.pageSize").isNumber.isEqualTo("10")
+                inPath("$.totalElements").isNumber.isEqualTo("2")
+
+                inPath("$.data").isArray.containsExactlyInAnyOrder(
+                    json(
+                        """{
+                            category: ${fry.slurmCategory.id},
+                            currency: "THF",
+                            originalAmount: 5000,
+                            amountInDefaultCurrency: 500,
+                            actualAmountInDefaultCurrency: 450,
+                            attachments: [],
+                            notes: null,
+                            percentOnBusinessInBps: 10000,
+                            id: ${fry.firstSlurm.id},
+                            version: 0
+                    }"""
+                    ),
+
+                    json(
+                        """{
+                            category: ${fry.slurmCategory.id},
+                            currency: "ZZB",
+                            originalAmount: 5100,
+                            amountInDefaultCurrency: 510,
+                            actualAmountInDefaultCurrency: 460,
+                            attachments: [],
+                            notes: "nice!",
+                            percentOnBusinessInBps: 9900,
+                            id: ${fry.secondSlurm.id},
+                            version: 0
+                    }"""
+                    )
+                )
+            }
+    }
 }

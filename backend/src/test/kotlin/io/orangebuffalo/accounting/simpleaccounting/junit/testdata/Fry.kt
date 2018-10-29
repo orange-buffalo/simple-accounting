@@ -2,7 +2,9 @@ package io.orangebuffalo.accounting.simpleaccounting.junit.testdata
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import java.time.ZonedDateTime
 
 class Fry : TestData {
 
@@ -24,5 +26,30 @@ class Fry : TestData {
         expense = true
     )
 
-    override fun generateData() = listOf(himself, workspace, slurmCategory)
+    val firstSlurm = Expense(
+        category = slurmCategory,
+        //TODO
+        datePaid = ZonedDateTime.now(),
+        dateRecorded = ZonedDateTime.now(),
+        currency = "THF",
+        originalAmount = 5000,
+        amountInDefaultCurrency = 500,
+        actualAmountInDefaultCurrency = 450,
+        percentOnBusinessInBps = 10000
+    )
+
+    val secondSlurm = Expense(
+        category = slurmCategory,
+        //TODO
+        datePaid = ZonedDateTime.now(),
+        dateRecorded = ZonedDateTime.now(),
+        currency = "ZZB",
+        originalAmount = 5100,
+        amountInDefaultCurrency = 510,
+        actualAmountInDefaultCurrency = 460,
+        percentOnBusinessInBps = 9900,
+        notes = "nice!"
+    )
+
+    override fun generateData() = listOf(himself, workspace, slurmCategory, firstSlurm, secondSlurm)
 }

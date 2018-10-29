@@ -3,6 +3,11 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiDto
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
+import org.springframework.data.domain.Page
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
@@ -47,6 +52,15 @@ class ExpenseApiController(
             }
             .map(::mapExpenseDto)
     }
+
+    @GetMapping
+    @ApiDto(ExpenseDto::class)
+    fun createExpense(
+        @PathVariable workspaceId: Long,
+        pageRequest: ApiPageRequest
+    ): Mono<Page<Expense>> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
+        expenseService.getExpenses(pageRequest.page)
+    }
 }
 
 data class ExpenseDto(
@@ -78,7 +92,7 @@ data class CreateExpenseDto(
     @Size(max = 1024) var notes: String?
 )
 
-fun mapExpenseDto(source: Expense) = ExpenseDto(
+private fun mapExpenseDto(source: Expense) = ExpenseDto(
     category = source.category.id!!,
     // todo
 //    datePaid = source.datePaid,
@@ -93,3 +107,10 @@ fun mapExpenseDto(source: Expense) = ExpenseDto(
     id = source.id!!,
     version = source.version
 )
+
+@Component
+class ExpenseDtoMapper
+    : ApiDtoMapperAdapter<Expense, ExpenseDto>(Expense::class.java, ExpenseDto::class.java) {
+
+    override fun map(source: Expense) = mapExpenseDto(source)
+}

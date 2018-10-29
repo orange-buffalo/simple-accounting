@@ -28,19 +28,19 @@ class Expense(
     @field:Column(nullable = false)
     var actualAmountInDefaultCurrency: Long,
 
-    @field:ManyToMany
+    @field:ManyToMany(fetch = FetchType.EAGER)
     @field:JoinTable(
         name = "expense_attachments",
         foreignKey = ForeignKey(name = "expense_attachments_expense_fk"),
         inverseForeignKey = ForeignKey(name = "expense_attachments_document_fk"),
         inverseJoinColumns = [JoinColumn(name = "document_id")]
     )
-    val attachments: MutableList<Document>,
+    val attachments: MutableList<Document> = ArrayList(),
 
     @field:Column(nullable = false)
     var percentOnBusinessInBps: Int,
 
     @field:Column(length = 1024)
-    var notes: String?
+    var notes: String? = null
 
 ) : AbstractEntity()
