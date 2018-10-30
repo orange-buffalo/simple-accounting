@@ -18,8 +18,6 @@ fun WebTestClient.ResponseSpec.expectThatJsonBody(
             assertThat(responseJson).isNotBlank()
 
             val jsonAssert = assertThatJson(responseJson)
-                // todo: this is a workaround for https://github.com/lukas-krecan/JsonUnit/issues/130 (fixed in 2.0)
-                .withConfiguration { it.withTolerance(0.0) }
             jsonAssert.consumer()
         }
 
