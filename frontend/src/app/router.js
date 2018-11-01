@@ -38,10 +38,15 @@ export default new Router({
           name: 'create-new-category',
           component: () => import(/* webpackChunkName: "create-new-category" */ './views/settings/categories/CreateCategory.vue')
         },
-          {
+        {
           path: 'expenses',
           name: 'expenses-overview',
           component: () => import(/* webpackChunkName: "expenses-overview" */ './views/expenses/ExpensesOverview.vue')
+        },
+        {
+          path: 'expenses/create',
+          name: 'create-new-expense',
+          component: () => import(/* webpackChunkName: "create-new-expense" */ './views/expenses/CreateExpense.vue')
         },
         {
           path: '*',
