@@ -40,6 +40,12 @@ let _workspacesStore = {
         }
       })
     }
+  },
+
+  getters: {
+    categoryById: state => id => {
+      return state.currentWorkspace.categories.find(category => category.id === id)
+    }
   }
 }
 
