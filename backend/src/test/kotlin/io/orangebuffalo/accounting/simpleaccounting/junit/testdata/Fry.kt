@@ -5,6 +5,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
 import java.time.ZonedDateTime
 
 class Fry : TestData {
@@ -44,7 +45,7 @@ class Fry : TestData {
         workspace = workspace,
         storageProviderId = "local-fs",
         storageProviderLocation = "lost",
-        dateUploaded = ZonedDateTime.now()
+        timeUploaded = MOCK_TIME
     )
 
     val secondSlurm = Expense(

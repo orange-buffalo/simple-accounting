@@ -36,13 +36,13 @@ data class DocumentDto(
     var id: Long?,
     var version: Int,
     var name: String,
-    var dateUploaded: ZonedDateTime,
+    var timeUploaded: ZonedDateTime,
     var notes: String?
 )
 
 private fun mapDocumentDto(source: Document) = DocumentDto(
     name = source.name,
-    dateUploaded = source.dateUploaded,
+    timeUploaded = source.timeUploaded,
     notes = source.notes,
     id = source.id,
     version = source.version

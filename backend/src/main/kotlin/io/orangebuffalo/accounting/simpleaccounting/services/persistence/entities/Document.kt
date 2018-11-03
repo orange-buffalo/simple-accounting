@@ -14,7 +14,7 @@ class Document(
     @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "document_workspace_fk"))
     val workspace: Workspace,
 
-    @field:Column(nullable = false) val dateUploaded: ZonedDateTime,
+    @field:Column(nullable = false) val timeUploaded: ZonedDateTime,
 
     @field:Column(nullable = false) var storageProviderId: String,
 

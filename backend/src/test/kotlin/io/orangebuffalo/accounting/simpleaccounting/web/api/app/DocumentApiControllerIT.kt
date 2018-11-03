@@ -2,9 +2,12 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
+import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
+import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME_VALUE
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.mockCurrentTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.http.ContentDisposition
@@ -42,10 +46,14 @@ class DocumentApiControllerIT(
     @Value("\${simpleaccounting.documents.storage.local-fs.base-directory}") val baseDocumentsDirectory: Path
 ) {
 
+    @MockBean
+    lateinit var timeServiceMock: TimeService
+
     @Test
     @WithMockUser(username = "Fry")
     fun `should upload a new file and store it in a local file system`(fry: Fry) {
         val documentId = dbHelper.getNextId()
+        mockCurrentTime(timeServiceMock)
 
         val multipartBodyBuilder = MultipartBodyBuilder()
             .apply {
@@ -75,9 +83,7 @@ class DocumentApiControllerIT(
                 node("name").isString.isEqualTo("test-file.txt")
                 node("id").isNumber.isEqualTo(BigDecimal.valueOf(documentId))
                 node("version").isNumber.isEqualTo(BigDecimal.ZERO)
-                // todo this makes sense to rewrite with a mocked time service
-                node("dateUploaded").isString
-                    .matches("""[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?[+-][0-9]{2}:[0-9]{2}""")
+                node("timeUploaded").isString.isEqualTo(MOCK_TIME_VALUE)
                 node("notes").isString.isEqualTo("Shut up and take my money")
             }
 

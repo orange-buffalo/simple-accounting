@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
-import java.time.ZonedDateTime
 
 @Service
 class DocumentService(
     private val documentStorages: List<DocumentStorage>,
-    private val documentRepository: DocumentRepository
+    private val documentRepository: DocumentRepository,
+    private val timeService: TimeService
 ) {
 
     fun uploadDocument(filePart: FilePart, notes: String?, workspace: Workspace): Mono<Document> {
@@ -27,8 +27,7 @@ class DocumentService(
                     Document(
                         name = filePart.filename(),
                         notes = notes,
-                        // TODO handle time zones properly
-                        dateUploaded = ZonedDateTime.now(),
+                        timeUploaded = timeService.currentTime(),
                         workspace = workspace,
                         storageProviderId = documentStorage.getId(),
                         storageProviderLocation = storageProviderLocation
