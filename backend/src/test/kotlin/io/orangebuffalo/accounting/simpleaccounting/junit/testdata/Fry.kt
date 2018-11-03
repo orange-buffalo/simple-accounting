@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.junit.testdata
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import java.time.ZonedDateTime
@@ -38,6 +39,14 @@ class Fry : TestData {
         percentOnBusinessInBps = 10000
     )
 
+    val slurmReceipt = Document(
+        name = "slurm",
+        workspace = workspace,
+        storageProviderId = "local-fs",
+        storageProviderLocation = "lost",
+        dateUploaded = ZonedDateTime.now()
+    )
+
     val secondSlurm = Expense(
         category = slurmCategory,
         //TODO
@@ -48,8 +57,9 @@ class Fry : TestData {
         amountInDefaultCurrency = 510,
         actualAmountInDefaultCurrency = 460,
         percentOnBusinessInBps = 9900,
-        notes = "nice!"
+        notes = "nice!",
+        attachments = mutableListOf(slurmReceipt)
     )
 
-    override fun generateData() = listOf(himself, workspace, slurmCategory, firstSlurm, secondSlurm)
+    override fun generateData() = listOf(himself, workspace, slurmCategory, firstSlurm, slurmReceipt, secondSlurm)
 }

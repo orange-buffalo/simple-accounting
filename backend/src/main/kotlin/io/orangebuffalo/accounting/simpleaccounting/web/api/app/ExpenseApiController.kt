@@ -1,5 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
@@ -19,7 +20,8 @@ import javax.validation.constraints.Size
 @RequestMapping("/api/v1/user/workspaces/{workspaceId}/expenses")
 class ExpenseApiController(
     private val extensions: ApiControllersExtensions,
-    private val expenseService: ExpenseService
+    private val expenseService: ExpenseService,
+    private val documentService: DocumentService
 ) {
 
     @PostMapping
@@ -34,21 +36,27 @@ class ExpenseApiController(
                     .firstOrNull { category -> category.id == request.category }
                     ?: throw ApiValidationException("Category ${request.category} is not found")
 
-                expenseService.saveExpense(
-                    Expense(
-                        category = category,
-                        //todo proper time handling
-                        dateRecorded = ZonedDateTime.now(),
-                        datePaid = ZonedDateTime.now(),
-                        currency = request.currency,
-                        originalAmount = request.originalAmount,
-                        amountInDefaultCurrency = request.amountInDefaultCurrency,
-                        actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency,
-                        notes = request.notes,
-                        percentOnBusinessInBps = request.percentOnBusinessInBps,
-                        attachments = ArrayList()
-                    )
-                )
+                documentService.getDocumentsByIds(request.attachments)
+                    .collectList()
+                    .flatMap { attachments ->
+                        // TODO validation that all documents are within expense's workspace
+
+                        expenseService.saveExpense(
+                            Expense(
+                                category = category,
+                                //todo proper time handling
+                                dateRecorded = ZonedDateTime.now(),
+                                datePaid = ZonedDateTime.now(),
+                                currency = request.currency,
+                                originalAmount = request.originalAmount,
+                                amountInDefaultCurrency = request.amountInDefaultCurrency,
+                                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency,
+                                notes = request.notes,
+                                percentOnBusinessInBps = request.percentOnBusinessInBps,
+                                attachments = attachments
+                            )
+                        )
+                    }
             }
             .map(::mapExpenseDto)
     }

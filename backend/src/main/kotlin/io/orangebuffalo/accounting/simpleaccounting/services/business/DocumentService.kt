@@ -7,6 +7,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.D
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentStorage
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import java.time.ZonedDateTime
@@ -40,4 +41,11 @@ class DocumentService(
     fun getDocumentStorageByUser(user: PlatformUser) = documentStorages
         .first { it.getId() == "local-fs" }
 
+    fun getDocumentsByIds(ids: List<Long>): Flux<Document> {
+        return Flux
+            .fromStream {
+                documentRepository.findAllById(ids).stream()
+            }
+            .subscribeOn(Schedulers.elastic())
+    }
 }

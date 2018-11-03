@@ -44,7 +44,7 @@ internal class ExpenseApiControllerIT(
                     "originalAmount": 30000,
                     "amountInDefaultCurrency": 42000,
                     "actualAmountInDefaultCurrency": 41500,
-                    "attachments": [],
+                    "attachments": [${fry.slurmReceipt.id}],
                     "notes": "coffee",
                     "percentOnBusinessInBps": 10000
                 }"""
@@ -61,7 +61,7 @@ internal class ExpenseApiControllerIT(
                             originalAmount: 30000,
                             amountInDefaultCurrency: 42000,
                             actualAmountInDefaultCurrency: 41500,
-                            attachments: [],
+                            attachments: [${fry.slurmReceipt.id}],
                             notes: "coffee",
                             percentOnBusinessInBps: 10000,
                             id: $expenseId,
@@ -112,7 +112,7 @@ internal class ExpenseApiControllerIT(
                             originalAmount: 5100,
                             amountInDefaultCurrency: 510,
                             actualAmountInDefaultCurrency: 460,
-                            attachments: [],
+                            attachments: [${fry.slurmReceipt.id}],
                             notes: "nice!",
                             percentOnBusinessInBps: 9900,
                             id: ${fry.secondSlurm.id},
