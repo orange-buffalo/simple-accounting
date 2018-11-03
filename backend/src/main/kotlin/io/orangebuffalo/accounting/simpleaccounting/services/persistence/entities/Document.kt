@@ -1,6 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities
 
-import java.time.ZonedDateTime
+import java.time.Instant
 import javax.persistence.*
 
 @Entity
@@ -14,7 +14,7 @@ class Document(
     @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "document_workspace_fk"))
     val workspace: Workspace,
 
-    @field:Column(nullable = false) val timeUploaded: ZonedDateTime,
+    @field:Column(nullable = false) val timeUploaded: Instant,
 
     @field:Column(nullable = false) var storageProviderId: String,
 

@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiDto
@@ -11,7 +12,8 @@ import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
-import java.time.ZonedDateTime
+import java.time.Instant
+import java.time.LocalDate
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
@@ -21,7 +23,8 @@ import javax.validation.constraints.Size
 class ExpenseApiController(
     private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,
-    private val documentService: DocumentService
+    private val documentService: DocumentService,
+    private val timeService: TimeService
 ) {
 
     @PostMapping
@@ -44,9 +47,8 @@ class ExpenseApiController(
                         expenseService.saveExpense(
                             Expense(
                                 category = category,
-                                //todo proper time handling
-                                dateRecorded = ZonedDateTime.now(),
-                                datePaid = ZonedDateTime.now(),
+                                timeRecorded = timeService.currentTime(),
+                                datePaid = request.datePaid,
                                 currency = request.currency,
                                 originalAmount = request.originalAmount,
                                 amountInDefaultCurrency = request.amountInDefaultCurrency,
@@ -73,9 +75,8 @@ class ExpenseApiController(
 
 data class ExpenseDto(
     var category: Long,
-    // todo
-//    var dateRecorded: ZonedDateTime,
-//    var datePaid: ZonedDateTime,
+    var timeRecorded: Instant,
+    var datePaid: LocalDate,
     var currency: String,
     var originalAmount: Long,
     var amountInDefaultCurrency: Long,
@@ -89,8 +90,7 @@ data class ExpenseDto(
 
 data class CreateExpenseDto(
     @NotNull var category: Long,
-    //todo
-    //var datePaid: ZonedDateTime,
+    @NotNull var datePaid: LocalDate,
     @NotBlank var currency: String,
     @NotNull var originalAmount: Long,
     @NotNull var amountInDefaultCurrency: Long,
@@ -102,9 +102,8 @@ data class CreateExpenseDto(
 
 private fun mapExpenseDto(source: Expense) = ExpenseDto(
     category = source.category.id!!,
-    // todo
-//    datePaid = source.datePaid,
-//    dateRecorded = source.dateRecorded,
+    datePaid = source.datePaid,
+    timeRecorded = source.timeRecorded,
     currency = source.currency,
     originalAmount = source.originalAmount,
     amountInDefaultCurrency = source.amountInDefaultCurrency,

@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities
 
-import java.time.ZonedDateTime
+import java.time.Instant
+import java.time.LocalDate
 import javax.persistence.*
 
 @Entity
@@ -11,10 +12,10 @@ class Expense(
     var category: Category,
 
     @field:Column(nullable = false)
-    val dateRecorded: ZonedDateTime,
+    val timeRecorded: Instant,
 
     @field:Column(nullable = false)
-    var datePaid: ZonedDateTime,
+    var datePaid: LocalDate,
 
     @field:Column(nullable = false, length = 3)
     var currency: String,

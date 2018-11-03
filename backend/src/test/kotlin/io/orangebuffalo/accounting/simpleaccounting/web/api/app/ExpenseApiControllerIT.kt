@@ -2,9 +2,9 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
+import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository
-import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
-import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -28,16 +29,19 @@ internal class ExpenseApiControllerIT(
     @Autowired val expenseRepository: ExpenseRepository
 ) {
 
+    @MockBean
+    lateinit var timeService: TimeService
+
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new expense`(fry: Fry) {
         val expenseId = dbHelper.getNextId()
+        mockCurrentTime(timeService)
 
         client.post()
             .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
-                // todo datePaid
                 """{
                     "category": ${fry.slurmCategory.id},
                     "currency": "USD",
@@ -46,7 +50,8 @@ internal class ExpenseApiControllerIT(
                     "actualAmountInDefaultCurrency": 41500,
                     "attachments": [${fry.slurmReceipt.id}],
                     "notes": "coffee",
-                    "percentOnBusinessInBps": 10000
+                    "percentOnBusinessInBps": 10000,
+                    "datePaid": "$MOCK_DATE_VALUE"
                 }"""
             )
             .exchange()
@@ -54,7 +59,6 @@ internal class ExpenseApiControllerIT(
             .expectThatJsonBody {
                 isEqualTo(
                     json(
-                        //todo dates
                         """{
                             category: ${fry.slurmCategory.id},
                             currency: "USD",
@@ -65,7 +69,9 @@ internal class ExpenseApiControllerIT(
                             notes: "coffee",
                             percentOnBusinessInBps: 10000,
                             id: $expenseId,
-                            version: 0
+                            version: 0,
+                            datePaid: "$MOCK_DATE_VALUE",
+                            timeRecorded: "$MOCK_TIME_VALUE"
                     }"""
                     )
                 )
@@ -101,7 +107,9 @@ internal class ExpenseApiControllerIT(
                             notes: null,
                             percentOnBusinessInBps: 10000,
                             id: ${fry.firstSlurm.id},
-                            version: 0
+                            version: 0,
+                            datePaid: "$MOCK_DATE_VALUE",
+                            timeRecorded: "$MOCK_TIME_VALUE"
                     }"""
                     ),
 
@@ -116,7 +124,9 @@ internal class ExpenseApiControllerIT(
                             notes: "nice!",
                             percentOnBusinessInBps: 9900,
                             id: ${fry.secondSlurm.id},
-                            version: 0
+                            version: 0,
+                            datePaid: "$MOCK_DATE_VALUE",
+                            timeRecorded: "$MOCK_TIME_VALUE"
                     }"""
                     )
                 )

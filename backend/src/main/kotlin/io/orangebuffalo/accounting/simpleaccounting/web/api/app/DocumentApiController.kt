@@ -7,7 +7,7 @@ import org.springframework.http.codec.multipart.FilePart
 import org.springframework.http.codec.multipart.Part
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
-import java.time.ZonedDateTime
+import java.time.Instant
 
 @RestController
 @RequestMapping("/api/v1/user/workspaces/{workspaceId}/documents")
@@ -36,7 +36,7 @@ data class DocumentDto(
     var id: Long?,
     var version: Int,
     var name: String,
-    var timeUploaded: ZonedDateTime,
+    var timeUploaded: Instant,
     var notes: String?
 )
 

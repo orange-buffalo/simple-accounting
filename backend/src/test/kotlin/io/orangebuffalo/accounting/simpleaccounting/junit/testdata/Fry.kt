@@ -5,8 +5,8 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_DATE
 import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
-import java.time.ZonedDateTime
 
 class Fry : TestData {
 
@@ -30,9 +30,8 @@ class Fry : TestData {
 
     val firstSlurm = Expense(
         category = slurmCategory,
-        //TODO
-        datePaid = ZonedDateTime.now(),
-        dateRecorded = ZonedDateTime.now(),
+        datePaid = MOCK_DATE,
+        timeRecorded = MOCK_TIME,
         currency = "THF",
         originalAmount = 5000,
         amountInDefaultCurrency = 500,
@@ -50,9 +49,8 @@ class Fry : TestData {
 
     val secondSlurm = Expense(
         category = slurmCategory,
-        //TODO
-        datePaid = ZonedDateTime.now(),
-        dateRecorded = ZonedDateTime.now(),
+        datePaid = MOCK_DATE,
+        timeRecorded = MOCK_TIME,
         currency = "ZZB",
         originalAmount = 5100,
         amountInDefaultCurrency = 510,

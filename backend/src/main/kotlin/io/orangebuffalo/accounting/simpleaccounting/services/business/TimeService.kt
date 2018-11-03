@@ -1,10 +1,11 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import org.springframework.stereotype.Service
-import java.time.ZonedDateTime
+import java.time.Instant
 
 @Service
 class TimeService {
 
-    fun currentTime(): ZonedDateTime = ZonedDateTime.now()
+    fun currentTime(): Instant = Instant.now()
+
 }
