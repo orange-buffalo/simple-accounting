@@ -8,7 +8,7 @@ class Document(
 
     @field:Column(nullable = false) var name: String,
 
-    @field:Column(length = 1024) var notes: String?,
+    @field:Column(length = 1024) var notes: String? = null,
 
     @field:ManyToOne(optional = false)
     @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "document_workspace_fk"))

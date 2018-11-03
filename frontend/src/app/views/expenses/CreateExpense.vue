@@ -36,6 +36,10 @@
           <el-input v-model="expense.percentOnBusinessInBps"></el-input>
         </el-form-item>
 
+        <document-upload @upload-complete="onNewAttachment">
+          
+        </document-upload>
+
         <el-form-item>
           <el-button type="primary" @click="save">Save</el-button>
         </el-form-item>
@@ -48,9 +52,14 @@
 
   import api from '@/services/api'
   import {mapMutations, mapState} from 'vuex'
+  import DocumentUpload from '@/app/components/DocumentUpload'
 
   export default {
     name: 'CreateExpense',
+
+    components: {
+      DocumentUpload
+    },
 
     data: function () {
       return {
@@ -116,6 +125,11 @@
                 })
           }
         })
+      },
+
+      onNewAttachment: function (document) {
+        // todo on destroy, delete all attachments if expense is not saved
+        this.expense.attachments.push(document.id)
       }
     }
   }
