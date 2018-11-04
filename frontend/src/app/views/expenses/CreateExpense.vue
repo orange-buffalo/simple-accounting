@@ -1,6 +1,5 @@
 <template>
-  <el-container>
-    <el-main>
+  <div>
       <h1>Category</h1>
       <el-form ref="expenseForm"
                :model="expense"
@@ -52,8 +51,7 @@
           <el-button type="primary" @click="save">Save</el-button>
         </el-form-item>
       </el-form>
-    </el-main>
-  </el-container>
+  </div>
 </template>
 
 <script>
