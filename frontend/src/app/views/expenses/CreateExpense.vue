@@ -5,7 +5,7 @@
       <el-form ref="expenseForm"
                :model="expense"
                :rules="expenseValidationRules">
-        
+
         <el-form-item label="category" prop="category">
           <el-select v-model="expense.category" placeholder="category">
             <el-option
@@ -35,9 +35,17 @@
         <el-form-item label="percentOnBusinessInBps" prop="percentOnBusinessInBps">
           <el-input v-model="expense.percentOnBusinessInBps"></el-input>
         </el-form-item>
+        <el-form-item label="datePaid" prop="datePaid">
+          <el-date-picker
+              v-model="expense.datePaid"
+              type="date"
+              placeholder="Pick a Date"
+              value-format="yyyy-MM-dd">
+          </el-date-picker>
+        </el-form-item>
 
         <document-upload @upload-complete="onNewAttachment">
-          
+
         </document-upload>
 
         <el-form-item>
@@ -71,7 +79,8 @@
           actualAmountInDefaultCurrency: null,
           attachments: [],
           percentOnBusinessInBps: null,
-          notes: null
+          notes: null,
+          datePaid: null
         },
         expenseValidationRules: {
           // name: [
