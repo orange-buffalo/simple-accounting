@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <app-layout>
+    <span slot="header"><el-button @click="navigateToCreateExpenseView">Add new</el-button></span>
+    
     <el-card>
     <data-table stripe :api-path="`/user/workspaces/${workspaceId}/expenses`">
       <el-table-column
@@ -35,7 +37,7 @@
 
     </data-table>
       </el-card>
-  </div>
+  </app-layout>
 </template>
 
 <script>
@@ -54,6 +56,11 @@
       ...mapGetters({
         categoryById: 'workspaces/categoryById'
       })
+    } ,
+    methods: {
+      navigateToCreateExpenseView: function () {
+        this.$router.push({name: 'create-new-expense'})
+      }
     }
   }
 </script>

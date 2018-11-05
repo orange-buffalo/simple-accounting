@@ -7,10 +7,12 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import EventBus from 'eventbusjs'
 import Router from 'vue-router'
+import AppLayout from '@/app/components/AppLayout'
 
 Vue.config.productionTip = false
 
 Vue.use(ElementUI);
+Vue.component('app-layout', AppLayout);
 
 router.beforeEach((to, from, next) => {
   if (to.name !== 'login' && !store.getters['api/isLoggedIn']) {

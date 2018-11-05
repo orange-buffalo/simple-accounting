@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <app-layout>
     <el-button @click="navigateToNewCategoryView">Add new</el-button>
     <el-card class="box-card" v-for="category in categories">
       <div slot="header" class="clearfix">
@@ -16,7 +16,7 @@
         Expense: {{category.expense}}
       </p>
     </el-card>
-  </div>
+  </app-layout>
 </template>
 
 <script>

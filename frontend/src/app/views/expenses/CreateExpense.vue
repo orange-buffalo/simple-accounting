@@ -1,6 +1,6 @@
 <template>
-  <div>
-      <h1>Category</h1>
+  <app-layout>
+    <el-card>
       <el-form ref="expenseForm"
                :model="expense"
                :rules="expenseValidationRules">
@@ -51,7 +51,8 @@
           <el-button type="primary" @click="save">Save</el-button>
         </el-form-item>
       </el-form>
-  </div>
+    </el-card>
+  </app-layout>
 </template>
 
 <script>
