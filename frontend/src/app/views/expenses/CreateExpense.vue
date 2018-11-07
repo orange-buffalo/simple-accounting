@@ -20,7 +20,7 @@
           <el-input type="textarea" v-model="expense.notes"></el-input>
         </el-form-item>
         <el-form-item label="currency" prop="currency">
-          <el-input v-model="expense.currency"></el-input>
+          <currency-input v-model="expense.currency"></currency-input>
         </el-form-item>
         <el-form-item label="originalAmount" prop="originalAmount">
           <el-input v-model="expense.originalAmount"></el-input>
@@ -60,12 +60,14 @@
   import api from '@/services/api'
   import {mapMutations, mapState} from 'vuex'
   import DocumentUpload from '@/app/components/DocumentUpload'
+  import CurrencyInput from '@/app/components/CurrencyInput'
 
   export default {
     name: 'CreateExpense',
 
     components: {
-      DocumentUpload
+      DocumentUpload,
+      CurrencyInput
     },
 
     data: function () {
