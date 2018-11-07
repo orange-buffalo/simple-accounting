@@ -37,6 +37,8 @@ EventBus.addEventListener(LOGIN_REQUIRED_EVENT, () => {
 })
 
 EventBus.addEventListener(SUCCESSFUL_LOGIN_EVENT, () => {
+  store.dispatch('app/loadCurrencies')
+  
   store.dispatch('workspaces/loadWorkspaces').then(() => {
     if (!store.state.workspaces.currentWorkspace) {
       router.push('/workspace-setup')
