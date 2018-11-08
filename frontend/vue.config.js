@@ -26,5 +26,14 @@ module.exports = {
     port: 9091,
     proxy: 'http://localhost:9393',
     disableHostCheck: true
+  },
+
+  chainWebpack: config => {
+    config.module
+        .rule('cldr-data')
+        .test(/\.cldr-data$/)
+        .use('cldr-data')
+        .loader(require('path').resolve('src/loaders/cldr-data-loader'))
+        .end()
   }
 }

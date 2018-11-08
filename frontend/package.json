@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "cldrjs": "^0.5.0",
     "element-ui": "^2.4.8",
     "eventbusjs": "^0.2.0",
     "vue": "^2.5.17",
@@ -21,6 +22,7 @@
     "@vue/cli-service": "^3.0.4",
     "@vue/test-utils": "^1.0.0-beta.25",
     "chai": "^4.2.0",
+    "cldr-data": "^34.0.0",
     "mocha": "^5.2.0",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
@@ -36,5 +38,6 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "cldr-data-coverage": "full"
 }
