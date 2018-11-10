@@ -32,6 +32,9 @@ new Vue({
 
 initApi(store)
 
+//todo calculate proper locale
+store.dispatch('i18n/loadLocaleData')
+
 EventBus.addEventListener(LOGIN_REQUIRED_EVENT, () => {
   router.push('/login')
 })
