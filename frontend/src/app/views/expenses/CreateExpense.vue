@@ -16,14 +16,8 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="notes" prop="notes">
-          <el-input type="textarea" v-model="expense.notes"></el-input>
-        </el-form-item>
         <el-form-item label="currency" prop="currency">
           <currency-input v-model="expense.currency"></currency-input>
-        </el-form-item>
-        <el-form-item label="originalAmount" prop="originalAmount">
-          <el-input v-model="expense.originalAmount"></el-input>
         </el-form-item>
 
         <el-form-item label="originalAmount" prop="originalAmount">
@@ -31,22 +25,54 @@
                        :currency="expense.currency"></money-input>
         </el-form-item>
 
-        <el-form-item label="amountInDefaultCurrency" prop="amountInDefaultCurrency">
-          <el-input v-model="expense.amountInDefaultCurrency"></el-input>
-        </el-form-item>
-        <el-form-item label="actualAmountInDefaultCurrency" prop="actualAmountInDefaultCurrency">
-          <el-input v-model="expense.actualAmountInDefaultCurrency"></el-input>
-        </el-form-item>
-        <el-form-item label="percentOnBusinessInBps" prop="percentOnBusinessInBps">
-          <el-input v-model="expense.percentOnBusinessInBps"></el-input>
-        </el-form-item>
         <el-form-item label="datePaid" prop="datePaid">
+          <!-- todo format from cldr -->
           <el-date-picker
               v-model="expense.datePaid"
               type="date"
               placeholder="Pick a Date"
               value-format="yyyy-MM-dd">
           </el-date-picker>
+        </el-form-item>
+
+        <el-form-item>
+          <el-switch
+              v-model="alreadyConverted"
+              v-if="!isInDefaultCurrency"
+              :active-text="alreadyConverted ? 'Already converted' : 'Not yet converted'">
+          </el-switch>
+        </el-form-item>
+
+        <el-form-item :label="`Amount in ${defaultCurrency}`"
+                      prop="amountInDefaultCurrency"
+                      v-if="defaultCurrencyAmountVisible">
+          <money-input v-model="expense.amountInDefaultCurrency"
+                       :currency="defaultCurrency"></money-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-switch
+              v-model="reportedAnotherExchangeRate"
+              v-if="alreadyConverted"
+              :active-text="reportedAnotherExchangeRate ? 'Reported converted amount is different (use another rate)' : 'Same amount is reported'">
+          </el-switch>
+        </el-form-item>
+
+        <el-form-item label="Reported amount"
+                      prop="actualAmountInDefaultCurrency"
+                      v-if="actualAmountVisible">
+          <money-input v-model="expense.actualAmountInDefaultCurrency"
+                       :currency="defaultCurrency"></money-input>
+        </el-form-item>
+
+        <el-form-item label="percentOnBusinessInBps"
+                      prop="percentOnBusinessInBps"
+                      v-if="percentOnBusinessVisible">
+          <el-input v-model="expense.percentOnBusinessInBps"></el-input>
+        </el-form-item>
+
+        <el-form-item label="notes" prop="notes">
+          <el-input type="textarea" v-model="expense.notes"></el-input>
         </el-form-item>
 
         <document-upload @upload-complete="onNewAttachment">
@@ -89,7 +115,7 @@
           attachments: [],
           percentOnBusinessInBps: null,
           notes: null,
-          datePaid: null
+          datePaid: new Date()
         },
         expenseValidationRules: {
           // name: [
@@ -110,7 +136,10 @@
           //     }
           //   }
           // ]
-        }
+        },
+        alreadyConverted: false,
+        reportedAnotherExchangeRate: false,
+        partialForBusiness: false
       }
     },
 
@@ -118,9 +147,30 @@
       ...mapState('workspaces', {
         workspace: 'currentWorkspace'
       }),
+
       ...mapState({
-        categories: state => state.workspaces.currentWorkspace.categories
-      })
+        categories: state => state.workspaces.currentWorkspace.categories.filter(category => category.expense)
+      }),
+
+      isInDefaultCurrency: function () {
+        return this.expense.currency === this.defaultCurrency
+      },
+
+      defaultCurrency: function () {
+        return this.workspace.defaultCurrency
+      },
+
+      defaultCurrencyAmountVisible: function () {
+        return this.alreadyConverted && !this.isInDefaultCurrency
+      },
+
+      actualAmountVisible: function () {
+        return this.defaultCurrencyAmountVisible && this.reportedAnotherExchangeRate && !this.isInDefaultCurrency
+      },
+
+      percentOnBusinessVisible: function () {
+        return this.partialForBusiness
+      }
     },
 
     methods: {
