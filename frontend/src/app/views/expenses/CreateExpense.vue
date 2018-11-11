@@ -25,6 +25,12 @@
         <el-form-item label="originalAmount" prop="originalAmount">
           <el-input v-model="expense.originalAmount"></el-input>
         </el-form-item>
+
+        <el-form-item label="originalAmount" prop="originalAmount">
+          <money-input v-model="expense.originalAmount"
+                       :currency="expense.currency"></money-input>
+        </el-form-item>
+
         <el-form-item label="amountInDefaultCurrency" prop="amountInDefaultCurrency">
           <el-input v-model="expense.amountInDefaultCurrency"></el-input>
         </el-form-item>
@@ -61,13 +67,15 @@
   import {mapMutations, mapState} from 'vuex'
   import DocumentUpload from '@/app/components/DocumentUpload'
   import CurrencyInput from '@/app/components/CurrencyInput'
+  import MoneyInput from '@/app/components/MoneyInput'
 
   export default {
     name: 'CreateExpense',
 
     components: {
       DocumentUpload,
-      CurrencyInput
+      CurrencyInput,
+      MoneyInput
     },
 
     data: function () {

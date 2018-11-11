@@ -34,17 +34,24 @@ export const i18nStore = {
   namespaced: true,
 
   state: {
-    cldr: null
+    cldr: null,
+    globalize: null
   },
 
   mutations: {},
 
   actions: {
     loadLocaleData: function ({state}) {
+      //todo move to a separate js, can be loaded without splitting
+      // todo based on current locale
       import('cldrjs').then(cldr => {
-        import(/* webpackChunkName: "i18n" */ './i18n/en-AU.cldr-data').then(module => {
-          cldr.default.load(module.default)
-          state.cldr = new cldr.default("en-AU");
+        import('globalize').then(globalize => {
+          import(/* webpackChunkName: "i18n" */ './i18n/en-AU.cldr-data').then(module => {
+            cldr.default.load(module.default)
+            globalize.default.load(module.default)
+            state.cldr = new cldr.default("en-AU");
+            state.globalize = globalize.default("en-AU");
+          });
         });
       })
     }
@@ -54,6 +61,12 @@ export const i18nStore = {
     getCurrencyInfo: state => currency => {
       let currencyInfo = state.cldr ? state.cldr.get(`/main/{bundle}/numbers/currencies/${currency}`) : {}
       return currencyInfo ? currencyInfo : {}
+    },
+
+    getCurrencyFormatter: state => currency => {
+      return state.globalize
+          ? state.globalize.currencyFormatter(currency)
+          : () => ''
     }
   }
 }
