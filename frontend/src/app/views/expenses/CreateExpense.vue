@@ -26,7 +26,7 @@
         </el-form-item>
 
         <el-form-item label="datePaid" prop="datePaid">
-          <!-- todo format from cldr -->
+          <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
           <el-date-picker
               v-model="expense.datePaid"
               type="date"
@@ -36,11 +36,11 @@
         </el-form-item>
 
         <el-form-item>
-          <el-switch
+          <el-checkbox
               v-model="alreadyConverted"
-              v-if="!isInDefaultCurrency"
-              :active-text="alreadyConverted ? 'Already converted' : 'Not yet converted'">
-          </el-switch>
+              v-if="!isInDefaultCurrency">
+            Already converted
+          </el-checkbox>
         </el-form-item>
 
         <el-form-item :label="`Amount in ${defaultCurrency}`"
@@ -51,11 +51,11 @@
         </el-form-item>
 
         <el-form-item>
-          <el-switch
+          <el-checkbox
               v-model="reportedAnotherExchangeRate"
-              v-if="alreadyConverted"
-              :active-text="reportedAnotherExchangeRate ? 'Reported converted amount is different (use another rate)' : 'Same amount is reported'">
-          </el-switch>
+              v-if="alreadyConverted">
+            Reported converted amount is different (use another rate)
+          </el-checkbox>
         </el-form-item>
 
         <el-form-item label="Reported amount"
@@ -90,7 +90,7 @@
 <script>
 
   import api from '@/services/api'
-  import {mapMutations, mapState} from 'vuex'
+  import {mapMutations, mapState, mapGetters} from 'vuex'
   import DocumentUpload from '@/app/components/DocumentUpload'
   import CurrencyInput from '@/app/components/CurrencyInput'
   import MoneyInput from '@/app/components/MoneyInput'
@@ -150,6 +150,10 @@
 
       ...mapState({
         categories: state => state.workspaces.currentWorkspace.categories.filter(category => category.expense)
+      }),
+
+      ...mapGetters({
+        mediumDateFormatter: 'i18n/getMediumDateFormatter'
       }),
 
       isInDefaultCurrency: function () {

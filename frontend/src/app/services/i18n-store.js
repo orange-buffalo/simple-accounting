@@ -67,6 +67,12 @@ export const i18nStore = {
       return state.globalize
           ? state.globalize.currencyFormatter(currency)
           : () => ''
+    },
+
+    getMediumDateFormatter: state => {
+      return state.globalize
+          ? state.globalize.dateFormatter({date: 'medium'})
+          : () => ''
     }
   }
 }
