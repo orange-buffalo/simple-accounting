@@ -3,6 +3,8 @@
     <el-card>
       <el-form ref="expenseForm"
                :model="expense"
+               label-position="right"
+               label-width="200px"
                :rules="expenseValidationRules">
 
         <el-form-item label="category" prop="category">
@@ -35,10 +37,8 @@
           </el-date-picker>
         </el-form-item>
 
-        <el-form-item>
-          <el-checkbox
-              v-model="alreadyConverted"
-              v-if="!isInDefaultCurrency">
+        <el-form-item v-if="!isInDefaultCurrency">
+          <el-checkbox v-model="alreadyConverted">
             Already converted
           </el-checkbox>
         </el-form-item>
@@ -50,10 +50,8 @@
                        :currency="defaultCurrency"></money-input>
         </el-form-item>
 
-        <el-form-item>
-          <el-checkbox
-              v-model="reportedAnotherExchangeRate"
-              v-if="alreadyConverted">
+        <el-form-item v-if="alreadyConverted">
+          <el-checkbox v-model="reportedAnotherExchangeRate">
             Reported converted amount is different (use another rate)
           </el-checkbox>
         </el-form-item>

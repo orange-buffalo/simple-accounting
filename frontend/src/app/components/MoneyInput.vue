@@ -8,6 +8,8 @@
 <script>
   import {mapActions, mapGetters, mapState} from 'vuex'
 
+  // inspired by https://github.com/vuejs-tips/v-money
+
   export default {
     name: 'MoneyInput',
 
