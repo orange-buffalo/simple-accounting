@@ -7,6 +7,8 @@
                label-width="200px"
                :rules="expenseValidationRules">
 
+        <h2>General data</h2>
+
         <el-form-item label="category" prop="category">
           <el-select v-model="expense.category" placeholder="category">
             <el-option
@@ -69,13 +71,21 @@
           <el-input v-model="expense.percentOnBusinessInBps"></el-input>
         </el-form-item>
 
+        <h2>Additional notes</h2>
         <el-form-item label="notes" prop="notes">
           <el-input type="textarea" v-model="expense.notes"></el-input>
         </el-form-item>
 
-        <document-upload @upload-complete="onNewAttachment">
+        <h2>Documents</h2>
+
+        <el-form-item>
+          <document-upload @upload-complete="onNewAttachment">
 
         </document-upload>
+        </el-form-item>
+
+        <br/>
+        <hr/>
 
         <el-form-item>
           <el-button type="primary" @click="save">Save</el-button>
