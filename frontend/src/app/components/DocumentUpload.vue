@@ -75,6 +75,7 @@
         console.log(file)
         if (!this.filePresent) {
           this.selectedFile = file
+          this.$emit('on-select')
         }
       },
 

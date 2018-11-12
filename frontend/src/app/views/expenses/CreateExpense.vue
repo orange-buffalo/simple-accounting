@@ -79,9 +79,9 @@
         <h2>Documents</h2>
 
         <el-form-item>
-          <document-upload @upload-complete="onNewAttachment">
+          <documents-upload @upload-complete="onNewAttachment">
 
-        </document-upload>
+        </documents-upload>
         </el-form-item>
 
         <br/>
@@ -99,7 +99,7 @@
 
   import api from '@/services/api'
   import {mapMutations, mapState, mapGetters} from 'vuex'
-  import DocumentUpload from '@/app/components/DocumentUpload'
+  import DocumentsUpload from '@/app/components/DocumentsUpload'
   import CurrencyInput from '@/app/components/CurrencyInput'
   import MoneyInput from '@/app/components/MoneyInput'
 
@@ -107,7 +107,7 @@
     name: 'CreateExpense',
 
     components: {
-      DocumentUpload,
+      DocumentsUpload,
       CurrencyInput,
       MoneyInput
     },
