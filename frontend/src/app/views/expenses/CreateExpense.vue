@@ -78,11 +78,9 @@
 
         <h2>Documents</h2>
 
-        <el-form-item>
-          <documents-upload @upload-complete="onNewAttachment">
-
-        </documents-upload>
-        </el-form-item>
+        <documents-upload form-property="uploads"
+                          v-model="expense.uploads"
+                          @upload-complete="onNewAttachment"/>
 
         <br/>
         <hr/>
@@ -123,9 +121,11 @@
           attachments: [],
           percentOnBusinessInBps: null,
           notes: null,
-          datePaid: new Date()
+          datePaid: new Date(),
+          uploads: []
         },
         expenseValidationRules: {
+          // todo rules
           // name: [
           //   {required: true, message: 'Please input name', trigger: 'blur'}
           // ],
@@ -187,6 +187,10 @@
 
     methods: {
       save: function () {
+        // todo expense has too much data - build a simplified object
+
+        // todo initiate uploads
+
         this.$refs.expenseForm.validate((valid) => {
           if (valid) {
             api

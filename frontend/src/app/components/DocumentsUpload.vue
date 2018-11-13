@@ -2,12 +2,17 @@
   <div>
     <!-- todo validation within el form -->
 
-    <document-upload v-for="(upload, index) in uploads"
-                     ref="uploads"
-                     :key="upload"
-                     @on-clear="onUploadClear(index)"
-                     @on-select="onSelect(upload)"
-                     />
+    <el-form-item v-for="(upload, index) in uploads"
+                  :prop="`${formProperty}.${index}`"
+                  :key="index"
+                  :rules="validationRules">
+      <document-upload
+          ref="uploads"
+          @on-notes="onNotes(index, $event)"
+          @on-clear="onUploadClear(index)"
+          @on-select="onSelect(upload)"
+      />
+    </el-form-item>
   </div>
 </template>
 
@@ -19,7 +24,8 @@
     name: 'DocumentsUpload',
 
     props: {
-
+      formProperty: String,
+      value: Array
     },
 
     components: {
@@ -28,7 +34,10 @@
 
     data: function () {
       return {
-        uploads: []
+        uploads: this.value,
+        validationRules: [
+          {validator: this.validateUpload, trigger: 'change'}
+        ]
       }
     },
 
@@ -37,9 +46,19 @@
     },
 
     methods: {
+      updateModel: function () {
+        this.$emit('input', this.uploads)
+      },
+
+      onNotes: function (index, notes) {
+        this.uploads[index].notes = notes
+        this.updateModel()
+      },
+
       onUploadClear: function (uploadIndex) {
         if (this.uploads.length > 1) {
           this.uploads.splice(uploadIndex, 1)
+          this.updateModel()
         }
       },
 
@@ -54,15 +73,27 @@
 
       addNewUpload() {
         this.uploads.push({
-           document: null,
-          selected: false
+          document: null,
+          selected: false,
+          notes: null
         })
+        this.updateModel()
+      },
+
+      validateUpload: function (rule, value, callback) {
+        if (value.notes && value.notes.length > 1024) {
+          callback(new Error("Too long"))
+        }
+        else if (value.notes && !value.selected) {
+          callback(new Error("Please select a file"))
+        }
+        else {
+          callback()
+        }
       }
     },
 
-    computed: {
-
-    }
+    computed: {}
   }
 </script>
 

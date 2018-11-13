@@ -32,17 +32,21 @@
         </div>
       </div>
     </el-upload>
-    <el-input placeholder="Additional notes..." v-model="uploadRequest.notes"></el-input>
+    <el-input placeholder="Additional notes..."
+              v-model="uploadRequest.notes"/>
   </div>
 </template>
 
 <script>
   import {mapState, mapGetters} from 'vuex'
+  import emitter from 'element-ui/src/mixins/emitter';
 
   export default {
     name: 'DocumentUpload',
 
     props: {},
+
+    mixins: [emitter],
 
     data: function () {
       return {
@@ -72,10 +76,10 @@
       },
 
       onChange: function (file) {
-        console.log(file)
         if (!this.filePresent) {
           this.selectedFile = file
           this.$emit('on-select')
+          this.dispatch('ElFormItem', 'el.form.change');
         }
       },
 
@@ -84,6 +88,7 @@
         if (!this.uploadRequest.notes) {
           this.$emit('on-clear')
         }
+        this.dispatch('ElFormItem', 'el.form.change');
       },
 
       upload: function () {
@@ -106,12 +111,26 @@
       filePresent: function () {
         return this.selectedFile != null
       }
+    },
+
+    watch: {
+      'uploadRequest.notes': function (val) {
+        this.$emit('on-notes', val)
+      }
     }
   }
 </script>
 
 <style lang="scss">
   @import "~element-ui/packages/theme-chalk/src/upload";
+
+  .el-form-item {
+    &.is-error {
+      .el-upload-dragger {
+        border-color: red;
+      }
+    }
+  }
 
   .doc-upload-file-panel {
     @extend .el-upload-dragger;
