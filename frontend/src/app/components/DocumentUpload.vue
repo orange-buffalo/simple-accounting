@@ -9,7 +9,7 @@
         :on-error="onError"
         :on-progress="onProgress"
         :on-change="onChange"
-        ref="upload"
+        ref="elUpload"
         :disabled="filePresent"
         :auto-upload="false"
         :headers="headers">
@@ -25,7 +25,7 @@
         <i class="el-icon-document"></i>
         <div class="el-upload__text">
           <!--todo display in localized kb/mb units-->
-          <div>{{selectedFile.name}} ({{selectedFile.size}})</div>
+          <div>{{upload.file.name}} ({{upload.file.size}})</div>
           <div class="el-upload__tip">
             <el-button type="text" @click="onRemove">Remove</el-button>
           </div>
@@ -39,12 +39,15 @@
 
 <script>
   import {mapState, mapGetters} from 'vuex'
-  import emitter from 'element-ui/src/mixins/emitter';
+  import emitter from 'element-ui/src/mixins/emitter'
+  import UploadInfo from './upload-info'
 
   export default {
     name: 'DocumentUpload',
 
-    props: {},
+    props: {
+      value: UploadInfo
+    },
 
     mixins: [emitter],
 
@@ -53,7 +56,7 @@
         uploadRequest: {
           notes: ""
         },
-        selectedFile: null
+        upload: this.value
       }
     },
 
@@ -76,23 +79,18 @@
       },
 
       onChange: function (file) {
-        if (!this.filePresent) {
-          this.selectedFile = file
-          this.$emit('on-select')
-          this.dispatch('ElFormItem', 'el.form.change');
-        }
-      },
-
-      onRemove: function () {
-        this.selectedFile = null
-        if (!this.uploadRequest.notes) {
-          this.$emit('on-clear')
-        }
+        this.upload.file = file
         this.dispatch('ElFormItem', 'el.form.change');
       },
 
-      upload: function () {
-        this.$refs.upload.submit()
+      onRemove: function () {
+        this.$refs.elUpload.clearFiles()
+        this.upload.clearFile()
+        this.dispatch('ElFormItem', 'el.form.change');
+      },
+
+      submitUpload: function () {
+        this.$refs.elUpload.submit()
       }
     },
 
@@ -109,13 +107,24 @@
       },
 
       filePresent: function () {
-        return this.selectedFile != null
+        return this.upload.isFileSelected()
+      },
+
+      notes: function () {
+        return this.uploadRequest.notes
       }
     },
 
     watch: {
-      'uploadRequest.notes': function (val) {
-        this.$emit('on-notes', val)
+      notes: function (val) {
+        this.upload.notes = val
+      },
+
+      upload: {
+        handler: function (val) {
+          this.$emit('input', val)
+        },
+        deep: true
       }
     }
   }

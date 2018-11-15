@@ -4,21 +4,19 @@
 
     <el-form-item v-for="(upload, index) in uploads"
                   :prop="`${formProperty}.${index}`"
-                  :key="index"
+                  :key="upload.id"
                   :rules="validationRules">
       <document-upload
           ref="uploads"
-          @on-notes="onNotes(index, $event)"
-          @on-clear="onUploadClear(index)"
-          @on-select="onSelect(upload)"
+          v-model="uploads[index]"
       />
     </el-form-item>
   </div>
 </template>
 
 <script>
-  import {mapState, mapGetters} from 'vuex'
   import DocumentUpload from './DocumentUpload'
+  import UploadInfo from './upload-info'
 
   export default {
     name: 'DocumentsUpload',
@@ -46,45 +44,19 @@
     },
 
     methods: {
-      updateModel: function () {
-        this.$emit('input', this.uploads)
-      },
-
-      onNotes: function (index, notes) {
-        this.uploads[index].notes = notes
-        this.updateModel()
-      },
-
-      onUploadClear: function (uploadIndex) {
-        if (this.uploads.length > 1) {
-          this.uploads.splice(uploadIndex, 1)
-          this.updateModel()
-        }
-      },
-
-      onSelect: function (upload) {
-        upload.selected = true
-        this.addNewUpload()
-      },
-
       upload: function () {
         this.$refs.uploads.forEach(upload => upload.submit())
       },
 
       addNewUpload() {
-        this.uploads.push({
-          document: null,
-          selected: false,
-          notes: null
-        })
-        this.updateModel()
+        this.uploads.push(new UploadInfo())
       },
 
       validateUpload: function (rule, value, callback) {
         if (value.notes && value.notes.length > 1024) {
           callback(new Error("Too long"))
         }
-        else if (value.notes && !value.selected) {
+        else if (value.notes && !value.isFileSelected()) {
           callback(new Error("Please select a file"))
         }
         else {
@@ -93,7 +65,27 @@
       }
     },
 
-    computed: {}
+    computed: {},
+
+    watch: {
+      uploads: {
+        handler: function (val) {
+          if (val[val.length - 1].isFileSelected()) {
+            this.uploads.push(new UploadInfo())
+          }
+
+          if (val.length > 1) {
+            for (let i = 0; i < val.length - 1; i++) {
+              if (val[i].isEmpty()) {
+                this.uploads.splice(i, 1)
+              }
+            }
+          }
+          this.$emit('input', val)
+        },
+        deep: true
+      }
+    }
   }
 </script>
 
