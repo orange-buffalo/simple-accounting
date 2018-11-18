@@ -65,10 +65,18 @@
                        :currency="defaultCurrency"></money-input>
         </el-form-item>
 
+        <el-form-item>
+          <el-checkbox v-model="partialForBusiness">
+            Expense is partially purposed for the business needs
+          </el-checkbox>
+        </el-form-item>
+
         <el-form-item label="percentOnBusiness"
                       prop="percentOnBusiness"
                       v-if="percentOnBusinessVisible">
-          <el-input v-model="expense.percentOnBusiness"></el-input>
+          <el-input-number v-model="expense.percentOnBusiness"
+                           :min="0"
+                           :max="100"/>
         </el-form-item>
 
         <h2>Additional notes</h2>
@@ -119,7 +127,7 @@
           amountInDefaultCurrency: null,
           actualAmountInDefaultCurrency: null,
           attachments: [],
-          percentOnBusiness: null,
+          percentOnBusiness: 100,
           notes: null,
           datePaid: new Date(),
           uploads: new UploadsInfo()
