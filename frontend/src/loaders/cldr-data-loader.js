@@ -37,3 +37,5 @@ module.exports = function (source) {
   let jsonArray = cldrData(this, buildPaths(source));
   return 'export default ' + jsonArray;
 }
+
+// todo load only necessary files instead of the whole main  and supplement
