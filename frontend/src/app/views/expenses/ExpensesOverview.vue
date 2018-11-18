@@ -12,7 +12,8 @@
         </el-table-column>
 
         <el-table-column label="Amount"
-                         header-align="right">
+                         header-align="right"
+                         align="right">
           <div class="money-output"
                slot-scope="scope">
             <money-output :currency="defaultCurrency"
@@ -27,7 +28,8 @@
         </el-table-column>
 
         <el-table-column label="Reported Amount"
-                         header-align="right">
+                         header-align="right"
+                         align="right">
           <div class="money-output"
                slot-scope="scope">
             <!--todo reportedAmountInDefaultCurrency -->
@@ -46,8 +48,10 @@
         </el-table-column>
 
         <el-table-column
-            prop="notes"
-            label="notes">
+            label="Date"
+            header-align="center"
+            align="center">
+          <span slot-scope="scope">{{getDatePaid(scope.row)}}</span>
         </el-table-column>
 
       </data-table>
@@ -75,7 +79,8 @@
       }),
 
       ...mapGetters({
-        categoryById: 'workspaces/categoryById'
+        categoryById: 'workspaces/categoryById',
+        mediumDateFormatter: 'i18n/getMediumDateFormatter'
       })
     },
 
@@ -91,19 +96,18 @@
       isConverted: function (expense) {
         return expense.currency !== this.defaultCurrency
             && expense.amountInDefaultCurrency
+      },
+
+      getDatePaid: function (expense) {
+        return this.mediumDateFormatter(new Date(expense.datePaid))
       }
     }
   }
 </script>
 
 <style lang="scss">
-  .money-output {
-    text-align: right;
-
-    .secondary-text {
-      font-size: 90%;
-      color: #8e8e8e;
-    }
-
+  .secondary-text {
+    font-size: 90%;
+    color: #8e8e8e;
   }
 </style>
