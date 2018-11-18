@@ -41,6 +41,9 @@ class Expense(
     @field:Column(nullable = false)
     var percentOnBusinessInBps: Int,
 
+    @field:Column(nullable = false)
+    var reportedAmountInDefaultCurrency: Long,
+
     @field:Column(length = 1024)
     var notes: String? = null
 

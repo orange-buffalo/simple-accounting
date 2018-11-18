@@ -36,6 +36,7 @@ class Fry : TestData {
         originalAmount = 5000,
         amountInDefaultCurrency = 500,
         actualAmountInDefaultCurrency = 450,
+        reportedAmountInDefaultCurrency = 450,
         percentOnBusinessInBps = 10000
     )
 
@@ -55,6 +56,7 @@ class Fry : TestData {
         originalAmount = 5100,
         amountInDefaultCurrency = 510,
         actualAmountInDefaultCurrency = 460,
+        reportedAmountInDefaultCurrency = 455,
         percentOnBusinessInBps = 9900,
         notes = "nice!",
         attachments = mutableListOf(slurmReceipt)
