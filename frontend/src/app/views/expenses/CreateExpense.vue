@@ -79,9 +79,8 @@
         <h2>Documents</h2>
 
         <documents-upload form-property="uploads"
-                          v-model="expense.uploads"
-                          @upload-complete="onNewAttachment"/>
-
+                          ref="documentsUpload"
+                          v-model="expense.uploads"/>
         <br/>
         <hr/>
 
@@ -96,10 +95,11 @@
 <script>
 
   import api from '@/services/api'
-  import {mapMutations, mapState, mapGetters} from 'vuex'
+  import {mapState, mapGetters} from 'vuex'
   import DocumentsUpload from '@/app/components/DocumentsUpload'
   import CurrencyInput from '@/app/components/CurrencyInput'
   import MoneyInput from '@/app/components/MoneyInput'
+  import {UploadsInfo} from '@/app/components/uploads-info'
 
   export default {
     name: 'CreateExpense',
@@ -122,7 +122,7 @@
           percentOnBusinessInBps: null,
           notes: null,
           datePaid: new Date(),
-          uploads: []
+          uploads: new UploadsInfo()
         },
         expenseValidationRules: {
           // todo rules
@@ -187,33 +187,39 @@
 
     methods: {
       save: function () {
-        // todo expense has too much data - build a simplified object
-
-        // todo initiate uploads
+        // todo on destroy, delete all attachments if expense is not saved
 
         this.$refs.expenseForm.validate((valid) => {
           if (valid) {
-            api
-                .post(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
-                .then(response => {
-                  console.log(response)
-                  this.$router.push({name: 'expenses-overview'})
-                })
-                .catch(() => {
-                  this.$refs.expenseForm.clearValidate()
+            this.$refs.documentsUpload.submitUploads().then(
+                () => {
+                  // todo expense has too much data - build a simplified request object
+                  this.expense.attachments = this.expense.uploads.getDocumentsIds()
+
+                  api
+                      .post(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
+                      .then(response => {
+                        console.log(response)
+                        this.$router.push({name: 'expenses-overview'})
+                      })
+                      .catch(() => {
+                        this.$refs.expenseForm.clearValidate()
+                        this.$message({
+                          showClose: true,
+                          message: 'Sorry, failed',
+                          type: 'error'
+                        });
+                      })
+                },
+                () => {
                   this.$message({
                     showClose: true,
-                    message: 'Sorry, failed',
+                    message: 'Upload failed',
                     type: 'error'
                   });
                 })
           }
         })
-      },
-
-      onNewAttachment: function (document) {
-        // todo on destroy, delete all attachments if expense is not saved
-        this.expense.attachments.push(document.id)
       }
     }
   }

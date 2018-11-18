@@ -1,14 +1,14 @@
 <template>
   <div>
-    <!-- todo validation within el form -->
-
-    <el-form-item v-for="(upload, index) in uploads"
-                  :prop="`${formProperty}.${index}`"
+    <el-form-item v-for="(upload, index) in uploadsInfo.uploads"
+                  :prop="`${formProperty}.uploads.${index}`"
                   :key="upload.id"
                   :rules="validationRules">
       <document-upload
-          ref="uploads"
-          v-model="uploads[index]"
+          ref="documentUploads"
+          @upload-complete="onUploadComplete"
+          @upload-error="onUploadError"
+          v-model="uploadsInfo.uploads[index]"
       />
     </el-form-item>
   </div>
@@ -16,14 +16,14 @@
 
 <script>
   import DocumentUpload from './DocumentUpload'
-  import UploadInfo from './upload-info'
+  import {UploadsInfo} from './uploads-info'
 
   export default {
     name: 'DocumentsUpload',
 
     props: {
       formProperty: String,
-      value: Array
+      value: UploadsInfo
     },
 
     components: {
@@ -32,7 +32,7 @@
 
     data: function () {
       return {
-        uploads: this.value,
+        uploadsInfo: this.value,
         validationRules: [
           {validator: this.validateUpload, trigger: 'change'}
         ]
@@ -44,43 +44,49 @@
     },
 
     methods: {
-      upload: function () {
-        this.$refs.uploads.forEach(upload => upload.submit())
-      },
-
-      addNewUpload() {
-        this.uploads.push(new UploadInfo())
+      addNewUpload: function () {
+        this.uploadsInfo.add()
       },
 
       validateUpload: function (rule, value, callback) {
-        if (value.notes && value.notes.length > 1024) {
-          callback(new Error("Too long"))
-        }
-        else if (value.notes && !value.isFileSelected()) {
-          callback(new Error("Please select a file"))
-        }
-        else {
-          callback()
-        }
+        value.validate(callback)
+      },
+
+      onUploadComplete: function () {
+        this.onUploadDone()
+      },
+
+      onUploadError: function () {
+        this.onUploadDone()
+      },
+
+      onUploadDone: function () {
+        this.uploadsInfo.executeIfUploaded(() => {
+          this.submitUploadPromise.resolve()
+          this.submitUploadPromise = null
+        }, () => {
+          this.submitUploadPromise.reject()
+          this.submitUploadPromise = false
+        })
+      },
+
+      submitUploads: function () {
+        return new Promise((resolve, reject) => {
+          this.submitUploadPromise = {
+            resolve: resolve,
+            reject: reject
+          }
+          this.$refs.documentUploads.forEach(upload => upload.submitUpload())
+        })
       }
     },
 
     computed: {},
 
     watch: {
-      uploads: {
+      uploadsInfo: {
         handler: function (val) {
-          if (val[val.length - 1].isFileSelected()) {
-            this.uploads.push(new UploadInfo())
-          }
-
-          if (val.length > 1) {
-            for (let i = 0; i < val.length - 1; i++) {
-              if (val[i].isEmpty()) {
-                this.uploads.splice(i, 1)
-              }
-            }
-          }
+          this.uploadsInfo.ensureCompleteness()
           this.$emit('input', val)
         },
         deep: true

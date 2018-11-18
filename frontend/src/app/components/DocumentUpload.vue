@@ -38,9 +38,9 @@
 </template>
 
 <script>
-  import {mapState, mapGetters} from 'vuex'
+  import {mapState} from 'vuex'
   import emitter from 'element-ui/src/mixins/emitter'
-  import UploadInfo from './upload-info'
+  import {UploadInfo} from './uploads-info'
 
   export default {
     name: 'DocumentUpload',
@@ -62,19 +62,20 @@
 
     methods: {
       onSuccess: function (response) {
-        this.$emit('upload-complete', response)
+        console.log(response)
+        this.upload.document = response
+        this.$emit('upload-complete', this.upload)
       },
 
       onError: function (error) {
-        console.error(error)
-        this.$message({
-          showClose: true,
-          message: 'Upload failed',
-          type: 'error'
-        });
+        console.log(error)
+        //todo change component visual state to indicate upload error
+        this.upload.uploadError = error
+        this.$emit('upload-error', error)
       },
 
       onProgress: function (event) {
+        // todo: add progress component to display upload status
         console.log(event)
       },
 
@@ -84,13 +85,16 @@
       },
 
       onRemove: function () {
+        // todo remove document if already was uploaded
         this.$refs.elUpload.clearFiles()
-        this.upload.clearFile()
+        this.upload.file = null
         this.dispatch('ElFormItem', 'el.form.change');
       },
 
       submitUpload: function () {
-        this.$refs.elUpload.submit()
+        if (!this.upload.isEmpty() && !this.upload.isDocumentUploaded()) {
+          this.$refs.elUpload.submit()
+        }
       }
     },
 
