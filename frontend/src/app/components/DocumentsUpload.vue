@@ -77,6 +77,7 @@
             reject: reject
           }
           this.$refs.documentUploads.forEach(upload => upload.submitUpload())
+          this.onUploadDone()
         })
       }
     },
