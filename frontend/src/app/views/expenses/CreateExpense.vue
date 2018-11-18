@@ -65,10 +65,10 @@
                        :currency="defaultCurrency"></money-input>
         </el-form-item>
 
-        <el-form-item label="percentOnBusinessInBps"
-                      prop="percentOnBusinessInBps"
+        <el-form-item label="percentOnBusiness"
+                      prop="percentOnBusiness"
                       v-if="percentOnBusinessVisible">
-          <el-input v-model="expense.percentOnBusinessInBps"></el-input>
+          <el-input v-model="expense.percentOnBusiness"></el-input>
         </el-form-item>
 
         <h2>Additional notes</h2>
@@ -119,7 +119,7 @@
           amountInDefaultCurrency: null,
           actualAmountInDefaultCurrency: null,
           attachments: [],
-          percentOnBusinessInBps: null,
+          percentOnBusiness: null,
           notes: null,
           datePaid: new Date(),
           uploads: new UploadsInfo()

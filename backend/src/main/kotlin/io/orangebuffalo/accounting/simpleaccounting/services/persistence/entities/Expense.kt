@@ -39,7 +39,7 @@ class Expense(
     val attachments: MutableList<Document> = ArrayList(),
 
     @field:Column(nullable = false)
-    var percentOnBusinessInBps: Int,
+    var percentOnBusiness: Int,
 
     @field:Column(nullable = false)
     var reportedAmountInDefaultCurrency: Long,

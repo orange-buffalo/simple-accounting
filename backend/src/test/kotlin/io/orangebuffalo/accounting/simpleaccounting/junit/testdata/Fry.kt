@@ -37,7 +37,7 @@ class Fry : TestData {
         amountInDefaultCurrency = 500,
         actualAmountInDefaultCurrency = 450,
         reportedAmountInDefaultCurrency = 450,
-        percentOnBusinessInBps = 10000
+        percentOnBusiness = 100
     )
 
     val slurmReceipt = Document(
@@ -57,7 +57,7 @@ class Fry : TestData {
         amountInDefaultCurrency = 510,
         actualAmountInDefaultCurrency = 460,
         reportedAmountInDefaultCurrency = 455,
-        percentOnBusinessInBps = 9900,
+        percentOnBusiness = 99,
         notes = "nice!",
         attachments = mutableListOf(slurmReceipt)
     )

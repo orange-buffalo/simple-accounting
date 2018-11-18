@@ -54,7 +54,7 @@ class ExpenseApiController(
                                 amountInDefaultCurrency = request.amountInDefaultCurrency,
                                 actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency,
                                 notes = request.notes,
-                                percentOnBusinessInBps = request.percentOnBusinessInBps,
+                                percentOnBusiness = request.percentOnBusiness,
                                 attachments = attachments,
                                 reportedAmountInDefaultCurrency = request.actualAmountInDefaultCurrency
                             )
@@ -84,7 +84,7 @@ data class ExpenseDto(
     var actualAmountInDefaultCurrency: Long,
     var reportedAmountInDefaultCurrency: Long,
     var attachments: List<Long>,
-    var percentOnBusinessInBps: Int,
+    var percentOnBusiness: Int,
     var notes: String?,
     var id: Long,
     var version: Int
@@ -98,7 +98,7 @@ data class CreateExpenseDto(
     @NotNull var amountInDefaultCurrency: Long,
     @NotNull var actualAmountInDefaultCurrency: Long,
     @NotNull var attachments: List<Long>,
-    @NotNull var percentOnBusinessInBps: Int,
+    @NotNull var percentOnBusiness: Int,
     @Size(max = 1024) var notes: String?
 )
 
@@ -111,7 +111,7 @@ private fun mapExpenseDto(source: Expense) = ExpenseDto(
     amountInDefaultCurrency = source.amountInDefaultCurrency,
     actualAmountInDefaultCurrency = source.actualAmountInDefaultCurrency,
     attachments = source.attachments.map { it.id!! },
-    percentOnBusinessInBps = source.percentOnBusinessInBps,
+    percentOnBusiness = source.percentOnBusiness,
     reportedAmountInDefaultCurrency = source.reportedAmountInDefaultCurrency,
     notes = source.notes,
     id = source.id!!,

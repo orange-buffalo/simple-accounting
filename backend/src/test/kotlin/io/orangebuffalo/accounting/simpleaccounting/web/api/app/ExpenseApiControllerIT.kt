@@ -50,7 +50,7 @@ internal class ExpenseApiControllerIT(
                     "actualAmountInDefaultCurrency": 41500,
                     "attachments": [${fry.slurmReceipt.id}],
                     "notes": "coffee",
-                    "percentOnBusinessInBps": 10000,
+                    "percentOnBusiness": 100,
                     "datePaid": "$MOCK_DATE_VALUE"
                 }"""
             )
@@ -68,7 +68,7 @@ internal class ExpenseApiControllerIT(
                             reportedAmountInDefaultCurrency: 41500,
                             attachments: [${fry.slurmReceipt.id}],
                             notes: "coffee",
-                            percentOnBusinessInBps: 10000,
+                            percentOnBusiness: 100,
                             id: $expenseId,
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
@@ -107,7 +107,7 @@ internal class ExpenseApiControllerIT(
                             reportedAmountInDefaultCurrency: 450,
                             attachments: [],
                             notes: null,
-                            percentOnBusinessInBps: 10000,
+                            percentOnBusiness: 100,
                             id: ${fry.firstSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
@@ -125,7 +125,7 @@ internal class ExpenseApiControllerIT(
                             reportedAmountInDefaultCurrency: 455,
                             attachments: [${fry.slurmReceipt.id}],
                             notes: "nice!",
-                            percentOnBusinessInBps: 9900,
+                            percentOnBusiness: 99,
                             id: ${fry.secondSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",

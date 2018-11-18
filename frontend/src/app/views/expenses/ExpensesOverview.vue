@@ -35,11 +35,11 @@
             <!--todo reportedAmountInDefaultCurrency -->
             <money-output :currency="defaultCurrency"
                           :amount="scope.row.reportedAmountInDefaultCurrency"/>
-            <template v-if="scope.row.percentOnBusinessInBps < 10000">
+            <template v-if="scope.row.percentOnBusiness < 100">
               <br/>
               <!--todo format number as per locale -->
               <div class="secondary-text">
-                <span>{{scope.row.percentOnBusinessInBps / 100}}% of </span>
+                <span>{{scope.row.percentOnBusiness}}% of </span>
                 <money-output :currency="defaultCurrency"
                               :amount="scope.row.amountInDefaultCurrency"/>
               </div>
