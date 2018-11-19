@@ -3,10 +3,12 @@
 </template>
 
 <script>
-  import {mapGetters} from 'vuex'
+  import withCurrencyFormatter from '@/app/components/mixins/with-currency-formatter'
 
   export default {
     name: 'MoneyOutput',
+
+    mixins: [withCurrencyFormatter],
 
     props: {
       currency: String,
@@ -14,14 +16,11 @@
     },
 
     computed: {
-      ...mapGetters({
-        getCurrencyFormatter: 'i18n/getCurrencyFormatter'
-      }),
 
       //todo retrieve currency precision and convert from cents to currency units
 
       amountLabel: function () {
-        return this.getCurrencyFormatter(this.currency)(this.amount)
+        return this.currencyFormatter(this.amount)
       }
     }
   }

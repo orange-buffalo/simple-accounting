@@ -6,12 +6,14 @@
 </template>
 
 <script>
-  import {mapActions, mapGetters, mapState} from 'vuex'
+  import withCurrencyFormatter from '@/app/components/mixins/with-currency-formatter'
 
   // inspired by https://github.com/vuejs-tips/v-money
 
   export default {
     name: 'MoneyInput',
+
+    mixins: [withCurrencyFormatter],
 
     props: {
       value: null,
@@ -25,15 +27,10 @@
     },
 
     created: function () {
-      this.loadCurrencies()
       this.onInput(this.value)
     },
 
     methods: {
-      ...mapActions('app', {
-        loadCurrencies: 'loadCurrencies'
-      }),
-
       onInput: function (userInput) {
         if (!this.currency) {
           return
@@ -42,22 +39,15 @@
         let numbers = parseInt((userInput ? userInput.toString() : '').replace(/\D+/g, '') || '0')
 
         // todo proper precision based on currency
-        this.inputValue = this.getCurrencyFormatter(this.currency)(numbers / 100)
+        this.inputValue = this.currencyFormatter(numbers / 100)
 
         this.$emit('input', numbers);
       }
     },
 
-    computed: {
-      ...mapState({}),
-
-      ...mapGetters({
-        getCurrencyFormatter: 'i18n/getCurrencyFormatter'
-      })
-    },
-
     watch: {
-      currency() {
+      currency: function (val) {
+        this.ensureCurrencyFormatter(val)
         this.onInput(this.value)
       }
     }

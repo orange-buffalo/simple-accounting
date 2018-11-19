@@ -54,6 +54,8 @@
           <span slot-scope="scope">{{getDatePaid(scope.row)}}</span>
         </el-table-column>
 
+        <!--todo links to the attachments, probably asynchronously-->
+
       </data-table>
     </el-card>
   </app-layout>
@@ -63,9 +65,12 @@
   import DataTable from '@/components/DataTable'
   import {mapState, mapGetters} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
+  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
 
   export default {
     name: 'ExpensesOverview',
+
+    mixins: [withMediumDateFormatter],
 
     components: {
       DataTable,
@@ -79,8 +84,7 @@
       }),
 
       ...mapGetters({
-        categoryById: 'workspaces/categoryById',
-        mediumDateFormatter: 'i18n/getMediumDateFormatter'
+        categoryById: 'workspaces/categoryById'
       })
     },
 

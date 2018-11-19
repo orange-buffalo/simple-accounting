@@ -103,14 +103,17 @@
 <script>
 
   import api from '@/services/api'
-  import {mapState, mapGetters} from 'vuex'
+  import {mapState, mapActions} from 'vuex'
   import DocumentsUpload from '@/app/components/DocumentsUpload'
   import CurrencyInput from '@/app/components/CurrencyInput'
   import MoneyInput from '@/app/components/MoneyInput'
   import {UploadsInfo} from '@/app/components/uploads-info'
+  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
 
   export default {
     name: 'CreateExpense',
+
+    mixins: [withMediumDateFormatter],
 
     components: {
       DocumentsUpload,
@@ -166,10 +169,6 @@
 
       ...mapState({
         categories: state => state.workspaces.currentWorkspace.categories.filter(category => category.expense)
-      }),
-
-      ...mapGetters({
-        mediumDateFormatter: 'i18n/getMediumDateFormatter'
       }),
 
       isInDefaultCurrency: function () {
