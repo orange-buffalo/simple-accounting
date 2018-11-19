@@ -72,6 +72,18 @@ class ExpenseApiController(
     ): Mono<Page<Expense>> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
         expenseService.getExpenses(pageRequest.page)
     }
+
+    @GetMapping("{expenseId}")
+    fun getExpense(
+        @PathVariable workspaceId: Long,
+        @PathVariable expenseId: Long
+    ): Mono<ExpenseDto> = extensions
+        .withAccessibleWorkspace(workspaceId) { workspace ->
+            // todo validate expense belongs to workspace
+            expenseService.getExpense(expenseId)
+        }
+        .map { mapExpenseDto(it) }
+
 }
 
 data class ExpenseDto(

@@ -135,4 +135,34 @@ internal class ExpenseApiControllerIT(
                 )
             }
     }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return expense by id`(fry: Fry) {
+        client.get()
+            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses/${fry.firstSlurm.id}")
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                inPath("$").isEqualTo(
+                    json(
+                        """{
+                            category: ${fry.slurmCategory.id},
+                            currency: "THF",
+                            originalAmount: 5000,
+                            amountInDefaultCurrency: 500,
+                            actualAmountInDefaultCurrency: 450,
+                            reportedAmountInDefaultCurrency: 450,
+                            attachments: [],
+                            notes: null,
+                            percentOnBusiness: 100,
+                            id: ${fry.firstSlurm.id},
+                            version: 0,
+                            datePaid: "$MOCK_DATE_VALUE",
+                            timeRecorded: "$MOCK_TIME_VALUE"
+                    }"""
+                    )
+                )
+            }
+    }
 }

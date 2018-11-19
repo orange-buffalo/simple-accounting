@@ -20,7 +20,13 @@ class ExpenseService(
 
     fun getExpenses(page: Pageable): Mono<Page<Expense>> {
         return Mono.fromSupplier { expenseRepository.findAll(page) }
-                .subscribeOn(Schedulers.elastic())
+            .subscribeOn(Schedulers.elastic())
     }
 
+    fun getExpense(id: Long): Mono<Expense> {
+        return Mono.fromSupplier { expenseRepository.findById(id) }
+            .filter { it.isPresent }
+            .map { it.get() }
+            .subscribeOn(Schedulers.elastic())
+    }
 }
