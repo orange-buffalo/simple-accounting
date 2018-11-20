@@ -2,67 +2,68 @@
   <app-layout>
     <span slot="header"><el-button @click="navigateToCreateExpenseView">Add new</el-button></span>
 
-    <el-card>
-      <data-table stripe :api-path="`/user/workspaces/${workspaceId}/expenses`">
-        <el-table-column
-            label="Category">
-          <template slot-scope="scope">
-            {{ categoryById(scope.row.category).name }}
+    <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`"
+                :lg="12">
+      <template slot-scope="scope">
+        <el-card>
+          <!--todo add description to expense -->
+          <b>Short description</b>
+          <br/>
+          {{ categoryById(scope.item.category).name }}
+          {{getDatePaid(scope.item)}}
+
+          <span>
+             <money-output :currency="defaultCurrency"
+                           :amount="amountInDefaultCurrency(scope.item)"/>
+
+             <template v-if="isConverted(scope.item)">
+               <!--<br/>-->
+             <money-output :currency="scope.item.currency"
+                           :amount="scope.item.originalAmount"
+                           class="secondary-text"/>
+             </template>
+             </span>
+
+          <template v-if="scope.item.percentOnBusiness < 100">
+            Partial: {{scope.item.percentOnBusiness}}%
           </template>
-        </el-table-column>
 
-        <el-table-column label="Amount"
-                         header-align="right"
-                         align="right">
-          <div class="money-output"
-               slot-scope="scope">
-            <money-output :currency="defaultCurrency"
-                          :amount="amountInDefaultCurrency(scope.row)"/>
-            <template v-if="isConverted(scope.row)">
-              <br/>
-              <money-output :currency="scope.row.currency"
-                            :amount="scope.row.originalAmount"
-                            class="secondary-text"/>
-            </template>
-          </div>
-        </el-table-column>
+          <money-output :currency="defaultCurrency"
+                        :amount="scope.item.reportedAmountInDefaultCurrency"/>
 
-        <el-table-column label="Reported Amount"
-                         header-align="right"
-                         align="right">
-          <div class="money-output"
-               slot-scope="scope">
-            <!--todo reportedAmountInDefaultCurrency -->
-            <money-output :currency="defaultCurrency"
-                          :amount="scope.row.reportedAmountInDefaultCurrency"/>
-            <template v-if="scope.row.percentOnBusiness < 100">
-              <br/>
-              <!--todo format number as per locale -->
-              <div class="secondary-text">
-                <span>{{scope.row.percentOnBusiness}}% of </span>
-                <money-output :currency="defaultCurrency"
-                              :amount="scope.row.amountInDefaultCurrency"/>
-              </div>
-            </template>
-          </div>
-        </el-table-column>
+          <br/>
 
-        <el-table-column
-            label="Date"
-            header-align="center"
-            align="center">
-          <span slot-scope="scope">{{getDatePaid(scope.row)}}</span>
-        </el-table-column>
 
-        <!--todo links to the attachments, probably asynchronously-->
+          <el-button type="text"
+                     v-if="scope.item.notes"
+                     @click="toggleNotes(scope.item)">
+            Notes provided
+          </el-button>
 
-      </data-table>
-    </el-card>
+          <el-button type="text"
+                     v-if="scope.item.attachments.length"
+                     @click="toggleAttachments(scope.item)">
+            Attachment provided
+          </el-button>
+
+          <template v-if="isNotesVisible(scope.item)">
+            <br/>
+            <span>{{scope.item.notes}}</span>
+          </template>
+
+          <template v-if="isAttachmentsVisible(scope.item)">
+            <br/>
+            <span>{{scope.item.attachments}}</span>
+          </template>
+        </el-card>
+      </template>
+    </data-items>
   </app-layout>
 </template>
 
 <script>
   import DataTable from '@/components/DataTable'
+  import DataItems from '@/components/DataItems'
   import {mapState, mapGetters} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
@@ -74,7 +75,15 @@
 
     components: {
       DataTable,
-      MoneyOutput
+      MoneyOutput,
+      DataItems
+    },
+
+    data: function () {
+      return {
+        notesVisible: [],
+        attachmentsVisible: []
+      }
     },
 
     computed: {
@@ -85,7 +94,19 @@
 
       ...mapGetters({
         categoryById: 'workspaces/categoryById'
-      })
+      }),
+
+      isNotesVisible: function () {
+        return expense => {
+          return this.notesVisible[expense.id]
+        }
+      },
+
+      isAttachmentsVisible: function () {
+        return expense => {
+          return this.attachmentsVisible[expense.id]
+        }
+      }
     },
 
     methods: {
@@ -104,6 +125,14 @@
 
       getDatePaid: function (expense) {
         return this.mediumDateFormatter(new Date(expense.datePaid))
+      },
+
+      toggleNotes: function (expense) {
+        this.$set(this.notesVisible, expense.id, !this.notesVisible[expense.id])
+      },
+
+      toggleAttachments: function (expense) {
+        this.$set(this.attachmentsVisible, expense.id, !this.attachmentsVisible[expense.id])
       }
     }
   }
