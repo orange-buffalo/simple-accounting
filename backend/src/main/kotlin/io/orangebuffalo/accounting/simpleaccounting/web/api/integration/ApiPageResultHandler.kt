@@ -15,6 +15,7 @@ import org.springframework.web.reactive.result.method.annotation.AbstractMessage
 import org.springframework.web.server.NotAcceptableStatusException
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import kotlin.reflect.full.createInstance
 
 @Component
 class ApiPageResultHandler(
@@ -53,8 +54,10 @@ class ApiPageResultHandler(
 
         val bodyParameter = result.returnTypeSource.nested().nested()
 
-        val apiDtoAnnotation = bodyParameter.annotatedElement.getAnnotation(ApiDto::class.java)
-                ?: throw IllegalArgumentException("Missing @ApiDto at ${bodyParameter.method}")
+        val pageableApiAnnotation = bodyParameter.annotatedElement.getAnnotation(PageableApi::class.java)
+                ?: throw IllegalArgumentException("Missing @PageableApi at ${bodyParameter.method}")
+
+        val pageableApiDescriptor = pageableApiAnnotation.descriptorClass.createInstance()
 
         return Mono.from(adapter.toPublisher<Page<Any>>(result.returnValue))
                 .flatMap { repositoryPage ->
@@ -63,7 +66,7 @@ class ApiPageResultHandler(
                             pageNumber = repositoryPage.number + 1,
                             pageSize = repositoryPage.size,
                             totalElements = repositoryPage.totalElements,
-                            data = mapper.map(repositoryPage.content, apiDtoAnnotation.dtoClass.java)
+                            data = mapper.map(repositoryPage.content, pageableApiDescriptor.dtoClass.java)
                     )
 
                     val elementType = ResolvableType.forInstance(apiPage)

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.reactive.BindingContext
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import kotlin.reflect.KClass
 
 @ExtendWith(MockitoExtension::class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -64,14 +65,14 @@ internal class ApiPageRequestResolverTest {
     }
 
     @Test
-    fun `should fail on method without ApiDto annotation`() {
+    fun `should fail on method without PageableApi annotation`() {
         val actualException = assertThrows<IllegalArgumentException> {
             apiPageRequestResolver.resolveArgument(
                     getFirstMethodParameter("apiPageMethodWithoutAnnotation"),
                     bindingContext,
                     exchange)
         }
-        assertThat(actualException.message).startsWith("Missing @ApiDto at")
+        assertThat(actualException.message).startsWith("Missing @PageableApi at")
     }
 
     @Test
@@ -197,12 +198,20 @@ internal class ApiPageRequestResolverTest {
         }
 
         @GetMapping
-        @ApiDto(ApiTestDto::class)
+        @PageableApi(TestPageableApiDescriptorDefault::class)
         fun apiPageMethod(request: ApiPageRequest): Mono<TestRepositoryEntity> {
             return Mono.empty()
         }
     }
 
     private class ApiTestDto
+
     private class TestRepositoryEntity
+
+    private class TestPageableApiDescriptorDefault : PageableApiDescriptor {
+
+        override val dtoClass: KClass<*>
+            get() = ApiTestDto::class
+
+    }
 }

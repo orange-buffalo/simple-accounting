@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.flatMap
 import com.github.kittinunf.result.map
+import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
 import org.springframework.core.MethodParameter
 import org.springframework.core.ReactiveAdapterRegistry
@@ -29,8 +30,8 @@ class ApiPageRequestResolver(
             bindingContext: BindingContext,
             exchange: ServerWebExchange): Mono<Any> {
 
-        val annotation = parameter.annotatedElement.getAnnotation(ApiDto::class.java)
-                ?: throw IllegalArgumentException("Missing @ApiDto at ${parameter.method}")
+        val annotation = parameter.annotatedElement.getAnnotation(PageableApi::class.java)
+                ?: throw IllegalArgumentException("Missing @PageableApi at ${parameter.method}")
 
         return validateAndGetParameter("limit", 10, exchange.request.queryParams)
                 .map { PageRequest.of(0, it) }
@@ -46,7 +47,7 @@ class ApiPageRequestResolver(
                                     sort)
                             }
                 }
-                .map { page -> ApiPageRequest(page = page) }
+                .map { page -> ApiPageRequest(page = page, predicate = Expressions.TRUE.isTrue) }
                 .fold({ pageRequest -> Mono.just(pageRequest) }, { error -> Mono.error(error) })
     }
 

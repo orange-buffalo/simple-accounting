@@ -60,6 +60,7 @@ dependencies {
     compile('org.jetbrains.kotlin:kotlin-reflect')
     compile('io.github.microutils:kotlin-logging:1.6.10')
     compile('io.jsonwebtoken:jjwt-api:0.10.5')
+    compile('com.querydsl:querydsl-jpa:4.2.1')
     compile('com.github.kittinunf.result:result:1.5.0')
     
     kapt 'org.springframework.boot:spring-boot-configuration-processor'

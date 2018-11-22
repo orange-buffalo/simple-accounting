@@ -21,7 +21,7 @@ class CurrencyApiController {
         .toList()
 
     @GetMapping
-    fun createExpense(): Mono<List<CurrencyDto>> = Mono.just(currencies)
+    fun getCurrencies(): Mono<List<CurrencyDto>> = Mono.just(currencies)
 }
 
 data class CurrencyDto(

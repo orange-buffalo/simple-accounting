@@ -8,15 +8,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.stereotype.Component
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
+import kotlin.reflect.KClass
 
 private const val PATH = "/api/v1/auth/api-page-request-handler-test"
 
@@ -49,11 +51,20 @@ internal class ApiPageResultHandlerIT(
             }
     }
 
+    @TestConfiguration()
+    class TesConfig {
+        @Bean
+        fun testRestController(): ApiPageResultHandlerTestController = ApiPageResultHandlerTestController()
+
+        @Bean
+        fun testDtoMapper(): TestUserPropertyMap = TestUserPropertyMap()
+    }
+
     @RestController
     class ApiPageResultHandlerTestController {
 
         @GetMapping(PATH)
-        @ApiDto(ApiUser::class)
+        @PageableApi(TestPageableApiDescriptor::class)
         fun get(apiPageRequest: ApiPageRequest): Mono<Page<RepositoryUser>> {
             return Mono.just(
                 PageImpl<RepositoryUser>(
@@ -70,7 +81,6 @@ internal class ApiPageResultHandlerIT(
                 )
             )
         }
-
     }
 
     data class ApiUser(
@@ -86,7 +96,11 @@ internal class ApiPageResultHandlerIT(
         var password: String
     )
 
-    @Component
+    class TestPageableApiDescriptor : PageableApiDescriptor {
+        override val dtoClass: KClass<*>
+            get() = ApiUser::class
+    }
+
     class TestUserPropertyMap
         : ApiDtoMapperAdapter<RepositoryUser, ApiUser>(RepositoryUser::class.java, ApiUser::class.java) {
 

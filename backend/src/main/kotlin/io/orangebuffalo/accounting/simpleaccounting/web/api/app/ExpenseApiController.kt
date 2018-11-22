@@ -5,8 +5,9 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseSer
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiDto
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
@@ -17,6 +18,7 @@ import java.time.LocalDate
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
+import kotlin.reflect.KClass
 
 @RestController
 @RequestMapping("/api/v1/user/workspaces/{workspaceId}/expenses")
@@ -65,7 +67,7 @@ class ExpenseApiController(
     }
 
     @GetMapping
-    @ApiDto(ExpenseDto::class)
+    @PageableApi(ExpensePageableApiDescriptor::class)
     fun createExpense(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
@@ -129,6 +131,11 @@ private fun mapExpenseDto(source: Expense) = ExpenseDto(
     id = source.id!!,
     version = source.version
 )
+
+class ExpensePageableApiDescriptor : PageableApiDescriptor {
+    override val dtoClass: KClass<*>
+        get() = ExpenseDto::class
+}
 
 @Component
 class ExpenseDtoMapper

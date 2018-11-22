@@ -4,4 +4,8 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ApiDto(val dtoClass: KClass<*>)
+annotation class PageableApi(val descriptorClass: KClass<out PageableApiDescriptor>)
+
+interface PageableApiDescriptor {
+    val dtoClass: KClass<*>
+}

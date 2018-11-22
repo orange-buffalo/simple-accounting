@@ -78,7 +78,7 @@ internal class ApiPageResultHandlerTest {
     }
 
     @Test
-    fun `should fail on method without ApiDto annotation`() {
+    fun `should fail on method without PageableApi annotation`() {
         val actualException = assertThrows<IllegalArgumentException> {
             handler.handleResult(serverWebExchange, HandlerResult(
                     this,
@@ -86,7 +86,7 @@ internal class ApiPageResultHandlerTest {
                     getMethodParameter("emptyMonoControllerMethodWithoutAnnotation")
             ))
         }
-        assertThat(actualException.message).startsWith("Missing @ApiDto at")
+        assertThat(actualException.message).startsWith("Missing @PageableApi at")
     }
 
     private fun getMethodParameter(methodName: String): MethodParameter {
