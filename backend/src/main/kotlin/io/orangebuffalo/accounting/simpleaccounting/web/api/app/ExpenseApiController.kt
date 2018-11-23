@@ -8,9 +8,7 @@ import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationExcepti
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
 import org.springframework.data.domain.Page
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import java.time.Instant
@@ -18,7 +16,6 @@ import java.time.LocalDate
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
-import kotlin.reflect.KClass
 
 @RestController
 @RequestMapping("/api/v1/user/workspaces/{workspaceId}/expenses")
@@ -132,14 +129,6 @@ private fun mapExpenseDto(source: Expense) = ExpenseDto(
     version = source.version
 )
 
-class ExpensePageableApiDescriptor : PageableApiDescriptor {
-    override val dtoClass: KClass<*>
-        get() = ExpenseDto::class
-}
-
-@Component
-class ExpenseDtoMapper
-    : ApiDtoMapperAdapter<Expense, ExpenseDto>(Expense::class.java, ExpenseDto::class.java) {
-
-    override fun map(source: Expense) = mapExpenseDto(source)
+class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense> {
+    override fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
 }

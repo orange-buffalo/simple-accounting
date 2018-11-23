@@ -1,6 +1,5 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtosMapper
 import org.reactivestreams.Publisher
 import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.core.ResolvableType
@@ -21,8 +20,7 @@ import kotlin.reflect.full.createInstance
 class ApiPageResultHandler(
         serverCodecConfigurer: ServerCodecConfigurer,
         contentTypeResolver: RequestedContentTypeResolver,
-        adapterRegistry: ReactiveAdapterRegistry,
-        private val mapper: ApiDtosMapper
+        adapterRegistry: ReactiveAdapterRegistry
 
 ) : AbstractMessageWriterResultHandler(
         serverCodecConfigurer.writers,
@@ -57,7 +55,8 @@ class ApiPageResultHandler(
         val pageableApiAnnotation = bodyParameter.annotatedElement.getAnnotation(PageableApi::class.java)
                 ?: throw IllegalArgumentException("Missing @PageableApi at ${bodyParameter.method}")
 
-        val pageableApiDescriptor = pageableApiAnnotation.descriptorClass.createInstance()
+        val pageableApiDescriptor : PageableApiDescriptor<Any> =
+            pageableApiAnnotation.descriptorClass.createInstance() as PageableApiDescriptor<Any>
 
         return Mono.from(adapter.toPublisher<Page<Any>>(result.returnValue))
                 .flatMap { repositoryPage ->
@@ -66,7 +65,7 @@ class ApiPageResultHandler(
                             pageNumber = repositoryPage.number + 1,
                             pageSize = repositoryPage.size,
                             totalElements = repositoryPage.totalElements,
-                            data = mapper.map(repositoryPage.content, pageableApiDescriptor.dtoClass.java)
+                            data = repositoryPage.content.map { pageableApiDescriptor.mapEntityToDto(it) }
                     )
 
                     val elementType = ResolvableType.forInstance(apiPage)

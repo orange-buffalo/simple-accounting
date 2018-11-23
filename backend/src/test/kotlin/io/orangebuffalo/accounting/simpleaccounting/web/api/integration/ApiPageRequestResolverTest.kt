@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.reactive.BindingContext
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import kotlin.reflect.KClass
 
 @ExtendWith(MockitoExtension::class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -68,9 +67,10 @@ internal class ApiPageRequestResolverTest {
     fun `should fail on method without PageableApi annotation`() {
         val actualException = assertThrows<IllegalArgumentException> {
             apiPageRequestResolver.resolveArgument(
-                    getFirstMethodParameter("apiPageMethodWithoutAnnotation"),
-                    bindingContext,
-                    exchange)
+                getFirstMethodParameter("apiPageMethodWithoutAnnotation"),
+                bindingContext,
+                exchange
+            )
         }
         assertThat(actualException.message).startsWith("Missing @PageableApi at")
     }
@@ -153,9 +153,10 @@ internal class ApiPageRequestResolverTest {
 
     private fun invokeResolveArgumentAndAssertValidationError(expectedMessage: String) {
         val resolvedArgument = apiPageRequestResolver.resolveArgument(
-                getFirstMethodParameter("apiPageMethod"),
-                bindingContext,
-                exchange)
+            getFirstMethodParameter("apiPageMethod"),
+            bindingContext,
+            exchange
+        )
 
         assertThat(resolvedArgument).isNotNull
 
@@ -167,9 +168,10 @@ internal class ApiPageRequestResolverTest {
 
     private fun invokeResolveArgumentAndGetPageRequest(): ApiPageRequest {
         val resolvedArgument = apiPageRequestResolver.resolveArgument(
-                getFirstMethodParameter("apiPageMethod"),
-                bindingContext,
-                exchange)
+            getFirstMethodParameter("apiPageMethod"),
+            bindingContext,
+            exchange
+        )
 
         assertThat(resolvedArgument).isNotNull
 
@@ -182,7 +184,8 @@ internal class ApiPageRequestResolverTest {
 
     private fun getFirstMethodParameter(methodName: String): MethodParameter {
         return MethodParameter.forExecutable(
-                TestController::class.java.declaredMethods.first { it.name == methodName }, 0)
+            TestController::class.java.declaredMethods.first { it.name == methodName }, 0
+        )
     }
 
     private class TestController {
@@ -208,10 +211,7 @@ internal class ApiPageRequestResolverTest {
 
     private class TestRepositoryEntity
 
-    private class TestPageableApiDescriptorDefault : PageableApiDescriptor {
-
-        override val dtoClass: KClass<*>
-            get() = ApiTestDto::class
-
+    private class TestPageableApiDescriptorDefault : PageableApiDescriptor<TestRepositoryEntity> {
+        override fun mapEntityToDto(entity: TestRepositoryEntity) = ApiTestDto()
     }
 }

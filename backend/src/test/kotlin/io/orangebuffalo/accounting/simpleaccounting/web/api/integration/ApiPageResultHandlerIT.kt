@@ -1,6 +1,5 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.Test
@@ -18,7 +17,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import kotlin.reflect.KClass
 
 private const val PATH = "/api/v1/auth/api-page-request-handler-test"
 
@@ -55,9 +53,6 @@ internal class ApiPageResultHandlerIT(
     class TesConfig {
         @Bean
         fun testRestController(): ApiPageResultHandlerTestController = ApiPageResultHandlerTestController()
-
-        @Bean
-        fun testDtoMapper(): TestUserPropertyMap = TestUserPropertyMap()
     }
 
     @RestController
@@ -96,22 +91,11 @@ internal class ApiPageResultHandlerIT(
         var password: String
     )
 
-    class TestPageableApiDescriptor : PageableApiDescriptor {
-        override val dtoClass: KClass<*>
-            get() = ApiUser::class
-    }
-
-    class TestUserPropertyMap
-        : ApiDtoMapperAdapter<RepositoryUser, ApiUser>(RepositoryUser::class.java, ApiUser::class.java) {
-
-        override fun map(source: RepositoryUser): ApiUser = ApiUser(
-            name = source.userName,
-            internalId = source.id,
-            internalVersion = source.version
+    class TestPageableApiDescriptor : PageableApiDescriptor<RepositoryUser> {
+        override fun mapEntityToDto(entity: RepositoryUser): ApiUser = ApiUser(
+            name = entity.userName,
+            internalId = entity.id,
+            internalVersion = entity.version
         )
     }
 }
-
-
-
-

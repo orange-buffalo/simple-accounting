@@ -2,7 +2,6 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtosMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -36,9 +35,6 @@ internal class ApiPageResultHandlerTest {
     @Mock
     private lateinit var serverWebExchange: ServerWebExchange
 
-    @Mock
-    private lateinit var mapper: ApiDtosMapper
-
     private lateinit var handler: ApiPageResultHandler
 
     @BeforeEach
@@ -48,8 +44,7 @@ internal class ApiPageResultHandlerTest {
         handler = ApiPageResultHandler(
                 serverCodecConfigurer,
                 FixedContentTypeResolver(MediaType.APPLICATION_JSON),
-                ReactiveAdapterRegistry(),
-                mapper
+                ReactiveAdapterRegistry()
         )
     }
 

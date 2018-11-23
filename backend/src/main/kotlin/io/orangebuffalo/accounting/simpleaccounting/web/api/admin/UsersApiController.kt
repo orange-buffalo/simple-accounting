@@ -5,22 +5,18 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.mapping.ApiDtoMapperAdapter
 import org.springframework.data.domain.Page
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
-import kotlin.reflect.KClass
 
 @RestController
 @RequestMapping("/api/v1/admin/users")
 class UsersApiController(
     private val userService: PlatformUserService,
-    private val userDtoMapper: UserDtoMapper,
     private val passwordEncoder: PasswordEncoder
 ) {
 
@@ -41,7 +37,7 @@ class UsersApiController(
                 )
             }
             .flatMap { userService.save(it) }
-            .map { userDtoMapper.map(it) }
+            .map { mapUserDto(it) }
     }
 }
 
@@ -58,19 +54,15 @@ data class CreateUserDto(
     @field:NotBlank var password: String?
 )
 
-class UserPageableApiDescriptor : PageableApiDescriptor {
-    override val dtoClass: KClass<*>
-        get() = UserDto::class
+class UserPageableApiDescriptor : PageableApiDescriptor<PlatformUser> {
+    override fun mapEntityToDto(entity: PlatformUser) = mapUserDto(entity)
 }
 
-@Component
-class UserDtoMapper
-    : ApiDtoMapperAdapter<PlatformUser, UserDto>(PlatformUser::class.java, UserDto::class.java) {
-
-    override fun map(source: PlatformUser): UserDto = UserDto(
-        userName = source.userName,
-        id = source.id,
-        version = source.version,
-        admin = source.isAdmin
+private fun mapUserDto(entity: PlatformUser): UserDto {
+    return UserDto(
+        userName = entity.userName,
+        id = entity.id,
+        version = entity.version,
+        admin = entity.isAdmin
     )
 }
