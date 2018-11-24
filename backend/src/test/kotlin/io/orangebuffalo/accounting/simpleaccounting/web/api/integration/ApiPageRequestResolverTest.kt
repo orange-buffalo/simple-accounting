@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
+import com.querydsl.core.types.dsl.PathBuilder
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -60,7 +61,7 @@ internal class ApiPageRequestResolverTest {
 
     @Test
     fun `should support page-request parameters`() {
-        assertTrue(apiPageRequestResolver.supportsParameter(getFirstMethodParameter("apiPageMethod")))
+        assertTrue(apiPageRequestResolver.supportsParameter(getFirstMethodParameter("apiPageMethodDefault")))
     }
 
     @Test
@@ -77,7 +78,7 @@ internal class ApiPageRequestResolverTest {
 
     @Test
     fun `should return default page config if no parameters are specified in the request`() {
-        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest()
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodDefault")
 
         assertThat(resolvedPageRequest.page).isNotNull
         assertThat(resolvedPageRequest.page.pageNumber).isEqualTo(0)
@@ -91,14 +92,17 @@ internal class ApiPageRequestResolverTest {
             add("limit", "10")
         }
 
-        invokeResolveArgumentAndAssertValidationError("Only a single 'limit' parameter is supported")
+        invokeResolveArgumentAndAssertValidationError(
+            "Only a single 'limit' parameter is supported",
+            "apiPageMethodDefault"
+        )
     }
 
     @Test
     fun `should use provided limit to populate page size`() {
         queryParams.add("limit", "20")
 
-        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest()
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodDefault")
 
         assertThat(resolvedPageRequest.page).isNotNull
         assertThat(resolvedPageRequest.page.pageNumber).isEqualTo(0)
@@ -109,7 +113,7 @@ internal class ApiPageRequestResolverTest {
     fun `should return and error when limit is not a valid int`() {
         queryParams.add("limit", "20$")
 
-        invokeResolveArgumentAndAssertValidationError("Invalid 'limit' parameter value '20$'")
+        invokeResolveArgumentAndAssertValidationError("Invalid 'limit' parameter value '20$'", "apiPageMethodDefault")
     }
 
     @Test
@@ -119,14 +123,17 @@ internal class ApiPageRequestResolverTest {
             add("page", "2")
         }
 
-        invokeResolveArgumentAndAssertValidationError("Only a single 'page' parameter is supported")
+        invokeResolveArgumentAndAssertValidationError(
+            "Only a single 'page' parameter is supported",
+            "apiPageMethodDefault"
+        )
     }
 
     @Test
     fun `should use provided page to populate page number`() {
         queryParams.add("page", "7")
 
-        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest()
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodDefault")
 
         assertThat(resolvedPageRequest.page).isNotNull
         assertThat(resolvedPageRequest.page.pageNumber).isEqualTo(6)
@@ -137,12 +144,12 @@ internal class ApiPageRequestResolverTest {
     fun `should return and error when page is not a valid int`() {
         queryParams.add("page", "o_O")
 
-        invokeResolveArgumentAndAssertValidationError("Invalid 'page' parameter value 'o_O'")
+        invokeResolveArgumentAndAssertValidationError("Invalid 'page' parameter value 'o_O'", "apiPageMethodDefault")
     }
 
     @Test
     fun `should set the default sorting to 'by ID'`() {
-        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest()
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodDefault")
 
         assertThat(resolvedPageRequest.page).isNotNull
         assertThat(resolvedPageRequest.page.sort).isNotNull
@@ -151,9 +158,138 @@ internal class ApiPageRequestResolverTest {
         assertThat(idOrder?.direction).isEqualTo(Sort.Direction.DESC)
     }
 
-    private fun invokeResolveArgumentAndAssertValidationError(expectedMessage: String) {
+    @Test
+    fun `should return always true predicate if descriptor does not support filtering`() {
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodDefault")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull.hasToString("true = true")
+    }
+
+    @Test
+    fun `should return always true predicate if queried filter is not supported`() {
+        queryParams.add("apiFieldUnknown[eq]", "42")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull.hasToString("true = true")
+    }
+
+    @Test
+    fun `should return a predicate as created by filter if queried filter is supported`() {
+        queryParams.add("apiField[eq]", "42")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull.hasToString("testEntity.entityField = 42")
+    }
+
+    @Test
+    fun `should fail if filter query is not valid`() {
+        queryParams.add("apiField[eq", "42")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "'apiField[eq' is not a valid filter expression",
+            "apiPageMethodExtended"
+        )
+    }
+
+    @Test
+    fun `should return always true predicate if queried filter is not valid but field name is not known`() {
+        queryParams.add("apiFieldUnknown[eq", "42")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull.hasToString("true = true")
+    }
+
+    @Test
+    fun `should fail if filter query operation is unknown`() {
+        queryParams.add("apiField[op]", "42")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "'op' is not a valid filter operator",
+            "apiPageMethodExtended"
+        )
+    }
+
+    @Test
+    fun `should fail if filter operator is not supported`() {
+        queryParams.add("anotherApiField[eq]", "test")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "'eq' is not supported for 'anotherApiField'",
+            "apiPageMethodExtended"
+        )
+    }
+
+    @Test
+    fun `should fail if cannot convert the input value`() {
+        queryParams.add("apiField[eq]", "abc")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "'abc' is not a valid filter value",
+            "apiPageMethodExtended"
+        )
+    }
+
+    @Test
+    fun `should support 'eq' operator`() {
+        queryParams.add("apiField[eq]", "42")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull.hasToString("testEntity.entityField = 42")
+    }
+
+    @Test
+    fun `should support 'goe' operator`() {
+        queryParams.add("apiField[goe]", "42")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull.hasToString("testEntity.entityField >= 42")
+    }
+
+    @Test
+    fun `should support 'loe' operator`() {
+        queryParams.add("apiField[loe]", "42")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull.hasToString("testEntity.entityField <= 42")
+    }
+
+    @Test
+    fun `should support multiple filters`() {
+        queryParams.add("apiField[loe]", "100")
+        queryParams.add("apiField[goe]", "42")
+        queryParams.add("anotherApiField[goe]", "abc")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull
+            .hasToString(
+                "testEntity.entityField <= 100 " +
+                        "&& testEntity.entityField >= 42 " +
+                        "&& testEntity.anotherEntityField = abc"
+            )
+    }
+
+    @Test
+    fun `should support operators with multiple values`() {
+        queryParams.add("apiField[eq]", "42")
+        queryParams.add("apiField[eq]", "44")
+        queryParams.add("apiField[goe]", "20")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull
+            .hasToString("(testEntity.entityField = 42 || testEntity.entityField = 44) && testEntity.entityField >= 20")
+    }
+
+    private fun invokeResolveArgumentAndAssertValidationError(expectedMessage: String, methodName: String) {
         val resolvedArgument = apiPageRequestResolver.resolveArgument(
-            getFirstMethodParameter("apiPageMethod"),
+            getFirstMethodParameter(methodName),
             bindingContext,
             exchange
         )
@@ -166,9 +302,9 @@ internal class ApiPageRequestResolverTest {
         assertThat(actualException.message).isEqualTo(expectedMessage)
     }
 
-    private fun invokeResolveArgumentAndGetPageRequest(): ApiPageRequest {
+    private fun invokeResolveArgumentAndGetPageRequest(methodName: String): ApiPageRequest {
         val resolvedArgument = apiPageRequestResolver.resolveArgument(
-            getFirstMethodParameter("apiPageMethod"),
+            getFirstMethodParameter(methodName),
             bindingContext,
             exchange
         )
@@ -184,11 +320,11 @@ internal class ApiPageRequestResolverTest {
 
     private fun getFirstMethodParameter(methodName: String): MethodParameter {
         return MethodParameter.forExecutable(
-            TestController::class.java.declaredMethods.first { it.name == methodName }, 0
+            ApiPageRequestResolverTestController::class.java.declaredMethods.first { it.name == methodName }, 0
         )
     }
 
-    private class TestController {
+    private class ApiPageRequestResolverTestController {
 
         @GetMapping
         fun apiPageMethodWithoutAnnotation(request: ApiPageRequest): Mono<Any> {
@@ -201,17 +337,49 @@ internal class ApiPageRequestResolverTest {
         }
 
         @GetMapping
-        @PageableApi(TestPageableApiDescriptorDefault::class)
-        fun apiPageMethod(request: ApiPageRequest): Mono<TestRepositoryEntity> {
+        @PageableApi(ApiPageRequestResolverTestPageableApiDescriptorDefault::class)
+        fun apiPageMethodDefault(request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
+            return Mono.empty()
+        }
+
+        @GetMapping
+        @PageableApi(ApiPageRequestResolverTestPageableApiDescriptorExtended::class)
+        fun apiPageMethodExtended(request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
             return Mono.empty()
         }
     }
 
-    private class ApiTestDto
+    class ApiPageRequestResolverTestApiDto
 
-    private class TestRepositoryEntity
+    class ApiPageRequestResolverTestRepositoryEntity
 
-    private class TestPageableApiDescriptorDefault : PageableApiDescriptor<TestRepositoryEntity> {
-        override fun mapEntityToDto(entity: TestRepositoryEntity) = ApiTestDto()
+    class ApiPageRequestResolverTestPageableApiDescriptorDefault :
+        PageableApiDescriptor<ApiPageRequestResolverTestRepositoryEntity, PathBuilder<ApiPageRequestResolverTestRepositoryEntity>> {
+
+        override fun mapEntityToDto(entity: ApiPageRequestResolverTestRepositoryEntity) =
+            ApiPageRequestResolverTestApiDto()
+    }
+
+    class ApiPageRequestResolverTestPageableApiDescriptorExtended :
+        PageableApiDescriptor<ApiPageRequestResolverTestRepositoryEntity, PathBuilder<ApiPageRequestResolverTestRepositoryEntity>> {
+
+        private val qApiPageRequestResolverTestRepositoryEntity =
+            PathBuilder(ApiPageRequestResolverTestRepositoryEntity::class.java, "testEntity")
+
+        override fun mapEntityToDto(entity: ApiPageRequestResolverTestRepositoryEntity) =
+            ApiPageRequestResolverTestApiDto()
+
+        override fun getSupportedFilters() = apiFilters(qApiPageRequestResolverTestRepositoryEntity) {
+            mapApiFieldToEntityPath("apiField", java.lang.Long::class) {
+                getNumber(
+                    "entityField",
+                    java.lang.Long::class.java
+                )
+            }
+
+            byApiField("anotherApiField", String::class) {
+                onOperator(PageableApiFilterOperator.GOE) { value -> getString("anotherEntityField").eq(value) }
+            }
+        }
     }
 }

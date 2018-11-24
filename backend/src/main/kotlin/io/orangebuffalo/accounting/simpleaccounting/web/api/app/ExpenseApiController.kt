@@ -4,6 +4,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentSe
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
@@ -129,6 +130,6 @@ private fun mapExpenseDto(source: Expense) = ExpenseDto(
     version = source.version
 )
 
-class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense> {
+class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
     override fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
 }

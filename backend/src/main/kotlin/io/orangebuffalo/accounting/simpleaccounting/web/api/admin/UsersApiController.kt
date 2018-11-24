@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.admin
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QPlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
@@ -54,7 +55,7 @@ data class CreateUserDto(
     @field:NotBlank var password: String?
 )
 
-class UserPageableApiDescriptor : PageableApiDescriptor<PlatformUser> {
+class UserPageableApiDescriptor : PageableApiDescriptor<PlatformUser, QPlatformUser> {
     override fun mapEntityToDto(entity: PlatformUser) = mapUserDto(entity)
 }
 

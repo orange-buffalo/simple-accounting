@@ -1,5 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
+import com.querydsl.core.types.EntityPath
 import org.reactivestreams.Publisher
 import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.core.ResolvableType
@@ -55,8 +56,8 @@ class ApiPageResultHandler(
         val pageableApiAnnotation = bodyParameter.annotatedElement.getAnnotation(PageableApi::class.java)
                 ?: throw IllegalArgumentException("Missing @PageableApi at ${bodyParameter.method}")
 
-        val pageableApiDescriptor : PageableApiDescriptor<Any> =
-            pageableApiAnnotation.descriptorClass.createInstance() as PageableApiDescriptor<Any>
+        val pageableApiDescriptor : PageableApiDescriptor<Any, EntityPath<Any>> =
+            pageableApiAnnotation.descriptorClass.createInstance() as PageableApiDescriptor<Any, EntityPath<Any>>
 
         return Mono.from(adapter.toPublisher<Page<Any>>(result.returnValue))
                 .flatMap { repositoryPage ->

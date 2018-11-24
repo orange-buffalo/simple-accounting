@@ -62,8 +62,9 @@ dependencies {
     compile('io.jsonwebtoken:jjwt-api:0.10.5')
     compile('com.querydsl:querydsl-jpa:4.2.1')
     compile('com.github.kittinunf.result:result:1.5.0')
-    
-    kapt 'org.springframework.boot:spring-boot-configuration-processor'
+
+    kapt('com.querydsl:querydsl-apt:4.2.1:jpa')
+    kapt('org.springframework.boot:spring-boot-configuration-processor')
 
     runtime('org.flywaydb:flyway-core')
     runtime('com.h2database:h2')

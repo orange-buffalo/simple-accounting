@@ -1,5 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
+import com.querydsl.core.types.dsl.PathBuilder
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.Test
@@ -93,7 +94,7 @@ internal class ApiPageResultHandlerIT(
     )
 
     class ApiPageResultHandlerTestPageableApiDescriptor :
-        PageableApiDescriptor<ApiPageResultHandlerTestRepositoryUser> {
+        PageableApiDescriptor<ApiPageResultHandlerTestRepositoryUser, PathBuilder<ApiPageResultHandlerTestRepositoryUser>> {
         override fun mapEntityToDto(entity: ApiPageResultHandlerTestRepositoryUser): ApiPageResultHandlerTestApiUser =
             ApiPageResultHandlerTestApiUser(
                 name = entity.userName,
