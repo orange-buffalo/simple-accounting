@@ -50,21 +50,22 @@ internal class ApiPageResultHandlerIT(
     }
 
     @TestConfiguration()
-    class TesConfig {
+    class ApiPageResultHandlerTesConfig {
         @Bean
-        fun testRestController(): ApiPageResultHandlerTestController = ApiPageResultHandlerTestController()
+        fun apiPageResultHandlerTestController(): ApiPageResultHandlerTestController =
+            ApiPageResultHandlerTestController()
     }
 
     @RestController
     class ApiPageResultHandlerTestController {
 
         @GetMapping(PATH)
-        @PageableApi(TestPageableApiDescriptor::class)
-        fun get(apiPageRequest: ApiPageRequest): Mono<Page<RepositoryUser>> {
+        @PageableApi(ApiPageResultHandlerTestPageableApiDescriptor::class)
+        fun get(apiPageRequest: ApiPageRequest): Mono<Page<ApiPageResultHandlerTestRepositoryUser>> {
             return Mono.just(
-                PageImpl<RepositoryUser>(
+                PageImpl<ApiPageResultHandlerTestRepositoryUser>(
                     listOf(
-                        RepositoryUser(
+                        ApiPageResultHandlerTestRepositoryUser(
                             "Leela",
                             1,
                             0,
@@ -78,24 +79,26 @@ internal class ApiPageResultHandlerIT(
         }
     }
 
-    data class ApiUser(
+    data class ApiPageResultHandlerTestApiUser(
         var name: String,
         var internalId: Long,
         var internalVersion: Int
     )
 
-    data class RepositoryUser(
+    data class ApiPageResultHandlerTestRepositoryUser(
         var userName: String,
         var id: Long,
         var version: Int,
         var password: String
     )
 
-    class TestPageableApiDescriptor : PageableApiDescriptor<RepositoryUser> {
-        override fun mapEntityToDto(entity: RepositoryUser): ApiUser = ApiUser(
-            name = entity.userName,
-            internalId = entity.id,
-            internalVersion = entity.version
-        )
+    class ApiPageResultHandlerTestPageableApiDescriptor :
+        PageableApiDescriptor<ApiPageResultHandlerTestRepositoryUser> {
+        override fun mapEntityToDto(entity: ApiPageResultHandlerTestRepositoryUser): ApiPageResultHandlerTestApiUser =
+            ApiPageResultHandlerTestApiUser(
+                name = entity.userName,
+                internalId = entity.id,
+                internalVersion = entity.version
+            )
     }
 }
