@@ -51,12 +51,11 @@
           </template>
 
           <template v-if="isAttachmentsVisible(scope.item)">
-            <div v-for="attachment in expenseAttachments(scope.item)"
+            <span v-for="attachment in expenseAttachments(scope.item)"
                  :key="attachment.id">
               <br/>
-
-              <span>{{attachment.name}}</span>
-            </div>
+              <document-link :document="attachment"/>
+            </span>
           </template>
         </el-card>
       </template>
@@ -69,6 +68,7 @@
   import DataItems from '@/components/DataItems'
   import {mapGetters, mapState} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
+  import DocumentLink from '@/app/components/DocumentLink'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import api from '@/services/api'
 
@@ -80,7 +80,8 @@
     components: {
       DataTable,
       MoneyOutput,
-      DataItems
+      DataItems,
+      DocumentLink
     },
 
     data: function () {

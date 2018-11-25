@@ -12,6 +12,7 @@
     "cldrjs": "^0.5.0",
     "element-ui": "^2.4.10",
     "eventbusjs": "^0.2.0",
+    "file-saver": "^2.0.0",
     "globalize": "^1.4.0",
     "merge": "^1.2.1",
     "qs": "^6.5.2",

@@ -58,6 +58,7 @@ class DocumentApiController(
                     .map { fileContent ->
                         ResponseEntity.ok()
                             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${document.name}\"")
+                            // todo extend entity and take size from entity attribute
                             .contentLength(fileContent.contentLength())
                             .body(fileContent)
                     }
