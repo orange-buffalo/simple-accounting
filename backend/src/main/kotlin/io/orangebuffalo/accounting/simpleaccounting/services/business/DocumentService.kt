@@ -6,6 +6,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentStorage
+import org.springframework.core.io.Resource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.codec.multipart.FilePart
@@ -54,5 +55,18 @@ class DocumentService(
     fun getDocuments(page: Pageable, predicate: Predicate): Mono<Page<Document>> {
         return Mono.fromSupplier { documentRepository.findAll(predicate, page) }
             .subscribeOn(Schedulers.elastic())
+    }
+
+    fun getDocumentById(documentId: Long): Mono<Document> = Mono
+        .fromSupplier { documentRepository.findById(documentId) }
+        .subscribeOn(Schedulers.elastic())
+        .filter { it.isPresent }
+        .map { it.get() }
+
+    fun getDocumentContent(document: Document): Mono<Resource> {
+        return getDocumentStorageByUser(document.workspace.owner).getDocumentContent(
+            document.workspace,
+            document.storageProviderLocation ?: throw IllegalStateException("$document has not location assigned")
+        )
     }
 }

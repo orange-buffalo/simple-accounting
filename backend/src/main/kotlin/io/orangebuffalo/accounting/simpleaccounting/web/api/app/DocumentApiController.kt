@@ -4,8 +4,11 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentSe
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QDocument
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
+import org.springframework.core.io.Resource
 import org.springframework.data.domain.Page
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.http.codec.multipart.Part
 import org.springframework.web.bind.annotation.*
@@ -41,6 +44,24 @@ class DocumentApiController(
         pageRequest: ApiPageRequest
     ): Mono<Page<Document>> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
         documentService.getDocuments(pageRequest.page, pageRequest.predicate)
+    }
+
+    @GetMapping("{documentId}/content")
+    fun getDocumentContent(
+        @PathVariable workspaceId: Long,
+        @PathVariable documentId: Long
+    ): Mono<ResponseEntity<Resource>> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
+        // todo validate access
+        documentService.getDocumentById(documentId)
+            .flatMap { document ->
+                documentService.getDocumentContent(document)
+                    .map { fileContent ->
+                        ResponseEntity.ok()
+                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${document.name}\"")
+                            .contentLength(fileContent.contentLength())
+                            .body(fileContent)
+                    }
+            }
     }
 }
 

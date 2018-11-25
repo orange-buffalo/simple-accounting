@@ -52,7 +52,7 @@ class Fry : TestData {
         name = "100_cups.pdf",
         workspace = workspace,
         storageProviderId = "local-fs",
-        storageProviderLocation = "lost",
+        storageProviderLocation = "coffee.pdf",
         timeUploaded = MOCK_TIME
     )
 

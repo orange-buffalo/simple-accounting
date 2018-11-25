@@ -32,6 +32,7 @@ import org.springframework.test.context.support.TestPropertySourceUtils
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.io.File
 import java.math.BigDecimal
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -135,6 +136,29 @@ class DocumentApiControllerIT(
                     }"""
                     )
                 )
+            }
+    }
+
+    @Test
+    @WithMockUser(username = "Fry")
+    fun `should download document content`(fry: Fry) {
+        val documentFile = File(baseDocumentsDirectory.toFile(), fry.coffeeReceipt.storageProviderLocation)
+        documentFile.writeText("test-content", StandardCharsets.UTF_8)
+
+        client.get()
+            .uri ("/api/v1/user/workspaces/${fry.workspace.id}/documents/${fry.coffeeReceipt.id}/content")
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentDisposition(ContentDisposition.parse("attachment; filename=\"100_cups.pdf\""))
+            .expectHeader().contentLength(documentFile.length())
+            .expectHeader().contentType(MediaType.APPLICATION_PDF)
+            .expectBody()
+            .consumeWith { exchange ->
+                assertThat(exchange.responseBody).isNotNull().satisfies {
+                    body ->
+                    val text = String(body, StandardCharsets.UTF_8)
+                    assertThat(text).isEqualTo("test-content")
+                }
             }
     }
 
