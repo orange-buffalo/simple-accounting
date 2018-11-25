@@ -1,10 +1,13 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
+import com.querydsl.core.types.Predicate
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentStorage
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -45,6 +48,11 @@ class DocumentService(
             .fromStream {
                 documentRepository.findAllById(ids).stream()
             }
+            .subscribeOn(Schedulers.elastic())
+    }
+
+    fun getDocuments(page: Pageable, predicate: Predicate): Mono<Page<Document>> {
+        return Mono.fromSupplier { documentRepository.findAll(predicate, page) }
             .subscribeOn(Schedulers.elastic())
     }
 }

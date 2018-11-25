@@ -8,6 +8,7 @@ import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
 import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME_VALUE
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.web.mockCurrentTime
+import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -94,6 +95,47 @@ class DocumentApiControllerIT(
             val documentFile = File(baseDocumentsDirectory.toFile(), it.storageProviderLocation)
             assertThat(documentFile).isFile().exists().hasContent("test-content")
         }
+    }
+
+    @Test
+    @WithMockUser(username = "Fry")
+    fun `should return documents by ids`(fry: Fry) {
+        client.get()
+            .uri { builder ->
+                builder.replacePath("/api/v1/user/workspaces/${fry.workspace.id}/documents")
+                    .queryParam("id[eq]", "${fry.cheesePizzaAndALargeSodaReceipt.id}")
+                    .queryParam("id[eq]", "${fry.coffeeReceipt.id}")
+                    .build()
+            }
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                inPath("$.pageNumber").isNumber.isEqualTo("1")
+                inPath("$.pageSize").isNumber.isEqualTo("10")
+                inPath("$.totalElements").isNumber.isEqualTo("2")
+
+                inPath("$.data").isArray.containsExactlyInAnyOrder(
+                    json(
+                        """{
+                        "name": "unknown",
+                        "id": ${fry.cheesePizzaAndALargeSodaReceipt.id},
+                        "version": 0,
+                        "timeUploaded": "$MOCK_TIME_VALUE",
+                        "notes": "Panucci's Pizza"
+                    }"""
+                    ),
+
+                    json(
+                        """{
+                        "name": "100_cups.pdf",
+                        "id": ${fry.coffeeReceipt.id},
+                        "version": 0,
+                        "timeUploaded": "$MOCK_TIME_VALUE",
+                        "notes": null
+                    }"""
+                    )
+                )
+            }
     }
 
     class TempDirectoryInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {

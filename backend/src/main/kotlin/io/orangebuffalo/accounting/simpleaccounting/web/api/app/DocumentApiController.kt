@@ -2,6 +2,9 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QDocument
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
+import org.springframework.data.domain.Page
 import org.springframework.http.MediaType
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.http.codec.multipart.Part
@@ -30,6 +33,15 @@ class DocumentApiController(
                 }
                 .map(::mapDocumentDto)
         }
+
+    @GetMapping
+    @PageableApi(DocumentPageableApiDescriptor::class)
+    fun getDocuments(
+        @PathVariable workspaceId: Long,
+        pageRequest: ApiPageRequest
+    ): Mono<Page<Document>> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
+        documentService.getDocuments(pageRequest.page, pageRequest.predicate)
+    }
 }
 
 data class DocumentDto(
@@ -39,6 +51,16 @@ data class DocumentDto(
     var timeUploaded: Instant,
     var notes: String?
 )
+
+class DocumentPageableApiDescriptor : PageableApiDescriptor<Document, QDocument> {
+    override fun mapEntityToDto(entity: Document) = mapDocumentDto(entity)
+
+    override fun getSupportedFilters(): List<PageableApiFilter<Document, QDocument>> = apiFilters(QDocument.document) {
+        byApiField("id", Long::class) {
+            onOperator(PageableApiFilterOperator.EQ) { value -> id.eq(value) }
+        }
+    }
+}
 
 private fun mapDocumentDto(source: Document) = DocumentDto(
     name = source.name,

@@ -48,6 +48,23 @@ class Fry : TestData {
         timeUploaded = MOCK_TIME
     )
 
+    val coffeeReceipt = Document(
+        name = "100_cups.pdf",
+        workspace = workspace,
+        storageProviderId = "local-fs",
+        storageProviderLocation = "lost",
+        timeUploaded = MOCK_TIME
+    )
+
+    val cheesePizzaAndALargeSodaReceipt = Document(
+        name = "unknown",
+        workspace = workspace,
+        storageProviderId = "local-fs",
+        storageProviderLocation = "lost",
+        timeUploaded = MOCK_TIME,
+        notes = "Panucci's Pizza"
+    )
+
     val secondSlurm = Expense(
         category = slurmCategory,
         datePaid = MOCK_DATE,
@@ -62,5 +79,14 @@ class Fry : TestData {
         attachments = mutableListOf(slurmReceipt)
     )
 
-    override fun generateData() = listOf(himself, workspace, slurmCategory, firstSlurm, slurmReceipt, secondSlurm)
+    override fun generateData() = listOf(
+        himself,
+        workspace,
+        slurmCategory,
+        firstSlurm,
+        slurmReceipt,
+        secondSlurm,
+        coffeeReceipt,
+        cheesePizzaAndALargeSodaReceipt
+    )
 }
