@@ -13,6 +13,8 @@
     "element-ui": "^2.4.10",
     "eventbusjs": "^0.2.0",
     "globalize": "^1.4.0",
+    "merge": "^1.2.1",
+    "qs": "^6.5.2",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"

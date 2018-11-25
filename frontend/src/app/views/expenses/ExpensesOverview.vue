@@ -2,8 +2,7 @@
   <app-layout>
     <span slot="header"><el-button @click="navigateToCreateExpenseView">Add new</el-button></span>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`"
-                :lg="12">
+    <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`">
       <template slot-scope="scope">
         <el-card>
           <!--todo add description to expense -->
@@ -52,8 +51,12 @@
           </template>
 
           <template v-if="isAttachmentsVisible(scope.item)">
-            <br/>
-            <span>{{scope.item.attachments}}</span>
+            <div v-for="attachment in expenseAttachments(scope.item)"
+                 :key="attachment.id">
+              <br/>
+
+              <span>{{attachment.name}}</span>
+            </div>
           </template>
         </el-card>
       </template>
@@ -64,9 +67,10 @@
 <script>
   import DataTable from '@/components/DataTable'
   import DataItems from '@/components/DataItems'
-  import {mapState, mapGetters} from 'vuex'
+  import {mapGetters, mapState} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
+  import api from '@/services/api'
 
   export default {
     name: 'ExpensesOverview',
@@ -82,7 +86,8 @@
     data: function () {
       return {
         notesVisible: [],
-        attachmentsVisible: []
+        attachmentsVisible: [],
+        attachments: []
       }
     },
 
@@ -105,6 +110,13 @@
       isAttachmentsVisible: function () {
         return expense => {
           return this.attachmentsVisible[expense.id]
+        }
+      },
+
+      expenseAttachments: function () {
+        return expense => {
+          return expense.attachments.map(attachment => this.attachments[attachment])
+              .filter(it => it !== null && typeof it !== 'undefined')
         }
       }
     },
@@ -131,8 +143,16 @@
         this.$set(this.notesVisible, expense.id, !this.notesVisible[expense.id])
       },
 
-      toggleAttachments: function (expense) {
+      toggleAttachments: async function (expense) {
         this.$set(this.attachmentsVisible, expense.id, !this.attachmentsVisible[expense.id])
+        let attachmentsToRequest = expense.attachments.filter(attachment => !this.attachments[attachment])
+        if (attachmentsToRequest.length > 0) {
+          let attachments = await api.pageRequest(`/user/workspaces/${this.workspaceId}/documents`)
+              .eager()
+              .eqFilter("id", attachmentsToRequest)
+              .getPageData()
+          attachments.forEach(document => this.$set(this.attachments, document.id, document))
+        }
       }
     }
   }

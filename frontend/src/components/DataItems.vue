@@ -64,25 +64,24 @@
         console.error(event)
       },
 
-      reloadData: function () {
+      reloadData: async function () {
         if (this.cancelToken) {
           this.cancelToken.cancel()
         }
 
         this.cancelToken = api.createCancelToken()
 
-        api.get(this.apiPath, {
-          params: {
-            limit: this.pageSize,
-            page: this.currentPage
-          },
-          cancelToken: this.cancelToken.token
+        let page = await api.pageRequest(this.apiPath)
+            .limit(this.pageSize)
+            .page(this.currentPage)
+            .config({
+              cancelToken: this.cancelToken.token
+            })
+            .getPage()
 
-        }).then(response => {
-          this.data = response.data.data
-          this.totalElements = response.data.totalElements
-          this.cancelToken = null
-        })
+        this.data = page.data
+        this.totalElements = page.totalElements
+        this.cancelToken = null
       }
     }
   }
