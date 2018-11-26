@@ -12,6 +12,9 @@ class Expense(
     var category: Category,
 
     @field:Column(nullable = false)
+    val title: String,
+
+    @field:Column(nullable = false)
     val timeRecorded: Instant,
 
     @field:Column(nullable = false)

@@ -31,7 +31,6 @@
           responseType: 'blob',
           timeout: 30000
         })
-        console.log(documentResponse)
         FileSaver.saveAs(documentResponse.data, this.document.name)
       }
     }

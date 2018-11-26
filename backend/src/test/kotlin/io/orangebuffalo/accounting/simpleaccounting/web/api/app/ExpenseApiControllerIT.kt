@@ -44,6 +44,7 @@ internal class ExpenseApiControllerIT(
             .syncBody(
                 """{
                     "category": ${fry.slurmCategory.id},
+                    "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 30000,
                     "amountInDefaultCurrency": 42000,
@@ -61,6 +62,7 @@ internal class ExpenseApiControllerIT(
                     json(
                         """{
                             category: ${fry.slurmCategory.id},
+                            title: "ever best drink",
                             currency: "USD",
                             originalAmount: 30000,
                             amountInDefaultCurrency: 42000,
@@ -100,6 +102,7 @@ internal class ExpenseApiControllerIT(
                     json(
                         """{
                             category: ${fry.slurmCategory.id},
+                            title: "best ever slurm",
                             currency: "THF",
                             originalAmount: 5000,
                             amountInDefaultCurrency: 500,
@@ -118,6 +121,7 @@ internal class ExpenseApiControllerIT(
                     json(
                         """{
                             category: ${fry.slurmCategory.id},
+                            title: "another great slurm",
                             currency: "ZZB",
                             originalAmount: 5100,
                             amountInDefaultCurrency: 510,
@@ -148,6 +152,7 @@ internal class ExpenseApiControllerIT(
                     json(
                         """{
                             category: ${fry.slurmCategory.id},
+                            title: "best ever slurm",
                             currency: "THF",
                             originalAmount: 5000,
                             amountInDefaultCurrency: 500,

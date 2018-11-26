@@ -29,9 +29,13 @@
 
     </el-aside>
     <el-container>
-      <el-header><slot name="header">Header</slot></el-header>
+      <el-header>
+        <slot name="header">Header</slot>
+      </el-header>
       <el-main>
-        <slot></slot>
+        <div class="content-panel">
+          <slot></slot>
+        </div>
       </el-main>
     </el-container>
   </el-container>
@@ -48,6 +52,11 @@
 
   .el-main {
     background-color: rgb(249, 251, 253);
+
+    .content-panel {
+      max-width: 1500px;
+      margin: auto;
+    }
   }
 
   .el-menu {

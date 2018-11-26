@@ -6,7 +6,7 @@
       <template slot-scope="scope">
         <el-card>
           <!--todo add description to expense -->
-          <b>Short description</b>
+          <b>{{scope.item.title}}</b>
           <br/>
           {{ categoryById(scope.item.category).name }}
           {{getDatePaid(scope.item)}}
@@ -47,6 +47,7 @@
 
           <template v-if="isNotesVisible(scope.item)">
             <br/>
+            <!--todo linebreaks-->
             <span>{{scope.item.notes}}</span>
           </template>
 

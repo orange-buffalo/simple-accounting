@@ -30,6 +30,7 @@ class Fry : TestData {
 
     val firstSlurm = Expense(
         category = slurmCategory,
+        title = "best ever slurm",
         datePaid = MOCK_DATE,
         timeRecorded = MOCK_TIME,
         currency = "THF",
@@ -67,6 +68,7 @@ class Fry : TestData {
 
     val secondSlurm = Expense(
         category = slurmCategory,
+        title = "another great slurm",
         datePaid = MOCK_DATE,
         timeRecorded = MOCK_TIME,
         currency = "ZZB",

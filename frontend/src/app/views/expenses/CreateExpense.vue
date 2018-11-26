@@ -20,6 +20,10 @@
           </el-select>
         </el-form-item>
 
+        <el-form-item label="title" prop="title">
+          <el-input v-model="expense.title"/>
+        </el-form-item>
+
         <el-form-item label="currency" prop="currency">
           <currency-input v-model="expense.currency"></currency-input>
         </el-form-item>
@@ -125,6 +129,7 @@
       return {
         expense: {
           category: null,
+          title: null,
           currency: null,
           originalAmount: null,
           amountInDefaultCurrency: null,

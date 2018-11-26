@@ -47,6 +47,7 @@ class ExpenseApiController(
                         expenseService.saveExpense(
                             Expense(
                                 category = category,
+                                title = request.title,
                                 timeRecorded = timeService.currentTime(),
                                 datePaid = request.datePaid,
                                 currency = request.currency,
@@ -88,6 +89,7 @@ class ExpenseApiController(
 
 data class ExpenseDto(
     var category: Long,
+    val title: String,
     var timeRecorded: Instant,
     var datePaid: LocalDate,
     var currency: String,
@@ -105,6 +107,7 @@ data class ExpenseDto(
 data class CreateExpenseDto(
     @NotNull var category: Long,
     @NotNull var datePaid: LocalDate,
+    @NotBlank var title: String,
     @NotBlank var currency: String,
     @NotNull var originalAmount: Long,
     @NotNull var amountInDefaultCurrency: Long,
@@ -116,6 +119,7 @@ data class CreateExpenseDto(
 
 private fun mapExpenseDto(source: Expense) = ExpenseDto(
     category = source.category.id!!,
+    title = source.title,
     datePaid = source.datePaid,
     timeRecorded = source.timeRecorded,
     currency = source.currency,
