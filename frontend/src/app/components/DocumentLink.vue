@@ -1,5 +1,8 @@
 <template>
-  <el-button type="text" @click="startDownload">{{document.name}} ({{sizeLabel}})</el-button>
+  <el-button type="text" @click="startDownload">
+    {{document.name}}
+    <template v-if="sizeKnown">({{sizeLabel}})</template>
+  </el-button>
 </template>
 
 <script>
@@ -21,7 +24,11 @@
 
       // todo extend entity and localize
       sizeLabel: function () {
-        return "<>"
+        return `<${this.document.sizeInBytes}>`
+      },
+
+      sizeKnown: function () {
+        return this.document.sizeInBytes
       }
     },
 
