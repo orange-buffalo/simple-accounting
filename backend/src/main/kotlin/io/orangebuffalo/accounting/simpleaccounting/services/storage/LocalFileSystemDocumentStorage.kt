@@ -18,13 +18,14 @@ class LocalFileSystemDocumentStorage(
         return Mono.just(FileSystemResource(File(config.baseDirectory.toFile(), storageLocation)))
     }
 
-    override fun saveDocument(file: FilePart, workspace: Workspace): Mono<String> {
+    override fun saveDocument(file: FilePart, workspace: Workspace): Mono<StorageProviderResponse> {
         return Mono.fromSupplier {
             val documentDir = File(config.baseDirectory.toFile(), workspace.id.toString()).apply { mkdirs() }
             val documentName = "${UUID.randomUUID()}.${File(file.filename()).extension}"
             val documentFile = File(documentDir, documentName)
             file.transferTo(documentFile)
-            documentFile.relativeTo(config.baseDirectory.toFile()).toString()
+            val location = documentFile.relativeTo(config.baseDirectory.toFile()).toString()
+            StorageProviderResponse(location, documentFile.length())
         }
     }
 

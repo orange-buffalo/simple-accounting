@@ -57,11 +57,12 @@ class DocumentApiControllerIT(
         val documentId = dbHelper.getNextId()
         mockCurrentTime(timeServiceMock)
 
+        val documentContent = InMemoryResource("test-content")
         val multipartBodyBuilder = MultipartBodyBuilder()
             .apply {
                 part(
                     "file",
-                    InMemoryResource("test-content"),
+                    documentContent,
                     MediaType.TEXT_PLAIN
                 ).header(
                     HttpHeaders.CONTENT_DISPOSITION,
@@ -87,6 +88,7 @@ class DocumentApiControllerIT(
                 node("version").isNumber.isEqualTo(BigDecimal.ZERO)
                 node("timeUploaded").isString.isEqualTo(MOCK_TIME_VALUE)
                 node("notes").isString.isEqualTo("Shut up and take my money")
+                node("sizeInBytes").isNumber.isEqualTo(BigDecimal.valueOf(documentContent.contentLength()))
             }
 
         val document = documentRepository.findById(documentId)
@@ -122,7 +124,8 @@ class DocumentApiControllerIT(
                         "id": ${fry.cheesePizzaAndALargeSodaReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
-                        "notes": "Panucci's Pizza"
+                        "notes": "Panucci's Pizza",
+                        "sizeInBytes": null
                     }"""
                     ),
 
@@ -132,7 +135,8 @@ class DocumentApiControllerIT(
                         "id": ${fry.coffeeReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
-                        "notes": null
+                        "notes": null,
+                        "sizeInBytes": 42
                     }"""
                     )
                 )

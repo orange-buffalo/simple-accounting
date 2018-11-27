@@ -46,7 +46,8 @@ class Fry : TestData {
         workspace = workspace,
         storageProviderId = "local-fs",
         storageProviderLocation = "lost",
-        timeUploaded = MOCK_TIME
+        timeUploaded = MOCK_TIME,
+        sizeInBytes = 30
     )
 
     val coffeeReceipt = Document(
@@ -54,7 +55,8 @@ class Fry : TestData {
         workspace = workspace,
         storageProviderId = "local-fs",
         storageProviderLocation = "coffee.pdf",
-        timeUploaded = MOCK_TIME
+        timeUploaded = MOCK_TIME,
+        sizeInBytes = 42
     )
 
     val cheesePizzaAndALargeSodaReceipt = Document(
@@ -63,7 +65,8 @@ class Fry : TestData {
         storageProviderId = "local-fs",
         storageProviderLocation = "lost",
         timeUploaded = MOCK_TIME,
-        notes = "Panucci's Pizza"
+        notes = "Panucci's Pizza",
+        sizeInBytes = null
     )
 
     val secondSlurm = Expense(

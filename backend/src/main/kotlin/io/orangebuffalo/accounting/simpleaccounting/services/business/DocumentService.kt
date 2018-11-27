@@ -26,7 +26,7 @@ class DocumentService(
         val documentStorage = getDocumentStorageByUser(workspace.owner)
         return documentStorage
             .saveDocument(filePart, workspace)
-            .map { storageProviderLocation ->
+            .map { response ->
                 documentRepository.save(
                     Document(
                         name = filePart.filename(),
@@ -34,7 +34,8 @@ class DocumentService(
                         timeUploaded = timeService.currentTime(),
                         workspace = workspace,
                         storageProviderId = documentStorage.getId(),
-                        storageProviderLocation = storageProviderLocation
+                        storageProviderLocation = response.storageProviderLocation,
+                        sizeInBytes = response.sizeInBytes
                     )
                 )
             }
@@ -64,9 +65,12 @@ class DocumentService(
         .map { it.get() }
 
     fun getDocumentContent(document: Document): Mono<Resource> {
-        return getDocumentStorageByUser(document.workspace.owner).getDocumentContent(
+        return getDocumentStorageById(document.storageProviderId).getDocumentContent(
             document.workspace,
             document.storageProviderLocation ?: throw IllegalStateException("$document has not location assigned")
         )
     }
+
+    private fun getDocumentStorageById(providerId: String) = documentStorages
+        .first { it.getId() == providerId }
 }

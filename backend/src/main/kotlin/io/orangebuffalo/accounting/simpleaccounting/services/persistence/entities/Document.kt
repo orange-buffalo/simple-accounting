@@ -18,6 +18,8 @@ class Document(
 
     @field:Column(nullable = false) var storageProviderId: String,
 
-    @field:Column(length = 2048) var storageProviderLocation: String?
+    @field:Column(length = 2048) var storageProviderLocation: String?,
+
+    val sizeInBytes: Long?
 
 ) : AbstractEntity()

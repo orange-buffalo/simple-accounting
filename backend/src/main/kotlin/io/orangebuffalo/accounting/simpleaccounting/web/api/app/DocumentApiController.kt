@@ -71,7 +71,8 @@ data class DocumentDto(
     var version: Int,
     var name: String,
     var timeUploaded: Instant,
-    var notes: String?
+    var notes: String?,
+    var sizeInBytes: Long?
 )
 
 class DocumentPageableApiDescriptor : PageableApiDescriptor<Document, QDocument> {
@@ -89,5 +90,6 @@ private fun mapDocumentDto(source: Document) = DocumentDto(
     timeUploaded = source.timeUploaded,
     notes = source.notes,
     id = source.id,
-    version = source.version
+    version = source.version,
+    sizeInBytes = source.sizeInBytes
 )
