@@ -11,8 +11,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers
 
 @Service
 class DocumentService(
@@ -21,25 +19,22 @@ class DocumentService(
     private val timeService: TimeService
 ) {
 
-    @Deprecated("migrate to coroutines")
-    fun uploadDocument(filePart: FilePart, notes: String?, workspace: Workspace): Mono<Document> {
+    suspend fun uploadDocument(filePart: FilePart, notes: String?, workspace: Workspace): Document {
         val documentStorage = getDocumentStorageByUser(workspace.owner)
-        return documentStorage
-            .saveDocument(filePart, workspace)
-            .map { response ->
-                documentRepository.save(
-                    Document(
-                        name = filePart.filename(),
-                        notes = notes,
-                        timeUploaded = timeService.currentTime(),
-                        workspace = workspace,
-                        storageProviderId = documentStorage.getId(),
-                        storageProviderLocation = response.storageProviderLocation,
-                        sizeInBytes = response.sizeInBytes
-                    )
+        val storageProviderResponse = documentStorage.saveDocument(filePart, workspace)
+        return withDbContext {
+            documentRepository.save(
+                Document(
+                    name = filePart.filename(),
+                    notes = notes,
+                    timeUploaded = timeService.currentTime(),
+                    workspace = workspace,
+                    storageProviderId = documentStorage.getId(),
+                    storageProviderLocation = storageProviderResponse.storageProviderLocation,
+                    sizeInBytes = storageProviderResponse.sizeInBytes
                 )
-            }
-            .subscribeOn(Schedulers.elastic())
+            )
+        }
     }
 
     fun getDocumentStorageByUser(user: PlatformUser) = documentStorages
@@ -49,21 +44,15 @@ class DocumentService(
         documentRepository.findAllById(ids)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getDocuments(page: Pageable, predicate: Predicate): Mono<Page<Document>> {
-        return Mono.fromSupplier { documentRepository.findAll(predicate, page) }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun getDocuments(page: Pageable, predicate: Predicate): Page<Document> = withDbContext{
+        documentRepository.findAll(predicate, page)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getDocumentById(documentId: Long): Mono<Document> = Mono
-        .fromSupplier { documentRepository.findById(documentId) }
-        .subscribeOn(Schedulers.elastic())
-        .filter { it.isPresent }
-        .map { it.get() }
+    suspend fun getDocumentById(documentId: Long): Document? = withDbContext {
+        documentRepository.findById(documentId).orElseGet(null)
+    }
 
-    @Deprecated("migrate to coroutines")
-    fun getDocumentContent(document: Document): Mono<Resource> {
+    suspend fun getDocumentContent(document: Document): Resource {
         return getDocumentStorageById(document.storageProviderId).getDocumentContent(
             document.workspace,
             document.storageProviderLocation ?: throw IllegalStateException("$document has not location assigned")

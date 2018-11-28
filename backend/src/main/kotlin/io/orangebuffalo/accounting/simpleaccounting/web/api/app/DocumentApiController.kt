@@ -3,7 +3,9 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QDocument
+import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
+import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders
@@ -27,22 +29,20 @@ class DocumentApiController(
         @PathVariable workspaceId: Long,
         @RequestPart("notes") notes: String?,
         @RequestPart("file") file: Mono<Part>
-    ): Mono<DocumentDto> = extensions
-        .withAccessibleWorkspace(workspaceId) { workspace ->
-            file
-                .cast(FilePart::class.java)
-                .flatMap { filePart ->
-                    documentService.uploadDocument(filePart, notes, workspace)
-                }
-                .map(::mapDocumentDto)
-        }
+    ): Mono<DocumentDto> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val filePart = file.cast(FilePart::class.java).awaitFirst()
+        documentService.uploadDocument(filePart, notes, workspace).let(::mapDocumentDto)
+    }
 
     @GetMapping
     @PageableApi(DocumentPageableApiDescriptor::class)
     fun getDocuments(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<Document>> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
+    ): Mono<Page<Document>> = extensions.toMono {
+        //todo introduce a method to verify workspace acessability
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
         documentService.getDocuments(pageRequest.page, pageRequest.predicate)
     }
 
@@ -50,18 +50,19 @@ class DocumentApiController(
     fun getDocumentContent(
         @PathVariable workspaceId: Long,
         @PathVariable documentId: Long
-    ): Mono<ResponseEntity<Resource>> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
+    ): Mono<ResponseEntity<Resource>> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
         // todo validate access
-        documentService.getDocumentById(documentId)
-            .flatMap { document ->
-                documentService.getDocumentContent(document)
-                    .map { fileContent ->
-                        ResponseEntity.ok()
-                            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${document.name}\"")
-                            // todo extend entity and take size from entity attribute
-                            .contentLength(fileContent.contentLength())
-                            .body(fileContent)
-                    }
+        val document = documentService.getDocumentById(documentId)
+            ?: throw ApiValidationException("Document $documentId is not found")
+
+        documentService.getDocumentContent(document)
+            .let { fileContent ->
+                ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${document.name}\"")
+                    // todo extend entity and take size from entity attribute
+                    .contentLength(fileContent.contentLength())
+                    .body(fileContent)
             }
     }
 }

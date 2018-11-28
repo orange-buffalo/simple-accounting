@@ -1,33 +1,36 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.storage
 
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.withContext
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import java.io.File
 import java.util.*
+
+private val localFsStorageContext = newFixedThreadPoolContext(10, "local-fs-storage")
 
 @Service
 class LocalFileSystemDocumentStorage(
     private val config: LocalFileSystemDocumentStorageProperties
 ) : DocumentStorage {
 
-    override fun getDocumentContent(workspace: Workspace, storageLocation: String): Mono<Resource> {
-        return Mono.just(FileSystemResource(File(config.baseDirectory.toFile(), storageLocation)))
+    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Resource {
+        return FileSystemResource(File(config.baseDirectory.toFile(), storageLocation))
     }
 
-    override fun saveDocument(file: FilePart, workspace: Workspace): Mono<StorageProviderResponse> {
-        return Mono.fromSupplier {
+    override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse =
+        withContext(localFsStorageContext) {
             val documentDir = File(config.baseDirectory.toFile(), workspace.id.toString()).apply { mkdirs() }
             val documentName = "${UUID.randomUUID()}.${File(file.filename()).extension}"
             val documentFile = File(documentDir, documentName)
-            file.transferTo(documentFile)
+            file.transferTo(documentFile).awaitFirstOrNull()
             val location = documentFile.relativeTo(config.baseDirectory.toFile()).toString()
             StorageProviderResponse(location, documentFile.length())
         }
-    }
 
     override fun getId() = "local-fs"
 
