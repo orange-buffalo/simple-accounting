@@ -7,10 +7,12 @@ import reactor.core.publisher.Mono
 
 interface DocumentStorage {
 
+    @Deprecated("migrate to coroutines")
     fun saveDocument(file: FilePart, workspace: Workspace): Mono<StorageProviderResponse>
 
     fun getId(): String
 
+    @Deprecated("migrate to coroutines")
     fun getDocumentContent(workspace: Workspace, storageLocation: String): Mono<Resource>
 }
 

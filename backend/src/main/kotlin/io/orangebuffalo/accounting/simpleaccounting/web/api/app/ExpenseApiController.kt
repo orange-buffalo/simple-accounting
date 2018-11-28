@@ -30,39 +30,32 @@ class ExpenseApiController(
     @PostMapping
     fun createExpense(
         @PathVariable workspaceId: Long,
-        @RequestBody requestMono: Mono<CreateExpenseDto>
-    ): Mono<ExpenseDto> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
+        @RequestBody request: CreateExpenseDto
+    ): Mono<ExpenseDto> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val category = workspace.categories.asSequence()
+            .firstOrNull { category -> category.id == request.category }
+            ?: throw ApiValidationException("Category ${request.category} is not found")
 
-        requestMono
-            .flatMap { request ->
-                val category = workspace.categories.asSequence()
-                    .firstOrNull { category -> category.id == request.category }
-                    ?: throw ApiValidationException("Category ${request.category} is not found")
+        val attachments = documentService.getDocumentsByIds2(request.attachments)
+        // TODO validation that all documents are within expense's workspace
 
-                documentService.getDocumentsByIds(request.attachments)
-                    .collectList()
-                    .flatMap { attachments ->
-                        // TODO validation that all documents are within expense's workspace
-
-                        expenseService.saveExpense(
-                            Expense(
-                                category = category,
-                                title = request.title,
-                                timeRecorded = timeService.currentTime(),
-                                datePaid = request.datePaid,
-                                currency = request.currency,
-                                originalAmount = request.originalAmount,
-                                amountInDefaultCurrency = request.amountInDefaultCurrency,
-                                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency,
-                                notes = request.notes,
-                                percentOnBusiness = request.percentOnBusiness,
-                                attachments = attachments,
-                                reportedAmountInDefaultCurrency = request.actualAmountInDefaultCurrency
-                            )
-                        )
-                    }
-            }
-            .map(::mapExpenseDto)
+        expenseService.saveExpense(
+            Expense(
+                category = category,
+                title = request.title,
+                timeRecorded = timeService.currentTime(),
+                datePaid = request.datePaid,
+                currency = request.currency,
+                originalAmount = request.originalAmount,
+                amountInDefaultCurrency = request.amountInDefaultCurrency,
+                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency,
+                notes = request.notes,
+                percentOnBusiness = request.percentOnBusiness,
+                attachments = attachments.toMutableList(),
+                reportedAmountInDefaultCurrency = request.actualAmountInDefaultCurrency
+            )
+        ).let(::mapExpenseDto)
     }
 
     @GetMapping

@@ -13,16 +13,17 @@ class ExpenseService(
     private val expenseRepository: ExpenseRepository
 ) {
 
-    fun saveExpense(expense: Expense): Mono<Expense> {
-        return Mono.fromSupplier { expenseRepository.save(expense) }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun saveExpense(expense: Expense): Expense = withDbContext {
+        expenseRepository.save(expense)
     }
 
+    @Deprecated("migrate to coroutines")
     fun getExpenses(page: Pageable): Mono<Page<Expense>> {
         return Mono.fromSupplier { expenseRepository.findAll(page) }
             .subscribeOn(Schedulers.elastic())
     }
 
+    @Deprecated("migrate to coroutines")
     fun getExpense(id: Long): Mono<Expense> {
         return Mono.fromSupplier { expenseRepository.findById(id) }
             .filter { it.isPresent }

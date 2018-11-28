@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 
@@ -22,6 +21,7 @@ class DocumentService(
     private val timeService: TimeService
 ) {
 
+    @Deprecated("migrate to coroutines")
     fun uploadDocument(filePart: FilePart, notes: String?, workspace: Workspace): Mono<Document> {
         val documentStorage = getDocumentStorageByUser(workspace.owner)
         return documentStorage
@@ -45,25 +45,24 @@ class DocumentService(
     fun getDocumentStorageByUser(user: PlatformUser) = documentStorages
         .first { it.getId() == "local-fs" }
 
-    fun getDocumentsByIds(ids: List<Long>): Flux<Document> {
-        return Flux
-            .fromStream {
-                documentRepository.findAllById(ids).stream()
-            }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun getDocumentsByIds2(ids: List<Long>): List<Document> = withDbContext {
+        documentRepository.findAllById(ids)
     }
 
+    @Deprecated("migrate to coroutines")
     fun getDocuments(page: Pageable, predicate: Predicate): Mono<Page<Document>> {
         return Mono.fromSupplier { documentRepository.findAll(predicate, page) }
             .subscribeOn(Schedulers.elastic())
     }
 
+    @Deprecated("migrate to coroutines")
     fun getDocumentById(documentId: Long): Mono<Document> = Mono
         .fromSupplier { documentRepository.findById(documentId) }
         .subscribeOn(Schedulers.elastic())
         .filter { it.isPresent }
         .map { it.get() }
 
+    @Deprecated("migrate to coroutines")
     fun getDocumentContent(document: Document): Mono<Resource> {
         return getDocumentStorageById(document.storageProviderId).getDocumentContent(
             document.workspace,
