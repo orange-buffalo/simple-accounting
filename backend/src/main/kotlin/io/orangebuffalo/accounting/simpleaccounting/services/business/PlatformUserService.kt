@@ -10,8 +10,6 @@ import kotlinx.coroutines.Deferred
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers
 
 @Service
 class PlatformUserService(
@@ -30,14 +28,8 @@ class PlatformUserService(
             ?: throw IllegalStateException("Current principal is not resolved to a user")
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getUserByUserName(userName: String): Mono<PlatformUser> {
-        return Mono.fromSupplier {
-            userRepository.findByUserName(userName)
-        }
-            .subscribeOn(Schedulers.elastic())
-            .filter { it != null }
-            .map { it!! }
+    suspend fun getUserByUserName(userName: String): PlatformUser? = withDbContext {
+        userRepository.findByUserName(userName)
     }
 
     suspend fun getUsers(page: Pageable): Page<PlatformUser> = withDbContext {

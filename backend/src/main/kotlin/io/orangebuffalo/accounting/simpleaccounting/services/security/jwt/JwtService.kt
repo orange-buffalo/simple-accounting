@@ -37,7 +37,4 @@ class JwtService {
                 .authorities(*(jws.body["authorities"] as List<String>).toTypedArray())
                 .build()
     }
-
 }
-
-class BadTokenException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

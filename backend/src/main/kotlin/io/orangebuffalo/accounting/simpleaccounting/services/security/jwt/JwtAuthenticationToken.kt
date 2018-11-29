@@ -4,8 +4,8 @@ import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails
 
 class JwtAuthenticationToken(
-        val token: String,
-        val user: UserDetails? = null
+    private val token: String,
+    val user: UserDetails? = null
 ) : AbstractAuthenticationToken(user?.authorities) {
 
     init {
