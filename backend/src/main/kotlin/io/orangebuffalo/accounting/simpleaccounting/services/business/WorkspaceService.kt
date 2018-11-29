@@ -6,8 +6,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.C
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import kotlinx.coroutines.Deferred
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers
 
 @Service
 class WorkspaceService(
@@ -19,17 +17,7 @@ class WorkspaceService(
         workspaceRepository.findById(workspaceId).orElse(null)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getWorkspace(workspaceId: Long): Mono<Workspace> {
-        return Mono.fromSupplier { workspaceRepository.findById(workspaceId) }
-            .filter { it.isPresent }
-            .map { it.get() }
-            .subscribeOn(Schedulers.elastic())
-    }
-
-    @Deprecated("migrate to coroutines")
-    fun createCategory(category: Category): Mono<Category> {
-        return Mono.fromSupplier { categoryRepository.save(category) }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun createCategory(category: Category): Category = withDbContext {
+        categoryRepository.save(category)
     }
 }

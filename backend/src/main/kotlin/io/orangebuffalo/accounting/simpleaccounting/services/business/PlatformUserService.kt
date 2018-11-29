@@ -10,7 +10,6 @@ import kotlinx.coroutines.Deferred
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 
@@ -23,42 +22,41 @@ class PlatformUserService(
 
     suspend fun getCurrentUserAsync(): Deferred<PlatformUser> = withDbContextAsync {
         userRepository.findByUserName(getCurrentPrincipal().username)
+            ?: throw IllegalStateException("Current principal is not resolved to a user")
+    }
+
+    suspend fun getCurrentUser(): PlatformUser = withDbContext {
+        userRepository.findByUserName(getCurrentPrincipal().username)
+            ?: throw IllegalStateException("Current principal is not resolved to a user")
     }
 
     @Deprecated("migrate to coroutines")
     fun getUserByUserName(userName: String): Mono<PlatformUser> {
-        return Mono.fromSupplier { userRepository.findByUserName(userName) }
+        return Mono.fromSupplier {
+            userRepository.findByUserName(userName)
+        }
             .subscribeOn(Schedulers.elastic())
             .filter { it != null }
+            .map { it!! }
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getUsers(page: Pageable): Mono<Page<PlatformUser>> {
-        return Mono.fromSupplier { userRepository.findAll(page) }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun getUsers(page: Pageable): Page<PlatformUser> = withDbContext {
+        userRepository.findAll(page)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun save(user: PlatformUser): Mono<PlatformUser> {
-        return Mono.fromCallable { userRepository.save(user) }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun save(user: PlatformUser): PlatformUser = withDbContext {
+        userRepository.save(user)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getUserWorkspaces(userName: String): Flux<Workspace> {
-        return Flux.fromStream { workspaceRepository.findAllByOwnerUserName(userName).stream() }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun getUserWorkspacesAsync(userName: String): Deferred<List<Workspace>> = withDbContextAsync {
+        workspaceRepository.findAllByOwnerUserName(userName)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun createWorkspace(workspace: Workspace): Mono<Workspace> {
-        return Mono.fromCallable { workspaceRepository.save(workspace) }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun createWorkspace(workspace: Workspace): Workspace = withDbContext {
+        workspaceRepository.save(workspace)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getUserCategories(userName: String): Flux<Category> {
-        return Flux.fromStream { categoryRepository.findAllByWorkspaceOwnerUserName(userName).stream() }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun getUserCategoriesAsync(userName: String): Deferred<List<Category>> = withDbContextAsync {
+        categoryRepository.findAllByWorkspaceOwnerUserName(userName)
     }
 }

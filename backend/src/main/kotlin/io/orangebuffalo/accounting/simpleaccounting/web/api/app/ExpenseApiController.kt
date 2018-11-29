@@ -6,6 +6,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeServic
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
@@ -63,7 +64,9 @@ class ExpenseApiController(
     fun createExpense(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<Expense>> = extensions.withAccessibleWorkspace(workspaceId) { workspace ->
+    ): Mono<Page<Expense>> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        //todo filter by workspace
         expenseService.getExpenses(pageRequest.page)
     }
 
@@ -71,13 +74,13 @@ class ExpenseApiController(
     fun getExpense(
         @PathVariable workspaceId: Long,
         @PathVariable expenseId: Long
-    ): Mono<ExpenseDto> = extensions
-        .withAccessibleWorkspace(workspaceId) { workspace ->
-            // todo validate expense belongs to workspace
-            expenseService.getExpense(expenseId)
-        }
-        .map { mapExpenseDto(it) }
-
+    ): Mono<ExpenseDto> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        //todo filter by workspace
+        val expense = expenseService.getExpense(expenseId)
+            ?: throw ApiValidationException("$expenseId is not found")
+        mapExpenseDto(expense)
+    }
 }
 
 data class ExpenseDto(

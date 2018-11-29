@@ -4,5 +4,5 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 
 interface PlatformUserRepository : AbstractEntityRepository<PlatformUser> {
     
-    fun findByUserName(userName: String): PlatformUser
+    fun findByUserName(userName: String): PlatformUser?
 }

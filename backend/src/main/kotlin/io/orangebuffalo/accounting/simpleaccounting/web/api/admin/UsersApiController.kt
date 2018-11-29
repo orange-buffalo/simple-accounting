@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.admin
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QPlatformUser
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
@@ -18,27 +19,25 @@ import javax.validation.constraints.NotNull
 @RequestMapping("/api/v1/admin/users")
 class UsersApiController(
     private val userService: PlatformUserService,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val extensions: ApiControllersExtensions
 ) {
 
     @GetMapping
     @PageableApi(UserPageableApiDescriptor::class)
-    fun getUsers(pageRequest: ApiPageRequest): Mono<Page<PlatformUser>> {
-        return userService.getUsers(pageRequest.page)
+    fun getUsers(pageRequest: ApiPageRequest): Mono<Page<PlatformUser>> = extensions.toMono {
+        userService.getUsers(pageRequest.page)
     }
 
     @PostMapping
-    fun createUser(@RequestBody @Valid user: Mono<CreateUserDto>): Mono<UserDto> {
-        return user
-            .map {
-                PlatformUser(
-                    userName = it.userName!!,
-                    passwordHash = passwordEncoder.encode(it.password!!),
-                    isAdmin = it.admin!!
-                )
-            }
-            .flatMap { userService.save(it) }
-            .map { mapUserDto(it) }
+    fun createUser(@RequestBody @Valid user: CreateUserDto): Mono<UserDto> = extensions.toMono {
+        userService.save(
+            PlatformUser(
+                userName = user.userName!!,
+                passwordHash = passwordEncoder.encode(user.password!!),
+                isAdmin = user.admin!!
+            )
+        ).let(::mapUserDto)
     }
 }
 

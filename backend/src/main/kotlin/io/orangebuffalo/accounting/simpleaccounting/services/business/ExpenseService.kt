@@ -5,8 +5,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.E
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers
 
 @Service
 class ExpenseService(
@@ -17,17 +15,11 @@ class ExpenseService(
         expenseRepository.save(expense)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getExpenses(page: Pageable): Mono<Page<Expense>> {
-        return Mono.fromSupplier { expenseRepository.findAll(page) }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun getExpenses(page: Pageable): Page<Expense> = withDbContext {
+        expenseRepository.findAll(page)
     }
 
-    @Deprecated("migrate to coroutines")
-    fun getExpense(id: Long): Mono<Expense> {
-        return Mono.fromSupplier { expenseRepository.findById(id) }
-            .filter { it.isPresent }
-            .map { it.get() }
-            .subscribeOn(Schedulers.elastic())
+    suspend fun getExpense(id: Long): Expense? = withDbContext {
+        expenseRepository.findById(id).orElse(null)
     }
 }

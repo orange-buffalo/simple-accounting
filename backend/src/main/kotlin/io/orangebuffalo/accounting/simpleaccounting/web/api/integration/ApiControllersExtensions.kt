@@ -1,11 +1,11 @@
-package io.orangebuffalo.accounting.simpleaccounting.web.api.app
+package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.CoroutinePrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactor.mono
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
@@ -19,6 +19,10 @@ class ApiControllersExtensions(
     private val workspaceService: WorkspaceService
 ) {
 
+    suspend fun validateWorkspaceAccess(workspaceId: Long) {
+        getAccessibleWorkspace(workspaceId)
+    }
+
     suspend fun getAccessibleWorkspace(workspaceId: Long): Workspace {
         val currentUser = platformUserService.getCurrentUserAsync()
         val workspace = workspaceService.getWorkspaceAsync(workspaceId).await()
@@ -30,32 +34,7 @@ class ApiControllersExtensions(
         }
     }
 
-    @Deprecated("migrate to coroutines")
-    fun <T> withAccessibleWorkspace(
-        workspaceId: Long,
-        consumer: (workspace: Workspace) -> Mono<T>
-    ): Mono<T> = withCurrentUser { currentUser ->
-        workspaceService.getWorkspace(workspaceId)
-            .flatMap { workspace ->
-                if (workspace.owner == currentUser) {
-                    Mono.just(workspace)
-                } else {
-                    Mono.error<Workspace>(ApiValidationException("Workspace $workspaceId cannot be found"))
-                }
-            }
-            .flatMap { consumer(it) }
-    }
-
-    @Deprecated("migrate to coroutines")
-    fun <T> withCurrentUser(
-        consumer: (currentUser: PlatformUser) -> Mono<T>
-    ): Mono<T> = ReactiveSecurityContextHolder.getContext()
-        .map { it.authentication.principal }
-        .cast(UserDetails::class.java)
-        .flatMap { platformUserService.getUserByUserName(it.username) }
-        .flatMap { currentUser -> consumer(currentUser) }
-
-    fun <T> toMono(block: suspend () -> T): Mono<T> = ReactiveSecurityContextHolder.getContext()
+    fun <T> toMono(block: suspend CoroutineScope.() -> T): Mono<T> = ReactiveSecurityContextHolder.getContext()
         .map { it.authentication.principal }
         .cast(UserDetails::class.java)
         .flatMap { principal ->

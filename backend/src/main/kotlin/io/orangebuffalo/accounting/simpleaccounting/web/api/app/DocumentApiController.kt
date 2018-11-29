@@ -41,8 +41,8 @@ class DocumentApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Document>> = extensions.toMono {
-        //todo introduce a method to verify workspace acessability
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        extensions.validateWorkspaceAccess(workspaceId)
+        // todo filter by workspace
         documentService.getDocuments(pageRequest.page, pageRequest.predicate)
     }
 

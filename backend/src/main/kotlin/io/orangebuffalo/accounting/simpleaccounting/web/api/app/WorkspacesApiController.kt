@@ -2,12 +2,12 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.security.Principal
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
@@ -21,75 +21,55 @@ class WorkspacesApiController(
 ) {
 
     @GetMapping
-    fun getWorkspaces(principal: Mono<Principal>): Flux<WorkspaceDto> = principal
-        .map { it.name }
-        .flatMapMany { userName ->
-            val categories = platformUserService.getUserCategories(userName)
-                .map { category -> Triple(category.workspace, category, null) }
+    fun getWorkspaces(): Mono<List<WorkspaceDto>> = extensions.toMono {
+        val userName = getCurrentPrincipal().username
+        val workspaces = platformUserService.getUserWorkspacesAsync(userName)
+        val categories = platformUserService.getUserCategoriesAsync(userName)
 
-            val taxes = Flux.empty<Triple<Workspace, Category?, Any?>>()
-
-            val workspaces = platformUserService.getUserWorkspaces(userName)
-                .map { workspace -> Triple(workspace, null, null) }
-
-            Flux.merge(categories, workspaces, taxes)
-                .groupBy { triple -> triple.first }
-                .flatMap { fluxOfTripleByWorkspace ->
-                    fluxOfTripleByWorkspace
-                        .collectList()
-                        .map { triples ->
-                            mapWorkspaceDto(
-                                fluxOfTripleByWorkspace.key()!!,
-                                triples.asSequence()
-                                    .map { it.second }
-                                    .filterNotNull()
-                                    .map(::mapCategoryDto)
-                                    .toList()
-                            )
-                        }
-                }
-        }
+        workspaces.await()
+            .map { workspace ->
+                mapWorkspaceDto(
+                    workspace,
+                    //todo test for multiple workspace to verify await is fin to call multiple times
+                    categories.await().asSequence()
+                        .filter { category -> category.workspace == workspace }
+                        .map(::mapCategoryDto)
+                        .toList()
+                )
+            }
+    }
 
     @PostMapping
     fun createWorkspace(
-        @RequestBody @Valid createWorkspaceRequest: Mono<CreateWorkspaceDto>
-    ): Mono<WorkspaceDto> = extensions
-        .withCurrentUser { owner ->
-            createWorkspaceRequest
-                .map {
-                    Workspace(
-                        name = it.name,
-                        taxEnabled = it.taxEnabled,
-                        multiCurrencyEnabled = it.multiCurrencyEnabled,
-                        defaultCurrency = it.defaultCurrency,
-                        owner = owner
-                    )
-                }
-                .flatMap { platformUserService.createWorkspace(it) }
-        }
-        .map { mapWorkspaceDto(it, emptyList()) }
+        @RequestBody @Valid createWorkspaceRequest: CreateWorkspaceDto
+    ): Mono<WorkspaceDto> = extensions.toMono {
+        platformUserService.createWorkspace(
+            Workspace(
+                name = createWorkspaceRequest.name,
+                taxEnabled = createWorkspaceRequest.taxEnabled,
+                multiCurrencyEnabled = createWorkspaceRequest.multiCurrencyEnabled,
+                defaultCurrency = createWorkspaceRequest.defaultCurrency,
+                owner = platformUserService.getCurrentUser()
+            )
+        ).let { mapWorkspaceDto(it, emptyList()) }
+    }
 
     @PostMapping("/{workspaceId}/categories")
     fun createCategory(
-        principal: Mono<Principal>,
         @PathVariable workspaceId: Long,
-        @RequestBody @Valid createCategoryRequest: Mono<CreateCategoryDto>
-    ): Mono<CategoryDto> = extensions
-        .withAccessibleWorkspace(workspaceId) { workspace ->
-            createCategoryRequest
-                .flatMap { categoryRequest ->
-                    workspaceService.createCategory(
-                        Category(
-                            name = categoryRequest.name,
-                            workspace = workspace,
-                            expense = categoryRequest.expense,
-                            income = categoryRequest.income,
-                            description = categoryRequest.description
-                        )
-                    )
-                }
-                .map(::mapCategoryDto)
-        }
+        @RequestBody @Valid createCategoryRequest: CreateCategoryDto
+    ): Mono<CategoryDto> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        workspaceService.createCategory(
+            Category(
+                name = createCategoryRequest.name,
+                workspace = workspace,
+                expense = createCategoryRequest.expense,
+                income = createCategoryRequest.income,
+                description = createCategoryRequest.description
+            )
+        ).let(::mapCategoryDto)
+    }
 }
 
 data class WorkspaceDto(
