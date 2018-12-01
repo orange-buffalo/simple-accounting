@@ -4,7 +4,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.CoroutineP
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
+import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactor.mono
@@ -26,11 +26,11 @@ class ApiControllersExtensions(
     suspend fun getAccessibleWorkspace(workspaceId: Long): Workspace {
         val currentUser = platformUserService.getCurrentUserAsync()
         val workspace = workspaceService.getWorkspaceAsync(workspaceId).await()
-            ?: throw ApiValidationException("Workspace $workspaceId cannot be found")
+            ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
         return if (workspace.owner == currentUser.await()) {
             workspace
         } else {
-            throw ApiValidationException("Workspace $workspaceId cannot be found")
+            throw EntityNotFoundException("Workspace $workspaceId is not found")
         }
     }
 

@@ -6,6 +6,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeServic
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
+import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
@@ -61,13 +62,12 @@ class ExpenseApiController(
 
     @GetMapping
     @PageableApi(ExpensePageableApiDescriptor::class)
-    fun createExpense(
+    fun getExpenses(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Expense>> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        //todo filter by workspace
-        expenseService.getExpenses(pageRequest.page)
+        expenseService.getExpenses(workspace, pageRequest.page, pageRequest.predicate)
     }
 
     @GetMapping("{expenseId}")
@@ -76,9 +76,8 @@ class ExpenseApiController(
         @PathVariable expenseId: Long
     ): Mono<ExpenseDto> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        //todo filter by workspace
-        val expense = expenseService.getExpense(expenseId)
-            ?: throw ApiValidationException("$expenseId is not found")
+        val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
+            ?: throw EntityNotFoundException("Expense $expenseId is not found")
         mapExpenseDto(expense)
     }
 }

@@ -1,6 +1,9 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
+import com.querydsl.core.types.Predicate
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -15,11 +18,15 @@ class ExpenseService(
         expenseRepository.save(expense)
     }
 
-    suspend fun getExpenses(page: Pageable): Page<Expense> = withDbContext {
-        expenseRepository.findAll(page)
+    suspend fun getExpenses(
+        workspace: Workspace,
+        page: Pageable,
+        filter: Predicate
+    ): Page<Expense> = withDbContext {
+        expenseRepository.findAll(QExpense.expense.category.workspace.eq(workspace).and(filter), page)
     }
 
-    suspend fun getExpense(id: Long): Expense? = withDbContext {
-        expenseRepository.findById(id).orElse(null)
+    suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? = withDbContext {
+        expenseRepository.findByIdAndCategoryWorkspace(id, workspace)
     }
 }

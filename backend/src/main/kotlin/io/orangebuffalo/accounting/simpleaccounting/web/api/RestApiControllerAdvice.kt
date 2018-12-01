@@ -42,4 +42,10 @@ class RestApiControllerAdvice {
                 .body(exception.message))
     }
 
+    @ExceptionHandler
+    fun onException(exception: EntityNotFoundException): Mono<ResponseEntity<String>> {
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.message))
+    }
 }

@@ -21,5 +21,11 @@ class Prototypes {
             passwordHash = "??",
             isAdmin = false
         )
+
+        fun bender() = PlatformUser(
+            userName = "Bender",
+            passwordHash = "011101010101101001",
+            isAdmin = false
+        )
     }
 }

@@ -1,6 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Bender
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Farnsworth
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository
@@ -18,6 +20,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -142,6 +145,26 @@ internal class ExpenseApiControllerIT(
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace is not found`(fry: Fry) {
+        client.get()
+            .uri("/api/v1/user/workspaces/27347947239/expenses")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Workspace 27347947239 is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace belongs to another user`(fry: Fry, farnsworth: Farnsworth) {
+        client.get()
+            .uri("/api/v1/user/workspaces/${farnsworth.workspace.id}/expenses")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Workspace ${farnsworth.workspace.id} is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return expense by id`(fry: Fry) {
         client.get()
             .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses/${fry.firstSlurm.id}")
@@ -168,6 +191,53 @@ internal class ExpenseApiControllerIT(
                     }"""
                     )
                 )
+            }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace is not found when requesting expense by id`(fry: Fry) {
+        client.get()
+            .uri("/api/v1/user/workspaces/5634632/expenses/${fry.firstSlurm.id}")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Workspace 5634632 is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace belongs to another user when requesting expense by id`(
+        fry: Fry,
+        farnsworth: Farnsworth
+    ) {
+        client.get()
+            .uri("/api/v1/user/workspaces/${farnsworth.workspace.id}/expenses/${fry.firstSlurm.id}")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Workspace ${farnsworth.workspace.id} is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Bender")
+    fun `should return 404 if expense belongs to another workspace when requesting expense by id`(bender: Bender) {
+        client.get()
+            .uri("/api/v1/user/workspaces/${bender.leagueOfRobots.id}/expenses/${bender.boothOne.id}")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Expense ${bender.boothOne.id} is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Bender")
+    fun `should return expenses of a workspace only`(bender: Bender) {
+        client.get()
+            .uri("/api/v1/user/workspaces/${bender.leagueOfRobots.id}/expenses")
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                inPath("$.pageNumber").isNumber.isEqualTo("1")
+                inPath("$.pageSize").isNumber.isEqualTo("10")
+                inPath("$.totalElements").isNumber.isEqualTo("0")
             }
     }
 }

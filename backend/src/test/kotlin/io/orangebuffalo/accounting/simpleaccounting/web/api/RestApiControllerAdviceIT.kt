@@ -14,7 +14,8 @@ import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
-private const val PATH = "/api/v1/auth/api-controller-advice-test"
+private const val PATH_VALIDATION_EXCEPTION = "/api/v1/auth/api-controller-advice-test-validation"
+private const val PATH_ENTITY_NOT_FOUND_EXCEPTION = "/api/v1/auth/api-controller-advice-test-not-found"
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -26,10 +27,18 @@ internal class RestApiControllerAdviceIT(
 
     @Test
     fun `should return 400 and a valid message when ApiValidationException is thrown`() {
-        client.get().uri(PATH)
+        client.get().uri(PATH_VALIDATION_EXCEPTION)
             .exchange()
             .expectStatus().isBadRequest
             .expectBody<String>().isEqualTo("Invalid request")
+    }
+
+    @Test
+    fun `should return 404 and a valid message when EntityNotFoundException is thrown`() {
+        client.get().uri(PATH_ENTITY_NOT_FOUND_EXCEPTION)
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Space Bees not found")
     }
 
     @TestConfiguration
@@ -40,9 +49,14 @@ internal class RestApiControllerAdviceIT(
 
     @RestController
     class ApiControllerAdviceTestController {
-        @GetMapping(PATH)
-        fun test(): String {
+        @GetMapping(PATH_VALIDATION_EXCEPTION)
+        fun testValidationException(): String {
             throw ApiValidationException("Invalid request")
+        }
+
+        @GetMapping(PATH_ENTITY_NOT_FOUND_EXCEPTION)
+        fun testEntityNotFoundException(): String {
+            throw EntityNotFoundException("Space Bees not found")
         }
     }
 }
