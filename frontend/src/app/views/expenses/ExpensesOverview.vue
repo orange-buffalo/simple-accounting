@@ -1,6 +1,12 @@
 <template>
-  <app-layout>
-    <span slot="header"><el-button @click="navigateToCreateExpenseView">Add new</el-button></span>
+  <div>
+    <div class="page-header">
+      <h1>Expenses</h1>
+      <div>
+
+        <el-button @click="navigateToCreateExpenseView">Add new</el-button>
+      </div>
+    </div>
 
     <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`">
       <template slot-scope="scope">
@@ -82,7 +88,7 @@
         </div>
       </template>
     </data-items>
-  </app-layout>
+  </div>
 </template>
 
 <script>
@@ -224,6 +230,7 @@
 
         .edit-expense {
           color: #409EFF;
+
           .material-design-icon {
             margin-right: 3px;
             font-size: 90%;

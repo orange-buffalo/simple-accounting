@@ -1,5 +1,5 @@
 <template>
-  <app-layout>
+  <div>
     <el-card>
       <el-form ref="categoryForm"
                :model="category"
@@ -21,7 +21,7 @@
         </el-form-item>
       </el-form>
     </el-card>
-  </app-layout>
+  </div>
 </template>
 
 <script>

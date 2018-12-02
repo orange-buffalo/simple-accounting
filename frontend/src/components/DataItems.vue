@@ -1,5 +1,13 @@
 <template>
-  <div>
+  <div class="data-items">
+    <el-pagination
+        @current-change="onCurrentPageChange"
+        :current-page.sync="currentPage"
+        :page-size="pageSize"
+        layout="prev, pager, next"
+        :total="totalElements">
+    </el-pagination>
+
     <el-row :gutter="10" v-bind="$props">
       <el-col v-bind="$props"
               v-for="dataItem in data"
@@ -10,11 +18,10 @@
     </el-row>
 
     <el-pagination
-        @size-change="onPageSizeChange"
         @current-change="onCurrentPageChange"
-        :page-sizes="[10, 20, 30, 100]"
-        :page-size="10"
-        layout="sizes, prev, pager, next"
+        :current-page.sync="currentPage"
+        :page-size="pageSize"
+        layout="prev, pager, next"
         :total="totalElements">
     </el-pagination>
   </div>
@@ -39,13 +46,13 @@
     data: function () {
       return {
         totalElements: 0,
-        data: []
+        data: [],
+        pageSize: 10,
+        currentPage: 1
       }
     },
 
     created: function () {
-      this.currentPage = 1
-      this.pageSize = 10
       this.reloadData()
     },
 
@@ -56,7 +63,6 @@
       },
 
       onCurrentPageChange: function (val) {
-        this.currentPage = val
         this.reloadData()
       },
 
@@ -87,8 +93,22 @@
   }
 </script>
 
-<style lang="scss" scoped>
-  .el-col {
-    margin-bottom: 20px
+<style lang="scss">
+  .data-items {
+    .el-col {
+      margin-bottom: 20px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .el-pagination {
+      text-align: right;
+
+      .btn-prev, .btn-next, .el-pager li {
+        background-color: transparent;
+      }
+    }
   }
 </style>

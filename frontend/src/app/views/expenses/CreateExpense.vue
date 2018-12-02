@@ -1,5 +1,5 @@
 <template>
-  <app-layout>
+  <div>
     <el-card>
       <el-form ref="expenseForm"
                :model="expense"
@@ -101,7 +101,7 @@
         </el-form-item>
       </el-form>
     </el-card>
-  </app-layout>
+  </div>
 </template>
 
 <script>

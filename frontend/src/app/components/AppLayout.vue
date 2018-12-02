@@ -29,9 +29,6 @@
 
     </el-aside>
     <el-container>
-      <el-header>
-        <slot name="header">Header</slot>
-      </el-header>
       <el-main>
         <div class="content-panel">
           <slot></slot>
