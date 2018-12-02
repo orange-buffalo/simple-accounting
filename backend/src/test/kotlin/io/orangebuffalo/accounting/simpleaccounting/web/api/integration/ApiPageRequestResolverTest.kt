@@ -287,6 +287,26 @@ internal class ApiPageRequestResolverTest {
             .hasToString("(testEntity.entityField = 42 || testEntity.entityField = 44) && testEntity.entityField >= 20")
     }
 
+    @Test
+    fun `should support enum values`() {
+        queryParams.add("enumApiFiled[eq]", "ONE")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
+
+        assertThat(resolvedPageRequest.predicate).isNotNull
+            .hasToString("testEntity.enumEntityField = ONE")
+    }
+
+    @Test
+    fun `should fail if provided value for enum field is not valid`() {
+        queryParams.add("enumApiFiled[eq]", "TWO")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "'TWO' is not a valid filter value",
+            "apiPageMethodExtended"
+        )
+    }
+
     private fun invokeResolveArgumentAndAssertValidationError(expectedMessage: String, methodName: String) {
         val resolvedArgument = apiPageRequestResolver.resolveArgument(
             getFirstMethodParameter(methodName),
@@ -360,6 +380,10 @@ internal class ApiPageRequestResolverTest {
             ApiPageRequestResolverTestApiDto()
     }
 
+    enum class ApiPageRequestResolverTestEnum {
+        ONE
+    }
+
     class ApiPageRequestResolverTestPageableApiDescriptorExtended :
         PageableApiDescriptor<ApiPageRequestResolverTestRepositoryEntity, PathBuilder<ApiPageRequestResolverTestRepositoryEntity>> {
 
@@ -379,6 +403,12 @@ internal class ApiPageRequestResolverTest {
 
             byApiField("anotherApiField", String::class) {
                 onOperator(PageableApiFilterOperator.GOE) { value -> getString("anotherEntityField").eq(value) }
+            }
+
+            byApiField("enumApiFiled", ApiPageRequestResolverTestEnum::class) {
+                onOperator(PageableApiFilterOperator.EQ) { value ->
+                    getEnum("enumEntityField", ApiPageRequestResolverTestEnum::class.java).eq(value)
+                }
             }
         }
     }

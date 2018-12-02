@@ -77,7 +77,8 @@ internal class ExpenseApiControllerIT(
                             id: $expenseId,
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE"
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            status: "FINALIZED"
                     }"""
                     )
                 )
@@ -179,7 +180,8 @@ internal class ExpenseApiControllerIT(
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            attachments: []
+                            attachments: [],
+                            status: "FINALIZED"
                     }"""
                     )
                 )
@@ -257,7 +259,8 @@ internal class ExpenseApiControllerIT(
                             id: ${fry.firstSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE"
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            status: "FINALIZED"
                     }"""
                     ),
 
@@ -276,7 +279,8 @@ internal class ExpenseApiControllerIT(
                             id: ${fry.secondSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE"
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            status: "FINALIZED"
                     }"""
                     )
                 )
@@ -326,7 +330,8 @@ internal class ExpenseApiControllerIT(
                             id: ${fry.firstSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE"
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            status: "FINALIZED"
                     }"""
                     )
                 )

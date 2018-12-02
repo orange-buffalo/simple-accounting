@@ -99,21 +99,28 @@ class ExpenseApiController(
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ExpenseDto(
-    var category: Long,
+    val category: Long,
     val title: String,
-    var timeRecorded: Instant,
-    var datePaid: LocalDate,
-    var currency: String,
-    var originalAmount: Long,
-    var amountInDefaultCurrency: Long,
-    var actualAmountInDefaultCurrency: Long,
-    var reportedAmountInDefaultCurrency: Long,
-    var attachments: List<Long>,
-    var percentOnBusiness: Int,
-    var notes: String?,
-    var id: Long,
-    var version: Int
+    val timeRecorded: Instant,
+    val datePaid: LocalDate,
+    val currency: String,
+    val originalAmount: Long,
+    val amountInDefaultCurrency: Long,
+    val actualAmountInDefaultCurrency: Long,
+    val reportedAmountInDefaultCurrency: Long,
+    val attachments: List<Long>,
+    val percentOnBusiness: Int,
+    val notes: String?,
+    val id: Long,
+    val version: Int,
+    val status: ExpenseStatus
 )
+
+enum class ExpenseStatus {
+    FINALIZED,
+    PENDING_CONVERSION,
+    PENDING_ACTUAL_RATE
+}
 
 data class CreateExpenseDto(
     val category: Long,
@@ -142,8 +149,17 @@ private fun mapExpenseDto(source: Expense) = ExpenseDto(
     reportedAmountInDefaultCurrency = source.reportedAmountInDefaultCurrency,
     notes = source.notes,
     id = source.id!!,
-    version = source.version
+    version = source.version,
+    status = getExpenseStatus(source)
 )
+
+private fun getExpenseStatus(expense: Expense): ExpenseStatus {
+    return when {
+        expense.reportedAmountInDefaultCurrency > 0 -> ExpenseStatus.FINALIZED
+        expense.amountInDefaultCurrency > 0 -> ExpenseStatus.PENDING_ACTUAL_RATE
+        else -> ExpenseStatus.PENDING_CONVERSION
+    }
+}
 
 class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
     override fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
@@ -156,6 +172,17 @@ class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
                     title.containsIgnoreCase(value),
                     category.name.containsIgnoreCase(value)
                 )
+            }
+        }
+
+        byApiField("status", ExpenseStatus::class) {
+            onOperator(PageableApiFilterOperator.EQ) { value ->
+                when (value) {
+                    ExpenseStatus.FINALIZED -> reportedAmountInDefaultCurrency.gt(0)
+                    ExpenseStatus.PENDING_ACTUAL_RATE -> reportedAmountInDefaultCurrency.eq(0)
+                        .and(amountInDefaultCurrency.gt(0))
+                    ExpenseStatus.PENDING_CONVERSION -> amountInDefaultCurrency.eq(0)
+                }
             }
         }
     }
