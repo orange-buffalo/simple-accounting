@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
@@ -9,10 +10,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
 import org.springframework.data.domain.Page
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
@@ -149,4 +147,16 @@ private fun mapExpenseDto(source: Expense) = ExpenseDto(
 
 class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
     override fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
+
+    override fun getSupportedFilters() = apiFilters(QExpense.expense) {
+        byApiField("freeSearchText", String::class) {
+            onOperator(PageableApiFilterOperator.EQ) { value ->
+                Expressions.anyOf(
+                    notes.containsIgnoreCase(value),
+                    title.containsIgnoreCase(value),
+                    category.name.containsIgnoreCase(value)
+                )
+            }
+        }
+    }
 }

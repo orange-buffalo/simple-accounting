@@ -2,13 +2,30 @@
   <div>
     <div class="page-header">
       <h1>Expenses</h1>
-      <div>
+
+      <div class="header-options">
+        <div>
+          <span>Filter</span>
+
+        </div>
+
+        <div>
+          <el-input placeholder="Search expenses"
+                    v-model="filters.freeSearchText"
+                    @change="filterExpenses"
+                    clearable>
+            <i class="el-icon-search el-input__icon"
+               slot="prefix"></i>
+          </el-input>
+        </div>
 
         <el-button @click="navigateToCreateExpenseView">Add new</el-button>
       </div>
     </div>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`">
+    <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`"
+                ref="expensesList"
+                :filters="filters">
       <template slot-scope="scope">
         <div class="expense">
           <div class="expense-info">
@@ -128,7 +145,13 @@
       return {
         notesVisible: [],
         attachmentsVisible: [],
-        attachments: []
+        attachments: [],
+        filters: {
+          freeSearchText: null,
+          applyToRequest: function (pageRequest) {
+            pageRequest.eqFilter("freeSearchText", this.freeSearchText)
+          }
+        }
       }
     },
 
@@ -194,6 +217,14 @@
               .getPageData()
           attachments.forEach(document => this.$set(this.attachments, document.id, document))
         }
+      },
+
+      clearFreeSearch: function () {
+        this.filters.freeSearchText = null
+      },
+
+      filterExpenses: function () {
+        this.$refs.expensesList.reloadData()
       }
     }
   }
@@ -206,11 +237,8 @@
   }
 
   .expense {
-
-
     display: flex;
     justify-content: space-between;
-
 
     .expense-info {
       padding: 20px;
@@ -297,6 +325,19 @@
         font-size: 115%;
         font-weight: bolder;
       }
+    }
+  }
+
+  .header-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    input {
+      background-color: transparent;
+      border: none;
+      color: grey;
+      max-width: 200px;
     }
   }
 

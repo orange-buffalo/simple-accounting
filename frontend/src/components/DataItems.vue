@@ -39,6 +39,8 @@
         required: true
       },
 
+      filters: Object,
+
       // Element row and column properties to pass through
       lg: Number
     },
@@ -57,12 +59,7 @@
     },
 
     methods: {
-      onPageSizeChange: function (val) {
-        this.pageSize = val
-        this.reloadData()
-      },
-
-      onCurrentPageChange: function (val) {
+      onCurrentPageChange: function () {
         this.reloadData()
       },
 
@@ -77,13 +74,18 @@
 
         this.cancelToken = api.createCancelToken()
 
-        let page = await api.pageRequest(this.apiPath)
+        let pageRequest = api.pageRequest(this.apiPath)
             .limit(this.pageSize)
             .page(this.currentPage)
             .config({
               cancelToken: this.cancelToken.token
             })
-            .getPage()
+
+        if (this.filters) {
+          this.filters.applyToRequest(pageRequest)
+        }
+
+        let page = await pageRequest.getPage()
 
         this.data = page.data
         this.totalElements = page.totalElements
