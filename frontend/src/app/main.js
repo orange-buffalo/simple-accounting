@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 import {initApi, LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT} from '@/services/api'
 import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
+import './main.scss'
 import EventBus from 'eventbusjs'
 import Router from 'vue-router'
 import AppLayout from '@/app/components/AppLayout'
@@ -17,8 +17,7 @@ Vue.component('app-layout', AppLayout);
 router.beforeEach((to, from, next) => {
   if (to.name !== 'login' && !store.getters['api/isLoggedIn']) {
     next({name: 'login'})
-  }
-  else {
+  } else {
     next()
   }
 })
@@ -41,12 +40,11 @@ EventBus.addEventListener(LOGIN_REQUIRED_EVENT, () => {
 
 EventBus.addEventListener(SUCCESSFUL_LOGIN_EVENT, () => {
   store.dispatch('app/loadCurrencies')
-  
+
   store.dispatch('workspaces/loadWorkspaces').then(() => {
     if (!store.state.workspaces.currentWorkspace) {
       router.push('/workspace-setup')
-    }
-    else {
+    } else {
       router.push('/')
     }
   })

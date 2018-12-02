@@ -86,3 +86,9 @@
     }
   }
 </script>
+
+<style lang="scss" scoped>
+  .el-col {
+    margin-bottom: 20px
+  }
+</style>
