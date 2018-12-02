@@ -12,7 +12,7 @@ class Expense(
     var category: Category,
 
     @field:Column(nullable = false)
-    val title: String,
+    var title: String,
 
     @field:Column(nullable = false)
     val timeRecorded: Instant,
@@ -39,7 +39,7 @@ class Expense(
         inverseForeignKey = ForeignKey(name = "expense_attachments_document_fk"),
         inverseJoinColumns = [JoinColumn(name = "document_id")]
     )
-    val attachments: MutableList<Document> = ArrayList(),
+    var attachments: List<Document> = listOf(),
 
     @field:Column(nullable = false)
     var percentOnBusiness: Int,

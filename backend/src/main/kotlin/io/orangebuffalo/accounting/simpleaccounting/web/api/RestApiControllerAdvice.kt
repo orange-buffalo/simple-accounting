@@ -1,11 +1,14 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api
 
+import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.AuthenticationException
+import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.server.ServerWebInputException
 import reactor.core.publisher.Mono
 
@@ -29,23 +32,62 @@ class RestApiControllerAdvice {
     @ExceptionHandler
     fun onException(exception: ServerWebInputException): Mono<ResponseEntity<String>> {
         logger.info(exception) { "Bad request to ${exception.methodParameter}" }
-        return Mono.just(ResponseEntity
+
+        val cause = exception.mostSpecificCause
+        val message = if (cause is MissingKotlinParameterException) {
+            "Property ${cause.parameter.name} is required"
+        } else {
+            "Bad JSON request"
+        }
+
+        return Mono.just(
+            ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(exception.message))
+                .body(message)
+        )
+    }
+
+    @ExceptionHandler
+    fun onException(exception: WebExchangeBindException): Mono<ResponseEntity<String>> {
+        logger.info(exception) { "Bad request ${exception.message}" }
+
+        val cause = exception.bindingResult.allErrors.joinToString { error ->
+            if (error is FieldError) {
+                "${error.field} ${error.defaultMessage}"
+            } else {
+                error.toString()
+            }
+        }
+
+        val message = if (cause.isNotEmpty()) {
+            cause
+        } else {
+            exception.message
+        }
+
+        return Mono.just(
+            ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(message)
+        )
     }
 
     @ExceptionHandler
     fun onException(exception: ApiValidationException): Mono<ResponseEntity<String>> {
         logger.info(exception) { "Bad request: $exception" }
-        return Mono.just(ResponseEntity
+        return Mono.just(
+            ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(exception.message))
+                .body(exception.message)
+        )
     }
 
     @ExceptionHandler
     fun onException(exception: EntityNotFoundException): Mono<ResponseEntity<String>> {
-        return Mono.just(ResponseEntity
+        return Mono.just(
+            ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(exception.message))
+                .body(exception.message)
+        )
     }
 }

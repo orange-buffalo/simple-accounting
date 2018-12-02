@@ -8,14 +8,28 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.E
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.math.RoundingMode
 
 @Service
 class ExpenseService(
     private val expenseRepository: ExpenseRepository
 ) {
 
-    suspend fun saveExpense(expense: Expense): Expense = withDbContext {
-        expenseRepository.save(expense)
+    suspend fun saveExpense(expense: Expense): Expense {
+        val defaultCurrency = expense.category.workspace.defaultCurrency
+        if (defaultCurrency == expense.currency) {
+            expense.amountInDefaultCurrency = expense.originalAmount
+            expense.actualAmountInDefaultCurrency = expense.originalAmount
+        }
+
+        expense.reportedAmountInDefaultCurrency = expense.actualAmountInDefaultCurrency.toBigDecimal()
+            .multiply(expense.percentOnBusiness.toBigDecimal())
+            .divide(100.toBigDecimal(), 0, RoundingMode.HALF_EVEN)
+            .longValueExact()
+
+        return withDbContext {
+            expenseRepository.save(expense)
+        }
     }
 
     suspend fun getExpenses(

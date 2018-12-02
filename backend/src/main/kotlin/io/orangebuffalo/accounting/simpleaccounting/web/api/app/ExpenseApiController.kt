@@ -1,11 +1,13 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
-import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
@@ -16,8 +18,8 @@ import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import java.time.Instant
 import java.time.LocalDate
+import javax.validation.Valid
 import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @RestController
@@ -32,33 +34,48 @@ class ExpenseApiController(
     @PostMapping
     fun createExpense(
         @PathVariable workspaceId: Long,
-        @RequestBody request: CreateExpenseDto
+        @RequestBody @Valid request: CreateExpenseDto
     ): Mono<ExpenseDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        val category = workspace.categories.asSequence()
-            .firstOrNull { category -> category.id == request.category }
-            ?: throw ApiValidationException("Category ${request.category} is not found")
 
-        val attachments = documentService.getDocumentsByIds2(request.attachments)
-        // TODO validation that all documents are within expense's workspace
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
         expenseService.saveExpense(
             Expense(
-                category = category,
+                category = getValidCategory(workspace, request),
                 title = request.title,
                 timeRecorded = timeService.currentTime(),
                 datePaid = request.datePaid,
                 currency = request.currency,
                 originalAmount = request.originalAmount,
-                amountInDefaultCurrency = request.amountInDefaultCurrency,
-                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency,
+                amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
+                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0,
                 notes = request.notes,
-                percentOnBusiness = request.percentOnBusiness,
-                attachments = attachments.toMutableList(),
-                reportedAmountInDefaultCurrency = request.actualAmountInDefaultCurrency
+                percentOnBusiness = request.percentOnBusiness ?: 100,
+                attachments = getValidAttachments(request, workspace),
+                reportedAmountInDefaultCurrency = 0
             )
         ).let(::mapExpenseDto)
     }
+
+    private suspend fun getValidAttachments(
+        request: CreateExpenseDto,
+        workspace: Workspace
+    ): List<Document> {
+        val attachments = request.attachments?.let { documentService.getDocumentsByIds(it) } ?: emptyList()
+        attachments.forEach { attachment ->
+            if (attachment.workspace != workspace) {
+                throw EntityNotFoundException("Document ${attachment.id} is not found")
+            }
+        }
+        return attachments
+    }
+
+    private fun getValidCategory(
+        workspace: Workspace,
+        request: CreateExpenseDto
+    ) = workspace.categories.asSequence()
+        .firstOrNull { category -> category.id == request.category }
+        ?: throw EntityNotFoundException("Category ${request.category} is not found")
 
     @GetMapping
     @PageableApi(ExpensePageableApiDescriptor::class)
@@ -82,6 +99,7 @@ class ExpenseApiController(
     }
 }
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class ExpenseDto(
     var category: Long,
     val title: String,
@@ -100,16 +118,16 @@ data class ExpenseDto(
 )
 
 data class CreateExpenseDto(
-    @NotNull var category: Long,
-    @NotNull var datePaid: LocalDate,
-    @NotBlank var title: String,
-    @NotBlank var currency: String,
-    @NotNull var originalAmount: Long,
-    @NotNull var amountInDefaultCurrency: Long,
-    @NotNull var actualAmountInDefaultCurrency: Long,
-    @NotNull var attachments: List<Long>,
-    @NotNull var percentOnBusiness: Int,
-    @Size(max = 1024) var notes: String?
+    val category: Long,
+    val datePaid: LocalDate,
+    @field:NotBlank val title: String,
+    @field:NotBlank val currency: String,
+    val originalAmount: Long,
+    val amountInDefaultCurrency: Long?,
+    val actualAmountInDefaultCurrency: Long?,
+    val attachments: List<Long>?,
+    val percentOnBusiness: Int?,
+    @field:Size(max = 1024) val notes: String?
 )
 
 private fun mapExpenseDto(source: Expense) = ExpenseDto(

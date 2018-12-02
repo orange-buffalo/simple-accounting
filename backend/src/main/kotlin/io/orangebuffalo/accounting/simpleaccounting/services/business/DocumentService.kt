@@ -40,7 +40,7 @@ class DocumentService(
     fun getDocumentStorageByUser(user: PlatformUser) = documentStorages
         .first { it.getId() == "local-fs" }
 
-    suspend fun getDocumentsByIds2(ids: List<Long>): List<Document> = withDbContext {
+    suspend fun getDocumentsByIds(ids: List<Long>): List<Document> = withDbContext {
         documentRepository.findAllById(ids)
     }
 

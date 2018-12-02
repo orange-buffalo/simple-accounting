@@ -48,7 +48,7 @@ internal class ExpenseApiControllerIT(
                 """{
                     "category": ${fry.slurmCategory.id},
                     "title": "ever best drink",
-                    "currency": "USD",
+                    "currency": "AUD",
                     "originalAmount": 30000,
                     "amountInDefaultCurrency": 42000,
                     "actualAmountInDefaultCurrency": 41500,
@@ -66,7 +66,7 @@ internal class ExpenseApiControllerIT(
                         """{
                             category: ${fry.slurmCategory.id},
                             title: "ever best drink",
-                            currency: "USD",
+                            currency: "AUD",
                             originalAmount: 30000,
                             amountInDefaultCurrency: 42000,
                             actualAmountInDefaultCurrency: 41500,
@@ -87,6 +87,147 @@ internal class ExpenseApiControllerIT(
         assertThat(expense).isPresent.hasValueSatisfying {
             assertThat(it.category).isEqualTo(fry.slurmCategory)
         }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace is not found when creating expense`(fry: Fry) {
+        mockCurrentTime(timeService)
+
+        client.post()
+            .uri("/api/v1/user/workspaces/995943/expenses")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "category": ${fry.slurmCategory.id},
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 30000,
+                    "amountInDefaultCurrency": 42000,
+                    "actualAmountInDefaultCurrency": 41500,
+                    "attachments": [${fry.slurmReceipt.id}],
+                    "notes": "coffee",
+                    "percentOnBusiness": 100,
+                    "datePaid": "$MOCK_DATE_VALUE"
+                }"""
+            )
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Workspace 995943 is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace belongs to another user when creating expense`(fry: Fry, bender: Bender) {
+        mockCurrentTime(timeService)
+
+        client.post()
+            .uri("/api/v1/user/workspaces/${bender.planetExpress.id}/expenses")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "category": ${fry.slurmCategory.id},
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 30000,
+                    "amountInDefaultCurrency": 42000,
+                    "actualAmountInDefaultCurrency": 41500,
+                    "attachments": [${fry.slurmReceipt.id}],
+                    "notes": "coffee",
+                    "percentOnBusiness": 100,
+                    "datePaid": "$MOCK_DATE_VALUE"
+                }"""
+            )
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Workspace ${bender.planetExpress.id} is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should create a new expense with minimum data for default currency`(fry: Fry) {
+        val expenseId = dbHelper.getNextId()
+        mockCurrentTime(timeService)
+
+        client.post()
+            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "category": ${fry.slurmCategory.id},
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE"
+                }"""
+            )
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                isEqualTo(
+                    json(
+                        """{
+                            category: ${fry.slurmCategory.id},
+                            title: "ever best drink",
+                            currency: "USD",
+                            originalAmount: 150,
+                            amountInDefaultCurrency: 150,
+                            actualAmountInDefaultCurrency: 150,
+                            reportedAmountInDefaultCurrency: 150,
+                            percentOnBusiness: 100,
+                            id: $expenseId,
+                            version: 0,
+                            datePaid: "$MOCK_DATE_VALUE",
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            attachments: []
+                    }"""
+                    )
+                )
+            }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should create return 404 when category of new expense is not found`(fry: Fry) {
+         mockCurrentTime(timeService)
+
+        client.post()
+            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "category": 537453,
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE"
+                }"""
+            )
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Category 537453 is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should create return 404 when category of new expense belongs to another user`(fry: Fry, bender: Bender) {
+         mockCurrentTime(timeService)
+
+        client.post()
+            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "category": ${bender.suicideBooth.id},
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE"
+                }"""
+            )
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().isEqualTo("Category ${bender.suicideBooth.id} is not found")
     }
 
     @Test
@@ -112,7 +253,6 @@ internal class ExpenseApiControllerIT(
                             actualAmountInDefaultCurrency: 450,
                             reportedAmountInDefaultCurrency: 450,
                             attachments: [],
-                            notes: null,
                             percentOnBusiness: 100,
                             id: ${fry.firstSlurm.id},
                             version: 0,
@@ -182,7 +322,6 @@ internal class ExpenseApiControllerIT(
                             actualAmountInDefaultCurrency: 450,
                             reportedAmountInDefaultCurrency: 450,
                             attachments: [],
-                            notes: null,
                             percentOnBusiness: 100,
                             id: ${fry.firstSlurm.id},
                             version: 0,
