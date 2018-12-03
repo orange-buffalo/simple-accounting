@@ -18,6 +18,12 @@
       </el-col>
     </el-row>
 
+    <div v-if="totalElements === 0"
+    class="empty-results">
+      <package-variant-icon/>
+      <span>No results here</span>
+    </div>
+
     <el-pagination
         v-if="paginator && totalElements > 0"
         @current-change="onCurrentPageChange"
@@ -31,9 +37,14 @@
 
 <script>
   import api from '@/services/api'
+  import PackageVariantIcon from 'vue-material-design-icons/PackageVariant'
 
   export default {
     name: 'DataItems',
+
+    components: {
+      PackageVariantIcon
+    },
 
     props: {
       apiPath: {
@@ -124,6 +135,18 @@
 
       .btn-prev, .btn-next, .el-pager li {
         background-color: transparent;
+      }
+    }
+
+    .empty-results {
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+      color: #9e9e9e;
+
+      .material-design-icon {
+        font-size: 300%;
+        margin: 10px;
       }
     }
   }
