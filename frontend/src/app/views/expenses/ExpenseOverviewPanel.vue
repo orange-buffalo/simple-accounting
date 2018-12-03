@@ -66,12 +66,11 @@
 
     <div class="expense-amount">
       <div class="amount-value">
-        <money-output :currency="defaultCurrency"
-                      :amount="expense.reportedAmountInDefaultCurrency"/>
+        <money-output :currency="totalAmount.currency"
+                      :amount="totalAmount.value"/>
       </div>
       <div class="expense-status">
-        <!--todo calculate status-->
-        Finalized
+        {{status}}
       </div>
     </div>
   </div>
@@ -128,7 +127,36 @@
 
       ...mapGetters({
         categoryById: 'workspaces/categoryById'
-      })
+      }),
+
+      status: function () {
+        if (this.expense.status === 'FINALIZED') {
+          return ''
+        } else if (this.expense.status === 'PENDING_CONVERSION') {
+          return `Conversion to ${this.defaultCurrency} pending`
+        } else {
+          return `Waiting for actual rate`
+        }
+      },
+
+      totalAmount: function () {
+        if (this.expense.status === 'FINALIZED') {
+          return {
+            value: this.expense.reportedAmountInDefaultCurrency,
+            currency: this.defaultCurrency
+          }
+        } else if (this.expense.status === 'PENDING_CONVERSION') {
+          return {
+            value: this.expense.originalAmount,
+            currency: this.expense.currency
+          }
+        } else {
+          return {
+            value: this.expense.amountInDefaultCurrency,
+            currency: this.defaultCurrency
+          }
+        }
+      }
     },
 
     methods: {
