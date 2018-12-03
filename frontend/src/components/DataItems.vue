@@ -9,7 +9,8 @@
         :total="totalElements">
     </el-pagination>
 
-    <el-row :gutter="10" v-bind="$props">
+    <el-row :gutter="10" v-bind="$props"
+            :class="loading ? 'loading' : ''">
       <el-col v-bind="$props"
               v-for="dataItem in data"
               :key="dataItem.id">
@@ -18,10 +19,16 @@
       </el-col>
     </el-row>
 
-    <div v-if="totalElements === 0"
-    class="empty-results">
+    <div v-if="totalElements === 0 && !loading"
+         class="empty-results">
       <package-variant-icon/>
       <span>No results here</span>
+    </div>
+
+    <div v-if="totalElements === 0 && loading"
+         class="loading-bar">
+      <i class="el-icon-loading"></i>
+      <span>Loading..</span>
     </div>
 
     <el-pagination
@@ -68,7 +75,8 @@
         totalElements: 0,
         data: [],
         pageSize: 10,
-        currentPage: 1
+        currentPage: 1,
+        loading: false
       }
     },
 
@@ -86,6 +94,8 @@
       },
 
       reloadData: async function () {
+        this.loading = true
+
         if (this.cancelToken) {
           this.cancelToken.cancel()
         }
@@ -109,9 +119,11 @@
           this.data = page.data
           this.totalElements = page.totalElements
           this.cancelToken = null
+          this.loading = false
         } catch (e) {
           if (!api.isCancel(e)) {
-            // todo toaster instead
+            this.loading = false
+            //todo toaster instead
             throw e;
           }
         }
@@ -122,6 +134,14 @@
 
 <style lang="scss">
   .data-items {
+    .el-row {
+      transition: opacity 0.3s;
+
+      &.loading {
+        opacity: 0.5;
+      }
+    }
+
     .el-col {
       margin-bottom: 20px;
 
@@ -145,6 +165,18 @@
       color: #9e9e9e;
 
       .material-design-icon {
+        font-size: 300%;
+        margin: 10px;
+      }
+    }
+
+    .loading-bar {
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+      color: #9e9e9e;
+
+      i {
         font-size: 300%;
         margin: 10px;
       }

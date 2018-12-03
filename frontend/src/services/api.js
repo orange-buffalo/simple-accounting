@@ -7,7 +7,7 @@ const CancelToken = axios.CancelToken;
 
 const _api = axios.create({
   baseURL: '/api/v1',
-  timeout: 2000,
+  timeout: 10000,
   paramsSerializer: function (params) {
     return qs.stringify(params, {arrayFormat: 'repeat'})
   }
