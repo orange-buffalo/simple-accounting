@@ -12,8 +12,6 @@
         <div>
           <el-input placeholder="Search expenses"
                     v-model="userFilters.freeSearchText"
-                    @change="filterExpenses"
-                    @clear="clearFreeSearchText"
                     clearable>
             <i class="el-icon-search el-input__icon"
                slot="prefix"></i>
@@ -84,8 +82,8 @@
 
       pendingExpensesFilters: function () {
         return merge(true, this.userFilters, {
-          applyToRequest: function (pageRequest) {
-            pageRequest.eqFilter('freeSearchText', this.freeSearchText)
+          applyToRequest: pageRequest => {
+            pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
             pageRequest.eqFilter('status', ['PENDING_CONVERSION', 'PENDING_ACTUAL_RATE'])
           }
         })
@@ -93,8 +91,8 @@
 
       finalizedExpensesFilters: function () {
         return merge(true, this.userFilters, {
-          applyToRequest: function (pageRequest) {
-            pageRequest.eqFilter('freeSearchText', this.freeSearchText)
+          applyToRequest: pageRequest => {
+            pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
             pageRequest.eqFilter('status', 'FINALIZED')
           }
         })
@@ -104,16 +102,16 @@
     methods: {
       navigateToCreateExpenseView: function () {
         this.$router.push({name: 'create-new-expense'})
-      },
+      }
+    },
 
-      filterExpenses: function () {
-        this.$refs.pendingExpensesList.reloadData()
-        this.$refs.finalizedExpensesList.reloadData()
-      },
+    watch: {
+       finalizedExpensesFilters: function () {
+          this.$refs.finalizedExpensesList.reloadData()
+       },
 
-      clearFreeSearchText: function () {
-        this.userFilters.freeSearchText = null
-        this.filterExpenses()
+      pendingExpensesFilters: function () {
+         this.$refs.pendingExpensesList.reloadData()
       }
     }
   }

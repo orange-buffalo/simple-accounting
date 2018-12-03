@@ -55,6 +55,10 @@ _api.interceptors.response.use(
     }
 )
 
+_api.isCancel = function (e) {
+  return axios.isCancel(e)
+}
+
 _api.pageRequest = function (uri) {
   let limit = 10
   let page = 1

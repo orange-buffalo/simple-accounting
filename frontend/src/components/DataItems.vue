@@ -1,7 +1,7 @@
 <template>
   <div class="data-items">
     <el-pagination
-        v-if="paginator"
+        v-if="paginator && totalElements > 0"
         @current-change="onCurrentPageChange"
         :current-page.sync="currentPage"
         :page-size="pageSize"
@@ -19,7 +19,7 @@
     </el-row>
 
     <el-pagination
-        v-if="paginator"
+        v-if="paginator && totalElements > 0"
         @current-change="onCurrentPageChange"
         :current-page.sync="currentPage"
         :page-size="pageSize"
@@ -92,11 +92,18 @@
           this.filters.applyToRequest(pageRequest)
         }
 
-        let page = await pageRequest.getPage()
+        try {
+          let page = await pageRequest.getPage()
 
-        this.data = page.data
-        this.totalElements = page.totalElements
-        this.cancelToken = null
+          this.data = page.data
+          this.totalElements = page.totalElements
+          this.cancelToken = null
+        } catch (e) {
+          if (!api.isCancel(e)) {
+            // todo toaster instead
+            throw e;
+          }
+        }
       }
     }
   }
