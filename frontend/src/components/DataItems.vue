@@ -1,6 +1,7 @@
 <template>
   <div class="data-items">
     <el-pagination
+        v-if="paginator"
         @current-change="onCurrentPageChange"
         :current-page.sync="currentPage"
         :page-size="pageSize"
@@ -18,6 +19,7 @@
     </el-row>
 
     <el-pagination
+        v-if="paginator"
         @current-change="onCurrentPageChange"
         :current-page.sync="currentPage"
         :page-size="pageSize"
@@ -40,6 +42,11 @@
       },
 
       filters: Object,
+
+      paginator: {
+        type: Boolean,
+        default: true
+      },
 
       // Element row and column properties to pass through
       lg: Number
@@ -75,8 +82,8 @@
         this.cancelToken = api.createCancelToken()
 
         let pageRequest = api.pageRequest(this.apiPath)
-            .limit(this.pageSize)
-            .page(this.currentPage)
+            .limit(this.paginator ? this.pageSize : 500)
+            .page(this.paginator ? this.currentPage : 1)
             .config({
               cancelToken: this.cancelToken.token
             })

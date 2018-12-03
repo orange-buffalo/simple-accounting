@@ -11,8 +11,9 @@
 
         <div>
           <el-input placeholder="Search expenses"
-                    v-model="filters.freeSearchText"
+                    v-model="userFilters.freeSearchText"
                     @change="filterExpenses"
+                    @clear="clearFreeSearchText"
                     clearable>
             <i class="el-icon-search el-input__icon"
                slot="prefix"></i>
@@ -27,7 +28,18 @@
 
     <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`"
                 ref="pendingExpensesList"
-                :filters="filters">
+                :paginator="false"
+                :filters="pendingExpensesFilters">
+      <template slot-scope="scope">
+        <expense-overview-panel :expense="scope.item"/>
+      </template>
+    </data-items>
+
+    <h2>Finalized</h2>
+
+    <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`"
+                ref="finalizedExpensesList"
+                :filters="finalizedExpensesFilters">
       <template slot-scope="scope">
         <expense-overview-panel :expense="scope.item"/>
       </template>
@@ -40,6 +52,7 @@
   import {mapGetters, mapState} from 'vuex'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import ExpenseOverviewPanel from './ExpenseOverviewPanel'
+  import merge from 'merge'
 
   export default {
     name: 'ExpensesOverview',
@@ -53,11 +66,8 @@
 
     data: function () {
       return {
-        filters: {
-          freeSearchText: null,
-          applyToRequest: function (pageRequest) {
-            pageRequest.eqFilter("freeSearchText", this.freeSearchText)
-          }
+        userFilters: {
+          freeSearchText: null
         }
       }
     },
@@ -70,7 +80,25 @@
 
       ...mapGetters({
         categoryById: 'workspaces/categoryById'
-      })
+      }),
+
+      pendingExpensesFilters: function () {
+        return merge(true, this.userFilters, {
+          applyToRequest: function (pageRequest) {
+            pageRequest.eqFilter('freeSearchText', this.freeSearchText)
+            pageRequest.eqFilter('status', ['PENDING_CONVERSION', 'PENDING_ACTUAL_RATE'])
+          }
+        })
+      },
+
+      finalizedExpensesFilters: function () {
+        return merge(true, this.userFilters, {
+          applyToRequest: function (pageRequest) {
+            pageRequest.eqFilter('freeSearchText', this.freeSearchText)
+            pageRequest.eqFilter('status', 'FINALIZED')
+          }
+        })
+      }
     },
 
     methods: {
@@ -80,6 +108,12 @@
 
       filterExpenses: function () {
         this.$refs.pendingExpensesList.reloadData()
+        this.$refs.finalizedExpensesList.reloadData()
+      },
+
+      clearFreeSearchText: function () {
+        this.userFilters.freeSearchText = null
+        this.filterExpenses()
       }
     }
   }

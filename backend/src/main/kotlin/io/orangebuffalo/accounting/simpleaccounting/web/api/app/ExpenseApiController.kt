@@ -181,7 +181,8 @@ class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
                     ExpenseStatus.FINALIZED -> reportedAmountInDefaultCurrency.gt(0)
                     ExpenseStatus.PENDING_ACTUAL_RATE -> reportedAmountInDefaultCurrency.eq(0)
                         .and(amountInDefaultCurrency.gt(0))
-                    ExpenseStatus.PENDING_CONVERSION -> amountInDefaultCurrency.eq(0)
+                    ExpenseStatus.PENDING_CONVERSION -> reportedAmountInDefaultCurrency.eq(0)
+                        .and(amountInDefaultCurrency.eq(0))
                 }
             }
         }
