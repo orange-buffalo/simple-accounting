@@ -5,7 +5,7 @@
 
       <div class="header-options">
         <div>
-          <span>Filter</span>
+          <span>Filters coming soon</span>
 
         </div>
 
@@ -18,7 +18,11 @@
           </el-input>
         </div>
 
-        <el-button @click="navigateToCreateExpenseView">Add new</el-button>
+        <el-button round
+                   @click="navigateToCreateExpenseView">
+          <plus-icon/>
+          Add new
+        </el-button>
       </div>
     </div>
 
@@ -51,6 +55,7 @@
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import ExpenseOverviewPanel from './ExpenseOverviewPanel'
   import merge from 'merge'
+  import PlusIcon from 'vue-material-design-icons/Plus'
 
   export default {
     name: 'ExpensesOverview',
@@ -59,7 +64,8 @@
 
     components: {
       DataItems,
-      ExpenseOverviewPanel
+      ExpenseOverviewPanel,
+      PlusIcon
     },
 
     data: function () {
@@ -106,12 +112,12 @@
     },
 
     watch: {
-       finalizedExpensesFilters: function () {
-          this.$refs.finalizedExpensesList.reloadData()
-       },
+      finalizedExpensesFilters: function () {
+        this.$refs.finalizedExpensesList.reloadData()
+      },
 
       pendingExpensesFilters: function () {
-         this.$refs.pendingExpensesList.reloadData()
+        this.$refs.pendingExpensesList.reloadData()
       }
     }
   }
