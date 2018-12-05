@@ -1,16 +1,20 @@
 <template>
   <div>
-    <el-card>
+    <div class="page-header">
+      <h1>Record New Expense</h1>
+    </div>
+
+    <div class="expense-edit">
       <el-form ref="expenseForm"
                :model="expense"
                label-position="right"
                label-width="200px"
                :rules="expenseValidationRules">
 
-        <h2>General data</h2>
+        <h2>General Information</h2>
 
-        <el-form-item label="category" prop="category">
-          <el-select v-model="expense.category" placeholder="category">
+        <el-form-item label="Category" prop="category">
+          <el-select v-model="expense.category" placeholder="Select a category">
             <el-option
                 v-for="category in categories"
                 :key="category.id"
@@ -20,20 +24,21 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="title" prop="title">
-          <el-input v-model="expense.title"/>
+        <el-form-item label="Description / Title" prop="title">
+          <el-input v-model="expense.title"
+                    placeholder="Provide a short summary"/>
         </el-form-item>
 
-        <el-form-item label="currency" prop="currency">
-          <currency-input v-model="expense.currency"></currency-input>
+        <el-form-item label="Currency" prop="currency">
+          <currency-input v-model="expense.currency"/>
         </el-form-item>
 
-        <el-form-item label="originalAmount" prop="originalAmount">
+        <el-form-item label="Amount" prop="originalAmount">
           <money-input v-model="expense.originalAmount"
-                       :currency="expense.currency"></money-input>
+                       :currency="expense.currency"/>
         </el-form-item>
 
-        <el-form-item label="datePaid" prop="datePaid">
+        <el-form-item label="Date Paid" prop="datePaid">
           <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
           <el-date-picker
               v-model="expense.datePaid"
@@ -58,11 +63,11 @@
 
         <el-form-item v-if="alreadyConverted">
           <el-checkbox v-model="reportedAnotherExchangeRate">
-            Reported converted amount is different (use another rate)
+            Reported converted amount is different (using another rate)
           </el-checkbox>
         </el-form-item>
 
-        <el-form-item label="Reported amount"
+        <el-form-item label="Reported Amount"
                       prop="actualAmountInDefaultCurrency"
                       v-if="actualAmountVisible">
           <money-input v-model="expense.actualAmountInDefaultCurrency"
@@ -75,7 +80,7 @@
           </el-checkbox>
         </el-form-item>
 
-        <el-form-item label="percentOnBusiness"
+        <el-form-item label="% spent on business"
                       prop="percentOnBusiness"
                       v-if="percentOnBusinessVisible">
           <el-input-number v-model="expense.percentOnBusiness"
@@ -84,30 +89,32 @@
         </el-form-item>
 
         <h2>Additional notes</h2>
-        <el-form-item label="notes" prop="notes">
-          <el-input type="textarea" v-model="expense.notes"></el-input>
+
+        <el-form-item label="Notes" prop="notes">
+          <el-input type="textarea" v-model="expense.notes"
+                    placeholder="Any additional information to be stored for this expense record"/>
         </el-form-item>
 
-        <h2>Documents</h2>
+        <h2>Attachments</h2>
 
         <documents-upload form-property="uploads"
                           ref="documentsUpload"
                           v-model="expense.uploads"/>
-        <br/>
         <hr/>
 
-        <el-form-item>
+        <div class="buttons-bar">
+          <el-button @click="navigateToExpensesOverview">Cancel</el-button>
           <el-button type="primary" @click="save">Save</el-button>
-        </el-form-item>
+        </div>
       </el-form>
-    </el-card>
+    </div>
   </div>
 </template>
 
 <script>
 
   import api from '@/services/api'
-  import {mapState, mapActions} from 'vuex'
+  import {mapState} from 'vuex'
   import DocumentsUpload from '@/app/components/DocumentsUpload'
   import CurrencyInput from '@/app/components/CurrencyInput'
   import MoneyInput from '@/app/components/MoneyInput'
@@ -141,25 +148,11 @@
           uploads: new UploadsInfo()
         },
         expenseValidationRules: {
-          // todo rules
-          // name: [
-          //   {required: true, message: 'Please input name', trigger: 'blur'}
-          // ],
-          // defaultCurrency: [
-          //   {required: true, message: 'Please input currency', trigger: 'blur'}
-          // ],
-          // income: [
-          //   {
-          //     validator: (rule, value, callback) => {
-          //       if (!this.category.income && !this.category.expense) {
-          //         callback(new Error('At least one of income/expense must be selected'));
-          //       }
-          //       else {
-          //         callback();
-          //       }
-          //     }
-          //   }
-          // ]
+          category: {required: true, message: 'Please select a category'},
+          currency: {required: true, message: 'Please select a currency'},
+          title: {required: true, message: 'Please provide the title'},
+          datePaid: {required: true, message: 'Please provide the date when expense is paid'},
+          originalAmount: {required: true, message: 'Please provide expense amount'}
         },
         alreadyConverted: false,
         reportedAnotherExchangeRate: false,
@@ -198,41 +191,81 @@
     },
 
     methods: {
-      save: function () {
+      navigateToExpensesOverview: function () {
+        this.$router.push({name: 'expenses-overview'})
+      },
+
+      save: async function () {
         // todo on destroy, delete all attachments if expense is not saved
+        try {
+          await this.$refs.expenseForm.validate();
+        } catch (e) {
+          return
+        }
 
-        this.$refs.expenseForm.validate((valid) => {
-          if (valid) {
-            this.$refs.documentsUpload.submitUploads().then(
-                () => {
-                  // todo expense has too much data - build a simplified request object
-                  this.expense.attachments = this.expense.uploads.getDocumentsIds()
+        try {
+          await this.$refs.documentsUpload.submitUploads()
+        } catch (e) {
+          this.$message({
+            showClose: true,
+            message: 'Upload failed',
+            type: 'error'
+          });
+          return
+        }
 
-                  api
-                      .post(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
-                      .then(response => {
-                        console.log(response)
-                        this.$router.push({name: 'expenses-overview'})
-                      })
-                      .catch(() => {
-                        this.$refs.expenseForm.clearValidate()
-                        this.$message({
-                          showClose: true,
-                          message: 'Sorry, failed',
-                          type: 'error'
-                        });
-                      })
-                },
-                () => {
-                  this.$message({
-                    showClose: true,
-                    message: 'Upload failed',
-                    type: 'error'
-                  });
-                })
-          }
-        })
+        // todo expense has too much data - build a simplified request object
+        this.expense.attachments = this.expense.uploads.getDocumentsIds()
+
+        await api.post(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
+        this.$router.push({name: 'expenses-overview'})
       }
     }
   }
 </script>
+
+<style lang="scss">
+
+  $inputWidth: 400px;
+
+  .expense-edit {
+    padding: 20px;
+    border: 1px solid #ebeef5;
+    background-color: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+
+    .el-form {
+      margin: auto;
+    }
+
+    .el-select {
+      width: $inputWidth;
+    }
+
+    .el-input {
+      width: $inputWidth;
+    }
+
+    hr {
+      border: 1px solid #e8e8e8;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .buttons-bar {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+  }
+
+  .el-input {
+    .el-input-number & {
+      width: 100%;
+    }
+  }
+</style>

@@ -58,7 +58,6 @@
   .money-input {
     input {
       text-align: right;
-      max-width: 200px;
     }
   }
 </style>
