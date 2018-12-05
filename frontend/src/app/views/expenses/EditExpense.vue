@@ -112,7 +112,6 @@
 </template>
 
 <script>
-
   import api from '@/services/api'
   import {mapState} from 'vuex'
   import DocumentsUpload from '@/app/components/DocumentsUpload'
@@ -120,6 +119,7 @@
   import MoneyInput from '@/app/components/MoneyInput'
   import {UploadsInfo} from '@/app/components/uploads-info'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
+  import merge from 'merge'
 
   export default {
     name: 'CreateExpense',
@@ -157,6 +157,14 @@
         alreadyConverted: false,
         reportedAnotherExchangeRate: false,
         partialForBusiness: false
+      }
+    },
+
+    created: async function () {
+      if (this.$route.params.id) {
+        let expenseResponse = await api.get(`/user/workspaces/${this.workspace.id}/expenses/${this.$route.params.id}`)
+        this.expense = merge(this.expense, expenseResponse.data)
+        //todo load attachments and populate the uploads field
       }
     },
 
@@ -217,7 +225,12 @@
         // todo expense has too much data - build a simplified request object
         this.expense.attachments = this.expense.uploads.getDocumentsIds()
 
-        await api.post(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
+        if (this.expense.id) {
+          await api.put(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
+        }
+        else {
+          await api.post(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
+        }
         this.$router.push({name: 'expenses-overview'})
       }
     }

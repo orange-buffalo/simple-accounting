@@ -5,7 +5,8 @@
         <b>{{expense.title}}</b>
         <span class="edit-expense">
                <pencil-icon/>
-              <el-button type="text">Edit</el-button>
+              <el-button type="text"
+                         @click="navigateToExpenseEdit">Edit</el-button>
             </span>
       </div>
 
@@ -188,6 +189,10 @@
               .getPageData()
           this.attachments = this.attachments.concat(attachments)
         }
+      },
+
+      navigateToExpenseEdit: function () {
+        this.$router.push({name: 'edit-expense', params: {id: this.expense.id}})
       }
     }
   }

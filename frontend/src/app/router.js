@@ -46,7 +46,12 @@ export default new Router({
         {
           path: 'expenses/create',
           name: 'create-new-expense',
-          component: () => import(/* webpackChunkName: "create-new-expense" */ './views/expenses/CreateExpense.vue')
+          component: () => import(/* webpackChunkName: "create-new-expense" */ './views/expenses/EditExpense.vue')
+        },
+        {
+          path: 'expenses/:id/edit',
+          name: 'edit-expense',
+          component: () => import(/* webpackChunkName: "edit-expense" */ './views/expenses/EditExpense.vue')
         },
         {
           path: '*',
