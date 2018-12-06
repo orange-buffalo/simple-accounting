@@ -164,7 +164,14 @@
       if (this.$route.params.id) {
         let expenseResponse = await api.get(`/user/workspaces/${this.workspace.id}/expenses/${this.$route.params.id}`)
         this.expense = merge(this.expense, expenseResponse.data)
-        //todo load attachments and populate the uploads field
+
+        if (this.expense.attachments && this.expense.attachments.length) {
+          let attachments = await api.pageRequest(`/user/workspaces/${this.workspace.id}/documents`)
+              .eager()
+              .eqFilter("id", this.expense.attachments)
+              .getPageData()
+          attachments.forEach(attachment => this.expense.uploads.add(attachment))
+        }
       }
     },
 
@@ -227,8 +234,7 @@
 
         if (this.expense.id) {
           await api.put(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
-        }
-        else {
+        } else {
           await api.post(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
         }
         this.$router.push({name: 'expenses-overview'})

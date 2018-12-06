@@ -1,3 +1,5 @@
+import {isNil} from 'lodash'
+
 let idCounter = 0;
 
 export const UploadInfo = function () {
@@ -7,41 +9,62 @@ export const UploadInfo = function () {
   this.progress = 0
   this.notes = null
   this.uploadError = null
+  this.name = null
+  this.size = null
 
   this.isFileSelected = () => {
-    return this.file != null
+    return !isNil(this.file)
   }
 
   this.isEmpty = () => {
-    return !this.notes && !this.isFileSelected()
+    return !this.notes && !this.isFileSelected() && !this.isDocumentUploaded()
   }
 
   this.isDocumentUploaded = () => {
-    return this.document !== null
+    return !isNil(this.document)
+  }
+
+  this.selectFile = (file) => {
+    this.file = file
+    this.name = file.name
+    this.size = file.size
+  }
+
+  this.setDocument = (document) => {
+    this.document = document
+    this.name = isNil(document) ? null : document.name
+    this.size = isNil(document) ? null : document.sizeInBytes
   }
 
   this.isDocumentUploadFailed = () => {
     return this.uploadError !== null
   }
 
-  this.validate = function (callback) {
+  this.validate = (callback) => {
     if (this.notes && this.notes.length > 1024) {
       callback(new Error("Too long"))
-    }
-    else if (this.notes && !this.isFileSelected()) {
+    } else if (this.notes && !this.isFileSelected()) {
       callback(new Error("Please select a file"))
-    }
-    else {
+    } else {
       callback()
     }
+  }
+
+  this.clear = () => {
+    this.file = null
+    this.document = null
+    this.name = null
+    this.size = null
   }
 }
 
 export const UploadsInfo = function () {
   this.uploads = []
 
-  this.add = function () {
-    this.uploads.push(new UploadInfo())
+  this.add = function (document) {
+    let uploadInfo = new UploadInfo()
+    uploadInfo.setDocument(document)
+    this.uploads.push(uploadInfo)
   }
 
   this.executeIfUploaded = function (onSuccess, onFailure) {
@@ -50,8 +73,7 @@ export const UploadsInfo = function () {
     this.uploads.forEach((upload) => {
       if (upload.isDocumentUploaded() || upload.isEmpty()) {
         successfulCount++
-      }
-      else if (upload.isDocumentUploadFailed()) {
+      } else if (upload.isDocumentUploadFailed()) {
         failedCount++
       }
     })
@@ -59,15 +81,15 @@ export const UploadsInfo = function () {
     if (successfulCount + failedCount === this.uploads.length) {
       if (failedCount === 0) {
         onSuccess()
-      }
-      else {
+      } else {
         onFailure()
       }
     }
   }
 
   this.ensureCompleteness = function () {
-    if (this.uploads[this.uploads.length - 1].isFileSelected()) {
+    if (this.uploads[this.uploads.length - 1].isFileSelected()
+        || this.uploads[this.uploads.length - 1].isDocumentUploaded()) {
       this.add()
     }
 

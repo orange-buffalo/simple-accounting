@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-upload
-        :drag="!filePresent"
+        :drag="!filePresent && !documentUploaded"
         :show-file-list="false"
         :data="uploadRequest"
         :action="`/api/v1/user/workspaces/${workspaceId}/documents`"
@@ -10,10 +10,10 @@
         :on-progress="onProgress"
         :on-change="onChange"
         ref="elUpload"
-        :disabled="filePresent"
+        :disabled="filePresent || documentUploaded"
         :auto-upload="false"
         :headers="headers">
-      <div v-if="!filePresent">
+      <div v-if="!filePresent  && !documentUploaded">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">
           <div>Drop file here or <em>click to upload</em></div>
@@ -21,11 +21,11 @@
         </div>
       </div>
 
-      <div v-if="filePresent" class="doc-upload-file-panel">
+      <div v-if="filePresent || documentUploaded" class="doc-upload-file-panel">
         <i class="el-icon-document"></i>
         <div class="el-upload__text">
           <!--todo display in localized kb/mb units-->
-          <div>{{upload.file.name}} ({{upload.file.size}})</div>
+          <div>{{upload.name}} ({{upload.size}})</div>
           <div class="el-upload__tip">
             <el-button type="text" @click="onRemove">Remove</el-button>
           </div>
@@ -33,7 +33,9 @@
       </div>
     </el-upload>
     <el-input placeholder="Additional notes..."
-              v-model="uploadRequest.notes"/>
+              v-model="uploadRequest.notes"
+              :clearable="true"
+              :disabled="documentUploaded"/>
   </div>
 </template>
 
@@ -80,14 +82,14 @@
       },
 
       onChange: function (file) {
-        this.upload.file = file
+        this.upload.selectFile(file)
         this.dispatch('ElFormItem', 'el.form.change');
       },
 
       onRemove: function () {
         // todo remove document if already was uploaded
         this.$refs.elUpload.clearFiles()
-        this.upload.file = null
+        this.upload.clear()
         this.dispatch('ElFormItem', 'el.form.change');
       },
 
@@ -112,6 +114,10 @@
 
       filePresent: function () {
         return this.upload.isFileSelected()
+      },
+
+      documentUploaded: function () {
+        return this.upload.isDocumentUploaded()
       },
 
       notes: function () {
