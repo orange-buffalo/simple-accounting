@@ -49,6 +49,9 @@
       currency: function (val) {
         this.ensureCurrencyFormatter(val)
         this.onInput(this.value)
+      },
+      value: function (val) {
+        this.onInput(val)
       }
     }
   }

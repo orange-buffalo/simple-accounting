@@ -39,7 +39,7 @@ class ExpenseApiController(
 
         expenseService.saveExpense(
             Expense(
-                category = getValidCategory(workspace, request),
+                category = getValidCategory(workspace, request.category),
                 title = request.title,
                 timeRecorded = timeService.currentTime(),
                 datePaid = request.datePaid,
@@ -49,17 +49,46 @@ class ExpenseApiController(
                 actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0,
                 notes = request.notes,
                 percentOnBusiness = request.percentOnBusiness ?: 100,
-                attachments = getValidAttachments(request, workspace),
+                attachments = getValidAttachments(workspace, request.attachments),
                 reportedAmountInDefaultCurrency = 0
             )
         ).let(::mapExpenseDto)
     }
 
+    @PutMapping
+    fun updateExpense(
+        @PathVariable workspaceId: Long,
+        @RequestBody @Valid request: ExpenseDto
+    ): Mono<ExpenseDto> = extensions.toMono {
+
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+
+        val expense = expenseService.getExpenseByIdAndWorkspace(request.id, workspace)
+            ?: throw EntityNotFoundException("Expense ${request.id} is not found")
+
+        expense.apply {
+            category = getValidCategory(workspace, request.category)
+            title = request.title
+            datePaid = request.datePaid
+            currency = request.currency
+            originalAmount = request.originalAmount
+            amountInDefaultCurrency = request.amountInDefaultCurrency
+            actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency
+            notes = request.notes
+            percentOnBusiness = request.percentOnBusiness
+            attachments = getValidAttachments(workspace, request.attachments)
+        }.let {
+            expenseService.saveExpense(it)
+        }.let {
+            mapExpenseDto(it)
+        }
+    }
+
     private suspend fun getValidAttachments(
-        request: CreateExpenseDto,
-        workspace: Workspace
+        workspace: Workspace,
+        attachmentIds: List<Long>?
     ): List<Document> {
-        val attachments = request.attachments?.let { documentService.getDocumentsByIds(it) } ?: emptyList()
+        val attachments = attachmentIds?.let { documentService.getDocumentsByIds(it) } ?: emptyList()
         attachments.forEach { attachment ->
             if (attachment.workspace != workspace) {
                 throw EntityNotFoundException("Document ${attachment.id} is not found")
@@ -70,10 +99,10 @@ class ExpenseApiController(
 
     private fun getValidCategory(
         workspace: Workspace,
-        request: CreateExpenseDto
+        category: Long
     ) = workspace.categories.asSequence()
-        .firstOrNull { category -> category.id == request.category }
-        ?: throw EntityNotFoundException("Category ${request.category} is not found")
+        .firstOrNull { workspaceCategory -> workspaceCategory.id == category }
+        ?: throw EntityNotFoundException("Category $category is not found")
 
     @GetMapping
     @PageableApi(ExpensePageableApiDescriptor::class)
@@ -100,20 +129,20 @@ class ExpenseApiController(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ExpenseDto(
     val category: Long,
-    val title: String,
+    @field:NotBlank val title: String,
     val timeRecorded: Instant,
     val datePaid: LocalDate,
-    val currency: String,
+    @field:NotBlank val currency: String,
     val originalAmount: Long,
     val amountInDefaultCurrency: Long,
     val actualAmountInDefaultCurrency: Long,
     val reportedAmountInDefaultCurrency: Long,
     val attachments: List<Long>,
     val percentOnBusiness: Int,
-    val notes: String?,
+    @field:Size(max = 1024) val notes: String?,
     val id: Long,
     val version: Int,
-    val status: ExpenseStatus
+    val status: ExpenseStatus?
 )
 
 enum class ExpenseStatus {
