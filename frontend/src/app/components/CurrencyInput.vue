@@ -72,7 +72,11 @@
     },
 
     watch: {
-      inputValue(val) {
+      value: function (val) {
+        this.inputValue = val
+      },
+
+      inputValue: function(val) {
         this.$emit('input', val);
       }
     }

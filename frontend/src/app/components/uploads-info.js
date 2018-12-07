@@ -34,6 +34,7 @@ export const UploadInfo = function () {
     this.document = document
     this.name = isNil(document) ? null : document.name
     this.size = isNil(document) ? null : document.sizeInBytes
+    this.notes = isNil(document) ? null : document.notes
   }
 
   this.isDocumentUploadFailed = () => {
@@ -43,7 +44,7 @@ export const UploadInfo = function () {
   this.validate = (callback) => {
     if (this.notes && this.notes.length > 1024) {
       callback(new Error("Too long"))
-    } else if (this.notes && !this.isFileSelected()) {
+    } else if (this.notes && !this.isFileSelected() && !this.isDocumentUploaded()) {
       callback(new Error("Please select a file"))
     } else {
       callback()
@@ -55,6 +56,7 @@ export const UploadInfo = function () {
     this.document = null
     this.name = null
     this.size = null
+    this.notes = null
   }
 }
 

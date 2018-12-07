@@ -173,9 +173,9 @@ internal class WorkspacesApiControllerIT(
                 }"""
             )
             .exchange()
-            .expectStatus().isBadRequest
+            .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${farnsworth.workspace.id} cannot be found")
+                assertThat(it.responseBody).contains("Workspace ${farnsworth.workspace.id} is not found")
             }
     }
 }

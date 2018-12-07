@@ -127,7 +127,7 @@ class LoginControllerIT(
             .expectStatus().isBadRequest
             .expectBody<String>()
             .consumeWith {
-                assertThat(it.responseBody).containsIgnoringCase("request body is missing")
+                assertThat(it.responseBody).containsIgnoringCase("Bad JSON request")
             }
     }
 
@@ -140,7 +140,7 @@ class LoginControllerIT(
             .expectStatus().isBadRequest
             .expectBody<String>()
             .consumeWith {
-                assertThat(it.responseBody).containsIgnoringCase("value failed for JSON property userName")
+                assertThat(it.responseBody).containsIgnoringCase("Property userName is required")
             }
     }
 
@@ -153,7 +153,7 @@ class LoginControllerIT(
             .expectStatus().isBadRequest
             .expectBody<String>()
             .consumeWith {
-                assertThat(it.responseBody).containsIgnoringCase("JSON decoding error")
+                assertThat(it.responseBody).containsIgnoringCase("Bad JSON request")
             }
     }
 

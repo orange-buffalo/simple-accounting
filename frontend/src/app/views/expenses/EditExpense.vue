@@ -120,9 +120,10 @@
   import {UploadsInfo} from '@/app/components/uploads-info'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import merge from 'merge'
+  import {isNil} from 'lodash'
 
   export default {
-    name: 'CreateExpense',
+    name: 'EditExpense',
 
     mixins: [withMediumDateFormatter],
 
@@ -164,6 +165,14 @@
       if (this.$route.params.id) {
         let expenseResponse = await api.get(`/user/workspaces/${this.workspace.id}/expenses/${this.$route.params.id}`)
         this.expense = merge(this.expense, expenseResponse.data)
+
+        this.alreadyConverted = !isNil(this.expense.amountInDefaultCurrency)
+            && this.expense.amountInDefaultCurrency > 0
+
+        this.reportedAnotherExchangeRate = !isNil(this.expense.actualAmountInDefaultCurrency)
+            && this.expense.actualAmountInDefaultCurrency > 0
+
+        this.partialForBusiness = this.expense.percentOnBusiness !== 100
 
         if (this.expense.attachments && this.expense.attachments.length) {
           let attachments = await api.pageRequest(`/user/workspaces/${this.workspace.id}/documents`)
@@ -211,7 +220,6 @@
       },
 
       save: async function () {
-        // todo on destroy, delete all attachments if expense is not saved
         try {
           await this.$refs.expenseForm.validate();
         } catch (e) {
@@ -229,13 +237,24 @@
           return
         }
 
-        // todo expense has too much data - build a simplified request object
-        this.expense.attachments = this.expense.uploads.getDocumentsIds()
+        let expenseToPush = {
+          category: this.expense.category,
+          datePaid: this.expense.datePaid,
+          title: this.expense.title,
+          currency: this.expense.currency,
+          originalAmount: this.expense.originalAmount,
+          amountInDefaultCurrency: this.alreadyConverted ? this.expense.amountInDefaultCurrency : null,
+          actualAmountInDefaultCurrency: this.reportedAnotherExchangeRate
+              ? this.expense.actualAmountInDefaultCurrency : null,
+          attachments: this.expense.uploads.getDocumentsIds(),
+          percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
+          notes: this.expense.notes
+        }
 
         if (this.expense.id) {
-          await api.put(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
+          await api.put(`/user/workspaces/${this.workspace.id}/expenses/${this.expense.id}`, expenseToPush)
         } else {
-          await api.post(`/user/workspaces/${this.workspace.id}/expenses`, this.expense)
+          await api.post(`/user/workspaces/${this.workspace.id}/expenses`, expenseToPush)
         }
         this.$router.push({name: 'expenses-overview'})
       }

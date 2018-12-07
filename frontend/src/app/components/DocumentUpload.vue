@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="doc-upload">
     <el-upload
         :drag="!filePresent && !documentUploaded"
         :show-file-list="false"
@@ -33,9 +33,12 @@
       </div>
     </el-upload>
     <el-input placeholder="Additional notes..."
-              v-model="uploadRequest.notes"
+              v-model="upload.notes"
               :clearable="true"
-              :disabled="documentUploaded"/>
+              v-if="!documentUploaded"/>
+
+    <span v-if="documentUploaded"
+          class="doc-upload-notes">{{upload.notes}}</span>
   </div>
 </template>
 
@@ -118,21 +121,21 @@
 
       documentUploaded: function () {
         return this.upload.isDocumentUploaded()
-      },
-
-      notes: function () {
-        return this.uploadRequest.notes
       }
     },
 
     watch: {
-      notes: function (val) {
-        this.upload.notes = val
-      },
-
       upload: {
         handler: function (val) {
           this.$emit('input', val)
+          this.uploadRequest.notes = val.notes
+        },
+        deep: true
+      },
+
+      value: {
+        handler: function (val) {
+          this.upload = val
         },
         deep: true
       }
@@ -142,6 +145,10 @@
 
 <style lang="scss">
   @import "~element-ui/packages/theme-chalk/src/upload";
+
+  .doc-upload-notes {
+    font-style: italic;
+  }
 
   .el-form-item {
     &.is-error {
