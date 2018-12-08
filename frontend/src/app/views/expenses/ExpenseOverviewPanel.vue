@@ -1,67 +1,67 @@
 <template>
-  <div class="expense">
+  <div class="expense-panel">
     <div class="expense-info">
-      <div class="expense-title">
-        <b>{{expense.title}}</b>
-        <span class="edit-expense">
-               <pencil-icon/>
-              <el-button type="text"
-                         @click="navigateToExpenseEdit">Edit</el-button>
-            </span>
+      <div class="item-title-panel">
+        <h3>{{expense.title}}</h3>
+        <span class="item-edit-link">
+          <pencil-icon/>
+          <el-button type="text"
+                     @click="navigateToExpenseEdit">Edit</el-button>
+        </span>
       </div>
 
-      <div class="expense-attributes">
+      <div class="item-attributes">
 
-              <span class="expense-attribute">
-                <format-list-bulleted-type-icon/>{{ categoryById(expense.category).name }}
-              </span>
+        <span class="item-attribute">
+          <format-list-bulleted-type-icon/>{{ categoryById(expense.category).name }}
+        </span>
 
-        <span class="expense-attribute">
-                <calendar-import-icon/>{{getDatePaid()}}
-              </span>
+        <span class="item-attribute">
+          <calendar-import-icon/>{{getDatePaid()}}
+        </span>
 
-        <span class="expense-attribute">
-                <cash-icon/>
-                <money-output :currency="defaultCurrency"
-                              :amount="amountInDefaultCurrency()"/>
+        <span class="item-attribute">
+          <cash-icon/>
+          <money-output :currency="defaultCurrency"
+                        :amount="amountInDefaultCurrency()"/>
 
-                <template v-if="isConverted()">
-                  <money-output :currency="expense.currency"
-                                :amount="expense.originalAmount"
-                                class="secondary-text"/>
-                </template>
-              </span>
+          <template v-if="isConverted()">
+            <money-output :currency="expense.currency"
+                          :amount="expense.originalAmount"
+                          class="secondary-text"/>
+          </template>
+        </span>
 
-        <span class="expense-attribute"
+        <span class="item-attribute"
               v-if="expense.percentOnBusiness < 100">
-                <percent-icon/>Partial: {{expense.percentOnBusiness}}%
-              </span>
+          <percent-icon/>Partial: {{expense.percentOnBusiness}}%
+        </span>
 
-        <span class="expense-attribute"
+        <span class="item-attribute"
               v-if="expense.notes">
-                <message-bulleted-icon/>
-                <span class="clickable" @click="toggleNotes()">Notes provided</span>
-              </span>
+          <message-bulleted-icon/>
+          <span class="clickable" @click="toggleNotes()">Notes provided</span>
+        </span>
 
-        <span class="expense-attribute"
+        <span class="item-attribute"
               v-if="expense.attachments.length">
-                <paperclip-icon/>
-                <span class="clickable" @click="toggleAttachments()">Attachment provided</span>
-              </span>
+          <paperclip-icon/>
+          <span class="clickable" @click="toggleAttachments()">Attachment provided</span>
+        </span>
       </div>
 
-      <div class="expense-notes" v-if="notesVisible">
-        <b>Notes</b><br/>
+      <div class="item-section" v-if="notesVisible">
+        <h4>Notes</h4>
         <!--todo linebreaks-->
         <span>{{expense.notes}}</span>
       </div>
 
-      <div class="expense-attachments" v-if="attachmentsVisible">
-        <b>Attachments</b><br/>
+      <div class="item-section" v-if="attachmentsVisible">
+        <h4>Attachments</h4>
         <span v-for="attachment in attachments"
               :key="attachment.id">
-                <document-link :document="attachment"/><br/>
-              </span>
+          <document-link :document="attachment"/><br/>
+        </span>
       </div>
     </div>
 
@@ -199,100 +199,31 @@
 </script>
 
 <style lang="scss">
-  .expense {
+  @import "@/app/main.scss";
+
+  .expense-panel {
     display: flex;
     justify-content: space-between;
+  }
 
-    .expense-info {
-      padding: 20px;
-      border: 1px solid #ebeef5;
-      background-color: #fff;
-      border-radius: 4px 2px 2px 4px;
-      overflow: hidden;
-      flex-grow: 1;
+  .expense-info {
+    @extend .item-info-panel;
+    border-radius: 4px 2px 2px 4px;
+    flex-grow: 1;
+  }
 
-      .expense-title {
-        display: flex;
-        justify-content: space-between;
+  .expense-amount {
+    @extend .item-info-panel;
+    width: 15%;
+    border-radius: 2px 4px 4px 2px;
+    display: flex;
+    flex-flow: column;
+    text-align: center;
+    justify-content: center;
 
-        b {
-          font-size: 130%;
-        }
-
-        .edit-expense {
-          color: #409EFF;
-
-          .material-design-icon {
-            margin-right: 3px;
-            font-size: 90%;
-          }
-        }
-      }
-
-      .expense-attributes {
-
-        .expense-attribute {
-          display: inline-block;
-          margin-right: 30px;
-          margin-top: 15px;
-
-          .material-design-icon {
-            margin-right: 5px;
-            font-size: 120%;
-          }
-
-          .secondary-text {
-            margin-left: 5px;
-          }
-
-          .clickable {
-            cursor: pointer;
-          }
-        }
-      }
-
-      .expense-notes {
-        margin-top: 20px;
-
-        b {
-          font-size: 105%;
-        }
-
-        span {
-          font-style: italic;
-        }
-      }
-
-      .expense-attachments {
-        margin-top: 20px;
-
-        b {
-          font-size: 105%;
-        }
-      }
-    }
-
-    .expense-amount {
-      padding: 20px;
-      width: 15%;
-      border: 1px solid #ebeef5;
-      background-color: #fff;
-      border-radius: 2px 4px 4px 2px;
-      overflow: hidden;
-      display: flex;
-      flex-flow: column;
-      text-align: center;
-      justify-content: center;
-
-      .amount-value {
-        font-size: 115%;
-        font-weight: bolder;
-      }
-    }
-
-    .secondary-text {
-      font-size: 90%;
-      color: #8e8e8e;
+    .amount-value {
+      font-size: 115%;
+      font-weight: bolder;
     }
   }
 </style>

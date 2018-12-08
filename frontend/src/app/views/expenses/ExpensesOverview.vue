@@ -122,22 +122,3 @@
     }
   }
 </script>
-
-<style lang="scss">
-  .header-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    input {
-      background-color: transparent;
-      border: none;
-      color: grey;
-      max-width: 200px;
-    }
-  }
-
-  h2 {
-    font-size: 140%;
-  }
-</style>

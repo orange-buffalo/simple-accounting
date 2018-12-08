@@ -13,6 +13,11 @@ body {
   min-height: 100vh;
 }
 
+.secondary-text {
+  font-size: 90%;
+  color: #8e8e8e;
+}
+
 .page-header {
   h1 {
     margin-top: 0;
@@ -29,8 +34,93 @@ body {
     margin-bottom: 30px;
     background: #e8e8e8;
   }
+
+  .header-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    input {
+      background-color: transparent;
+      border: none;
+      color: grey;
+      max-width: 200px;
+    }
+  }
+}
+
+h2 {
+  font-size: 140%;
+}
+
+h3 {
+  font-size: 130%;
+}
+
+h4 {
+  font-size: 105%;
 }
 
 textarea {
   font-family: inherit;
+}
+
+.item-info-panel {
+  padding: 20px;
+  border: 1px solid #ebeef5;
+  background-color: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .item-title-panel {
+    display: flex;
+    justify-content: space-between;
+
+    h3 {
+      margin: 0;
+    }
+
+    .item-edit-link {
+      color: #409EFF;
+
+      .material-design-icon {
+        margin-right: 3px;
+        font-size: 90%;
+      }
+    }
+  }
+
+  .item-attributes {
+
+    .item-attribute {
+      display: inline-block;
+      margin-right: 30px;
+      margin-top: 15px;
+
+      .material-design-icon {
+        margin-right: 5px;
+        font-size: 120%;
+      }
+
+      .secondary-text {
+        margin-left: 5px;
+      }
+
+      .clickable {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .item-section {
+    margin-top: 20px;
+
+    h4 {
+      margin: 0;
+    }
+
+    .item-additional-info {
+      font-style: italic;
+    }
+  }
 }
