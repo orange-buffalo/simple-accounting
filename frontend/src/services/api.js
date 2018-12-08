@@ -1,7 +1,7 @@
 import axios from 'axios'
 import EventBus from 'eventbusjs'
 import qs from 'qs'
-import merge from 'merge'
+import {assign} from 'lodash'
 
 const CancelToken = axios.CancelToken;
 
@@ -80,7 +80,7 @@ _api.pageRequest = function (uri) {
         filter[property][operator] = value
       }
 
-      merge(filters, filter)
+      assign(filters, filter)
     }
   }
 
@@ -115,12 +115,12 @@ _api.pageRequest = function (uri) {
         limit: limit,
         page: page
       }
-      params = merge(params, filters)
+      params = assign(params, filters)
 
       let config = {
         params: params
       }
-      config = merge(config, customConfig)
+      config = assign(config, customConfig)
 
       return _api.get(uri, config)
     },

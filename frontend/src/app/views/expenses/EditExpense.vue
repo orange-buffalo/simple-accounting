@@ -119,7 +119,7 @@
   import MoneyInput from '@/app/components/MoneyInput'
   import {UploadsInfo} from '@/app/components/uploads-info'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
-  import merge from 'merge'
+  import {assign} from 'lodash'
   import {isNil} from 'lodash'
 
   export default {
@@ -164,7 +164,7 @@
     created: async function () {
       if (this.$route.params.id) {
         let expenseResponse = await api.get(`/user/workspaces/${this.workspace.id}/expenses/${this.$route.params.id}`)
-        this.expense = merge(this.expense, expenseResponse.data)
+        this.expense = assign({}, this.expense, expenseResponse.data)
 
         this.alreadyConverted = !isNil(this.expense.amountInDefaultCurrency)
             && this.expense.amountInDefaultCurrency > 0

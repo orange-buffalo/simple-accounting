@@ -15,7 +15,6 @@
     "file-saver": "^2.0.0",
     "globalize": "^1.4.0",
     "lodash": "^4.17.11",
-    "merge": "^1.2.1",
     "qs": "^6.5.2",
     "vue": "^2.5.17",
     "vue-material-design-icons": "^2.4.0",

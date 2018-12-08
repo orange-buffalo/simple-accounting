@@ -54,7 +54,7 @@
   import {mapGetters, mapState} from 'vuex'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import ExpenseOverviewPanel from './ExpenseOverviewPanel'
-  import merge from 'merge'
+  import {assign} from 'lodash'
   import PlusIcon from 'vue-material-design-icons/Plus'
 
   export default {
@@ -87,7 +87,7 @@
       }),
 
       pendingExpensesFilters: function () {
-        return merge(true, this.userFilters, {
+        return assign({}, this.userFilters, {
           applyToRequest: pageRequest => {
             pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
             pageRequest.eqFilter('status', ['PENDING_CONVERSION', 'PENDING_ACTUAL_RATE'])
@@ -96,7 +96,7 @@
       },
 
       finalizedExpensesFilters: function () {
-        return merge(true, this.userFilters, {
+        return assign({}, this.userFilters, {
           applyToRequest: pageRequest => {
             pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
             pageRequest.eqFilter('status', 'FINALIZED')
