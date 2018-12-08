@@ -3,6 +3,8 @@ create table category (id bigint not null, version integer not null, description
 create table document (id bigint not null, version integer not null, name varchar(255) not null, notes varchar(1024), size_in_bytes bigint, storage_provider_id varchar(255) not null, storage_provider_location varchar(2048), time_uploaded timestamp not null, workspace_id bigint not null, primary key (id))
 create table expense (id bigint not null, version integer not null, actual_amount_in_default_currency bigint not null, amount_in_default_currency bigint not null, currency varchar(3) not null, date_paid date not null, notes varchar(1024), original_amount bigint not null, percent_on_business integer not null, reported_amount_in_default_currency bigint not null, time_recorded timestamp not null, title varchar(255) not null, category_id bigint not null, primary key (id))
 create table expense_attachments (expense_id bigint not null, document_id bigint not null)
+create table income (id bigint not null, version integer not null, amount_in_default_currency bigint not null, currency varchar(3) not null, date_received date not null, notes varchar(1024), original_amount bigint not null, reported_amount_in_default_currency bigint not null, time_recorded timestamp not null, title varchar(255) not null, category_id bigint not null, primary key (id))
+create table income_attachments (income_id bigint not null, document_id bigint not null)
 create table platform_user (id bigint not null, version integer not null, is_admin boolean not null, password_hash varchar(255) not null, user_name varchar(255) not null, primary key (id))
 create table workspace (id bigint not null, version integer not null, default_currency varchar(255) not null, multi_currency_enabled boolean not null, name varchar(255) not null, tax_enabled boolean not null, owner_id bigint not null, primary key (id))
 alter table category add constraint category_workspace_fk foreign key (workspace_id) references workspace
@@ -10,4 +12,7 @@ alter table document add constraint document_workspace_fk foreign key (workspace
 alter table expense add constraint expense_category_fk foreign key (category_id) references category
 alter table expense_attachments add constraint expense_attachments_document_fk foreign key (document_id) references document
 alter table expense_attachments add constraint expense_attachments_expense_fk foreign key (expense_id) references expense
+alter table income add constraint income_category_fk foreign key (category_id) references category
+alter table income_attachments add constraint income_attachments_document_fk foreign key (document_id) references document
+alter table income_attachments add constraint income_attachments_income_fk foreign key (income_id) references income
 alter table workspace add constraint workspace_owner_fk foreign key (owner_id) references platform_user

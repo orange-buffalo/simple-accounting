@@ -2,10 +2,10 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.querydsl.core.types.dsl.Expressions
-import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.IncomeService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Income
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncome
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
 import org.springframework.data.domain.Page
@@ -18,160 +18,152 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces/{workspaceId}/expenses")
-class ExpenseApiController(
+@RequestMapping("/api/v1/user/workspaces/{workspaceId}/incomes")
+class IncomesApiController(
     private val extensions: ApiControllersExtensions,
-    private val expenseService: ExpenseService,
+    private val incomeService: IncomeService,
     private val timeService: TimeService
 ) {
 
     @PostMapping
-    fun createExpense(
+    fun createIncome(
         @PathVariable workspaceId: Long,
-        @RequestBody @Valid request: EditExpenseDto
-    ): Mono<ExpenseDto> = extensions.toMono {
+        @RequestBody @Valid request: EditIncomeDto
+    ): Mono<IncomeDto> = extensions.toMono {
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
-        expenseService.saveExpense(
-            Expense(
+        incomeService.saveIncome(
+            Income(
                 category = extensions.getValidCategory(workspace, request.category),
                 title = request.title,
                 timeRecorded = timeService.currentTime(),
-                datePaid = request.datePaid,
+                dateReceived = request.dateReceived,
                 currency = request.currency,
                 originalAmount = request.originalAmount,
                 amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
-                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0,
+                reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0,
                 notes = request.notes,
-                percentOnBusiness = request.percentOnBusiness ?: 100,
-                attachments = extensions.getValidDocuments(workspace, request.attachments),
-                reportedAmountInDefaultCurrency = 0
+                attachments = extensions.getValidDocuments(workspace, request.attachments)
             )
-        ).let(::mapExpenseDto)
+        ).let(::mapIncomeDto)
     }
 
     @GetMapping
-    @PageableApi(ExpensePageableApiDescriptor::class)
-    fun getExpenses(
+    @PageableApi(IncomePageableApiDescriptor::class)
+    fun getIncomes(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<Expense>> = extensions.toMono {
+    ): Mono<Page<Income>> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        expenseService.getExpenses(workspace, pageRequest.page, pageRequest.predicate)
+        incomeService.getIncomes(workspace, pageRequest.page, pageRequest.predicate)
     }
 
-    @GetMapping("{expenseId}")
-    fun getExpense(
+    @GetMapping("{incomeId}")
+    fun getIncome(
         @PathVariable workspaceId: Long,
-        @PathVariable expenseId: Long
-    ): Mono<ExpenseDto> = extensions.toMono {
+        @PathVariable incomeId: Long
+    ): Mono<IncomeDto> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
-            ?: throw EntityNotFoundException("Expense $expenseId is not found")
-        mapExpenseDto(expense)
+        val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
+            ?: throw EntityNotFoundException("Income $incomeId is not found")
+        mapIncomeDto(income)
     }
 
-    @PutMapping("{expenseId}")
-    fun updateExpense(
+    @PutMapping("{incomeId}")
+    fun updateIncome(
         @PathVariable workspaceId: Long,
-        @PathVariable expenseId: Long,
-        @RequestBody @Valid request: EditExpenseDto
-    ): Mono<ExpenseDto> = extensions.toMono {
+        @PathVariable incomeId: Long,
+        @RequestBody @Valid request: EditIncomeDto
+    ): Mono<IncomeDto> = extensions.toMono {
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
         // todo optimistic locking. etag?
-        val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
-            ?: throw EntityNotFoundException("Expense $expenseId is not found")
+        val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
+            ?: throw EntityNotFoundException("Income $incomeId is not found")
 
-        expense.apply {
+        income.apply {
             category = extensions.getValidCategory(workspace, request.category)
             title = request.title
-            datePaid = request.datePaid
+            dateReceived = request.dateReceived
             currency = request.currency
             originalAmount = request.originalAmount
             amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0
-            actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0
+            reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0
             notes = request.notes
-            percentOnBusiness = request.percentOnBusiness ?: 100
             attachments = extensions.getValidDocuments(workspace, request.attachments)
         }.let {
-            expenseService.saveExpense(it)
+            incomeService.saveIncome(it)
         }.let {
-            mapExpenseDto(it)
+            mapIncomeDto(it)
         }
     }
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class ExpenseDto(
+data class IncomeDto(
     val category: Long,
     val title: String,
     val timeRecorded: Instant,
-    val datePaid: LocalDate,
+    val dateReceived: LocalDate,
     val currency: String,
     val originalAmount: Long,
     val amountInDefaultCurrency: Long,
-    val actualAmountInDefaultCurrency: Long,
     val reportedAmountInDefaultCurrency: Long,
     val attachments: List<Long>,
-    val percentOnBusiness: Int,
     val notes: String?,
     val id: Long,
     val version: Int,
-    val status: ExpenseStatus
+    val status: IncomeStatus
 )
 
-enum class ExpenseStatus {
+enum class IncomeStatus {
     FINALIZED,
     PENDING_CONVERSION,
     PENDING_ACTUAL_RATE
 }
 
-data class EditExpenseDto(
+data class EditIncomeDto(
     val category: Long,
-    val datePaid: LocalDate,
+    val dateReceived: LocalDate,
     @field:NotBlank val title: String,
     @field:NotBlank val currency: String,
     val originalAmount: Long,
     val amountInDefaultCurrency: Long?,
-    val actualAmountInDefaultCurrency: Long?,
+    val reportedAmountInDefaultCurrency: Long?,
     val attachments: List<Long>?,
-    val percentOnBusiness: Int?,
     @field:Size(max = 1024) val notes: String?
 )
 
-private fun mapExpenseDto(source: Expense) = ExpenseDto(
+private fun mapIncomeDto(source: Income) = IncomeDto(
     category = source.category.id!!,
     title = source.title,
-    datePaid = source.datePaid,
+    dateReceived = source.dateReceived,
     timeRecorded = source.timeRecorded,
     currency = source.currency,
     originalAmount = source.originalAmount,
     amountInDefaultCurrency = source.amountInDefaultCurrency,
-    actualAmountInDefaultCurrency = source.actualAmountInDefaultCurrency,
     attachments = source.attachments.map { it.id!! },
-    percentOnBusiness = source.percentOnBusiness,
     reportedAmountInDefaultCurrency = source.reportedAmountInDefaultCurrency,
     notes = source.notes,
     id = source.id!!,
     version = source.version,
-    status = getExpenseStatus(source)
+    status = getIncomeStatus(source)
 )
 
-private fun getExpenseStatus(expense: Expense): ExpenseStatus {
+private fun getIncomeStatus(income: Income): IncomeStatus {
     return when {
-        expense.reportedAmountInDefaultCurrency > 0 -> ExpenseStatus.FINALIZED
-        expense.amountInDefaultCurrency > 0 -> ExpenseStatus.PENDING_ACTUAL_RATE
-        else -> ExpenseStatus.PENDING_CONVERSION
+        income.reportedAmountInDefaultCurrency > 0 -> IncomeStatus.FINALIZED
+        income.amountInDefaultCurrency > 0 -> IncomeStatus.PENDING_ACTUAL_RATE
+        else -> IncomeStatus.PENDING_CONVERSION
     }
 }
 
-class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
-    override fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
+class IncomePageableApiDescriptor : PageableApiDescriptor<Income, QIncome> {
+    override fun mapEntityToDto(entity: Income) = mapIncomeDto(entity)
 
-    override fun getSupportedFilters() = apiFilters(QExpense.expense) {
+    override fun getSupportedFilters() = apiFilters(QIncome.income) {
         byApiField("freeSearchText", String::class) {
             onOperator(PageableApiFilterOperator.EQ) { value ->
                 Expressions.anyOf(
@@ -182,13 +174,13 @@ class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
             }
         }
 
-        byApiField("status", ExpenseStatus::class) {
+        byApiField("status", IncomeStatus::class) {
             onOperator(PageableApiFilterOperator.EQ) { value ->
                 when (value) {
-                    ExpenseStatus.FINALIZED -> reportedAmountInDefaultCurrency.gt(0)
-                    ExpenseStatus.PENDING_ACTUAL_RATE -> reportedAmountInDefaultCurrency.eq(0)
+                    IncomeStatus.FINALIZED -> reportedAmountInDefaultCurrency.gt(0)
+                    IncomeStatus.PENDING_ACTUAL_RATE -> reportedAmountInDefaultCurrency.eq(0)
                         .and(amountInDefaultCurrency.gt(0))
-                    ExpenseStatus.PENDING_CONVERSION -> reportedAmountInDefaultCurrency.eq(0)
+                    IncomeStatus.PENDING_CONVERSION -> reportedAmountInDefaultCurrency.eq(0)
                         .and(amountInDefaultCurrency.eq(0))
                 }
             }

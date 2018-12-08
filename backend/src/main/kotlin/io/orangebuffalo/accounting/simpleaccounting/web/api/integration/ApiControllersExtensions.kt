@@ -1,8 +1,10 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.CoroutinePrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +18,8 @@ import reactor.core.publisher.Mono
 @Component
 class ApiControllersExtensions(
     private val platformUserService: PlatformUserService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    private val documentService: DocumentService
 ) {
 
     suspend fun validateWorkspaceAccess(workspaceId: Long) {
@@ -42,4 +45,24 @@ class ApiControllersExtensions(
                 block()
             }
         }
+
+    suspend fun getValidDocuments(
+        workspace: Workspace,
+        documentIds: List<Long>?
+    ): List<Document> {
+        val documents = documentIds?.let { documentService.getDocumentsByIds(it) } ?: emptyList()
+        documents.forEach { document ->
+            if (document.workspace != workspace) {
+                throw EntityNotFoundException("Document ${document.id} is not found")
+            }
+        }
+        return documents
+    }
+
+    fun getValidCategory(
+        workspace: Workspace,
+        categoryId: Long
+    ) = workspace.categories.asSequence()
+        .firstOrNull { workspaceCategory -> workspaceCategory.id == categoryId }
+        ?: throw EntityNotFoundException("Category $categoryId is not found")
 }
