@@ -54,6 +54,21 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-expense" */ './views/expenses/EditExpense.vue')
         },
         {
+          path: 'incomes',
+          name: 'incomes-overview',
+          component: () => import(/* webpackChunkName: "incomes-overview" */ './views/incomes/IncomesOverview.vue')
+        },
+        {
+          path: 'incomes/create',
+          name: 'create-new-income',
+          component: () => import(/* webpackChunkName: "create-new-income" */ './views/incomes/EditIncome.vue')
+        },
+        {
+          path: 'incomes/:id/edit',
+          name: 'edit-income',
+          component: () => import(/* webpackChunkName: "edit-income" */ './views/incomes/EditIncome.vue')
+        },
+        {
           path: '*',
           redirect: '/'
         }

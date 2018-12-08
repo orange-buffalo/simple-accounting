@@ -18,6 +18,12 @@
             <span>Expenses</span>
           </template>
         </el-menu-item>
+        <el-menu-item index="/incomes">
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span>Incomes</span>
+          </template>
+        </el-menu-item>
         <el-submenu index="settings">
           <template slot="title">
             <i class="el-icon-location"></i>
