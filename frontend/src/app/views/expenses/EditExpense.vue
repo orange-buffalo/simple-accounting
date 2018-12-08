@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="page-header">
-      <h1>Record New Expense</h1>
+      <h1>{{pageHeader}}</h1>
     </div>
 
     <div class="expense-edit">
@@ -211,6 +211,10 @@
 
       percentOnBusinessVisible: function () {
         return this.partialForBusiness
+      },
+
+      pageHeader: function () {
+        return this.$route.params.id ? 'Edit Expense' : 'Record New Expense'
       }
     },
 
