@@ -1,10 +1,26 @@
 <template>
-  <div>
-    <el-button @click="navigateToNewCategoryView">Add new</el-button>
-    <el-card class="box-card" v-for="category in categories">
-      <div slot="header" class="clearfix">
-        <span>{{category.name}}</span>
-        <el-button style="float: right; padding: 3px 0" type="text">Operation button</el-button>
+  <div class="categories-overview">
+    <div class="page-header">
+      <h1>Categories</h1>
+    </div>
+
+    <div class="top-buttons-bar">
+      <el-button round
+                 @click="navigateToNewCategoryView">
+        <plus-icon/>
+        Add new
+      </el-button>
+    </div>
+
+    <div class="item-info-panel" v-for="category in categories">
+      <div class="item-title-panel">
+        <h3>{{category.name}}</h3>
+
+        <span class="item-edit-link">
+          <!--<pencil-icon/>-->
+          <el-button type="text"
+          >Edit</el-button>
+        </span>
       </div>
       <p>
         {{category.description}}
@@ -15,15 +31,21 @@
       <p>
         Expense: {{category.expense}}
       </p>
-    </el-card>
+    </div>
   </div>
 </template>
 
 <script>
   import {mapState} from 'vuex'
+  import PlusIcon from 'vue-material-design-icons/Plus'
+
 
   export default {
     name: 'Categories',
+
+    components: {
+      PlusIcon
+    },
 
     computed: {
       ...mapState({
@@ -39,3 +61,16 @@
     }
   }
 </script>
+
+<style lang="scss">
+  .categories-overview {
+    .item-info-panel {
+      margin-bottom: 20px;
+    }
+  }
+
+  .top-buttons-bar {
+    margin-bottom: 30px;
+    margin-top: -10px;
+  }
+</style>
