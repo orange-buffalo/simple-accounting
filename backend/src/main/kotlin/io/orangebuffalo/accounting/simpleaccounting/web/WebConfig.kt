@@ -1,5 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.orangebuffalo.accounting.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequestResolver
@@ -12,6 +14,7 @@ import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpStatus
 import org.springframework.http.codec.ServerCodecConfigurer
+import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import org.springframework.security.authentication.ReactiveAuthenticationManager
@@ -39,7 +42,8 @@ class WebConfig(
     @Autowired(required = false) private val adapterRegistry: ReactiveAdapterRegistry = ReactiveAdapterRegistry()
 ) : WebFluxConfigurer {
 
-    @field:Autowired private lateinit var pageableApiDescriptorResolver: PageableApiDescriptorResolver
+    @field:Autowired
+    private lateinit var pageableApiDescriptorResolver: PageableApiDescriptorResolver
 
     //TODO move to static resources controller
     @Bean
@@ -52,14 +56,17 @@ class WebConfig(
     }
 
     override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
+        val objectMapper = Jackson2ObjectMapperBuilder()
+            .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            //todo advice to handle exceptions Caused by: com.fasterxml.jackson.databind.exc.MismatchedInputException: Missing required creator property 'customer' (index 1)
+            .featuresToEnable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build<ObjectMapper>()
+
         configurer.defaultCodecs()
-            .jackson2JsonEncoder(
-                Jackson2JsonEncoder(
-                    Jackson2ObjectMapperBuilder()
-                        .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                        .build()
-                )
-            )
+            .jackson2JsonEncoder(Jackson2JsonEncoder(objectMapper))
+
+        configurer.defaultCodecs()
+            .jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper))
     }
 
     @Bean
