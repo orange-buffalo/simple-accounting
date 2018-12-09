@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="page-header">
+    <div class="sa-page-header">
       <h1>Customers</h1>
 
-      <div class="header-options">
+      <div class="sa-header-options">
         <div>
           <span>Filters coming soon</span>
 

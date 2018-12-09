@@ -1,9 +1,9 @@
 <template>
   <div class="customer-panel">
     <div class="customer-info">
-      <div class="item-title-panel">
+      <div class="sa-item-title-panel">
         <h3>{{customer.name}}</h3>
-        <span class="item-edit-link">
+        <span class="sa-item-edit-link">
           <pencil-icon/>
           <el-button type="text"
                      @click="navigateToCustomerEdit">Edit</el-button>
@@ -74,7 +74,7 @@
   }
 
   .customer-info {
-    @extend .item-info-panel;
+    @extend .sa-item-info-panel;
     flex-grow: 1;
   }
 </style>

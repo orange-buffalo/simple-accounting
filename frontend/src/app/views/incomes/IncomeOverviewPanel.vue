@@ -1,26 +1,26 @@
 <template>
   <div class="income-panel">
     <div class="income-info">
-      <div class="item-title-panel">
+      <div class="sa-item-title-panel">
         <h3>{{income.title}}</h3>
-        <span class="item-edit-link">
+        <span class="sa-item-edit-link">
           <pencil-icon/>
           <el-button type="text"
                      @click="navigateToIncomeEdit">Edit</el-button>
         </span>
       </div>
 
-      <div class="item-attributes">
+      <div class="sa-item-attributes">
 
-        <span class="item-attribute">
+        <span class="sa-item-attribute">
           <format-list-bulleted-type-icon/>{{ categoryById(income.category).name }}
         </span>
 
-        <span class="item-attribute">
+        <span class="sa-item-attribute">
           <calendar-import-icon/>{{getDateReceived()}}
         </span>
 
-        <span class="item-attribute">
+        <span class="sa-item-attribute">
           <cash-icon/>
           <money-output :currency="defaultCurrency"
                         :amount="amountInDefaultCurrency()"/>
@@ -28,30 +28,30 @@
           <template v-if="isConverted()">
             <money-output :currency="income.currency"
                           :amount="income.originalAmount"
-                          class="secondary-text"/>
+                          class="sa-secondary-text"/>
           </template>
         </span>
 
-        <span class="item-attribute"
+        <span class="sa-item-attribute"
               v-if="income.notes">
           <message-bulleted-icon/>
-          <span class="clickable" @click="toggleNotes()">Notes provided</span>
+          <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
         </span>
 
-        <span class="item-attribute"
+        <span class="sa-item-attribute"
               v-if="income.attachments.length">
           <paperclip-icon/>
-          <span class="clickable" @click="toggleAttachments()">Attachment provided</span>
+          <span class="sa-clickable" @click="toggleAttachments()">Attachment provided</span>
         </span>
       </div>
 
-      <div class="item-section" v-if="notesVisible">
+      <div class="sa-item-section" v-if="notesVisible">
         <h4>Notes</h4>
         <!--todo linebreaks-->
-        <span class="item-additional-info">{{income.notes}}</span>
+        <span class="sa-item-additional-info">{{income.notes}}</span>
       </div>
 
-      <div class="item-section" v-if="attachmentsVisible">
+      <div class="sa-item-section" v-if="attachmentsVisible">
         <h4>Attachments</h4>
         <span v-for="attachment in attachments"
               :key="attachment.id">
@@ -202,13 +202,13 @@
   }
 
   .income-info {
-    @extend .item-info-panel;
+    @extend .sa-item-info-panel;
     border-radius: 4px 2px 2px 4px;
     flex-grow: 1;
   }
 
   .income-amount {
-    @extend .item-info-panel;
+    @extend .sa-item-info-panel;
     width: 15%;
     border-radius: 2px 4px 4px 2px;
     display: flex;

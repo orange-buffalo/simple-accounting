@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="page-header">
+    <div class="sa-page-header">
       <h1>{{pageHeader}}</h1>
     </div>
 
-    <div class="customer-edit">
+    <div class="sa-form">
       <el-form ref="customerForm"
                :model="customer"
                label-position="right"
@@ -19,7 +19,7 @@
 
         <hr/>
 
-        <div class="buttons-bar">
+        <div class="sa-buttons-bar">
           <el-button @click="navigateToCustomersOverview">Cancel</el-button>
           <el-button type="primary" @click="save">Save</el-button>
         </div>
@@ -93,49 +93,3 @@
     }
   }
 </script>
-
-<style lang="scss">
-
-  $inputWidth: 400px;
-
-  .customer-edit {
-    padding: 20px;
-    border: 1px solid #ebeef5;
-    background-color: #fff;
-    border-radius: 4px;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-
-    .el-form {
-      margin: auto;
-    }
-
-    .el-select {
-      width: $inputWidth;
-    }
-
-    .el-input {
-      width: $inputWidth;
-    }
-
-    hr {
-      border: 1px solid #e8e8e8;
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
-
-    .buttons-bar {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-  }
-
-  .el-input {
-    .el-input-number & {
-      width: 100%;
-    }
-  }
-</style>

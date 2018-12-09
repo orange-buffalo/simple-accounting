@@ -1,6 +1,6 @@
 <template>
   <div class="categories-overview">
-    <div class="page-header">
+    <div class="sa-page-header">
       <h1>Categories</h1>
     </div>
 
@@ -12,11 +12,11 @@
       </el-button>
     </div>
 
-    <div class="item-info-panel" v-for="category in categories">
-      <div class="item-title-panel">
+    <div class="sa-item-info-panel" v-for="category in categories">
+      <div class="sa-item-title-panel">
         <h3>{{category.name}}</h3>
 
-        <span class="item-edit-link">
+        <span class="sa-item-edit-link">
           <!--<pencil-icon/>-->
           <el-button type="text"
           >Edit</el-button>
@@ -64,7 +64,7 @@
 
 <style lang="scss">
   .categories-overview {
-    .item-info-panel {
+    .sa-item-info-panel {
       margin-bottom: 20px;
     }
   }
