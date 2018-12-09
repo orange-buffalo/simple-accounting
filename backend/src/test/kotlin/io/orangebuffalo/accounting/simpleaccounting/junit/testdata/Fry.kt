@@ -81,7 +81,7 @@ class Fry : TestData {
         reportedAmountInDefaultCurrency = 455,
         percentOnBusiness = 99,
         notes = "nice!",
-        attachments = mutableListOf(slurmReceipt)
+        attachments = setOf(slurmReceipt)
     )
 
     override fun generateData() = listOf(

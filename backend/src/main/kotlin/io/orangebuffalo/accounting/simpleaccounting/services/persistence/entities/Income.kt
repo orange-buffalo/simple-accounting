@@ -39,7 +39,7 @@ class Income(
         inverseForeignKey = ForeignKey(name = "income_attachments_document_fk"),
         inverseJoinColumns = [JoinColumn(name = "document_id")]
     )
-    var attachments: List<Document> = listOf(),
+    var attachments: Set<Document> = setOf(),
 
     @field:Column(length = 1024)
     var notes: String? = null

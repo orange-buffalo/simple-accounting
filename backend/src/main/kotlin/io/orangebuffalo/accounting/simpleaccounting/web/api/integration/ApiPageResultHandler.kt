@@ -15,18 +15,19 @@ import org.springframework.web.reactive.result.method.annotation.AbstractMessage
 import org.springframework.web.server.NotAcceptableStatusException
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import kotlin.reflect.full.createInstance
 
 @Component
 class ApiPageResultHandler(
-        serverCodecConfigurer: ServerCodecConfigurer,
-        contentTypeResolver: RequestedContentTypeResolver,
-        adapterRegistry: ReactiveAdapterRegistry
+    serverCodecConfigurer: ServerCodecConfigurer,
+    contentTypeResolver: RequestedContentTypeResolver,
+    adapterRegistry: ReactiveAdapterRegistry,
+    private val pageableApiDescriptorResolver: PageableApiDescriptorResolver
 
 ) : AbstractMessageWriterResultHandler(
-        serverCodecConfigurer.writers,
-        contentTypeResolver,
-        adapterRegistry), HandlerResultHandler {
+    serverCodecConfigurer.writers,
+    contentTypeResolver,
+    adapterRegistry
+), HandlerResultHandler {
 
     init {
         order = 0
@@ -45,7 +46,7 @@ class ApiPageResultHandler(
 
     override fun handleResult(exchange: ServerWebExchange, result: HandlerResult): Mono<Void> {
         val adapter = getAdapter(result)
-                ?: throw IllegalArgumentException("Reactive adapter is missing")
+            ?: throw IllegalArgumentException("Reactive adapter is missing")
 
         if (adapter.isMultiValue) {
             throw IllegalArgumentException("Return value should support a single result")
@@ -53,40 +54,40 @@ class ApiPageResultHandler(
 
         val bodyParameter = result.returnTypeSource.nested().nested()
 
-        val pageableApiAnnotation = bodyParameter.annotatedElement.getAnnotation(PageableApi::class.java)
-                ?: throw IllegalArgumentException("Missing @PageableApi at ${bodyParameter.method}")
-
-        val pageableApiDescriptor : PageableApiDescriptor<Any, EntityPath<Any>> =
-            pageableApiAnnotation.descriptorClass.createInstance() as PageableApiDescriptor<Any, EntityPath<Any>>
+        val pageableApiDescriptor: PageableApiDescriptor<Any, EntityPath<Any>> =
+            pageableApiDescriptorResolver.resolveDescriptor(bodyParameter.annotatedElement)
+                    as PageableApiDescriptor<Any, EntityPath<Any>>
 
         return Mono.from(adapter.toPublisher<Page<Any>>(result.returnValue))
-                .flatMap { repositoryPage ->
+            .flatMap { repositoryPage ->
 
-                    val apiPage = ApiPage(
-                            pageNumber = repositoryPage.number + 1,
-                            pageSize = repositoryPage.size,
-                            totalElements = repositoryPage.totalElements,
-                            data = repositoryPage.content.map { pageableApiDescriptor.mapEntityToDto(it) }
-                    )
+                val apiPage = ApiPage(
+                    pageNumber = repositoryPage.number + 1,
+                    pageSize = repositoryPage.size,
+                    totalElements = repositoryPage.totalElements,
+                    data = repositoryPage.content.map { pageableApiDescriptor.mapEntityToDto(it) }
+                )
 
-                    val elementType = ResolvableType.forInstance(apiPage)
+                val elementType = ResolvableType.forInstance(apiPage)
 
-                    messageWriters.asSequence()
-                            .filter { writer ->
-                                writer.canWrite(elementType, MediaType.APPLICATION_JSON)
-                            }
-                            .map { writer ->
-                                writer.write(
-                                        Mono.just(apiPage) as Publisher<out Nothing>,
-                                        elementType,
-                                        MediaType.APPLICATION_JSON,
-                                        exchange.response,
-                                        emptyMap())
-                            }
-                            .firstOrNull()
-                            ?: Mono.defer {
-                                Mono.error<Void>(NotAcceptableStatusException("No writer")) }
-                }
+                messageWriters.asSequence()
+                    .filter { writer ->
+                        writer.canWrite(elementType, MediaType.APPLICATION_JSON)
+                    }
+                    .map { writer ->
+                        writer.write(
+                            Mono.just(apiPage) as Publisher<out Nothing>,
+                            elementType,
+                            MediaType.APPLICATION_JSON,
+                            exchange.response,
+                            emptyMap()
+                        )
+                    }
+                    .firstOrNull()
+                    ?: Mono.defer {
+                        Mono.error<Void>(NotAcceptableStatusException("No writer"))
+                    }
+            }
     }
 
 }

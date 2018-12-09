@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.orangebuffalo.accounting.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequestResolver
+import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptorResolver
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
@@ -38,6 +39,8 @@ class WebConfig(
     @Autowired(required = false) private val adapterRegistry: ReactiveAdapterRegistry = ReactiveAdapterRegistry()
 ) : WebFluxConfigurer {
 
+    @field:Autowired private lateinit var pageableApiDescriptorResolver: PageableApiDescriptorResolver
+
     //TODO move to static resources controller
     @Bean
     fun staticResourceRouter(): RouterFunction<ServerResponse> {
@@ -45,7 +48,7 @@ class WebConfig(
     }
 
     override fun configureArgumentResolvers(configurer: ArgumentResolverConfigurer) {
-        configurer.addCustomResolver(ApiPageRequestResolver(adapterRegistry))
+        configurer.addCustomResolver(ApiPageRequestResolver(adapterRegistry, pageableApiDescriptorResolver))
     }
 
     override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {

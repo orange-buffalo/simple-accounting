@@ -9,6 +9,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
 import org.springframework.data.domain.Page
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import java.time.Instant
@@ -168,6 +169,7 @@ private fun getExpenseStatus(expense: Expense): ExpenseStatus {
     }
 }
 
+@Component
 class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
     override fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
 

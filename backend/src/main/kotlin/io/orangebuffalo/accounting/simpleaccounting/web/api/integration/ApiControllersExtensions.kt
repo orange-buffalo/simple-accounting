@@ -1,9 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.CoroutinePrincipal
-import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.*
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
@@ -19,7 +17,8 @@ import reactor.core.publisher.Mono
 class ApiControllersExtensions(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
-    private val documentService: DocumentService
+    private val documentService: DocumentService,
+    private val customerService: CustomerService
 ) {
 
     suspend fun validateWorkspaceAccess(workspaceId: Long) {
@@ -49,14 +48,14 @@ class ApiControllersExtensions(
     suspend fun getValidDocuments(
         workspace: Workspace,
         documentIds: List<Long>?
-    ): List<Document> {
+    ): Set<Document> {
         val documents = documentIds?.let { documentService.getDocumentsByIds(it) } ?: emptyList()
         documents.forEach { document ->
             if (document.workspace != workspace) {
                 throw EntityNotFoundException("Document ${document.id} is not found")
             }
         }
-        return documents
+        return documents.toSet()
     }
 
     fun getValidCategory(
@@ -65,4 +64,8 @@ class ApiControllersExtensions(
     ) = workspace.categories.asSequence()
         .firstOrNull { workspaceCategory -> workspaceCategory.id == categoryId }
         ?: throw EntityNotFoundException("Category $categoryId is not found")
+
+    suspend fun getValidCustomer(workspace: Workspace, customerId: Long): Customer =
+        customerService.getCustomerByIdAndWorkspace(customerId, workspace)
+            ?: throw EntityNotFoundException("Customer $customerId is not found")
 }

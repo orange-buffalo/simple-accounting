@@ -11,6 +11,7 @@ import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.Pageable
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.domain.Page
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import javax.validation.Valid
@@ -100,6 +101,7 @@ private fun mapCustomerDto(source: Customer) = CustomerDto(
     version = source.version
 )
 
+@Component
 class CustomerPageableApiDescriptor : PageableApiDescriptor<Customer, QCustomer> {
     override fun mapEntityToDto(entity: Customer) = mapCustomerDto(entity)
 }

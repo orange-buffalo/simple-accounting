@@ -1,5 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.doAnswer
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
 import com.querydsl.core.types.dsl.PathBuilder
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.reactive.BindingContext
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import java.lang.reflect.AnnotatedElement
+import kotlin.reflect.full.createInstance
 
 @ExtendWith(MockitoExtension::class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -37,6 +41,9 @@ internal class ApiPageRequestResolverTest {
     private lateinit var bindingContext: BindingContext
 
     @Mock
+    private lateinit var pageableApiDescriptorResolver: PageableApiDescriptorResolver
+
+    @Mock
     private lateinit var exchange: ServerWebExchange
 
     private lateinit var apiPageRequestResolver: ApiPageRequestResolver
@@ -45,7 +52,13 @@ internal class ApiPageRequestResolverTest {
 
     @BeforeEach
     fun setup() {
-        apiPageRequestResolver = ApiPageRequestResolver(ReactiveAdapterRegistry())
+        apiPageRequestResolver = ApiPageRequestResolver(ReactiveAdapterRegistry(), pageableApiDescriptorResolver)
+
+        whenever(pageableApiDescriptorResolver.resolveDescriptor(any())) doAnswer { invocationOnMock ->
+            val annotatedElement = invocationOnMock.arguments[0] as AnnotatedElement
+            val pageableApi = annotatedElement.getAnnotation(PageableApi::class.java)
+            pageableApi.descriptorClass.createInstance()
+        }
 
         queryParams = LinkedMultiValueMap<String, String>().apply {
             val request = Mockito.mock(ServerHttpRequest::class.java)
@@ -62,18 +75,6 @@ internal class ApiPageRequestResolverTest {
     @Test
     fun `should support page-request parameters`() {
         assertTrue(apiPageRequestResolver.supportsParameter(getFirstMethodParameter("apiPageMethodDefault")))
-    }
-
-    @Test
-    fun `should fail on method without PageableApi annotation`() {
-        val actualException = assertThrows<IllegalArgumentException> {
-            apiPageRequestResolver.resolveArgument(
-                getFirstMethodParameter("apiPageMethodWithoutAnnotation"),
-                bindingContext,
-                exchange
-            )
-        }
-        assertThat(actualException.message).startsWith("Missing @PageableApi at")
     }
 
     @Test

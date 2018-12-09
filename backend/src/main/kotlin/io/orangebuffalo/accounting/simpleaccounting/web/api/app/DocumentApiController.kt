@@ -13,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.http.codec.multipart.Part
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import java.time.Instant
@@ -76,6 +77,7 @@ data class DocumentDto(
     var sizeInBytes: Long?
 )
 
+@Component
 class DocumentPageableApiDescriptor : PageableApiDescriptor<Document, QDocument> {
     override fun mapEntityToDto(entity: Document) = mapDocumentDto(entity)
 

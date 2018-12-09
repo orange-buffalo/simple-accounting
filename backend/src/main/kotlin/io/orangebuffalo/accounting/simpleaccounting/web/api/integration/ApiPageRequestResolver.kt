@@ -16,10 +16,10 @@ import org.springframework.web.reactive.BindingContext
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolverSupport
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import kotlin.reflect.full.createInstance
 
 class ApiPageRequestResolver(
-    adapterRegistry: ReactiveAdapterRegistry
+    adapterRegistry: ReactiveAdapterRegistry,
+    private val pageableApiDescriptorResolver: PageableApiDescriptorResolver
 ) : HandlerMethodArgumentResolverSupport(adapterRegistry) {
 
     override fun supportsParameter(parameter: MethodParameter): Boolean {
@@ -34,10 +34,7 @@ class ApiPageRequestResolver(
         exchange: ServerWebExchange
     ): Mono<Any> {
 
-        val annotation = parameter.annotatedElement.getAnnotation(PageableApi::class.java)
-            ?: throw IllegalArgumentException("Missing @PageableApi at ${parameter.method}")
-
-        val pageableApiDescriptor = annotation.descriptorClass.createInstance()
+        val pageableApiDescriptor = pageableApiDescriptorResolver.resolveDescriptor(parameter.annotatedElement)
 
         return validateAndGetParameter("limit", 10, exchange.request.queryParams)
             .map { PageRequest.of(0, it) }

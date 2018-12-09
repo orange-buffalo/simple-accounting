@@ -39,7 +39,7 @@ class Expense(
         inverseForeignKey = ForeignKey(name = "expense_attachments_document_fk"),
         inverseJoinColumns = [JoinColumn(name = "document_id")]
     )
-    var attachments: List<Document> = listOf(),
+    var attachments: Set<Document> = setOf(),
 
     @field:Column(nullable = false)
     var percentOnBusiness: Int,

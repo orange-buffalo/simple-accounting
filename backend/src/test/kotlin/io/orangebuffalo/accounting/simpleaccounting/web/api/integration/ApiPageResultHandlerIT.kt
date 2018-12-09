@@ -55,6 +55,9 @@ internal class ApiPageResultHandlerIT(
         @Bean
         fun apiPageResultHandlerTestController(): ApiPageResultHandlerTestController =
             ApiPageResultHandlerTestController()
+
+        @Bean
+        fun apiPageResultHandlerTestPageableApiDescriptor() = ApiPageResultHandlerTestPageableApiDescriptor()
     }
 
     @RestController

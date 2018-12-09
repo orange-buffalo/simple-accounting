@@ -9,6 +9,7 @@ import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.Pageable
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
 import org.springframework.data.domain.Page
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import javax.validation.Valid
@@ -54,6 +55,7 @@ data class CreateUserDto(
     @field:NotBlank var password: String?
 )
 
+@Component
 class UserPageableApiDescriptor : PageableApiDescriptor<PlatformUser, QPlatformUser> {
     override fun mapEntityToDto(entity: PlatformUser) = mapUserDto(entity)
 }
