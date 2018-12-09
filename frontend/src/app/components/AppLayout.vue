@@ -30,6 +30,7 @@
             <span>Settings</span>
           </template>
           <el-menu-item index="/settings/categories">Categories</el-menu-item>
+          <el-menu-item index="/settings/customers">Customers</el-menu-item>
         </el-submenu>
       </el-menu>
 

@@ -69,6 +69,21 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-income" */ './views/incomes/EditIncome.vue')
         },
         {
+          path: 'settings/customers',
+          name: 'customers-overview',
+          component: () => import(/* webpackChunkName: "customers-overview" */ './views/settings/customers/CustomersOverview.vue')
+        },
+        {
+          path: 'settings/customers/create',
+          name: 'create-new-customer',
+          component: () => import(/* webpackChunkName: "create-new-customer" */ './views/settings/customers/EditCustomer.vue')
+        },
+        {
+          path: 'setting/customers/:id/edit',
+          name: 'edit-customer',
+          component: () => import(/* webpackChunkName: "edit-customer" */ './views/settings/customers/EditCustomer.vue')
+        },
+        {
           path: '*',
           redirect: '/'
         }
