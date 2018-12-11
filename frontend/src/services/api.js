@@ -135,6 +135,10 @@ _api.pageRequest = function (uri) {
   }
 }
 
+_api.dateToString = function (date) {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString()
+}
+
 export default _api
 export const api = _api
 export const initApi = function (store) {

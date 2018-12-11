@@ -69,6 +69,21 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-income" */ './views/incomes/EditIncome.vue')
         },
         {
+          path: 'invoices',
+          name: 'invoices-overview',
+          component: () => import(/* webpackChunkName: "invoices-overview" */ './views/invoices/InvoicesOverview.vue')
+        },
+        {
+          path: 'invoices/create',
+          name: 'create-new-invoice',
+          component: () => import(/* webpackChunkName: "create-new-invoice" */ './views/invoices/EditInvoice.vue')
+        },
+        {
+          path: 'invoices/:id/edit',
+          name: 'edit-invoice',
+          component: () => import(/* webpackChunkName: "edit-invoice" */ './views/invoices/EditInvoice.vue')
+        },
+        {
           path: 'settings/customers',
           name: 'customers-overview',
           component: () => import(/* webpackChunkName: "customers-overview" */ './views/settings/customers/CustomersOverview.vue')

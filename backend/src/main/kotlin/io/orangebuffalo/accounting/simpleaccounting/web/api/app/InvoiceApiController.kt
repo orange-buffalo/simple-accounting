@@ -205,6 +205,7 @@ class InvoicePageableApiDescriptor(
                     InvoiceStatus.SENT -> dateSent.isNotNull.and(datePaid.isNull).and(dateCancelled.isNull)
                         .and(dueDate.goe(timeService.currentDate()))
                     InvoiceStatus.OVERDUE -> datePaid.isNull.and(dueDate.lt(timeService.currentDate()))
+                        .and(dateCancelled.isNull)
                 }
             }
         }

@@ -7,6 +7,7 @@ export const i18nStore = {
   state: {
     currencyFormatters: {},
     mediumDateFormatter: null,
+    mediumDateTimeFormatter: null,
     currencyInfo: []
   },
 
@@ -44,6 +45,14 @@ export const i18nStore = {
       if (!state.mediumDateFormatter) {
         state.mediumDateFormatter = globalize
             ? globalize.dateFormatter({date: 'medium'})
+            : () => ''
+      }
+    },
+
+    ensureMediumDateTimeFormatter: function ({state}) {
+      if (!state.mediumDateTimeFormatter) {
+        state.mediumDateTimeFormatter = globalize
+            ? globalize.dateFormatter({ skeleton: "yMMMdhm" })
             : () => ''
       }
     }

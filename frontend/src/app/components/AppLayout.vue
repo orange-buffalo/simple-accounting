@@ -24,6 +24,12 @@
             <span>Incomes</span>
           </template>
         </el-menu-item>
+        <el-menu-item index="/invoices">
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span>Invoices</span>
+          </template>
+        </el-menu-item>
         <el-submenu index="settings">
           <template slot="title">
             <i class="el-icon-location"></i>
