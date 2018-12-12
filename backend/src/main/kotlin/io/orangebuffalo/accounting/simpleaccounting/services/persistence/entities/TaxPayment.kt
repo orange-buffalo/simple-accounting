@@ -20,6 +20,9 @@ class TaxPayment(
     @field:Column(nullable = false)
     var amount: Long,
 
+    @field:Column(nullable = false, length = 255)
+    var title: String,
+
     @field:ManyToMany(fetch = FetchType.EAGER)
     @field:JoinTable(
         name = "tax_payment_attachments",

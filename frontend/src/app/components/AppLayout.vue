@@ -1,3 +1,4 @@
+<!--todo this is not a component, but a view -->
 <template>
   <el-container>
     <el-aside>
@@ -28,6 +29,12 @@
           <template slot="title">
             <i class="el-icon-location"></i>
             <span>Invoices</span>
+          </template>
+        </el-menu-item>
+        <el-menu-item index="/tax-payments">
+          <template slot="title">
+            <i class="el-icon-location"></i>
+            <span>Tax Payments</span>
           </template>
         </el-menu-item>
         <el-submenu index="settings">

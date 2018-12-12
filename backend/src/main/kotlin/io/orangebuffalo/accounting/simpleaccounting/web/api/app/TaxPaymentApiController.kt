@@ -43,7 +43,8 @@ class TaxPaymentApiController(
                 notes = request.notes,
                 attachments = extensions.getValidDocuments(workspace, request.attachments),
                 amount = request.amount,
-                workspace = workspace
+                workspace = workspace,
+                title = request.title
             )
         ).let(::mapTaxPaymentDto)
     }
@@ -87,6 +88,7 @@ class TaxPaymentApiController(
             attachments = extensions.getValidDocuments(workspace, request.attachments)
             datePaid = request.datePaid
             amount = request.amount
+            title = request.title
         }.let {
             taxPaymentService.saveTaxPayment(it)
         }.let {
@@ -99,6 +101,7 @@ class TaxPaymentApiController(
 data class TaxPaymentDto(
     val id: Long,
     val version: Int,
+    val title: String,
     val timeRecorded: Instant,
     val datePaid: LocalDate,
     val amount: Long,
@@ -110,7 +113,8 @@ data class EditTaxPaymentDto(
     val datePaid: LocalDate,
     val amount: Long,
     val attachments: List<Long>,
-    @field:NotBlank @Length(max = 1024) val notes: String?
+    @Length(max = 1024) val notes: String?,
+    @field:NotBlank @Length(max = 255) val title: String
 )
 
 private fun mapTaxPaymentDto(source: TaxPayment) = TaxPaymentDto(
@@ -120,7 +124,8 @@ private fun mapTaxPaymentDto(source: TaxPayment) = TaxPaymentDto(
     datePaid = source.datePaid,
     amount = source.amount,
     attachments = source.attachments.map { it.id!! },
-    notes = source.notes
+    notes = source.notes,
+    title = source.title
 )
 
 @Component

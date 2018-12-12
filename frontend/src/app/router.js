@@ -84,6 +84,22 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-invoice" */ './views/invoices/EditInvoice.vue')
         },
         {
+          path: 'tax-payments',
+          name: 'tax-payments-overview',
+          component: () => import(/* webpackChunkName: "tax-payments-overview" */ './views/tax-payments/TaxPaymentsOverview.vue')
+        },
+        {
+          path: 'tax-payments/create',
+          name: 'create-new-tax-payment',
+          component: () => import(/* webpackChunkName: "create-new-tax-payment" */ './views/tax-payments/EditTaxPayment.vue')
+        },
+        {
+          path: 'tax-payments/:id/edit',
+          name: 'edit-tax-payment',
+          //todo should we use the same chunk name for edit and create as view is the same?
+          component: () => import(/* webpackChunkName: "edit-tax-payment" */ './views/tax-payments/EditTaxPayment.vue')
+        },
+        {
           path: 'settings/customers',
           name: 'customers-overview',
           component: () => import(/* webpackChunkName: "customers-overview" */ './views/settings/customers/CustomersOverview.vue')
