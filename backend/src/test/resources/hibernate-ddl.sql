@@ -9,6 +9,7 @@ create table income_attachments (income_id bigint not null, document_id bigint n
 create table invoice (id bigint not null, version integer not null, amount bigint not null, currency varchar(3) not null, date_cancelled date, date_issued date not null, date_paid date, date_sent date, due_date date not null, notes varchar(1024), time_recorded timestamp not null, title varchar(255) not null, customer_id bigint not null, income_id bigint, primary key (id))
 create table invoice_attachments (invoice_id bigint not null, document_id bigint not null, primary key (invoice_id, document_id))
 create table platform_user (id bigint not null, version integer not null, is_admin boolean not null, password_hash varchar(255) not null, user_name varchar(255) not null, primary key (id))
+create table refresh_token (id bigint not null, version integer not null, expiration_time timestamp not null, token varchar(2048) not null, user_id bigint not null, primary key (id))
 create table tax_payment_attachments (tax_payment_id bigint not null, document_id bigint not null, primary key (tax_payment_id, document_id))
 create table tax_payment (id bigint not null, version integer not null, amount bigint not null, date_paid date not null, notes varchar(1024), time_recorded timestamp not null, title varchar(255) not null, workspace_id bigint not null, primary key (id))
 create table workspace (id bigint not null, version integer not null, default_currency varchar(255) not null, multi_currency_enabled boolean not null, name varchar(255) not null, tax_enabled boolean not null, owner_id bigint not null, primary key (id))
@@ -25,6 +26,7 @@ alter table invoice add constraint invoice_customer_fk foreign key (customer_id)
 alter table invoice add constraint invoice_income_fk foreign key (income_id) references income
 alter table invoice_attachments add constraint invoice_attachments_document_fk foreign key (document_id) references document
 alter table invoice_attachments add constraint invoice_attachments_invoice_fk foreign key (invoice_id) references invoice
+alter table refresh_token add constraint refresh_token_user_fk foreign key (user_id) references platform_user
 alter table tax_payment_attachments add constraint tax_payment_attachments_document_fk foreign key (document_id) references document
 alter table tax_payment_attachments add constraint tax_payment_attachments_tax_payment_fk foreign key (tax_payment_id) references tax_payment
 alter table tax_payment add constraint tax_payment_workspace_fk foreign key (workspace_id) references workspace

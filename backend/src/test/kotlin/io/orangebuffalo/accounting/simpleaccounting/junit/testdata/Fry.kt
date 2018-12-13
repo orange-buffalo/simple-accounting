@@ -1,10 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.junit.testdata
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_DATE
 import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
 
@@ -84,6 +81,12 @@ class Fry : TestData {
         attachments = setOf(slurmReceipt)
     )
 
+    val refreshToken = RefreshToken(
+        user = himself,
+        token = "42:34jFbT3h2=",
+        expirationTime = MOCK_TIME
+    )
+
     override fun generateData() = listOf(
         himself,
         workspace,
@@ -92,6 +95,7 @@ class Fry : TestData {
         slurmReceipt,
         secondSlurm,
         coffeeReceipt,
-        cheesePizzaAndALargeSodaReceipt
+        cheesePizzaAndALargeSodaReceipt,
+        refreshToken
     )
 }
