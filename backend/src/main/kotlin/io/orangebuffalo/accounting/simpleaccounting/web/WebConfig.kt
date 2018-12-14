@@ -120,7 +120,7 @@ class WebConfig(
             setRequiresAuthenticationMatcher(
                 ServerWebExchangeMatchers.pathMatchers("/api/v1/admin/**", "/api/v1/user/**")
             )
-            setAuthenticationConverter(jwtTokenAuthenticationConverter)
+            setServerAuthenticationConverter(jwtTokenAuthenticationConverter)
             setAuthenticationFailureHandler(
                 ServerAuthenticationEntryPointFailureHandler(bearerAuthenticationEntryPoint())
             )
