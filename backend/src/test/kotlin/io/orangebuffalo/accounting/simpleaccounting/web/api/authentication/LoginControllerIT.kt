@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UserDetails
@@ -27,7 +28,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
 private const val LOGIN_PATH = "/api/v1/auth/login"
-private const val REFRESH_TOKEN_PATH = "/api/v1/auth/refresh-token"
+private const val TOKEN_PATH = "/api/v1/auth/token"
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -66,9 +67,9 @@ class LoginControllerIT(
             )
             .exchange()
             .expectStatus().isOk
+            .expectHeader().doesNotExist(HttpHeaders.SET_COOKIE)
             .expectBody()
             .jsonPath("$.token").isEqualTo("jwtTokenForFry")
-            .jsonPath("$.refreshToken").doesNotExist()
     }
 
     @Test
@@ -92,9 +93,9 @@ class LoginControllerIT(
             )
             .exchange()
             .expectStatus().isOk
+            .expectHeader().doesNotExist(HttpHeaders.SET_COOKIE)
             .expectBody()
             .jsonPath("$.token").isEqualTo("jwtTokenForFarnsworth")
-            .jsonPath("$.refreshToken").doesNotExist()
     }
 
     @Test
@@ -233,40 +234,45 @@ class LoginControllerIT(
             )
             .exchange()
             .expectStatus().isOk
+            .expectHeader().value(HttpHeaders.SET_COOKIE) { cookie ->
+                assertThat(cookie).contains("refreshToken=refreshTokenForFry")
+                    .contains("Max-Age=2592000")
+                    .contains("Path=/api/v1/auth/token")
+                    .contains("HttpOnly")
+                    .contains("SameSite=Strict")
+            }
             .expectBody()
             .jsonPath("$.token").isEqualTo("jwtTokenForFry")
-            .jsonPath("$.refreshToken").isEqualTo("refreshTokenForFry")
     }
 
     @Test
-    fun `should return a jwt token and updated refresh token when refresh token is used`(fry: Fry) {
+    fun `should return a jwt token when token endpoint is hit`(fry: Fry) {
         runBlocking {
             val userDetails = Mockito.mock(UserDetails::class.java)
 
             whenever(jwtService.buildJwtToken(userDetails)) doReturn "jwtTokenForFry"
             whenever(refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn userDetails
-            whenever(refreshTokenService.prolongToken("refreshTokenForFry")) doReturn "refreshTokenForFryUpdated"
 
-            client.post().uri(REFRESH_TOKEN_PATH)
+            client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
-                .syncBody(RefreshTokenRequest("refreshTokenForFry"))
+                .cookie("refreshToken", "refreshTokenForFry")
                 .exchange()
                 .expectStatus().isOk
                 .expectBody()
                 .jsonPath("$.token").isEqualTo("jwtTokenForFry")
-                .jsonPath("$.refreshToken").isEqualTo("refreshTokenForFryUpdated")
         }
     }
 
     @Test
     fun `should return 403 if refresh token is not valid`(fry: Fry) {
         runBlocking {
-            whenever(refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")
+            whenever(
+                refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")
             ) doThrow BadCredentialsException("")
 
-            client.post().uri(REFRESH_TOKEN_PATH)
+            client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
-                .syncBody(RefreshTokenRequest("refreshTokenForFry"))
+                .cookie("refreshToken", "refreshTokenForFry")
                 .exchange()
                 .expectStatus().isForbidden
         }

@@ -13,8 +13,8 @@ import java.security.SecureRandom
 import java.time.temporal.ChronoUnit
 import java.util.*
 
+const val TOKEN_LIFETIME_IN_DAYS = 30L
 private const val TOKEN_LENGTH = 1024
-private const val TOKEN_LIFETIME_IN_DAYS = 30L
 
 @Service
 class RefreshTokenService(
