@@ -1,5 +1,5 @@
 <template>
-  <login-form/>
+  <login-form @login="onLogin"/>
 </template>
 
 <script>
@@ -11,6 +11,12 @@
 
     components: {
       LoginForm
+    },
+
+    methods: {
+      onLogin: function () {
+        this.$router.push('/')
+      }
     }
   }
 </script>

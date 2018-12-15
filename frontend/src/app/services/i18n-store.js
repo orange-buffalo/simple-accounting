@@ -1,5 +1,19 @@
+import {assign} from 'lodash'
+
 let globalize
 let cldr
+
+function emptyFormatter() {
+  return ''
+}
+
+function ensureFormatter(formatter, globalizeFormatterProvider) {
+  if (!formatter || formatter === emptyFormatter) {
+    return globalize ? globalizeFormatterProvider() : emptyFormatter
+  } else {
+    return formatter
+  }
+}
 
 export const i18nStore = {
   namespaced: true,
@@ -11,21 +25,35 @@ export const i18nStore = {
     currencyInfo: []
   },
 
+  // todo perhaps use mutation instead of direct manipulation with state to have tooling support
   mutations: {},
 
   actions: {
-    loadLocaleData: function ({state}) {
+    loadLocaleData: function ({state, dispatch}) {
       //todo move to a separate js, can be loaded without splitting
       // todo based on current locale
       import('cldrjs').then(cldrjs => {
         import('globalize').then(globalizejs => {
-          import(/* webpackChunkName: "i18n" */ './i18n/en-AU.cldr-data').then(module => {
+          import('./i18n/en-AU.cldr-data').then(module => {
+
             cldrjs.default.load(module.default)
             globalizejs.default.load(module.default)
             cldr = new cldrjs.default("en-AU");
             globalize = globalizejs.default("en-AU");
 
-            // todo re-create formatters and infos in new locale
+            if (state.mediumDateFormatter) {
+              dispatch('ensureMediumDateFormatter')
+            }
+
+            if (state.mediumDateTimeFormatter) {
+              dispatch('ensureMediumDateTimeFormatter')
+            }
+
+            for (let currency in state.currencyFormatters) {
+              if (state.currencyFormatters.hasOwnProperty(currency)) {
+                dispatch('ensureCurrencyFormatter', currency)
+              }
+            }
 
             state.currencyInfo = cldr.get(`/main/{bundle}/numbers/currencies`)
           });
@@ -34,27 +62,26 @@ export const i18nStore = {
     },
 
     ensureCurrencyFormatter: function ({state}, currency) {
-      if (!state.currencyFormatters[currency]) {
-        state.currencyFormatters[currency] = globalize
-            ? globalize.currencyFormatter(currency)
-            : () => ''
-      }
+      let currencyFormatter = {}
+      currencyFormatter[currency] = ensureFormatter(
+          state.currencyFormatters[currency],
+          () => globalize.currencyFormatter(currency)
+      )
+      state.currencyFormatters = assign({}, state.currencyFormatters, currencyFormatter)
     },
 
     ensureMediumDateFormatter: function ({state}) {
-      if (!state.mediumDateFormatter) {
-        state.mediumDateFormatter = globalize
-            ? globalize.dateFormatter({date: 'medium'})
-            : () => ''
-      }
+      state.mediumDateFormatter = ensureFormatter(
+          state.mediumDateFormatter,
+          () => globalize.dateFormatter({date: 'medium'})
+      )
     },
 
     ensureMediumDateTimeFormatter: function ({state}) {
-      if (!state.mediumDateTimeFormatter) {
-        state.mediumDateTimeFormatter = globalize
-            ? globalize.dateFormatter({ skeleton: "yMMMdhm" })
-            : () => ''
-      }
+      state.mediumDateTimeFormatter = ensureFormatter(
+          state.mediumDateTimeFormatter,
+          () => globalize.dateFormatter({skeleton: "yMMMdhm"})
+      )
     }
   },
 

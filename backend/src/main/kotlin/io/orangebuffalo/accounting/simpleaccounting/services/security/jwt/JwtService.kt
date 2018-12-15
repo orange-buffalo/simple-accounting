@@ -6,6 +6,8 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
+import java.time.Duration
+import java.util.*
 
 @Service
 class JwtService {
@@ -14,27 +16,28 @@ class JwtService {
 
     fun buildJwtToken(userDetails: UserDetails): String {
         return Jwts.builder()
-                .setSubject(userDetails.username)
-                .claim("authorities", userDetails.authorities.map { it.authority })
-                .signWith(keyPair.private)
-                .compact()
+            .setSubject(userDetails.username)
+            .claim("authorities", userDetails.authorities.map { it.authority })
+            .setExpiration(Date(System.currentTimeMillis() + Duration.ofMinutes(10).toMillis()))
+            .signWith(keyPair.private)
+            .compact()
     }
 
     fun validateTokenAndBuildUserDetails(token: String): UserDetails {
         val jws: Jws<Claims>
         try {
             jws = Jwts.parser()
-                    .setSigningKey(keyPair.public)
-                    .parseClaimsJws(token)
+                .setSigningKey(keyPair.public)
+                .parseClaimsJws(token)
 
         } catch (ex: JwtException) {
             throw BadCredentialsException("Bad token $token", ex)
         }
 
         return User.builder()
-                .username(jws.body.subject)
-                .password(token)
-                .authorities(*(jws.body["authorities"] as List<String>).toTypedArray())
-                .build()
+            .username(jws.body.subject)
+            .password(token)
+            .authorities(*(jws.body["authorities"] as List<String>).toTypedArray())
+            .build()
     }
 }

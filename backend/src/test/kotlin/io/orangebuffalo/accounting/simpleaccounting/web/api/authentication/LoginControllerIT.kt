@@ -1,9 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
-import com.nhaarman.mockito_kotlin.argThat
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.doThrow
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockito_kotlin.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Farnsworth
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
@@ -23,6 +20,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -246,7 +244,7 @@ class LoginControllerIT(
     }
 
     @Test
-    fun `should return a jwt token when token endpoint is hit`(fry: Fry) {
+    fun `should return a jwt token when token endpoint is hit and cookie is valid`(fry: Fry) {
         runBlocking {
             val userDetails = Mockito.mock(UserDetails::class.java)
 
@@ -264,7 +262,27 @@ class LoginControllerIT(
     }
 
     @Test
-    fun `should return 403 if refresh token is not valid`(fry: Fry) {
+    @WithMockUser(username = "Fry")
+    fun `should return a jwt token when token endpoint is hit and user is authenticated`(fry: Fry) {
+        runBlocking {
+            whenever(jwtService.buildJwtToken(argThat {
+                username == "Fry"
+            })) doReturn "jwtTokenForFry"
+
+            client.post().uri(TOKEN_PATH)
+                .contentType(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.token").isEqualTo("jwtTokenForFry")
+
+            verifyNoMoreInteractions(refreshTokenService)
+        }
+    }
+
+    @Test
+    //todo should return 401? what is the spec for wrong credentials?
+    fun `should return 403 if refresh token is not valid and user is not authenticated`(fry: Fry) {
         runBlocking {
             whenever(
                 refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")
@@ -273,6 +291,18 @@ class LoginControllerIT(
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
                 .cookie("refreshToken", "refreshTokenForFry")
+                .exchange()
+                .expectStatus().isForbidden
+        }
+    }
+
+    @Test
+    //todo should return 401
+    //todo should not log warning to avoid log pollution
+    fun `should return 403 if refresh token is missing and user is not authenticated`(fry: Fry) {
+        runBlocking {
+            client.post().uri(TOKEN_PATH)
+                .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isForbidden
         }

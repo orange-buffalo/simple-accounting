@@ -2,8 +2,9 @@ import axios from 'axios'
 import EventBus from 'eventbusjs'
 import qs from 'qs'
 import {assign} from 'lodash'
+import jwtDecode from 'jwt-decode'
 
-const CancelToken = axios.CancelToken;
+const CancelToken = axios.CancelToken
 
 const _api = axios.create({
   baseURL: '/api/v1',
@@ -15,43 +16,87 @@ const _api = axios.create({
 
 let $store
 
+let refreshTokenTimer
+
+let cancelTokenRefresh = function () {
+  if (refreshTokenTimer) {
+    clearTimeout(refreshTokenTimer)
+  }
+}
+
+let scheduleTokenRefresh = function () {
+  cancelTokenRefresh()
+
+  let token = jwtDecode($store.state.api.jwtToken)
+  let timeout = token.exp * 1000 - Date.now() - 30000
+  refreshTokenTimer = setTimeout(refreshToken, timeout)
+}
+
+let refreshToken = function () {
+  _api.tryAutoLogin()
+      .then(scheduleTokenRefresh)
+      .catch(() => EventBus.dispatch(LOGIN_REQUIRED_EVENT))
+}
+
 _api.createCancelToken = function () {
   return CancelToken.source()
 }
 
 _api.login = function (request) {
-  return new Promise((resolve, reject) => {
-    _api
-        .post('/auth/login', request)
-        .then(response => {
-          $store.commit('api/updateJwtToken', response.data.token)
-          EventBus.dispatch(SUCCESSFUL_LOGIN_EVENT)
-          resolve()
-        })
-        .catch(() => {
-          reject()
-        })
-  })
+  cancelTokenRefresh()
+  return _api
+      .post('/auth/login', request)
+      .then(response => {
+        $store.commit('api/updateJwtToken', response.data.token)
+        scheduleTokenRefresh()
+      })
+}
+
+let applyAuthorization = function (config) {
+  let jwtToken = $store.state.api.jwtToken
+  if (jwtToken) {
+    config.headers['Authorization'] = `Bearer ${jwtToken}`
+  }
 }
 
 _api.interceptors.request.use(
     config => {
-      let jwtToken = $store.state.api.jwtToken
-      if (jwtToken) {
-        config.headers['Authorization'] = `Bearer ${jwtToken}`
-      }
+      applyAuthorization(config)
       return config;
     },
     error => Promise.reject(error)
 )
 
+_api.tryAutoLogin = function () {
+  cancelTokenRefresh()
+  return _api
+      .post('/auth/token', {}, {
+        withCredentials: true
+      })
+      .then(response => {
+        $store.commit('api/updateJwtToken', response.data.token)
+        scheduleTokenRefresh()
+      })
+}
+
 _api.interceptors.response.use(
     response => Promise.resolve(response),
-    error => {
+    async error => {
       if (error.response && error.response.status === 401) {
-        EventBus.dispatch(LOGIN_REQUIRED_EVENT)
+        try {
+          await _api.tryAutoLogin()
+        } catch (e) {
+          EventBus.dispatch(LOGIN_REQUIRED_EVENT)
+          return
+        }
+
+        applyAuthorization(error.config)
+        error.config.baseURL = null
+        return axios.request(error.config)
+
+      } else {
+        return Promise.reject(error)
       }
-      return Promise.reject(error)
     }
 )
 
@@ -145,4 +190,3 @@ export const initApi = function (store) {
   $store = store
 }
 export const LOGIN_REQUIRED_EVENT = 'login-required'
-export const SUCCESSFUL_LOGIN_EVENT = 'successful-login'

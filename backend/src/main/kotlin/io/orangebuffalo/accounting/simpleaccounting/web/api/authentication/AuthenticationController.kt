@@ -11,7 +11,9 @@ import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
@@ -54,10 +56,21 @@ class AuthenticationController(
     }
 
     @PostMapping("token")
-    fun refreshToken(@CookieValue("refreshToken") refreshToken: String) = GlobalScope.mono {
-        val authenticationToken = RefreshAuthenticationToken(refreshToken)
-        val authentication = authenticationManager.authenticate(authenticationToken).awaitFirst()
-        val userDetails = authentication.principal as UserDetails
+    fun refreshToken(
+        @CookieValue("refreshToken", required = false) refreshToken: String?,
+        authentication: Authentication?
+    ) = GlobalScope.mono {
+
+        val authenticatedAuth = when {
+            authentication != null && authentication.isAuthenticated -> authentication
+            refreshToken != null -> {
+                val authenticationToken = RefreshAuthenticationToken(refreshToken)
+                authenticationManager.authenticate(authenticationToken).awaitFirst()
+            }
+            else -> throw InsufficientAuthenticationException("Not authenticated")
+        }
+
+        val userDetails = authenticatedAuth.principal as UserDetails
         TokenResponse(jwtService.buildJwtToken(userDetails))
     }
 }

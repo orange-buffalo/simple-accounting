@@ -4,7 +4,7 @@
         :drag="!filePresent && !documentUploaded"
         :show-file-list="false"
         :data="uploadRequest"
-        :action="`/api/v1/user/workspaces/${workspaceId}/documents`"
+        :action="`/user/workspaces/${workspaceId}/documents`"
         :on-success="onSuccess"
         :on-error="onError"
         :on-progress="onProgress"

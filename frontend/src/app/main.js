@@ -2,19 +2,27 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import {initApi, LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT} from '@/services/api'
+import {api, initApi, LOGIN_REQUIRED_EVENT} from '@/services/api'
 import ElementUI from 'element-ui'
 import './main.scss'
 import EventBus from 'eventbusjs'
 import Router from 'vue-router'
+import {setupApp} from '@/app/services/app-services'
 
 Vue.config.productionTip = false
 
 Vue.use(ElementUI);
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (to.name !== 'login' && !store.getters['api/isLoggedIn']) {
-    next({name: 'login'})
+    try {
+      await api.tryAutoLogin()
+      await setupApp(store, router)
+      next()
+    } catch (e) {
+      store.commit('app/setLastView', to.name)
+      next({name: 'login'})
+    }
   } else {
     next()
   }
@@ -34,16 +42,4 @@ store.dispatch('i18n/loadLocaleData')
 
 EventBus.addEventListener(LOGIN_REQUIRED_EVENT, () => {
   router.push('/login')
-})
-
-EventBus.addEventListener(SUCCESSFUL_LOGIN_EVENT, () => {
-  store.dispatch('app/loadCurrencies')
-
-  store.dispatch('workspaces/loadWorkspaces').then(() => {
-    if (!store.state.workspaces.currentWorkspace) {
-      router.push('/workspace-setup')
-    } else {
-      router.push('/')
-    }
-  })
 })

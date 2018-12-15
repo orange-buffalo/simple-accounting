@@ -12,6 +12,9 @@
         <el-form-item label="Password" prop="password">
           <el-input type="password" v-model="form.password"></el-input>
         </el-form-item>
+        <el-form-item label="Remember me" prop="rememberMe">
+          <el-checkbox v-model="form.rememberMe"></el-checkbox>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="login">Login</el-button>
         </el-form-item>
@@ -31,16 +34,27 @@
       return {
         form: {
           userName: '',
-          password: ''
+          password: '',
+          rememberMe: false
         },
         formValidationRules: {
           userName: [
-            {required: true, message: 'Please input Activity name', trigger: 'blur'}
+            {required: true, message: 'Please input login', trigger: 'blur'}
           ],
           password: [
-            {required: true, message: 'Please input Activity name', trigger: 'blur'}
+            {required: true, message: 'Please input password', trigger: 'blur'}
           ]
         }
+      }
+    },
+
+    created: async function () {
+      try {
+        await api.tryAutoLogin()
+        this.$emit('login')
+      }
+      catch (e) {
+        // no opt, continue with the form login
       }
     },
 
@@ -52,9 +66,10 @@
                 .login({
                   userName: this.form.userName,
                   password: this.form.password,
-                  rememberMe: false
+                  rememberMe: this.form.rememberMe
                 })
-                .then(response => {
+                .then(() => {
+                  this.$emit('login')
                 })
                 .catch(() => {
                   this.$refs.form.clearValidate()

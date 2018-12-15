@@ -4,12 +4,17 @@ export const appStore = {
   namespaced: true,
 
   state: {
-    currencies: []
+    currencies: [],
+    lastView: null
   },
 
   mutations: {
     setCurrencies(state, currencies) {
       state.currencies = currencies
+    },
+
+    setLastView(state, view) {
+      state.lastView = view
     }
   },
 
