@@ -44,6 +44,7 @@ export const i18nStore = {
             cldr = new cldrjs.default("en-AU");
             globalize = globalizejs.default("en-AU");
 
+            // todo no need in lazy initialization for these formatters
             if (state.mediumDateFormatter) {
               dispatch('ensureMediumDateFormatter')
             }
