@@ -1,4 +1,5 @@
 import {assign} from 'lodash'
+import merge from 'deepmerge'
 
 let globalize
 let cldr
@@ -22,7 +23,9 @@ export const i18nStore = {
     currencyFormatters: {},
     mediumDateFormatter: null,
     mediumDateTimeFormatter: null,
-    currencyInfo: []
+    currencyInfo: [],
+    numbersInfo: null,
+    defaultNumberParser: null
   },
 
   // todo perhaps use mutation instead of direct manipulation with state to have tooling support
@@ -55,7 +58,14 @@ export const i18nStore = {
               }
             }
 
-            state.currencyInfo = cldr.get(`/main/{bundle}/numbers/currencies`)
+            state.currencyInfo = merge(
+                cldr.get(`/main/{bundle}/numbers/currencies`),
+                cldr.get(`/supplemental/currencyData/fractions`))
+
+            state.numbersInfo = cldr.get(`/main/{bundle}/numbers/symbols-numberSystem-latn`)
+
+            state.defaultNumberParser = globalize.numberParser()
+            state.defaultNumberFormatter = globalize.numberFormatter()
           });
         });
       })

@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "cldrjs": "^0.5.0",
+    "deepmerge": "^3.0.0",
     "element-ui": "^2.4.10",
     "eventbusjs": "^0.2.0",
     "file-saver": "^2.0.0",
@@ -17,9 +18,11 @@
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.11",
     "qs": "^6.5.2",
+    "text-mask-addons": "^3.8.0",
     "vue": "^2.5.17",
     "vue-material-design-icons": "^2.4.0",
     "vue-router": "^3.0.1",
+    "vue-text-mask": "^6.1.2",
     "vuex": "^3.0.1"
   },
   "devDependencies": {

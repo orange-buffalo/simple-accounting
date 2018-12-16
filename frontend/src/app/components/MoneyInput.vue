@@ -1,57 +1,75 @@
 <template>
-  <el-input :value="inputValue"
-            @input="onInput"
-            :disabled="!currency"
-            class="money-input"/>
+  <div class="el-input el-input-group el-input-group--append money-input">
+
+    <masked-input
+        type="text"
+        name="phone"
+        class="el-input__inner "
+        v-model="inputValue"
+        :mask="inputMask"
+        :guide="false"
+        :disabled="!currency">
+    </masked-input>
+
+    <div class="el-input-group__append">
+      {{currency}}
+    </div>
+  </div>
 </template>
 
 <script>
   import withCurrencyFormatter from '@/app/components/mixins/with-currency-formatter'
-
-  // inspired by https://github.com/vuejs-tips/v-money
+  import {withCurrencyInfo} from '@/app/components/mixins/with-currency-info'
+  import {withNumberFormatter} from '@/app/components/mixins/with-number-formatter'
+  import MaskedInput from 'vue-text-mask'
+  import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 
   export default {
     name: 'MoneyInput',
 
-    mixins: [withCurrencyFormatter],
+    mixins: [withCurrencyFormatter, withCurrencyInfo, withNumberFormatter],
 
     props: {
-      value: null,
+      value: Number,
       currency: String
+    },
+
+    components: {
+      MaskedInput
     },
 
     data: function () {
       return {
-        inputValue: this.value
+        inputValue: null
       }
     },
 
     created: function () {
-      this.onInput(this.value)
+      this.inputValue = this.value ? this.formatNumberDefault(this.value / this.digitsMultiplier) : null
     },
 
-    methods: {
-      onInput: function (userInput) {
-        if (!this.currency) {
-          return
-        }
+    computed: {
+      inputMask: function () {
+        return createNumberMask({
+          prefix: '',
+          thousandsSeparatorSymbol: this.thousandSeparator,
+          allowDecimal: this.currencyDigits(this.currency) > 0,
+          decimalSymbol: this.decimalSeparator
+        })
+      },
 
-        let numbers = parseInt((userInput ? userInput.toString() : '').replace(/\D+/g, '') || '0')
-
-        // todo proper precision based on currency
-        this.inputValue = this.currencyFormatter(numbers / 100)
-
-        this.$emit('input', numbers);
+      digitsMultiplier: function () {
+        return Math.pow(10, this.currencyDigits(this.currency))
       }
     },
 
     watch: {
-      currency: function (val) {
-        this.ensureCurrencyFormatter(val)
-        this.onInput(this.value)
-      },
       value: function (val) {
-        this.onInput(val)
+        this.inputValue = !val ? null : this.formatNumberDefault(this.value / this.digitsMultiplier)
+      },
+
+      inputValue: function (val) {
+        this.$emit('input', !val ? null : Math.round(this.parserNumberDefault(this.inputValue) * this.digitsMultiplier))
       }
     }
   }

@@ -16,10 +16,13 @@
 </template>
 
 <script>
-  import {mapState, mapGetters, mapActions} from 'vuex'
+  import {mapState, mapActions} from 'vuex'
+  import {withCurrencyInfo} from '@/app/components/mixins/with-currency-info'
 
   export default {
     name: 'CurrencyInput',
+
+    mixins: [withCurrencyInfo],
 
     props: {
       value: String,
@@ -55,17 +58,12 @@
         defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency
       }),
 
-      ...mapGetters({
-        getCurrencyInfo: 'i18n/getCurrencyInfo'
-      }),
-
       currenciesData: function () {
         return this.currencies.map(currency => {
-          let currencyInfo = this.getCurrencyInfo(currency.code)
           return {
             code: currency.code,
-            symbol: currencyInfo.symbol,
-            displayName: currencyInfo.displayName
+            symbol: this.currencySymbol(currency.code),
+            displayName: this.currencyDisplayName(currency.code)
           }
         })
       }
