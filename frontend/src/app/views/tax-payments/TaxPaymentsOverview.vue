@@ -11,7 +11,7 @@
 
         <el-button round
                    @click="navigateToCreateTaxPaymentView">
-          <plus-icon/>
+          <svgicon name="plus-thin"/>
           Add new
         </el-button>
       </div>
@@ -27,11 +27,10 @@
 
 <script>
   import DataItems from '@/components/DataItems'
-  import {mapGetters, mapState} from 'vuex'
+  import {mapState} from 'vuex'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import TaxPaymentOverviewPanel from './TaxPaymentOverviewPanel'
-  import {assign} from 'lodash'
-  import PlusIcon from 'vue-material-design-icons/Plus'
+  import '@/components/icons/plus-thin'
 
   export default {
     name: 'TaxPaymentsOverview',
@@ -40,8 +39,7 @@
 
     components: {
       DataItems,
-      TaxPaymentOverviewPanel,
-      PlusIcon
+      TaxPaymentOverviewPanel
     },
 
     data: function () {

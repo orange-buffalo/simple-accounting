@@ -21,7 +21,7 @@
 
     <div v-if="totalElements === 0 && !loading"
          class="empty-results">
-      <package-variant-icon/>
+      <svgicon name="empty-box"/>
       <span>No results here</span>
     </div>
 
@@ -44,14 +44,12 @@
 
 <script>
   import api from '@/services/api'
-  import PackageVariantIcon from 'vue-material-design-icons/PackageVariant'
+  import '@/components/icons/empty-box'
 
   export default {
     name: 'DataItems',
 
-    components: {
-      PackageVariantIcon
-    },
+    components: {},
 
     props: {
       apiPath: {
@@ -164,8 +162,9 @@
       align-items: center;
       color: #9e9e9e;
 
-      .material-design-icon {
-        font-size: 300%;
+      .svg-icon {
+        width: 48px;
+        height: 48px;
         margin: 10px;
       }
     }

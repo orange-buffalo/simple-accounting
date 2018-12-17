@@ -11,7 +11,7 @@
 
         <el-button round
                    @click="navigateToCreateCustomerView">
-          <plus-icon/>
+          <svgicon name="plus-thin"/>
           Add new
         </el-button>
       </div>
@@ -30,15 +30,14 @@
   import DataItems from '@/components/DataItems'
   import {mapState} from 'vuex'
   import CustomerOverviewPanel from './CustomerOverviewPanel'
-  import PlusIcon from 'vue-material-design-icons/Plus'
+  import '@/components/icons/plus-thin'
 
   export default {
     name: 'CustomersOverview',
 
     components: {
       DataItems,
-      CustomerOverviewPanel,
-      PlusIcon
+      CustomerOverviewPanel
     },
 
     data: function () {

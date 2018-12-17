@@ -1,0 +1,11 @@
+/* eslint-disable */
+require('./attachment')
+require('./banknote')
+require('./calendar')
+require('./category')
+require('./empty-box')
+require('./gear')
+require('./notes')
+require('./pencil')
+require('./percent')
+require('./plus-thin')

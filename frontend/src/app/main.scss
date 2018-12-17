@@ -1,4 +1,3 @@
-@import '~vue-material-design-icons/styles.css';
 @import '~element-ui/lib/theme-chalk/index.css';
 @import url("https://fonts.googleapis.com/css?family=Muli");
 
@@ -83,9 +82,10 @@ textarea {
     .sa-item-edit-link {
       color: #409EFF;
 
-      .material-design-icon {
+      .svg-icon {
         margin-right: 3px;
-        font-size: 90%;
+        height: 13px;
+        width: 13px;
       }
     }
   }
@@ -93,13 +93,15 @@ textarea {
   .sa-item-attributes {
 
     .sa-item-attribute {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       margin-right: 30px;
       margin-top: 15px;
 
-      .material-design-icon {
+      .svg-icon {
         margin-right: 5px;
-        font-size: 120%;
+        width: 18px;
+        height: 18px;
       }
 
       .sa-secondary-text {
@@ -123,6 +125,21 @@ textarea {
       font-style: italic;
     }
   }
+}
+
+.svg-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  color: inherit;
+  vertical-align: middle;
+  fill: none;
+  stroke: currentColor;
+}
+
+.svg-fill {
+  fill: currentColor;
+  stroke: none;
 }
 
 $inputWidth: 400px;

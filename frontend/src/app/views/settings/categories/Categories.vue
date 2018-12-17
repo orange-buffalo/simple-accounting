@@ -7,7 +7,7 @@
     <div class="top-buttons-bar">
       <el-button round
                  @click="navigateToNewCategoryView">
-        <plus-icon/>
+        <svgicon name="plus-thin"/>
         Add new
       </el-button>
     </div>
@@ -37,15 +37,12 @@
 
 <script>
   import {mapState} from 'vuex'
-  import PlusIcon from 'vue-material-design-icons/Plus'
-
+  import '@/components/icons/plus-thin'
 
   export default {
     name: 'Categories',
 
-    components: {
-      PlusIcon
-    },
+    components: {},
 
     computed: {
       ...mapState({

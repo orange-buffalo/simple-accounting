@@ -20,7 +20,7 @@
 
         <el-button round
                    @click="navigateToCreateInvoiceView">
-          <plus-icon/>
+          <svgicon name="plus-thin"/>
           Add new
         </el-button>
       </div>
@@ -57,7 +57,7 @@
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import InvoiceOverviewPanel from './InvoiceOverviewPanel'
   import {assign} from 'lodash'
-  import PlusIcon from 'vue-material-design-icons/Plus'
+  import '@/components/icons/plus-thin'
 
   export default {
     name: 'IncomesOverview',
@@ -66,8 +66,7 @@
 
     components: {
       DataItems,
-      InvoiceOverviewPanel,
-      PlusIcon
+      InvoiceOverviewPanel
     },
 
     data: function () {

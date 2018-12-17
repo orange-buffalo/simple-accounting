@@ -8,10 +8,12 @@ import './main.scss'
 import EventBus from 'eventbusjs'
 import Router from 'vue-router'
 import {setupApp} from '@/app/services/app-services'
+import SvgIcon from 'vue-svgicon'
 
 Vue.config.productionTip = false
 
-Vue.use(ElementUI);
+Vue.use(ElementUI)
+Vue.use(SvgIcon)
 
 router.beforeEach(async (to, from, next) => {
   if (to.name !== 'login' && !store.getters['api/isLoggedIn']) {

@@ -4,7 +4,7 @@
       <div class="sa-item-title-panel">
         <h3>{{expense.title}}</h3>
         <span class="sa-item-edit-link">
-          <pencil-icon/>
+          <svgicon name="pencil"/>
           <el-button type="text"
                      @click="navigateToExpenseEdit">Edit</el-button>
         </span>
@@ -13,15 +13,15 @@
       <div class="sa-item-attributes">
 
         <span class="sa-item-attribute">
-          <format-list-bulleted-type-icon/>{{ categoryById(expense.category).name }}
+          <svgicon name="category"/>{{ categoryById(expense.category).name }}
         </span>
 
         <span class="sa-item-attribute">
-          <calendar-import-icon/>{{getDatePaid()}}
+          <svgicon name="calendar"/>{{getDatePaid()}}
         </span>
 
         <span class="sa-item-attribute">
-          <cash-icon/>
+          <svgicon name="banknote"/>
           <money-output :currency="defaultCurrency"
                         :amount="amountInDefaultCurrency()"/>
 
@@ -34,18 +34,18 @@
 
         <span class="sa-item-attribute"
               v-if="expense.percentOnBusiness < 100">
-          <percent-icon/>Partial: {{expense.percentOnBusiness}}%
+          <svgicon name="percent"/>Partial: {{expense.percentOnBusiness}}%
         </span>
 
         <span class="sa-item-attribute"
               v-if="expense.notes">
-          <message-bulleted-icon/>
+          <svgicon name="notes"/>
           <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
         </span>
 
         <span class="sa-item-attribute"
               v-if="expense.attachments.length">
-          <paperclip-icon/>
+          <svgicon name="attachment"/>
           <span class="sa-clickable" @click="toggleAttachments()">Attachment provided</span>
         </span>
       </div>
@@ -83,13 +83,13 @@
   import DocumentLink from '@/app/components/DocumentLink'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import api from '@/services/api'
-  import CalendarImportIcon from 'vue-material-design-icons/CalendarImport'
-  import FormatListBulletedTypeIcon from 'vue-material-design-icons/FormatListBulletedType'
-  import CashIcon from 'vue-material-design-icons/Cash'
-  import PercentIcon from 'vue-material-design-icons/Percent'
-  import MessageBulletedIcon from 'vue-material-design-icons/MessageBulleted'
-  import PaperclipIcon from 'vue-material-design-icons/Paperclip'
-  import PencilIcon from 'vue-material-design-icons/Pencil'
+  import '@/components/icons/attachment'
+  import '@/components/icons/banknote'
+  import '@/components/icons/calendar'
+  import '@/components/icons/notes'
+  import '@/components/icons/category'
+  import '@/components/icons/pencil'
+  import '@/components/icons/percent'
 
   export default {
     name: 'ExpenseOverviewPanel',
@@ -98,14 +98,7 @@
 
     components: {
       MoneyOutput,
-      DocumentLink,
-      CalendarImportIcon,
-      FormatListBulletedTypeIcon,
-      CashIcon,
-      PercentIcon,
-      MessageBulletedIcon,
-      PaperclipIcon,
-      PencilIcon
+      DocumentLink
     },
 
     props: {

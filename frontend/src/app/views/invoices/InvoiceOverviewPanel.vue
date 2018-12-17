@@ -4,7 +4,7 @@
       <div class="sa-item-title-panel">
         <h3>{{invoice.title}}</h3>
         <span class="sa-item-edit-link">
-          <pencil-icon/>
+          <svgicon name="pencil"/>
           <el-button type="text"
                      @click="navigateToInvoiceEdit">Edit</el-button>
         </span>
@@ -13,44 +13,44 @@
       <div class="sa-item-attributes">
 
         <el-tooltip content="Customer" v-if="customer">
-          <span class="sa-item-attribute" >
-            <format-list-bulleted-type-icon/>{{ customer.name }}
+          <span class="sa-item-attribute">
+            <svgicon name="category"/>{{ customer.name }}
           </span>
         </el-tooltip>
 
         <el-tooltip content="Date Issued" v-if="!invoice.dateCancelled">
           <span class="sa-item-attribute">
-            <calendar-import-icon/>{{dateIssued}}
+            <svgicon name="calendar"/>{{dateIssued}}
           </span>
         </el-tooltip>
 
         <el-tooltip content="Due Date" v-if="!invoice.dateCancelled">
           <span class="sa-item-attribute">
-            <calendar-import-icon/>{{dueDate}}
+            <svgicon name="calendar"/>{{dueDate}}
           </span>
         </el-tooltip>
 
         <el-tooltip content="Date Sent" v-if="!invoice.dateCancelled && invoice.dateSent">
           <span class="sa-item-attribute">
-            <calendar-import-icon/>{{dateSent}}
+            <svgicon name="calendar"/>{{dateSent}}
           </span>
         </el-tooltip>
 
         <el-tooltip content="Date Paid" v-if="!invoice.dateCancelled && invoice.datePaid">
           <span class="sa-item-attribute">
-            <calendar-import-icon/>{{datePaid}}
+            <svgicon name="calendar"/>{{datePaid}}
           </span>
         </el-tooltip>
 
         <span class="sa-item-attribute"
               v-if="invoice.notes">
-          <message-bulleted-icon/>
+          <svgicon name="notes"/>
           <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
         </span>
 
         <span class="sa-item-attribute"
               v-if="invoice.attachments.length">
-          <paperclip-icon/>
+          <svgicon name="attachment"/>
           <span class="sa-clickable" @click="toggleAttachments()">Attachment provided</span>
         </span>
       </div>
@@ -90,19 +90,16 @@
 </template>
 
 <script>
-  import {mapGetters, mapState} from 'vuex'
+  import {mapState} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
   import DocumentLink from '@/app/components/DocumentLink'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import api from '@/services/api'
-  import CalendarImportIcon from 'vue-material-design-icons/CalendarImport'
-  import FormatListBulletedTypeIcon from 'vue-material-design-icons/FormatListBulletedType'
-  import CashIcon from 'vue-material-design-icons/Cash'
-  import PercentIcon from 'vue-material-design-icons/Percent'
-  import MessageBulletedIcon from 'vue-material-design-icons/MessageBulleted'
-  import PaperclipIcon from 'vue-material-design-icons/Paperclip'
-  import PencilIcon from 'vue-material-design-icons/Pencil'
-  import {assign} from 'lodash'
+  import '@/components/icons/attachment'
+  import '@/components/icons/calendar'
+  import '@/components/icons/notes'
+  import '@/components/icons/category'
+  import '@/components/icons/pencil'
 
   export default {
     name: 'InvoiceOverviewPanel',
@@ -111,14 +108,7 @@
 
     components: {
       MoneyOutput,
-      DocumentLink,
-      CalendarImportIcon,
-      FormatListBulletedTypeIcon,
-      CashIcon,
-      PercentIcon,
-      MessageBulletedIcon,
-      PaperclipIcon,
-      PencilIcon
+      DocumentLink
     },
 
     props: {
@@ -140,7 +130,7 @@
       }),
 
       isDraft: function () {
-          return this.invoice.status === 'DRAFT'
+        return this.invoice.status === 'DRAFT'
       },
 
       isPaid: function () {
@@ -193,7 +183,7 @@
 
       dateCancelled: function () {
         return this.mediumDateFormatter(new Date(this.invoice.dateCancelled))
-      },
+      }
     },
 
     created: async function () {
