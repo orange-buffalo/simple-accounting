@@ -28,7 +28,7 @@
 
     <h2>Pending</h2>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`"
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/expenses`"
                 ref="pendingExpensesList"
                 :paginator="false"
                 :filters="pendingExpensesFilters">
@@ -39,7 +39,7 @@
 
     <h2>Finalized</h2>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/expenses`"
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/expenses`"
                 ref="finalizedExpensesList"
                 :filters="finalizedExpensesFilters">
       <template slot-scope="scope">
@@ -51,16 +51,16 @@
 
 <script>
   import DataItems from '@/components/DataItems'
-  import {mapGetters, mapState} from 'vuex'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import ExpenseOverviewPanel from './ExpenseOverviewPanel'
   import {assign} from 'lodash'
   import '@/components/icons/plus-thin'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
 
   export default {
     name: 'ExpensesOverview',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withMediumDateFormatter, withWorkspaces],
 
     components: {
       DataItems,
@@ -76,15 +76,6 @@
     },
 
     computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id,
-        defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency
-      }),
-
-      ...mapGetters({
-        categoryById: 'workspaces/categoryById'
-      }),
-
       pendingExpensesFilters: function () {
         return assign({}, this.userFilters, {
           applyToRequest: pageRequest => {
@@ -107,16 +98,6 @@
     methods: {
       navigateToCreateExpenseView: function () {
         this.$router.push({name: 'create-new-expense'})
-      }
-    },
-
-    watch: {
-      finalizedExpensesFilters: function () {
-        this.$refs.finalizedExpensesList.reloadData()
-      },
-
-      pendingExpensesFilters: function () {
-        this.$refs.pendingExpensesList.reloadData()
       }
     }
   }

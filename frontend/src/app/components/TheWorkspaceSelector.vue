@@ -25,7 +25,7 @@
           <!--todo select icon-->
           <el-button type="text"
                      v-if="currentWorkspace.id !== workspace.id"
-                     @click="navigateToWorkspaceSetup">
+                     @click="switchWorkspace(workspace)">
             <svgicon name="plus-thin"/>
             Switch
           </el-button>
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-  import {withWorkspace} from '@/app/components/mixins/with-workspace'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
   import '@/components/icons/gear'
   import '@/components/icons/plus-thin'
   import TheSideMenuLink from '@/app/components/TheSideMenuLink'
@@ -52,21 +52,20 @@
   export default {
     name: 'TheWorkspaceSelector',
 
-    mixins: [withWorkspace],
+    mixins: [withWorkspaces],
 
     components: {
       TheSideMenuLink
     },
 
-    computed: {
-      otherWorkspaces: function () {
-        return this.workspaces.filter(it => it.id !== this.currentWorkspace.id)
-      }
-    },
-
     methods: {
       navigateToWorkspaceSetup: function () {
         this.$router.push({name: 'workspace-setup'})
+      },
+
+      switchWorkspace: function (ws) {
+        // todo do not commit directly, use wrapper action
+        this.$store.commit('workspaces/setCurrentWorkspace', ws)
       }
     }
   }

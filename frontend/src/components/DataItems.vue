@@ -62,10 +62,7 @@
       paginator: {
         type: Boolean,
         default: true
-      },
-
-      // Element row and column properties to pass through
-      lg: Number
+      }
     },
 
     data: function () {
@@ -85,10 +82,6 @@
     methods: {
       onCurrentPageChange: function () {
         this.reloadData()
-      },
-
-      onSortChange: function (event) {
-        console.error(event)
       },
 
       reloadData: async function () {
@@ -126,11 +119,25 @@
           }
         }
       }
+    },
+
+    watch: {
+      apiPath: function () {
+        this.reloadData()
+      },
+
+      filters: {
+        handler: function () {
+          this.reloadData()
+        },
+        deep: true
+      }
     }
   }
 </script>
 
 <style lang="scss">
+  /*todo BEM notation*/
   .data-items {
     .el-row {
       transition: opacity 0.3s;

@@ -28,7 +28,7 @@
 <script>
 
   import api from '@/services/api'
-  import {mapMutations} from 'vuex'
+  import {mapActions} from 'vuex'
 
   export default {
     name: 'WorkspaceSetup',
@@ -75,7 +75,7 @@
         })
       },
 
-      ...mapMutations({
+      ...mapActions({
         createWorkspace: 'workspaces/createWorkspace'
       })
     }

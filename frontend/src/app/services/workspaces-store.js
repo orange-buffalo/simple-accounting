@@ -1,4 +1,6 @@
 import api from '@/services/api'
+import {lockr} from '@/app/services/app-services'
+import {isNil} from 'lodash'
 
 let _workspacesStore = {
   namespaced: true,
@@ -9,32 +11,53 @@ let _workspacesStore = {
   },
 
   mutations: {
-    setWorkspaces(state, payload) {
-      state.workspaces = payload
-      if (payload.length > 0) {
-        state.currentWorkspace = payload[0]
-      }
+    setCurrentWorkspace(state, ws) {
+      state.currentWorkspace = ws
+      lockr.set('current-workspace', ws.id)
     },
 
-    createWorkspace(state, workspace) {
-      state.workspaces.push(workspace)
-      state.currentWorkspace = workspace
+    setWorkspaces(state, payload) {
+      state.workspaces = payload
     },
 
     createCategory(state, category) {
       state.currentWorkspace.categories.push(category)
+    },
+
+    addWorkspace(state, ws) {
+      state.workspaces.push(ws)
     }
   },
 
   actions: {
+    createWorkspace({commit}, workspace) {
+      commit('addWorkspace', workspace)
+      commit('setCurrentWorkspace',workspace)
+    },
+
     loadWorkspaces({commit, state}) {
       return new Promise(resolve => {
         if (state.workspaces) {
           resolve()
-        }
-        else {
+        } else {
           api.get('/user/workspaces').then(response => {
-            commit('setWorkspaces', response.data)
+            let workspaces = response.data
+            commit('setWorkspaces', workspaces)
+
+            let currentWs;
+            if (workspaces.length > 0) {
+              let previousWsId = lockr.get('current-workspace')
+              if (!isNil(previousWsId)) {
+                currentWs = workspaces.find(it => it.id === previousWsId)
+              }
+
+              if (!currentWs) {
+                currentWs = workspaces[0]
+              }
+
+              commit('setCurrentWorkspace', currentWs)
+            }
+
             resolve()
           })
         }

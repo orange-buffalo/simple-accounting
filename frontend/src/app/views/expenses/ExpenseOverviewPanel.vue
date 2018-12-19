@@ -17,15 +17,15 @@
         </span>
 
         <span class="sa-item-attribute">
-          <svgicon name="calendar"/>{{getDatePaid()}}
+          <svgicon name="calendar"/>{{datePaid}}
         </span>
 
         <span class="sa-item-attribute">
           <svgicon name="banknote"/>
           <money-output :currency="defaultCurrency"
-                        :amount="amountInDefaultCurrency()"/>
+                        :amount="amountInDefaultCurrency"/>
 
-          <template v-if="isConverted()">
+          <template v-if="isConverted">
             <money-output :currency="expense.currency"
                           :amount="expense.originalAmount"
                           class="sa-secondary-text"/>
@@ -78,7 +78,6 @@
 </template>
 
 <script>
-  import {mapGetters, mapState} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
   import DocumentLink from '@/app/components/DocumentLink'
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
@@ -90,11 +89,13 @@
   import '@/components/icons/category'
   import '@/components/icons/pencil'
   import '@/components/icons/percent'
+  import {withCategories} from '@/app/components/mixins/with-categories'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
 
   export default {
     name: 'ExpenseOverviewPanel',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withMediumDateFormatter, withCategories, withWorkspaces],
 
     components: {
       MoneyOutput,
@@ -114,15 +115,6 @@
     },
 
     computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id,
-        defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency
-      }),
-
-      ...mapGetters({
-        categoryById: 'workspaces/categoryById'
-      }),
-
       status: function () {
         if (this.expense.status === 'FINALIZED') {
           return ''
@@ -150,10 +142,8 @@
             currency: this.defaultCurrency
           }
         }
-      }
-    },
+      },
 
-    methods: {
       amountInDefaultCurrency: function () {
         return this.expense.currency === this.defaultCurrency
             ? this.expense.originalAmount : this.expense.amountInDefaultCurrency
@@ -164,10 +154,12 @@
             && this.expense.amountInDefaultCurrency
       },
 
-      getDatePaid: function () {
+      datePaid: function () {
         return this.mediumDateFormatter(new Date(this.expense.datePaid))
-      },
+      }
+    },
 
+    methods: {
       toggleNotes: function () {
         this.notesVisible = !this.notesVisible
       },
@@ -176,7 +168,7 @@
         this.attachmentsVisible = !this.attachmentsVisible
 
         if (this.attachments.length === 0 && this.expense.attachments && this.expense.attachments.length) {
-          let attachments = await api.pageRequest(`/user/workspaces/${this.workspaceId}/documents`)
+          let attachments = await api.pageRequest(`/user/workspaces/${this.currentWorkspace.id}/documents`)
               .eager()
               .eqFilter("id", this.expense.attachments)
               .getPageData()
