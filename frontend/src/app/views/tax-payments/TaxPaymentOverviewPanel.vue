@@ -13,7 +13,7 @@
       <div class="sa-item-attributes">
 
         <span class="sa-item-attribute">
-          <svgicon name="calendar"/>{{getDatePaid()}}
+          <svgicon name="calendar"/>{{datePaid}}
         </span>
 
         <span class="sa-item-attribute"
@@ -54,20 +54,20 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
   import DocumentLink from '@/app/components/DocumentLink'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
-  import api from '@/services/api'
+  import {withMediumDateFormatter} from '@/app/components/mixins/with-medium-date-formatter'
   import '@/components/icons/attachment'
   import '@/components/icons/calendar'
   import '@/components/icons/notes'
   import '@/components/icons/pencil'
+  import {loadDocuments} from '@/app/services/app-services'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
 
   export default {
     name: 'TaxPaymentOverviewPanel',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withMediumDateFormatter, withWorkspaces],
 
     components: {
       MoneyOutput,
@@ -87,17 +87,12 @@
     },
 
     computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id,
-        defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency
-      })
+      datePaid: function () {
+        return this.mediumDateFormatter(new Date(this.taxPayment.datePaid))
+      }
     },
 
     methods: {
-         getDatePaid: function () {
-        return this.mediumDateFormatter(new Date(this.taxPayment.datePaid))
-      },
-
       toggleNotes: function () {
         this.notesVisible = !this.notesVisible
       },
@@ -105,13 +100,10 @@
       toggleAttachments: async function () {
         this.attachmentsVisible = !this.attachmentsVisible
 
-        if (this.attachments.length === 0 && this.taxPayment.attachments && this.taxPayment.attachments.length) {
-          let attachments = await api.pageRequest(`/user/workspaces/${this.workspaceId}/documents`)
-              .eager()
-              .eqFilter("id", this.taxPayment.attachments)
-              .getPageData()
-          this.attachments = this.attachments.concat(attachments)
-        }
+        this.attachments = await loadDocuments(
+            this.attachments,
+            this.taxPayment.attachments,
+            this.currentWorkspace.id)
       },
 
       navigateToTaxPaymentEdit: function () {

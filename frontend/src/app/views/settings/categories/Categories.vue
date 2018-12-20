@@ -42,8 +42,6 @@
   export default {
     name: 'Categories',
 
-    components: {},
-
     computed: {
       ...mapState({
         categories: state => state.workspaces.currentWorkspace.categories
@@ -53,7 +51,6 @@
     methods: {
       navigateToNewCategoryView: function () {
         this.$router.push({name: 'create-new-category'})
-
       }
     }
   }

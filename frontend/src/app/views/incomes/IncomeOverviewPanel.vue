@@ -17,15 +17,15 @@
         </span>
 
         <span class="sa-item-attribute">
-          <svgicon name="calendar"/>{{getDateReceived()}}
+          <svgicon name="calendar"/>{{dateReceived}}
         </span>
 
         <span class="sa-item-attribute">
           <svgicon name="banknote"/>
           <money-output :currency="defaultCurrency"
-                        :amount="amountInDefaultCurrency()"/>
+                        :amount="amountInDefaultCurrency"/>
 
-          <template v-if="isConverted()">
+          <template v-if="isConverted">
             <money-output :currency="income.currency"
                           :amount="income.originalAmount"
                           class="sa-secondary-text"/>
@@ -73,11 +73,9 @@
 </template>
 
 <script>
-  import {mapGetters, mapState} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
   import DocumentLink from '@/app/components/DocumentLink'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
-  import api from '@/services/api'
+  import {withMediumDateFormatter} from '@/app/components/mixins/with-medium-date-formatter'
   import '@/components/icons/attachment'
   import '@/components/icons/banknote'
   import '@/components/icons/calendar'
@@ -85,11 +83,14 @@
   import '@/components/icons/category'
   import '@/components/icons/pencil'
   import '@/components/icons/percent'
+  import {withCategories} from '@/app/components/mixins/with-categories'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
+  import {loadDocuments} from '@/app/services/app-services'
 
   export default {
     name: 'IncomeOverviewPanel',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withMediumDateFormatter, withWorkspaces, withCategories],
 
     components: {
       MoneyOutput,
@@ -109,15 +110,6 @@
     },
 
     computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id,
-        defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency
-      }),
-
-      ...mapGetters({
-        categoryById: 'workspaces/categoryById'
-      }),
-
       status: function () {
         if (this.income.status === 'FINALIZED') {
           return ''
@@ -145,10 +137,7 @@
             currency: this.defaultCurrency
           }
         }
-      }
-    },
-
-    methods: {
+      },
       amountInDefaultCurrency: function () {
         return this.income.currency === this.defaultCurrency
             ? this.income.originalAmount : this.income.amountInDefaultCurrency
@@ -159,10 +148,12 @@
             && this.income.amountInDefaultCurrency
       },
 
-      getDateReceived: function () {
+      dateReceived: function () {
         return this.mediumDateFormatter(new Date(this.income.dateReceived))
-      },
+      }
+    },
 
+    methods: {
       toggleNotes: function () {
         this.notesVisible = !this.notesVisible
       },
@@ -170,13 +161,10 @@
       toggleAttachments: async function () {
         this.attachmentsVisible = !this.attachmentsVisible
 
-        if (this.attachments.length === 0 && this.income.attachments && this.income.attachments.length) {
-          let attachments = await api.pageRequest(`/user/workspaces/${this.workspaceId}/documents`)
-              .eager()
-              .eqFilter("id", this.income.attachments)
-              .getPageData()
-          this.attachments = this.attachments.concat(attachments)
-        }
+        this.attachments = await loadDocuments(
+            this.attachments,
+            this.income.attachments,
+            this.currentWorkspace.id)
       },
 
       navigateToIncomeEdit: function () {

@@ -6,7 +6,6 @@
       <div class="sa-header-options">
         <div>
           <span>Filters coming soon</span>
-
         </div>
 
         <el-button round
@@ -17,7 +16,7 @@
       </div>
     </div>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/customers`"
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/customers`"
                 ref="customersList">
       <template slot-scope="scope">
         <customer-overview-panel :customer="scope.item"/>
@@ -28,26 +27,18 @@
 
 <script>
   import DataItems from '@/components/DataItems'
-  import {mapState} from 'vuex'
   import CustomerOverviewPanel from './CustomerOverviewPanel'
   import '@/components/icons/plus-thin'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
 
   export default {
     name: 'CustomersOverview',
 
+    mixins: [withWorkspaces],
+
     components: {
       DataItems,
       CustomerOverviewPanel
-    },
-
-    data: function () {
-      return {}
-    },
-
-    computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id
-      })
     },
 
     methods: {

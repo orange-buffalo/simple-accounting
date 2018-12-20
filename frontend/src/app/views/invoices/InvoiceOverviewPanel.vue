@@ -90,21 +90,23 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
   import MoneyOutput from '@/app/components/MoneyOutput'
   import DocumentLink from '@/app/components/DocumentLink'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
+  import {withMediumDateFormatter} from '@/app/components/mixins/with-medium-date-formatter'
   import api from '@/services/api'
   import '@/components/icons/attachment'
   import '@/components/icons/calendar'
   import '@/components/icons/notes'
   import '@/components/icons/category'
   import '@/components/icons/pencil'
+  import {withCategories} from '@/app/components/mixins/with-categories'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
+  import {loadDocuments} from '@/app/services/app-services'
 
   export default {
     name: 'InvoiceOverviewPanel',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withMediumDateFormatter, withWorkspaces, withCategories],
 
     components: {
       MoneyOutput,
@@ -125,10 +127,6 @@
     },
 
     computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id
-      }),
-
       isDraft: function () {
         return this.invoice.status === 'DRAFT'
       },
@@ -187,7 +185,9 @@
     },
 
     created: async function () {
-      this.customer = (await api.get(`/user/workspaces/${this.workspaceId}/customers/${this.invoice.customer}`)).data
+      this.customer = (await api
+              .pageRequest(`/user/workspaces/${this.currentWorkspace.id}/customers/${this.invoice.customer}`)
+      ).data
     },
 
     methods: {
@@ -198,13 +198,10 @@
       toggleAttachments: async function () {
         this.attachmentsVisible = !this.attachmentsVisible
 
-        if (this.attachments.length === 0 && this.invoice.attachments && this.invoice.attachments.length) {
-          let attachments = await api.pageRequest(`/user/workspaces/${this.workspaceId}/documents`)
-              .eager()
-              .eqFilter("id", this.invoice.attachments)
-              .getPageData()
-          this.attachments = this.attachments.concat(attachments)
-        }
+        this.attachments = await loadDocuments(
+            this.attachments,
+            this.invoice.attachments,
+            this.currentWorkspace.id)
       },
 
       navigateToInvoiceEdit: function () {

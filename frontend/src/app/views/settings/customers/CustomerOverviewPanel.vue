@@ -14,34 +14,13 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
-  import MoneyOutput from '@/app/components/MoneyOutput'
-  import DocumentLink from '@/app/components/DocumentLink'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import '@/components/icons/pencil'
 
   export default {
     name: 'CustomerOverviewPanel',
 
-    mixins: [withMediumDateFormatter],
-
-    components: {
-      MoneyOutput,
-      DocumentLink
-    },
-
     props: {
       customer: Object
-    },
-
-    data: function () {
-      return {}
-    },
-
-    computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id
-      })
     },
 
     methods: {

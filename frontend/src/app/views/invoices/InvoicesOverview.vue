@@ -6,7 +6,6 @@
       <div class="sa-header-options">
         <div>
           <span>Filters coming soon</span>
-
         </div>
 
         <div>
@@ -28,7 +27,7 @@
 
     <h2>Pending</h2>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/invoices`"
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/invoices`"
                 ref="pendingInvoicesList"
                 :paginator="false"
                 :filters="pendingInvoicesFilters">
@@ -40,7 +39,7 @@
 
     <h2>Finalized</h2>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/invoices`"
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/invoices`"
                 ref="finalizedInvoicesList"
                 :filters="finalizedInvoicesFilters">
       <template slot-scope="scope">
@@ -53,16 +52,15 @@
 
 <script>
   import DataItems from '@/components/DataItems'
-  import {mapState} from 'vuex'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import InvoiceOverviewPanel from './InvoiceOverviewPanel'
   import {assign} from 'lodash'
   import '@/components/icons/plus-thin'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
 
   export default {
     name: 'IncomesOverview',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withWorkspaces],
 
     components: {
       DataItems,
@@ -78,10 +76,6 @@
     },
 
     computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id
-      }),
-
       pendingInvoicesFilters: function () {
         return assign({}, this.userFilters, {
           applyToRequest: pageRequest => {
@@ -108,16 +102,6 @@
 
       onInvoiceUpdate: function () {
         this.$refs.finalizedInvoicesList.reloadData()
-        this.$refs.pendingInvoicesList.reloadData()
-      }
-    },
-
-    watch: {
-      finalizedInvoicesFilters: function () {
-        this.$refs.finalizedInvoicesList.reloadData()
-      },
-
-      pendingInvoicesFilters: function () {
         this.$refs.pendingInvoicesList.reloadData()
       }
     }

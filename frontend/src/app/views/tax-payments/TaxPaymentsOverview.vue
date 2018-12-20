@@ -6,7 +6,6 @@
       <div class="sa-header-options">
         <div>
           <span>Filters coming soon</span>
-
         </div>
 
         <el-button round
@@ -17,7 +16,7 @@
       </div>
     </div>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/tax-payments`">
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/tax-payments`">
       <template slot-scope="scope">
         <tax-payment-overview-panel :tax-payment="scope.item"/>
       </template>
@@ -27,30 +26,18 @@
 
 <script>
   import DataItems from '@/components/DataItems'
-  import {mapState} from 'vuex'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import TaxPaymentOverviewPanel from './TaxPaymentOverviewPanel'
   import '@/components/icons/plus-thin'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
 
   export default {
     name: 'TaxPaymentsOverview',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withWorkspaces],
 
     components: {
       DataItems,
       TaxPaymentOverviewPanel
-    },
-
-    data: function () {
-      return {}
-    },
-
-    computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id,
-        defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency
-      })
     },
 
     methods: {

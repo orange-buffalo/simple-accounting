@@ -6,7 +6,6 @@
       <div class="sa-header-options">
         <div>
           <span>Filters coming soon</span>
-
         </div>
 
         <div>
@@ -28,8 +27,7 @@
 
     <h2>Pending</h2>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/incomes`"
-                ref="pendingIncomesList"
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/incomes`"
                 :paginator="false"
                 :filters="pendingIncomesFilters">
       <template slot-scope="scope">
@@ -39,8 +37,7 @@
 
     <h2>Finalized</h2>
 
-    <data-items :api-path="`/user/workspaces/${workspaceId}/incomes`"
-                ref="finalizedIncomesList"
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/incomes`"
                 :filters="finalizedIncomesFilters">
       <template slot-scope="scope">
         <income-overview-panel :income="scope.item"/>
@@ -51,16 +48,15 @@
 
 <script>
   import DataItems from '@/components/DataItems'
-  import {mapGetters, mapState} from 'vuex'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import IncomeOverviewPanel from './IncomeOverviewPanel'
   import {assign} from 'lodash'
   import '@/components/icons/plus-thin'
+  import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
 
   export default {
     name: 'IncomesOverview',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withWorkspaces],
 
     components: {
       DataItems,
@@ -76,15 +72,6 @@
     },
 
     computed: {
-      ...mapState({
-        workspaceId: state => state.workspaces.currentWorkspace.id,
-        defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency
-      }),
-
-      ...mapGetters({
-        categoryById: 'workspaces/categoryById'
-      }),
-
       pendingIncomesFilters: function () {
         return assign({}, this.userFilters, {
           applyToRequest: pageRequest => {
@@ -107,16 +94,6 @@
     methods: {
       navigateToCreateIncomeView: function () {
         this.$router.push({name: 'create-new-income'})
-      }
-    },
-
-    watch: {
-      finalizedIncomesFilters: function () {
-        this.$refs.finalizedIncomesList.reloadData()
-      },
-
-      pendingIncomesFilters: function () {
-        this.$refs.pendingIncomesList.reloadData()
       }
     }
   }

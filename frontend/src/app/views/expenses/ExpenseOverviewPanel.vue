@@ -80,8 +80,7 @@
 <script>
   import MoneyOutput from '@/app/components/MoneyOutput'
   import DocumentLink from '@/app/components/DocumentLink'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
-  import api from '@/services/api'
+  import {withMediumDateFormatter} from '@/app/components/mixins/with-medium-date-formatter'
   import '@/components/icons/attachment'
   import '@/components/icons/banknote'
   import '@/components/icons/calendar'
@@ -91,6 +90,7 @@
   import '@/components/icons/percent'
   import {withCategories} from '@/app/components/mixins/with-categories'
   import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
+  import {loadDocuments} from '@/app/services/app-services'
 
   export default {
     name: 'ExpenseOverviewPanel',
@@ -167,13 +167,10 @@
       toggleAttachments: async function () {
         this.attachmentsVisible = !this.attachmentsVisible
 
-        if (this.attachments.length === 0 && this.expense.attachments && this.expense.attachments.length) {
-          let attachments = await api.pageRequest(`/user/workspaces/${this.currentWorkspace.id}/documents`)
-              .eager()
-              .eqFilter("id", this.expense.attachments)
-              .getPageData()
-          this.attachments = this.attachments.concat(attachments)
-        }
+        this.attachments = await loadDocuments(
+            this.attachments,
+            this.expense.attachments,
+            this.currentWorkspace.id)
       },
 
       navigateToExpenseEdit: function () {

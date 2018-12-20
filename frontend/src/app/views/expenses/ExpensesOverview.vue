@@ -6,7 +6,6 @@
       <div class="sa-header-options">
         <div>
           <span>Filters coming soon</span>
-
         </div>
 
         <div>
@@ -29,7 +28,6 @@
     <h2>Pending</h2>
 
     <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/expenses`"
-                ref="pendingExpensesList"
                 :paginator="false"
                 :filters="pendingExpensesFilters">
       <template slot-scope="scope">
@@ -40,7 +38,6 @@
     <h2>Finalized</h2>
 
     <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/expenses`"
-                ref="finalizedExpensesList"
                 :filters="finalizedExpensesFilters">
       <template slot-scope="scope">
         <expense-overview-panel :expense="scope.item"/>
@@ -51,7 +48,6 @@
 
 <script>
   import DataItems from '@/components/DataItems'
-  import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import ExpenseOverviewPanel from './ExpenseOverviewPanel'
   import {assign} from 'lodash'
   import '@/components/icons/plus-thin'
@@ -60,7 +56,7 @@
   export default {
     name: 'ExpensesOverview',
 
-    mixins: [withMediumDateFormatter, withWorkspaces],
+    mixins: [withWorkspaces],
 
     components: {
       DataItems,
