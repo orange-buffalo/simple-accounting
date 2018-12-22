@@ -47,8 +47,8 @@ class WorkspacesApiController(
         platformUserService.createWorkspace(
             Workspace(
                 name = createWorkspaceRequest.name,
-                taxEnabled = createWorkspaceRequest.taxEnabled,
-                multiCurrencyEnabled = createWorkspaceRequest.multiCurrencyEnabled,
+                taxEnabled = false,
+                multiCurrencyEnabled = true,
                 defaultCurrency = createWorkspaceRequest.defaultCurrency,
                 owner = platformUserService.getCurrentUser()
             )
@@ -106,8 +106,9 @@ data class CategoryDto(
 
 data class CreateWorkspaceDto(
     @field:NotBlank var name: String,
-    @field:NotNull var taxEnabled: Boolean,
-    @field:NotNull var multiCurrencyEnabled: Boolean,
+    // todo multicurrency is probably redundant; tax to be enabled later
+    //@field:NotNull var taxEnabled: Boolean,
+    //@field:NotNull var multiCurrencyEnabled: Boolean,
     @field:NotBlank val defaultCurrency: String
 )
 

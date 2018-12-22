@@ -1,7 +1,8 @@
 <template>
   <el-select v-model="inputValue"
              filterable
-             :placeholder="placeholder">
+             :placeholder="placeholder"
+             :disabled="disabled">
     <el-option
         v-for="currency in currenciesData"
         :key="currency.code"
@@ -26,7 +27,8 @@
 
     props: {
       value: String,
-      placeholder: String
+      placeholder: String,
+      disabled: Boolean
     },
 
     data: function () {
@@ -74,7 +76,7 @@
         this.inputValue = val
       },
 
-      inputValue: function(val) {
+      inputValue: function (val) {
         this.$emit('input', val);
       }
     }

@@ -4,14 +4,15 @@
 
     <el-popover placement="bottom"
                 width="300"
-                trigger="click">
+                trigger="click"
+                v-model.sync="popoverVisible">
       <span slot="reference">
         <svgicon class="the-workspace-selector__trigger" name="gear"/>
       </span>
 
       <div class="the-workspace-selector__add-new">
         <el-button type="text"
-                   @click="navigateToWorkspaceSetup">
+                   @click="openEditDialog">
           <svgicon name="plus-thin"/>
           New Workspace
         </el-button>
@@ -40,7 +41,7 @@
 
     </el-popover>
 
-    <el-dialog title="Edit Workspace"
+    <el-dialog :title="editDialogCreateMode ? 'Create workspace' : 'Edit Workspace'"
                :visible.sync="workspaceEditDialogVisible">
       <el-form :model="workspaceForm"
                ref="workspaceForm"
@@ -50,8 +51,8 @@
         </el-form-item>
 
         <el-form-item label="Default Currency" prop="defaultCurrency">
-          <el-input v-model="workspaceForm.defaultCurrency"
-                    :readonly="true"></el-input>
+          <currency-input v-model="workspaceForm.defaultCurrency"
+                          :disabled="!editDialogCreateMode"/>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -67,9 +68,9 @@
   import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
   import '@/components/icons/gear'
   import '@/components/icons/plus-thin'
-  import TheSideMenuLink from '@/app/components/TheSideMenuLink'
   import {assign} from 'lodash'
   import api from '@/services/api'
+  import CurrencyInput from './CurrencyInput'
 
   export default {
     name: 'TheWorkspaceSelector',
@@ -77,7 +78,7 @@
     mixins: [withWorkspaces],
 
     components: {
-      TheSideMenuLink
+      CurrencyInput
     },
 
     data: function () {
@@ -88,24 +89,30 @@
           name: [
             {required: true, message: 'Please provide the name'},
             {max: 255, message: 'Name is too long'}
-          ]
-        }
+          ],
+          defaultCurrency: {required: true, message: 'Please select a default currency'}
+        },
+        popoverVisible: false
+      }
+    },
+
+    computed: {
+      editDialogCreateMode: function () {
+        return this.workspaceForm && !this.workspaceForm.id
       }
     },
 
     methods: {
-      navigateToWorkspaceSetup: function () {
-        this.$router.push({name: 'workspace-setup'})
-      },
-
       switchWorkspace: function (ws) {
         // todo do not commit directly, use wrapper action
         this.$store.commit('workspaces/setCurrentWorkspace', ws)
+        this.popoverVisible = false
       },
 
       openEditDialog: function (workspace) {
         this.workspaceEditDialogVisible = true
-        this.workspaceForm = assign({}, workspace)
+        this.workspaceForm = workspace ? assign({}, workspace) : {}
+        this.popoverVisible = false
       },
 
       saveWorkspace: async function () {
@@ -115,9 +122,16 @@
           return
         }
 
-        await api.put(`/user/workspaces/${this.workspaceForm.id}`, {
-          name: this.workspaceForm.name
-        })
+        if (this.workspaceForm.id) {
+          await api.put(`/user/workspaces/${this.workspaceForm.id}`, {
+            name: this.workspaceForm.name
+          })
+        } else {
+          await api.post(`/user/workspaces`, {
+            name: this.workspaceForm.name,
+            defaultCurrency: this.workspaceForm.defaultCurrency
+          })
+        }
 
         // todo when categories are removed from workspace, just use the reply to update current workspace
         this.$store.dispatch('workspaces/loadWorkspaces')
