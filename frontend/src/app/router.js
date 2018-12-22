@@ -3,6 +3,7 @@ import Home from './views/Home'
 import UserApp from './views/UserApp'
 import Login from './views/Login'
 import WorkspaceSetup from './views/WorkspaceSetup'
+import {api} from '@/services/api'
 
 export default new Router({
   mode: 'history',
@@ -18,6 +19,14 @@ export default new Router({
       path: '/workspace-setup',
       name: 'workspace-setup',
       component: WorkspaceSetup
+    },
+
+    {
+      path: '/logout',
+      name: 'logout',
+      beforeEnter: (to, from, next) => {
+        api.logout().then(() => next('login'))
+      }
     },
 
     {

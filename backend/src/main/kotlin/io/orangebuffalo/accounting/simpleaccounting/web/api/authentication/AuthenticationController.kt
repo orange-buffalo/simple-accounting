@@ -38,18 +38,11 @@ class AuthenticationController(
         val response = ResponseEntity.ok()
 
         if (loginRequest.rememberMe) {
-            response.header(
-                HttpHeaders.SET_COOKIE,
-                ResponseCookie
-                    .from("refreshToken", refreshTokenService.generateRefreshToken(userDetails.username))
-                    .httpOnly(true)
-                    .maxAge(Duration.ofDays(TOKEN_LIFETIME_IN_DAYS))
-                    .sameSite("Strict")
-                    .path("/api/v1/auth/token")
-                    // todo secure based on configuration
-                    .build()
-                    .toString()
-            )
+            response
+                .withRefreshTokenCookie(
+                    refreshTokenService.generateRefreshToken(userDetails.username),
+                    Duration.ofDays(TOKEN_LIFETIME_IN_DAYS)
+                )
         }
 
         response.body(TokenResponse(jwtToken))
@@ -72,6 +65,29 @@ class AuthenticationController(
 
         val userDetails = authenticatedAuth.principal as UserDetails
         TokenResponse(jwtService.buildJwtToken(userDetails))
+    }
+
+    @PostMapping("logout")
+    fun logout() = GlobalScope.mono {
+        ResponseEntity.ok().withRefreshTokenCookie(null, Duration.ZERO).body("")
+    }
+
+    private fun ResponseEntity.BodyBuilder.withRefreshTokenCookie(
+        value: String?,
+        maxAge: Duration
+    ): ResponseEntity.BodyBuilder {
+        return header(
+            HttpHeaders.SET_COOKIE,
+            ResponseCookie
+                .from("refreshToken", value ?: "")
+                .httpOnly(true)
+                .sameSite("Strict")
+                .path("/api/v1/auth/token")
+                // todo secure based on configuration
+                .maxAge(maxAge)
+                .build()
+                .toString()
+        )
     }
 }
 

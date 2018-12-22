@@ -16,7 +16,7 @@ Vue.use(ElementUI)
 Vue.use(SvgIcon)
 
 router.beforeEach(async (to, from, next) => {
-  if (to.name !== 'login' && !store.getters['api/isLoggedIn']) {
+  if (to.name !== 'login' && to.name !== 'logout' && !store.getters['api/isLoggedIn']) {
     try {
       await api.tryAutoLogin()
       await setupApp(store, router)

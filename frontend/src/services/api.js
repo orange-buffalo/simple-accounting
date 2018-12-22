@@ -52,6 +52,12 @@ _api.login = function (request) {
       })
 }
 
+_api.logout = async function (request) {
+  cancelTokenRefresh()
+  await _api.post('/auth/logout', request)
+  $store.commit('api/updateJwtToken', null)
+}
+
 let applyAuthorization = function (config) {
   let jwtToken = $store.state.api.jwtToken
   if (jwtToken) {
