@@ -1,5 +1,13 @@
 <template>
-  <login-form @login="onLogin"/>
+  <div class="login-page">
+    <div class="login-page__signup">
+      New here? We are launching public access soon.
+    </div>
+    <div class="login-page__login">
+
+      <login-form @login="onLogin"/>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -30,3 +38,33 @@
     }
   }
 </script>
+
+<style lang="scss">
+  .login-page {
+    display: flex;
+    height: 100vh;
+  }
+
+  .login-page__signup {
+    width: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: #4b677c;
+    color: white;
+    font-size: 110%;
+  }
+
+  .login-page__login {
+    width: 70%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    .el-form {
+      min-width: 40%;
+    }
+  }
+
+</style>
