@@ -32,35 +32,31 @@ let _workspacesStore = {
   actions: {
     createWorkspace({commit}, workspace) {
       commit('addWorkspace', workspace)
-      commit('setCurrentWorkspace',workspace)
+      commit('setCurrentWorkspace', workspace)
     },
 
-    loadWorkspaces({commit, state}) {
+    loadWorkspaces({commit}) {
       return new Promise(resolve => {
-        if (state.workspaces) {
-          resolve()
-        } else {
-          api.get('/user/workspaces').then(response => {
-            let workspaces = response.data
-            commit('setWorkspaces', workspaces)
+        api.get('/user/workspaces').then(response => {
+          let workspaces = response.data
+          commit('setWorkspaces', workspaces)
 
-            let currentWs;
-            if (workspaces.length > 0) {
-              let previousWsId = lockr.get('current-workspace')
-              if (!isNil(previousWsId)) {
-                currentWs = workspaces.find(it => it.id === previousWsId)
-              }
-
-              if (!currentWs) {
-                currentWs = workspaces[0]
-              }
-
-              commit('setCurrentWorkspace', currentWs)
+          let currentWs;
+          if (workspaces.length > 0) {
+            let previousWsId = lockr.get('current-workspace')
+            if (!isNil(previousWsId)) {
+              currentWs = workspaces.find(it => it.id === previousWsId)
             }
 
-            resolve()
-          })
-        }
+            if (!currentWs) {
+              currentWs = workspaces[0]
+            }
+
+            commit('setCurrentWorkspace', currentWs)
+          }
+
+          resolve()
+        })
       })
     }
   },

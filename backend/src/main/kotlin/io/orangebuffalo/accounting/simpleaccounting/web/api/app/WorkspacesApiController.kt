@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
+import javax.validation.constraints.Size
 
 @RestController
 @RequestMapping("/api/v1/user/workspaces")
@@ -52,6 +53,18 @@ class WorkspacesApiController(
                 owner = platformUserService.getCurrentUser()
             )
         ).let { mapWorkspaceDto(it, emptyList()) }
+    }
+
+    @PutMapping("{workspaceId}")
+    fun editWorkspace(
+        @RequestBody @Valid editWorkspaceRequest: EditWorkspaceDto,
+        @PathVariable workspaceId: Long
+    ): Mono<WorkspaceDto> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        workspace.name = editWorkspaceRequest.name
+        platformUserService.saveWorkspace(workspace)
+        //todo remove categories from workspace dto
+        mapWorkspaceDto(workspace, emptyList())
     }
 
     @PostMapping("/{workspaceId}/categories")
@@ -96,6 +109,10 @@ data class CreateWorkspaceDto(
     @field:NotNull var taxEnabled: Boolean,
     @field:NotNull var multiCurrencyEnabled: Boolean,
     @field:NotBlank val defaultCurrency: String
+)
+
+data class EditWorkspaceDto(
+    @field:NotBlank @field:Size(max = 255) val name: String
 )
 
 data class CreateCategoryDto(

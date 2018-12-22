@@ -51,4 +51,8 @@ class PlatformUserService(
     suspend fun getUserCategoriesAsync(userName: String): Deferred<List<Category>> = withDbContextAsync {
         categoryRepository.findAllByWorkspaceOwnerUserName(userName)
     }
+
+    suspend fun saveWorkspace(workspace: Workspace) = withDbContext {
+        workspaceRepository.save(workspace)
+    }
 }

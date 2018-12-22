@@ -31,7 +31,7 @@
           </el-button>
 
           <el-button type="text"
-                     @click="navigateToWorkspaceSetup">
+                     @click="openEditDialog(workspace)">
             <svgicon name="pencil"/>
             Edit
           </el-button>
@@ -39,6 +39,26 @@
       </div>
 
     </el-popover>
+
+    <el-dialog title="Edit Workspace"
+               :visible.sync="workspaceEditDialogVisible">
+      <el-form :model="workspaceForm"
+               ref="workspaceForm"
+               :rules="workspaceValidationRules">
+        <el-form-item label="Workspace Name" prop="name">
+          <el-input v-model="workspaceForm.name"></el-input>
+        </el-form-item>
+
+        <el-form-item label="Default Currency" prop="defaultCurrency">
+          <el-input v-model="workspaceForm.defaultCurrency"
+                    :readonly="true"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="workspaceEditDialogVisible = false">Cancel</el-button>
+    <el-button type="primary" @click="saveWorkspace">Save</el-button>
+  </span>
+    </el-dialog>
 
   </div>
 </template>
@@ -48,6 +68,8 @@
   import '@/components/icons/gear'
   import '@/components/icons/plus-thin'
   import TheSideMenuLink from '@/app/components/TheSideMenuLink'
+  import {assign} from 'lodash'
+  import api from '@/services/api'
 
   export default {
     name: 'TheWorkspaceSelector',
@@ -58,6 +80,19 @@
       TheSideMenuLink
     },
 
+    data: function () {
+      return {
+        workspaceEditDialogVisible: false,
+        workspaceForm: {},
+        workspaceValidationRules: {
+          name: [
+            {required: true, message: 'Please provide the name'},
+            {max: 255, message: 'Name is too long'}
+          ]
+        }
+      }
+    },
+
     methods: {
       navigateToWorkspaceSetup: function () {
         this.$router.push({name: 'workspace-setup'})
@@ -66,6 +101,28 @@
       switchWorkspace: function (ws) {
         // todo do not commit directly, use wrapper action
         this.$store.commit('workspaces/setCurrentWorkspace', ws)
+      },
+
+      openEditDialog: function (workspace) {
+        this.workspaceEditDialogVisible = true
+        this.workspaceForm = assign({}, workspace)
+      },
+
+      saveWorkspace: async function () {
+        try {
+          await this.$refs.workspaceForm.validate();
+        } catch (e) {
+          return
+        }
+
+        await api.put(`/user/workspaces/${this.workspaceForm.id}`, {
+          name: this.workspaceForm.name
+        })
+
+        // todo when categories are removed from workspace, just use the reply to update current workspace
+        this.$store.dispatch('workspaces/loadWorkspaces')
+
+        this.workspaceEditDialogVisible = false
       }
     }
   }
