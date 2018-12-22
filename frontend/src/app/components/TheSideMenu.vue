@@ -1,21 +1,20 @@
 <template>
   <div class="the-side-menu">
-    <!--todo icons-->
-    <the-side-menu-link to="/" title="Dashboard" icon="pencil"/>
-    <the-side-menu-link to="/expenses" title="Expenses"/>
-    <the-side-menu-link to="/incomes" title="Incomes"/>
-    <the-side-menu-link to="/invoices" title="Invoices"/>
-    <the-side-menu-link to="/tax-payments" title="Tax payments"/>
+    <the-side-menu-link to="/" title="Dashboard" icon="dashboard"/>
+    <the-side-menu-link to="/expenses" title="Expenses" icon="expense"/>
+    <the-side-menu-link to="/incomes" title="Incomes" icon="income"/>
+    <the-side-menu-link to="/invoices" title="Invoices" icon="invoice"/>
+    <the-side-menu-link to="/tax-payments" title="Tax payments" icon="tax"/>
 
     <span class="the-side-menu__category">Settings</span>
 
-    <the-side-menu-link to="/settings/customers" title="Customers"/>
-    <the-side-menu-link to="/settings/categories" title="Categories"/>
+    <the-side-menu-link to="/settings/customers" title="Customers" icon="customer"/>
+    <the-side-menu-link to="/settings/categories" title="Categories" icon="category"/>
 
     <span class="the-side-menu__category">User</span>
 
-    <the-side-menu-link to="/my-profile" title="My Profile"/>
-    <the-side-menu-link to="/logout" title="Logout"/>
+    <the-side-menu-link to="/my-profile" title="My Profile" icon="profile"/>
+    <the-side-menu-link to="/logout" title="Logout" icon="logout"/>
   </div>
 </template>
 
@@ -37,10 +36,12 @@
   }
 
   .the-side-menu__link {
-    display: block;
+    display: flex;
     padding: 10px;
     text-decoration: none;
     color: inherit;
+    align-items: center;
+    border-left: 2px solid transparent;
 
     &:hover {
       background-color: #4b677c;
@@ -48,6 +49,12 @@
 
     &.the-side-menu__link--active {
       border-left: 2px solid red;
+    }
+
+    .svg-icon {
+      margin-right: 10px;
+      height: 22px;
+      width: 22px;
     }
   }
 
@@ -58,5 +65,6 @@
     text-transform: uppercase;
     font-weight: bold;
     font-size: 80%;
+    opacity: 0.7;
   }
 </style>
