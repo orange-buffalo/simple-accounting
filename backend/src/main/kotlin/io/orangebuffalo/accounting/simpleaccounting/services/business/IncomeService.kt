@@ -5,9 +5,11 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncome
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.IncomeRepository
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.IncomesStatistics
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class IncomeService(
@@ -36,5 +38,13 @@ class IncomeService(
 
     suspend fun getIncomeByIdAndWorkspace(id: Long, workspace: Workspace): Income? = withDbContext {
         incomeRepository.findByIdAndCategoryWorkspace(id, workspace)
+    }
+
+    suspend fun getIncomesStatistics(
+        fromDate: LocalDate,
+        toDate: LocalDate,
+        workspace: Workspace
+    ): List<IncomesStatistics> = withDbContext {
+        incomeRepository.getStatistics(fromDate, toDate, workspace)
     }
 }

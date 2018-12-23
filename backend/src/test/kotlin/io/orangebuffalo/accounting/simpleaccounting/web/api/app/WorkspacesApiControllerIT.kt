@@ -214,4 +214,42 @@ internal class WorkspacesApiControllerIT(
                 )
             }
     }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Roberto")
+    fun `should calculate incomes statistics`(roberto: Roberto) {
+        client.get()
+            .uri(
+                "/api/v1/user/workspaces/${roberto.workspace.id}/statistics/incomes" +
+                        "?fromDate=3010-04-21&toDate=3010-09-15"
+            )
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                inPath("$.totalAmount").isNumber.isEqualTo("568")
+                inPath("$.finalizedCount").isNumber.isEqualTo("3")
+                inPath("$.pendingCount").isNumber.isEqualTo("2")
+                inPath("$.currencyExchangeGain").isNumber.isEqualTo("25")
+                inPath("$.items").isArray.containsExactlyInAnyOrder(
+                    json(
+                        """{
+                            "categoryId": ${roberto.firstCategory.id},
+                            "totalAmount": 335,
+                            "finalizedCount": 2,
+                            "pendingCount": 0,
+                            "currencyExchangeGain":25
+                        }"""
+                    ),
+                    json(
+                        """{
+                            "categoryId": ${roberto.secondCategory.id},
+                            "totalAmount": 233,
+                            "finalizedCount": 1,
+                            "pendingCount": 2,
+                            "currencyExchangeGain": 0
+                        }"""
+                    )
+                )
+            }
+    }
 }

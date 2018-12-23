@@ -1,10 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.junit.testdata
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
 import java.time.LocalDate
 
@@ -67,7 +64,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 4, 10),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 111,
             actualAmountInDefaultCurrency = 111,
@@ -80,7 +76,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 4, 9),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 110,
             actualAmountInDefaultCurrency = 110,
@@ -93,7 +88,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 10, 1),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 112,
             actualAmountInDefaultCurrency = 112,
@@ -106,7 +100,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 10, 2),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 113,
             actualAmountInDefaultCurrency = 113,
@@ -119,7 +112,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 6, 6),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 210,
             actualAmountInDefaultCurrency = 210,
@@ -132,7 +124,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 6, 7),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 211,
             actualAmountInDefaultCurrency = 211,
@@ -145,7 +136,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 6, 6),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 0,
             actualAmountInDefaultCurrency = 210,
@@ -158,7 +148,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 6, 6),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 0,
             actualAmountInDefaultCurrency = 0,
@@ -171,7 +160,6 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 6, 6),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 0,
             actualAmountInDefaultCurrency = 0,
@@ -184,13 +172,92 @@ class Roberto : TestData {
             title = "expense",
             timeRecorded = MOCK_TIME,
             datePaid = LocalDate.of(3000, 6, 6),
-            attachments = emptySet(),
             currency = "USD",
             reportedAmountInDefaultCurrency = 33,
             actualAmountInDefaultCurrency = 33,
             amountInDefaultCurrency = 33,
             originalAmount = 33,
             percentOnBusiness = 100
+        ),
+        Income(
+            category = irrelevantCategory,
+            timeRecorded = MOCK_TIME,
+            title = "income",
+            dateReceived = LocalDate.of(3010, 5, 23),
+            currency = "USD",
+            originalAmount = 177,
+            amountInDefaultCurrency = 177,
+            reportedAmountInDefaultCurrency = 177
+        ),
+        Income(
+            category = firstCategory,
+            timeRecorded = MOCK_TIME,
+            title = "income",
+            dateReceived = LocalDate.of(3010, 4, 20),
+            currency = "USD",
+            originalAmount = 166,
+            amountInDefaultCurrency = 166,
+            reportedAmountInDefaultCurrency = 166
+        ),
+        Income(
+            category = firstCategory,
+            timeRecorded = MOCK_TIME,
+            title = "income",
+            dateReceived = LocalDate.of(3010, 4, 21),
+            currency = "USD",
+            originalAmount = 167,
+            amountInDefaultCurrency = 150,
+            reportedAmountInDefaultCurrency = 167
+        ),
+        Income(
+            category = firstCategory,
+            timeRecorded = MOCK_TIME,
+            title = "income",
+            dateReceived = LocalDate.of(3010, 9, 15),
+            currency = "USD",
+            originalAmount = 168,
+            amountInDefaultCurrency = 160,
+            reportedAmountInDefaultCurrency = 168
+        ),
+        Income(
+            category = firstCategory,
+            timeRecorded = MOCK_TIME,
+            title = "income",
+            dateReceived = LocalDate.of(3010, 9, 16),
+            currency = "USD",
+            originalAmount = 177,
+            amountInDefaultCurrency = 177,
+            reportedAmountInDefaultCurrency = 177
+        ),
+        Income(
+            category = secondCategory,
+            timeRecorded = MOCK_TIME,
+            title = "income",
+            dateReceived = LocalDate.of(3010, 6, 1),
+            currency = "USD",
+            originalAmount = 233,
+            amountInDefaultCurrency = 0,
+            reportedAmountInDefaultCurrency = 0
+        ),
+        Income(
+            category = secondCategory,
+            timeRecorded = MOCK_TIME,
+            title = "income",
+            dateReceived = LocalDate.of(3010, 6, 1),
+            currency = "USD",
+            originalAmount = 233,
+            amountInDefaultCurrency = 233,
+            reportedAmountInDefaultCurrency = 0
+        ),
+        Income(
+            category = secondCategory,
+            timeRecorded = MOCK_TIME,
+            title = "income",
+            dateReceived = LocalDate.of(3010, 6, 1),
+            currency = "USD",
+            originalAmount = 233,
+            amountInDefaultCurrency = 233,
+            reportedAmountInDefaultCurrency = 233
         )
     )
 }

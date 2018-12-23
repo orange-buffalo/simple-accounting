@@ -1,9 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.getCurrentPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.business.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
@@ -22,7 +19,8 @@ class WorkspacesApiController(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
     private val extensions: ApiControllersExtensions,
-    private val expenseService: ExpenseService
+    private val expenseService: ExpenseService,
+    private val incomeService: IncomeService
 ) {
 
     @GetMapping
@@ -93,12 +91,12 @@ class WorkspacesApiController(
         @PathVariable workspaceId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): Mono<CategorizedStatistics> = extensions.toMono {
+    ): Mono<ExpensesStatisticsDto> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
         val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspace)
-        CategorizedStatistics(
+        ExpensesStatisticsDto(
             expensesStatistics.map {
-                CategorizedStatisticsItem(
+                ExpensesStatisticsItemDto(
                     it.categoryId,
                     it.totalAmount,
                     it.finalizedCount,
@@ -107,22 +105,61 @@ class WorkspacesApiController(
             }
         )
     }
+
+    @GetMapping("/{workspaceId}/statistics/incomes")
+    fun getIncomesStatistics(
+        @PathVariable workspaceId: Long,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
+    ): Mono<IncomesStatisticsDto> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val incomesStatistics = incomeService.getIncomesStatistics(fromDate, toDate, workspace)
+        IncomesStatisticsDto(
+            incomesStatistics.map {
+                IncomesStatisticsItemDto(
+                    it.categoryId,
+                    it.totalAmount,
+                    it.finalizedCount,
+                    it.pendingCount,
+                    it.currencyExchangeGain
+                )
+            }
+        )
+    }
 }
 
 @Suppress("unused")
-data class CategorizedStatistics(
-    val items: List<CategorizedStatisticsItem>
+data class ExpensesStatisticsDto(
+    val items: List<ExpensesStatisticsItemDto>
 ) {
     val totalAmount: Long = items.map { it.totalAmount }.sum()
     val finalizedCount: Long = items.map { it.finalizedCount }.sum()
     val pendingCount: Long = items.map { it.pendingCount }.sum()
 }
 
-data class CategorizedStatisticsItem(
+data class ExpensesStatisticsItemDto(
     val categoryId: Long,
     val totalAmount: Long,
     val finalizedCount: Long,
     val pendingCount: Long
+)
+
+@Suppress("unused")
+data class IncomesStatisticsDto(
+    val items: List<IncomesStatisticsItemDto>
+) {
+    val totalAmount: Long = items.map { it.totalAmount }.sum()
+    val finalizedCount: Long = items.map { it.finalizedCount }.sum()
+    val pendingCount: Long = items.map { it.pendingCount }.sum()
+    val currencyExchangeGain = items.map { it.currencyExchangeGain }.sum()
+}
+
+data class IncomesStatisticsItemDto(
+    val categoryId: Long,
+    val totalAmount: Long,
+    val finalizedCount: Long,
+    val pendingCount: Long,
+    val currencyExchangeGain: Long
 )
 
 data class WorkspaceDto(
