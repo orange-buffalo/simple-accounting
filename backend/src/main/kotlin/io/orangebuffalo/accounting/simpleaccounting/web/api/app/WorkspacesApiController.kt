@@ -1,13 +1,16 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
+import java.time.LocalDate
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
@@ -18,7 +21,8 @@ import javax.validation.constraints.Size
 class WorkspacesApiController(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
-    private val extensions: ApiControllersExtensions
+    private val extensions: ApiControllersExtensions,
+    private val expenseService: ExpenseService
 ) {
 
     @GetMapping
@@ -83,7 +87,43 @@ class WorkspacesApiController(
             )
         ).let(::mapCategoryDto)
     }
+
+    @GetMapping("/{workspaceId}/statistics/expenses")
+    fun getExpensesStatistics(
+        @PathVariable workspaceId: Long,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
+    ): Mono<CategorizedStatistics> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspace)
+        CategorizedStatistics(
+            expensesStatistics.map {
+                CategorizedStatisticsItem(
+                    it.categoryId,
+                    it.totalAmount,
+                    it.finalizedCount,
+                    it.pendingCount
+                )
+            }
+        )
+    }
 }
+
+@Suppress("unused")
+data class CategorizedStatistics(
+    val items: List<CategorizedStatisticsItem>
+) {
+    val totalAmount: Long = items.map { it.totalAmount }.sum()
+    val finalizedCount: Long = items.map { it.finalizedCount }.sum()
+    val pendingCount: Long = items.map { it.pendingCount }.sum()
+}
+
+data class CategorizedStatisticsItem(
+    val categoryId: Long,
+    val totalAmount: Long,
+    val finalizedCount: Long,
+    val pendingCount: Long
+)
 
 data class WorkspaceDto(
     var id: Long?,

@@ -5,10 +5,12 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpensesStatistics
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.math.RoundingMode
+import java.time.LocalDate
 
 @Service
 class ExpenseService(
@@ -43,4 +45,13 @@ class ExpenseService(
     suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? = withDbContext {
         expenseRepository.findByIdAndCategoryWorkspace(id, workspace)
     }
+
+    suspend fun getExpensesStatistics(
+        fromDate: LocalDate,
+        toDate: LocalDate,
+        workspace: Workspace
+    ): List<ExpensesStatistics> =
+        withDbContext {
+            expenseRepository.getStatistics(fromDate, toDate, workspace)
+        }
 }
