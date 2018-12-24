@@ -46,7 +46,7 @@ class IncomeRepositoryExtImpl(
                         .count(),
                     CaseBuilder()
                         .`when`(income.reportedAmountInDefaultCurrency.eq(0)).then(0L)
-                        .otherwise(income.reportedAmountInDefaultCurrency.subtract(income.amountInDefaultCurrency))
+                        .otherwise(income.amountInDefaultCurrency.subtract(income.reportedAmountInDefaultCurrency))
                         .sum()
                 )
             )

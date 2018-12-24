@@ -64,6 +64,38 @@
           </div>
         </div>
       </div>
+
+      <div class="home-page__row__hero">
+        <div class="home-page__row__hero__header">
+          <span class="home-page__row__hero__header__icon">
+            <svgicon name="profit"/>
+          </span>
+
+          <money-output class="home-page__row__hero__header__amount"
+                        :currency="defaultCurrency"
+                        :amount="profit"/>
+
+          <span class="home-page__row__hero__header__finalized">Profit</span>
+          <span class="home-page__row__hero__header__pending">&nbsp;</span>
+        </div>
+
+        <div class="home-page__row__hero__details"
+             v-if="incomes.currencyExchangeGain">
+          <div class="home-page__row__hero__details__item"
+               v-if="incomes.currencyExchangeGain">
+            <span>Currency exchange gain</span>
+            <money-output :currency="defaultCurrency"
+                          :amount="incomes.currencyExchangeGain"/>
+          </div>
+
+          <div class="home-page__row__hero__details__item"
+               v-if="incomes.currencyExchangeGain && profit">
+            <span>Total profit</span>
+            <money-output :currency="defaultCurrency"
+                          :amount="totalProfit"/>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -73,6 +105,8 @@
   import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
   import {withCategories} from '@/app/components/mixins/with-categories'
   import '@/components/icons/expense'
+  import '@/components/icons/income'
+  import '@/components/icons/profit'
   import MoneyOutput from '@/app/components/MoneyOutput'
 
   export default {
@@ -98,6 +132,18 @@
 
       incomesItems: function () {
         return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount)
+      },
+
+      profit: function () {
+        return (this.expenses.totalAmount && this.incomes.totalAmount)
+            ? this.incomes.totalAmount - this.expenses.totalAmount
+            : null
+      },
+
+      totalProfit: function () {
+        return (this.profit && this.incomes.currencyExchangeGain)
+            ? this.profit + this.incomes.currencyExchangeGain
+            : null
       }
     },
 
@@ -137,7 +183,7 @@
     border: 1px solid #ebeef5;
     background-color: #fff;
     border-radius: 4px;
-    width: 30%;
+    width: 27%;
   }
 
   .home-page__row__hero__header {

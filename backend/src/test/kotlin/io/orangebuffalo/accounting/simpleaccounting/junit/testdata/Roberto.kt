@@ -206,7 +206,7 @@ class Roberto : TestData {
             dateReceived = LocalDate.of(3010, 4, 21),
             currency = "USD",
             originalAmount = 167,
-            amountInDefaultCurrency = 150,
+            amountInDefaultCurrency = 185,
             reportedAmountInDefaultCurrency = 167
         ),
         Income(
@@ -216,7 +216,7 @@ class Roberto : TestData {
             dateReceived = LocalDate.of(3010, 9, 15),
             currency = "USD",
             originalAmount = 168,
-            amountInDefaultCurrency = 160,
+            amountInDefaultCurrency = 175,
             reportedAmountInDefaultCurrency = 168
         ),
         Income(
