@@ -258,6 +258,35 @@ class Roberto : TestData {
             originalAmount = 233,
             amountInDefaultCurrency = 233,
             reportedAmountInDefaultCurrency = 233
+        ),
+        TaxPayment(
+            workspace = workspace,
+            timeRecorded = MOCK_TIME,
+            datePaid = LocalDate.of(3005, 7, 1),
+            amount = 23,
+            title = "tax"
+        ),
+        TaxPayment(
+            workspace = workspace,
+            timeRecorded = MOCK_TIME,
+            datePaid = LocalDate.of(3005, 7, 2),
+            amount = 43,
+            title = "tax"
+        ),
+
+        TaxPayment(
+            workspace = workspace,
+            timeRecorded = MOCK_TIME,
+            datePaid = LocalDate.of(3005, 8, 1),
+            amount = 34,
+            title = "tax"
+        ),
+        TaxPayment(
+            workspace = workspace,
+            timeRecorded = MOCK_TIME,
+            datePaid = LocalDate.of(3005, 8, 2),
+            amount = 111,
+            title = "tax"
         )
     )
 }

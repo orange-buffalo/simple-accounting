@@ -3,7 +3,6 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Farnsworth
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Roberto
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Zoidberg
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CategoryRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
@@ -177,79 +176,6 @@ internal class WorkspacesApiControllerIT(
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
                 assertThat(it.responseBody).contains("Workspace ${farnsworth.workspace.id} is not found")
-            }
-    }
-
-    @Test
-    @WithMockUser(roles = ["USER"], username = "Roberto")
-    fun `should calculate expenses statistics`(roberto: Roberto) {
-        client.get()
-            .uri(
-                "/api/v1/user/workspaces/${roberto.workspace.id}/statistics/expenses" +
-                        "?fromDate=3000-04-10&toDate=3000-10-01"
-            )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
-                inPath("$.totalAmount").isNumber.isEqualTo("644")
-                inPath("$.finalizedCount").isNumber.isEqualTo("4")
-                inPath("$.pendingCount").isNumber.isEqualTo("3")
-                inPath("$.items").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            "categoryId": ${roberto.firstCategory.id},
-                            "totalAmount": 223,
-                            "finalizedCount": 2,
-                            "pendingCount": 0
-                        }"""
-                    ),
-                    json(
-                        """{
-                            "categoryId": ${roberto.secondCategory.id},
-                            "totalAmount": 421,
-                            "finalizedCount": 2,
-                            "pendingCount": 3
-                        }"""
-                    )
-                )
-            }
-    }
-
-    @Test
-    @WithMockUser(roles = ["USER"], username = "Roberto")
-    fun `should calculate incomes statistics`(roberto: Roberto) {
-        client.get()
-            .uri(
-                "/api/v1/user/workspaces/${roberto.workspace.id}/statistics/incomes" +
-                        "?fromDate=3010-04-21&toDate=3010-09-15"
-            )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
-                inPath("$.totalAmount").isNumber.isEqualTo("568")
-                inPath("$.finalizedCount").isNumber.isEqualTo("3")
-                inPath("$.pendingCount").isNumber.isEqualTo("2")
-                inPath("$.currencyExchangeGain").isNumber.isEqualTo("25")
-                inPath("$.items").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            "categoryId": ${roberto.firstCategory.id},
-                            "totalAmount": 335,
-                            "finalizedCount": 2,
-                            "pendingCount": 0,
-                            "currencyExchangeGain":25
-                        }"""
-                    ),
-                    json(
-                        """{
-                            "categoryId": ${roberto.secondCategory.id},
-                            "totalAmount": 233,
-                            "finalizedCount": 1,
-                            "pendingCount": 2,
-                            "currencyExchangeGain": 0
-                        }"""
-                    )
-                )
             }
     }
 }

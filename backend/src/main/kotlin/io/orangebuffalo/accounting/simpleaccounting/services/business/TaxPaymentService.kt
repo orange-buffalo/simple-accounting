@@ -5,9 +5,11 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.TaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.TaxPaymentRepository
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.TaxPaymentsStatistics
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class TaxPaymentService(
@@ -30,5 +32,13 @@ class TaxPaymentService(
 
     suspend fun getTaxPaymentByIdAndWorkspace(id: Long, workspace: Workspace): TaxPayment? = withDbContext {
         taxPaymentRepository.findByIdAndWorkspace(id, workspace)
+    }
+
+    suspend fun getTaxPaymentStatistics(
+        fromDate: LocalDate,
+        toDate: LocalDate,
+        workspace: Workspace
+    ): TaxPaymentsStatistics = withDbContext {
+        taxPaymentRepository.getTaxPaymentsStatistics(fromDate, toDate, workspace)
     }
 }

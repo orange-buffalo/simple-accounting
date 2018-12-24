@@ -1,13 +1,13 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.*
+import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
-import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
-import java.time.LocalDate
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
@@ -18,9 +18,7 @@ import javax.validation.constraints.Size
 class WorkspacesApiController(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
-    private val extensions: ApiControllersExtensions,
-    private val expenseService: ExpenseService,
-    private val incomeService: IncomeService
+    private val extensions: ApiControllersExtensions
 ) {
 
     @GetMapping
@@ -85,82 +83,7 @@ class WorkspacesApiController(
             )
         ).let(::mapCategoryDto)
     }
-
-    @GetMapping("/{workspaceId}/statistics/expenses")
-    fun getExpensesStatistics(
-        @PathVariable workspaceId: Long,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): Mono<ExpensesStatisticsDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspace)
-        ExpensesStatisticsDto(
-            expensesStatistics.map {
-                ExpensesStatisticsItemDto(
-                    it.categoryId,
-                    it.totalAmount,
-                    it.finalizedCount,
-                    it.pendingCount
-                )
-            }
-        )
-    }
-
-    @GetMapping("/{workspaceId}/statistics/incomes")
-    fun getIncomesStatistics(
-        @PathVariable workspaceId: Long,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): Mono<IncomesStatisticsDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        val incomesStatistics = incomeService.getIncomesStatistics(fromDate, toDate, workspace)
-        IncomesStatisticsDto(
-            incomesStatistics.map {
-                IncomesStatisticsItemDto(
-                    it.categoryId,
-                    it.totalAmount,
-                    it.finalizedCount,
-                    it.pendingCount,
-                    it.currencyExchangeGain
-                )
-            }
-        )
-    }
 }
-
-@Suppress("unused")
-data class ExpensesStatisticsDto(
-    val items: List<ExpensesStatisticsItemDto>
-) {
-    val totalAmount: Long = items.map { it.totalAmount }.sum()
-    val finalizedCount: Long = items.map { it.finalizedCount }.sum()
-    val pendingCount: Long = items.map { it.pendingCount }.sum()
-}
-
-data class ExpensesStatisticsItemDto(
-    val categoryId: Long,
-    val totalAmount: Long,
-    val finalizedCount: Long,
-    val pendingCount: Long
-)
-
-@Suppress("unused")
-data class IncomesStatisticsDto(
-    val items: List<IncomesStatisticsItemDto>
-) {
-    val totalAmount: Long = items.map { it.totalAmount }.sum()
-    val finalizedCount: Long = items.map { it.finalizedCount }.sum()
-    val pendingCount: Long = items.map { it.pendingCount }.sum()
-    val currencyExchangeGain = items.map { it.currencyExchangeGain }.sum()
-}
-
-data class IncomesStatisticsItemDto(
-    val categoryId: Long,
-    val totalAmount: Long,
-    val finalizedCount: Long,
-    val pendingCount: Long,
-    val currencyExchangeGain: Long
-)
 
 data class WorkspaceDto(
     var id: Long?,
