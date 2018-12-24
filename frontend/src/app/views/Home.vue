@@ -4,7 +4,7 @@
       <h1>Dashboard</h1>
 
       <div class="sa-header-options">
-          <span>...</span>
+        <span>...</span>
       </div>
     </div>
 
@@ -23,11 +23,41 @@
 
           <span v-if="expenses.pendingCount"
                 class="home-page__row__hero__header__pending">Pending {{expenses.pendingCount}} more</span>
+          <span v-if="!expenses.pendingCount"
+                class="home-page__row__hero__header__pending">&nbsp;</span>
         </div>
 
-        <div class="home-page__row__hero__details">
+        <div class="home-page__row__hero__details" v-if="expenses.totalAmount">
           <div class="home-page__row__hero__details__item"
                v-for="item in expensesItems">
+            <span>{{categoryById(item.categoryId).name}}</span>
+            <money-output :currency="defaultCurrency"
+                          :amount="item.totalAmount"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-page__row__hero">
+        <div class="home-page__row__hero__header">
+          <span class="home-page__row__hero__header__icon">
+            <svgicon name="income"/>
+          </span>
+
+          <money-output class="home-page__row__hero__header__amount"
+                        :currency="defaultCurrency"
+                        :amount="incomes.totalAmount"/>
+
+          <span class="home-page__row__hero__header__finalized">Total of {{incomes.finalizedCount}} incomes</span>
+
+          <span v-if="incomes.pendingCount"
+                class="home-page__row__hero__header__pending">Pending {{incomes.pendingCount}} more</span>
+          <span v-if="!incomes.pendingCount"
+                class="home-page__row__hero__header__pending">&nbsp;</span>
+        </div>
+
+        <div class="home-page__row__hero__details" v-if="incomes.totalAmount">
+          <div class="home-page__row__hero__details__item"
+               v-for="item in incomesItems">
             <span>{{categoryById(item.categoryId).name}}</span>
             <money-output :currency="defaultCurrency"
                           :amount="item.totalAmount"/>
@@ -54,18 +84,43 @@
 
     data: function () {
       return {
-        expenses: {}
+        expenses: {},
+        incomes: {},
+        fromDate: '2000-01-01',
+        toDate: '3000-01-01'
       }
     },
 
     computed: {
       expensesItems: function () {
         return (this.expenses.items || []).sort((a, b) => b.totalAmount - a.totalAmount)
+      },
+
+      incomesItems: function () {
+        return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount)
       }
     },
 
-    created: async function () {
-      this.expenses = (await api.get(`/user/workspaces/${this.currentWorkspace.id}/statistics/expenses?fromDate=2000-01-01&toDate=3000-01-01`)).data
+    created: function () {
+      this.reload()
+    },
+
+    methods: {
+      reload: function () {
+        api.get(`/user/workspaces/${this.currentWorkspace.id}/statistics/expenses` +
+            `?fromDate=${this.fromDate}&toDate=${this.toDate}`)
+            .then(response => this.expenses = response.data)
+
+        api.get(`/user/workspaces/${this.currentWorkspace.id}/statistics/incomes` +
+            `?fromDate=${this.fromDate}&toDate=${this.toDate}`)
+            .then(response => this.incomes = response.data)
+      }
+    },
+
+    watch: {
+      currentWorkspace: function () {
+        this.reload()
+      }
     }
   }
 </script>
@@ -73,11 +128,11 @@
 <style lang="scss">
   .home-page__row {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
+    align-items: stretch;
   }
 
   .home-page__row__hero {
-    height: 100%;
     padding: 20px;
     border: 1px solid #ebeef5;
     background-color: #fff;
