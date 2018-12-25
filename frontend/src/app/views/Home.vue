@@ -80,7 +80,7 @@
         </div>
 
         <div class="home-page__row__hero__details"
-             v-if="incomes.currencyExchangeGain">
+             v-if="profitDetailsVisible">
           <div class="home-page__row__hero__details__item"
                v-if="incomes.currencyExchangeGain">
             <span>Currency exchange gain</span>
@@ -93,6 +93,13 @@
             <span>Total profit</span>
             <money-output :currency="defaultCurrency"
                           :amount="totalProfit"/>
+          </div>
+
+          <div class="home-page__row__hero__details__item"
+               v-if="taxPayments.totalTaxPayments">
+            <span>Tax Payments</span>
+            <money-output :currency="defaultCurrency"
+                          :amount="taxPayments.totalTaxPayments"/>
           </div>
         </div>
       </div>
@@ -120,6 +127,7 @@
       return {
         expenses: {},
         incomes: {},
+        taxPayments: {},
         fromDate: '2000-01-01',
         toDate: '3000-01-01'
       }
@@ -138,6 +146,10 @@
         return (this.expenses.totalAmount && this.incomes.totalAmount)
             ? this.incomes.totalAmount - this.expenses.totalAmount
             : null
+      },
+
+      profitDetailsVisible: function () {
+        return this.incomes.currencyExchangeGain || this.taxPayments.totalTaxPayments
       },
 
       totalProfit: function () {
@@ -160,6 +172,10 @@
         api.get(`/user/workspaces/${this.currentWorkspace.id}/statistics/incomes` +
             `?fromDate=${this.fromDate}&toDate=${this.toDate}`)
             .then(response => this.incomes = response.data)
+
+        api.get(`/user/workspaces/${this.currentWorkspace.id}/statistics/tax-payments` +
+            `?fromDate=${this.fromDate}&toDate=${this.toDate}`)
+            .then(response => this.taxPayments = response.data)
       }
     },
 
