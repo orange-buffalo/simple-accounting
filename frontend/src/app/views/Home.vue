@@ -4,7 +4,17 @@
       <h1>Dashboard</h1>
 
       <div class="sa-header-options">
-        <span>...</span>
+        <span>&nbsp;</span>
+
+        <el-date-picker
+            v-model="selectedDateRange"
+            type="daterange"
+            align="right"
+            unlink-panels
+            range-separator="To"
+            start-placeholder="Start date"
+            end-placeholder="End date">
+        </el-date-picker>
       </div>
     </div>
 
@@ -128,8 +138,7 @@
         expenses: {},
         incomes: {},
         taxPayments: {},
-        fromDate: '2000-01-01',
-        toDate: '3000-01-01'
+        selectedDateRange: [new Date('2000-01-01'), new Date('3000-01-01')]
       }
     },
 
@@ -166,21 +175,28 @@
     methods: {
       reload: function () {
         api.get(`/user/workspaces/${this.currentWorkspace.id}/statistics/expenses` +
-            `?fromDate=${this.fromDate}&toDate=${this.toDate}`)
+            `?fromDate=${api.dateToString(this.selectedDateRange[0])}` +
+            `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
             .then(response => this.expenses = response.data)
 
         api.get(`/user/workspaces/${this.currentWorkspace.id}/statistics/incomes` +
-            `?fromDate=${this.fromDate}&toDate=${this.toDate}`)
+            `?fromDate=${api.dateToString(this.selectedDateRange[0])}` +
+            `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
             .then(response => this.incomes = response.data)
 
         api.get(`/user/workspaces/${this.currentWorkspace.id}/statistics/tax-payments` +
-            `?fromDate=${this.fromDate}&toDate=${this.toDate}`)
+            `?fromDate=${api.dateToString(this.selectedDateRange[0])}` +
+            `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
             .then(response => this.taxPayments = response.data)
       }
     },
 
     watch: {
       currentWorkspace: function () {
+        this.reload()
+      },
+
+      selectedDateRange: function () {
         this.reload()
       }
     }

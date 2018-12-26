@@ -187,7 +187,9 @@ _api.pageRequest = function (uri) {
 }
 
 _api.dateToString = function (date) {
-  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString()
+  return date.getFullYear() + '-' +
+      ('0' + (date.getMonth() + 1)).slice(-2) + '-' +
+      ('0' + date.getDate()).slice(-2);
 }
 
 export default _api
