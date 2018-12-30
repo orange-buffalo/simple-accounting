@@ -5,12 +5,14 @@ import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import net.javacrumbs.jsonunit.assertj.JsonAssert
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
+import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import org.springframework.test.web.reactive.server.KotlinBodySpec
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import reactor.test.StepVerifier
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -45,3 +47,18 @@ fun mockCurrentTime(timeService: TimeService) {
 
 val MOCK_DATE: LocalDate = LocalDate.of(1999, 3, 28)
 const val MOCK_DATE_VALUE = "1999-03-28"
+
+fun <T> StepVerifier.Step<T>.assertNextJson(
+    consumer: JsonAssert.ConfigurableJsonAssert.() -> Unit
+): StepVerifier.Step<T> {
+    return assertNext { data ->
+        assertThat(data).isNotNull
+        assertThatJson(data).consumer()
+    }
+}
+
+fun <T> StepVerifier.Step<T>.assertNextJsonIs(jsonObject: String): StepVerifier.Step<T> {
+    return assertNextJson {
+        isEqualTo(json(jsonObject))
+    }
+}

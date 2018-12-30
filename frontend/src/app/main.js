@@ -9,6 +9,7 @@ import EventBus from 'eventbusjs'
 import Router from 'vue-router'
 import {setupApp} from '@/app/services/app-services'
 import SvgIcon from 'vue-svgicon'
+import {initPushNotifications} from '@/app/services/push-notifications'
 
 Vue.config.productionTip = false
 
@@ -38,6 +39,7 @@ new Vue({
 }).$mount('#app')
 
 initApi(store)
+initPushNotifications(store)
 
 //todo calculate proper locale
 store.dispatch('i18n/loadLocaleData')
