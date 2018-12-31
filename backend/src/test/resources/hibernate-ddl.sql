@@ -4,6 +4,7 @@ create table customer (id bigint not null, version integer not null, name varcha
 create table document (id bigint not null, version integer not null, name varchar(255) not null, notes varchar(1024), size_in_bytes bigint, storage_provider_id varchar(255) not null, storage_provider_location varchar(2048), time_uploaded timestamp not null, workspace_id bigint not null, primary key (id))
 create table expense (id bigint not null, version integer not null, actual_amount_in_default_currency bigint not null, amount_in_default_currency bigint not null, currency varchar(3) not null, date_paid date not null, notes varchar(1024), original_amount bigint not null, percent_on_business integer not null, reported_amount_in_default_currency bigint not null, time_recorded timestamp not null, title varchar(255) not null, category_id bigint not null, primary key (id))
 create table expense_attachments (expense_id bigint not null, document_id bigint not null, primary key (expense_id, document_id))
+create table google_drive_storage_integration (id bigint not null, version integer not null, auth_state_token varchar(255), folder_id varchar(255), time_auth_failed timestamp, time_auth_requested timestamp, time_auth_succeeded timestamp, user_id bigint not null, primary key (id))
 create table income (id bigint not null, version integer not null, amount_in_default_currency bigint not null, currency varchar(3) not null, date_received date not null, notes varchar(1024), original_amount bigint not null, reported_amount_in_default_currency bigint not null, time_recorded timestamp not null, title varchar(255) not null, category_id bigint not null, primary key (id))
 create table income_attachments (income_id bigint not null, document_id bigint not null, primary key (income_id, document_id))
 create table invoice (id bigint not null, version integer not null, amount bigint not null, currency varchar(3) not null, date_cancelled date, date_issued date not null, date_paid date, date_sent date, due_date date not null, notes varchar(1024), time_recorded timestamp not null, title varchar(255) not null, customer_id bigint not null, income_id bigint, primary key (id))
@@ -19,6 +20,7 @@ alter table document add constraint document_workspace_fk foreign key (workspace
 alter table expense add constraint expense_category_fk foreign key (category_id) references category
 alter table expense_attachments add constraint expense_attachments_document_fk foreign key (document_id) references document
 alter table expense_attachments add constraint expense_attachments_expense_fk foreign key (expense_id) references expense
+alter table google_drive_storage_integration add constraint gdrive_storage_integration_user_fk foreign key (user_id) references platform_user
 alter table income add constraint income_category_fk foreign key (category_id) references category
 alter table income_attachments add constraint income_attachments_document_fk foreign key (document_id) references document
 alter table income_attachments add constraint income_attachments_income_fk foreign key (income_id) references income

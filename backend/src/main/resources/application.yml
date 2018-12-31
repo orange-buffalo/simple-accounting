@@ -20,3 +20,7 @@ simpleaccounting:
     storage:
       local-fs:
         base-directory: ./local-dev/documents
+      google-drive:
+        credentials-file: file:./local-dev/gdrive/client_secret.json
+        data-store-directory: ./local-dev/gdrive/data-store
+        redirect-url-base: http://localdev.orange-buffalo.io:9393

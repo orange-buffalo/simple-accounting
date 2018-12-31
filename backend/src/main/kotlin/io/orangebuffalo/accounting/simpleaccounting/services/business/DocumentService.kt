@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
@@ -40,17 +41,20 @@ class DocumentService(
     fun getDocumentStorageByUser(user: PlatformUser) = documentStorages
         .first { it.getId() == "local-fs" }
 
-    suspend fun getDocumentsByIds(ids: List<Long>): List<Document> = withDbContext {
-        documentRepository.findAllById(ids)
-    }
+    suspend fun getDocumentsByIds(ids: List<Long>): List<Document> =
+        withDbContext {
+            documentRepository.findAllById(ids)
+        }
 
-    suspend fun getDocuments(page: Pageable, predicate: Predicate): Page<Document> = withDbContext{
-        documentRepository.findAll(predicate, page)
-    }
+    suspend fun getDocuments(page: Pageable, predicate: Predicate): Page<Document> =
+        withDbContext {
+            documentRepository.findAll(predicate, page)
+        }
 
-    suspend fun getDocumentById(documentId: Long): Document? = withDbContext {
-        documentRepository.findById(documentId).orElseGet(null)
-    }
+    suspend fun getDocumentById(documentId: Long): Document? =
+        withDbContext {
+            documentRepository.findById(documentId).orElseGet(null)
+        }
 
     suspend fun getDocumentContent(document: Document): Resource {
         return getDocumentStorageById(document.storageProviderId).getDocumentContent(

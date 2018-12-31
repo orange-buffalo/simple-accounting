@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.business
+package io.orangebuffalo.accounting.simpleaccounting.services.integration
 
 import kotlinx.coroutines.*
 import org.springframework.security.core.userdetails.UserDetails
@@ -9,6 +9,7 @@ fun CoroutineScope.getCurrentPrincipal(): UserDetails {
     return coroutineContext.getPrincipal()
 }
 
+// todo add user id to gwt token and user details so we do not need to load it from database for simple cases
 fun CoroutineContext.getPrincipal(): UserDetails {
     val coroutinePrincipal = this[CoroutinePrincipal] ?: throw IllegalStateException("Principal is not set")
     return coroutinePrincipal.principal

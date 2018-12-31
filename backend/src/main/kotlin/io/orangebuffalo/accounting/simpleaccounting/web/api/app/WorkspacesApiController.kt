@@ -2,7 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.getCurrentPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions

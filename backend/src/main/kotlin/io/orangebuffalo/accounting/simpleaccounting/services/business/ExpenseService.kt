@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
@@ -42,9 +43,10 @@ class ExpenseService(
         expenseRepository.findAll(QExpense.expense.category.workspace.eq(workspace).and(filter), page)
     }
 
-    suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? = withDbContext {
-        expenseRepository.findByIdAndCategoryWorkspace(id, workspace)
-    }
+    suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? =
+        withDbContext {
+            expenseRepository.findByIdAndCategoryWorkspace(id, workspace)
+        }
 
     suspend fun getExpensesStatistics(
         fromDate: LocalDate,

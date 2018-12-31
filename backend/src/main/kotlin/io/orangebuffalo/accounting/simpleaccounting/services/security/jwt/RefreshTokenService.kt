@@ -2,7 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.services.security.jwt
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.withDbContext
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.RefreshToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.RefreshTokenRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.security.toUserDetails
@@ -58,11 +58,12 @@ class RefreshTokenService(
         return token.user.toUserDetails()
     }
 
-    suspend fun prolongToken(refreshTokenString: String): String = withDbContext {
-        val refreshToken = refreshTokenRepository.findByToken(refreshTokenString)
-            ?: throw IllegalArgumentException("Bad token $refreshTokenString")
-        refreshToken.expirationTime = timeService.currentTime().plus(TOKEN_LIFETIME_IN_DAYS, ChronoUnit.DAYS)
-        refreshTokenRepository.save(refreshToken)
-        refreshToken.token
-    }
+    suspend fun prolongToken(refreshTokenString: String): String =
+        withDbContext {
+            val refreshToken = refreshTokenRepository.findByToken(refreshTokenString)
+                ?: throw IllegalArgumentException("Bad token $refreshTokenString")
+            refreshToken.expirationTime = timeService.currentTime().plus(TOKEN_LIFETIME_IN_DAYS, ChronoUnit.DAYS)
+            refreshTokenRepository.save(refreshToken)
+            refreshToken.token
+        }
 }

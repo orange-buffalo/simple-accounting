@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QCustomer
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
@@ -28,7 +29,8 @@ class CustomerService(
         customerRepository.findAll(QCustomer.customer.workspace.eq(workspace).and(filter), page)
     }
 
-    suspend fun getCustomerByIdAndWorkspace(id: Long, workspace: Workspace): Customer? = withDbContext {
-        customerRepository.findByIdAndWorkspace(id, workspace)
-    }
+    suspend fun getCustomerByIdAndWorkspace(id: Long, workspace: Workspace): Customer? =
+        withDbContext {
+            customerRepository.findByIdAndWorkspace(id, workspace)
+        }
 }

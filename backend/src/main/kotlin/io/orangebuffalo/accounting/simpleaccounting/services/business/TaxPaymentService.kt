@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QTaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.TaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
@@ -30,9 +31,10 @@ class TaxPaymentService(
         taxPaymentRepository.findAll(QTaxPayment.taxPayment.workspace.eq(workspace).and(filter), page)
     }
 
-    suspend fun getTaxPaymentByIdAndWorkspace(id: Long, workspace: Workspace): TaxPayment? = withDbContext {
-        taxPaymentRepository.findByIdAndWorkspace(id, workspace)
-    }
+    suspend fun getTaxPaymentByIdAndWorkspace(id: Long, workspace: Workspace): TaxPayment? =
+        withDbContext {
+            taxPaymentRepository.findByIdAndWorkspace(id, workspace)
+        }
 
     suspend fun getTaxPaymentStatistics(
         fromDate: LocalDate,

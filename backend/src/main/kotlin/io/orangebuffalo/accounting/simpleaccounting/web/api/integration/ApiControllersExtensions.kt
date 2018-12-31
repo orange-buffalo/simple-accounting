@@ -1,15 +1,14 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.*
+import io.orangebuffalo.accounting.simpleaccounting.services.business.CustomerService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.reactor.mono
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -36,14 +35,9 @@ class ApiControllersExtensions(
         }
     }
 
-    fun <T> toMono(block: suspend CoroutineScope.() -> T): Mono<T> = ReactiveSecurityContextHolder.getContext()
-        .map { it.authentication.principal }
-        .cast(UserDetails::class.java)
-        .flatMap { principal ->
-            GlobalScope.mono(CoroutinePrincipal(principal)) {
-                block()
-            }
-        }
+    //todo remove
+    fun <T> toMono(block: suspend CoroutineScope.() -> T): Mono<T> =
+        io.orangebuffalo.accounting.simpleaccounting.services.integration.toMono(block)
 
     suspend fun getValidDocuments(
         workspace: Workspace,

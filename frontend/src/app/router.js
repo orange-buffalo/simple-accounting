@@ -124,6 +124,11 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-customer" */ './views/settings/customers/EditCustomer.vue')
         },
         {
+          path: 'my-profile',
+          name: 'my-profile',
+          component: () => import(/* webpackChunkName: "my-profile" */ './views/MyProfile.vue')
+        },
+        {
           path: '*',
           redirect: '/'
         }

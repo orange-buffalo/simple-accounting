@@ -1,0 +1,9 @@
+simpleaccounting:
+  documents:
+    storage:
+      local-fs:
+        base-directory: "build/tmp"
+      google-drive:
+        credentials-file: "classpath:google-drive-credentials-test.json"
+        data-store-directory: "build/tmp"
+        redirect-url-base: "localhost"

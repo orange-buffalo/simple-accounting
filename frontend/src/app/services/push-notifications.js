@@ -5,7 +5,7 @@ import {api} from '@/services/api'
 
 let $store
 
-export const PushNotifications = {
+export const pushNotifications = {
 
   _eventSource: null,
   _eventListeners: [],

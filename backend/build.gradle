@@ -66,6 +66,8 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$coroutinesVersion")
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutinesVersion")
+    compile('com.google.api-client:google-api-client:1.23.0')
+    compile('com.google.apis:google-api-services-drive:v3-rev110-1.23.0')
 
     kapt('com.querydsl:querydsl-apt:4.2.1:jpa')
     kapt('org.springframework.boot:spring-boot-configuration-processor')
