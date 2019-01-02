@@ -4,6 +4,7 @@ import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.http.InputStreamContent
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.drive.Drive
@@ -13,12 +14,23 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeServic
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.PushNotificationService
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentStorage
+import io.orangebuffalo.accounting.simpleaccounting.services.storage.StorageProviderResponse
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.withContext
+import org.springframework.core.io.Resource
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
+import java.nio.channels.Channels
+import java.nio.channels.Pipe
 import java.security.SecureRandom
 import java.time.Instant
 import java.util.*
@@ -38,7 +50,91 @@ class GoogleDriveDocumentStorageService(
     private val timeService: TimeService,
     private val repository: GoogleDriveStorageIntegrationRepository,
     private val pushNotificationService: PushNotificationService
-) {
+) : DocumentStorage {
+
+    override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse {
+        val driveService = getDriveService(workspace.owner)
+        //todo error handling to help user to fix the problem
+            ?: throw IllegalStateException("Credentials are not defined for ${workspace.owner.userName}")
+
+        val integration = withDbContext {
+            repository.findByUser(workspace.owner)
+                ?: throw IllegalStateException("Integration is not defined for ${workspace.owner.userName}")
+        }
+
+        return withContext(Dispatchers.IO) {
+            val workspaceFolder = getWorkspaceFolder(driveService, integration, workspace)
+
+            val fileMetadata = DriveFile().apply {
+                name = file.filename()
+                parents = listOf(workspaceFolder.id)
+            }
+
+            val newFile = uploadFileToDrive(file, driveService, fileMetadata)
+
+            StorageProviderResponse(
+                newFile.id,
+                newFile.getSize()
+            )
+        }
+    }
+
+    private suspend fun uploadFileToDrive(
+        file: FilePart,
+        driveService: Drive,
+        fileMetadata: DriveFile
+    ): DriveFile {
+
+        val uploadedFileToDrivePipe = Pipe.open()
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val pipeInput = uploadedFileToDrivePipe.sink()
+            DataBufferUtils.write(file.content(), pipeInput)
+                .doOnNext(DataBufferUtils.releaseConsumer())
+                .doFinally { pipeInput.close() }
+                .awaitLast()
+        }
+
+        return Channels.newInputStream(uploadedFileToDrivePipe.source()).use { fileInputStream ->
+            val content = InputStreamContent(null, fileInputStream)
+            driveService.files().create(fileMetadata, content)
+                .setFields("id,size")
+                .execute()
+        }
+    }
+
+    //todo it can happen that parallel file uploads of the same user create multiple workspace folders: need cleanup
+    private fun getWorkspaceFolder(
+        driveService: Drive,
+        integration: GoogleDriveStorageIntegration,
+        workspace: Workspace
+    ): DriveFile {
+
+        val workspaceFolders = driveService.files().list()
+            .setQ("'${integration.folderId}' in parents and name = '${workspace.id}'")
+            .execute()
+
+        return if (workspaceFolders.files.isEmpty()) {
+            val fileMetadata = DriveFile().apply {
+                name = "${workspace.id}"
+                mimeType = "application/vnd.google-apps.folder"
+                parents = listOf(integration.folderId)
+            }
+
+            driveService.files().create(fileMetadata)
+                .setFields("id")
+                .execute()
+        } else {
+            workspaceFolders.files[0]
+        }
+    }
+
+    override fun getId(): String = "google-drive"
+
+    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Resource {
+        //todo
+        throw java.lang.IllegalArgumentException()
+    }
 
     private val flow: GoogleAuthorizationCodeFlow
     private val redirectUrl: String = "${googleDriveProperties.redirectUrlBase}$AUTH_CALLBACK_PATH"

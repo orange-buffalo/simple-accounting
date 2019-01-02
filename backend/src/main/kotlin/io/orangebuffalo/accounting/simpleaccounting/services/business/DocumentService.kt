@@ -39,7 +39,7 @@ class DocumentService(
     }
 
     fun getDocumentStorageByUser(user: PlatformUser) = documentStorages
-        .first { it.getId() == "local-fs" }
+        .first { it.getId() == "google-drive" }
 
     suspend fun getDocumentsByIds(ids: List<Long>): List<Document> =
         withDbContext {
