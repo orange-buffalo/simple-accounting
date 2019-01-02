@@ -22,6 +22,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.withContext
+import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.http.codec.multipart.FilePart
@@ -132,8 +133,21 @@ class GoogleDriveDocumentStorageService(
     override fun getId(): String = "google-drive"
 
     override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Resource {
-        //todo
-        throw java.lang.IllegalArgumentException()
+        val driveService = getDriveService(workspace.owner)
+        //todo error handling to help user to fix the problem
+            ?: throw IllegalStateException("Credentials are not defined for ${workspace.owner.userName}")
+
+        val driveFileToResourceStream = Pipe.open()
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val pipeInput = driveFileToResourceStream.sink()
+
+            Channels.newOutputStream(pipeInput).use { pipeStream ->
+                driveService.files().get(storageLocation).executeMediaAndDownloadTo(pipeStream)
+            }
+        }
+
+        return InputStreamResource(Channels.newInputStream(driveFileToResourceStream.source()))
     }
 
     private val flow: GoogleAuthorizationCodeFlow
