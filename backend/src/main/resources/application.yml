@@ -2,6 +2,21 @@ spring:
   main:
     banner-mode: "off"
 
+  datasource:
+    url: jdbc:h2:/data/db/simple-accounting
+
+server:
+  port: 9393
+
+simpleaccounting:
+  documents:
+    storage:
+      local-fs:
+        base-directory: /data/documents-storage/local
+      google-drive:
+        credentials-file: file:/data/documents-storage/google-drive/client-secret.json
+        data-store-directory: /data/documents-storage/google-drive/data-storage
+
 ---
 
 spring:
@@ -11,9 +26,6 @@ spring:
     url: jdbc:h2:./local-dev/dev
     password: killallhumans
     username: bender
-
-server:
-  port: 9393
 
 simpleaccounting:
   documents:

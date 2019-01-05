@@ -1,0 +1,38 @@
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '4.2.0'
+}
+
+import com.bmuschko.gradle.docker.tasks.image.*
+
+def dockerBuildDir = "$buildDir/docker-build/"
+
+task prepareDockerBuild(type: DefaultTask) {
+    copy {
+        from tasks.getByPath(':backend:bootJar').outputs
+        into dockerBuildDir
+        include '*.jar'
+        rename '(.*)\\.jar', 'app.jar'
+    }
+
+    copy {
+        from 'src/main/docker'
+        into dockerBuildDir
+    }
+
+    dependsOn ':backend:bootJar'
+}
+
+task buildDockerImage(type: DockerBuildImage) {
+    inputDir = file(dockerBuildDir)
+    tags.add("orangebuffalo/simple-accounting:${project.version}")
+    tags.add("orangebuffalo/simple-accounting:latest")
+    dependsOn prepareDockerBuild
+}
+
+task pushDockerImage(type: DockerPushImage) {
+    imageName = 'orangebuffalo/simple-accounting'
+    tag = project.version
+    registryCredentials.username = project.properties['docker.hub.username']
+    registryCredentials.password = project.properties['docker.hub.password']
+    dependsOn buildDockerImage
+}

@@ -1,0 +1,4 @@
+subprojects {
+    group = 'io.orangebuffalo.accounting'
+    version = '0.0.1-SNAPSHOT'
+}
