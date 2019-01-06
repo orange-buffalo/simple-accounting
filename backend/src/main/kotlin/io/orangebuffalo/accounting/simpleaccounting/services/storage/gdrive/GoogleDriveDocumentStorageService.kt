@@ -53,6 +53,22 @@ class GoogleDriveDocumentStorageService(
     private val pushNotificationService: PushNotificationService
 ) : DocumentStorage {
 
+    private val flow: GoogleAuthorizationCodeFlow
+    private val redirectUrl: String = "${googleDriveProperties.redirectUrlBase}$AUTH_CALLBACK_PATH"
+    private val random = SecureRandom()
+
+    init {
+        val clientSecrets = googleDriveProperties.credentialsFile.inputStream.use { inputStream ->
+            GoogleClientSecrets.load(JSON_FACTORY, InputStreamReader(inputStream))
+        }
+
+        flow = GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+            //todo investigate best practices for secure storage
+            .setDataStoreFactory(FileDataStoreFactory(File(googleDriveProperties.dataStoreDirectory)))
+            .setAccessType("offline")
+            .build()
+    }
+
     override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse {
         val driveService = getDriveService(workspace.owner)
         //todo error handling to help user to fix the problem
@@ -148,22 +164,6 @@ class GoogleDriveDocumentStorageService(
         }
 
         return InputStreamResource(Channels.newInputStream(driveFileToResourceStream.source()))
-    }
-
-    private val flow: GoogleAuthorizationCodeFlow
-    private val redirectUrl: String = "${googleDriveProperties.redirectUrlBase}$AUTH_CALLBACK_PATH"
-    private val random = SecureRandom()
-
-    init {
-        val clientSecrets = googleDriveProperties.credentialsFile.inputStream.use { inputStream ->
-            GoogleClientSecrets.load(JSON_FACTORY, InputStreamReader(inputStream))
-        }
-
-        flow = GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-            //todo investigate best practices for secure storage
-            .setDataStoreFactory(FileDataStoreFactory(File(googleDriveProperties.dataStoreDirectory)))
-            .setAccessType("offline")
-            .build()
     }
 
     suspend fun buildAuthorizationUrl(): String? {
