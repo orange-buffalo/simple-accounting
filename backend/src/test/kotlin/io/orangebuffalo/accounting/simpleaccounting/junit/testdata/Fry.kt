@@ -26,6 +26,7 @@ class Fry : TestData {
     )
 
     val firstSlurm = Expense(
+        workspace = slurmCategory.workspace,
         category = slurmCategory,
         title = "best ever slurm",
         datePaid = MOCK_DATE,
@@ -67,6 +68,7 @@ class Fry : TestData {
     )
 
     val secondSlurm = Expense(
+        workspace = slurmCategory.workspace,
         category = slurmCategory,
         title = "another great slurm",
         datePaid = MOCK_DATE,

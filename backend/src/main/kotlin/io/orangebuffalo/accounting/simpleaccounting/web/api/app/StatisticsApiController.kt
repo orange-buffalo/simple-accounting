@@ -85,7 +85,7 @@ data class ExpensesStatisticsDto(
 }
 
 data class ExpensesStatisticsItemDto(
-    val categoryId: Long,
+    val categoryId: Long?,
     val totalAmount: Long,
     val finalizedCount: Long,
     val pendingCount: Long
@@ -102,7 +102,7 @@ data class IncomesStatisticsDto(
 }
 
 data class IncomesStatisticsItemDto(
-    val categoryId: Long,
+    val categoryId: Long?,
     val totalAmount: Long,
     val finalizedCount: Long,
     val pendingCount: Long,

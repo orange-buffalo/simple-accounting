@@ -149,7 +149,6 @@
           uploads: new UploadsInfo()
         },
         expenseValidationRules: {
-          category: {required: true, message: 'Please select a category'},
           currency: {required: true, message: 'Please select a currency'},
           title: {required: true, message: 'Please provide the title'},
           datePaid: {required: true, message: 'Please provide the date when expense is paid'},

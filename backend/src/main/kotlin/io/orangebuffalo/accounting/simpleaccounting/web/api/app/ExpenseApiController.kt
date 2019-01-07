@@ -36,6 +36,7 @@ class ExpenseApiController(
 
         expenseService.saveExpense(
             Expense(
+                workspace = workspace,
                 category = extensions.getValidCategory(workspace, request.category),
                 title = request.title,
                 timeRecorded = timeService.currentTime(),
@@ -107,7 +108,7 @@ class ExpenseApiController(
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ExpenseDto(
-    val category: Long,
+    val category: Long?,
     val title: String,
     val timeRecorded: Instant,
     val datePaid: LocalDate,
@@ -131,7 +132,7 @@ enum class ExpenseStatus {
 }
 
 data class EditExpenseDto(
-    val category: Long,
+    val category: Long?,
     val datePaid: LocalDate,
     @field:NotBlank val title: String,
     @field:NotBlank val currency: String,
@@ -144,7 +145,7 @@ data class EditExpenseDto(
 )
 
 private fun mapExpenseDto(source: Expense) = ExpenseDto(
-    category = source.category.id!!,
+    category = source.category?.id,
     title = source.title,
     datePaid = source.datePaid,
     timeRecorded = source.timeRecorded,

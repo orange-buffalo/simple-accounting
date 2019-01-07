@@ -27,7 +27,7 @@ class ExpenseRepositoryExtImpl(
         return JPAQuery<ExpensesStatistics>(entityManager)
             .from(expense)
             .where(
-                expense.category.workspace.eq(workspace),
+                expense.workspace.eq(workspace),
                 expense.datePaid.goe(fromDate),
                 expense.datePaid.loe(toDate)
             )

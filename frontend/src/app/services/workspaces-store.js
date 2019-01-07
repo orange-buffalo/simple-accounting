@@ -7,7 +7,9 @@ let _workspacesStore = {
 
   state: {
     workspaces: null,
-    currentWorkspace: null
+    currentWorkspace: null,
+    //todo move to mixin when category is separated from workspace
+    emptyCategory: {name: "Not specified", income: true, expense: true, id: null}
   },
 
   mutations: {
@@ -35,11 +37,14 @@ let _workspacesStore = {
       commit('setCurrentWorkspace', workspace)
     },
 
-    loadWorkspaces({commit}) {
+    loadWorkspaces({state, commit}) {
       return new Promise(resolve => {
         api.get('/user/workspaces').then(response => {
           let workspaces = response.data
-          commit('setWorkspaces', workspaces)
+          commit('setWorkspaces', workspaces.map(workspace => {
+            workspace.categories = [state.emptyCategory].concat(workspace.categories)
+            return workspace
+          }))
 
           let currentWs;
           if (workspaces.length > 0) {
@@ -63,7 +68,8 @@ let _workspacesStore = {
 
   getters: {
     categoryById: state => id => {
-      return state.currentWorkspace.categories.find(category => category.id === id)
+      return state.currentWorkspace.categories.find(category =>
+          (category.id === id) || (isNil(category.id) && isNil(id)))
     }
   }
 }

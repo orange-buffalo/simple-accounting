@@ -27,7 +27,7 @@ class IncomeRepositoryExtImpl(
         return JPAQuery<IncomesStatistics>(entityManager)
             .from(income)
             .where(
-                income.category.workspace.eq(workspace),
+                income.workspace.eq(workspace),
                 income.dateReceived.goe(fromDate),
                 income.dateReceived.loe(toDate)
             )

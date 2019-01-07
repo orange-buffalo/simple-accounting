@@ -9,7 +9,7 @@ import java.time.LocalDate
 interface IncomeRepository :
     AbstractEntityRepository<Income>, QuerydslPredicateExecutor<Income>, IncomeRepositoryExt {
 
-    fun findByIdAndCategoryWorkspace(id: Long, workspace: Workspace): Income?
+    fun findByIdAndWorkspace(id: Long, workspace: Workspace): Income?
 }
 
 interface IncomeRepositoryExt {
@@ -21,7 +21,7 @@ interface IncomeRepositoryExt {
 }
 
 data class IncomesStatistics @QueryProjection constructor(
-    val categoryId: Long,
+    val categoryId: Long?,
     val totalAmount: Long,
     val finalizedCount: Long,
     val pendingCount: Long,

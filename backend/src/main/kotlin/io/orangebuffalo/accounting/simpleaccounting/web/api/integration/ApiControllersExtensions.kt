@@ -4,6 +4,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.CustomerSe
 import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
@@ -54,10 +55,16 @@ class ApiControllersExtensions(
 
     fun getValidCategory(
         workspace: Workspace,
-        categoryId: Long
-    ) = workspace.categories.asSequence()
-        .firstOrNull { workspaceCategory -> workspaceCategory.id == categoryId }
-        ?: throw EntityNotFoundException("Category $categoryId is not found")
+        categoryId: Long?
+    ): Category? {
+        if (categoryId == null) {
+            return null
+        }
+
+        return workspace.categories.asSequence()
+            .firstOrNull { workspaceCategory -> workspaceCategory.id == categoryId }
+            ?: throw EntityNotFoundException("Category $categoryId is not found")
+    }
 
     suspend fun getValidCustomer(workspace: Workspace, customerId: Long): Customer =
         customerService.getCustomerByIdAndWorkspace(customerId, workspace)

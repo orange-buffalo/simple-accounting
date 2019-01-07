@@ -190,7 +190,7 @@ internal class ExpenseApiControllerIT(
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should create return 404 when category of new expense is not found`(fry: Fry) {
+    fun `should return 404 when category of new expense is not found`(fry: Fry) {
          mockCurrentTime(timeService)
 
         client.post()
@@ -212,7 +212,7 @@ internal class ExpenseApiControllerIT(
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should create return 404 when category of new expense belongs to another user`(fry: Fry, bender: Bender) {
+    fun `should return 404 when category of new expense belongs to another user`(fry: Fry, bender: Bender) {
          mockCurrentTime(timeService)
 
         client.post()

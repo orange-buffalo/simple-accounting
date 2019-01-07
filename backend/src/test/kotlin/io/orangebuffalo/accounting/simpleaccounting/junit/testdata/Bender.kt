@@ -27,6 +27,7 @@ class Bender : TestData {
     )
 
     val boothOne = Expense(
+        workspace = suicideBooth.workspace,
         category = suicideBooth,
         title = "slow and horrible",
         datePaid = MOCK_DATE,

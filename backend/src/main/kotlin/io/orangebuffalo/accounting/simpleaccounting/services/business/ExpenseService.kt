@@ -19,7 +19,7 @@ class ExpenseService(
 ) {
 
     suspend fun saveExpense(expense: Expense): Expense {
-        val defaultCurrency = expense.category.workspace.defaultCurrency
+        val defaultCurrency = expense.workspace.defaultCurrency
         if (defaultCurrency == expense.currency) {
             expense.amountInDefaultCurrency = expense.originalAmount
             expense.actualAmountInDefaultCurrency = expense.originalAmount
@@ -40,12 +40,12 @@ class ExpenseService(
         page: Pageable,
         filter: Predicate
     ): Page<Expense> = withDbContext {
-        expenseRepository.findAll(QExpense.expense.category.workspace.eq(workspace).and(filter), page)
+        expenseRepository.findAll(QExpense.expense.workspace.eq(workspace).and(filter), page)
     }
 
     suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? =
         withDbContext {
-            expenseRepository.findByIdAndCategoryWorkspace(id, workspace)
+            expenseRepository.findByIdAndWorkspace(id, workspace)
         }
 
     suspend fun getExpensesStatistics(

@@ -134,7 +134,6 @@
           uploads: new UploadsInfo()
         },
         incomeValidationRules: {
-          category: {required: true, message: 'Please select a category'},
           currency: {required: true, message: 'Please select a currency'},
           title: {required: true, message: 'Please provide the title'},
           dateReceived: {required: true, message: 'Please provide the date when income is received'},

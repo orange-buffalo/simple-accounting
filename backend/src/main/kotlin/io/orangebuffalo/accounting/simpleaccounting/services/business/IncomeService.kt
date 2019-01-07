@@ -18,7 +18,7 @@ class IncomeService(
 ) {
 
     suspend fun saveIncome(income: Income): Income {
-        val defaultCurrency = income.category.workspace.defaultCurrency
+        val defaultCurrency = income.workspace.defaultCurrency
         if (defaultCurrency == income.currency) {
             income.amountInDefaultCurrency = income.originalAmount
             income.reportedAmountInDefaultCurrency = income.originalAmount
@@ -34,12 +34,12 @@ class IncomeService(
         page: Pageable,
         filter: Predicate
     ): Page<Income> = withDbContext {
-        incomeRepository.findAll(QIncome.income.category.workspace.eq(workspace).and(filter), page)
+        incomeRepository.findAll(QIncome.income.workspace.eq(workspace).and(filter), page)
     }
 
     suspend fun getIncomeByIdAndWorkspace(id: Long, workspace: Workspace): Income? =
         withDbContext {
-            incomeRepository.findByIdAndCategoryWorkspace(id, workspace)
+            incomeRepository.findByIdAndWorkspace(id, workspace)
         }
 
     suspend fun getIncomesStatistics(

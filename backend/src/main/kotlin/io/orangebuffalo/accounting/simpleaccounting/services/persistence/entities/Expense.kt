@@ -7,9 +7,13 @@ import javax.persistence.*
 @Entity
 class Expense(
 
+    @field:ManyToOne
+    @field:JoinColumn(foreignKey = ForeignKey(name = "expense_category_fk"))
+    var category: Category?,
+
     @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "expense_category_fk"))
-    var category: Category,
+    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "expense_workspace_fk"))
+    var workspace: Workspace,
 
     @field:Column(nullable = false)
     var title: String,
@@ -50,4 +54,11 @@ class Expense(
     @field:Column(length = 1024)
     var notes: String? = null
 
-) : AbstractEntity()
+) : AbstractEntity() {
+
+    init {
+        if (category != null && category!!.workspace != workspace) {
+            throw IllegalArgumentException("Category and workspace must match")
+        }
+    }
+}

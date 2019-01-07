@@ -60,6 +60,7 @@ class Roberto : TestData {
     override fun generateData() = listOf(
         himself, workspace, irrelevantWorkspace, firstCategory, secondCategory, thirdCategory, irrelevantCategory,
         Expense(
+            workspace = firstCategory.workspace,
             category = firstCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -72,6 +73,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = firstCategory.workspace,
             category = firstCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -84,6 +86,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = firstCategory.workspace,
             category = firstCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -96,6 +99,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = firstCategory.workspace,
             category = firstCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -108,6 +112,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = secondCategory.workspace,
             category = secondCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -120,6 +125,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = secondCategory.workspace,
             category = secondCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -132,6 +138,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = secondCategory.workspace,
             category = secondCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -144,6 +151,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = secondCategory.workspace,
             category = secondCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -156,6 +164,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = secondCategory.workspace,
             category = secondCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -168,6 +177,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Expense(
+            workspace = irrelevantCategory.workspace,
             category = irrelevantCategory,
             title = "expense",
             timeRecorded = MOCK_TIME,
@@ -180,6 +190,7 @@ class Roberto : TestData {
             percentOnBusiness = 100
         ),
         Income(
+            workspace = irrelevantCategory.workspace,
             category = irrelevantCategory,
             timeRecorded = MOCK_TIME,
             title = "income",
@@ -190,6 +201,7 @@ class Roberto : TestData {
             reportedAmountInDefaultCurrency = 177
         ),
         Income(
+            workspace = firstCategory.workspace,
             category = firstCategory,
             timeRecorded = MOCK_TIME,
             title = "income",
@@ -200,6 +212,7 @@ class Roberto : TestData {
             reportedAmountInDefaultCurrency = 166
         ),
         Income(
+            workspace = firstCategory.workspace,
             category = firstCategory,
             timeRecorded = MOCK_TIME,
             title = "income",
@@ -210,6 +223,7 @@ class Roberto : TestData {
             reportedAmountInDefaultCurrency = 167
         ),
         Income(
+            workspace = firstCategory.workspace,
             category = firstCategory,
             timeRecorded = MOCK_TIME,
             title = "income",
@@ -220,6 +234,7 @@ class Roberto : TestData {
             reportedAmountInDefaultCurrency = 168
         ),
         Income(
+            workspace = firstCategory.workspace,
             category = firstCategory,
             timeRecorded = MOCK_TIME,
             title = "income",
@@ -230,6 +245,7 @@ class Roberto : TestData {
             reportedAmountInDefaultCurrency = 177
         ),
         Income(
+            workspace = secondCategory.workspace,
             category = secondCategory,
             timeRecorded = MOCK_TIME,
             title = "income",
@@ -240,6 +256,7 @@ class Roberto : TestData {
             reportedAmountInDefaultCurrency = 0
         ),
         Income(
+            workspace = secondCategory.workspace,
             category = secondCategory,
             timeRecorded = MOCK_TIME,
             title = "income",
@@ -250,6 +267,7 @@ class Roberto : TestData {
             reportedAmountInDefaultCurrency = 0
         ),
         Income(
+            workspace = secondCategory.workspace,
             category = secondCategory,
             timeRecorded = MOCK_TIME,
             title = "income",

@@ -36,6 +36,7 @@ class IncomesApiController(
 
         incomeService.saveIncome(
             Income(
+                workspace = workspace,
                 category = extensions.getValidCategory(workspace, request.category),
                 title = request.title,
                 timeRecorded = timeService.currentTime(),
@@ -104,7 +105,7 @@ class IncomesApiController(
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class IncomeDto(
-    val category: Long,
+    val category: Long?,
     val title: String,
     val timeRecorded: Instant,
     val dateReceived: LocalDate,
@@ -126,7 +127,7 @@ enum class IncomeStatus {
 }
 
 data class EditIncomeDto(
-    val category: Long,
+    val category: Long?,
     val dateReceived: LocalDate,
     @field:NotBlank val title: String,
     @field:NotBlank val currency: String,
@@ -138,7 +139,7 @@ data class EditIncomeDto(
 )
 
 private fun mapIncomeDto(source: Income) = IncomeDto(
-    category = source.category.id!!,
+    category = source.category?.id,
     title = source.title,
     dateReceived = source.dateReceived,
     timeRecorded = source.timeRecorded,
