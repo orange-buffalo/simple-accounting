@@ -31,7 +31,7 @@ task buildDockerImage(type: DockerBuildImage) {
 
 task pushDockerImage(type: DockerPushImage) {
     imageName = 'orangebuffalo/simple-accounting'
-    tag = project.version
+    tag = 'latest'
     registryCredentials.username = project.properties['docker.hub.username']
     registryCredentials.password = project.properties['docker.hub.password']
     dependsOn buildDockerImage
