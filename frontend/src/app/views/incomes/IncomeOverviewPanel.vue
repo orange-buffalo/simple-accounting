@@ -33,6 +33,12 @@
         </span>
 
         <span class="sa-item-attribute"
+              v-if="income.linkedInvoice">
+          <svgicon name="invoice"/>
+          <span>{{income.linkedInvoice.title}}</span>
+        </span>
+
+        <span class="sa-item-attribute"
               v-if="income.notes">
           <svgicon name="notes"/>
           <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
@@ -83,6 +89,7 @@
   import '@/components/icons/category'
   import '@/components/icons/pencil'
   import '@/components/icons/percent'
+  import '@/components/icons/invoice'
   import {withCategories} from '@/app/components/mixins/with-categories'
   import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
   import {loadDocuments} from '@/app/services/app-services'

@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 annotation class PageableApi(val descriptorClass: KClass<out PageableApiDescriptor<*, *>>)
 
 interface PageableApiDescriptor<E, R : EntityPath<E>> {
-    fun mapEntityToDto(entity: E): Any
+    suspend fun mapEntityToDto(entity: E): Any
 
     fun getSupportedFilters(): List<PageableApiFilter<E, R>> = emptyList()
 }

@@ -377,7 +377,7 @@ internal class ApiPageRequestResolverTest {
     class ApiPageRequestResolverTestPageableApiDescriptorDefault :
         PageableApiDescriptor<ApiPageRequestResolverTestRepositoryEntity, PathBuilder<ApiPageRequestResolverTestRepositoryEntity>> {
 
-        override fun mapEntityToDto(entity: ApiPageRequestResolverTestRepositoryEntity) =
+        override suspend fun mapEntityToDto(entity: ApiPageRequestResolverTestRepositoryEntity) =
             ApiPageRequestResolverTestApiDto()
     }
 
@@ -391,7 +391,7 @@ internal class ApiPageRequestResolverTest {
         private val qApiPageRequestResolverTestRepositoryEntity =
             PathBuilder(ApiPageRequestResolverTestRepositoryEntity::class.java, "testEntity")
 
-        override fun mapEntityToDto(entity: ApiPageRequestResolverTestRepositoryEntity) =
+        override suspend fun mapEntityToDto(entity: ApiPageRequestResolverTestRepositoryEntity) =
             ApiPageRequestResolverTestApiDto()
 
         override fun getSupportedFilters() = apiFilters(qApiPageRequestResolverTestRepositoryEntity) {

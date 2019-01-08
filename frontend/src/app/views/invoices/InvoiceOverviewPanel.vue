@@ -210,14 +210,20 @@
 
       markSent: async function () {
         this.invoice.dateSent = api.dateToString(new Date())
-        await api.put(`/user/workspaces/${this.workspaceId}/invoices/${this.invoice.id}`, this.invoice)
+        await api.put(`/user/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice)
         this.$emit('invoice-update')
       },
 
       markPaid: async function () {
         this.invoice.datePaid = api.dateToString(new Date())
-        await api.put(`/user/workspaces/${this.workspaceId}/invoices/${this.invoice.id}`, this.invoice)
-        this.$emit('invoice-update')
+
+        let invoiceResponse = await api
+            .put(`/user/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice)
+
+        this.$router.push({
+          name: 'edit-income',
+          params: {id: invoiceResponse.data.income}
+        })
       }
     }
   }

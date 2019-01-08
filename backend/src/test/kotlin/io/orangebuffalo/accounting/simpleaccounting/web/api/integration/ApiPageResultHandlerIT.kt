@@ -98,7 +98,7 @@ internal class ApiPageResultHandlerIT(
 
     class ApiPageResultHandlerTestPageableApiDescriptor :
         PageableApiDescriptor<ApiPageResultHandlerTestRepositoryUser, PathBuilder<ApiPageResultHandlerTestRepositoryUser>> {
-        override fun mapEntityToDto(entity: ApiPageResultHandlerTestRepositoryUser): ApiPageResultHandlerTestApiUser =
+        override suspend fun mapEntityToDto(entity: ApiPageResultHandlerTestRepositoryUser): ApiPageResultHandlerTestApiUser =
             ApiPageResultHandlerTestApiUser(
                 name = entity.userName,
                 internalId = entity.id,

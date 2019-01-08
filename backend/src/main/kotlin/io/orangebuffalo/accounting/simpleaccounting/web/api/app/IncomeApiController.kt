@@ -3,8 +3,10 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.services.business.IncomeService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.InvoiceService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Income
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncome
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
@@ -20,10 +22,11 @@ import javax.validation.constraints.Size
 
 @RestController
 @RequestMapping("/api/v1/user/workspaces/{workspaceId}/incomes")
-class IncomesApiController(
+class IncomeApiController(
     private val extensions: ApiControllersExtensions,
     private val incomeService: IncomeService,
-    private val timeService: TimeService
+    private val timeService: TimeService,
+    private val invoiceService: InvoiceService
 ) {
 
     @PostMapping
@@ -48,7 +51,7 @@ class IncomesApiController(
                 notes = request.notes,
                 attachments = extensions.getValidDocuments(workspace, request.attachments)
             )
-        ).let(::mapIncomeDto)
+        ).let { mapIncomeDto(it, invoiceService) }
     }
 
     @GetMapping
@@ -69,7 +72,7 @@ class IncomesApiController(
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
         val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
             ?: throw EntityNotFoundException("Income $incomeId is not found")
-        mapIncomeDto(income)
+        mapIncomeDto(income, invoiceService)
     }
 
     @PutMapping("{incomeId}")
@@ -98,7 +101,7 @@ class IncomesApiController(
         }.let {
             incomeService.saveIncome(it)
         }.let {
-            mapIncomeDto(it)
+            mapIncomeDto(it, invoiceService)
         }
     }
 }
@@ -117,7 +120,13 @@ data class IncomeDto(
     val notes: String?,
     val id: Long,
     val version: Int,
-    val status: IncomeStatus
+    val status: IncomeStatus,
+    val linkedInvoice: LinkedInvoiceDto?
+)
+
+data class LinkedInvoiceDto(
+    val id: Long,
+    val title: String
 )
 
 enum class IncomeStatus {
@@ -138,21 +147,30 @@ data class EditIncomeDto(
     @field:Size(max = 1024) val notes: String?
 )
 
-private fun mapIncomeDto(source: Income) = IncomeDto(
-    category = source.category?.id,
-    title = source.title,
-    dateReceived = source.dateReceived,
-    timeRecorded = source.timeRecorded,
-    currency = source.currency,
-    originalAmount = source.originalAmount,
-    amountInDefaultCurrency = source.amountInDefaultCurrency,
-    attachments = source.attachments.map { it.id!! },
-    reportedAmountInDefaultCurrency = source.reportedAmountInDefaultCurrency,
-    notes = source.notes,
-    id = source.id!!,
-    version = source.version,
-    status = getIncomeStatus(source)
-)
+private suspend fun mapIncomeDto(source: Income, invoiceService: InvoiceService): IncomeDto {
+    val linkedInvoice: Invoice? = invoiceService.findByIncome(source)
+    return IncomeDto(
+        category = source.category?.id,
+        title = source.title,
+        dateReceived = source.dateReceived,
+        timeRecorded = source.timeRecorded,
+        currency = source.currency,
+        originalAmount = source.originalAmount,
+        amountInDefaultCurrency = source.amountInDefaultCurrency,
+        attachments = source.attachments.map { it.id!! },
+        reportedAmountInDefaultCurrency = source.reportedAmountInDefaultCurrency,
+        notes = source.notes,
+        id = source.id!!,
+        version = source.version,
+        status = getIncomeStatus(source),
+        linkedInvoice = linkedInvoice?.let {
+            LinkedInvoiceDto(
+                id = it.id!!,
+                title = it.title
+            )
+        }
+    )
+}
 
 private fun getIncomeStatus(income: Income): IncomeStatus {
     return when {
@@ -163,8 +181,11 @@ private fun getIncomeStatus(income: Income): IncomeStatus {
 }
 
 @Component
-class IncomePageableApiDescriptor : PageableApiDescriptor<Income, QIncome> {
-    override fun mapEntityToDto(entity: Income) = mapIncomeDto(entity)
+class IncomePageableApiDescriptor(
+    private val invoiceService: InvoiceService
+) : PageableApiDescriptor<Income, QIncome> {
+
+    override suspend fun mapEntityToDto(entity: Income) = mapIncomeDto(entity, invoiceService)
 
     override fun getSupportedFilters() = apiFilters(QIncome.income) {
         byApiField("freeSearchText", String::class) {

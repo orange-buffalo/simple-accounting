@@ -1,6 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import com.querydsl.core.types.EntityPath
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.reactor.mono
 import org.reactivestreams.Publisher
 import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.core.ResolvableType
@@ -60,14 +62,16 @@ class ApiPageResultHandler(
 
         return Mono.from(adapter.toPublisher<Page<Any>>(result.returnValue))
             .flatMap { repositoryPage ->
-
-                val apiPage = ApiPage(
-                    pageNumber = repositoryPage.number + 1,
-                    pageSize = repositoryPage.size,
-                    totalElements = repositoryPage.totalElements,
-                    data = repositoryPage.content.map { pageableApiDescriptor.mapEntityToDto(it) }
-                )
-
+                //todo wrap the whole method into a coroutine mono: subscribers context needs to be propagated to support security
+                GlobalScope.mono {
+                    ApiPage(
+                        pageNumber = repositoryPage.number + 1,
+                        pageSize = repositoryPage.size,
+                        totalElements = repositoryPage.totalElements,
+                        data = repositoryPage.content.map { pageableApiDescriptor.mapEntityToDto(it) }
+                    )
+                }
+            }.flatMap { apiPage ->
                 val elementType = ResolvableType.forInstance(apiPage)
 
                 messageWriters.asSequence()
@@ -89,5 +93,4 @@ class ApiPageResultHandler(
                     }
             }
     }
-
 }

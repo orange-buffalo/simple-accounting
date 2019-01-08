@@ -78,7 +78,7 @@ data class DocumentDto(
 
 @Component
 class DocumentPageableApiDescriptor : PageableApiDescriptor<Document, QDocument> {
-    override fun mapEntityToDto(entity: Document) = mapDocumentDto(entity)
+    override suspend fun mapEntityToDto(entity: Document) = mapDocumentDto(entity)
 
     override fun getSupportedFilters(): List<PageableApiFilter<Document, QDocument>> = apiFilters(QDocument.document) {
         byApiField("id", Long::class) {

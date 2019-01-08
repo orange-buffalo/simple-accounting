@@ -57,7 +57,7 @@ data class CreateUserDto(
 
 @Component
 class UserPageableApiDescriptor : PageableApiDescriptor<PlatformUser, QPlatformUser> {
-    override fun mapEntityToDto(entity: PlatformUser) = mapUserDto(entity)
+    override suspend fun mapEntityToDto(entity: PlatformUser) = mapUserDto(entity)
 }
 
 private fun mapUserDto(entity: PlatformUser): UserDto {

@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QInvoice
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
@@ -14,12 +15,29 @@ import org.springframework.stereotype.Service
 @Service
 class InvoiceService(
     private val invoiceRepository: InvoiceRepository,
-    private val incomeRepository: IncomeRepository
+    private val incomeRepository: IncomeRepository,
+    private val timeService: TimeService
 ) {
 
     suspend fun saveInvoice(invoice: Invoice): Invoice {
-        //todo create income if paid (blocked by mandatory category in income)
         return withDbContext {
+            if (invoice.datePaid != null && invoice.income == null) {
+                invoice.income = incomeRepository.save(
+                    Income(
+                        workspace = invoice.customer.workspace,
+                        // todo i18n
+                        title = "Payment for ${invoice.title}",
+                        timeRecorded = timeService.currentTime(),
+                        dateReceived = invoice.datePaid!!,
+                        currency = invoice.currency,
+                        originalAmount = invoice.amount,
+                        reportedAmountInDefaultCurrency = 0,
+                        amountInDefaultCurrency = 0,
+                        category = null
+                    )
+                )
+            }
+
             invoiceRepository.save(invoice)
         }
     }
@@ -36,4 +54,10 @@ class InvoiceService(
         withDbContext {
             invoiceRepository.findByIdAndCustomerWorkspace(id, workspace)
         }
+
+    suspend fun findByIncome(income: Income): Invoice? {
+        return withDbContext {
+            invoiceRepository.findByIncome(income)
+        }
+    }
 }

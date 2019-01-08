@@ -103,5 +103,5 @@ private fun mapCustomerDto(source: Customer) = CustomerDto(
 
 @Component
 class CustomerPageableApiDescriptor : PageableApiDescriptor<Customer, QCustomer> {
-    override fun mapEntityToDto(entity: Customer) = mapCustomerDto(entity)
+    override suspend fun mapEntityToDto(entity: Customer) = mapCustomerDto(entity)
 }

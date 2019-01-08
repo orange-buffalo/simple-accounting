@@ -172,7 +172,7 @@ private fun getExpenseStatus(expense: Expense): ExpenseStatus {
 
 @Component
 class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
-    override fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
+    override suspend fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
 
     override fun getSupportedFilters() = apiFilters(QExpense.expense) {
         byApiField("freeSearchText", String::class) {

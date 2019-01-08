@@ -183,7 +183,7 @@ class InvoicePageableApiDescriptor(
     private val timeService: TimeService
 ) : PageableApiDescriptor<Invoice, QInvoice> {
 
-    override fun mapEntityToDto(entity: Invoice) = mapInvoiceDto(entity, timeService)
+    override suspend fun mapEntityToDto(entity: Invoice) = mapInvoiceDto(entity, timeService)
 
     override fun getSupportedFilters() = apiFilters(QInvoice.invoice) {
         byApiField("freeSearchText", String::class) {

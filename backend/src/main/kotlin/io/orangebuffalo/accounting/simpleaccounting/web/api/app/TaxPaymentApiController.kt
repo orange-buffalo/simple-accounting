@@ -130,5 +130,5 @@ private fun mapTaxPaymentDto(source: TaxPayment) = TaxPaymentDto(
 
 @Component
 class TaxPaymentPageableApiDescriptor : PageableApiDescriptor<TaxPayment, QTaxPayment> {
-    override fun mapEntityToDto(entity: TaxPayment) = mapTaxPaymentDto(entity)
+    override suspend fun mapEntityToDto(entity: TaxPayment) = mapTaxPaymentDto(entity)
 }

@@ -74,7 +74,13 @@
                        :currency="defaultCurrency"></money-input>
         </el-form-item>
 
-        <h2>Additional notes</h2>
+        <h2>Additional Information</h2>
+
+        <el-form-item label="Linked Invoice"
+                      prop="reportedAmountInDefaultCurrency"
+                      v-if="income.linkedInvoice">
+          <span>{{income.linkedInvoice.title}}</span>
+        </el-form-item>
 
         <el-form-item label="Notes" prop="notes">
           <el-input type="textarea" v-model="income.notes"
