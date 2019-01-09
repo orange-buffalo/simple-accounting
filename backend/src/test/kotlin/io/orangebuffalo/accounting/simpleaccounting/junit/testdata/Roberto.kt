@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.junit.testdata
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
+import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_DATE
 import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
 import java.time.LocalDate
 
@@ -280,14 +281,16 @@ class Roberto : TestData {
         TaxPayment(
             workspace = workspace,
             timeRecorded = MOCK_TIME,
-            datePaid = LocalDate.of(3005, 7, 1),
+            datePaid = MOCK_DATE,
+            reportingDate = LocalDate.of(3005, 7, 1),
             amount = 23,
             title = "tax"
         ),
         TaxPayment(
             workspace = workspace,
             timeRecorded = MOCK_TIME,
-            datePaid = LocalDate.of(3005, 7, 2),
+            datePaid = MOCK_DATE,
+            reportingDate = LocalDate.of(3005, 7, 2),
             amount = 43,
             title = "tax"
         ),
@@ -295,14 +298,16 @@ class Roberto : TestData {
         TaxPayment(
             workspace = workspace,
             timeRecorded = MOCK_TIME,
-            datePaid = LocalDate.of(3005, 8, 1),
+            datePaid = MOCK_DATE,
+            reportingDate = LocalDate.of(3005, 8, 1),
             amount = 34,
             title = "tax"
         ),
         TaxPayment(
             workspace = workspace,
             timeRecorded = MOCK_TIME,
-            datePaid = LocalDate.of(3005, 8, 2),
+            datePaid = MOCK_DATE,
+            reportingDate = LocalDate.of(3005, 8, 2),
             amount = 111,
             title = "tax"
         )

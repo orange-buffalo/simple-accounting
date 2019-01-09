@@ -18,6 +18,9 @@ class TaxPayment(
     var datePaid: LocalDate,
 
     @field:Column(nullable = false)
+    var reportingDate: LocalDate,
+
+    @field:Column(nullable = false)
     var amount: Long,
 
     @field:Column(nullable = false, length = 255)

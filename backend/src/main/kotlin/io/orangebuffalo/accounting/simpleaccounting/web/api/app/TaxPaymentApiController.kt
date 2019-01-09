@@ -40,6 +40,7 @@ class TaxPaymentApiController(
             TaxPayment(
                 timeRecorded = timeService.currentTime(),
                 datePaid = request.datePaid,
+                reportingDate = request.reportingDate ?: request.datePaid,
                 notes = request.notes,
                 attachments = extensions.getValidDocuments(workspace, request.attachments),
                 amount = request.amount,
@@ -104,6 +105,7 @@ data class TaxPaymentDto(
     val title: String,
     val timeRecorded: Instant,
     val datePaid: LocalDate,
+    val reportingDate: LocalDate,
     val amount: Long,
     val attachments: List<Long>,
     val notes: String?
@@ -111,6 +113,7 @@ data class TaxPaymentDto(
 
 data class EditTaxPaymentDto(
     val datePaid: LocalDate,
+    val reportingDate: LocalDate?,
     val amount: Long,
     val attachments: List<Long>,
     @Length(max = 1024) val notes: String?,
@@ -122,6 +125,7 @@ private fun mapTaxPaymentDto(source: TaxPayment) = TaxPaymentDto(
     version = source.version,
     timeRecorded = source.timeRecorded,
     datePaid = source.datePaid,
+    reportingDate = source.reportingDate,
     amount = source.amount,
     attachments = source.attachments.map { it.id!! },
     notes = source.notes,

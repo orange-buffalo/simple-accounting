@@ -24,8 +24,8 @@ class TaxPaymentRepositoryExtImpl(
             .from(taxPayment)
             .where(
                 taxPayment.workspace.eq(workspace),
-                taxPayment.datePaid.goe(fromDate),
-                taxPayment.datePaid.loe(toDate)
+                taxPayment.reportingDate.goe(fromDate),
+                taxPayment.reportingDate.loe(toDate)
             )
             .select(
                 QTaxPaymentsStatistics(

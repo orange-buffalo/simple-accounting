@@ -12,7 +12,7 @@ create table invoice_attachments (invoice_id bigint not null, document_id bigint
 create table platform_user (id bigint not null, version integer not null, is_admin boolean not null, password_hash varchar(255) not null, user_name varchar(255) not null, primary key (id))
 create table refresh_token (id bigint not null, version integer not null, expiration_time timestamp not null, token varchar(2048) not null, user_id bigint not null, primary key (id))
 create table tax_payment_attachments (tax_payment_id bigint not null, document_id bigint not null, primary key (tax_payment_id, document_id))
-create table tax_payment (id bigint not null, version integer not null, amount bigint not null, date_paid date not null, notes varchar(1024), time_recorded timestamp not null, title varchar(255) not null, workspace_id bigint not null, primary key (id))
+create table tax_payment (id bigint not null, version integer not null, amount bigint not null, date_paid date not null, notes varchar(1024), reporting_date date not null, time_recorded timestamp not null, title varchar(255) not null, workspace_id bigint not null, primary key (id))
 create table workspace (id bigint not null, version integer not null, default_currency varchar(255) not null, multi_currency_enabled boolean not null, name varchar(255) not null, tax_enabled boolean not null, owner_id bigint not null, primary key (id))
 alter table category add constraint category_workspace_fk foreign key (workspace_id) references workspace
 alter table customer add constraint customer_workspace_fk foreign key (workspace_id) references workspace
