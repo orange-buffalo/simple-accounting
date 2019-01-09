@@ -13,7 +13,10 @@
       <div class="sa-item-attributes">
 
         <span class="sa-item-attribute">
-          <svgicon name="calendar"/>{{datePaid}}
+          <svgicon name="calendar"/>{{reportingDate}}
+          <template v-if="taxPayment.reportingDate !== taxPayment.datePaid">
+            <span class="sa-secondary-text">{{datePaid}}</span>
+          </template>
         </span>
 
         <span class="sa-item-attribute"
@@ -89,6 +92,10 @@
     computed: {
       datePaid: function () {
         return this.mediumDateFormatter(new Date(this.taxPayment.datePaid))
+      },
+
+      reportingDate: function () {
+        return this.mediumDateFormatter(new Date(this.taxPayment.reportingDate))
       }
     },
 

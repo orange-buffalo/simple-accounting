@@ -88,6 +88,7 @@ class TaxPaymentApiController(
             notes = request.notes
             attachments = extensions.getValidDocuments(workspace, request.attachments)
             datePaid = request.datePaid
+            reportingDate = request.reportingDate ?: request.datePaid
             amount = request.amount
             title = request.title
         }.let {

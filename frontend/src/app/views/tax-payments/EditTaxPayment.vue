@@ -33,6 +33,16 @@
           </el-date-picker>
         </el-form-item>
 
+        <el-form-item label="Reporting Date" prop="reportingDate">
+          <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+          <el-date-picker
+              v-model="taxPayment.reportingDate"
+              type="date"
+              placeholder="Date to include this payment into reporting by"
+              value-format="yyyy-MM-dd">
+          </el-date-picker>
+        </el-form-item>
+
         <h2>Additional notes</h2>
 
         <el-form-item label="Notes" prop="notes">
@@ -86,7 +96,8 @@
           attachments: [],
           notes: null,
           datePaid: new Date(),
-          uploads: new UploadsInfo()
+          uploads: new UploadsInfo(),
+          reportingDate: null
         },
         taxPaymentValidationRules: {
           title: {required: true, message: 'Please provide the title'},
@@ -153,7 +164,8 @@
           title: this.taxPayment.title,
           amount: this.taxPayment.amount,
           attachments: this.taxPayment.uploads.getDocumentsIds(),
-          notes: this.taxPayment.notes
+          notes: this.taxPayment.notes,
+          reportingDate: this.taxPayment.reportingDate
         }
 
         if (this.taxPayment.id) {
