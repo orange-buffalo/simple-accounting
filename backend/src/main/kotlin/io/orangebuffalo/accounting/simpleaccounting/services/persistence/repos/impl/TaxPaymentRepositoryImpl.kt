@@ -29,7 +29,7 @@ class TaxPaymentRepositoryExtImpl(
             )
             .select(
                 QTaxPaymentsStatistics(
-                    taxPayment.amount.sum()
+                    taxPayment.amount.sum().coalesce(0)
                 )
             )
             .fetchFirst()
