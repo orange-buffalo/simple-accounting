@@ -1,5 +1,5 @@
 import Router from 'vue-router'
-import Home from './views/Home'
+import Dashboard from './views/Dashboard'
 import UserApp from './views/UserApp'
 import Login from './views/Login'
 import WorkspaceSetup from './views/WorkspaceSetup'
@@ -35,7 +35,7 @@ export default new Router({
       children: [
         {
           path: '',
-          component: Home
+          component: Dashboard
         },
         {
           path: 'settings/categories',

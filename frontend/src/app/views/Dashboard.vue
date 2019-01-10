@@ -125,9 +125,13 @@
   import '@/components/icons/income'
   import '@/components/icons/profit'
   import MoneyOutput from '@/app/components/MoneyOutput'
+  import {lockr} from '@/app/services/app-services'
+  import {isNil} from 'lodash'
+
+  const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range'
 
   export default {
-    name: 'Home',
+    name: 'Dashboard',
 
     mixins: [withWorkspaces, withCategories],
 
@@ -138,7 +142,7 @@
         expenses: {},
         incomes: {},
         taxPayments: {},
-        selectedDateRange: [new Date('2000-01-01'), new Date('3000-01-01')]
+        selectedDateRange: []
       }
     },
 
@@ -169,6 +173,17 @@
     },
 
     created: function () {
+      let selectedDateRange = lockr.get(SELECTED_DATE_RANGE_KEY)
+      if (isNil(selectedDateRange)) {
+        let now = new Date();
+        this.selectedDateRange = [
+          new Date(now.getFullYear(), 0, 1),
+          now
+        ]
+      } else {
+        this.selectedDateRange = selectedDateRange.map(it => new Date(it))
+      }
+
       this.reload()
     },
 
@@ -197,6 +212,7 @@
       },
 
       selectedDateRange: function () {
+        lockr.set(SELECTED_DATE_RANGE_KEY, this.selectedDateRange)
         this.reload()
       }
     }

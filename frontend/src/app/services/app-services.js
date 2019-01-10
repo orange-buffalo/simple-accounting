@@ -6,7 +6,7 @@ export const setupApp = function (store) {
   return store.dispatch('workspaces/loadWorkspaces')
 }
 
-Lockr.prefix = 'simple-accounting'
+Lockr.prefix = 'simple-accounting.'
 export const lockr = Lockr
 
 export const loadDocuments = async function (documents, documentsIds, workspaceId) {
