@@ -89,26 +89,29 @@ dependencies {
     testRuntime('org.junit.jupiter:junit-jupiter-engine')
 }
 
+def frontendDistDir = "$buildDir/generated-resources/main"
 sourceSets {
     main {
-        output.dir("$buildDir/generated-resources/main")
-        output.dir("$buildDir/generated-resources/main", builtBy: 'copyFrontend')
+        output.dir(frontendDistDir, builtBy: 'copyFrontend')
     }
 }
 
 task copyFrontend(type: DefaultTask) {
-    copy {
-        from project(':frontend').file('dist')
-        exclude 'admin/**'
-        exclude 'app/**'
-        into "$buildDir/generated-resources/main/META-INF/resources"
-    }
 
-    copy {
-        from project(':frontend').file('dist')
-        include 'admin/**'
-        include 'app/**'
-        into "$buildDir/generated-resources/main/META-INF/pages"
+    doLast {
+        copy {
+            from project(':frontend').file('dist')
+            exclude 'admin/**'
+            exclude 'app/**'
+            into "$frontendDistDir/META-INF/resources"
+        }
+
+        copy {
+            from project(':frontend').file('dist')
+            include 'admin/**'
+            include 'app/**'
+            into "$frontendDistDir/META-INF/pages"
+        }
     }
 
     dependsOn ':frontend:build'

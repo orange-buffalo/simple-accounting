@@ -6,12 +6,12 @@ node {
   download = false
 }
 
-task buildFrontend(type: NpmTask) {
+task npmBuild(type: NpmTask) {
   args = ['run', 'build']
 }
 
-buildFrontend.dependsOn(npmInstall)
+npmBuild.dependsOn(npmInstall)
 
 task build {
-  dependsOn(buildFrontend)
+  dependsOn(npmBuild)
 }
