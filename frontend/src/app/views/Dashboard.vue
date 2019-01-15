@@ -156,7 +156,7 @@
       },
 
       profit: function () {
-        return (this.expenses.totalAmount && this.incomes.totalAmount)
+        return (!isNil(this.expenses.totalAmount) && !isNil(this.incomes.totalAmount))
             ? this.incomes.totalAmount - this.expenses.totalAmount
             : null
       },
