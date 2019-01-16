@@ -155,11 +155,13 @@
         let incomeResponse = await api.get(`/user/workspaces/${this.workspace.id}/incomes/${this.$route.params.id}`)
         this.income = assign({}, this.income, incomeResponse.data)
 
-        this.alreadyConverted = !isNil(this.income.amountInDefaultCurrency)
+        this.alreadyConverted = this.income.currency !== this.defaultCurrency
+            && !isNil(this.income.amountInDefaultCurrency)
             && this.income.amountInDefaultCurrency > 0
 
-        this.reportedAnotherExchangeRate = !isNil(this.income.reportedAmountInDefaultCurrency)
-            && this.income.reportedAmountInDefaultCurrency > 0
+        this.reportedAnotherExchangeRate = this.income.currency !== this.defaultCurrency
+            && !isNil(this.income.reportedAmountInDefaultCurrency)
+            && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency)
 
         if (this.income.attachments && this.income.attachments.length) {
           let attachments = await api.pageRequest(`/user/workspaces/${this.workspace.id}/documents`)
