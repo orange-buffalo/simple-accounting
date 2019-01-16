@@ -165,11 +165,13 @@
         let expenseResponse = await api.get(`/user/workspaces/${this.workspace.id}/expenses/${this.$route.params.id}`)
         this.expense = assign({}, this.expense, expenseResponse.data)
 
-        this.alreadyConverted = !isNil(this.expense.amountInDefaultCurrency)
+        this.alreadyConverted = this.expense.currency !== this.defaultCurrency
+            && !isNil(this.expense.amountInDefaultCurrency)
             && this.expense.amountInDefaultCurrency > 0
 
-        this.reportedAnotherExchangeRate = !isNil(this.expense.actualAmountInDefaultCurrency)
-            && this.expense.actualAmountInDefaultCurrency > 0
+        this.reportedAnotherExchangeRate = this.expense.currency !== this.defaultCurrency
+            && !isNil(this.expense.actualAmountInDefaultCurrency)
+            && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency)
 
         this.partialForBusiness = this.expense.percentOnBusiness !== 100
 
