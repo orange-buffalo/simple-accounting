@@ -47,14 +47,10 @@
 
     computed: {
       integrationStatus: function () {
-        if (this.status.timeAuthSucceeded) {
-          return `Integration set up on ${this.mediumDateTimeFormatter(new Date(this.status.timeAuthSucceeded))}`
-        } else if (this.status.timeAuthFailed) {
-          return `Integration failed on ${this.mediumDateTimeFormatter(new Date(this.status.timeAuthFailed))}`
-        } else if (this.status.timeAuthRequested) {
-          return `Integration requested on ${this.mediumDateTimeFormatter(new Date(this.status.timeAuthRequested))} but not finished`
+        if (this.status.folderId) {
+          return `Authorization successfully completed.`
         } else {
-          return "Not yet started"
+          return "Authorization required"
         }
       }
     },
@@ -68,15 +64,13 @@
       },
 
       initGoogleDriveAuthorization: async function () {
-        let authUrlResponse = await api.get('/user/storage/google-drive/auth')
-        let authUrl = authUrlResponse.data
-        if (authUrl) {
+        if (this.status.authorizationUrl) {
           let popupWidth = Math.max(screen.width / 2, 600)
           let params = [
             'height=' + (screen.height - 100),
             'width=' + popupWidth
           ].join(',')
-          this.gdrivePopup = window.open(authUrlResponse.data, 'popup_window', params)
+          this.gdrivePopup = window.open(this.status.authorizationUrl, 'popup_window', params)
           this.gdrivePopup.moveTo((screen.width - popupWidth) / 2, 50);
         }
       }

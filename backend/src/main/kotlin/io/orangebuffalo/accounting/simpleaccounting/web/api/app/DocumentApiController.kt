@@ -1,12 +1,12 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.awaitMono
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QDocument
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
-import kotlinx.coroutines.reactive.awaitFirst
-import org.springframework.core.io.Resource
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -15,6 +15,7 @@ import org.springframework.http.codec.multipart.FilePart
 import org.springframework.http.codec.multipart.Part
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Instant
 
@@ -32,7 +33,7 @@ class DocumentApiController(
         @RequestPart("file") file: Mono<Part>
     ): Mono<DocumentDto> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        val filePart = file.cast(FilePart::class.java).awaitFirst()
+        val filePart = file.cast(FilePart::class.java).awaitMono()
         documentService.uploadDocument(filePart, notes, workspace).let(::mapDocumentDto)
     }
 
@@ -51,7 +52,7 @@ class DocumentApiController(
     fun getDocumentContent(
         @PathVariable workspaceId: Long,
         @PathVariable documentId: Long
-    ): Mono<ResponseEntity<Resource>> = extensions.toMono {
+    ): Mono<ResponseEntity<Flux<DataBuffer>>> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
         // todo validate access
         val document = documentService.getDocumentById(documentId)

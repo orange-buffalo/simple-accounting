@@ -6,6 +6,4 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.A
 interface GoogleDriveStorageIntegrationRepository : AbstractEntityRepository<GoogleDriveStorageIntegration> {
 
     fun findByUser(user: PlatformUser): GoogleDriveStorageIntegration?
-
-    fun findByAuthStateToken(token: String): GoogleDriveStorageIntegration?
 }

@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono
 
 private val logger = KotlinLogging.logger {}
 
-@ControllerAdvice(basePackageClasses = [RestApiControllerAdvice::class])
+@ControllerAdvice(basePackages = ["io.orangebuffalo.accounting.simpleaccounting"])
 class RestApiControllerAdvice {
 
     @ExceptionHandler

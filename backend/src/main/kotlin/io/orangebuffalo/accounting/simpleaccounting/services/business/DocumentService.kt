@@ -7,11 +7,12 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentStorage
-import org.springframework.core.io.Resource
+import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 
 @Service
 class DocumentService(
@@ -56,7 +57,7 @@ class DocumentService(
             documentRepository.findById(documentId).orElseGet(null)
         }
 
-    suspend fun getDocumentContent(document: Document): Resource {
+    suspend fun getDocumentContent(document: Document): Flux<DataBuffer> {
         return getDocumentStorageById(document.storageProviderId).getDocumentContent(
             document.workspace,
             document.storageProviderLocation ?: throw IllegalStateException("$document has not location assigned")

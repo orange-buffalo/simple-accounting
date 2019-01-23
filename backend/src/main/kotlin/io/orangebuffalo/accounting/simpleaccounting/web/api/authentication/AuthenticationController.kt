@@ -1,12 +1,12 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.awaitMono
 import io.orangebuffalo.accounting.simpleaccounting.services.security.core.DelegatingReactiveAuthenticationManager
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshAuthenticationToken
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshTokenService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.TOKEN_LIFETIME_IN_DAYS
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
@@ -31,7 +31,7 @@ class AuthenticationController(
     @PostMapping("login")
     fun login(@Valid @RequestBody loginRequest: LoginRequest) = GlobalScope.mono {
         val authenticationToken = UsernamePasswordAuthenticationToken(loginRequest.userName, loginRequest.password)
-        val authentication = authenticationManager.authenticate(authenticationToken).awaitFirst()
+        val authentication = authenticationManager.authenticate(authenticationToken).awaitMono()
         val userDetails = authentication.principal as UserDetails
         val jwtToken = jwtService.buildJwtToken(userDetails)
 
@@ -58,7 +58,7 @@ class AuthenticationController(
             authentication != null && authentication.isAuthenticated -> authentication
             refreshToken != null -> {
                 val authenticationToken = RefreshAuthenticationToken(refreshToken)
-                authenticationManager.authenticate(authenticationToken).awaitFirst()
+                authenticationManager.authenticate(authenticationToken).awaitMono()
             }
             else -> throw InsufficientAuthenticationException("Not authenticated")
         }
