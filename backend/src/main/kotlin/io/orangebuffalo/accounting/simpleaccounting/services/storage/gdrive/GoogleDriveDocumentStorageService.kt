@@ -221,8 +221,14 @@ class GoogleDriveDocumentStorageService(
     private suspend fun ensureRootFolder(
         integration: GoogleDriveStorageIntegration,
         authorizedClient: OAuth2AuthorizedClient? = null
-    ): GDriveFile = getRootFolder(integration, authorizedClient)
-        ?: createWebClient()
+    ): GDriveFile {
+        val rooFolder = try {
+            getRootFolder(integration, authorizedClient)
+        } catch (e: DriveFileNotFoundException) {
+            null
+        }
+
+        return rooFolder ?: createWebClient()
             .post()
             .uri { builder ->
                 builder.path("/drive/v3/files")
@@ -245,6 +251,7 @@ class GoogleDriveDocumentStorageService(
                 integration.folderId = driveFolder.id
                 repository.save(integration)
             }
+    }
 
     suspend fun getCurrentUserIntegrationStatus(): GoogleDriveStorageIntegrationStatus {
         val authorizedClient = getOAuth2AuthorizedClient()
@@ -281,6 +288,8 @@ class GoogleDriveDocumentStorageService(
         if (clientResponse.statusCode() == HttpStatus.UNAUTHORIZED) {
             oauthService.deleteAuthorizedClient(OAUTH2_CLIENT_REGISTRATION_ID)
             throw StorageAuthorizationRequiredException()
+        } else if (clientResponse.statusCode() == HttpStatus.NOT_FOUND) {
+            throw DriveFileNotFoundException()
         } else if (clientResponse.statusCode() != HttpStatus.OK) {
             val errorJson = clientResponse.bodyToMono(String::class.java).awaitMonoOrNull()
             throw IllegalStateException(errorDescriptor(errorJson))
@@ -327,3 +336,5 @@ private data class GDriveCreateFileRequest(
     val mimeType: String,
     val parents: List<String>
 )
+
+private class DriveFileNotFoundException : RuntimeException()
