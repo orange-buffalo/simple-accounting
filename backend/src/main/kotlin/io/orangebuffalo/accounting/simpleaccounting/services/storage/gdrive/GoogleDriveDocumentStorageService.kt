@@ -103,7 +103,7 @@ class GoogleDriveDocumentStorageService(
             .get()
             .uri { builder ->
                 builder.path("/drive/v3/files")
-                    .queryParam("q", "'${integration.folderId}' in parents and name = '${workspace.id}'")
+                    .queryParam("q", "'${integration.folderId}' in parents and name = '${workspace.id}' and trashed = false")
                     .build()
             }
             .accept(MediaType.APPLICATION_JSON)
@@ -288,11 +288,13 @@ class GoogleDriveDocumentStorageService(
         if (clientResponse.statusCode() == HttpStatus.UNAUTHORIZED) {
             oauthService.deleteAuthorizedClient(OAUTH2_CLIENT_REGISTRATION_ID)
             throw StorageAuthorizationRequiredException()
-        } else if (clientResponse.statusCode() == HttpStatus.NOT_FOUND) {
-            throw DriveFileNotFoundException()
         } else if (clientResponse.statusCode() != HttpStatus.OK) {
             val errorJson = clientResponse.bodyToMono(String::class.java).awaitMonoOrNull()
-            throw IllegalStateException(errorDescriptor(errorJson))
+            if (clientResponse.statusCode() == HttpStatus.NOT_FOUND) {
+                throw DriveFileNotFoundException(errorJson)
+            } else {
+                throw IllegalStateException(errorDescriptor(errorJson))
+            }
         }
 
         return clientResponse
@@ -337,4 +339,4 @@ private data class GDriveCreateFileRequest(
     val parents: List<String>
 )
 
-private class DriveFileNotFoundException : RuntimeException()
+private class DriveFileNotFoundException(message: String?) : RuntimeException(message)
