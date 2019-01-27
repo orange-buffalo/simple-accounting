@@ -199,13 +199,13 @@ class InvoicePageableApiDescriptor(
         byApiField("status", InvoiceStatus::class) {
             onOperator(PageableApiFilterOperator.EQ) { value ->
                 when (value) {
-                    InvoiceStatus.DRAFT -> dateSent.isNull.and(dateCancelled.isNull)
+                    InvoiceStatus.DRAFT -> datePaid.isNull.and(dateSent.isNull).and(dateCancelled.isNull)
                     InvoiceStatus.CANCELLED -> dateCancelled.isNotNull
                     InvoiceStatus.PAID -> datePaid.isNotNull.and(dateCancelled.isNull)
                     InvoiceStatus.SENT -> dateSent.isNotNull.and(datePaid.isNull).and(dateCancelled.isNull)
                         .and(dueDate.goe(timeService.currentDate()))
-                    InvoiceStatus.OVERDUE -> datePaid.isNull.and(dueDate.lt(timeService.currentDate()))
-                        .and(dateCancelled.isNull)
+                    InvoiceStatus.OVERDUE -> datePaid.isNull.and(dateCancelled.isNull)
+                        .and(dueDate.lt(timeService.currentDate()))
                 }
             }
         }
