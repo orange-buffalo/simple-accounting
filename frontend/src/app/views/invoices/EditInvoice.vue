@@ -147,11 +147,12 @@
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import withMediumDateTimeFormatter from '@/app/components/mixins/with-medium-datetime-formatter'
   import {assign, isNil} from 'lodash'
+  import {withCustomers} from '@/app/components/mixins/with-customers'
 
   export default {
     name: 'EditInvoice',
 
-    mixins: [withMediumDateFormatter, withMediumDateTimeFormatter],
+    mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers],
 
     components: {
       DocumentsUpload,
@@ -184,7 +185,6 @@
           dateSent: {required: true, message: 'Please provide the date when invoice is sent'},
           datePaid: {required: true, message: 'Please provide the date when invoice is paid'}
         },
-        customers: [],
         alreadySent: false,
         alreadyPaid: false
       }
@@ -205,10 +205,6 @@
           attachments.forEach(attachment => this.invoice.uploads.add(attachment))
         }
       }
-
-      this.customers = await api.pageRequest(`/user/workspaces/${this.workspace.id}/customers`)
-          .eager()
-          .getPageData()
     },
 
     computed: {

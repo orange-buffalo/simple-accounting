@@ -102,11 +102,12 @@
   import {withCategories} from '@/app/components/mixins/with-categories'
   import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
   import {loadDocuments} from '@/app/services/app-services'
+  import {withCustomers} from '@/app/components/mixins/with-customers'
 
   export default {
     name: 'InvoiceOverviewPanel',
 
-    mixins: [withMediumDateFormatter, withWorkspaces, withCategories],
+    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers],
 
     components: {
       MoneyOutput,
@@ -121,8 +122,7 @@
       return {
         notesVisible: false,
         attachmentsVisible: false,
-        attachments: [],
-        customer: null
+        attachments: []
       }
     },
 
@@ -181,13 +181,11 @@
 
       dateCancelled: function () {
         return this.mediumDateFormatter(new Date(this.invoice.dateCancelled))
-      }
-    },
+      },
 
-    created: async function () {
-      this.customer = (await api
-              .pageRequest(`/user/workspaces/${this.currentWorkspace.id}/customers/${this.invoice.customer}`)
-      ).data
+      customer: function () {
+        return this.customerById(this.invoice.customer)
+      }
     },
 
     methods: {

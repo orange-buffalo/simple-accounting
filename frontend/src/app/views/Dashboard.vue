@@ -113,6 +113,45 @@
           </div>
         </div>
       </div>
+
+      <div class="home-page__row__hero"
+           v-for="invoice in pendingInvoices">
+        <div class="home-page__row__hero__header">
+          <span class="home-page__row__hero__header__icon">
+            <svgicon name="invoice"/>
+          </span>
+
+          <money-output class="home-page__row__hero__header__amount"
+                        :currency="invoice.currency"
+                        :amount="invoice.amount"/>
+
+          <span class="home-page__row__hero__header__finalized">{{invoice.title}}</span>
+          <span class="home-page__row__hero__header__finalized">{{invoiceStatus(invoice)}}</span>
+          <span class="home-page__row__hero__header__pending">&nbsp;</span>
+        </div>
+
+        <div class="home-page__row__hero__details">
+          <div class="home-page__row__hero__details__item">
+            <span>To</span>
+            <span>{{invoiceCustomerName(invoice)}}</span>
+          </div>
+
+          <div class="home-page__row__hero__details__item">
+            <span>Issue Date</span>
+            <span>{{invoiceDateIssued(invoice)}}</span>
+          </div>
+
+          <div class="home-page__row__hero__details__item">
+            <span>Date Sent</span>
+            <span>{{invoiceDateSent(invoice)}}</span>
+          </div>
+
+          <div class="home-page__row__hero__details__item">
+            <span>Due Date</span>
+            <span>{{invoiceDueDate(invoice)}}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -127,13 +166,15 @@
   import MoneyOutput from '@/app/components/MoneyOutput'
   import {lockr} from '@/app/services/app-services'
   import {isNil} from 'lodash'
+  import {withMediumDateFormatter} from '@/app/components/mixins/with-medium-date-formatter'
+  import {withCustomers} from '@/app/components/mixins/with-customers'
 
   const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range'
 
   export default {
     name: 'Dashboard',
 
-    mixins: [withWorkspaces, withCategories],
+    mixins: [withWorkspaces, withCategories, withMediumDateFormatter, withCustomers],
 
     components: {MoneyOutput},
 
@@ -142,7 +183,8 @@
         expenses: {},
         incomes: {},
         taxPayments: {},
-        selectedDateRange: []
+        selectedDateRange: [],
+        pendingInvoices: []
       }
     },
 
@@ -169,6 +211,40 @@
         return (this.profit && this.incomes.currencyExchangeGain)
             ? this.profit + this.incomes.currencyExchangeGain
             : null
+      },
+
+      invoiceStatus: function () {
+        return (invoice) => {
+          if (invoice.status === 'OVERDUE') {
+            return 'Overdue'
+          } else {
+            return 'Pending'
+          }
+        }
+      },
+
+      invoiceDateIssued: function () {
+        return (invoice) => {
+          return this.mediumDateFormatter(new Date(invoice.dateIssued))
+        }
+      },
+
+      invoiceDueDate: function () {
+        return (invoice) => {
+          return this.mediumDateFormatter(new Date(invoice.dueDate))
+        }
+      },
+
+      invoiceDateSent: function () {
+        return (invoice) => {
+          return this.mediumDateFormatter(new Date(invoice.dateSent))
+        }
+      },
+
+      invoiceCustomerName: function () {
+        return (invoice) => {
+          return this.customerById(invoice.customer).name
+        }
       }
     },
 
@@ -203,6 +279,12 @@
             `?fromDate=${api.dateToString(this.selectedDateRange[0])}` +
             `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
             .then(response => this.taxPayments = response.data)
+
+        api.pageRequest(`/user/workspaces/${this.currentWorkspace.id}/invoices`)
+            .eager()
+            .eqFilter('status', ['SENT', 'OVERDUE'])
+            .getPageData()
+            .then(invoices => this.pendingInvoices = invoices)
       }
     },
 
@@ -224,6 +306,7 @@
     display: flex;
     justify-content: space-evenly;
     align-items: stretch;
+    flex-wrap: wrap;
   }
 
   .home-page__row__hero {
@@ -232,6 +315,7 @@
     background-color: #fff;
     border-radius: 4px;
     width: 27%;
+    margin-bottom: 20px;
   }
 
   .home-page__row__hero__header {
