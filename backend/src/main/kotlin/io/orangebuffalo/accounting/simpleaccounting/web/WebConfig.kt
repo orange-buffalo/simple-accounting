@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.ReactiveAdapterRegistry
-import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpStatus
 import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.http.codec.json.Jackson2JsonDecoder
@@ -27,16 +26,11 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
-import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.reactive.config.WebFluxConfigurer
-import org.springframework.web.reactive.function.server.RouterFunction
-import org.springframework.web.reactive.function.server.RouterFunctions.resources
-import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer
 import reactor.core.publisher.Mono
 
 @Configuration
-@EnableWebFlux
 @EnableWebFluxSecurity
 class WebConfig(
     @Autowired(required = false) private val adapterRegistry: ReactiveAdapterRegistry = ReactiveAdapterRegistry()
@@ -44,12 +38,6 @@ class WebConfig(
 
     @field:Autowired
     private lateinit var pageableApiDescriptorResolver: PageableApiDescriptorResolver
-
-    //TODO move to static resources controller
-    @Bean
-    fun staticResourceRouter(): RouterFunction<ServerResponse> {
-        return resources("/**", ClassPathResource("META-INF/resources/"))
-    }
 
     override fun configureArgumentResolvers(configurer: ArgumentResolverConfigurer) {
         configurer.addCustomResolver(ApiPageRequestResolver(adapterRegistry, pageableApiDescriptorResolver))

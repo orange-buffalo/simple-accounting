@@ -1,6 +1,7 @@
 spring:
   main:
     banner-mode: "off"
+    web-application-type: reactive
 
   datasource:
     url: jdbc:h2:/data/db/simple-accounting
@@ -14,9 +15,15 @@ spring:
             scope:
               - "https://www.googleapis.com/auth/drive.file"
             redirect-uri: "https://simple-accounting.orange-buffalo.io/api/v1/auth/oauth2/callback"
+  resources:
+    cache:
+      cachecontrol:
+        max-age: 999999999
 
 server:
   port: 9393
+  compression:
+    enabled: true
 
 simpleaccounting:
   documents:
