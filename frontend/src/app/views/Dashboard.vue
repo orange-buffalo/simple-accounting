@@ -302,6 +302,8 @@
 </script>
 
 <style lang="scss">
+  @import "@/app/styles/vars.scss";
+
   .home-page__row {
     display: flex;
     justify-content: space-evenly;
@@ -311,9 +313,9 @@
 
   .home-page__row__hero {
     padding: 20px;
-    border: 1px solid #ebeef5;
-    background-color: #fff;
-    border-radius: 4px;
+    border: 1px solid $secondary-grey;
+    background-color: $white;
+    border-radius: 2px;
     width: 27%;
     margin-bottom: 20px;
   }
@@ -325,7 +327,7 @@
   .home-page__row__hero__header__icon {
     display: inline-block;
     width: 15%;
-    border: 1px solid #ebeef5;
+    border: 1px solid $secondary-grey;
     border-radius: 50%;
     padding: 15px;
 
@@ -345,26 +347,26 @@
   .home-page__row__hero__header__finalized {
     display: block;
     font-size: 90%;
-    color: #8e8e8e;
+    color: $secondary-text-color;
   }
 
   .home-page__row__hero__header__pending {
     display: block;
-    color: orange;
+    color: $warning-color;
     font-size: 90%;
   }
 
   .home-page__row__hero__details {
     margin-top: 20px;
     padding-top: 10px;
-    border-top: 1px solid #ebeef5;
+    border-top: 1px solid $secondary-grey;
   }
 
   .home-page__row__hero__details__item {
     display: flex;
     justify-content: space-between;
-    padding: 5px 0;
+    padding: 5px 0 0;
     font-size: 80%;
-    color: #72757c;
+    color: $secondary-text-color;
   }
 </style>

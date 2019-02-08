@@ -32,6 +32,9 @@
 
 
 <style lang="scss">
+  @import "@/app/styles/vars.scss";
+  @import "@/app/styles/mixins.scss";
+
   .the-side-menu {
   }
 
@@ -41,14 +44,15 @@
     text-decoration: none;
     color: inherit;
     align-items: center;
-    border-left: 2px solid transparent;
+    border-left: 5px solid transparent;
+    transition: all 0.1s ease-out;
 
     &:hover {
-      background-color: #4b677c;
+      background-color: $accent-primary-color;
     }
 
     &.the-side-menu__link--active {
-      border-left: 2px solid red;
+      border-left: 5px solid $accent-contrast-color;
     }
 
     .svg-icon {

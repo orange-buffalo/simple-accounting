@@ -2,6 +2,7 @@
   <el-container>
     <el-aside>
       <div class="avatar">
+        <svgicon name="user"/>
       </div>
 
       <the-workspace-selector/>
@@ -22,6 +23,7 @@
 <script>
   import TheSideMenu from '@/app/components/TheSideMenu'
   import TheWorkspaceSelector from '@/app/components/TheWorkspaceSelector'
+  import '@/components/icons/user.js'
 
   export default {
     name: 'UserApp',
@@ -32,26 +34,30 @@
 
 
 <style lang="scss">
+  @import "@/app/styles/vars.scss";
+  @import "@/app/styles/mixins.scss";
+
   .el-container {
     height: 100vh;
   }
 
   .el-aside {
-    background-color: #3D5265;
-    color: white;
+    @include gradient-background;
+    color: $white;
 
     .avatar {
-      border-radius: 50%;
-      width: 100px;
-      height: 100px;
-      margin: 20px auto 10px;
-      background-image: url("https://www.atomix.com.au/media/2015/06/atomix_user31.png");
-      background-size: cover;
+      text-align: center;
+      .svg-icon {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        margin: 20px auto 10px;
+      }
     }
   }
 
   .el-main {
-    background-color: rgb(249, 251, 253);
+    background-color: $primary-grey;
 
     .content-panel {
       max-width: 1500px;

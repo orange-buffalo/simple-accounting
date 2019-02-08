@@ -1,0 +1,6 @@
+@import "vars";
+
+@mixin gradient-background {
+  background-color: $primary-color;
+  background: linear-gradient(190deg, $primary-color 0%, $primary-color-lighter-i 25%, $secondary-color 100%);
+}

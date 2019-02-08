@@ -121,7 +121,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/app/main.scss";
+  @import "@/app/styles/main.scss";
 
   .tax-payment-panel {
     display: flex;
@@ -130,14 +130,14 @@
 
   .tax-payment-info {
     @extend .sa-item-info-panel;
-    border-radius: 4px 2px 2px 4px;
+    border-radius: 2px 1px 1px 2px;
     flex-grow: 1;
   }
 
   .tax-payment-amount {
     @extend .sa-item-info-panel;
     width: 15%;
-    border-radius: 2px 4px 4px 2px;
+    border-radius: 1px 2px 2px 1px;
     display: flex;
     flex-flow: column;
     text-align: center;

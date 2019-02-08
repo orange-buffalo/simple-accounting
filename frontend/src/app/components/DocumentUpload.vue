@@ -144,7 +144,7 @@
 </script>
 
 <style lang="scss">
-  @import "~element-ui/packages/theme-chalk/src/upload";
+  @import "@/app/styles/vars.scss";
 
   .doc-upload-notes {
     font-style: italic;
@@ -159,7 +159,6 @@
   }
 
   .doc-upload-file-panel {
-    @extend .el-upload-dragger;
     border: solid 1px #dcdfe6;
     cursor: initial;
 

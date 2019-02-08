@@ -1,30 +1,32 @@
 @import url("https://fonts.googleapis.com/css?family=Muli");
+@import "vars";
+@import "mixins";
 
-$loader-color: #4b677c;
+$loader-color: $accent-contrast-color;
 
 #app-loader-screen {
+  @include gradient-background;
   width: 100%;
   height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
   font-family: 'Muli', serif;
-  background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease-out;
 
   h1 {
-    color: $loader-color;
+    color: $accent-contrast-color;
     font-weight: normal;
     font-size: 200%;
+    margin: 0 0 20px;
   }
 
   .app-loader-container {
-    width: 100%;
-    height: 50px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+    transform: translateY(-50%);
 
     .app-loader {
       position: relative;
@@ -43,7 +45,7 @@ $loader-color: #4b677c;
     .app-loader:before {
       content: "";
       position: absolute;
-      background-color: fade_out($loader-color, .5);
+      background-color: fade_out($loader-color, .3);
       top: 0;
       left: -25px;
       height: 12px;
@@ -54,7 +56,7 @@ $loader-color: #4b677c;
     .app-loader:after {
       content: "";
       position: absolute;
-      background-color: fade_out($loader-color, .5);
+      background-color: fade_out($loader-color, .3);
       top: 0;
       left: 25px;
       height: 12px;

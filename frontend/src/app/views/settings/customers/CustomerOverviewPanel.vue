@@ -32,7 +32,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/app/main.scss";
+  @import "@/app/styles/main.scss";
 
   .customer-panel {
     display: flex;

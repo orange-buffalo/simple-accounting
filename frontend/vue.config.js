@@ -7,7 +7,7 @@ module.exports = {
     },
 
     user: {
-      entry: 'src/app/main.js',
+      entry: 'src/app/loader.js',
       template: 'public/index.html',
       filename: 'app/index.html'
     }

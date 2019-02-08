@@ -40,17 +40,20 @@
 </script>
 
 <style lang="scss">
+  @import "@/app/styles/vars.scss";
+  @import "@/app/styles/mixins.scss";
+
   .login-page {
     display: flex;
     height: 100vh;
   }
 
   .login-page__signup {
+    @include gradient-background;
     width: 30%;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background-color: #4b677c;
     color: white;
     font-size: 110%;
   }
