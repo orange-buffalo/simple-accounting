@@ -92,7 +92,7 @@ data class CustomerDto(
 )
 
 data class EditCustomerDto(
-    @field:NotBlank @Length(max = 255) val name: String
+    @field:NotBlank @field:Length(max = 255) val name: String
 )
 
 private fun mapCustomerDto(source: Customer) = CustomerDto(

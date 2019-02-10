@@ -14,6 +14,7 @@ create table persistent_oauth2_authorized_client (id bigint not null, version in
 create table persistent_oauth2_authorized_client_access_token_scopes (client_id bigint not null, access_token_scopes varchar(255))
 create table platform_user (id bigint not null, version integer not null, is_admin boolean not null, password_hash varchar(255) not null, user_name varchar(255) not null, primary key (id))
 create table refresh_token (id bigint not null, version integer not null, expiration_time timestamp not null, token varchar(2048) not null, user_id bigint not null, primary key (id))
+create table tax (id bigint not null, version integer not null, description varchar(255), rate_in_bps integer not null, title varchar(255) not null, workspace_id bigint not null, primary key (id))
 create table tax_payment_attachments (tax_payment_id bigint not null, document_id bigint not null, primary key (tax_payment_id, document_id))
 create table tax_payment (id bigint not null, version integer not null, amount bigint not null, date_paid date not null, notes varchar(1024), reporting_date date not null, time_recorded timestamp not null, title varchar(255) not null, workspace_id bigint not null, primary key (id))
 create table workspace (id bigint not null, version integer not null, default_currency varchar(255) not null, multi_currency_enabled boolean not null, name varchar(255) not null, tax_enabled boolean not null, owner_id bigint not null, primary key (id))
@@ -36,6 +37,7 @@ alter table invoice_attachments add constraint invoice_attachments_invoice_fk fo
 alter table persistent_oauth2_authorization_request add constraint persistent_oauth2_authorization_request_owner_fk foreign key (owner_id) references platform_user
 alter table persistent_oauth2_authorized_client_access_token_scopes add constraint pauth2ac_access_token_scopes_scopes_client_fk foreign key (client_id) references persistent_oauth2_authorized_client
 alter table refresh_token add constraint refresh_token_user_fk foreign key (user_id) references platform_user
+alter table tax add constraint tax_workspace_fk foreign key (workspace_id) references workspace
 alter table tax_payment_attachments add constraint tax_payment_attachments_document_fk foreign key (document_id) references document
 alter table tax_payment_attachments add constraint tax_payment_attachments_tax_payment_fk foreign key (tax_payment_id) references tax_payment
 alter table tax_payment add constraint tax_payment_workspace_fk foreign key (workspace_id) references workspace

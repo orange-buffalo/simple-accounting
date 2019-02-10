@@ -136,14 +136,14 @@ enum class InvoiceStatus {
 }
 
 data class EditInvoiceDto(
-    @field:NotBlank @Length(max = 255) val title: String,
+    @field:NotBlank @field:Length(max = 255) val title: String,
     val customer: Long,
     val dateIssued: LocalDate,
     val dateSent: LocalDate?,
     val datePaid: LocalDate?,
     val dateCancelled: LocalDate?,
     val dueDate: LocalDate,
-    @field:NotBlank @Length(max = 3) val currency: String,
+    @field:NotBlank @field:Length(max = 3) val currency: String,
     val amount: Long,
     val attachments: List<Long>?,
     @field:Size(max = 1024) val notes: String?

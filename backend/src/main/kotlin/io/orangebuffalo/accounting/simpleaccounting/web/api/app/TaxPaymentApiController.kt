@@ -117,8 +117,8 @@ data class EditTaxPaymentDto(
     val reportingDate: LocalDate?,
     val amount: Long,
     val attachments: List<Long>,
-    @Length(max = 1024) val notes: String?,
-    @field:NotBlank @Length(max = 255) val title: String
+    @field:Length(max = 1024) val notes: String?,
+    @field:NotBlank @field:Length(max = 255) val title: String
 )
 
 private fun mapTaxPaymentDto(source: TaxPayment) = TaxPaymentDto(

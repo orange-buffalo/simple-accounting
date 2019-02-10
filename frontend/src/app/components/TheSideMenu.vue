@@ -10,6 +10,7 @@
 
     <the-side-menu-link to="/settings/customers" title="Customers" icon="customer"/>
     <the-side-menu-link to="/settings/categories" title="Categories" icon="category"/>
+    <the-side-menu-link to="/settings/taxes" title="Taxes" icon="tax"/>
 
     <span class="the-side-menu__category">User</span>
 

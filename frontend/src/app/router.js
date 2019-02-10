@@ -123,6 +123,21 @@ export default new Router({
           name: 'edit-customer',
           component: () => import(/* webpackChunkName: "edit-customer" */ './views/settings/customers/EditCustomer.vue')
         },
+          {
+          path: 'settings/taxes',
+          name: 'taxes-overview',
+          component: () => import(/* webpackChunkName: "taxes-overview" */ './views/settings/taxes/TaxesOverview.vue')
+        },
+        {
+          path: 'settings/taxes/create',
+          name: 'create-new-tax',
+          component: () => import(/* webpackChunkName: "create-new-tax" */ './views/settings/taxes/EditTax.vue')
+        },
+        {
+          path: 'setting/taxes/:id/edit',
+          name: 'edit-tax',
+          component: () => import(/* webpackChunkName: "edit-tax" */ './views/settings/taxes/EditTax.vue')
+        },
         {
           path: 'my-profile',
           name: 'my-profile',
