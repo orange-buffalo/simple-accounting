@@ -80,6 +80,7 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('io.projectreactor:reactor-test')
     testCompile('org.junit.jupiter:junit-jupiter-api')
+    testCompile('org.junit.jupiter:junit-jupiter-params')
     testCompile('org.springframework.security:spring-security-test')
     testCompile('net.javacrumbs.json-unit:json-unit-assertj:2.0.2')
     testCompile('com.nhaarman:mockito-kotlin:1.6.0')

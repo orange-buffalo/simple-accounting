@@ -48,6 +48,16 @@ class Expense(
     @field:Column(nullable = false)
     var percentOnBusiness: Int,
 
+    @field:ManyToOne
+    @field:JoinColumn(foreignKey = ForeignKey(name = "expense_tax_fk"))
+    var tax: Tax?,
+
+    @field:Column
+    var taxRateInBps: Int? = null,
+
+    @field:Column
+    var taxAmount: Long? = null,
+
     @field:Column(nullable = false)
     var reportedAmountInDefaultCurrency: Long,
 

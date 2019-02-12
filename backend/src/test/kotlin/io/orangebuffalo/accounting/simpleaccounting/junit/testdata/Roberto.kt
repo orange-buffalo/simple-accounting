@@ -71,7 +71,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 111,
             amountInDefaultCurrency = 111,
             originalAmount = 111,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = firstCategory.workspace,
@@ -84,7 +85,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 110,
             amountInDefaultCurrency = 110,
             originalAmount = 110,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = firstCategory.workspace,
@@ -97,7 +99,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 112,
             amountInDefaultCurrency = 112,
             originalAmount = 112,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = firstCategory.workspace,
@@ -110,7 +113,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 113,
             amountInDefaultCurrency = 113,
             originalAmount = 113,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = secondCategory.workspace,
@@ -123,7 +127,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 210,
             amountInDefaultCurrency = 210,
             originalAmount = 210,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = secondCategory.workspace,
@@ -136,7 +141,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 211,
             amountInDefaultCurrency = 211,
             originalAmount = 211,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = secondCategory.workspace,
@@ -149,7 +155,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 210,
             amountInDefaultCurrency = 210,
             originalAmount = 210,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = secondCategory.workspace,
@@ -162,7 +169,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 0,
             amountInDefaultCurrency = 210,
             originalAmount = 210,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = secondCategory.workspace,
@@ -175,7 +183,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 0,
             amountInDefaultCurrency = 0,
             originalAmount = 210,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Expense(
             workspace = irrelevantCategory.workspace,
@@ -188,7 +197,8 @@ class Roberto : TestData {
             actualAmountInDefaultCurrency = 33,
             amountInDefaultCurrency = 33,
             originalAmount = 33,
-            percentOnBusiness = 100
+            percentOnBusiness = 100,
+            tax = null
         ),
         Income(
             workspace = irrelevantCategory.workspace,

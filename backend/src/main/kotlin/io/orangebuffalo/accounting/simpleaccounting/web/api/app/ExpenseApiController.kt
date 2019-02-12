@@ -3,9 +3,12 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Tax
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
 import org.springframework.data.domain.Page
@@ -23,7 +26,8 @@ import javax.validation.constraints.Size
 class ExpenseApiController(
     private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,
-    private val timeService: TimeService
+    private val timeService: TimeService,
+    private val taxService: TaxService
 ) {
 
     @PostMapping
@@ -33,6 +37,8 @@ class ExpenseApiController(
     ): Mono<ExpenseDto> = extensions.toMono {
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
+
+        val tax = getValidTax(request.tax, workspace)
 
         expenseService.saveExpense(
             Expense(
@@ -48,10 +54,19 @@ class ExpenseApiController(
                 notes = request.notes,
                 percentOnBusiness = request.percentOnBusiness ?: 100,
                 attachments = extensions.getValidDocuments(workspace, request.attachments),
-                reportedAmountInDefaultCurrency = 0
+                reportedAmountInDefaultCurrency = 0,
+                tax = tax
             )
         ).let(::mapExpenseDto)
     }
+
+    private suspend fun getValidTax(taxId: Long?, workspace: Workspace): Tax? =
+        if (taxId == null) {
+            null
+        } else {
+            taxService.getTaxByIdAndWorkspace(taxId, workspace)
+                ?: throw EntityNotFoundException("Tax $taxId is not found")
+        }
 
     @GetMapping
     @PageableApi(ExpensePageableApiDescriptor::class)
@@ -98,6 +113,7 @@ class ExpenseApiController(
             notes = request.notes
             percentOnBusiness = request.percentOnBusiness ?: 100
             attachments = extensions.getValidDocuments(workspace, request.attachments)
+            tax = getValidTax(request.tax, workspace)
         }.let {
             expenseService.saveExpense(it)
         }.let {
@@ -122,7 +138,10 @@ data class ExpenseDto(
     val notes: String?,
     val id: Long,
     val version: Int,
-    val status: ExpenseStatus
+    val status: ExpenseStatus,
+    val tax: Long?,
+    val taxRateInBps: Int?,
+    val taxAmount: Long?
 )
 
 enum class ExpenseStatus {
@@ -141,7 +160,8 @@ data class EditExpenseDto(
     val actualAmountInDefaultCurrency: Long?,
     val attachments: List<Long>?,
     val percentOnBusiness: Int?,
-    @field:Size(max = 1024) val notes: String?
+    @field:Size(max = 1024) val notes: String?,
+    val tax: Long?
 )
 
 private fun mapExpenseDto(source: Expense) = ExpenseDto(
@@ -159,7 +179,10 @@ private fun mapExpenseDto(source: Expense) = ExpenseDto(
     notes = source.notes,
     id = source.id!!,
     version = source.version,
-    status = getExpenseStatus(source)
+    status = getExpenseStatus(source),
+    tax = source.tax?.id,
+    taxAmount = source.taxAmount,
+    taxRateInBps = source.taxRateInBps
 )
 
 private fun getExpenseStatus(expense: Expense): ExpenseStatus {

@@ -10,7 +10,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.E
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import java.math.RoundingMode
 import java.time.LocalDate
 
 @Service
@@ -18,17 +17,35 @@ class ExpenseService(
     private val expenseRepository: ExpenseRepository
 ) {
 
+    /**
+     * If tax is provided, original amount always includes the tax.
+     */
     suspend fun saveExpense(expense: Expense): Expense {
         val defaultCurrency = expense.workspace.defaultCurrency
         if (defaultCurrency == expense.currency) {
             expense.amountInDefaultCurrency = expense.originalAmount
             expense.actualAmountInDefaultCurrency = expense.originalAmount
+        } else if (expense.amountInDefaultCurrency == 0L) {
+            expense.actualAmountInDefaultCurrency = 0
         }
 
-        expense.reportedAmountInDefaultCurrency = expense.actualAmountInDefaultCurrency.toBigDecimal()
-            .multiply(expense.percentOnBusiness.toBigDecimal())
-            .divide(100.toBigDecimal(), 0, RoundingMode.HALF_EVEN)
-            .longValueExact()
+        val tax = expense.tax
+        expense.taxRateInBps = tax?.rateInBps
+
+        val actualAmountOnBusiness = expense.actualAmountInDefaultCurrency.percentPart(expense.percentOnBusiness)
+
+        val baseAmountForAddedTax = if (tax == null) {
+            actualAmountOnBusiness
+        } else {
+            actualAmountOnBusiness.bpsBasePart(tax.rateInBps)
+        }
+
+        expense.reportedAmountInDefaultCurrency = baseAmountForAddedTax
+        expense.taxAmount = if (tax == null) {
+            null
+        } else {
+            actualAmountOnBusiness - baseAmountForAddedTax
+        }
 
         return withDbContext {
             expenseRepository.save(expense)

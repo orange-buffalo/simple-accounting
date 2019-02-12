@@ -48,6 +48,17 @@
           <svgicon name="attachment"/>
           <span class="sa-clickable" @click="toggleAttachments()">Attachment provided</span>
         </span>
+
+        <span class="sa-item-attribute"
+              v-if="expense.tax && taxById(expense.tax).title">
+          <svgicon name="tax"/>
+          <!-- todo localize -->
+          <span>{{expense.taxRateInBps / 100}}% {{taxById(expense.tax).title}}</span>
+          <money-output v-if="expense.taxAmount"
+                        class="sa-secondary-text"
+                        :currency="currentWorkspace.defaultCurrency"
+                        :amount="expense.taxAmount"/>
+        </span>
       </div>
 
       <div class="sa-item-section" v-if="notesVisible">
@@ -88,14 +99,16 @@
   import '@/components/icons/category'
   import '@/components/icons/pencil'
   import '@/components/icons/percent'
+  import '@/components/icons/tax'
   import {withCategories} from '@/app/components/mixins/with-categories'
   import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
   import {loadDocuments} from '@/app/services/app-services'
+  import {withTaxes} from '@/app/components/mixins/with-taxes'
 
   export default {
     name: 'ExpenseOverviewPanel',
 
-    mixins: [withMediumDateFormatter, withCategories, withWorkspaces],
+    mixins: [withMediumDateFormatter, withCategories, withWorkspaces, withTaxes],
 
     components: {
       MoneyOutput,

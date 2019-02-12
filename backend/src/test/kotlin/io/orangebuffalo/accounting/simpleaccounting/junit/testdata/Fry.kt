@@ -36,7 +36,8 @@ class Fry : TestData {
         amountInDefaultCurrency = 500,
         actualAmountInDefaultCurrency = 450,
         reportedAmountInDefaultCurrency = 450,
-        percentOnBusiness = 100
+        percentOnBusiness = 100,
+        tax = null
     )
 
     val slurmReceipt = Document(
@@ -80,7 +81,8 @@ class Fry : TestData {
         reportedAmountInDefaultCurrency = 455,
         percentOnBusiness = 99,
         notes = "nice!",
-        attachments = setOf(slurmReceipt)
+        attachments = setOf(slurmReceipt),
+        tax = null
     )
 
     val refreshToken = RefreshToken(

@@ -37,7 +37,8 @@ class Bender : TestData {
         amountInDefaultCurrency = 25,
         actualAmountInDefaultCurrency = 25,
         reportedAmountInDefaultCurrency = 25,
-        percentOnBusiness = 100
+        percentOnBusiness = 100,
+        tax = null
     )
 
     val leagueOfRobots = Workspace(

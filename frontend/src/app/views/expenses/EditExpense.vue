@@ -48,6 +48,17 @@
           </el-date-picker>
         </el-form-item>
 
+        <el-form-item label="Tax" prop="tax">
+          <el-select v-model="expense.tax" placeholder="Select a tax">
+            <el-option
+                v-for="tax in taxes"
+                :key="tax.id"
+                :label="tax.title"
+                :value="tax.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item v-if="!isInDefaultCurrency">
           <el-checkbox v-model="alreadyConverted">
             Already converted
@@ -121,11 +132,12 @@
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import {assign} from 'lodash'
   import {isNil} from 'lodash'
+  import {withTaxes} from '@/app/components/mixins/with-taxes'
 
   export default {
     name: 'EditExpense',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withMediumDateFormatter, withTaxes],
 
     components: {
       DocumentsUpload,
@@ -146,7 +158,8 @@
           percentOnBusiness: 100,
           notes: null,
           datePaid: new Date(),
-          uploads: new UploadsInfo()
+          uploads: new UploadsInfo(),
+          tax: null
         },
         expenseValidationRules: {
           currency: {required: true, message: 'Please select a currency'},
@@ -253,7 +266,8 @@
               ? this.expense.actualAmountInDefaultCurrency : this.expense.amountInDefaultCurrency,
           attachments: this.expense.uploads.getDocumentsIds(),
           percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
-          notes: this.expense.notes
+          notes: this.expense.notes,
+          tax: this.expense.tax
         }
 
         if (this.expense.id) {
