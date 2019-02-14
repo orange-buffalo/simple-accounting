@@ -15,15 +15,15 @@ class PersistentOAuth2AuthorizedClient(
     val userName: String,
 
     @field:Column(nullable = false)
-    val accessToken: String,
+    var accessToken: String,
 
     @field:Column
-    val accessTokenIssuedAt: Instant?,
+    var accessTokenIssuedAt: Instant?,
 
     @field:Column
-    val accessTokenExpiresAt: Instant?,
+    var accessTokenExpiresAt: Instant?,
 
-    @field:ElementCollection
+    @field:ElementCollection(fetch = FetchType.EAGER)
     @field:CollectionTable(
         name = "persistent_oauth2_authorized_client_access_token_scopes",
         joinColumns = [JoinColumn(
@@ -31,12 +31,12 @@ class PersistentOAuth2AuthorizedClient(
             foreignKey = ForeignKey(name = "pauth2ac_access_token_scopes_scopes_client_fk")
         )]
     )
-    val accessTokenScopes: Set<String>,
+    var accessTokenScopes: Set<String>,
 
     @field:Column
-    val refreshToken: String?,
+    var refreshToken: String?,
 
     @field:Column
-    val refreshTokenIssuedAt: Instant?
+    var refreshTokenIssuedAt: Instant?
 
 ) : AbstractEntity()

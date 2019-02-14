@@ -37,7 +37,7 @@ class DbReactiveOAuth2AuthorizedClientService(
                         persistentClient.accessToken,
                         persistentClient.accessTokenIssuedAt,
                         persistentClient.accessTokenExpiresAt,
-                        persistentClient.accessTokenScopes
+                        persistentClient.accessTokenScopes.toSet()
                     ),
                     persistentClient.refreshToken?.let {
                         OAuth2RefreshToken(
@@ -62,19 +62,31 @@ class DbReactiveOAuth2AuthorizedClientService(
             val clientRegistrationId = authorizedClient.clientRegistration.registrationId
             val accessToken = authorizedClient.accessToken
             val refreshToken = authorizedClient.refreshToken
-            repository.deleteByClientRegistrationIdAndUserName(clientRegistrationId, userName)
-            repository.save(
-                PersistentOAuth2AuthorizedClient(
-                    clientRegistrationId = clientRegistrationId,
-                    userName = userName,
-                    accessToken = accessToken.tokenValue,
-                    accessTokenExpiresAt = accessToken.expiresAt,
-                    accessTokenIssuedAt = accessToken.issuedAt,
-                    refreshToken = refreshToken?.tokenValue,
-                    refreshTokenIssuedAt = refreshToken?.issuedAt,
-                    accessTokenScopes = accessToken.scopes
+            val existingClient = repository.findByClientRegistrationIdAndUserName(clientRegistrationId, userName)
+            if (existingClient == null) {
+                repository.save(
+                    PersistentOAuth2AuthorizedClient(
+                        clientRegistrationId = clientRegistrationId,
+                        userName = userName,
+                        accessToken = accessToken.tokenValue,
+                        accessTokenExpiresAt = accessToken.expiresAt,
+                        accessTokenIssuedAt = accessToken.issuedAt,
+                        refreshToken = refreshToken?.tokenValue,
+                        refreshTokenIssuedAt = refreshToken?.issuedAt,
+                        accessTokenScopes = accessToken.scopes
+                    )
                 )
-            )
+            } else {
+                existingClient.accessToken = accessToken.tokenValue
+                existingClient.accessTokenExpiresAt = accessToken.expiresAt
+                existingClient.accessTokenIssuedAt = accessToken.issuedAt
+                existingClient.accessTokenScopes = accessToken.scopes
+                if (refreshToken != null) {
+                    existingClient.refreshToken = refreshToken.tokenValue
+                    existingClient.refreshTokenIssuedAt = refreshToken.issuedAt
+                }
+                repository.save(existingClient)
+            }
         }
     }
 }
