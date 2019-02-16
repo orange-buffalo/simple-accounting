@@ -52,6 +52,10 @@ class Invoice(
     var attachments: Set<Document> = setOf(),
 
     @field:Column(length = 1024)
-    var notes: String? = null
+    var notes: String? = null,
+
+    @field:ManyToOne
+    @field:JoinColumn(foreignKey = ForeignKey(name = "invoice_tax_fk"))
+    var tax: Tax?
 
 ) : AbstractEntity()

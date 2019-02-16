@@ -48,7 +48,7 @@
           </el-date-picker>
         </el-form-item>
 
-        <el-form-item label="Tax" prop="tax">
+        <el-form-item label="Included Tax" prop="tax">
           <el-select v-model="expense.tax" placeholder="Select a tax">
             <el-option
                 v-for="tax in taxes"

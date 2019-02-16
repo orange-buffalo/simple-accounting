@@ -1,13 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.CustomerService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Customer
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.business.*
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import kotlinx.coroutines.CoroutineScope
 import org.springframework.stereotype.Component
@@ -18,7 +12,8 @@ class ApiControllersExtensions(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
     private val documentService: DocumentService,
-    private val customerService: CustomerService
+    private val customerService: CustomerService,
+    private val taxService: TaxService
 ) {
 
     suspend fun validateWorkspaceAccess(workspaceId: Long) {
@@ -35,6 +30,14 @@ class ApiControllersExtensions(
             throw EntityNotFoundException("Workspace $workspaceId is not found")
         }
     }
+
+    suspend fun getValidTax(taxId: Long?, workspace: Workspace): Tax? =
+        if (taxId == null) {
+            null
+        } else {
+            taxService.getTaxByIdAndWorkspace(taxId, workspace)
+                ?: throw EntityNotFoundException("Tax $taxId is not found")
+        }
 
     //todo remove
     fun <T> toMono(block: suspend CoroutineScope.() -> T): Mono<T> =

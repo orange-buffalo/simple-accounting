@@ -7,7 +7,7 @@ create table expense_attachments (expense_id bigint not null, document_id bigint
 create table google_drive_storage_integration (id bigint not null, version integer not null, folder_id varchar(255), user_id bigint not null, primary key (id))
 create table income (id bigint not null, version integer not null, amount_in_default_currency bigint not null, currency varchar(3) not null, date_received date not null, notes varchar(1024), original_amount bigint not null, reported_amount_in_default_currency bigint not null, time_recorded timestamp not null, title varchar(255) not null, category_id bigint, workspace_id bigint not null, primary key (id))
 create table income_attachments (income_id bigint not null, document_id bigint not null, primary key (income_id, document_id))
-create table invoice (id bigint not null, version integer not null, amount bigint not null, currency varchar(3) not null, date_cancelled date, date_issued date not null, date_paid date, date_sent date, due_date date not null, notes varchar(1024), time_recorded timestamp not null, title varchar(255) not null, customer_id bigint not null, income_id bigint, primary key (id))
+create table invoice (id bigint not null, version integer not null, amount bigint not null, currency varchar(3) not null, date_cancelled date, date_issued date not null, date_paid date, date_sent date, due_date date not null, notes varchar(1024), time_recorded timestamp not null, title varchar(255) not null, customer_id bigint not null, income_id bigint, tax_id bigint, primary key (id))
 create table invoice_attachments (invoice_id bigint not null, document_id bigint not null, primary key (invoice_id, document_id))
 create table persistent_oauth2_authorization_request (id bigint not null, version integer not null, client_registration_id varchar(255) not null, create_when timestamp not null, state varchar(512) not null, owner_id bigint not null, primary key (id))
 create table persistent_oauth2_authorized_client (id bigint not null, version integer not null, access_token varchar(255) not null, access_token_expires_at timestamp, access_token_issued_at timestamp, client_registration_id varchar(255) not null, refresh_token varchar(255), refresh_token_issued_at timestamp, user_name varchar(255) not null, primary key (id))
@@ -33,6 +33,7 @@ alter table income_attachments add constraint income_attachments_document_fk for
 alter table income_attachments add constraint income_attachments_income_fk foreign key (income_id) references income
 alter table invoice add constraint invoice_customer_fk foreign key (customer_id) references customer
 alter table invoice add constraint invoice_income_fk foreign key (income_id) references income
+alter table invoice add constraint invoice_tax_fk foreign key (tax_id) references tax
 alter table invoice_attachments add constraint invoice_attachments_document_fk foreign key (document_id) references document
 alter table invoice_attachments add constraint invoice_attachments_invoice_fk foreign key (invoice_id) references invoice
 alter table persistent_oauth2_authorization_request add constraint persistent_oauth2_authorization_request_owner_fk foreign key (owner_id) references platform_user

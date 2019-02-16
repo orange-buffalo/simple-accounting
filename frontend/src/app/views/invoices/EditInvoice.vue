@@ -78,6 +78,17 @@
           </el-date-picker>
         </el-form-item>
 
+        <el-form-item label="Included Tax" prop="tax">
+          <el-select v-model="invoice.tax" placeholder="Select a tax">
+            <el-option
+                v-for="tax in taxes"
+                :key="tax.id"
+                :label="tax.title"
+                :value="tax.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item>
           <el-checkbox v-model="alreadySent">
             Already Sent
@@ -148,11 +159,12 @@
   import withMediumDateTimeFormatter from '@/app/components/mixins/with-medium-datetime-formatter'
   import {assign, isNil} from 'lodash'
   import {withCustomers} from '@/app/components/mixins/with-customers'
+  import {withTaxes} from '@/app/components/mixins/with-taxes'
 
   export default {
     name: 'EditInvoice',
 
-    mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers],
+    mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withTaxes],
 
     components: {
       DocumentsUpload,
@@ -282,7 +294,8 @@
           currency: this.invoice.currency,
           amount: this.invoice.amount,
           attachments: this.invoice.uploads.getDocumentsIds(),
-          notes: this.invoice.notes
+          notes: this.invoice.notes,
+          tax: this.invoice.tax
         }
 
         if (this.isEditing) {

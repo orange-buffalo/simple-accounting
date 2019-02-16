@@ -43,6 +43,13 @@
         </el-tooltip>
 
         <span class="sa-item-attribute"
+              v-if="invoice.tax && taxById(invoice.tax).title">
+          <svgicon name="tax"/>
+          <!-- todo localize -->
+          <span>{{taxById(invoice.tax).rateInBps / 100}}% {{taxById(invoice.tax).title}}</span>
+        </span>
+
+        <span class="sa-item-attribute"
               v-if="invoice.notes">
           <svgicon name="notes"/>
           <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
@@ -99,15 +106,17 @@
   import '@/components/icons/notes'
   import '@/components/icons/category'
   import '@/components/icons/pencil'
+  import '@/components/icons/tax'
   import {withCategories} from '@/app/components/mixins/with-categories'
   import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
   import {loadDocuments} from '@/app/services/app-services'
   import {withCustomers} from '@/app/components/mixins/with-customers'
+  import {withTaxes} from '@/app/components/mixins/with-taxes'
 
   export default {
     name: 'InvoiceOverviewPanel',
 
-    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers],
+    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers, withTaxes],
 
     components: {
       MoneyOutput,

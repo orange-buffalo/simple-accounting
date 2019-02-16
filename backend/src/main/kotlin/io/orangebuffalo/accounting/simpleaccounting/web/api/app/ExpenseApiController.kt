@@ -7,8 +7,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Tax
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
 import org.springframework.data.domain.Page
@@ -38,7 +36,7 @@ class ExpenseApiController(
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
-        val tax = getValidTax(request.tax, workspace)
+        val tax = extensions.getValidTax(request.tax, workspace)
 
         expenseService.saveExpense(
             Expense(
@@ -59,14 +57,6 @@ class ExpenseApiController(
             )
         ).let(::mapExpenseDto)
     }
-
-    private suspend fun getValidTax(taxId: Long?, workspace: Workspace): Tax? =
-        if (taxId == null) {
-            null
-        } else {
-            taxService.getTaxByIdAndWorkspace(taxId, workspace)
-                ?: throw EntityNotFoundException("Tax $taxId is not found")
-        }
 
     @GetMapping
     @PageableApi(ExpensePageableApiDescriptor::class)
@@ -113,7 +103,7 @@ class ExpenseApiController(
             notes = request.notes
             percentOnBusiness = request.percentOnBusiness ?: 100
             attachments = extensions.getValidDocuments(workspace, request.attachments)
-            tax = getValidTax(request.tax, workspace)
+            tax = extensions.getValidTax(request.tax, workspace)
         }.let {
             expenseService.saveExpense(it)
         }.let {
