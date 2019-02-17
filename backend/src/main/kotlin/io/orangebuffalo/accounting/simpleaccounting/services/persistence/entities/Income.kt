@@ -46,13 +46,27 @@ class Income(
     var attachments: Set<Document> = setOf(),
 
     @field:Column(length = 1024)
-    var notes: String? = null
+    var notes: String? = null,
+
+    @field:ManyToOne
+    @field:JoinColumn(foreignKey = ForeignKey(name = "income_tax_fk"))
+    var tax: Tax?,
+
+    @field:Column
+    var taxRateInBps: Int? = null,
+
+    @field:Column
+    var taxAmount: Long? = null
 
 ) : AbstractEntity() {
 
     init {
-        if (category != null && category!!.workspace != workspace) {
+        if (category != null && category?.workspace != workspace) {
             throw IllegalArgumentException("Category and workspace must match")
+        }
+
+        if (tax != null && tax?.workspace != workspace) {
+            throw IllegalArgumentException("Tax and workspace must match")
         }
     }
 }

@@ -74,6 +74,17 @@
                        :currency="defaultCurrency"></money-input>
         </el-form-item>
 
+        <el-form-item label="Added Tax" prop="tax">
+          <el-select v-model="income.tax" placeholder="Select a tax">
+            <el-option
+                v-for="tax in taxes"
+                :key="tax.id"
+                :label="tax.title"
+                :value="tax.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
         <h2>Additional Information</h2>
 
         <el-form-item label="Linked Invoice"
@@ -113,11 +124,12 @@
   import withMediumDateFormatter from '@/app/components/mixins/with-medium-date-formatter'
   import {assign} from 'lodash'
   import {isNil} from 'lodash'
+  import {withTaxes} from '@/app/components/mixins/with-taxes'
 
   export default {
     name: 'EditIncome',
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withMediumDateFormatter, withTaxes],
 
     components: {
       DocumentsUpload,
@@ -137,7 +149,8 @@
           attachments: [],
           notes: null,
           dateReceived: new Date(),
-          uploads: new UploadsInfo()
+          uploads: new UploadsInfo(),
+          tax: null
         },
         incomeValidationRules: {
           currency: {required: true, message: 'Please select a currency'},
@@ -236,7 +249,8 @@
           reportedAmountInDefaultCurrency: this.reportedAnotherExchangeRate
               ? this.income.reportedAmountInDefaultCurrency : this.income.amountInDefaultCurrency,
           attachments: this.income.uploads.getDocumentsIds(),
-          notes: this.income.notes
+          notes: this.income.notes,
+          tax: this.income.tax
         }
 
         if (this.income.id) {

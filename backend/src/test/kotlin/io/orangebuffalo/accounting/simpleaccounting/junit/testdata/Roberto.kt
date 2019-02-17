@@ -209,7 +209,8 @@ class Roberto : TestData {
             currency = "USD",
             originalAmount = 177,
             amountInDefaultCurrency = 177,
-            reportedAmountInDefaultCurrency = 177
+            reportedAmountInDefaultCurrency = 177,
+            tax = null
         ),
         Income(
             workspace = firstCategory.workspace,
@@ -220,7 +221,8 @@ class Roberto : TestData {
             currency = "USD",
             originalAmount = 166,
             amountInDefaultCurrency = 166,
-            reportedAmountInDefaultCurrency = 166
+            reportedAmountInDefaultCurrency = 166,
+            tax = null
         ),
         Income(
             workspace = firstCategory.workspace,
@@ -231,7 +233,8 @@ class Roberto : TestData {
             currency = "USD",
             originalAmount = 167,
             amountInDefaultCurrency = 185,
-            reportedAmountInDefaultCurrency = 167
+            reportedAmountInDefaultCurrency = 167,
+            tax = null
         ),
         Income(
             workspace = firstCategory.workspace,
@@ -242,7 +245,8 @@ class Roberto : TestData {
             currency = "USD",
             originalAmount = 168,
             amountInDefaultCurrency = 175,
-            reportedAmountInDefaultCurrency = 168
+            reportedAmountInDefaultCurrency = 168,
+            tax = null
         ),
         Income(
             workspace = firstCategory.workspace,
@@ -253,7 +257,8 @@ class Roberto : TestData {
             currency = "USD",
             originalAmount = 177,
             amountInDefaultCurrency = 177,
-            reportedAmountInDefaultCurrency = 177
+            reportedAmountInDefaultCurrency = 177,
+            tax = null
         ),
         Income(
             workspace = secondCategory.workspace,
@@ -264,7 +269,8 @@ class Roberto : TestData {
             currency = "USD",
             originalAmount = 233,
             amountInDefaultCurrency = 0,
-            reportedAmountInDefaultCurrency = 0
+            reportedAmountInDefaultCurrency = 0,
+            tax = null
         ),
         Income(
             workspace = secondCategory.workspace,
@@ -275,7 +281,8 @@ class Roberto : TestData {
             currency = "USD",
             originalAmount = 233,
             amountInDefaultCurrency = 233,
-            reportedAmountInDefaultCurrency = 0
+            reportedAmountInDefaultCurrency = 0,
+            tax = null
         ),
         Income(
             workspace = secondCategory.workspace,
@@ -286,7 +293,8 @@ class Roberto : TestData {
             currency = "USD",
             originalAmount = 233,
             amountInDefaultCurrency = 233,
-            reportedAmountInDefaultCurrency = 233
+            reportedAmountInDefaultCurrency = 233,
+            tax = null
         ),
         TaxPayment(
             workspace = workspace,

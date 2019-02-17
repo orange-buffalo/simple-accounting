@@ -39,6 +39,17 @@
         </span>
 
         <span class="sa-item-attribute"
+              v-if="income.tax && taxById(income.tax).title">
+          <svgicon name="tax"/>
+          <!-- todo localize -->
+          <span>{{income.taxRateInBps / 100}}% {{taxById(income.tax).title}}</span>
+          <money-output v-if="income.taxAmount"
+                        class="sa-secondary-text"
+                        :currency="currentWorkspace.defaultCurrency"
+                        :amount="income.taxAmount"/>
+        </span>
+
+        <span class="sa-item-attribute"
               v-if="income.notes">
           <svgicon name="notes"/>
           <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
@@ -90,14 +101,16 @@
   import '@/components/icons/pencil'
   import '@/components/icons/percent'
   import '@/components/icons/invoice'
+  import '@/components/icons/tax'
   import {withCategories} from '@/app/components/mixins/with-categories'
   import {withWorkspaces} from '@/app/components/mixins/with-workspaces'
   import {loadDocuments} from '@/app/services/app-services'
+  import {withTaxes} from '@/app/components/mixins/with-taxes'
 
   export default {
     name: 'IncomeOverviewPanel',
 
-    mixins: [withMediumDateFormatter, withWorkspaces, withCategories],
+    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withTaxes],
 
     components: {
       MoneyOutput,

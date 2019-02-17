@@ -19,6 +19,9 @@ class InvoiceService(
     private val timeService: TimeService
 ) {
 
+    /**
+     * If tax is provided, it is always calculated on top of reported amount
+     */
     suspend fun saveInvoice(invoice: Invoice): Invoice {
         return withDbContext {
             if (invoice.datePaid != null && invoice.income == null) {
@@ -33,7 +36,8 @@ class InvoiceService(
                         originalAmount = invoice.amount,
                         reportedAmountInDefaultCurrency = 0,
                         amountInDefaultCurrency = 0,
-                        category = null
+                        category = null,
+                        tax = invoice.tax
                     )
                 )
             }

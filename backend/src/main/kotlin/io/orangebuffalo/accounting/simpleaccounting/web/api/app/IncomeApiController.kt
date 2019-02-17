@@ -49,7 +49,8 @@ class IncomeApiController(
                 amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
                 reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0,
                 notes = request.notes,
-                attachments = extensions.getValidDocuments(workspace, request.attachments)
+                attachments = extensions.getValidDocuments(workspace, request.attachments),
+                tax = extensions.getValidTax(request.tax, workspace)
             )
         ).let { mapIncomeDto(it, invoiceService) }
     }
@@ -98,6 +99,7 @@ class IncomeApiController(
             reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0
             notes = request.notes
             attachments = extensions.getValidDocuments(workspace, request.attachments)
+            tax = extensions.getValidTax(request.tax, workspace)
         }.let {
             incomeService.saveIncome(it)
         }.let {
@@ -121,7 +123,10 @@ data class IncomeDto(
     val id: Long,
     val version: Int,
     val status: IncomeStatus,
-    val linkedInvoice: LinkedInvoiceDto?
+    val linkedInvoice: LinkedInvoiceDto?,
+    val tax: Long?,
+    val taxRateInBps: Int?,
+    val taxAmount: Long?
 )
 
 data class LinkedInvoiceDto(
@@ -144,7 +149,8 @@ data class EditIncomeDto(
     val amountInDefaultCurrency: Long?,
     val reportedAmountInDefaultCurrency: Long?,
     val attachments: List<Long>?,
-    @field:Size(max = 1024) val notes: String?
+    @field:Size(max = 1024) val notes: String?,
+    val tax: Long?
 )
 
 private suspend fun mapIncomeDto(source: Income, invoiceService: InvoiceService): IncomeDto {
@@ -168,7 +174,10 @@ private suspend fun mapIncomeDto(source: Income, invoiceService: InvoiceService)
                 id = it.id!!,
                 title = it.title
             )
-        }
+        },
+        tax = source.tax?.id,
+        taxAmount = source.taxAmount,
+        taxRateInBps = source.taxRateInBps
     )
 }
 

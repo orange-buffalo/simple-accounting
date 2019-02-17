@@ -67,8 +67,12 @@ class Expense(
 ) : AbstractEntity() {
 
     init {
-        if (category != null && category!!.workspace != workspace) {
+        if (category != null && category?.workspace != workspace) {
             throw IllegalArgumentException("Category and workspace must match")
+        }
+
+        if (tax != null && tax?.workspace != workspace) {
+            throw IllegalArgumentException("Tax and workspace must match")
         }
     }
 }

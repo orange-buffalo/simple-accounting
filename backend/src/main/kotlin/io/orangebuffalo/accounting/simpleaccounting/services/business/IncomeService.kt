@@ -24,6 +24,14 @@ class IncomeService(
             income.reportedAmountInDefaultCurrency = income.originalAmount
         }
 
+        val tax = income.tax
+        income.taxRateInBps = tax?.rateInBps
+        income.taxAmount = if (tax == null || income.reportedAmountInDefaultCurrency == 0L) {
+            null
+        } else {
+            income.reportedAmountInDefaultCurrency.bpsPart(tax.rateInBps)
+        }
+
         return withDbContext {
             incomeRepository.save(income)
         }
