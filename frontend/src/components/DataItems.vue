@@ -137,6 +137,9 @@
 </script>
 
 <style lang="scss">
+  /*todo: common component refers to app styles - redesign dependencies  */
+  @import "@/app/styles/vars.scss";
+
   /*todo BEM notation*/
   .data-items {
     .el-row {
@@ -167,7 +170,7 @@
       display: flex;
       flex-flow: column;
       align-items: center;
-      color: #9e9e9e;
+      color: $primary-color-lighter-iii;
 
       .svg-icon {
         width: 48px;
@@ -180,7 +183,7 @@
       display: flex;
       flex-flow: column;
       align-items: center;
-      color: #9e9e9e;
+      color: $primary-color-lighter-iii;
 
       i {
         font-size: 300%;
