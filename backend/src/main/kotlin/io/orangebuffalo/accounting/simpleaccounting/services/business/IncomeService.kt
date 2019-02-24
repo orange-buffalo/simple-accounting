@@ -5,6 +5,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbC
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncome
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.IncomeRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.IncomesStatistics
 import org.springframework.data.domain.Page
@@ -56,5 +57,9 @@ class IncomeService(
         workspace: Workspace
     ): List<IncomesStatistics> = withDbContext {
         incomeRepository.getStatistics(fromDate, toDate, workspace)
+    }
+
+    suspend fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> = withDbContext {
+        incomeRepository.getCurrenciesUsageStatistics(workspace)
     }
 }

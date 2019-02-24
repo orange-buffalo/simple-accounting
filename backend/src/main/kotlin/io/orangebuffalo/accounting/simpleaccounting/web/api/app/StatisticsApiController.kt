@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.IncomeService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxPaymentService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
@@ -68,6 +69,28 @@ class StatisticsApiController(
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
         val taxPaymentsStatistics = taxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspace)
         TaxPaymentsStatisticsDto(taxPaymentsStatistics.totalTaxPayments)
+    }
+
+    @GetMapping("currencies-shortlist")
+    fun getCurrenciesShortlist(@PathVariable workspaceId: Long): Mono<List<String>> = extensions.toMono {
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val expensesCurrencies = expenseService.getCurrenciesUsageStatistics(workspace)
+        val incomesCurrencies = incomeService.getCurrenciesUsageStatistics(workspace)
+        (expensesCurrencies + incomesCurrencies).asSequence()
+            .groupingBy(CurrenciesUsageStatistics::currency)
+            .reduce { currency, accumulator, next ->
+                CurrenciesUsageStatistics(
+                    currency = currency,
+                    count = accumulator.count + next.count
+                )
+            }
+            .values.asSequence()
+            .sortedWith(
+                Comparator.comparing(CurrenciesUsageStatistics::count).reversed()
+                    .thenComparing(CurrenciesUsageStatistics::currency)
+            )
+            .map(CurrenciesUsageStatistics::currency)
+            .toList()
     }
 }
 

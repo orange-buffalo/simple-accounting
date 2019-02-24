@@ -18,6 +18,8 @@ interface ExpenseRepositoryExt {
         toDate: LocalDate,
         workspace: Workspace
     ): List<ExpensesStatistics>
+
+    fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics>
 }
 
 data class ExpensesStatistics @QueryProjection constructor(
