@@ -29,7 +29,7 @@ class DocumentApiController(
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadNewDocument(
         @PathVariable workspaceId: Long,
-        @RequestPart("notes") notes: String?,
+        @RequestPart(name = "notes", required = false) notes: String?,
         @RequestPart("file") file: Mono<Part>
     ): Mono<DocumentDto> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)

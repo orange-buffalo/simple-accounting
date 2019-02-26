@@ -12,6 +12,7 @@
     "axios": "^0.18.0",
     "cldrjs": "^0.5.1",
     "deepmerge": "^3.2.0",
+    "dropzone": "^5.5.1",
     "element-ui": "^2.5.4",
     "eventbusjs": "^0.2.0",
     "eventsource": "^1.0.7",
