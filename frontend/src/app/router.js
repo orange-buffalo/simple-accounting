@@ -123,7 +123,7 @@ export default new Router({
           name: 'edit-customer',
           component: () => import(/* webpackChunkName: "edit-customer" */ './views/settings/customers/EditCustomer.vue')
         },
-          {
+        {
           path: 'settings/taxes',
           name: 'taxes-overview',
           component: () => import(/* webpackChunkName: "taxes-overview" */ './views/settings/taxes/TaxesOverview.vue')
@@ -142,6 +142,11 @@ export default new Router({
           path: 'my-profile',
           name: 'my-profile',
           component: () => import(/* webpackChunkName: "my-profile" */ './views/MyProfile.vue')
+        },
+        {
+          path: 'reporting',
+          name: 'reporting',
+          component: () => import(/* webpackChunkName: "reporting" */ './views/reporting/Reporting.vue')
         },
         {
           path: '*',

@@ -5,6 +5,8 @@
     <the-side-menu-link to="/incomes" title="Incomes" icon="income"/>
     <the-side-menu-link to="/invoices" title="Invoices" icon="invoice"/>
     <the-side-menu-link to="/tax-payments" title="Tax payments" icon="tax"/>
+<!--    TODO icon for reporting-->
+    <the-side-menu-link to="/reporting" title="Reporting" icon="tax"/>
 
     <span class="the-side-menu__category">Settings</span>
 
