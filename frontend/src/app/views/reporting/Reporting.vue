@@ -17,12 +17,19 @@
                  :status="viewReportStepStatus"/>
       </el-steps>
 
-      <div v-if="reportSelectionActive">
-        <!--        todo style for report selection -->
-        <el-button @click="selectTaxReport">Tax Report</el-button>
+      <div v-if="reportSelectionActive" class="reporting-panel--content">
+        <div class="reporting-panel--report-selector"
+             data-title="Select"
+             @click="selectTaxReport">
+          <svgicon name="tax"></svgicon>
+          <div>
+            <h4>Tax Report</h4>
+            <span>Collected and paid taxes</span>
+          </div>
+        </div>
       </div>
 
-      <div v-if="datesSelectionActive">
+      <div v-if="datesSelectionActive" class="reporting-panel--content">
         <el-date-picker
             v-model="selectedDateRange"
             type="daterange"
@@ -39,7 +46,7 @@
         </el-button>
       </div>
 
-      <div v-if="viewReportActive">
+      <div v-if="viewReportActive" class="reporting-panel--content">
         <the-tax-report :date-range="selectedDateRange"
                         @report-loaded="reportGenerationInProgress = false"/>
       </div>
@@ -163,5 +170,51 @@
     background-color: $white;
     border-radius: 2px;
     overflow: hidden;
+
+    &--content {
+      margin-top: 20px;
+
+      h4 {
+        margin: 0;
+      }
+    }
+
+    &--report-selector {
+      border: 1px solid $secondary-grey;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      max-width: 200px;
+      position: relative;
+      overflow: hidden;
+
+      &:before {
+        content: attr(data-title);
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 100%;
+        top: 0;
+        background-color: $white;
+        transition: all 0.25s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .svg-icon {
+        margin: 0 10px 0 0;
+        width: 45px;
+        height: 45px;
+      }
+
+      &:hover {
+        &:before {
+          left: 0;
+        }
+      }
+    }
   }
 </style>
