@@ -1,20 +1,25 @@
 <template>
   <div>
     <h2>Collected</h2>
-    <div v-if="report">
-      Total:
-      <money-output :currency="defaultCurrency"
-                    :amount="totalCollectedAmount"/>
-    </div>
     <the-tax-report-table :data="collectedTaxes"/>
+    <div v-if="report" class="text-right">
+      <br/>
+      <b>Total:
+        <money-output :currency="defaultCurrency"
+                      :amount="totalCollectedAmount"/>
+      </b>
+    </div>
+    <br/>
 
     <h2>Paid</h2>
-    <div v-if="report">
-      Total:
-      <money-output :currency="defaultCurrency"
-                    :amount="totalPaidAmount"/>
-    </div>
     <the-tax-report-table :data="paidTaxes"/>
+    <div v-if="report" class="text-right">
+      <br/>
+      <b>Total:
+        <money-output :currency="defaultCurrency"
+                      :amount="totalPaidAmount"/>
+      </b>
+    </div>
 
   </div>
 </template>

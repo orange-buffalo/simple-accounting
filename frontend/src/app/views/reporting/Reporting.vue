@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <div v-if="datesSelectionActive" class="reporting-panel--content">
+      <div v-if="datesSelectionActive" class="reporting-panel--content text-center">
         <el-date-picker
             v-model="selectedDateRange"
             type="daterange"
@@ -39,6 +39,8 @@
             start-placeholder="Start date"
             end-placeholder="End date">
         </el-date-picker>
+        <br/>
+        <br/>
 
         <!--        todo navigation -->
         <el-button @click="navigateToViewReportStep"
