@@ -5,8 +5,7 @@
     <the-side-menu-link to="/incomes" title="Incomes" icon="income"/>
     <the-side-menu-link to="/invoices" title="Invoices" icon="invoice"/>
     <the-side-menu-link to="/tax-payments" title="Tax payments" icon="tax"/>
-<!--    TODO icon for reporting-->
-    <the-side-menu-link to="/reporting" title="Reporting" icon="tax"/>
+    <the-side-menu-link to="/reporting" title="Reporting" icon="reporting"/>
 
     <span class="the-side-menu__category">Settings</span>
 
@@ -23,6 +22,14 @@
 
 <script>
   import TheSideMenuLink from '@/app/components/TheSideMenuLink'
+  import '@/components/icons/reporting'
+  import '@/components/icons/dashboard'
+  import '@/components/icons/expense'
+  import '@/components/icons/income'
+  import '@/components/icons/invoice'
+  import '@/components/icons/tax'
+  import '@/components/icons/customer'
+  import '@/components/icons/category'
 
   export default {
     name: 'TheSideMenu',
@@ -32,7 +39,6 @@
     }
   }
 </script>
-
 
 <style lang="scss">
   @import "@/app/styles/vars.scss";
