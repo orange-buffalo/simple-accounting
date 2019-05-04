@@ -8,9 +8,11 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeServic
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncome
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
@@ -219,4 +221,6 @@ class IncomePageableApiDescriptor(
             }
         }
     }
+
+    override fun getDefaultSorting(): Sort = QIncome.income.dateReceived.desc().toSort()
 }

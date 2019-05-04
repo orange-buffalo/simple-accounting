@@ -5,6 +5,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QTaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.TaxPayment
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
@@ -12,6 +13,7 @@ import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.Pageable
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
@@ -136,4 +138,6 @@ private fun mapTaxPaymentDto(source: TaxPayment) = TaxPaymentDto(
 @Component
 class TaxPaymentPageableApiDescriptor : PageableApiDescriptor<TaxPayment, QTaxPayment> {
     override suspend fun mapEntityToDto(entity: TaxPayment) = mapTaxPaymentDto(entity)
+
+    override fun getDefaultSorting(): Sort = QTaxPayment.taxPayment.datePaid.desc().toSort()
 }

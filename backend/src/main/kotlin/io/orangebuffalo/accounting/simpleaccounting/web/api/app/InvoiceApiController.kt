@@ -6,10 +6,12 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.InvoiceSer
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QInvoice
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
@@ -215,4 +217,6 @@ class InvoicePageableApiDescriptor(
             }
         }
     }
+
+    override fun getDefaultSorting(): Sort = QInvoice.invoice.dateIssued.desc().toSort()
 }

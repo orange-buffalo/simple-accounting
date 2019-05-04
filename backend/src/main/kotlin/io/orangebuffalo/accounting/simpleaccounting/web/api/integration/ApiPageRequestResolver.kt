@@ -43,7 +43,7 @@ class ApiPageRequestResolver(
                     .map { pageNumber -> PageRequest.of(pageNumber - 1, pageRequest.pageSize) }
             }
             .flatMap { pageRequest ->
-                validateAndGetSort(exchange.request.queryParams)
+                validateAndGetSort(exchange.request.queryParams, pageableApiDescriptor)
                     .map { sort ->
                         PageRequest.of(
                             pageRequest.pageNumber,
@@ -66,7 +66,7 @@ class ApiPageRequestResolver(
     ): Predicate? {
         val compoundPredicate: BooleanBuilder = pageableApiDescriptor.getSupportedFilters()
             .map { filter ->
-                queryParams.entries
+                queryParams.entries.asSequence()
                     .filter {
                         it.key.startsWith("${filter.apiFieldName}[")
                     }
@@ -101,9 +101,35 @@ class ApiPageRequestResolver(
         return compoundPredicate.value
     }
 
-    private fun validateAndGetSort(queryParams: MultiValueMap<String, String>): Result<Sort, ApiValidationException> {
+    private fun validateAndGetSort(
+        queryParams: MultiValueMap<String, String>,
+        pageableApiDescriptor: PageableApiDescriptor<*, *>
+    ): Result<Sort, ApiValidationException> {
         return Result.of {
-            Sort.by(Sort.Direction.DESC, "id")
+            val sortByParams = queryParams["sortBy"]
+            if (sortByParams == null) {
+                pageableApiDescriptor.getDefaultSorting()
+            } else {
+                if (sortByParams.size > 1) {
+                   throw ApiValidationException("Only a single 'sortBy' parameter is supported")
+                }
+                val sortBy = sortByParams[0]
+
+                val parts = sortBy.split(" ")
+                if (parts.size != 2) {
+                    throw ApiValidationException("'$sortBy' is not a valid sorting expression")
+                }
+
+                val directionStr = parts[1].trim()
+                val direction = Sort.Direction.fromOptionalString(directionStr)
+                    .orElseThrow { throw ApiValidationException("'$directionStr' is not a valid sorting direction") }
+
+                val apiField = parts[0].trim()
+                val entityField = pageableApiDescriptor.getSupportedSorting()[apiField]
+                    ?: throw ApiValidationException("Sorting by '$apiField' is not supported")
+
+                Sort.by(Sort.Order.by(entityField).with(direction))
+            }
         }
     }
 

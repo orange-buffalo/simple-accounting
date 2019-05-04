@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 import com.querydsl.core.types.EntityPath
 import com.querydsl.core.types.Predicate
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
+import org.springframework.data.domain.Sort
 import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION)
@@ -13,6 +14,10 @@ interface PageableApiDescriptor<E, R : EntityPath<E>> {
     suspend fun mapEntityToDto(entity: E): Any
 
     fun getSupportedFilters(): List<PageableApiFilter<E, R>> = emptyList()
+
+    fun getDefaultSorting(): Sort = Sort.by(Sort.Order.desc("id"))
+
+    fun getSupportedSorting() : Map<String, String> = emptyMap()
 }
 
 enum class PageableApiFilterOperator(val apiValue: String) {

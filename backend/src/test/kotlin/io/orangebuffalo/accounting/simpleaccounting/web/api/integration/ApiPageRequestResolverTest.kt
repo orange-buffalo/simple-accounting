@@ -21,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 import org.springframework.core.MethodParameter
 import org.springframework.core.ReactiveAdapterRegistry
-import org.springframework.data.domain.Sort
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -149,14 +148,100 @@ internal class ApiPageRequestResolverTest {
     }
 
     @Test
-    fun `should set the default sorting to 'by ID'`() {
+    fun `should set the default sorting to 'by ID' if default is not provided`() {
         val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodDefault")
 
         assertThat(resolvedPageRequest.page).isNotNull
         assertThat(resolvedPageRequest.page.sort).isNotNull
-        val idOrder = resolvedPageRequest.page.sort.getOrderFor("id")
-        assertThat(idOrder).isNotNull
-        assertThat(idOrder?.direction).isEqualTo(Sort.Direction.DESC)
+        assertThat(resolvedPageRequest.page.sort)
+            .hasSize(1)
+            .allSatisfy {
+                assertThat(it.property).isEqualTo("id")
+                assertThat(it.isDescending).isTrue()
+            }
+    }
+
+    @Test
+    fun `should fail on multiple sortBy parameters`() {
+        queryParams.add("sortBy", "apiField desc")
+        queryParams.add("sortBy", "apiField2 desc")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "Only a single 'sortBy' parameter is supported",
+            "apiPageMethodSortable"
+        )
+    }
+
+    @Test
+    fun `should fail on invalid sortBy if direction is not provided`() {
+        queryParams.add("sortBy", "apiField")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "'apiField' is not a valid sorting expression",
+            "apiPageMethodSortable"
+        )
+    }
+
+    @Test
+    fun `should fail on invalid sortBy if extra data is provided`() {
+        queryParams.add("sortBy", "apiField desc else")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "'apiField desc else' is not a valid sorting expression",
+            "apiPageMethodSortable"
+        )
+    }
+
+    @Test
+    fun `should fail on invalid sortBy if direction is not supported`() {
+        queryParams.add("sortBy", "apiField greaterFirst")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "'greaterFirst' is not a valid sorting direction",
+            "apiPageMethodSortable"
+        )
+    }
+
+    @Test
+    fun `should fail on invalid sortBy if api field is not known`() {
+        queryParams.add("sortBy", "someField desc")
+
+        invokeResolveArgumentAndAssertValidationError(
+            "Sorting by 'someField' is not supported",
+            "apiPageMethodSortable"
+        )
+    }
+
+    @Test
+    fun `should set desc sorting by query parameter`() {
+        queryParams.add("sortBy", "apiField desc")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodSortable")
+
+        assertThat(resolvedPageRequest.page).isNotNull
+        assertThat(resolvedPageRequest.page.sort).isNotNull
+        assertThat(resolvedPageRequest.page.sort)
+            .hasSize(1)
+            .allSatisfy {
+                assertThat(it.property).isEqualTo("entityField")
+                assertThat(it.isDescending).isTrue()
+            }
+    }
+
+    @Test
+    fun `should set asc sorting by query parameter`() {
+        queryParams.add("sortBy", "apiField asc")
+
+        val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodSortable")
+
+        assertThat(resolvedPageRequest.page).isNotNull
+        assertThat(resolvedPageRequest.page.sort).isNotNull
+        assertThat(resolvedPageRequest.page.sort)
+            .hasSize(1)
+            .allSatisfy {
+                assertThat(it.property).isEqualTo("entityField")
+                assertThat(it.isAscending).isTrue()
+            }
     }
 
     @Test
@@ -368,6 +453,12 @@ internal class ApiPageRequestResolverTest {
         fun apiPageMethodExtended(request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
             return Mono.empty()
         }
+
+        @GetMapping
+        @PageableApi(ApiPageRequestResolverTestPageableApiDescriptorSortable::class)
+        fun apiPageMethodSortable(request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
+            return Mono.empty()
+        }
     }
 
     class ApiPageRequestResolverTestApiDto
@@ -412,5 +503,14 @@ internal class ApiPageRequestResolverTest {
                 }
             }
         }
+    }
+
+    class ApiPageRequestResolverTestPageableApiDescriptorSortable :
+        PageableApiDescriptor<ApiPageRequestResolverTestRepositoryEntity, PathBuilder<ApiPageRequestResolverTestRepositoryEntity>> {
+
+        override suspend fun mapEntityToDto(entity: ApiPageRequestResolverTestRepositoryEntity) =
+            ApiPageRequestResolverTestApiDto()
+
+        override fun getSupportedSorting() = mapOf("apiField" to "entityField")
     }
 }
