@@ -75,7 +75,9 @@
         </el-form-item>
 
         <el-form-item label="Added Tax" prop="tax">
-          <el-select v-model="income.tax" placeholder="Select a tax">
+          <el-select v-model="income.tax"
+                     clearable="true"
+                     placeholder="Select a tax">
             <el-option
                 v-for="tax in taxes"
                 :key="tax.id"
