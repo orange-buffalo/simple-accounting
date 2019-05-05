@@ -8,7 +8,7 @@ let _workspacesStore = {
   state: {
     workspaces: null,
     currentWorkspace: null,
-    //todo move to mixin when category is separated from workspace
+    //todo #91: move to mixin when category is separated from workspace
     emptyCategory: {name: "Not specified", income: true, expense: true, id: null}
   },
 

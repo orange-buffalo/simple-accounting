@@ -28,7 +28,7 @@ class InvoiceService(
                 invoice.income = incomeRepository.save(
                     Income(
                         workspace = invoice.customer.workspace,
-                        // todo i18n
+                        // todo #6: i18n
                         title = "Payment for ${invoice.title}",
                         timeRecorded = timeService.currentTime(),
                         dateReceived = invoice.datePaid!!,

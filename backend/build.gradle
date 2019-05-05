@@ -60,7 +60,7 @@ dependencies {
     compile('io.github.microutils:kotlin-logging:1.6.10')
     compile('io.jsonwebtoken:jjwt-api:0.10.5')
     compile('com.querydsl:querydsl-jpa:4.2.1')
-    compile('com.github.kittinunf.result:result:1.5.0') //todo use arrow
+    compile('com.github.kittinunf.result:result:1.5.0') //todo #68: use arrow
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$coroutinesVersion")
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutinesVersion")

@@ -21,7 +21,7 @@
           <el-input v-model="tax.description" placeholder="Short description of a tax"/>
         </el-form-item>
 
-        <!--todo: input in bps-->
+        <!--todo #79: input in bps-->
         <el-form-item label="Rate" prop="rateInBps">
           <el-input v-model="tax.rateInBps" placeholder="Provide a rate for this tax"/>
         </el-form-item>

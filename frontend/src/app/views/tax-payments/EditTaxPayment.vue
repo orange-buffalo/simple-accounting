@@ -24,7 +24,7 @@
         </el-form-item>
 
         <el-form-item label="Date Paid" prop="datePaid">
-          <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
           <el-date-picker
               v-model="taxPayment.datePaid"
               type="date"
@@ -34,7 +34,7 @@
         </el-form-item>
 
         <el-form-item label="Reporting Date" prop="reportingDate">
-          <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
           <el-date-picker
               v-model="taxPayment.reportingDate"
               type="date"

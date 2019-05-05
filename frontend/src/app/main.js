@@ -41,7 +41,7 @@ new Vue({
 initApi(store)
 initPushNotifications(store)
 
-//todo calculate proper locale
+//todo #6: calculate proper locale
 store.dispatch('i18n/loadLocaleData')
 
 EventBus.addEventListener(LOGIN_REQUIRED_EVENT, () => {

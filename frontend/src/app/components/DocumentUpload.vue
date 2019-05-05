@@ -29,7 +29,7 @@
           <div class="sa-document-upload_summary_status">
             <svgicon :name="documentStatusIcon"></svgicon>
             <span>{{documentStatus}}</span>
-            <!--todo pretty print size-->
+            <!--todo #76: pretty print size-->
             <span>({{upload.size}})</span>
           </div>
           <div v-if="upload.hasNotes"
@@ -115,8 +115,8 @@
         })
 
         this.dropzone.on('error', (file, error) => {
-          //todo special processing for storage service config error
-          //todo handle 401 by acquiring new token and restarting upload
+          //todo #72: special processing for storage service config error
+          //todo #77: handle 401 by acquiring new token and restarting upload
           this.uploading = false
           this.error = true
           this.upload.uploadError = error
@@ -186,7 +186,7 @@
       },
 
       documentStatus: function () {
-        //todo i18n
+        //todo #6: i18n
         return this.upload.isDocumentUploaded() ? 'Uploaded' : 'New file to be uploaded'
       },
 

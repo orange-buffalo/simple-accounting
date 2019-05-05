@@ -31,7 +31,7 @@ class WorkspacesApiController(
             .map { workspace ->
                 mapWorkspaceDto(
                     workspace,
-                    //todo test for multiple workspace to verify await is fin to call multiple times
+                    //todo #91: remove
                     categories.await().asSequence()
                         .filter { category -> category.workspace == workspace }
                         .map(::mapCategoryDto)
@@ -63,7 +63,7 @@ class WorkspacesApiController(
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
         workspace.name = editWorkspaceRequest.name
         platformUserService.saveWorkspace(workspace)
-        //todo remove categories from workspace dto
+        //todo #91: remove categories from workspace dto
         mapWorkspaceDto(workspace, emptyList())
     }
 
@@ -106,7 +106,7 @@ data class CategoryDto(
 
 data class CreateWorkspaceDto(
     @field:NotBlank var name: String,
-    // todo multicurrency is probably redundant; tax to be enabled later
+    // todo #92: multicurrency is probably redundant; tax to be enabled later
     //@field:NotNull var taxEnabled: Boolean,
     //@field:NotNull var multiCurrencyEnabled: Boolean,
     @field:NotBlank val defaultCurrency: String

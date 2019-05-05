@@ -83,7 +83,7 @@ class AuthenticationController(
                 .httpOnly(true)
                 .sameSite("Strict")
                 .path("/api/v1/auth/token")
-                // todo secure based on configuration
+                // todo #67: secure based on configuration
                 .maxAge(maxAge)
                 .build()
                 .toString()

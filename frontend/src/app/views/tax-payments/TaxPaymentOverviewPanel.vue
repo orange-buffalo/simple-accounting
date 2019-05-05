@@ -34,7 +34,7 @@
 
       <div class="sa-item-section" v-if="notesVisible">
         <h4>Notes</h4>
-        <!--todo linebreaks-->
+        <!--todo #80: linebreaks-->
         <span class="sa-item-additional-info">{{taxPayment.notes}}</span>
       </div>
 

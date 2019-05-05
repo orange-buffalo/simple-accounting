@@ -59,7 +59,7 @@
         </el-form-item>
 
         <el-form-item label="Date Issued" prop="dateIssued">
-          <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
           <el-date-picker
               v-model="invoice.dateIssued"
               type="date"
@@ -69,7 +69,7 @@
         </el-form-item>
 
         <el-form-item label="Due Date" prop="dueDate">
-          <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
           <el-date-picker
               v-model="invoice.dueDate"
               type="date"
@@ -100,7 +100,7 @@
         <el-form-item label="Date Sent"
                       v-if="alreadySent"
                       prop="dateSent">
-          <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
           <el-date-picker
               v-model="invoice.dateSent"
               type="date"
@@ -118,7 +118,7 @@
         <el-form-item label="Date Paid"
                       v-if="alreadyPaid"
                       prop="datePaid">
-          <!-- todo format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
           <el-date-picker
               v-model="invoice.datePaid"
               type="date"

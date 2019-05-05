@@ -87,7 +87,7 @@ class IncomeApiController(
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
-        // todo optimistic locking. etag?
+        // todo #71: optimistic locking. etag?
         val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
             ?: throw EntityNotFoundException("Income $incomeId is not found")
 

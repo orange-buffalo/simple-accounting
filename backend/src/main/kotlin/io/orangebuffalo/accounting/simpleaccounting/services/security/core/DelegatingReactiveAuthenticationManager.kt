@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
-// todo spring released DelegatingReactiveAuthenticationManager, migrate
+// todo #75: spring released DelegatingReactiveAuthenticationManager, migrate
 @Service
 class DelegatingReactiveAuthenticationManager(
     private val providers: List<AuthenticationProvider>

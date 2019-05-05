@@ -85,7 +85,7 @@
       currenciesGroups: function () {
         let groups = []
         if (this.currenciesShortlist.length > 0) {
-          // todo i18n
+          // todo #6: i18n
           groups.push({
             title: 'Recently Used Currencies',
             currencies: this.currenciesShortlist.map(it => {

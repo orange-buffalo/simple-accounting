@@ -52,7 +52,7 @@ export const pushNotifications = {
   },
 
   unsubscribe: function (eventName, callback) {
-    //todo close the event source if no more subscribers
+    //todo #19: close the event source if no more subscribers
     this._eventListeners = this._eventListeners
         .filter(it => it.eventName !== eventName && it.callback !== callback)
   }

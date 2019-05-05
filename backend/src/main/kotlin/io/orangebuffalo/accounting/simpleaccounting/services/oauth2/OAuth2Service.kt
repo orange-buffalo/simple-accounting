@@ -64,7 +64,7 @@ class OAuth2Service(
         val state = "${currentUser.id}:${String(Base64.getEncoder().encode(authStateTokenBytes))}"
 
         withDbContext {
-            //todo job to clean outdated requests
+            //todo #84: job to clean outdated requests
             requestRepository.save(
                 PersistentOAuth2AuthorizationRequest(
                     currentUser,
@@ -109,7 +109,7 @@ class OAuth2Service(
         return builder
             .clientId(clientRegistration.clientId)
             .authorizationUri(clientRegistration.providerDetails.authorizationUri)
-            // todo this is google specific. should be a better way
+            // todo #85: this is google specific. should be a better way
             .additionalParameters(mapOf("access_type" to "offline"))
             .redirectUri(clientRegistration.redirectUriTemplate)
             .scopes(clientRegistration.scopes)
@@ -119,7 +119,7 @@ class OAuth2Service(
 
     suspend fun onAuthCallback(code: String?, error: String?, state: String?) {
         if (state == null) {
-            //todo meaningful error handling
+            //todo #86: meaningful error handling
             throw IllegalStateException("Something bad happened, sorry :( Please try again")
         }
 

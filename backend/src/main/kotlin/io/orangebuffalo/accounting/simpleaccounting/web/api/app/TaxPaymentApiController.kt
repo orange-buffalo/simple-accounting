@@ -82,7 +82,7 @@ class TaxPaymentApiController(
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
-        // todo optimistic locking. etag?
+        // todo #71: optimistic locking. etag?
         val income = taxPaymentService.getTaxPaymentByIdAndWorkspace(taxPaymentId, workspace)
             ?: throw EntityNotFoundException("Tax Payment $taxPaymentId is not found")
 

@@ -15,7 +15,7 @@ import reactor.core.publisher.Flux
 import java.io.File
 import java.util.*
 
-//todo use IO
+//todo #82: use IO
 private val localFsStorageContext = newFixedThreadPoolContext(10, "local-fs-storage")
 
 @Service

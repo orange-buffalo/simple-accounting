@@ -23,7 +23,7 @@ class OAuth2CallbackController(
         @RequestParam(required = false) state: String?
     ): Mono<String> = GlobalScope.mono {
         oauth2Service.onAuthCallback(code = code, error = error, state = state)
-        //todo render "nice" page
+        //todo #83: render "nice" page
         "Done.. hold on a second.."
     }
 }

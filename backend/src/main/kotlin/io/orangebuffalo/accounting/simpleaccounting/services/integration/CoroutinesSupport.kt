@@ -12,7 +12,7 @@ fun CoroutineScope.getCurrentPrincipal(): UserDetails {
     return coroutineContext.getPrincipal()
 }
 
-// todo add user id to gwt token and user details so we do not need to load it from database for simple cases
+// todo #70: add user id to gwt token and user details so we do not need to load it from database for simple cases
 fun CoroutineContext.getPrincipal(): UserDetails {
     val authentication = this.getAuthentication()
     return authentication.principal as UserDetails

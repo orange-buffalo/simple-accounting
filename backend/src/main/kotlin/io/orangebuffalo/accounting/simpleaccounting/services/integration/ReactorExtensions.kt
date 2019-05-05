@@ -8,7 +8,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import reactor.core.publisher.Mono
 import kotlin.coroutines.coroutineContext
 
-// todo probably we need another name, maybe buildMono / createMono / coroutineMono
+// todo #87: probably we need another name, maybe buildMono / createMono / coroutineMono
 fun <T> toMono(block: suspend CoroutineScope.() -> T): Mono<T> = ReactiveSecurityContextHolder.getContext()
     .map { it.authentication }
     .flatMap { authentication ->
@@ -27,7 +27,7 @@ suspend inline fun <T> Mono<T>.awaitMonoOrNull(): T? {
     return mono.awaitFirstOrNull()
 }
 
-//todo maybe give another though about the name
+//todo #87: maybe give another though about the name
 suspend inline fun <T> Mono<T>.awaitMono(): T {
     return awaitMonoOrNull()
         ?: throw IllegalStateException("Mono did not return a value")

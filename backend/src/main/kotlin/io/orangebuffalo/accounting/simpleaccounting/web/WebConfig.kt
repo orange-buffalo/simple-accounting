@@ -46,7 +46,6 @@ class WebConfig(
     override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
         val objectMapper = Jackson2ObjectMapperBuilder()
             .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            //todo advice to handle exceptions Caused by: com.fasterxml.jackson.databind.exc.MismatchedInputException: Missing required creator property 'customer' (index 1)
             .featuresToEnable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .build<ObjectMapper>()
 

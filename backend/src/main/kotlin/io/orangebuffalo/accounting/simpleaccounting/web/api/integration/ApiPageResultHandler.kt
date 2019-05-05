@@ -62,7 +62,7 @@ class ApiPageResultHandler(
 
         return Mono.from(adapter.toPublisher<Page<Any>>(result.returnValue))
             .flatMap { repositoryPage ->
-                //todo wrap the whole method into a coroutine mono: subscribers context needs to be propagated to support security
+                //todo #66: wrap the whole method into a coroutine mono: subscribers context needs to be propagated to support security
                 GlobalScope.mono {
                     ApiPage(
                         pageNumber = repositoryPage.number + 1,

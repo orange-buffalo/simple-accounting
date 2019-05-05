@@ -1,6 +1,6 @@
 <template>
   <div>
-<!--    todo: highlight pending items differently-->
+<!--todo #89: highlight pending items differently-->
     <el-table
         :data="data">
 

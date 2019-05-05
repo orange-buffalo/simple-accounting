@@ -86,7 +86,7 @@ class InvoicesApiController(
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
-        // todo optimistic locking. etag?
+        // todo #71: optimistic locking. etag?
         val income = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
 

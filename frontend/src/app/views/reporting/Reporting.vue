@@ -4,7 +4,7 @@
       <h1>Reporting</h1>
     </div>
 
-    <!--    todo navigation between steps-->
+    <!-- todo #64: navigation between steps-->
 
     <div class="reporting-panel">
       <el-steps :active="activeWizardStep" align-center finish-status="success">
@@ -42,7 +42,7 @@
         <br/>
         <br/>
 
-        <!--        todo navigation -->
+        <!-- todo #64: navigation -->
         <el-button @click="navigateToViewReportStep"
                    :disabled="selectedDateRange.length !== 2">Next
         </el-button>
@@ -67,7 +67,7 @@
 
   const TAX_REPORT = "taxReport"
 
-  //todo: cleanup
+  //todo #64: cleanup
   export default {
     name: 'Reporting',
 
@@ -119,7 +119,7 @@
         if (this.datesSelectionActive) {
           return 'Please select reporting date range'
         } else if (this.viewReportActive) {
-          //todo localize
+          //todo #6: localize
           return `${api.dateToString(this.selectedDateRange[0])} to ${api.dateToString(this.selectedDateRange[1])}`
         }
       },

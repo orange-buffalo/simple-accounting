@@ -44,7 +44,7 @@ class PushNotificationsControllerIT(
         }
 
         runBlocking {
-            //todo check deeper if we can get an event that headers are consumed and start pushing events after that
+            //todo #94: check deeper if we can get an event that headers are consumed and start pushing events after that
             delay(1000)
 
             pushNotificationService.sendPushNotification("good-news-everyone")
@@ -74,7 +74,7 @@ class PushNotificationsControllerIT(
         }
 
         runBlocking {
-            //todo check deeper if we can get an event that headers are consumed and start pushing events after that
+            //todo #94: check deeper if we can get an event that headers are consumed and start pushing events after that
             delay(1000)
 
             pushNotificationService.sendPushNotification(
@@ -117,7 +117,7 @@ class PushNotificationsControllerIT(
         }
 
         runBlocking {
-            //todo check deeper if we can get an event that headers are consumed and start pushing events after that
+            //todo #94: check deeper if we can get an event that headers are consumed and start pushing events after that
             delay(1000)
 
             pushNotificationService.sendPushNotification(

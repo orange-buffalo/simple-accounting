@@ -114,7 +114,7 @@
         } catch (e) {
           if (!api.isCancel(e)) {
             this.loading = false
-            //todo toaster instead
+            //todo #72: proper error handling
             throw e;
           }
         }
@@ -137,10 +137,10 @@
 </script>
 
 <style lang="scss">
-  /*todo: common component refers to app styles - redesign dependencies  */
+  /*todo #73: common component refers to app styles - redesign dependencies  */
   @import "@/app/styles/vars.scss";
 
-  /*todo BEM notation*/
+  /*todo #74: BEM notation*/
   .data-items {
     .el-row {
       transition: opacity 0.3s;

@@ -70,7 +70,7 @@ class CustomerApiController(
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
-        // todo optimistic locking. etag?
+        // todo #71: optimistic locking. etag?
         val customer = customerService.getCustomerByIdAndWorkspace(customerId, workspace)
             ?: throw EntityNotFoundException("Customer $customerId is not found")
 

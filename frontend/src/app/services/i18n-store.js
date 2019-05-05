@@ -28,13 +28,13 @@ export const i18nStore = {
     defaultNumberParser: null
   },
 
-  // todo perhaps use mutation instead of direct manipulation with state to have tooling support
+  // todo #6: perhaps use mutation instead of direct manipulation with state to have tooling support
   mutations: {},
 
   actions: {
     loadLocaleData: function ({state, dispatch}) {
-      //todo move to a separate js, can be loaded without splitting
-      // todo based on current locale
+      //todo #6: move to a separate js, can be loaded without splitting
+      // todo #6: based on current locale
       import('cldrjs').then(cldrjs => {
         import('globalize').then(globalizejs => {
           import('./i18n/en-AU.cldr-data').then(module => {
@@ -44,7 +44,7 @@ export const i18nStore = {
             cldr = new cldrjs.default("en-AU");
             globalize = globalizejs.default("en-AU");
 
-            // todo no need in lazy initialization for these formatters
+            // todo #6: no need in lazy initialization for these formatters
             if (state.mediumDateFormatter) {
               dispatch('ensureMediumDateFormatter')
             }

@@ -44,7 +44,7 @@ class DocumentApiController(
         pageRequest: ApiPageRequest
     ): Mono<Page<Document>> = extensions.toMono {
         extensions.validateWorkspaceAccess(workspaceId)
-        // todo filter by workspace
+        // todo #66: filter by workspace
         documentService.getDocuments(pageRequest.page, pageRequest.predicate)
     }
 
@@ -54,7 +54,7 @@ class DocumentApiController(
         @PathVariable documentId: Long
     ): Mono<ResponseEntity<Flux<DataBuffer>>> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        // todo validate access
+        // todo #66: validate access
         val document = documentService.getDocumentById(documentId)
             ?: throw ApiValidationException("Document $documentId is not found")
 

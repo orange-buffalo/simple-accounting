@@ -45,7 +45,7 @@
         <span class="sa-item-attribute"
               v-if="invoice.tax && taxById(invoice.tax).title">
           <svgicon name="tax"/>
-          <!-- todo localize -->
+          <!-- todo #6: localize -->
           <span>{{taxById(invoice.tax).rateInBps / 100}}% {{taxById(invoice.tax).title}}</span>
         </span>
 
@@ -64,7 +64,7 @@
 
       <div class="sa-item-section" v-if="notesVisible">
         <h4>Notes</h4>
-        <!--todo linebreaks-->
+        <!--todo #80: linebreaks-->
         <span class="sa-item-additional-info">{{invoice.notes}}</span>
       </div>
 

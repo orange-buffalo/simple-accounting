@@ -22,7 +22,7 @@
         workspaceId: state => state.workspaces.currentWorkspace.id
       }),
 
-      // todo extend entity and localize
+      // todo #76: extend entity and localize
       sizeLabel: function () {
         return `<${this.document.sizeInBytes}>`
       },

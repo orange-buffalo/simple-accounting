@@ -38,4 +38,4 @@ module.exports = function (source) {
   return 'export default ' + jsonArray;
 }
 
-// todo load only necessary files instead of the whole main  and supplement
+// todo #69: load only necessary files instead of the whole main  and supplement

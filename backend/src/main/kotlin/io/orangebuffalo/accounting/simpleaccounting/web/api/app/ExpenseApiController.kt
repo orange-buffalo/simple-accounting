@@ -90,7 +90,7 @@ class ExpenseApiController(
 
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
 
-        // todo optimistic locking. etag?
+        // todo #71: optimistic locking. etag?
         val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
             ?: throw EntityNotFoundException("Expense $expenseId is not found")
 

@@ -31,7 +31,6 @@ import java.util.function.Consumer
 private const val AUTH_EVENT_NAME = "storage.google-drive.auth"
 private const val OAUTH2_CLIENT_REGISTRATION_ID = "google-drive"
 
-//todo move to a separate module
 @Service
 class GoogleDriveDocumentStorageService(
     private val userService: PlatformUserService,
@@ -92,7 +91,7 @@ class GoogleDriveDocumentStorageService(
         .bodyToMono(GDriveFile::class.java)
         .awaitMono()
 
-    //todo it can happen that parallel file uploads of the same user create multiple workspace folders: need cleanup
+    //todo #81: it can happen that parallel file uploads of the same user create multiple workspace folders: need cleanup
     private suspend fun getOrCreateWorkspaceFolder(
         integration: GoogleDriveStorageIntegration,
         workspace: Workspace,

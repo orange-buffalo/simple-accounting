@@ -281,7 +281,7 @@ class LoginControllerIT(
     }
 
     @Test
-    //todo should return 401? what is the spec for wrong credentials?
+    //todo #93: should return 401? what is the spec for wrong credentials?
     fun `should return 403 if refresh token is not valid and user is not authenticated`(fry: Fry) {
         runBlocking {
             whenever(
@@ -297,8 +297,8 @@ class LoginControllerIT(
     }
 
     @Test
-    //todo should return 401
-    //todo should not log warning to avoid log pollution
+    //todo #93: should return 401
+    //todo #93: should not log warning to avoid log pollution
     fun `should return 403 if refresh token is missing and user is not authenticated`(fry: Fry) {
         runBlocking {
             client.post().uri(TOKEN_PATH)

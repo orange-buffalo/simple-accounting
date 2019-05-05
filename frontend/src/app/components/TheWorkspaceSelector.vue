@@ -23,7 +23,7 @@
           {{workspace.name}}
         </div>
         <div class="the-workspace-selector__workspace-controls">
-          <!--todo select icon-->
+          <!--todo #90: select icon-->
           <el-button type="text"
                      v-if="currentWorkspace.id !== workspace.id"
                      @click="switchWorkspace(workspace)">
@@ -104,7 +104,7 @@
 
     methods: {
       switchWorkspace: function (ws) {
-        // todo do not commit directly, use wrapper action
+        // todo #90: do not commit directly, use wrapper action
         this.$store.commit('workspaces/setCurrentWorkspace', ws)
         this.popoverVisible = false
       },
@@ -133,7 +133,7 @@
           })
         }
 
-        // todo when categories are removed from workspace, just use the reply to update current workspace
+        // todo #90: when categories are removed from workspace, just use the reply to update current workspace
         this.$store.dispatch('workspaces/loadWorkspaces')
 
         this.workspaceEditDialogVisible = false

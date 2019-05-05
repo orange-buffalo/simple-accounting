@@ -2,7 +2,7 @@
   <div class="tax-panel">
     <div class="tax-info">
       <div class="sa-item-title-panel">
-        <!--todo localize-->
+        <!--todo #6: localize-->
         <h3>{{tax.title}} ({{tax.rateInBps / 100}}%)</h3>
         <span class="sa-item-edit-link">
           <svgicon name="pencil"/>
@@ -12,7 +12,7 @@
       </div>
 
       <div class="sa-item-section" v-if="tax.description">
-        <!--todo linebreaks-->
+        <!--todo #80: linebreaks-->
         <span class="sa-item-additional-info">{{tax.description}}</span>
       </div>
     </div>
