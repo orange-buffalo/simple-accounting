@@ -9,7 +9,7 @@
         </div>
 
         <div>
-          <el-input placeholder="Search expenses"
+          <el-input placeholder="Search incomes"
                     v-model="userFilters.freeSearchText"
                     clearable>
             <i class="el-icon-search el-input__icon"
