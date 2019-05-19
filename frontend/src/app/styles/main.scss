@@ -1,6 +1,8 @@
 @import 'element-theme';
 @import url("https://fonts.googleapis.com/css?family=Muli");
 @import "vars";
+@import "grid";
+@import "mixins";
 
 body {
   margin: 0;
@@ -143,8 +145,6 @@ textarea {
   stroke: none;
 }
 
-$inputWidth: 400px;
-
 .sa-form {
   padding: 20px;
   border: 1px solid $secondary-grey;
@@ -154,16 +154,40 @@ $inputWidth: 400px;
   display: flex;
   justify-content: space-between;
 
+  .el-form-item__label {
+    width: 200px;
+    @include respond-above(lg) {
+      width: 150px;
+    }
+    @include respond-above(xl) {
+      width: 200px;
+    }
+  }
+
+  .el-form-item__content {
+    margin-left: 200px;
+    @include respond-above(lg) {
+      margin-left: 150px;
+    }
+    @include respond-above(xl) {
+      margin-left: 200px;
+    }
+  }
+
   .el-form {
     margin: auto;
   }
 
   .el-select {
-    width: $inputWidth;
+    @include input-width;
   }
 
   .el-input {
-    width: $inputWidth;
+    @include input-width;
+  }
+
+  .el-textarea {
+    @include input-width;
   }
 
   hr {

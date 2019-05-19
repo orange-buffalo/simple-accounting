@@ -11,108 +11,115 @@
                label-width="200px"
                :rules="expenseValidationRules">
 
-        <h2>General Information</h2>
+        <div class="row">
+          <div class="col col-xs-12 col-lg-6">
+            <h2>General Information</h2>
 
-        <el-form-item label="Category" prop="category">
-          <el-select v-model="expense.category" placeholder="Select a category">
-            <el-option
-                v-for="category in categories"
-                :key="category.id"
-                :label="category.name"
-                :value="category.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
+            <el-form-item label="Category" prop="category">
+              <el-select v-model="expense.category" placeholder="Select a category">
+                <el-option
+                    v-for="category in categories"
+                    :key="category.id"
+                    :label="category.name"
+                    :value="category.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
 
-        <el-form-item label="Description / Title" prop="title">
-          <el-input v-model="expense.title"
-                    placeholder="Provide a short summary"/>
-        </el-form-item>
+            <el-form-item label="Description / Title" prop="title">
+              <el-input v-model="expense.title"
+                        placeholder="Provide a short summary"/>
+            </el-form-item>
 
-        <el-form-item label="Currency" prop="currency">
-          <currency-input v-model="expense.currency"/>
-        </el-form-item>
+            <el-form-item label="Currency" prop="currency">
+              <currency-input v-model="expense.currency"/>
+            </el-form-item>
 
-        <el-form-item label="Amount" prop="originalAmount">
-          <money-input v-model="expense.originalAmount"
-                       :currency="expense.currency"/>
-        </el-form-item>
+            <el-form-item label="Amount" prop="originalAmount">
+              <money-input v-model="expense.originalAmount"
+                           :currency="expense.currency"/>
+            </el-form-item>
 
-        <el-form-item label="Date Paid" prop="datePaid">
-          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-          <el-date-picker
-              v-model="expense.datePaid"
-              type="date"
-              placeholder="Date expense is paid"
-              value-format="yyyy-MM-dd">
-          </el-date-picker>
-        </el-form-item>
+            <el-form-item label="Date Paid" prop="datePaid">
+              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+              <el-date-picker
+                  v-model="expense.datePaid"
+                  type="date"
+                  placeholder="Date expense is paid"
+                  value-format="yyyy-MM-dd">
+              </el-date-picker>
+            </el-form-item>
 
-        <el-form-item label="Included Tax" prop="tax">
-          <el-select v-model="expense.tax"
-                     clearable="true"
-                     placeholder="Select a tax">
-            <el-option
-                v-for="tax in taxes"
-                :key="tax.id"
-                :label="tax.title"
-                :value="tax.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
+            <el-form-item label="Included Tax" prop="tax">
+              <el-select v-model="expense.tax"
+                         clearable
+                         placeholder="Select a tax">
+                <el-option
+                    v-for="tax in taxes"
+                    :key="tax.id"
+                    :label="tax.title"
+                    :value="tax.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
 
-        <el-form-item v-if="!isInDefaultCurrency">
-          <el-checkbox v-model="alreadyConverted">
-            Already converted
-          </el-checkbox>
-        </el-form-item>
+            <el-form-item v-if="!isInDefaultCurrency">
+              <el-checkbox v-model="alreadyConverted">
+                Already converted
+              </el-checkbox>
+            </el-form-item>
 
-        <el-form-item :label="`Amount in ${defaultCurrency}`"
-                      prop="amountInDefaultCurrency"
-                      v-if="defaultCurrencyAmountVisible">
-          <money-input v-model="expense.amountInDefaultCurrency"
-                       :currency="defaultCurrency"></money-input>
-        </el-form-item>
+            <el-form-item :label="`Amount in ${defaultCurrency}`"
+                          prop="amountInDefaultCurrency"
+                          v-if="defaultCurrencyAmountVisible">
+              <money-input v-model="expense.amountInDefaultCurrency"
+                           :currency="defaultCurrency"></money-input>
+            </el-form-item>
 
-        <el-form-item v-if="alreadyConverted">
-          <el-checkbox v-model="reportedAnotherExchangeRate">
-            Reported converted amount is different (using another rate)
-          </el-checkbox>
-        </el-form-item>
+            <el-form-item v-if="alreadyConverted">
+              <el-checkbox v-model="reportedAnotherExchangeRate">
+                Reported converted amount is different (using another rate)
+              </el-checkbox>
+            </el-form-item>
 
-        <el-form-item label="Reported Amount"
-                      prop="actualAmountInDefaultCurrency"
-                      v-if="actualAmountVisible">
-          <money-input v-model="expense.actualAmountInDefaultCurrency"
-                       :currency="defaultCurrency"></money-input>
-        </el-form-item>
+            <el-form-item label="Reported Amount"
+                          prop="actualAmountInDefaultCurrency"
+                          v-if="actualAmountVisible">
+              <money-input v-model="expense.actualAmountInDefaultCurrency"
+                           :currency="defaultCurrency"></money-input>
+            </el-form-item>
 
-        <el-form-item>
-          <el-checkbox v-model="partialForBusiness">
-            Expense is partially purposed for the business needs
-          </el-checkbox>
-        </el-form-item>
+            <el-form-item>
+              <el-checkbox v-model="partialForBusiness">
+                Expense is partially purposed for the business needs
+              </el-checkbox>
+            </el-form-item>
 
-        <el-form-item label="% spent on business"
-                      prop="percentOnBusiness"
-                      v-if="percentOnBusinessVisible">
-          <el-input-number v-model="expense.percentOnBusiness"
-                           :min="0"
-                           :max="100"/>
-        </el-form-item>
+            <el-form-item label="% spent on business"
+                          prop="percentOnBusiness"
+                          v-if="percentOnBusinessVisible">
+              <el-input-number v-model="expense.percentOnBusiness"
+                               :min="0"
+                               :max="100"/>
+            </el-form-item>
+          </div>
 
-        <h2>Additional notes</h2>
+          <div class="col col-xs-12 col-lg-6">
+            <h2>Additional notes</h2>
 
-        <el-form-item label="Notes" prop="notes">
-          <el-input type="textarea" v-model="expense.notes"
-                    placeholder="Any additional information to be stored for this expense record"/>
-        </el-form-item>
+            <el-form-item label="Notes" prop="notes">
+              <el-input type="textarea" v-model="expense.notes"
+                        placeholder="Any additional information to be stored for this expense record"/>
+            </el-form-item>
 
-        <h2>Attachments</h2>
+            <h2>Attachments</h2>
 
-        <documents-upload form-property="uploads"
-                          ref="documentsUpload"
-                          v-model="expense.uploads"/>
+            <documents-upload form-property="uploads"
+                              ref="documentsUpload"
+                              v-model="expense.uploads"/>
+          </div>
+        </div>
+
         <hr/>
 
         <div class="sa-buttons-bar">

@@ -11,7 +11,7 @@
 
       <el-input placeholder="Additional notes..."
                 v-model="upload.notes"
-                :clearable="true"/>
+                clearable/>
     </template>
 
     <template v-if="!isDropPanelEnabled">
@@ -227,6 +227,7 @@
 
 <style lang="scss">
   @import "@/app/styles/vars.scss";
+  @import "@/app/styles/mixins.scss";
 
   .sa-document-upload_file-selector {
     display: flex;
@@ -239,6 +240,7 @@
     margin-bottom: 10px;
     transition: all 250ms ease-out;
     color: $primary-color-lighter-iii;
+    @include input-width;
 
     span {
       pointer-events: none;

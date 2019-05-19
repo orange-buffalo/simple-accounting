@@ -30,115 +30,121 @@
                label-position="right"
                label-width="200px"
                :rules="invoiceValidationRules">
+        <div class="row">
+          <div class="col col-xs-12 col-lg-6">
+            <h2>General Information</h2>
 
-        <h2>General Information</h2>
+            <el-form-item label="Customer" prop="customer">
+              <el-select v-model="invoice.customer" placeholder="Select a customer">
+                <el-option
+                    v-for="customer in customers"
+                    :key="customer.id"
+                    :label="customer.name"
+                    :value="customer.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
 
-        <el-form-item label="Customer" prop="customer">
-          <el-select v-model="invoice.customer" placeholder="Select a customer">
-            <el-option
-                v-for="customer in customers"
-                :key="customer.id"
-                :label="customer.name"
-                :value="customer.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
+            <el-form-item label="Description / Title" prop="title">
+              <el-input v-model="invoice.title"
+                        placeholder="Provide a short summary"/>
+            </el-form-item>
 
-        <el-form-item label="Description / Title" prop="title">
-          <el-input v-model="invoice.title"
-                    placeholder="Provide a short summary"/>
-        </el-form-item>
+            <el-form-item label="Currency" prop="currency">
+              <currency-input v-model="invoice.currency"/>
+            </el-form-item>
 
-        <el-form-item label="Currency" prop="currency">
-          <currency-input v-model="invoice.currency"/>
-        </el-form-item>
+            <el-form-item label="Amount" prop="amount">
+              <money-input v-model="invoice.amount"
+                           :currency="invoice.currency"/>
+            </el-form-item>
 
-        <el-form-item label="Amount" prop="amount">
-          <money-input v-model="invoice.amount"
-                       :currency="invoice.currency"/>
-        </el-form-item>
+            <el-form-item label="Date Issued" prop="dateIssued">
+              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+              <el-date-picker
+                  v-model="invoice.dateIssued"
+                  type="date"
+                  placeholder="Date invoice is issued"
+                  value-format="yyyy-MM-dd">
+              </el-date-picker>
+            </el-form-item>
 
-        <el-form-item label="Date Issued" prop="dateIssued">
-          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-          <el-date-picker
-              v-model="invoice.dateIssued"
-              type="date"
-              placeholder="Date invoice is issued"
-              value-format="yyyy-MM-dd">
-          </el-date-picker>
-        </el-form-item>
+            <el-form-item label="Due Date" prop="dueDate">
+              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+              <el-date-picker
+                  v-model="invoice.dueDate"
+                  type="date"
+                  placeholder="Date invoice is due"
+                  value-format="yyyy-MM-dd">
+              </el-date-picker>
+            </el-form-item>
 
-        <el-form-item label="Due Date" prop="dueDate">
-          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-          <el-date-picker
-              v-model="invoice.dueDate"
-              type="date"
-              placeholder="Date invoice is due"
-              value-format="yyyy-MM-dd">
-          </el-date-picker>
-        </el-form-item>
+            <el-form-item label="Included Tax" prop="tax">
+              <el-select v-model="invoice.tax"
+                         clearable
+                         placeholder="Select a tax">
+                <el-option
+                    v-for="tax in taxes"
+                    :key="tax.id"
+                    :label="tax.title"
+                    :value="tax.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
 
-        <el-form-item label="Included Tax" prop="tax">
-          <el-select v-model="invoice.tax"
-                     clearable="true"
-                     placeholder="Select a tax">
-            <el-option
-                v-for="tax in taxes"
-                :key="tax.id"
-                :label="tax.title"
-                :value="tax.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
+            <el-form-item>
+              <el-checkbox v-model="alreadySent">
+                Already Sent
+              </el-checkbox>
+            </el-form-item>
 
-        <el-form-item>
-          <el-checkbox v-model="alreadySent">
-            Already Sent
-          </el-checkbox>
-        </el-form-item>
+            <el-form-item label="Date Sent"
+                          v-if="alreadySent"
+                          prop="dateSent">
+              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+              <el-date-picker
+                  v-model="invoice.dateSent"
+                  type="date"
+                  placeholder="Date invoice is sent"
+                  value-format="yyyy-MM-dd">
+              </el-date-picker>
+            </el-form-item>
 
-        <el-form-item label="Date Sent"
-                      v-if="alreadySent"
-                      prop="dateSent">
-          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-          <el-date-picker
-              v-model="invoice.dateSent"
-              type="date"
-              placeholder="Date invoice is sent"
-              value-format="yyyy-MM-dd">
-          </el-date-picker>
-        </el-form-item>
+            <el-form-item>
+              <el-checkbox v-model="alreadyPaid">
+                Already Paid
+              </el-checkbox>
+            </el-form-item>
 
-        <el-form-item>
-          <el-checkbox v-model="alreadyPaid">
-            Already Paid
-          </el-checkbox>
-        </el-form-item>
+            <el-form-item label="Date Paid"
+                          v-if="alreadyPaid"
+                          prop="datePaid">
+              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+              <el-date-picker
+                  v-model="invoice.datePaid"
+                  type="date"
+                  placeholder="Date invoice is paid"
+                  value-format="yyyy-MM-dd">
+              </el-date-picker>
+            </el-form-item>
+          </div>
 
-        <el-form-item label="Date Paid"
-                      v-if="alreadyPaid"
-                      prop="datePaid">
-          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-          <el-date-picker
-              v-model="invoice.datePaid"
-              type="date"
-              placeholder="Date invoice is paid"
-              value-format="yyyy-MM-dd">
-          </el-date-picker>
-        </el-form-item>
+          <div class="col col-xs-12 col-lg-6">
+            <h2>Additional notes</h2>
 
-        <h2>Additional notes</h2>
+            <el-form-item label="Notes" prop="notes">
+              <el-input type="textarea" v-model="invoice.notes"
+                        placeholder="Any additional information to be stored for this invoice record"/>
+            </el-form-item>
 
-        <el-form-item label="Notes" prop="notes">
-          <el-input type="textarea" v-model="invoice.notes"
-                    placeholder="Any additional information to be stored for this invoice record"/>
-        </el-form-item>
+            <h2>Attachments</h2>
 
-        <h2>Attachments</h2>
+            <documents-upload form-property="uploads"
+                              ref="documentsUpload"
+                              v-model="invoice.uploads"/>
+          </div>
+        </div>
 
-        <documents-upload form-property="uploads"
-                          ref="documentsUpload"
-                          v-model="invoice.uploads"/>
         <hr/>
 
         <div class="sa-buttons-bar">

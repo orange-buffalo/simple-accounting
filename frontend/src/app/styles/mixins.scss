@@ -4,3 +4,33 @@
   background-color: $primary-color;
   background: linear-gradient(190deg, $primary-color 0%, $primary-color-lighter-i 25%, $secondary-color 100%);
 }
+
+$breakpoints: (
+    xs: $xs-screen,
+    sm: $sm-screen,
+    md: $md-screen,
+    lg: $lg-screen,
+    xl: $xl-screen
+);
+
+@mixin respond-above($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $breakpoint-value: map-get($breakpoints, $breakpoint);
+    @media (min-width: $breakpoint-value) {
+      @content;
+    }
+  } @else {
+    @warn 'Invalid breakpoint: #{$breakpoint}.';
+  }
+}
+
+@mixin input-width() {
+  width: 400px;
+  @include respond-above(lg) {
+    width: 300px;
+  }
+  @include respond-above(xl) {
+    width: 400px;
+  }
+}
+

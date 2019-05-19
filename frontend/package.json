@@ -9,6 +9,7 @@
     "svg": "vsvg -s ./static/svg/source -t ./src/components/icons"
   },
   "dependencies": {
+    "@drewbot/sass-flexbox-grid": "^2.0.7",
     "axios": "^0.18.0",
     "cldrjs": "^0.5.1",
     "deepmerge": "^3.2.0",

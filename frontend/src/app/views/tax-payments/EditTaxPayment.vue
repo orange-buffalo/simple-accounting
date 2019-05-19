@@ -11,50 +11,57 @@
                label-width="200px"
                :rules="taxPaymentValidationRules">
 
-        <h2>General Information</h2>
+        <div class="row">
+          <div class="col col-xs-12 col-lg-6">
+            <h2>General Information</h2>
 
-        <el-form-item label="Description / Title" prop="title">
-          <el-input v-model="taxPayment.title"
-                    placeholder="Provide a short summary"/>
-        </el-form-item>
+            <el-form-item label="Description / Title" prop="title">
+              <el-input v-model="taxPayment.title"
+                        placeholder="Provide a short summary"/>
+            </el-form-item>
 
-        <el-form-item label="Amount" prop="amount">
-          <money-input v-model="taxPayment.amount"
-                       :currency="defaultCurrency"/>
-        </el-form-item>
+            <el-form-item label="Amount" prop="amount">
+              <money-input v-model="taxPayment.amount"
+                           :currency="defaultCurrency"/>
+            </el-form-item>
 
-        <el-form-item label="Date Paid" prop="datePaid">
-          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-          <el-date-picker
-              v-model="taxPayment.datePaid"
-              type="date"
-              placeholder="Date tax is paid"
-              value-format="yyyy-MM-dd">
-          </el-date-picker>
-        </el-form-item>
+            <el-form-item label="Date Paid" prop="datePaid">
+              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+              <el-date-picker
+                  v-model="taxPayment.datePaid"
+                  type="date"
+                  placeholder="Date tax is paid"
+                  value-format="yyyy-MM-dd">
+              </el-date-picker>
+            </el-form-item>
 
-        <el-form-item label="Reporting Date" prop="reportingDate">
-          <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-          <el-date-picker
-              v-model="taxPayment.reportingDate"
-              type="date"
-              placeholder="Date to include this payment into reporting by"
-              value-format="yyyy-MM-dd">
-          </el-date-picker>
-        </el-form-item>
+            <el-form-item label="Reporting Date" prop="reportingDate">
+              <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
+              <el-date-picker
+                  v-model="taxPayment.reportingDate"
+                  type="date"
+                  placeholder="Date to include this payment into reporting by"
+                  value-format="yyyy-MM-dd">
+              </el-date-picker>
+            </el-form-item>
+          </div>
 
-        <h2>Additional notes</h2>
+          <div class="col col-xs-12 col-lg-6">
+            <h2>Additional notes</h2>
 
-        <el-form-item label="Notes" prop="notes">
-          <el-input type="textarea" v-model="taxPayment.notes"
-                    placeholder="Any additional information to be stored for this tax payment record"/>
-        </el-form-item>
+            <el-form-item label="Notes" prop="notes">
+              <el-input type="textarea" v-model="taxPayment.notes"
+                        placeholder="Any additional information to be stored for this tax payment record"/>
+            </el-form-item>
 
-        <h2>Attachments</h2>
+            <h2>Attachments</h2>
 
-        <documents-upload form-property="uploads"
-                          ref="documentsUpload"
-                          v-model="taxPayment.uploads"/>
+            <documents-upload form-property="uploads"
+                              ref="documentsUpload"
+                              v-model="taxPayment.uploads"/>
+          </div>
+        </div>
+
         <hr/>
 
         <div class="sa-buttons-bar">

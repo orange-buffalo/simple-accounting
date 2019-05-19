@@ -1,0 +1,8 @@
+@import "vars";
+
+$xs-max: $xs-screen;
+$sm-max: $md-screen - 1;
+$md-max: $lg-screen - 1;
+$lg-max: $xl-screen - 1;
+
+@import "~@drewbot/sass-flexbox-grid/public/sass-flexbox/scss/main";
