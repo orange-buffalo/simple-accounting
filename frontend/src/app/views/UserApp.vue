@@ -1,9 +1,7 @@
 <template>
   <el-container>
     <el-aside>
-      <div class="avatar">
-        <svgicon name="user"/>
-      </div>
+      <div class="logo"></div>
 
       <the-workspace-selector/>
 
@@ -23,7 +21,6 @@
 <script>
   import TheSideMenu from '@/app/components/TheSideMenu'
   import TheWorkspaceSelector from '@/app/components/TheWorkspaceSelector'
-  import '@/components/icons/user.js'
 
   export default {
     name: 'UserApp',
@@ -45,14 +42,13 @@
     @include gradient-background;
     color: $white;
 
-    .avatar {
-      text-align: center;
-      .svg-icon {
-        border-radius: 50%;
-        width: 100px;
-        height: 100px;
-        margin: 20px auto 10px;
-      }
+    .logo {
+      height: 120px;
+      background: url("../../assets/logo-menu.svg");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin: 10px 0 10px 0;
     }
   }
 

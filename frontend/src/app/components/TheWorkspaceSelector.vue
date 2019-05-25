@@ -144,9 +144,12 @@
 
 
 <style lang="scss">
+  @import "@/app/styles/vars.scss";
+  
   .the-workspace-selector {
     text-align: center;
     margin-bottom: 20px;
+    color: $accent-contrast-color;
   }
 
   .the-workspace-selector__trigger {

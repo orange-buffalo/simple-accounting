@@ -4,7 +4,7 @@
       New here? We are launching public access soon.
     </div>
     <div class="login-page__login">
-
+      <div class="login-page__login__logo"></div>
       <login-form @login="onLogin"/>
     </div>
   </div>
@@ -46,27 +46,38 @@
   .login-page {
     display: flex;
     height: 100vh;
-  }
 
-  .login-page__signup {
-    @include gradient-background;
-    width: 30%;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    color: white;
-    font-size: 110%;
-  }
+    &__signup {
+      @include gradient-background;
+      width: 30%;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      color: white;
+      font-size: 110%;
+    }
 
-  .login-page__login {
-    width: 70%;
-    background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
+    &__login {
+      width: 70%;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
 
-    .el-form {
-      min-width: 40%;
+      .el-form {
+        min-width: 40%;
+      }
+
+      &__logo {
+        height: 150px;
+        width: 150px;
+        background: url("../../assets/logo-login.svg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        margin-bottom: 40px;
+      }
     }
   }
 
