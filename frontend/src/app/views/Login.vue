@@ -67,6 +67,48 @@
 
       .el-form {
         min-width: 40%;
+
+        .el-button--primary {
+          background: $primary-color-lighter-iii;
+          border-color: $primary-color-lighter-iii;
+          transition: all 0.25s;
+
+          &:hover {
+            background: $primary-color-lighter-ii;
+            border-color: $primary-color-lighter-ii;
+          }
+
+          &.is-disabled {
+            background: white;
+            color: $primary-color-lighter-iii;
+            cursor: inherit;
+
+            &:hover {
+              border-color: $primary-color-lighter-iii;
+            }
+          }
+        }
+
+        .el-checkbox__label {
+          color: $primary-color-lighter-ii !important;
+        }
+
+        .el-checkbox__inner {
+          background-color: white !important;
+          border-color: $primary-color-lighter-ii !important;
+
+          &::after {
+            border-color: $primary-color-lighter-ii;
+          }
+        }
+
+        .el-input__inner {
+          border-color: $primary-color-lighter-iii;
+
+          &:focus {
+            border-color: $primary-color-lighter-iii;
+          }
+        }
       }
 
       &__logo {

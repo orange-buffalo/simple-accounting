@@ -23,7 +23,10 @@
       <el-checkbox v-model="form.rememberMe">Remember me</el-checkbox>
     </el-form-item>
 
-    <el-button type="primary" @click="login">Login</el-button>
+    <el-button type="primary"
+               @click="login"
+               :disabled="!loginEnabled">Login
+    </el-button>
   </el-form>
 </template>
 
@@ -42,14 +45,6 @@
           userName: '',
           password: '',
           rememberMe: true
-        },
-        formValidationRules: {
-          userName: [
-            {required: true, message: 'Please input login', trigger: 'blur'}
-          ],
-          password: [
-            {required: true, message: 'Please input password', trigger: 'blur'}
-          ]
         }
       }
     },
@@ -60,6 +55,12 @@
         this.$emit('login')
       } catch (e) {
         // no opt, continue with the form login
+      }
+    },
+
+    computed: {
+      loginEnabled: function () {
+        return this.form.userName && this.form.password;
       }
     },
 
