@@ -139,6 +139,21 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-tax" */ './views/settings/taxes/EditTax.vue')
         },
         {
+          path: 'settings/workspaces',
+          name: 'workspaces-overview',
+          component: () => import(/* webpackChunkName: "workspaces-overview" */ './views/settings/workspaces/TheWorkspacesOverview.vue')
+        },
+        {
+          path: 'settings/workspaces/create',
+          name: 'create-new-workspace',
+          component: () => import(/* webpackChunkName: "create-new-workspace" */ './views/settings/workspaces/TheWorkspaceEditor.vue')
+        },
+        {
+          path: 'settings/workspaces/:id/edit',
+          name: 'edit-workspace',
+          component: () => import(/* webpackChunkName: "edit-workspace" */ './views/settings/workspaces/TheWorkspaceEditor.vue')
+        },
+        {
           path: 'my-profile',
           name: 'my-profile',
           component: () => import(/* webpackChunkName: "my-profile" */ './views/MyProfile.vue')

@@ -12,6 +12,7 @@
     <the-side-menu-link to="/settings/customers" title="Customers" icon="customer"/>
     <the-side-menu-link to="/settings/categories" title="Categories" icon="category"/>
     <the-side-menu-link to="/settings/taxes" title="Taxes" icon="tax"/>
+    <the-side-menu-link to="/settings/workspaces" title="Workspaces" icon="workspaces"/>
 
     <span class="the-side-menu__category">User</span>
 
@@ -30,6 +31,7 @@
   import '@/components/icons/tax'
   import '@/components/icons/customer'
   import '@/components/icons/category'
+  import '@/components/icons/workspaces'
 
   export default {
     name: 'TheSideMenu',
