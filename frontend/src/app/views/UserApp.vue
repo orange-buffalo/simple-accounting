@@ -1,13 +1,7 @@
 <template>
   <el-container>
-    <el-aside>
-      <div class="logo"></div>
+    <the-side-menu/>
 
-      <the-workspace-selector/>
-
-      <the-side-menu/>
-
-    </el-aside>
     <el-container>
       <el-main>
         <div class="content-panel">
@@ -20,36 +14,20 @@
 
 <script>
   import TheSideMenu from '@/app/components/TheSideMenu'
-  import TheWorkspaceSelector from '@/app/components/TheWorkspaceSelector'
 
   export default {
     name: 'UserApp',
 
-    components: {TheSideMenu, TheWorkspaceSelector}
+    components: {TheSideMenu}
   }
 </script>
 
 
 <style lang="scss">
   @import "@/app/styles/vars.scss";
-  @import "@/app/styles/mixins.scss";
 
   .el-container {
     height: 100vh;
-  }
-
-  .el-aside {
-    @include gradient-background;
-    color: $white;
-
-    .logo {
-      height: 120px;
-      background: url("../../assets/logo-menu.svg");
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      margin: 10px 0 10px 0;
-    }
   }
 
   .el-main {
@@ -59,9 +37,5 @@
       max-width: 1500px;
       margin: auto;
     }
-  }
-
-  .el-menu {
-    border-right: 0 !important;
   }
 </style>
