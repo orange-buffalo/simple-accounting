@@ -13,7 +13,7 @@ $breakpoints: (
     xl: $xl-screen
 );
 
-@mixin respond-above($breakpoint) {
+@mixin respond-above-starting-with($breakpoint) {
   @if map-has-key($breakpoints, $breakpoint) {
     $breakpoint-value: map-get($breakpoints, $breakpoint);
     @media (min-width: $breakpoint-value) {
@@ -24,12 +24,23 @@ $breakpoints: (
   }
 }
 
+@mixin respond-above($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $breakpoint-value: map-get($breakpoints, $breakpoint);
+    @media (min-width: $breakpoint-value + 1) {
+      @content;
+    }
+  } @else {
+    @warn 'Invalid breakpoint: #{$breakpoint}.';
+  }
+}
+
 @mixin input-width() {
   width: 400px;
-  @include respond-above(lg) {
+  @include respond-above-starting-with(lg) {
     width: 300px;
   }
-  @include respond-above(xl) {
+  @include respond-above-starting-with(xl) {
     width: 400px;
   }
 }

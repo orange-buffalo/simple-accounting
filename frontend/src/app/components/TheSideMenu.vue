@@ -55,58 +55,107 @@
   @import "@/app/styles/vars.scss";
   @import "@/app/styles/mixins.scss";
 
+  $menu-breakpoint: lg;
+
   .the-side-menu {
     @include gradient-background;
     color: $white;
-    width: 300px !important;
+    width: 70px !important;
+
+    @include respond-above($menu-breakpoint) {
+      width: 300px !important;
+    }
 
     &__logo {
-      height: 120px;
+      height: 70px;
+      margin: 10px 0 10px 0;
       background: url("../../assets/logo-menu.svg");
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-      margin: 10px 0 10px 0;
+
+      @include respond-above($menu-breakpoint) {
+        height: 120px;
+      }
     }
 
     &__workspace-name {
       text-align: center;
       margin-bottom: 20px;
       color: $accent-contrast-color;
+      display: none;
+
+      @include respond-above($menu-breakpoint) {
+        display: block;
+      }
     }
 
     &__link {
       display: flex;
-      padding: 10px;
+      padding: 10px 0;
       text-decoration: none;
       color: inherit;
       align-items: center;
-      border-left: 5px solid transparent;
+      border-left: 3px solid transparent;
       transition: all 0.1s ease-out;
+      font-size: 0;
+
+      @include respond-above($menu-breakpoint) {
+        border-left: 5px solid transparent;
+        font-size: inherit;
+        padding: 10px;
+      }
 
       &:hover {
         background-color: $accent-primary-color;
       }
 
       &.the-side-menu__link--active {
-        border-left: 5px solid $accent-contrast-color;
+        border-left: 3px solid $accent-contrast-color;
+
+        @include respond-above($menu-breakpoint) {
+          border-left: 5px solid $accent-contrast-color;
+        }
       }
 
       .svg-icon {
-        margin-right: 10px;
-        height: 22px;
-        width: 22px;
+        margin-right: 0;
+        height: 30px;
+        width: 30px;
+        margin-left: 17px;
+
+        @include respond-above($menu-breakpoint) {
+          margin-right: 10px;
+          margin-left: 0;
+          height: 22px;
+          width: 22px;
+        }
       }
     }
 
     &__category {
       display: block;
       margin: 10px 0;
-      padding: 10px;
       text-transform: uppercase;
       font-weight: bold;
-      font-size: 80%;
-      opacity: 0.7;
+      opacity: 0.2;
+      font-size: 0;
+
+      &:after {
+        content: "";
+        display: block;
+        border-bottom: $white solid 1px;
+      }
+
+      @include respond-above($menu-breakpoint) {
+        font-size: 80%;
+        padding: 10px;
+        opacity: 0.7;
+
+        &:after {
+          display: none;
+        }
+      }
     }
   }
 

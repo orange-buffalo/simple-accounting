@@ -156,20 +156,20 @@ textarea {
 
   .el-form-item__label {
     width: 200px;
-    @include respond-above(lg) {
+    @include respond-above-starting-with(lg) {
       width: 150px;
     }
-    @include respond-above(xl) {
+    @include respond-above-starting-with(xl) {
       width: 200px;
     }
   }
 
   .el-form-item__content {
     margin-left: 200px;
-    @include respond-above(lg) {
+    @include respond-above-starting-with(lg) {
       margin-left: 150px;
     }
-    @include respond-above(xl) {
+    @include respond-above-starting-with(xl) {
       margin-left: 200px;
     }
   }
