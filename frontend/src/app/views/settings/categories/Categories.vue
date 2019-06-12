@@ -12,40 +12,45 @@
       </el-button>
     </div>
 
-    <div class="sa-item-info-panel" v-for="category in categories">
-      <div class="sa-item-title-panel">
-        <h3>{{category.name}}</h3>
+    <data-items :api-path="`/user/workspaces/${currentWorkspace.id}/categories`"
+                :paginator="false">
+      <template slot-scope="scope">
+        <div class="sa-item-info-panel">
+          <div class="sa-item-title-panel">
+            <h3>{{scope.item.name}}</h3>
 
-        <span class="sa-item-edit-link">
-          <!--<pencil-icon/>-->
-          <el-button type="text"
-          >Edit</el-button>
-        </span>
-      </div>
-      <p>
-        {{category.description}}
-      </p>
-      <p>
-        Income: {{category.income}}
-      </p>
-      <p>
-        Expense: {{category.expense}}
-      </p>
-    </div>
+            <span class="sa-item-edit-link">
+              <!--<pencil-icon/>-->
+              <el-button type="text">Edit</el-button>
+            </span>
+          </div>
+          <p>
+            {{scope.item.description}}
+          </p>
+          <p>
+            Income: {{scope.item.income}}
+          </p>
+          <p>
+            Expense: {{scope.item.expense}}
+          </p>
+        </div>
+      </template>
+    </data-items>
   </div>
 </template>
 
 <script>
-  import {mapState} from 'vuex'
   import '@/components/icons/plus-thin'
+  import withWorkspaces from '@/app/components/mixins/with-workspaces'
+  import DataItems from '@/components/DataItems'
 
   export default {
     name: 'Categories',
 
-    computed: {
-      ...mapState({
-        categories: state => state.workspaces.currentWorkspace.categories
-      })
+    mixins: [withWorkspaces],
+
+    components: {
+      DataItems
     },
 
     methods: {

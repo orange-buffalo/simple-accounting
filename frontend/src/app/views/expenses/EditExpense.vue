@@ -142,11 +142,12 @@
   import {assign} from 'lodash'
   import {isNil} from 'lodash'
   import {withTaxes} from '@/app/components/mixins/with-taxes'
+  import withCategories from '@/app/components/mixins/with-categories'
 
   export default {
     name: 'EditExpense',
 
-    mixins: [withMediumDateFormatter, withTaxes],
+    mixins: [withMediumDateFormatter, withTaxes, withCategories],
 
     components: {
       DocumentsUpload,
@@ -210,10 +211,6 @@
     computed: {
       ...mapState('workspaces', {
         workspace: 'currentWorkspace'
-      }),
-
-      ...mapState({
-        categories: state => state.workspaces.currentWorkspace.categories.filter(category => category.expense)
       }),
 
       isInDefaultCurrency: function () {

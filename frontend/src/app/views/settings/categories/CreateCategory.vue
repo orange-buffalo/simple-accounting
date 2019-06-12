@@ -75,9 +75,7 @@
           if (valid) {
             api
                 .post(`/user/workspaces/${this.workspace.id}/categories`, this.category)
-                .then(response => {
-                  console.log(response)
-                  this.createCategory(response.data)
+                .then(() => {
                   this.$router.push({name: 'settings-categories'})
                 })
                 .catch(() => {
@@ -90,11 +88,7 @@
                 })
           }
         })
-      },
-
-      ...mapMutations({
-        createCategory: 'workspaces/createCategory'
-      })
+      }
     }
   }
 </script>

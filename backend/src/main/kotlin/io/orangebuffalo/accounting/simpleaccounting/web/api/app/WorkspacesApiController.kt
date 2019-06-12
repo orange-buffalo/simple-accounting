@@ -3,14 +3,12 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.getCurrentPrincipal
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @RestController
@@ -23,28 +21,16 @@ class WorkspacesApiController(
 
     @GetMapping
     fun getWorkspaces(): Mono<List<WorkspaceDto>> = extensions.toMono {
-        val userName = getCurrentPrincipal().username
-        val workspaces = platformUserService.getUserWorkspacesAsync(userName)
-        val categories = platformUserService.getUserCategoriesAsync(userName)
-
-        workspaces.await()
-            .map { workspace ->
-                mapWorkspaceDto(
-                    workspace,
-                    //todo #91: remove
-                    categories.await().asSequence()
-                        .filter { category -> category.workspace == workspace }
-                        .map(::mapCategoryDto)
-                        .toList()
-                )
-            }
+        workspaceService
+            .getUserWorkspaces(getCurrentPrincipal().username)
+            .map { mapWorkspaceDto(it) }
     }
 
     @PostMapping
     fun createWorkspace(
         @RequestBody @Valid createWorkspaceRequest: CreateWorkspaceDto
     ): Mono<WorkspaceDto> = extensions.toMono {
-        platformUserService.createWorkspace(
+        workspaceService.createWorkspace(
             Workspace(
                 name = createWorkspaceRequest.name,
                 taxEnabled = false,
@@ -52,7 +38,7 @@ class WorkspacesApiController(
                 defaultCurrency = createWorkspaceRequest.defaultCurrency,
                 owner = platformUserService.getCurrentUser()
             )
-        ).let { mapWorkspaceDto(it, emptyList()) }
+        ).let { mapWorkspaceDto(it) }
     }
 
     @PutMapping("{workspaceId}")
@@ -60,28 +46,12 @@ class WorkspacesApiController(
         @RequestBody @Valid editWorkspaceRequest: EditWorkspaceDto,
         @PathVariable workspaceId: Long
     ): Mono<WorkspaceDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        workspace.name = editWorkspaceRequest.name
-        platformUserService.saveWorkspace(workspace)
-        //todo #91: remove categories from workspace dto
-        mapWorkspaceDto(workspace, emptyList())
-    }
-
-    @PostMapping("/{workspaceId}/categories")
-    fun createCategory(
-        @PathVariable workspaceId: Long,
-        @RequestBody @Valid createCategoryRequest: CreateCategoryDto
-    ): Mono<CategoryDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        workspaceService.createCategory(
-            Category(
-                name = createCategoryRequest.name,
-                workspace = workspace,
-                expense = createCategoryRequest.expense,
-                income = createCategoryRequest.income,
-                description = createCategoryRequest.description
-            )
-        ).let(::mapCategoryDto)
+        extensions.getAccessibleWorkspace(workspaceId)
+            .apply {
+                name = editWorkspaceRequest.name
+            }
+            .let { workspaceService.save(it) }
+            .let { mapWorkspaceDto(it) }
     }
 }
 
@@ -91,17 +61,7 @@ data class WorkspaceDto(
     var name: String,
     var taxEnabled: Boolean,
     var multiCurrencyEnabled: Boolean,
-    var defaultCurrency: String,
-    var categories: List<CategoryDto> = emptyList()
-)
-
-data class CategoryDto(
-    var id: Long?,
-    var version: Int,
-    var name: String,
-    var description: String?,
-    var income: Boolean,
-    var expense: Boolean
+    var defaultCurrency: String
 )
 
 data class CreateWorkspaceDto(
@@ -116,28 +76,11 @@ data class EditWorkspaceDto(
     @field:NotBlank @field:Size(max = 255) val name: String
 )
 
-data class CreateCategoryDto(
-    @field:NotBlank var name: String,
-    var description: String?,
-    @field:NotNull var income: Boolean,
-    @field:NotNull var expense: Boolean
-)
-
-private fun mapWorkspaceDto(source: Workspace, categories: List<CategoryDto>): WorkspaceDto = WorkspaceDto(
+private fun mapWorkspaceDto(source: Workspace): WorkspaceDto = WorkspaceDto(
     name = source.name,
     id = source.id,
     version = source.version,
     taxEnabled = source.taxEnabled,
     multiCurrencyEnabled = source.multiCurrencyEnabled,
-    defaultCurrency = source.defaultCurrency,
-    categories = categories
-)
-
-private fun mapCategoryDto(source: Category) = CategoryDto(
-    name = source.name,
-    id = source.id,
-    version = source.version,
-    description = source.description,
-    income = source.income,
-    expense = source.expense
+    defaultCurrency = source.defaultCurrency
 )

@@ -49,15 +49,7 @@ internal class WorkspacesApiControllerIT(
                         version: 0,
                         taxEnabled: false,
                         multiCurrencyEnabled: false,
-                        defaultCurrency: "USD",
-                        categories: [{
-                            id: ${fry.slurmCategory.id},
-                            version: 0,
-                            name: "for Slurm",
-                            description: "Only for the best drink ever",
-                            income: true,
-                            expense: true
-                        }]
+                        defaultCurrency: "USD"
                     }"""
                     )
                 )
@@ -103,8 +95,7 @@ internal class WorkspacesApiControllerIT(
                         version: 0,
                         taxEnabled: false,
                         multiCurrencyEnabled: true,
-                        defaultCurrency: "GPB",
-                        categories: []
+                        defaultCurrency: "GPB"
                     }"""
                     )
                 )
@@ -113,45 +104,6 @@ internal class WorkspacesApiControllerIT(
         val newWorkspace = workspaceRepo.findById(workspaceId)
         assertThat(newWorkspace).isPresent.hasValueSatisfying {
             assertThat(it.owner).isEqualTo(fry.himself)
-        }
-    }
-
-    @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should add a new category to the workspace`(fry: Fry) {
-        val categoryId = dbHelper.getNextId()
-
-        client.post()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/categories")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
-                """{
-                    "name": "1990s stuff",
-                    "description": "Stuff from the best time",
-                    "income": false,
-                    "expense": true
-                }"""
-            )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                        name: "1990s stuff",
-                        id: $categoryId,
-                        version: 0,
-                        description: "Stuff from the best time",
-                        income: false,
-                        expense: true
-                    }"""
-                    )
-                )
-            }
-
-        val newCategory = categoryRepository.findById(categoryId)
-        assertThat(newCategory).isPresent.hasValueSatisfying {
-            assertThat(it.workspace).isEqualTo(fry.workspace)
         }
     }
 
