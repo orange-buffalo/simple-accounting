@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
-    "svg": "vsvg -s ./static/svg/source -t ./src/components/icons"
+    "svg-icons": "vsvg -s ./src/icons/svg -t ./src/components/icons"
   },
   "dependencies": {
     "@drewbot/sass-flexbox-grid": "^2.0.7",
