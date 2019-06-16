@@ -10,7 +10,7 @@ class GoogleDriveStorageController(
     private val storageService: GoogleDriveDocumentStorageService
 ) {
 
-    @RequestMapping("/api/v1/user/storage/google-drive/status")
+    @RequestMapping("/api/storage/google-drive/status")
     fun getIntegrationStatus(): Mono<GoogleDriveStorageIntegrationStatus> = toMono {
         storageService.getCurrentUserIntegrationStatus()
     }

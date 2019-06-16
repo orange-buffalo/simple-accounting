@@ -22,7 +22,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces/{workspaceId}/expenses")
+@RequestMapping("/api/workspaces/{workspaceId}/expenses")
 class ExpenseApiController(
     private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,

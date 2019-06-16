@@ -37,7 +37,7 @@ internal class WorkspacesApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return workspaces of current user`(fry: Fry) {
         client.get()
-            .uri("/api/v1/user/workspaces")
+            .uri("/api/workspaces")
             .exchange()
             .expectStatus().isOk
             .expectThatJsonBody {
@@ -60,7 +60,7 @@ internal class WorkspacesApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Zoidberg")
     fun `should return empty list if no workspace exists for user`(zoidberg: Zoidberg) {
         client.get()
-            .uri("/api/v1/user/workspaces")
+            .uri("/api/workspaces")
             .exchange()
             .expectStatus().isOk
             .expectThatJsonBody {
@@ -74,7 +74,7 @@ internal class WorkspacesApiControllerIT(
         val workspaceId = dbHelper.getNextId()
 
         client.post()
-            .uri("/api/v1/user/workspaces")
+            .uri("/api/workspaces")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -114,7 +114,7 @@ internal class WorkspacesApiControllerIT(
         farnsworth: Farnsworth
     ) {
         client.post()
-            .uri("/api/v1/user/workspaces/${farnsworth.workspace.id}/categories")
+            .uri("/api/workspaces/${farnsworth.workspace.id}/categories")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{

@@ -17,7 +17,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 @RestController
-@RequestMapping("/api/v1/admin/users")
+@RequestMapping("/api/users")
 class UsersApiController(
     private val userService: PlatformUserService,
     private val passwordEncoder: PasswordEncoder,

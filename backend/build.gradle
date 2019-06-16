@@ -102,16 +102,7 @@ task copyFrontend(type: DefaultTask) {
     doLast {
         copy {
             from project(':frontend').file('dist')
-            exclude 'admin/**'
-            exclude 'app/**'
             into "$frontendDistDir/META-INF/resources"
-        }
-
-        copy {
-            from project(':frontend').file('dist')
-            include 'admin/**'
-            include 'app/**'
-            into "$frontendDistDir/META-INF/pages"
         }
     }
 

@@ -14,7 +14,7 @@ spring:
             provider: "google"
             scope:
               - "https://www.googleapis.com/auth/drive.file"
-            redirect-uri: "https://simple-accounting.orange-buffalo.io/api/v1/auth/oauth2/callback"
+            redirect-uri: "https://simple-accounting.orange-buffalo.io/api/auth/oauth2/callback"
   resources:
     cache:
       cachecontrol:
@@ -46,7 +46,7 @@ spring:
       client:
         registration:
           google-drive:
-            redirect-uri: "http://localdev.orange-buffalo.io:9393/api/v1/auth/oauth2/callback"
+            redirect-uri: "http://localdev.orange-buffalo.io:9393/api/auth/oauth2/callback"
 
 simpleaccounting:
   documents:

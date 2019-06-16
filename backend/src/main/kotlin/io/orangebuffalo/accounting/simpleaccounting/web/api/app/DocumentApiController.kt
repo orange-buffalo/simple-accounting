@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono
 import java.time.Instant
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces/{workspaceId}/documents")
+@RequestMapping("/api/workspaces/{workspaceId}/documents")
 class DocumentApiController(
     private val extensions: ApiControllersExtensions,
     private val documentService: DocumentService

@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono
 import java.time.LocalDate
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces/{workspaceId}/reporting/")
+@RequestMapping("/api/workspaces/{workspaceId}/reporting/")
 class ReportingApiController(
     private val taxReportingService: TaxReportingService,
     private val extensions: ApiControllersExtensions

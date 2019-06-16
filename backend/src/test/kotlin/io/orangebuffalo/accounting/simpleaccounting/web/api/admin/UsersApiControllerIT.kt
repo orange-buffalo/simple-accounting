@@ -33,10 +33,28 @@ internal class UsersApiControllerIT(
 ) {
 
     @Test
+    @WithMockUser(roles = ["USER"])
+    fun `should allow access only for Admin to read users`() {
+        client.get()
+            .uri("/api/users")
+            .exchange()
+            .expectStatus().isForbidden
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"])
+    fun `should allow access only for Admin to create users`() {
+        client.post()
+            .uri("/api/users")
+            .exchange()
+            .expectStatus().isForbidden
+    }
+
+    @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `should return a valid users page`(testData: UserApiTestData) {
         client.get()
-            .uri("/api/v1/admin/users")
+            .uri("/api/users")
             .exchange()
             .expectStatus().isOk
             .expectThatJsonBody {
@@ -70,7 +88,7 @@ internal class UsersApiControllerIT(
     fun `should create a new user`(testData: UserApiTestData) {
         val leelaId = dbHelper.getNextId()
         client.post()
-            .uri("/api/v1/admin/users")
+            .uri("/api/users")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
-private const val PATH = "/api/v1/auth/api-page-request-handler-test"
+private const val PATH = "/api/auth/api-page-request-handler-test"
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)

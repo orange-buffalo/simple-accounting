@@ -21,7 +21,7 @@ import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 
 @RestController
-@RequestMapping("api/v1/auth")
+@RequestMapping("api/auth")
 class AuthenticationController(
     private val authenticationManager: DelegatingReactiveAuthenticationManager,
     private val jwtService: JwtService,
@@ -82,7 +82,7 @@ class AuthenticationController(
                 .from("refreshToken", value ?: "")
                 .httpOnly(true)
                 .sameSite("Strict")
-                .path("/api/v1/auth/token")
+                .path("/api/auth/token")
                 // todo #67: secure based on configuration
                 .maxAge(maxAge)
                 .build()

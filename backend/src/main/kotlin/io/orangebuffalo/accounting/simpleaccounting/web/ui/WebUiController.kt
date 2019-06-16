@@ -9,15 +9,11 @@ import org.springframework.web.bind.annotation.ResponseBody
 @Controller
 class WebUiController {
 
-    @RequestMapping("/admin/**", produces = [MediaType.TEXT_HTML_VALUE])
+    @RequestMapping("/", produces = [MediaType.TEXT_HTML_VALUE])
     @ResponseBody
-    fun getAdminPage(): ClassPathResource {
-        return ClassPathResource("META-INF/pages/admin/index.html")
-    }
+    fun getRootPage(): ClassPathResource = getIndexPage()
 
-    @RequestMapping("/app/**", produces = [MediaType.TEXT_HTML_VALUE])
+    @RequestMapping("/index.html", produces = [MediaType.TEXT_HTML_VALUE])
     @ResponseBody
-    fun getAppPage(): ClassPathResource {
-        return ClassPathResource("META-INF/pages/app/index.html")
-    }
+    fun getIndexPage(): ClassPathResource = ClassPathResource("META-INF/resources/index.html")
 }

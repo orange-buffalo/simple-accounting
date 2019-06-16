@@ -42,7 +42,7 @@ internal class ExpenseApiControllerIT(
         mockCurrentTime(timeService)
 
         client.post()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .uri("/api/workspaces/${fry.workspace.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -96,7 +96,7 @@ internal class ExpenseApiControllerIT(
         mockCurrentTime(timeService)
 
         client.post()
-            .uri("/api/v1/user/workspaces/995943/expenses")
+            .uri("/api/workspaces/995943/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -123,7 +123,7 @@ internal class ExpenseApiControllerIT(
         mockCurrentTime(timeService)
 
         client.post()
-            .uri("/api/v1/user/workspaces/${bender.planetExpress.id}/expenses")
+            .uri("/api/workspaces/${bender.planetExpress.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -151,7 +151,7 @@ internal class ExpenseApiControllerIT(
         mockCurrentTime(timeService)
 
         client.post()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .uri("/api/workspaces/${fry.workspace.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -194,7 +194,7 @@ internal class ExpenseApiControllerIT(
          mockCurrentTime(timeService)
 
         client.post()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .uri("/api/workspaces/${fry.workspace.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -216,7 +216,7 @@ internal class ExpenseApiControllerIT(
          mockCurrentTime(timeService)
 
         client.post()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .uri("/api/workspaces/${fry.workspace.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -236,7 +236,7 @@ internal class ExpenseApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return expenses of current user`(fry: Fry) {
         client.get()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses")
+            .uri("/api/workspaces/${fry.workspace.id}/expenses")
             .exchange()
             .expectStatus().isOk
             .expectThatJsonBody {
@@ -291,7 +291,7 @@ internal class ExpenseApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return 404 if workspace is not found`(fry: Fry) {
         client.get()
-            .uri("/api/v1/user/workspaces/27347947239/expenses")
+            .uri("/api/workspaces/27347947239/expenses")
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().isEqualTo("Workspace 27347947239 is not found")
@@ -301,7 +301,7 @@ internal class ExpenseApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return 404 if workspace belongs to another user`(fry: Fry, farnsworth: Farnsworth) {
         client.get()
-            .uri("/api/v1/user/workspaces/${farnsworth.workspace.id}/expenses")
+            .uri("/api/workspaces/${farnsworth.workspace.id}/expenses")
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().isEqualTo("Workspace ${farnsworth.workspace.id} is not found")
@@ -311,7 +311,7 @@ internal class ExpenseApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return expense by id`(fry: Fry) {
         client.get()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/expenses/${fry.firstSlurm.id}")
+            .uri("/api/workspaces/${fry.workspace.id}/expenses/${fry.firstSlurm.id}")
             .exchange()
             .expectStatus().isOk
             .expectThatJsonBody {
@@ -342,7 +342,7 @@ internal class ExpenseApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return 404 if workspace is not found when requesting expense by id`(fry: Fry) {
         client.get()
-            .uri("/api/v1/user/workspaces/5634632/expenses/${fry.firstSlurm.id}")
+            .uri("/api/workspaces/5634632/expenses/${fry.firstSlurm.id}")
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().isEqualTo("Workspace 5634632 is not found")
@@ -355,7 +355,7 @@ internal class ExpenseApiControllerIT(
         farnsworth: Farnsworth
     ) {
         client.get()
-            .uri("/api/v1/user/workspaces/${farnsworth.workspace.id}/expenses/${fry.firstSlurm.id}")
+            .uri("/api/workspaces/${farnsworth.workspace.id}/expenses/${fry.firstSlurm.id}")
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().isEqualTo("Workspace ${farnsworth.workspace.id} is not found")
@@ -365,7 +365,7 @@ internal class ExpenseApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Bender")
     fun `should return 404 if expense belongs to another workspace when requesting expense by id`(bender: Bender) {
         client.get()
-            .uri("/api/v1/user/workspaces/${bender.leagueOfRobots.id}/expenses/${bender.boothOne.id}")
+            .uri("/api/workspaces/${bender.leagueOfRobots.id}/expenses/${bender.boothOne.id}")
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().isEqualTo("Expense ${bender.boothOne.id} is not found")
@@ -375,7 +375,7 @@ internal class ExpenseApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Bender")
     fun `should return expenses of a workspace only`(bender: Bender) {
         client.get()
-            .uri("/api/v1/user/workspaces/${bender.leagueOfRobots.id}/expenses")
+            .uri("/api/workspaces/${bender.leagueOfRobots.id}/expenses")
             .exchange()
             .expectStatus().isOk
             .expectThatJsonBody {

@@ -138,7 +138,7 @@
 
 <style lang="scss">
   /*todo #73: common component refers to app styles - redesign dependencies  */
-  @import "@/app/styles/vars.scss";
+  @import "@/styles/vars.scss";
 
   /*todo #74: BEM notation*/
   .data-items {

@@ -1,13 +1,21 @@
+import jwtDecode from 'jwt-decode'
+
 let _apiStore = {
   namespaced: true,
 
   state: {
-     jwtToken: null
+    jwtToken: null,
+    isAdmin: false
   },
 
   mutations: {
     updateJwtToken(state, token) {
       state.jwtToken = token
+      state.isAdmin = false
+      if (token) {
+        let decodedToken = jwtDecode(token)
+        state.isAdmin = decodedToken.authorities && decodedToken.authorities.indexOf("ROLE_ADMIN") >= 0
+      }
     }
   },
 

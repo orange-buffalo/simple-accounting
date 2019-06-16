@@ -36,7 +36,7 @@ class PushNotificationsControllerIT(
     fun `should receive a single broadcast event`(fry: Fry) {
         val result = GlobalScope.async {
             client.get()
-                .uri("/api/v1/user/push-notifications")
+                .uri("/api/push-notifications")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().isOk
@@ -66,7 +66,7 @@ class PushNotificationsControllerIT(
     fun `should receive multiple broadcast events`(fry: Fry) {
         val result = GlobalScope.async {
             client.get()
-                .uri("/api/v1/user/push-notifications")
+                .uri("/api/push-notifications")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().isOk
@@ -109,7 +109,7 @@ class PushNotificationsControllerIT(
     fun `should not receive events addressed to another usr`(fry: Fry, bender: Bender) {
         val result = GlobalScope.async {
             client.get()
-                .uri("/api/v1/user/push-notifications")
+                .uri("/api/push-notifications")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
                 .expectStatus().isOk

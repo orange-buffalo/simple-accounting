@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono
 import java.util.*
 
 @RestController
-@RequestMapping("/api/v1/user/currencies")
+@RequestMapping("/api/currencies")
 class CurrencyApiController {
 
     val currencies = Currency.getAvailableCurrencies().asSequence()

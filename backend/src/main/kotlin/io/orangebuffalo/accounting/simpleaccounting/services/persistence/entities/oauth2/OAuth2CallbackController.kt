@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
-const val AUTH_CALLBACK_PATH = "/api/v1/auth/oauth2/callback"
+const val AUTH_CALLBACK_PATH = "/api/auth/oauth2/callback"
 
 @RestController
 class OAuth2CallbackController(

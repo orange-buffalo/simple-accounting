@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces")
+@RequestMapping("/api/workspaces")
 class WorkspacesApiController(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,

@@ -14,8 +14,8 @@ import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
-private const val PATH_VALIDATION_EXCEPTION = "/api/v1/auth/api-controller-advice-test-validation"
-private const val PATH_ENTITY_NOT_FOUND_EXCEPTION = "/api/v1/auth/api-controller-advice-test-not-found"
+private const val PATH_VALIDATION_EXCEPTION = "/api/auth/api-controller-advice-test-validation"
+private const val PATH_ENTITY_NOT_FOUND_EXCEPTION = "/api/auth/api-controller-advice-test-not-found"
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)

@@ -16,7 +16,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces/{workspaceId}/categories")
+@RequestMapping("/api/workspaces/{workspaceId}/categories")
 class CategoriesApiController(
     private val categoryService: CategoryService,
     private val extensions: ApiControllersExtensions

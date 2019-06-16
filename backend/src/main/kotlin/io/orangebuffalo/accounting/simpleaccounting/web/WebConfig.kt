@@ -25,6 +25,8 @@ import org.springframework.security.web.server.ServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
+import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.web.reactive.config.WebFluxConfigurer
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer
@@ -65,13 +67,13 @@ class WebConfig(
         return http
             .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
             .authorizeExchange()
+            .pathMatchers("/").permitAll()
             .pathMatchers("/favicon.ico").permitAll()
             .pathMatchers("/static/**").permitAll()
-            .pathMatchers("/admin/**").permitAll()
-            .pathMatchers("/app/**").permitAll()
-            .pathMatchers("/api/v1/auth/**").permitAll()
-            .pathMatchers("/api/v1/admin/**").hasRole("ADMIN")
-            .pathMatchers("/api/v1/user/**").hasRole("USER")
+            .pathMatchers("/index.html").permitAll()
+            .pathMatchers("/api/auth/**").permitAll()
+            .pathMatchers("/api/users/**").hasRole("ADMIN")
+            .pathMatchers("/api/**").authenticated()
             .and()
             .exceptionHandling()
             .authenticationEntryPoint(bearerAuthenticationEntryPoint())
@@ -105,7 +107,10 @@ class WebConfig(
 
         return AuthenticationWebFilter(authenticationManager).apply {
             setRequiresAuthenticationMatcher(
-                ServerWebExchangeMatchers.pathMatchers("/api/v1/admin/**", "/api/v1/user/**")
+                AndServerWebExchangeMatcher(
+                    ServerWebExchangeMatchers.pathMatchers("/api/**"),
+                    NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/api/auth/**"))
+                )
             )
             setServerAuthenticationConverter(jwtTokenAuthenticationConverter)
             setAuthenticationFailureHandler(

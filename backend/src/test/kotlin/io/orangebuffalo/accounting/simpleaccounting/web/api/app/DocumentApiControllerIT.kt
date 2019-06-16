@@ -78,7 +78,7 @@ class DocumentApiControllerIT(
             }
 
         client.post()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/documents")
+            .uri("/api/workspaces/${fry.workspace.id}/documents")
             .syncBody(multipartBodyBuilder.build())
             .exchange()
             .expectStatus().isOk
@@ -105,7 +105,7 @@ class DocumentApiControllerIT(
     fun `should return documents by ids`(fry: Fry) {
         client.get()
             .uri { builder ->
-                builder.replacePath("/api/v1/user/workspaces/${fry.workspace.id}/documents")
+                builder.replacePath("/api/workspaces/${fry.workspace.id}/documents")
                     .queryParam("id[eq]", "${fry.cheesePizzaAndALargeSodaReceipt.id}")
                     .queryParam("id[eq]", "${fry.coffeeReceipt.id}")
                     .build()
@@ -150,7 +150,7 @@ class DocumentApiControllerIT(
         documentFile.writeText("test-content", StandardCharsets.UTF_8)
 
         client.get()
-            .uri ("/api/v1/user/workspaces/${fry.workspace.id}/documents/${fry.coffeeReceipt.id}/content")
+            .uri ("/api/workspaces/${fry.workspace.id}/documents/${fry.coffeeReceipt.id}/content")
             .exchange()
             .expectStatus().isOk
             .expectHeader().contentDisposition(ContentDisposition.parse("attachment; filename=\"100_cups.pdf\""))

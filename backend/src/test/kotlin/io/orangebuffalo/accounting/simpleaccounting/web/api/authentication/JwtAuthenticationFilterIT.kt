@@ -28,7 +28,7 @@ class JwtAuthenticationFilterIT(
     fun `When requesting non-guarded path, should not fail if token is broken`() {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doThrow BadCredentialsException("Bad token")
 
-        client.post().uri("/api/v1/auth/non-guarded")
+        client.post().uri("/api/auth/non-guarded")
             .header("Authorization", "Bearer token")
             .contentType(APPLICATION_JSON)
             .exchange()

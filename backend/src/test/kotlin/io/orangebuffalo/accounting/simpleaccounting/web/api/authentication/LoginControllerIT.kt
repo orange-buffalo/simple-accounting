@@ -25,8 +25,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
-private const val LOGIN_PATH = "/api/v1/auth/login"
-private const val TOKEN_PATH = "/api/v1/auth/token"
+private const val LOGIN_PATH = "/api/auth/login"
+private const val TOKEN_PATH = "/api/auth/token"
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -235,7 +235,7 @@ class LoginControllerIT(
             .expectHeader().value(HttpHeaders.SET_COOKIE) { cookie ->
                 assertThat(cookie).contains("refreshToken=refreshTokenForFry")
                     .contains("Max-Age=2592000")
-                    .contains("Path=/api/v1/auth/token")
+                    .contains("Path=/api/auth/token")
                     .contains("HttpOnly")
                     .contains("SameSite=Strict")
             }

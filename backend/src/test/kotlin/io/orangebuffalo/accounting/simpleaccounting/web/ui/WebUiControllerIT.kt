@@ -44,20 +44,22 @@ internal class WebUiControllerIT(
     }
 
     @Test
-    fun `Should serve admin page without authentication`() {
-        client.get().uri("/admin")
-            .accept(TEXT_HTML)
+    fun `Should serve fonts without authentication`() {
+        client.get().uri("/static/fonts/some.ttf")
             .exchange()
-            .expectStatus().isOk
-            .expectBody<String>()
-            .consumeWith {
-                assertThat(it.responseBody).isNotBlank()
-            }
+            .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `Should serve images without authentication`() {
+        client.get().uri("/static/img/some.png")
+            .exchange()
+            .expectStatus().isNotFound
     }
 
     @Test
     fun `Should serve app page without authentication`() {
-        client.get().uri("/app")
+        client.get().uri("/")
             .accept(TEXT_HTML)
             .exchange()
             .expectStatus().isOk

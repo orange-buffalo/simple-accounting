@@ -18,7 +18,7 @@ import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces/{workspaceId}/customers")
+@RequestMapping("/api/workspaces/{workspaceId}/customers")
 class CustomerApiController(
     private val extensions: ApiControllersExtensions,
     private val customerService: CustomerService

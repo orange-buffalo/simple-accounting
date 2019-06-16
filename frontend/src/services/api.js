@@ -7,7 +7,7 @@ import jwtDecode from 'jwt-decode'
 const CancelToken = axios.CancelToken
 
 const _api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: '/api',
   timeout: 10000,
   paramsSerializer: function (params) {
     return qs.stringify(params, {arrayFormat: 'repeat'})

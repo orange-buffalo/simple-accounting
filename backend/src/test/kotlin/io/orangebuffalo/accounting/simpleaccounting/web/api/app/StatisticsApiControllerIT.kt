@@ -27,7 +27,7 @@ internal class StatisticsApiControllerIT(
     fun `should calculate expenses statistics`(roberto: Roberto) {
         client.get()
             .uri(
-                "/api/v1/user/workspaces/${roberto.workspace.id}/statistics/expenses" +
+                "/api/workspaces/${roberto.workspace.id}/statistics/expenses" +
                         "?fromDate=3000-04-10&toDate=3000-10-01"
             )
             .exchange()
@@ -62,7 +62,7 @@ internal class StatisticsApiControllerIT(
     fun `should calculate incomes statistics`(roberto: Roberto) {
         client.get()
             .uri(
-                "/api/v1/user/workspaces/${roberto.workspace.id}/statistics/incomes" +
+                "/api/workspaces/${roberto.workspace.id}/statistics/incomes" +
                         "?fromDate=3010-04-21&toDate=3010-09-15"
             )
             .exchange()
@@ -100,7 +100,7 @@ internal class StatisticsApiControllerIT(
     fun `should calculate tax payments statistics`(roberto: Roberto) {
         client.get()
             .uri(
-                "/api/v1/user/workspaces/${roberto.workspace.id}/statistics/tax-payments" +
+                "/api/workspaces/${roberto.workspace.id}/statistics/tax-payments" +
                         "?fromDate=3005-07-02&toDate=3005-08-01"
             )
             .exchange()

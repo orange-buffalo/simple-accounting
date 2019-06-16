@@ -27,7 +27,7 @@ class CurrencyControllerIT(
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return currencies list`(fry: Fry) {
         client.get()
-            .uri("/api/v1/user/currencies")
+            .uri("/api/currencies")
             .exchange()
             .expectStatus().isOk
             .expectThatJsonBody {

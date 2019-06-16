@@ -34,7 +34,7 @@ internal class CategoriesApiControllerIT(
         val categoryId = dbHelper.getNextId()
 
         client.post()
-            .uri("/api/v1/user/workspaces/${fry.workspace.id}/categories")
+            .uri("/api/workspaces/${fry.workspace.id}/categories")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{

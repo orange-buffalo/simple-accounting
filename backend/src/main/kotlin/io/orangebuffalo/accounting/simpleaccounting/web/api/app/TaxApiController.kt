@@ -20,7 +20,7 @@ import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces/{workspaceId}/taxes")
+@RequestMapping("/api/workspaces/{workspaceId}/taxes")
 class TaxApiController(
     private val extensions: ApiControllersExtensions,
     private val taxService: TaxService

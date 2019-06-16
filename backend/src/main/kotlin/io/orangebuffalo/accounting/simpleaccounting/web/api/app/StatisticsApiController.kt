@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono
 import java.time.LocalDate
 
 @RestController
-@RequestMapping("/api/v1/user/workspaces/{workspaceId}/statistics/")
+@RequestMapping("/api/workspaces/{workspaceId}/statistics/")
 class StatisticsApiController(
     private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,
