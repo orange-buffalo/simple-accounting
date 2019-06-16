@@ -1,10 +1,9 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Farnsworth
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Zoidberg
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CategoryRepository
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
@@ -29,13 +28,20 @@ import org.springframework.test.web.reactive.server.expectBody
 internal class WorkspacesApiControllerIT(
     @Autowired val client: WebTestClient,
     @Autowired val workspaceRepo: WorkspaceRepository,
-    @Autowired val categoryRepository: CategoryRepository,
     @Autowired val dbHelper: DbHelper
 ) {
 
     @Test
+    fun `should allow GET access only for logged in users`() {
+        client.get()
+            .uri("/api/workspaces")
+            .exchange()
+            .expectStatus().isUnauthorized
+    }
+
+    @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should return workspaces of current user`(fry: Fry) {
+    fun `should return workspaces of current user`(testData: WorkspacesApiTestData) {
         client.get()
             .uri("/api/workspaces")
             .exchange()
@@ -45,7 +51,7 @@ internal class WorkspacesApiControllerIT(
                     json(
                         """{
                         name: "Property of Philip J. Fry",
-                        id: ${fry.workspace.id},
+                        id: ${testData.fryWorkspace.id},
                         version: 0,
                         taxEnabled: false,
                         multiCurrencyEnabled: false,
@@ -58,7 +64,7 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Zoidberg")
-    fun `should return empty list if no workspace exists for user`(zoidberg: Zoidberg) {
+    fun `should return empty list if no workspace exists for user`(testData: WorkspacesApiTestData) {
         client.get()
             .uri("/api/workspaces")
             .exchange()
@@ -69,8 +75,16 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
+    fun `should allow POST access only for logged in users`() {
+        client.post()
+            .uri("/api/workspaces")
+            .exchange()
+            .expectStatus().isUnauthorized
+    }
+
+    @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should create a new workspace`(fry: Fry) {
+    fun `should create a new workspace`(testData: WorkspacesApiTestData) {
         val workspaceId = dbHelper.getNextId()
 
         client.post()
@@ -103,31 +117,97 @@ internal class WorkspacesApiControllerIT(
 
         val newWorkspace = workspaceRepo.findById(workspaceId)
         assertThat(newWorkspace).isPresent.hasValueSatisfying {
-            assertThat(it.owner).isEqualTo(fry.himself)
+            assertThat(it.owner).isEqualTo(testData.fry)
         }
     }
 
     @Test
+    fun `should allow PUT access only for logged in users`() {
+        client.put()
+            .uri("/api/workspaces")
+            .exchange()
+            .expectStatus().isUnauthorized
+    }
+
+    @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should return 400 if workspace belongs to another user when posting new category`(
-        fry: Fry,
-        farnsworth: Farnsworth
-    ) {
-        client.post()
-            .uri("/api/workspaces/${farnsworth.workspace.id}/categories")
+    fun `should update a workspace`(testData: WorkspacesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
-                    "name": "fry-to-professor",
-                    "description": null,
-                    "income": false,
-                    "expense": true
+                    "id": ${testData.farnsworthWorkspace.id},
+                    "name": "wp",
+                    "taxEnabled": true,
+                    "multiCurrencyEnabled": true,
+                    "defaultCurrency": "AUD"
+                }"""
+            )
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                isEqualTo(
+                    json(
+                        """{
+                        name: "wp",
+                        id: ${testData.fryWorkspace.id},
+                        version: 1,
+                        taxEnabled: false,
+                        multiCurrencyEnabled: false,
+                        defaultCurrency: "USD"
+                    }"""
+                    )
+                )
+            }
+    }
+
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    fun `should return 404 on PUT if workspace belongs to another user`(
+        testData: WorkspacesApiTestData
+    ) {
+        client.put()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "id": ${testData.fryWorkspace.id},
+                    "name": "wp",
+                    "taxEnabled": true,
+                    "multiCurrencyEnabled": true,
+                    "defaultCurrency": "AUD"
                 }"""
             )
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${farnsworth.workspace.id} is not found")
+                assertThat(it.responseBody).contains("Workspace ${testData.fryWorkspace.id} is not found")
             }
+    }
+
+    class WorkspacesApiTestData : TestData {
+        val fry = Prototypes.fry()
+        val farnsworth = Prototypes.farnsworth()
+        val zoidberg = Prototypes.zoidberg()
+
+        val fryWorkspace = Workspace(
+            name = "Property of Philip J. Fry",
+            owner = fry,
+            taxEnabled = false,
+            multiCurrencyEnabled = false,
+            defaultCurrency = "USD"
+        )
+
+        val farnsworthWorkspace = Workspace(
+            name = "Laboratory",
+            owner = farnsworth,
+            taxEnabled = false,
+            multiCurrencyEnabled = false,
+            defaultCurrency = "USD"
+        )
+
+        override fun generateData() = listOf(farnsworth, fry, fryWorkspace, farnsworthWorkspace, zoidberg)
     }
 }

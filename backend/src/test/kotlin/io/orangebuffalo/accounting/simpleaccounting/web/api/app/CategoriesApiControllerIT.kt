@@ -66,4 +66,28 @@ internal class CategoriesApiControllerIT(
             assertThat(it.workspace).isEqualTo(fry.workspace)
         }
     }
+
+    //todo #66: uncomment and adapt
+//    @Test
+//    @WithMockUser(roles = ["USER"], username = "Fry")
+//    fun `should return 400 if workspace belongs to another user when posting new category`(
+//        testData: WorkspacesApiTestData
+//    ) {
+//        client.post()
+//            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+//            .contentType(MediaType.APPLICATION_JSON)
+//            .syncBody(
+//                """{
+//                    "name": "fry-to-professor",
+//                    "description": null,
+//                    "income": false,
+//                    "expense": true
+//                }"""
+//            )
+//            .exchange()
+//            .expectStatus().isNotFound
+//            .expectBody<String>().consumeWith {
+//                assertThat(it.responseBody).contains("Workspace ${testData.farnsworthWorkspace.id} is not found")
+//            }
+//    }
 }
