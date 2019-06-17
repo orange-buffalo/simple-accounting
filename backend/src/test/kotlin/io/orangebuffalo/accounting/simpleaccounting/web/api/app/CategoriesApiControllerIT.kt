@@ -1,7 +1,10 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CategoryRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
@@ -17,6 +20,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -29,12 +33,72 @@ internal class CategoriesApiControllerIT(
 ) {
 
     @Test
+    fun `should allow GET access only for logged in users`(testData: CategoriesApiTestData) {
+        client.get()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+            .exchange()
+            .expectStatus().isUnauthorized
+    }
+
+    @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should add a new category to the workspace`(fry: Fry) {
+    fun `should get categories of current user workspace`(testData: CategoriesApiTestData) {
+        client.get()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBody {
+                inPath("$.data").isArray.containsExactly(
+                    json(
+                        """{
+                        name: "PlanetExpress",
+                        id: ${testData.planelExpressCategory.id},
+                        version: 0,
+                        description: "...",
+                        income: true,
+                        expense: false
+                    }"""
+                    ), json(
+                        """{
+                        name: "Slurm",
+                        id: ${testData.slurmCategory.id},
+                        version: 0,
+                        description: "..",
+                        income: false,
+                        expense: true
+                    }"""
+                    )
+                )
+            }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should get 404 when requesting categories of another user`(testData: CategoriesApiTestData) {
+        client.get()
+            .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().consumeWith {
+                assertThat(it.responseBody).contains("Workspace ${testData.farnsworthWorkspace.id} is not found")
+            }
+    }
+
+    @Test
+    fun `should allow POST access only for logged in users`(testData: CategoriesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+            .exchange()
+            .expectStatus().isUnauthorized
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should add a new category to the workspace`(testData: CategoriesApiTestData) {
         val categoryId = dbHelper.getNextId()
 
         client.post()
-            .uri("/api/workspaces/${fry.workspace.id}/categories")
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -63,31 +127,64 @@ internal class CategoriesApiControllerIT(
 
         val newCategory = categoryRepository.findById(categoryId)
         assertThat(newCategory).isPresent.hasValueSatisfying {
-            assertThat(it.workspace).isEqualTo(fry.workspace)
+            assertThat(it.workspace).isEqualTo(testData.fryWorkspace)
         }
     }
 
-    //todo #66: uncomment and adapt
-//    @Test
-//    @WithMockUser(roles = ["USER"], username = "Fry")
-//    fun `should return 400 if workspace belongs to another user when posting new category`(
-//        testData: WorkspacesApiTestData
-//    ) {
-//        client.post()
-//            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
-//            .contentType(MediaType.APPLICATION_JSON)
-//            .syncBody(
-//                """{
-//                    "name": "fry-to-professor",
-//                    "description": null,
-//                    "income": false,
-//                    "expense": true
-//                }"""
-//            )
-//            .exchange()
-//            .expectStatus().isNotFound
-//            .expectBody<String>().consumeWith {
-//                assertThat(it.responseBody).contains("Workspace ${testData.farnsworthWorkspace.id} is not found")
-//            }
-//    }
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should get 404 when adding category to workspace of another user`(testData: CategoriesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "name": "1990s stuff",
+                    "description": "Stuff from the best time",
+                    "income": false,
+                    "expense": true
+                }"""
+            )
+            .exchange()
+            .expectStatus().isNotFound
+            .expectBody<String>().consumeWith {
+                assertThat(it.responseBody).contains("Workspace ${testData.farnsworthWorkspace.id} is not found")
+            }
+    }
+
+    class CategoriesApiTestData : TestData {
+        val fry = Prototypes.fry()
+        val farnsworth = Prototypes.farnsworth()
+
+        val fryWorkspace = Workspace(
+            name = "Property of Philip J. Fry",
+            owner = fry,
+            taxEnabled = false,
+            multiCurrencyEnabled = false,
+            defaultCurrency = "USD"
+        )
+
+        val slurmCategory = Category(
+            name = "Slurm", workspace = fryWorkspace, description = "..", income = false, expense = true
+        )
+        val planelExpressCategory = Category(
+            name = "PlanetExpress",
+            workspace = fryWorkspace,
+            description = "...",
+            income = true,
+            expense = false
+        )
+
+        val farnsworthWorkspace = Workspace(
+            name = "Laboratory",
+            owner = farnsworth,
+            taxEnabled = false,
+            multiCurrencyEnabled = false,
+            defaultCurrency = "USD"
+        )
+
+        override fun generateData() = listOf(
+            farnsworth, fry, fryWorkspace, farnsworthWorkspace, slurmCategory, planelExpressCategory
+        )
+    }
 }
