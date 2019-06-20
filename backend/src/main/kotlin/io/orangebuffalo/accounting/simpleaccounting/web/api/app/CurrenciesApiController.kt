@@ -8,7 +8,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/api/currencies")
-class CurrencyApiController {
+class CurrenciesApiController {
 
     val currencies = Currency.getAvailableCurrencies().asSequence()
         .map { currency ->

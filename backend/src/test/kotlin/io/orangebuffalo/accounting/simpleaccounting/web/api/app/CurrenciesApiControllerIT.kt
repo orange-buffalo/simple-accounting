@@ -1,7 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
@@ -18,14 +19,22 @@ import java.util.*
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
-@DisplayName("Currency API ")
-class CurrencyControllerIT(
+@DisplayName("Currencies API ")
+class CurrenciesApiControllerIT(
     @Autowired val client: WebTestClient
 ) {
 
     @Test
+    fun `should allow GET access only for logged in users`() {
+        client.get()
+            .uri("/api/currencies")
+            .exchange()
+            .expectStatus().isUnauthorized
+    }
+
+    @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should return currencies list`(fry: Fry) {
+    fun `should return currencies list`(data: CurrenciesApiTestData) {
         client.get()
             .uri("/api/currencies")
             .exchange()
@@ -54,5 +63,9 @@ class CurrencyControllerIT(
                         )
                     )
             }
+    }
+
+    class CurrenciesApiTestData : TestData {
+        override fun generateData() = listOf(Prototypes.fry())
     }
 }
