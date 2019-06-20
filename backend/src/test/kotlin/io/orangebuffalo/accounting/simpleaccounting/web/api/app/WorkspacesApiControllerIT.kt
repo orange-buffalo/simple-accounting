@@ -7,6 +7,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -35,8 +36,7 @@ internal class WorkspacesApiControllerIT(
     fun `should allow GET access only for logged in users`() {
         client.get()
             .uri("/api/workspaces")
-            .exchange()
-            .expectStatus().isUnauthorized
+            .verifyUnauthorized()
     }
 
     @Test
@@ -78,8 +78,7 @@ internal class WorkspacesApiControllerIT(
     fun `should allow POST access only for logged in users`() {
         client.post()
             .uri("/api/workspaces")
-            .exchange()
-            .expectStatus().isUnauthorized
+            .verifyUnauthorized()
     }
 
     @Test
@@ -125,8 +124,7 @@ internal class WorkspacesApiControllerIT(
     fun `should allow PUT access only for logged in users`() {
         client.put()
             .uri("/api/workspaces")
-            .exchange()
-            .expectStatus().isUnauthorized
+            .verifyUnauthorized()
     }
 
     @Test

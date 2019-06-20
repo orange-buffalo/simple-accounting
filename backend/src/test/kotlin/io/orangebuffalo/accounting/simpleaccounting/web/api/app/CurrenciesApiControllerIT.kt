@@ -4,6 +4,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -28,8 +29,7 @@ class CurrenciesApiControllerIT(
     fun `should allow GET access only for logged in users`() {
         client.get()
             .uri("/api/currencies")
-            .exchange()
-            .expectStatus().isUnauthorized
+            .verifyUnauthorized()
     }
 
     @Test

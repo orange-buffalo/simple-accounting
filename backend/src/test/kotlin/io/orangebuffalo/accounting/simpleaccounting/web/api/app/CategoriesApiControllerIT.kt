@@ -8,6 +8,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CategoryRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
 import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -36,8 +37,7 @@ internal class CategoriesApiControllerIT(
     fun `should allow GET access only for logged in users`(testData: CategoriesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
-            .exchange()
-            .expectStatus().isUnauthorized
+            .verifyUnauthorized()
     }
 
     @Test
@@ -88,8 +88,7 @@ internal class CategoriesApiControllerIT(
     fun `should allow POST access only for logged in users`(testData: CategoriesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
-            .exchange()
-            .expectStatus().isUnauthorized
+            .verifyUnauthorized()
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -34,8 +35,7 @@ class ApiAuthenticationIT(
     fun `should return 401 if token is missing`() {
         client.post().uri(API_PATH)
             .contentType(APPLICATION_JSON)
-            .exchange()
-            .expectStatus().isUnauthorized
+            .verifyUnauthorized()
             .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
     }
 
@@ -46,8 +46,7 @@ class ApiAuthenticationIT(
         client.post().uri(API_PATH)
             .header("Authorization", "Bearer token")
             .contentType(APPLICATION_JSON)
-            .exchange()
-            .expectStatus().isUnauthorized
+            .verifyUnauthorized()
             .expectHeader().valueEquals("WWW-Authenticate", "Bearer")
     }
 

@@ -30,6 +30,9 @@ fun WebTestClient.ResponseSpec.expectThatJsonBody(
             jsonAssert.consumer()
         }
 
+fun WebTestClient.RequestHeadersSpec<*>.verifyUnauthorized(): WebTestClient.ResponseSpec =
+    exchange().expectStatus().isUnauthorized
+
 @Component
 class DbHelper(private val jdbcTemplate: JdbcTemplate) {
 
