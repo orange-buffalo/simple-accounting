@@ -4,7 +4,6 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -375,76 +374,40 @@ internal class ExpensesApiControllerIT(
     class ExpensesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
+        val fryWorkspace = Prototypes.workspace(owner = fry)
+        val fryCoffeeWorkspace = Prototypes.workspace(owner = fry)
+        val coffeeCategory = Prototypes.category(workspace = fryCoffeeWorkspace)
+        val slurmCategory = Prototypes.category(workspace = fryWorkspace)
+        val coffeeTax = Prototypes.tax(workspace = fryCoffeeWorkspace)
+        val slurmTax = Prototypes.tax(workspace = fryWorkspace)
+        val slurmReceipt = Prototypes.document(workspace = fryWorkspace)
 
-        val fryWorkspace = Workspace(
-            name = "Property of Philip J. Fry",
-            owner = fry,
-            taxEnabled = false,
-            multiCurrencyEnabled = false,
-            defaultCurrency = "USD"
-        )
-
-        val fryCoffeeWorkspace = Workspace(
-            name = "Coffee Shop",
-            owner = fry,
-            taxEnabled = false,
-            multiCurrencyEnabled = false,
-            defaultCurrency = "USD"
-        )
-
-        val coffeeCategory = Category(
-            name = "Coffee", workspace = fryCoffeeWorkspace, description = "..", income = false, expense = true
-        )
-
-        val slurmCategory = Category(
-            name = "Slurm", workspace = fryWorkspace, description = "..", income = false, expense = true
-        )
-
-        val coffeeExpense = Expense(
+        val coffeeExpense = Prototypes.expense(
             workspace = coffeeCategory.workspace,
             category = coffeeCategory,
-            title = "100 cups",
-            datePaid = MOCK_DATE,
-            timeRecorded = MOCK_TIME,
             currency = "THF",
             originalAmount = 50,
             amountInDefaultCurrency = 50,
             actualAmountInDefaultCurrency = 50,
             reportedAmountInDefaultCurrency = 50,
-            percentOnBusiness = 100,
-            tax = null
+            percentOnBusiness = 100
         )
 
-        val slurmReceipt = Document(
-            name = "slurm",
-            workspace = fryWorkspace,
-            storageProviderId = "local-fs",
-            storageProviderLocation = "lost",
-            timeUploaded = MOCK_TIME,
-            sizeInBytes = 30
-        )
-
-        val firstSlurm = Expense(
+        val firstSlurm = Prototypes.expense(
+            title = "best ever slurm",
             workspace = slurmCategory.workspace,
             category = slurmCategory,
-            title = "best ever slurm",
-            datePaid = MOCK_DATE,
-            timeRecorded = MOCK_TIME,
             currency = "THF",
             originalAmount = 5000,
             amountInDefaultCurrency = 500,
             actualAmountInDefaultCurrency = 450,
-            reportedAmountInDefaultCurrency = 450,
-            percentOnBusiness = 100,
-            tax = null
+            reportedAmountInDefaultCurrency = 450
         )
 
-        val secondSlurm = Expense(
+        val secondSlurm = Prototypes.expense(
+            title = "another great slurm",
             workspace = slurmCategory.workspace,
             category = slurmCategory,
-            title = "another great slurm",
-            datePaid = MOCK_DATE,
-            timeRecorded = MOCK_TIME,
             currency = "ZZB",
             originalAmount = 5100,
             amountInDefaultCurrency = 510,
@@ -454,18 +417,6 @@ internal class ExpensesApiControllerIT(
             notes = "nice!",
             attachments = setOf(slurmReceipt),
             tax = null
-        )
-
-        val coffeeTax = Tax(
-            title = "cofee",
-            rateInBps = 10,
-            workspace = fryCoffeeWorkspace
-        )
-
-        val slurmTax = Tax(
-            title = "slurm",
-            rateInBps = 10_00,
-            workspace = fryWorkspace
         )
 
         override fun generateData() = listOf(

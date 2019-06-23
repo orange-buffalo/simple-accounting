@@ -152,5 +152,23 @@ class Prototypes {
             timeRecorded = timeRecorded,
             title = title
         )
+
+        fun document(
+            name: String = "Slurm Receipt",
+            notes: String? = null,
+            workspace: Workspace = workspace(),
+            timeUploaded: Instant = MOCK_TIME,
+            storageProviderId: String = "local-fs",
+            storageProviderLocation: String? = null,
+            sizeInBytes: Long? = null
+        ): Document = Document(
+            name = name,
+            workspace = workspace,
+            storageProviderId = storageProviderId,
+            storageProviderLocation = storageProviderLocation,
+            timeUploaded = timeUploaded,
+            sizeInBytes = sizeInBytes,
+            notes = notes
+        )
     }
 }
