@@ -7,6 +7,7 @@ import net.javacrumbs.jsonunit.assertj.JsonAssert
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
+import org.springframework.http.MediaType
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import org.springframework.test.web.reactive.server.KotlinBodySpec
@@ -44,6 +45,9 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
     exchange()
         .expectStatus().isOk
         .expectThatJsonBody(spec)
+
+fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
+    contentType(MediaType.APPLICATION_JSON).syncBody(json)
 
 @Component
 class DbHelper(private val jdbcTemplate: JdbcTemplate) {

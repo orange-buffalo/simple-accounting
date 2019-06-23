@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -171,8 +170,7 @@ internal class ExpensesApiControllerIT(
     fun `should return 404 if workspace is not found when creating expense`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/995943/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(testData.defaultNewExpense())
+            .sendJson(testData.defaultNewExpense())
             .verifyNotFound("Workspace 995943 is not found")
     }
 
@@ -184,8 +182,7 @@ internal class ExpensesApiControllerIT(
 
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": ${testData.slurmCategory.id},
                     "title": "ever best drink",
@@ -238,8 +235,7 @@ internal class ExpensesApiControllerIT(
     fun `should return 404 if workspace belongs to another user when creating expense`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(testData.defaultNewExpense())
+            .sendJson(testData.defaultNewExpense())
             .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
     }
 
@@ -251,8 +247,7 @@ internal class ExpensesApiControllerIT(
 
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": ${testData.slurmCategory.id},
                     "title": "ever best drink",
@@ -290,8 +285,7 @@ internal class ExpensesApiControllerIT(
     fun `should return 404 when category of new expense is not found`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": 537453,
                     "title": "ever best drink",
@@ -308,8 +302,7 @@ internal class ExpensesApiControllerIT(
     fun `should return 404 when category of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": ${testData.coffeeCategory.id},
                     "title": "ever best drink",
@@ -326,8 +319,7 @@ internal class ExpensesApiControllerIT(
     fun `should return 404 when tax of new expense is not found`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": ${testData.slurmCategory.id},
                     "title": "ever best drink",
@@ -345,8 +337,7 @@ internal class ExpensesApiControllerIT(
     fun `should return 404 when tax of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": ${testData.slurmCategory.id},
                     "title": "ever best drink",
@@ -371,8 +362,7 @@ internal class ExpensesApiControllerIT(
     fun `should update expense of current user`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": ${testData.beerCategory.id},
                     "title": "slurm -> beer",
@@ -420,8 +410,7 @@ internal class ExpensesApiControllerIT(
     fun `should update expense of current user with minimum data`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "title": "slurm updated",
                     "currency": "HHD",
@@ -457,8 +446,7 @@ internal class ExpensesApiControllerIT(
     fun `should fail with 404 on PUT when workspace belongs to another user`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "title": "slurm updated",
                     "currency": "HHD",
@@ -474,8 +462,7 @@ internal class ExpensesApiControllerIT(
     fun `should fail with 404 on PUT when expense belongs to another workspace`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.coffeeExpense.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "title": "coffee updated",
                     "currency": "HHD",
@@ -491,8 +478,7 @@ internal class ExpensesApiControllerIT(
     fun `should fail with 404 on PUT when expense does not exist`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/5566")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "title": "coffee updated",
                     "currency": "HHD",
@@ -508,8 +494,7 @@ internal class ExpensesApiControllerIT(
     fun `should fail with 404 on PUT when category is not found`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": 5566,
                     "title": "slurm updated",
@@ -526,8 +511,7 @@ internal class ExpensesApiControllerIT(
     fun `should fail with 404 on PUT when category belongs to another workspace`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "category": ${testData.coffeeCategory.id},
                     "title": "slurm updated",
@@ -544,8 +528,7 @@ internal class ExpensesApiControllerIT(
     fun `should fail with 404 on PUT when tax is not found`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "tax": 5566,
                     "title": "slurm updated",
@@ -562,8 +545,7 @@ internal class ExpensesApiControllerIT(
     fun `should fail with 404 on PUT when tax belongs to another workspace`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "tax": ${testData.coffeeTax.id},
                     "title": "slurm updated",

@@ -7,6 +7,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CategoryRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
+import io.orangebuffalo.accounting.simpleaccounting.web.sendJson
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -96,8 +96,7 @@ internal class CategoriesApiControllerIT(
 
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "name": "1990s stuff",
                     "description": "Stuff from the best time",
@@ -131,8 +130,7 @@ internal class CategoriesApiControllerIT(
     fun `should get 404 when adding category to workspace of another user`(testData: CategoriesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "name": "1990s stuff",
                     "description": "Stuff from the best time",

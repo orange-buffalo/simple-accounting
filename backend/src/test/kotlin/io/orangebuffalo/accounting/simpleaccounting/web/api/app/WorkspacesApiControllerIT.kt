@@ -6,6 +6,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
+import io.orangebuffalo.accounting.simpleaccounting.web.sendJson
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -84,8 +84,7 @@ internal class WorkspacesApiControllerIT(
 
         client.post()
             .uri("/api/workspaces")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "name": "wp",
                     "taxEnabled": false,
@@ -126,8 +125,7 @@ internal class WorkspacesApiControllerIT(
     fun `should update a workspace`(testData: WorkspacesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "id": ${testData.farnsworthWorkspace.id},
                     "name": "wp",
@@ -160,8 +158,7 @@ internal class WorkspacesApiControllerIT(
     ) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "id": ${testData.fryWorkspace.id},
                     "name": "wp",

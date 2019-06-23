@@ -5,6 +5,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
+import io.orangebuffalo.accounting.simpleaccounting.web.sendJson
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -87,8 +87,7 @@ internal class UsersApiControllerIT(
         val leelaId = dbHelper.getNextId()
         client.post()
             .uri("/api/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(
+            .sendJson(
                 """{
                     "userName": "Leela",
                     "password": "&#(3",
