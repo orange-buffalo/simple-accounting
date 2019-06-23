@@ -2,14 +2,9 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Bender
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -25,7 +20,6 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -107,19 +101,15 @@ internal class ExpensesApiControllerIT(
     fun `should return 404 if workspace is not found on GET`(testData: ExpensesApiTestData) {
         client.get()
             .uri("/api/workspaces/27347947239/expenses")
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Workspace 27347947239 is not found")
+            .verifyNotFound("Workspace 27347947239 is not found")
     }
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Farnsworth")
-    fun `should return 404 if workspace belongs to another user`(testData: ExpensesApiTestData) {
+    fun `should return 404 on GET if workspace belongs to another user`(testData: ExpensesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Workspace ${testData.fryWorkspace.id} is not found")
+            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
     }
 
     @Test
@@ -158,9 +148,7 @@ internal class ExpensesApiControllerIT(
     fun `should return 404 if workspace is not found when requesting expense by id`(testData: ExpensesApiTestData) {
         client.get()
             .uri("/api/workspaces/5634632/expenses/${testData.firstSlurm.id}")
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Workspace 5634632 is not found")
+            .verifyNotFound("Workspace 5634632 is not found")
     }
 
     @Test
@@ -170,9 +158,7 @@ internal class ExpensesApiControllerIT(
     ) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Workspace ${testData.fryWorkspace.id} is not found")
+            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
     }
 
     @Test
@@ -182,9 +168,7 @@ internal class ExpensesApiControllerIT(
     ) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.coffeeExpense.id}")
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Expense ${testData.coffeeExpense.id} is not found")
+            .verifyNotFound("Expense ${testData.coffeeExpense.id} is not found")
     }
 
     @Test
@@ -207,7 +191,8 @@ internal class ExpensesApiControllerIT(
                     "attachments": [${testData.slurmReceipt.id}],
                     "notes": "coffee",
                     "percentOnBusiness": 100,
-                    "datePaid": "$MOCK_DATE_VALUE"
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "tax": ${testData.slurmTax.id}
                 }"""
             )
             .exchange()
@@ -222,7 +207,7 @@ internal class ExpensesApiControllerIT(
                             originalAmount: 30000,
                             amountInDefaultCurrency: 42000,
                             actualAmountInDefaultCurrency: 41500,
-                            reportedAmountInDefaultCurrency: 41500,
+                            reportedAmountInDefaultCurrency: 37727,
                             attachments: [${testData.slurmReceipt.id}],
                             notes: "coffee",
                             percentOnBusiness: 100,
@@ -230,7 +215,10 @@ internal class ExpensesApiControllerIT(
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED"
+                            status: "FINALIZED",
+                            tax: ${testData.slurmTax.id},
+                            taxRateInBps: 1000,
+                            taxAmount: 3773
                     }"""
                     )
                 )
@@ -251,37 +239,31 @@ internal class ExpensesApiControllerIT(
             .uri("/api/workspaces/995943/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(testData.defaultNewExpense())
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Workspace 995943 is not found")
+            .verifyNotFound("Workspace 995943 is not found")
     }
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Farnsworth")
     fun `should return 404 if workspace belongs to another user when creating expense`(testData: ExpensesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(testData.defaultNewExpense())
+            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should create a new expense with minimum data for default currency`(testData: ExpensesApiTestData) {
+        val expenseId = dbHelper.getNextId()
         mockCurrentTime(timeService)
 
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(testData.defaultNewExpense())
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Workspace ${testData.fryWorkspace.id} is not found")
-    }
-
-    @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should create a new expense with minimum data for default currency`(fry: Fry) {
-        val expenseId = dbHelper.getNextId()
-        mockCurrentTime(timeService)
-
-        client.post()
-            .uri("/api/workspaces/${fry.workspace.id}/expenses")
-            .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
-                    "category": ${fry.slurmCategory.id},
+                    "category": ${testData.slurmCategory.id},
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
@@ -294,7 +276,7 @@ internal class ExpensesApiControllerIT(
                 isEqualTo(
                     json(
                         """{
-                            category: ${fry.slurmCategory.id},
+                            category: ${testData.slurmCategory.id},
                             title: "ever best drink",
                             currency: "USD",
                             originalAmount: 150,
@@ -316,11 +298,9 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should return 404 when category of new expense is not found`(fry: Fry) {
-        mockCurrentTime(timeService)
-
+    fun `should return 404 when category of new expense is not found`(testData: ExpensesApiTestData) {
         client.post()
-            .uri("/api/workspaces/${fry.workspace.id}/expenses")
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
@@ -331,33 +311,66 @@ internal class ExpensesApiControllerIT(
                     "datePaid": "$MOCK_DATE_VALUE"
                 }"""
             )
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Category 537453 is not found")
+            .verifyNotFound("Category 537453 is not found")
     }
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should return 404 when category of new expense belongs to another user`(fry: Fry, bender: Bender) {
-        mockCurrentTime(timeService)
-
+    fun `should return 404 when category of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
         client.post()
-            .uri("/api/workspaces/${fry.workspace.id}/expenses")
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .contentType(MediaType.APPLICATION_JSON)
             .syncBody(
                 """{
-                    "category": ${bender.suicideBooth.id},
+                    "category": ${testData.coffeeCategory.id},
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
                     "datePaid": "$MOCK_DATE_VALUE"
                 }"""
             )
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Category ${bender.suicideBooth.id} is not found")
+            .verifyNotFound("Category ${testData.coffeeCategory.id} is not found")
     }
 
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 when tax of new expense is not found`(testData: ExpensesApiTestData) {
+        mockCurrentTime(timeService)
+
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "category": ${testData.slurmCategory.id},
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "tax": 4455
+                }"""
+            )
+            .verifyNotFound("Tax 4455 is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 when tax of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .contentType(MediaType.APPLICATION_JSON)
+            .syncBody(
+                """{
+                    "category": ${testData.slurmCategory.id},
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "tax": ${testData.coffeeTax.id}
+                }"""
+            )
+            .verifyNotFound("Tax ${testData.coffeeTax.id} is not found")
+    }
 
     class ExpensesApiTestData : TestData {
         val fry = Prototypes.fry()
@@ -443,12 +456,25 @@ internal class ExpensesApiControllerIT(
             tax = null
         )
 
-        override fun generateData() = listOf(
-            farnsworth, fry, fryWorkspace, slurmCategory, slurmReceipt, firstSlurm, secondSlurm,
-            fryCoffeeWorkspace, coffeeCategory, coffeeExpense
+        val coffeeTax = Tax(
+            title = "cofee",
+            rateInBps = 10,
+            workspace = fryCoffeeWorkspace
         )
 
-        fun defaultNewExpense():String = """{
+        val slurmTax = Tax(
+            title = "slurm",
+            rateInBps = 10_00,
+            workspace = fryWorkspace
+        )
+
+        override fun generateData() = listOf(
+            farnsworth, fry, fryWorkspace, slurmCategory, slurmReceipt, firstSlurm, secondSlurm,
+            fryCoffeeWorkspace, coffeeCategory, coffeeExpense,
+            coffeeTax, slurmTax
+        )
+
+        fun defaultNewExpense(): String = """{
                     "category": ${slurmCategory.id},
                     "title": "ever best drink",
                     "currency": "USD",

@@ -33,6 +33,11 @@ fun WebTestClient.ResponseSpec.expectThatJsonBody(
 fun WebTestClient.RequestHeadersSpec<*>.verifyUnauthorized(): WebTestClient.ResponseSpec =
     exchange().expectStatus().isUnauthorized
 
+fun WebTestClient.RequestHeadersSpec<*>.verifyNotFound(errorMessage: String): KotlinBodySpec<String> =
+    exchange()
+        .expectStatus().isNotFound
+        .expectBody<String>().isEqualTo(errorMessage)
+
 @Component
 class DbHelper(private val jdbcTemplate: JdbcTemplate) {
 

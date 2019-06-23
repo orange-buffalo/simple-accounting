@@ -1,5 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api
 
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyNotFound
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,9 +37,7 @@ internal class RestApiControllerAdviceIT(
     @Test
     fun `should return 404 and a valid message when EntityNotFoundException is thrown`() {
         client.get().uri(PATH_ENTITY_NOT_FOUND_EXCEPTION)
-            .exchange()
-            .expectStatus().isNotFound
-            .expectBody<String>().isEqualTo("Space Bees not found")
+            .verifyNotFound("Space Bees not found")
     }
 
     @TestConfiguration
