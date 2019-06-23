@@ -6,7 +6,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
-import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
@@ -44,9 +44,7 @@ internal class WorkspacesApiControllerIT(
     fun `should return workspaces of current user`(testData: WorkspacesApiTestData) {
         client.get()
             .uri("/api/workspaces")
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$").isArray.containsExactly(
                     json(
                         """{
@@ -67,9 +65,7 @@ internal class WorkspacesApiControllerIT(
     fun `should return empty list if no workspace exists for user`(testData: WorkspacesApiTestData) {
         client.get()
             .uri("/api/workspaces")
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$").isArray.isEmpty()
             }
     }
@@ -97,9 +93,7 @@ internal class WorkspacesApiControllerIT(
                     "defaultCurrency": "GPB"
                 }"""
             )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 isEqualTo(
                     json(
                         """{
@@ -142,9 +136,7 @@ internal class WorkspacesApiControllerIT(
                     "defaultCurrency": "AUD"
                 }"""
             )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 isEqualTo(
                     json(
                         """{

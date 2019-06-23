@@ -3,7 +3,6 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
@@ -26,8 +25,7 @@ import javax.validation.constraints.Size
 class ExpensesApiController(
     private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,
-    private val timeService: TimeService,
-    private val taxService: TaxService
+    private val timeService: TimeService
 ) {
 
     @PostMapping

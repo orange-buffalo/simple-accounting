@@ -2,7 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Roberto
-import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -30,9 +30,7 @@ internal class StatisticsApiControllerIT(
                 "/api/workspaces/${roberto.workspace.id}/statistics/expenses" +
                         "?fromDate=3000-04-10&toDate=3000-10-01"
             )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$.totalAmount").isNumber.isEqualTo("644")
                 inPath("$.finalizedCount").isNumber.isEqualTo("4")
                 inPath("$.pendingCount").isNumber.isEqualTo("3")
@@ -65,9 +63,7 @@ internal class StatisticsApiControllerIT(
                 "/api/workspaces/${roberto.workspace.id}/statistics/incomes" +
                         "?fromDate=3010-04-21&toDate=3010-09-15"
             )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$.totalAmount").isNumber.isEqualTo("568")
                 inPath("$.finalizedCount").isNumber.isEqualTo("3")
                 inPath("$.pendingCount").isNumber.isEqualTo("2")
@@ -103,9 +99,7 @@ internal class StatisticsApiControllerIT(
                 "/api/workspaces/${roberto.workspace.id}/statistics/tax-payments" +
                         "?fromDate=3005-07-02&toDate=3005-08-01"
             )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$.totalTaxPayments").isNumber.isEqualTo("77")
             }
     }

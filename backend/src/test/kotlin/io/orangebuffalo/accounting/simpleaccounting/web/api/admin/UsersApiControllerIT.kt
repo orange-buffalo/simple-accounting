@@ -5,7 +5,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
-import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -55,9 +55,7 @@ internal class UsersApiControllerIT(
     fun `should return a valid users page`(testData: UserApiTestData) {
         client.get()
             .uri("/api/users")
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
                 inPath("$.totalElements").isNumber.isEqualTo("2")
@@ -97,9 +95,7 @@ internal class UsersApiControllerIT(
                     "admin": false
                 }"""
             )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 isEqualTo(
                     json(
                         """{

@@ -7,7 +7,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CategoryRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
-import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
@@ -45,9 +45,7 @@ internal class CategoriesApiControllerIT(
     fun `should get categories of current user workspace`(testData: CategoriesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$.data").isArray.containsExactly(
                     json(
                         """{
@@ -107,9 +105,7 @@ internal class CategoriesApiControllerIT(
                     "expense": true
                 }"""
             )
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 isEqualTo(
                     json(
                         """{

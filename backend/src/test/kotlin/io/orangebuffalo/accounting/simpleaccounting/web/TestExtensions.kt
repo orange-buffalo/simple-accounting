@@ -19,7 +19,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 fun WebTestClient.ResponseSpec.expectThatJsonBody(
-    consumer: JsonAssert.ConfigurableJsonAssert.() -> Unit
+    spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
 ): KotlinBodySpec<String> =
     expectBody<String>()
         .consumeWith { body ->
@@ -27,7 +27,7 @@ fun WebTestClient.ResponseSpec.expectThatJsonBody(
             assertThat(responseJson).isNotBlank()
 
             val jsonAssert = assertThatJson(responseJson)
-            jsonAssert.consumer()
+            jsonAssert.spec()
         }
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyUnauthorized(): WebTestClient.ResponseSpec =
@@ -37,6 +37,13 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyNotFound(errorMessage: String): Ko
     exchange()
         .expectStatus().isNotFound
         .expectBody<String>().isEqualTo(errorMessage)
+
+fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
+    spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
+): KotlinBodySpec<String> =
+    exchange()
+        .expectStatus().isOk
+        .expectThatJsonBody(spec)
 
 @Component
 class DbHelper(private val jdbcTemplate: JdbcTemplate) {

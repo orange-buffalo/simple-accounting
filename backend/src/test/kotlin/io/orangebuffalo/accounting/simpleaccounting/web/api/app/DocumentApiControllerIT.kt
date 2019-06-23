@@ -6,8 +6,8 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeServic
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
 import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME_VALUE
-import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.web.mockCurrentTime
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -80,9 +80,7 @@ class DocumentApiControllerIT(
         client.post()
             .uri("/api/workspaces/${fry.workspace.id}/documents")
             .syncBody(multipartBodyBuilder.build())
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 node("name").isString.isEqualTo("test-file.txt")
                 node("id").isNumber.isEqualTo(BigDecimal.valueOf(documentId))
                 node("version").isNumber.isEqualTo(BigDecimal.ZERO)
@@ -110,9 +108,7 @@ class DocumentApiControllerIT(
                     .queryParam("id[eq]", "${fry.coffeeReceipt.id}")
                     .build()
             }
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
                 inPath("$.totalElements").isNumber.isEqualTo("2")

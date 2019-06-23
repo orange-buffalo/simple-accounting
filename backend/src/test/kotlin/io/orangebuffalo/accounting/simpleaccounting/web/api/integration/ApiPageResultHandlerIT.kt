@@ -1,7 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import com.querydsl.core.types.dsl.PathBuilder
-import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -31,9 +31,7 @@ internal class ApiPageResultHandlerIT(
     @Test
     fun `should map a result as per annotation configuration`() {
         client.get().uri(PATH)
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("3")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
                 inPath("$.totalElements").isNumber.isEqualTo("42")
@@ -50,7 +48,7 @@ internal class ApiPageResultHandlerIT(
             }
     }
 
-    @TestConfiguration()
+    @TestConfiguration
     class ApiPageResultHandlerTesConfig {
         @Bean
         fun apiPageResultHandlerTestController(): ApiPageResultHandlerTestController =
@@ -67,7 +65,7 @@ internal class ApiPageResultHandlerIT(
         @PageableApi(ApiPageResultHandlerTestPageableApiDescriptor::class)
         fun get(apiPageRequest: ApiPageRequest): Mono<Page<ApiPageResultHandlerTestRepositoryUser>> {
             return Mono.just(
-                PageImpl<ApiPageResultHandlerTestRepositoryUser>(
+                PageImpl(
                     listOf(
                         ApiPageResultHandlerTestRepositoryUser(
                             "Leela",

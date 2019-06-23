@@ -3,7 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.web.expectThatJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
@@ -37,9 +37,7 @@ class CurrenciesApiControllerIT(
     fun `should return currencies list`(data: CurrenciesApiTestData) {
         client.get()
             .uri("/api/currencies")
-            .exchange()
-            .expectStatus().isOk
-            .expectThatJsonBody {
+            .verifyOkAndJsonBody {
                 isArray
                     .size().isEqualTo(Currency.getAvailableCurrencies().size).returnToIterable()
                     .contains(
