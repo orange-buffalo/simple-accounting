@@ -35,7 +35,7 @@ internal class ExpensesApiControllerIT(
     @Test
     fun `should allow GET access only for logged in users`(testData: ExpensesApiTestData) {
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .verifyUnauthorized()
     }
 
@@ -353,7 +353,7 @@ internal class ExpensesApiControllerIT(
     @Test
     fun `should allow PUT access only for logged in users`(testData: ExpensesApiTestData) {
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .verifyUnauthorized()
     }
 
