@@ -170,5 +170,25 @@ class Prototypes {
             sizeInBytes = sizeInBytes,
             notes = notes
         )
+
+        fun taxPayment(
+            workspace: Workspace = workspace(),
+            timeRecorded: Instant = MOCK_TIME,
+            datePaid: LocalDate = MOCK_DATE,
+            reportingDate: LocalDate = MOCK_DATE,
+            amount: Long = 100,
+            title: String = "Tax Payment",
+            attachments: Set<Document> = setOf(),
+            notes: String? = null
+        ): TaxPayment = TaxPayment(
+            workspace = workspace,
+            timeRecorded = timeRecorded,
+            datePaid = datePaid,
+            reportingDate = reportingDate,
+            amount = amount,
+            title = title,
+            attachments = attachments,
+            notes = notes
+        )
     }
 }
