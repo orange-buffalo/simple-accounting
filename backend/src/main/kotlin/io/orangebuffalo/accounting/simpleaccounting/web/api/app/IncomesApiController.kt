@@ -24,7 +24,7 @@ import javax.validation.constraints.Size
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/incomes")
-class IncomeApiController(
+class IncomesApiController(
     private val extensions: ApiControllersExtensions,
     private val incomeService: IncomeService,
     private val timeService: TimeService,

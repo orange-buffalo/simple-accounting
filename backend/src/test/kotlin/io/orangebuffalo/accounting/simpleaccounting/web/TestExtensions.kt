@@ -64,6 +64,10 @@ fun mockCurrentTime(timeService: TimeService) {
     whenever(timeService.currentTime()) doReturn MOCK_TIME
 }
 
+fun mockCurrentDate(timeService: TimeService) {
+    whenever(timeService.currentDate()) doReturn MOCK_DATE
+}
+
 val MOCK_DATE: LocalDate = LocalDate.of(1999, 3, 28)
 const val MOCK_DATE_VALUE = "1999-03-28"
 

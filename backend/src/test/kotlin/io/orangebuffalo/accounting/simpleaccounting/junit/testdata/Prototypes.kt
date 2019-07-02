@@ -123,7 +123,7 @@ class Prototypes {
 
         fun income(
             category: Category = category(),
-            workspace: Workspace = workspace(),
+            workspace: Workspace = category.workspace,
             title: String = "Income",
             timeRecorded: Instant = MOCK_TIME,
             dateReceived: LocalDate = MOCK_DATE,
@@ -189,6 +189,46 @@ class Prototypes {
             title = title,
             attachments = attachments,
             notes = notes
+        )
+
+        fun customer(
+            name: String = "customer",
+            workspace: Workspace = workspace()
+        ): Customer = Customer(
+            name = name,
+            workspace = workspace
+        )
+
+        fun invoice(
+            income: Income? = null,
+            customer: Customer = customer(),
+            title: String = "invoice",
+            timeRecorded: Instant = MOCK_TIME,
+            dateIssued: LocalDate = MOCK_DATE,
+            dateSent: LocalDate? = null,
+            datePaid: LocalDate? = null,
+            dateCancelled: LocalDate? = null,
+            dueDate: LocalDate = MOCK_DATE,
+            currency: String = "USD",
+            amount: Long = 100,
+            attachments: Set<Document> = setOf(),
+            notes: String? = null,
+            tax: Tax? = null
+        ): Invoice = Invoice(
+            income = income,
+            customer = customer,
+            title = title,
+            timeRecorded = timeRecorded,
+            dateIssued = dateIssued,
+            dateSent = dateSent,
+            datePaid = datePaid,
+            dateCancelled = dateCancelled,
+            dueDate = dueDate,
+            currency = currency,
+            amount = amount,
+            attachments = attachments,
+            notes = notes,
+            tax = tax
         )
     }
 }

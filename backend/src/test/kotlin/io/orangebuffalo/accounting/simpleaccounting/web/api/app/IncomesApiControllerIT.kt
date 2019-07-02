@@ -105,6 +105,13 @@ internal class IncomesApiControllerIT(
     }
 
     @Test
+    fun `should allow GET access for an income only for logged in users`(testData: IncomesApiTestData) {
+        client.get()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/expenses/${testData.firstSpaceIncome.id}")
+            .verifyUnauthorized()
+    }
+
+    @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return income by id for current user`(testData: IncomesApiTestData) {
         client.get()
@@ -586,7 +593,7 @@ internal class IncomesApiControllerIT(
         )
 
         override fun generateData() = listOf(
-            farnsworth, fry, planetExpressWorkspace, spaceDeliveryCategory, spaceDeliveryPayslip, 
+            farnsworth, fry, planetExpressWorkspace, spaceDeliveryCategory, spaceDeliveryPayslip,
             firstSpaceIncome, secondSpaceIncome,
             pizzaDeliveryWorkspace, pizzaCategory, pizzaWageIncome,
             pizzaDeliveryTax, planetExpressTax, pensionCategory

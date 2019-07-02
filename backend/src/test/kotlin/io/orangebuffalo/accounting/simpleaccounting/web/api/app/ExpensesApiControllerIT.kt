@@ -109,6 +109,13 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
+    fun `should allow GET access for an expense only for logged in users`(testData: ExpensesApiTestData) {
+        client.get()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .verifyUnauthorized()
+    }
+
+    @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should return expense by id for current user`(testData: ExpensesApiTestData) {
         client.get()

@@ -56,6 +56,6 @@ class Invoice(
 
     @field:ManyToOne
     @field:JoinColumn(foreignKey = ForeignKey(name = "invoice_tax_fk"))
-    var tax: Tax?
+    var tax: Tax? = null
 
 ) : AbstractEntity()
