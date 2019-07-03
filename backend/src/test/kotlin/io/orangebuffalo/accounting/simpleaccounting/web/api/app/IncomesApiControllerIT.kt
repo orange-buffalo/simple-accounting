@@ -4,10 +4,8 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.IncomeRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,9 +22,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @AutoConfigureWebTestClient
 @DisplayName("Incomes API ")
 internal class IncomesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val dbHelper: DbHelper,
-    @Autowired val incomeRepository: IncomeRepository
+    @Autowired val client: WebTestClient
 ) {
 
     @MockBean
@@ -178,7 +174,6 @@ internal class IncomesApiControllerIT(
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new income`(testData: IncomesApiTestData) {
-        val incomeId = dbHelper.getNextId()
         mockCurrentTime(timeService)
 
         client.post()
@@ -209,7 +204,7 @@ internal class IncomesApiControllerIT(
                             reportedAmountInDefaultCurrency: 37727,
                             attachments: [${testData.spaceDeliveryPayslip.id}],
                             notes: "delivery",
-                            id: $incomeId,
+                            id: "#{json-unit.any-number}",
                             version: 0,
                             dateReceived: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -221,11 +216,6 @@ internal class IncomesApiControllerIT(
                     )
                 )
             }
-
-        val income = incomeRepository.findById(incomeId)
-        assertThat(income).isPresent.hasValueSatisfying {
-            assertThat(it.category).isEqualTo(testData.spaceDeliveryCategory)
-        }
     }
 
     @Test
@@ -240,7 +230,6 @@ internal class IncomesApiControllerIT(
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new income with minimum data for default currency`(testData: IncomesApiTestData) {
-        val incomeId = dbHelper.getNextId()
         mockCurrentTime(timeService)
 
         client.post()
@@ -264,7 +253,7 @@ internal class IncomesApiControllerIT(
                             originalAmount: 150,
                             amountInDefaultCurrency: 150,
                             reportedAmountInDefaultCurrency: 150,
-                            id: $incomeId,
+                            id: "#{json-unit.any-number}",
                             version: 0,
                             dateReceived: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",

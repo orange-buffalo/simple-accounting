@@ -4,10 +4,8 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,9 +22,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @AutoConfigureWebTestClient
 @DisplayName("Expenses API ")
 internal class ExpensesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val dbHelper: DbHelper,
-    @Autowired val expenseRepository: ExpenseRepository
+    @Autowired val client: WebTestClient
 ) {
 
     @MockBean
@@ -184,7 +180,6 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new expense`(testData: ExpensesApiTestData) {
-        val expenseId = dbHelper.getNextId()
         mockCurrentTime(timeService)
 
         client.post()
@@ -218,7 +213,7 @@ internal class ExpensesApiControllerIT(
                             attachments: [${testData.slurmReceipt.id}],
                             notes: "coffee",
                             percentOnBusiness: 100,
-                            id: $expenseId,
+                            id: "#{json-unit.any-number}",
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -230,11 +225,6 @@ internal class ExpensesApiControllerIT(
                     )
                 )
             }
-
-        val expense = expenseRepository.findById(expenseId)
-        assertThat(expense).isPresent.hasValueSatisfying {
-            assertThat(it.category).isEqualTo(testData.slurmCategory)
-        }
     }
 
     @Test
@@ -249,7 +239,6 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new expense with minimum data for default currency`(testData: ExpensesApiTestData) {
-        val expenseId = dbHelper.getNextId()
         mockCurrentTime(timeService)
 
         client.post()
@@ -275,7 +264,7 @@ internal class ExpensesApiControllerIT(
                             actualAmountInDefaultCurrency: 150,
                             reportedAmountInDefaultCurrency: 150,
                             percentOnBusiness: 100,
-                            id: $expenseId,
+                            id: "#{json-unit.any-number}",
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
