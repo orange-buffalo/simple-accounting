@@ -19,7 +19,7 @@ import javax.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/customers")
-class CustomerApiController(
+class CustomersApiController(
     private val extensions: ApiControllersExtensions,
     private val customerService: CustomerService
 ) {
