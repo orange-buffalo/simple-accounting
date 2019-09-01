@@ -50,7 +50,7 @@ internal class CategoriesApiControllerIT(
                     json(
                         """{
                         name: "PlanetExpress",
-                        id: ${testData.planelExpressCategory.id},
+                        id: ${testData.planetExpressCategory.id},
                         version: 0,
                         description: "...",
                         income: true,
@@ -160,7 +160,7 @@ internal class CategoriesApiControllerIT(
         val slurmCategory = Category(
             name = "Slurm", workspace = fryWorkspace, description = "..", income = false, expense = true
         )
-        val planelExpressCategory = Category(
+        val planetExpressCategory = Category(
             name = "PlanetExpress",
             workspace = fryWorkspace,
             description = "...",
@@ -177,7 +177,7 @@ internal class CategoriesApiControllerIT(
         )
 
         override fun generateData() = listOf(
-            farnsworth, fry, fryWorkspace, farnsworthWorkspace, slurmCategory, planelExpressCategory
+            farnsworth, fry, fryWorkspace, farnsworthWorkspace, slurmCategory, planetExpressCategory
         )
     }
 }
