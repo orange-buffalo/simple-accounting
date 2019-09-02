@@ -106,7 +106,7 @@ class PushNotificationsControllerIT(
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should not receive events addressed to another usr`(fry: Fry, bender: Bender) {
+    fun `should not receive events addressed to another user`(fry: Fry, bender: Bender) {
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")

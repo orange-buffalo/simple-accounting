@@ -40,6 +40,7 @@ class DocumentService(
     }
 
     fun getDocumentStorageByUser(user: PlatformUser) = documentStorages
+        // todo #10: take from user profile
         .first { it.getId() == "google-drive" }
 
     suspend fun getDocumentsByIds(ids: List<Long>): List<Document> =

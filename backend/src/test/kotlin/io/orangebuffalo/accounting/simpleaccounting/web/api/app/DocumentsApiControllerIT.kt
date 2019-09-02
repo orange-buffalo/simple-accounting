@@ -39,9 +39,9 @@ import java.nio.file.Path
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
-@ContextConfiguration(initializers = [DocumentApiControllerIT.TempDirectoryInitializer::class])
-@DisplayName("Document API ")
-class DocumentApiControllerIT(
+@ContextConfiguration(initializers = [DocumentsApiControllerIT.TempDirectoryInitializer::class])
+@DisplayName("Documents API ")
+class DocumentsApiControllerIT(
     @Autowired val client: WebTestClient,
     @Autowired val documentRepository: DocumentRepository,
     @Autowired val dbHelper: DbHelper,

@@ -21,7 +21,7 @@ import java.time.Instant
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/documents")
-class DocumentApiController(
+class DocumentsApiController(
     private val extensions: ApiControllersExtensions,
     private val documentService: DocumentService
 ) {
