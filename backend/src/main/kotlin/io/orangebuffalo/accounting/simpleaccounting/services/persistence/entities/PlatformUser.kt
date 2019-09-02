@@ -5,10 +5,8 @@ import javax.persistence.Entity
 
 @Entity
 class PlatformUser(
-        @field:Column(nullable = false) var userName: String,
-        @field:Column(nullable = false) var passwordHash: String,
-        @field:Column(nullable = false) var isAdmin: Boolean
-) : AbstractEntity() {
-
-}
-
+    @field:Column(nullable = false) var userName: String,
+    @field:Column(nullable = false) var passwordHash: String,
+    @field:Column(nullable = false) var isAdmin: Boolean,
+    @field:Column var documentsStorage: String? = null
+) : AbstractEntity()

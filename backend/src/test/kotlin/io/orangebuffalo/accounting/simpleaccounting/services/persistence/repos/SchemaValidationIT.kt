@@ -30,9 +30,10 @@ class SchemaValidationIT {
     @Autowired
     private lateinit var localContainerEntityManagerFactoryBean: LocalContainerEntityManagerFactoryBean
 
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     @Value("classpath:hibernate-ddl.sql")
-    private lateinit var persistedHibernateDdl : Resource
+    private lateinit var persistedHibernateDdl: Resource
 
     @Test
     fun `Flyway should produce Hibernate-valid schema`() {
@@ -40,10 +41,10 @@ class SchemaValidationIT {
         schemaToolSetup.properties["hibernate.hbm2ddl.auto"] = "validate"
 
         SchemaManagementToolCoordinator.process(
-                schemaToolSetup.metadata,
-                schemaToolSetup.serviceRegistry,
-                schemaToolSetup.properties,
-                DelayedDropRegistryNotAvailableImpl.INSTANCE
+            schemaToolSetup.metadata,
+            schemaToolSetup.serviceRegistry,
+            schemaToolSetup.properties,
+            DelayedDropRegistryNotAvailableImpl.INSTANCE
         )
     }
 
@@ -55,15 +56,15 @@ class SchemaValidationIT {
         schemaToolSetup.properties["javax.persistence.schema-generation.scripts.create-target"] = ddlWriter
 
         SchemaManagementToolCoordinator.process(
-                schemaToolSetup.metadata,
-                schemaToolSetup.serviceRegistry,
-                schemaToolSetup.properties,
-                DelayedDropRegistryNotAvailableImpl.INSTANCE
+            schemaToolSetup.metadata,
+            schemaToolSetup.serviceRegistry,
+            schemaToolSetup.properties,
+            DelayedDropRegistryNotAvailableImpl.INSTANCE
         )
 
         val actualDdl = ddlWriter.toString()
         assertThat(actualDdl.trim())
-                .isEqualTo(String(Files.readAllBytes(persistedHibernateDdl.file.toPath())).trim())
+            .isEqualTo(String(Files.readAllBytes(persistedHibernateDdl.file.toPath())).trim())
     }
 
     private fun getSchemaToolSetup(): SchemaToolSetup {
@@ -72,23 +73,25 @@ class SchemaValidationIT {
         val jpaPropertyMap = localContainerEntityManagerFactoryBean.jpaPropertyMap
 
         val builder = EntityManagerFactoryBuilderImpl(
-                PersistenceUnitInfoDescriptor(persistenceUnitInfo),
-                jpaPropertyMap,
-                SchemaValidationIT::class.java.classLoader)
+            PersistenceUnitInfoDescriptor(persistenceUnitInfo),
+            jpaPropertyMap,
+            SchemaValidationIT::class.java.classLoader
+        )
 
         val managerFactory = builder.build()
 
         val factoryImpl = managerFactory.unwrap(SessionFactoryImpl::class.java)
 
         return SchemaToolSetup(
-                builder.metadata,
-                factoryImpl.serviceRegistry,
-                HashMap(builder.configurationValues))
+            builder.metadata,
+            factoryImpl.serviceRegistry,
+            HashMap(builder.configurationValues)
+        )
     }
 
     private data class SchemaToolSetup(
-            val metadata: Metadata,
-            val serviceRegistry: ServiceRegistry,
-            val properties: MutableMap<in Any, in Any>
+        val metadata: Metadata,
+        val serviceRegistry: ServiceRegistry,
+        val properties: MutableMap<in Any, in Any>
     )
 }

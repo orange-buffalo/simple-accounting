@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono
 class ApiControllersExtensions(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
-    private val documentService: DocumentService,
+    private val documentsService: DocumentsService,
     private val customerService: CustomerService,
     private val taxService: TaxService
 ) {
@@ -47,7 +47,7 @@ class ApiControllersExtensions(
         workspace: Workspace,
         documentIds: List<Long>?
     ): Set<Document> {
-        val documents = documentIds?.let { documentService.getDocumentsByIds(it) } ?: emptyList()
+        val documents = documentIds?.let { documentsService.getDocumentsByIds(it) } ?: emptyList()
         documents.forEach { document ->
             if (document.workspace != workspace) {
                 throw EntityNotFoundException("Document ${document.id} is not found")

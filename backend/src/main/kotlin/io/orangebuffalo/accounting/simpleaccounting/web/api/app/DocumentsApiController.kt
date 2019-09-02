@@ -1,6 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentsService
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.awaitMono
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QDocument
@@ -23,7 +23,7 @@ import java.time.Instant
 @RequestMapping("/api/workspaces/{workspaceId}/documents")
 class DocumentsApiController(
     private val extensions: ApiControllersExtensions,
-    private val documentService: DocumentService
+    private val documentsService: DocumentsService
 ) {
 
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -34,7 +34,7 @@ class DocumentsApiController(
     ): Mono<DocumentDto> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
         val filePart = file.cast(FilePart::class.java).awaitMono()
-        documentService.uploadDocument(filePart, notes, workspace).let(::mapDocumentDto)
+        documentsService.uploadDocument(filePart, notes, workspace).let(::mapDocumentDto)
     }
 
     @GetMapping
@@ -45,7 +45,7 @@ class DocumentsApiController(
     ): Mono<Page<Document>> = extensions.toMono {
         extensions.validateWorkspaceAccess(workspaceId)
         // todo #66: filter by workspace
-        documentService.getDocuments(pageRequest.page, pageRequest.predicate)
+        documentsService.getDocuments(pageRequest.page, pageRequest.predicate)
     }
 
     @GetMapping("{documentId}/content")
@@ -55,10 +55,10 @@ class DocumentsApiController(
     ): Mono<ResponseEntity<Flux<DataBuffer>>> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
         // todo #66: validate access
-        val document = documentService.getDocumentById(documentId)
+        val document = documentsService.getDocumentById(documentId)
             ?: throw ApiValidationException("Document $documentId is not found")
 
-        documentService.getDocumentContent(document)
+        documentsService.getDocumentContent(document)
             .let { fileContent ->
                 ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${document.name}\"")

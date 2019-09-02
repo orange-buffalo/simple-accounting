@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono
 
 @RestController
 class GoogleDriveStorageController(
-    private val storageService: GoogleDriveDocumentStorageService
+    private val storageService: GoogleDriveDocumentsStorageService
 ) {
 
     @RequestMapping("/api/storage/google-drive/status")

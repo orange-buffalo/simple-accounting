@@ -21,7 +21,7 @@ private val localFsStorageContext = newFixedThreadPoolContext(10, "local-fs-stor
 @Service
 class LocalFileSystemDocumentStorage(
     private val config: LocalFileSystemDocumentStorageProperties
-) : DocumentStorage {
+) : DocumentsStorage {
 
     private val bufferFactory = DefaultDataBufferFactory()
 

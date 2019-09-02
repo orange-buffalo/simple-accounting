@@ -12,7 +12,7 @@ create table invoice_attachments (invoice_id bigint not null, document_id bigint
 create table persistent_oauth2_authorization_request (id bigint not null, version integer not null, client_registration_id varchar(255) not null, create_when timestamp not null, state varchar(512) not null, owner_id bigint not null, primary key (id))
 create table persistent_oauth2_authorized_client (id bigint not null, version integer not null, access_token varchar(255) not null, access_token_expires_at timestamp, access_token_issued_at timestamp, client_registration_id varchar(255) not null, refresh_token varchar(255), refresh_token_issued_at timestamp, user_name varchar(255) not null, primary key (id))
 create table persistent_oauth2_authorized_client_access_token_scopes (client_id bigint not null, access_token_scopes varchar(255))
-create table platform_user (id bigint not null, version integer not null, is_admin boolean not null, password_hash varchar(255) not null, user_name varchar(255) not null, primary key (id))
+create table platform_user (id bigint not null, version integer not null, documents_storage varchar(255), is_admin boolean not null, password_hash varchar(255) not null, user_name varchar(255) not null, primary key (id))
 create table refresh_token (id bigint not null, version integer not null, expiration_time timestamp not null, token varchar(2048) not null, user_id bigint not null, primary key (id))
 create table tax (id bigint not null, version integer not null, description varchar(255), rate_in_bps integer not null, title varchar(255) not null, workspace_id bigint not null, primary key (id))
 create table tax_payment_attachments (tax_payment_id bigint not null, document_id bigint not null, primary key (tax_payment_id, document_id))

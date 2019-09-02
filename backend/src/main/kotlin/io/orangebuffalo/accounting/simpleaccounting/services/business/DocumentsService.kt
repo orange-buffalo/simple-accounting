@@ -6,7 +6,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
-import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentStorage
+import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentsStorage
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 
 @Service
-class DocumentService(
-    private val documentStorages: List<DocumentStorage>,
+class DocumentsService(
+    private val documentsStorages: List<DocumentsStorage>,
     private val documentRepository: DocumentRepository,
     private val timeService: TimeService
 ) {
@@ -39,9 +39,8 @@ class DocumentService(
         }
     }
 
-    fun getDocumentStorageByUser(user: PlatformUser) = documentStorages
-        // todo #10: take from user profile
-        .first { it.getId() == "google-drive" }
+    fun getDocumentStorageByUser(user: PlatformUser) = documentsStorages
+        .first { it.getId() == user.documentsStorage }
 
     suspend fun getDocumentsByIds(ids: List<Long>): List<Document> =
         withDbContext {
@@ -65,6 +64,6 @@ class DocumentService(
         )
     }
 
-    private fun getDocumentStorageById(providerId: String) = documentStorages
+    private fun getDocumentStorageById(providerId: String) = documentsStorages
         .first { it.getId() == providerId }
 }

@@ -9,7 +9,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.oauth2.AuthFailedEv
 import io.orangebuffalo.accounting.simpleaccounting.services.oauth2.AuthSucceededEvent
 import io.orangebuffalo.accounting.simpleaccounting.services.oauth2.OAuth2Service
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentStorage
+import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentsStorage
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.StorageProviderResponse
 import org.springframework.context.event.EventListener
@@ -32,12 +32,12 @@ private const val AUTH_EVENT_NAME = "storage.google-drive.auth"
 private const val OAUTH2_CLIENT_REGISTRATION_ID = "google-drive"
 
 @Service
-class GoogleDriveDocumentStorageService(
+class GoogleDriveDocumentsStorageService(
     private val userService: PlatformUserService,
     private val repository: GoogleDriveStorageIntegrationRepository,
     private val pushNotificationService: PushNotificationService,
     private val oauthService: OAuth2Service
-) : DocumentStorage {
+) : DocumentsStorage {
 
     override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse {
         val integration = withDbContext { repository.findByUser(workspace.owner) }

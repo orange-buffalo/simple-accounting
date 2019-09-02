@@ -5,7 +5,7 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.codec.multipart.FilePart
 import reactor.core.publisher.Flux
 
-interface DocumentStorage {
+interface DocumentsStorage {
 
     suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse
 
