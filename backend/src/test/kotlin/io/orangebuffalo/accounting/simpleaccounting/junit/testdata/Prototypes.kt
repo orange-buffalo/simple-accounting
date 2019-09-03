@@ -35,11 +35,13 @@ class Prototypes {
         fun platformUser(
             userName: String = "Farnsworth",
             passwordHash: String = "nopassword",
-            isAdmin: Boolean = false
+            isAdmin: Boolean = false,
+            documentsStorage: String? = null
         ) = PlatformUser(
             userName = userName,
             passwordHash = passwordHash,
-            isAdmin = isAdmin
+            isAdmin = isAdmin,
+            documentsStorage = documentsStorage
         )
 
         fun workspace(
