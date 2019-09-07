@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.web.sendJson
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -58,6 +59,49 @@ class ProfileApiControllerIT(
                     json(
                         """{
                             "userName": "Zoidberg"
+                        }"""
+                    )
+                )
+            }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should clear documents storage setting`(testData: ProfileApiTestData) {
+        client.put()
+            .uri("/api/profile")
+            .sendJson(
+                """{
+                    
+                }"""
+            )
+            .verifyOkAndJsonBody {
+                inPath("$").isEqualTo(
+                    json(
+                        """{
+                            "userName": "Fry"
+                        }"""
+                    )
+                )
+            }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    fun `should update documents storage setting`(testData: ProfileApiTestData) {
+        client.put()
+            .uri("/api/profile")
+            .sendJson(
+                """{
+                   "documentsStorage": "new-storage" 
+                }"""
+            )
+            .verifyOkAndJsonBody {
+                inPath("$").isEqualTo(
+                    json(
+                        """{
+                            "userName": "Zoidberg",
+                            "documentsStorage": "new-storage"
                         }"""
                     )
                 )
