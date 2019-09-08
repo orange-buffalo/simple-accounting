@@ -160,8 +160,8 @@ class Prototypes {
             notes: String? = null,
             workspace: Workspace = workspace(),
             timeUploaded: Instant = MOCK_TIME,
-            storageProviderId: String = "local-fs",
-            storageProviderLocation: String? = null,
+            storageProviderId: String = "test-storage",
+            storageProviderLocation: String? = "test-location",
             sizeInBytes: Long? = null
         ): Document = Document(
             name = name,

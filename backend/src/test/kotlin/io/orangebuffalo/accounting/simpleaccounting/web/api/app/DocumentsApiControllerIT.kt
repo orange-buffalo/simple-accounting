@@ -8,7 +8,6 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentsStorage
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.StorageProviderResponse
 import io.orangebuffalo.accounting.simpleaccounting.web.*
@@ -46,8 +45,6 @@ import java.nio.charset.StandardCharsets
 @DisplayName("Documents API ")
 class DocumentsApiControllerIT(
     @Autowired val client: WebTestClient,
-    @Autowired val documentRepository: DocumentRepository,
-    @Autowired val dbHelper: DbHelper,
     @Autowired val testDocumentsStorage: TestDocumentsStorage
 ) {
 
@@ -60,68 +57,21 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(username = "Fry")
-    fun `should upload a new file and invoke documents storage`(testData: DocumentsApiTestData) {
-        mockCurrentTime(timeServiceMock)
-
-        runBlocking {
-            whenever(testDocumentsStorage.mock.saveDocument(any(), eq(testData.fryWorkspace)))
-                .doReturn(
-                    StorageProviderResponse(
-                        storageProviderLocation = "test-location",
-                        sizeInBytes = 42
-                    )
-                )
-        }
-
-        val documentContent = InMemoryResource("test-content")
-        val multipartBodyBuilder = MultipartBodyBuilder()
-            .apply {
-                part(
-                    "file",
-                    documentContent,
-                    MediaType.TEXT_PLAIN
-                ).header(
-                    HttpHeaders.CONTENT_DISPOSITION,
-                    ContentDisposition
-                        .builder("form-data")
-                        .name("file")
-                        .filename("test-file.txt")
-                        .build().toString()
-                )
-            }
-            .apply {
-                part("notes", "Shut up and take my money")
-            }
-
-        client.post()
+    fun `should allow GET access only for logged in users`(testData: DocumentsApiTestData) {
+        client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
-            .syncBody(multipartBodyBuilder.build())
-            .verifyOkAndJsonBody {
-                node("name").isString.isEqualTo("test-file.txt")
-                node("id").isNumber.isNotNull
-                node("version").isNumber.isEqualTo(BigDecimal.ZERO)
-                node("timeUploaded").isString.isEqualTo(MOCK_TIME_VALUE)
-                node("notes").isString.isEqualTo("Shut up and take my money")
-                node("sizeInBytes").isNumber.isEqualTo(42.toBigDecimal())
-            }
+            .verifyUnauthorized()
     }
 
     @Test
-    @WithMockUser(username = "Fry")
-    fun `should return documents by ids`(testData: DocumentsApiTestData) {
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return documents of a workspace of current user`(testData: DocumentsApiTestData) {
         client.get()
-            .uri { builder ->
-                builder.replacePath("/api/workspaces/${testData.fryWorkspace.id}/documents")
-                    .queryParam("id[eq]", "${testData.cheesePizzaAndALargeSodaReceipt.id}")
-                    .queryParam("id[eq]", "${testData.coffeeReceipt.id}")
-                    .build()
-            }
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
             .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
                 inPath("$.totalElements").isNumber.isEqualTo("2")
-
                 inPath("$.data").isArray.containsExactlyInAnyOrder(
                     json(
                         """{
@@ -149,15 +99,36 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(username = "Fry")
-    fun `should download document content`(testData: DocumentsApiTestData) {
-        val testContent = InMemoryResource("test-content")
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace is not found on GET`(testData: DocumentsApiTestData) {
+        client.get()
+            .uri("/api/workspaces/27347947239/documents")
+            .verifyNotFound("Workspace 27347947239 is not found")
+    }
 
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    fun `should return 404 on GET if workspace belongs to another user`(testData: DocumentsApiTestData) {
+        client.get()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
+            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+    }
+
+    @Test
+    fun `should allow GET access for document content only for logged in users`(testData: DocumentsApiTestData) {
+        client.get()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/content")
+            .verifyUnauthorized()
+    }
+
+    @Test
+    @WithMockUser(username = "Fry")
+    fun `should GET document content`(testData: DocumentsApiTestData) {
         runBlocking {
             whenever(testDocumentsStorage.mock.getDocumentContent(testData.fryWorkspace, "test-location"))
                 .doReturn(
                     DataBufferUtils.read(
-                        testContent,
+                        InMemoryResource("test-content"),
                         DefaultDataBufferFactory(),
                         StreamUtils.BUFFER_SIZE
                     )
@@ -181,9 +152,118 @@ class DocumentsApiControllerIT(
             }
     }
 
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace is not found when requesting document content`(testData: DocumentsApiTestData) {
+        client.get()
+            .uri("/api/workspaces/5634632/documents/${testData.coffeeReceipt.id}/content")
+            .verifyNotFound("Workspace 5634632 is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    fun `should return 404 if workspace belongs to another user when requesting document content`(
+        testData: DocumentsApiTestData
+    ) {
+        client.get()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/content")
+            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if document belongs to another workspace when requesting document content`(
+        testData: DocumentsApiTestData
+    ) {
+        client.get()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.anotherFryWorkspaceDocument.id}/content")
+            .verifyNotFound("Document ${testData.anotherFryWorkspaceDocument.id} is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return 404 if workspace is not found when creating document`(testData: DocumentsApiTestData) {
+        client.post()
+            .uri("/api/workspaces/995943/documents")
+            .syncBody(testData.createDefaultFileToUpload().build())
+            .verifyNotFound("Workspace 995943 is not found")
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    fun `should return 404 if workspace belongs to another user when creating document`(testData: DocumentsApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
+            .syncBody(testData.createDefaultFileToUpload().build())
+            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+    }
+
+    @Test
+    @WithMockUser(username = "Fry")
+    fun `should upload a new file and invoke documents storage`(testData: DocumentsApiTestData) {
+        mockCurrentTime(timeServiceMock)
+        mockDocumentsStorage(testData)
+
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
+            .syncBody(testData.createDefaultFileToUpload().build())
+            .verifyOkAndJsonBody {
+                node("name").isString.isEqualTo("test-file.txt")
+                node("id").isNumber.isNotNull
+                node("version").isNumber.isEqualTo(BigDecimal.ZERO)
+                node("timeUploaded").isString.isEqualTo(MOCK_TIME_VALUE)
+                node("notes").isString.isEqualTo("Shut up and take my money")
+                node("sizeInBytes").isNumber.isEqualTo(42.toBigDecimal())
+            }
+    }
+
+    private fun mockDocumentsStorage(testData: DocumentsApiTestData) {
+        runBlocking {
+            whenever(testDocumentsStorage.mock.saveDocument(any(), eq(testData.fryWorkspace)))
+                .doReturn(
+                    StorageProviderResponse(
+                        storageProviderLocation = "test-location",
+                        sizeInBytes = 42
+                    )
+                )
+        }
+    }
+
+    @Test
+    @WithMockUser(username = "Fry")
+    fun `should filter documents by ids`(testData: DocumentsApiTestData) {
+        client.get()
+            .uri { builder ->
+                builder.replacePath("/api/workspaces/${testData.fryWorkspace.id}/documents")
+                    .queryParam("id[eq]", "${testData.cheesePizzaAndALargeSodaReceipt.id}")
+                    .build()
+            }
+            .verifyOkAndJsonBody {
+                inPath("$.pageNumber").isNumber.isEqualTo("1")
+                inPath("$.pageSize").isNumber.isEqualTo("10")
+                inPath("$.totalElements").isNumber.isEqualTo("1")
+
+                inPath("$.data").isArray.containsExactlyInAnyOrder(
+                    json(
+                        """{
+                        "name": "unknown",
+                        "id": ${testData.cheesePizzaAndALargeSodaReceipt.id},
+                        "version": 0,
+                        "timeUploaded": "$MOCK_TIME_VALUE",
+                        "notes": "Panucci's Pizza",
+                        "sizeInBytes": null
+                    }"""
+                    )
+                )
+            }
+    }
+
     class DocumentsApiTestData : TestData {
         val fry = Prototypes.platformUser(userName = "Fry", documentsStorage = "test-storage")
         val fryWorkspace = Prototypes.workspace(owner = fry)
+        val anotherFryWorkspace = Prototypes.workspace(owner = fry)
+        val anotherFryWorkspaceDocument = Prototypes.document(workspace = anotherFryWorkspace)
+        val farnsworth = Prototypes.farnsworth()
         val coffeeReceipt = Prototypes.document(
             name = "100_cups.pdf",
             workspace = fryWorkspace,
@@ -201,8 +281,29 @@ class DocumentsApiControllerIT(
         )
 
         override fun generateData() = listOf(
-            fry, fryWorkspace, coffeeReceipt, cheesePizzaAndALargeSodaReceipt
+            fry, fryWorkspace, coffeeReceipt, cheesePizzaAndALargeSodaReceipt,
+            farnsworth,
+            anotherFryWorkspace, anotherFryWorkspaceDocument
         )
+
+        fun createDefaultFileToUpload(): MultipartBodyBuilder = MultipartBodyBuilder()
+            .apply {
+                part(
+                    "file",
+                    InMemoryResource("test-content"),
+                    MediaType.TEXT_PLAIN
+                ).header(
+                    HttpHeaders.CONTENT_DISPOSITION,
+                    ContentDisposition
+                        .builder("form-data")
+                        .name("file")
+                        .filename("test-file.txt")
+                        .build().toString()
+                )
+            }
+            .apply {
+                part("notes", "Shut up and take my money")
+            }
     }
 
     class TestDocumentsStorage(

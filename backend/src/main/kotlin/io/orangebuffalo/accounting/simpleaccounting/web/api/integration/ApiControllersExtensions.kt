@@ -1,7 +1,11 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.*
+import io.orangebuffalo.accounting.simpleaccounting.services.business.CustomerService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import kotlinx.coroutines.CoroutineScope
 import org.springframework.stereotype.Component
@@ -11,14 +15,10 @@ import reactor.core.publisher.Mono
 class ApiControllersExtensions(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
-    private val documentsService: DocumentsService,
+    private val documentRepository: DocumentRepository,
     private val customerService: CustomerService,
     private val taxService: TaxService
 ) {
-
-    suspend fun validateWorkspaceAccess(workspaceId: Long) {
-        getAccessibleWorkspace(workspaceId)
-    }
 
     suspend fun getAccessibleWorkspace(workspaceId: Long): Workspace {
         val currentUser = platformUserService.getCurrentUserAsync()
@@ -47,7 +47,7 @@ class ApiControllersExtensions(
         workspace: Workspace,
         documentIds: List<Long>?
     ): Set<Document> {
-        val documents = documentIds?.let { documentsService.getDocumentsByIds(it) } ?: emptyList()
+        val documents = documentIds?.let { documentRepository.findAllById(it) } ?: emptyList()
         documents.forEach { document ->
             if (document.workspace != workspace) {
                 throw EntityNotFoundException("Document ${document.id} is not found")

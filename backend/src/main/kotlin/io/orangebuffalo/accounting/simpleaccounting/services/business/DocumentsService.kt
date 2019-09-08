@@ -4,6 +4,7 @@ import com.querydsl.core.types.Predicate
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QDocument
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentsStorage
@@ -42,19 +43,17 @@ class DocumentsService(
     fun getDocumentStorageByUser(user: PlatformUser) = documentsStorages
         .first { it.getId() == user.documentsStorage }
 
-    suspend fun getDocumentsByIds(ids: List<Long>): List<Document> =
+    suspend fun getDocuments(workspace: Workspace, page: Pageable, predicate: Predicate): Page<Document> =
         withDbContext {
-            documentRepository.findAllById(ids)
+            documentRepository.findAll(QDocument.document.workspace.eq(workspace).and(predicate), page)
         }
 
-    suspend fun getDocuments(page: Pageable, predicate: Predicate): Page<Document> =
+    suspend fun getDocumentByIdAndWorkspace(
+        documentId: Long,
+        workspace: Workspace
+    ): Document? =
         withDbContext {
-            documentRepository.findAll(predicate, page)
-        }
-
-    suspend fun getDocumentById(documentId: Long): Document? =
-        withDbContext {
-            documentRepository.findById(documentId).orElseGet(null)
+            documentRepository.findByIdAndWorkspace(documentId, workspace)
         }
 
     suspend fun getDocumentContent(document: Document): Flux<DataBuffer> {

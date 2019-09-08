@@ -4,7 +4,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.DocumentsS
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.awaitMono
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QDocument
-import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
+import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.domain.Page
@@ -43,9 +43,8 @@ class DocumentsApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Document>> = extensions.toMono {
-        extensions.validateWorkspaceAccess(workspaceId)
-        // todo #66: filter by workspace
-        documentsService.getDocuments(pageRequest.page, pageRequest.predicate)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        documentsService.getDocuments(workspace, pageRequest.page, pageRequest.predicate)
     }
 
     @GetMapping("{documentId}/content")
@@ -54,9 +53,8 @@ class DocumentsApiController(
         @PathVariable documentId: Long
     ): Mono<ResponseEntity<Flux<DataBuffer>>> = extensions.toMono {
         val workspace = extensions.getAccessibleWorkspace(workspaceId)
-        // todo #66: validate access
-        val document = documentsService.getDocumentById(documentId)
-            ?: throw ApiValidationException("Document $documentId is not found")
+        val document = documentsService.getDocumentByIdAndWorkspace(documentId, workspace)
+            ?: throw EntityNotFoundException("Document $documentId is not found")
 
         documentsService.getDocumentContent(document)
             .let { fileContent ->
