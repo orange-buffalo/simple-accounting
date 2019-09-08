@@ -1,13 +1,5 @@
 <template>
   <div>
-    <div class="sa-page-header">
-      <h1>My Profile</h1>
-
-      <div class="sa-header-options">
-        <span>&nbsp;</span>
-      </div>
-    </div>
-
     <span>{{integrationStatus}}</span><br/>
     <template v-if="status.folderId">
       <a :href="`https://drive.google.com/drive/folders/${status.folderId}`"
@@ -25,7 +17,7 @@
   import {withMediumDateTimeFormatter} from '@/components/mixins/with-medium-datetime-formatter'
 
   export default {
-    name: 'MyProfile',
+    name: 'GoogleDrive',
 
     mixins: [withMediumDateTimeFormatter],
 

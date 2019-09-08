@@ -155,7 +155,7 @@ export default new Router({
         {
           path: 'my-profile',
           name: 'my-profile',
-          component: () => import(/* webpackChunkName: "my-profile" */ './views/MyProfile.vue')
+          component: () => import(/* webpackChunkName: "my-profile" */ './views/profile/MyProfile.vue')
         },
         {
           path: 'reporting',
