@@ -1,61 +1,78 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.doReturn
+import com.nhaarman.mockito_kotlin.eq
+import com.nhaarman.mockito_kotlin.whenever
+import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
-import io.orangebuffalo.accounting.simpleaccounting.web.DbHelper
-import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME_VALUE
-import io.orangebuffalo.accounting.simpleaccounting.web.mockCurrentTime
-import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.services.storage.DocumentsStorage
+import io.orangebuffalo.accounting.simpleaccounting.services.storage.StorageProviderResponse
+import io.orangebuffalo.accounting.simpleaccounting.web.*
+import kotlinx.coroutines.runBlocking
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.ApplicationContextInitializer
-import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.context.annotation.Bean
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.util.InMemoryResource
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.context.support.TestPropertySourceUtils
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.io.File
+import org.springframework.util.StreamUtils
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
-@ContextConfiguration(initializers = [DocumentsApiControllerIT.TempDirectoryInitializer::class])
 @DisplayName("Documents API ")
 class DocumentsApiControllerIT(
     @Autowired val client: WebTestClient,
     @Autowired val documentRepository: DocumentRepository,
     @Autowired val dbHelper: DbHelper,
-    @Value("\${simpleaccounting.documents.storage.local-fs.base-directory}") val baseDocumentsDirectory: Path
+    @Autowired val testDocumentsStorage: TestDocumentsStorage
 ) {
 
     @MockBean
     lateinit var timeServiceMock: TimeService
 
+    @BeforeEach
+    fun setup() {
+        whenever(testDocumentsStorage.mock.getId()) doReturn "test-storage"
+    }
+
     @Test
     @WithMockUser(username = "Fry")
-    fun `should upload a new file and store it in a local file system`(fry: Fry) {
-        val documentId = dbHelper.getNextId()
+    fun `should upload a new file and invoke documents storage`(testData: DocumentsApiTestData) {
         mockCurrentTime(timeServiceMock)
+
+        runBlocking {
+            whenever(testDocumentsStorage.mock.saveDocument(any(), eq(testData.fryWorkspace)))
+                .doReturn(
+                    StorageProviderResponse(
+                        storageProviderLocation = "test-location",
+                        sizeInBytes = 42
+                    )
+                )
+        }
 
         val documentContent = InMemoryResource("test-content")
         val multipartBodyBuilder = MultipartBodyBuilder()
@@ -78,34 +95,26 @@ class DocumentsApiControllerIT(
             }
 
         client.post()
-            .uri("/api/workspaces/${fry.workspace.id}/documents")
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
             .syncBody(multipartBodyBuilder.build())
             .verifyOkAndJsonBody {
                 node("name").isString.isEqualTo("test-file.txt")
-                node("id").isNumber.isEqualTo(BigDecimal.valueOf(documentId))
+                node("id").isNumber.isNotNull
                 node("version").isNumber.isEqualTo(BigDecimal.ZERO)
                 node("timeUploaded").isString.isEqualTo(MOCK_TIME_VALUE)
                 node("notes").isString.isEqualTo("Shut up and take my money")
-                node("sizeInBytes").isNumber.isEqualTo(BigDecimal.valueOf(documentContent.contentLength()))
+                node("sizeInBytes").isNumber.isEqualTo(42.toBigDecimal())
             }
-
-        val document = documentRepository.findById(documentId)
-        assertThat(document).isPresent.hasValueSatisfying {
-            assertThat(it.workspace).isEqualTo(fry.workspace)
-
-            val documentFile = File(baseDocumentsDirectory.toFile(), it.storageProviderLocation)
-            assertThat(documentFile).isFile().exists().hasContent("test-content")
-        }
     }
 
     @Test
     @WithMockUser(username = "Fry")
-    fun `should return documents by ids`(fry: Fry) {
+    fun `should return documents by ids`(testData: DocumentsApiTestData) {
         client.get()
             .uri { builder ->
-                builder.replacePath("/api/workspaces/${fry.workspace.id}/documents")
-                    .queryParam("id[eq]", "${fry.cheesePizzaAndALargeSodaReceipt.id}")
-                    .queryParam("id[eq]", "${fry.coffeeReceipt.id}")
+                builder.replacePath("/api/workspaces/${testData.fryWorkspace.id}/documents")
+                    .queryParam("id[eq]", "${testData.cheesePizzaAndALargeSodaReceipt.id}")
+                    .queryParam("id[eq]", "${testData.coffeeReceipt.id}")
                     .build()
             }
             .verifyOkAndJsonBody {
@@ -117,7 +126,7 @@ class DocumentsApiControllerIT(
                     json(
                         """{
                         "name": "unknown",
-                        "id": ${fry.cheesePizzaAndALargeSodaReceipt.id},
+                        "id": ${testData.cheesePizzaAndALargeSodaReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
                         "notes": "Panucci's Pizza",
@@ -128,7 +137,7 @@ class DocumentsApiControllerIT(
                     json(
                         """{
                         "name": "100_cups.pdf",
-                        "id": ${fry.coffeeReceipt.id},
+                        "id": ${testData.coffeeReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
                         "notes": null,
@@ -141,35 +150,68 @@ class DocumentsApiControllerIT(
 
     @Test
     @WithMockUser(username = "Fry")
-    fun `should download document content`(fry: Fry) {
-        val documentFile = File(baseDocumentsDirectory.toFile(), fry.coffeeReceipt.storageProviderLocation)
-        documentFile.writeText("test-content", StandardCharsets.UTF_8)
+    fun `should download document content`(testData: DocumentsApiTestData) {
+        val testContent = InMemoryResource("test-content")
+
+        runBlocking {
+            whenever(testDocumentsStorage.mock.getDocumentContent(testData.fryWorkspace, "test-location"))
+                .doReturn(
+                    DataBufferUtils.read(
+                        testContent,
+                        DefaultDataBufferFactory(),
+                        StreamUtils.BUFFER_SIZE
+                    )
+                )
+        }
 
         client.get()
-            .uri ("/api/workspaces/${fry.workspace.id}/documents/${fry.coffeeReceipt.id}/content")
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/content")
             .exchange()
             .expectStatus().isOk
             .expectHeader().contentDisposition(ContentDisposition.parse("attachment; filename=\"100_cups.pdf\""))
-            .expectHeader().contentLength(documentFile.length())
-            .expectHeader().contentType(MediaType.APPLICATION_PDF)
+            .expectHeader().contentLength(42)
+            // todo: #108
+            //.expectHeader().contentType(MediaType.APPLICATION_PDF)
             .expectBody()
             .consumeWith { exchange ->
-                assertThat(exchange.responseBody).isNotNull().satisfies {
-                    body ->
+                assertThat(exchange.responseBody).isNotNull().satisfies { body ->
                     val text = String(body, StandardCharsets.UTF_8)
                     assertThat(text).isEqualTo("test-content")
                 }
             }
     }
 
-    class TempDirectoryInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
+    class DocumentsApiTestData : TestData {
+        val fry = Prototypes.platformUser(userName = "Fry", documentsStorage = "test-storage")
+        val fryWorkspace = Prototypes.workspace(owner = fry)
+        val coffeeReceipt = Prototypes.document(
+            name = "100_cups.pdf",
+            workspace = fryWorkspace,
+            storageProviderId = "test-storage",
+            storageProviderLocation = "test-location",
+            timeUploaded = MOCK_TIME,
+            sizeInBytes = 42
+        )
+        val cheesePizzaAndALargeSodaReceipt = Prototypes.document(
+            name = "unknown",
+            workspace = fryWorkspace,
+            timeUploaded = MOCK_TIME,
+            notes = "Panucci's Pizza",
+            sizeInBytes = null
+        )
 
-        override fun initialize(applicationContext: ConfigurableApplicationContext) {
-            val tempDirectory = Files.createTempDirectory("simple-accounting-test-")
-            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
-                applicationContext,
-                "simpleaccounting.documents.storage.local-fs.base-directory=" + tempDirectory.toString()
-            )
-        }
+        override fun generateData() = listOf(
+            fry, fryWorkspace, coffeeReceipt, cheesePizzaAndALargeSodaReceipt
+        )
+    }
+
+    class TestDocumentsStorage(
+        val mock: DocumentsStorage = Mockito.mock(DocumentsStorage::class.java)
+    ) : DocumentsStorage by mock
+
+    @TestConfiguration
+    class DocumentControllerTestConfig {
+        @Bean
+        fun testDocumentStorageProvider() = TestDocumentsStorage()
     }
 }
