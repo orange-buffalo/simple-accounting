@@ -1,8 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Bender
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.PushNotificationService
 import io.orangebuffalo.accounting.simpleaccounting.web.assertNextJsonIs
 import kotlinx.coroutines.GlobalScope
@@ -26,14 +26,14 @@ import java.time.Duration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @DisplayName("Push Notifications API ")
-class PushNotificationsControllerIT(
+class PushNotificationsApiControllerIT(
     @Autowired val client: WebTestClient,
     @Autowired val pushNotificationService: PushNotificationService
 ) {
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should receive a single broadcast event`(fry: Fry) {
+    fun `should receive a single broadcast event`(testData: PushNotificationsApiTestData) {
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -63,7 +63,7 @@ class PushNotificationsControllerIT(
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should receive multiple broadcast events`(fry: Fry) {
+    fun `should receive multiple broadcast events`(testData: PushNotificationsApiTestData) {
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -106,7 +106,7 @@ class PushNotificationsControllerIT(
 
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
-    fun `should not receive events addressed to another user`(fry: Fry, bender: Bender) {
+    fun `should not receive events addressed to another user`(testData: PushNotificationsApiTestData) {
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -125,11 +125,11 @@ class PushNotificationsControllerIT(
             )
 
             pushNotificationService.sendPushNotification(
-                user = fry.himself, eventName = "watch-tv"
+                user = testData.fry, eventName = "watch-tv"
             )
 
             pushNotificationService.sendPushNotification(
-                user = bender.himself, eventName = "kill-all-humans"
+                user = testData.bender, eventName = "kill-all-humans"
             )
 
             pushNotificationService.sendPushNotification(
@@ -157,5 +157,12 @@ class PushNotificationsControllerIT(
                 .thenCancel()
                 .verify(Duration.ofSeconds(5))
         }
+    }
+
+    class PushNotificationsApiTestData : TestData {
+        val fry = Prototypes.fry()
+        val bender = Prototypes.bender()
+
+        override fun generateData() = listOf(fry, bender)
     }
 }

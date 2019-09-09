@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux
 
 @RestController
 @RequestMapping("/api/push-notifications")
-class PushNotificationsController(
+class PushNotificationsApiController(
     private val pushNotificationService: PushNotificationService
 ) {
 
