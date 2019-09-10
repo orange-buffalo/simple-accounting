@@ -1,6 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api
 
-import io.orangebuffalo.accounting.simpleaccounting.web.verifyNotFound
+import io.orangebuffalo.accounting.simpleaccounting.verifyNotFound
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

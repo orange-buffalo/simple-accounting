@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.containsOnly
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedTaxSummaryItem
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingTaxSummaryItem
 import kotlinx.coroutines.runBlocking

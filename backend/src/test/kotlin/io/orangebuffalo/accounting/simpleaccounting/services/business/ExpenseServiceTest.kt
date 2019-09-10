@@ -2,7 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import com.nhaarman.mockito_kotlin.doAnswer
 import com.nhaarman.mockito_kotlin.whenever
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Tax
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository

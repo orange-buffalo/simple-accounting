@@ -3,7 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 import com.nhaarman.mockito_kotlin.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshTokenService
 import kotlinx.coroutines.runBlocking

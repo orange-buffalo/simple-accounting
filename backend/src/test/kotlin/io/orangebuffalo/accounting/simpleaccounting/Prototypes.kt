@@ -1,8 +1,6 @@
-package io.orangebuffalo.accounting.simpleaccounting.junit.testdata
+package io.orangebuffalo.accounting.simpleaccounting
 
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
-import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_DATE
-import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
 import java.time.Instant
 import java.time.LocalDate
 

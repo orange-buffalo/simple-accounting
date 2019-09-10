@@ -1,7 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import com.querydsl.core.types.dsl.PathBuilder
-import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

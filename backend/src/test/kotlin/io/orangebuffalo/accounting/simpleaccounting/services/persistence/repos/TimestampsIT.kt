@@ -2,8 +2,8 @@ package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.MOCK_TIME
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

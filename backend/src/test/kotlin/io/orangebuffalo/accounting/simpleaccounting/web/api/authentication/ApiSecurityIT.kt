@@ -4,7 +4,7 @@ import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
-import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
+import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

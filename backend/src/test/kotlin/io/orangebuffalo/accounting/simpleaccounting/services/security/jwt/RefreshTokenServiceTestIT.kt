@@ -2,11 +2,13 @@ package io.orangebuffalo.accounting.simpleaccounting.services.security.jwt
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
+import io.orangebuffalo.accounting.simpleaccounting.MOCK_TIME
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.RefreshToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.RefreshTokenRepository
-import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -32,31 +34,31 @@ class RefreshTokenServiceTestIT(
     lateinit var timeService: TimeService
 
     @Test
-    fun `should generate a new refresh token`(fry: Fry) {
+    fun `should generate a new refresh token`(testData: RefreshTokenServiceTestData) {
         val currentTime = Instant.parse("2018-05-03T16:03:23Z")
         val expirationTime = Instant.parse("2018-06-02T16:03:23Z")
 
         whenever(timeService.currentTime()) doReturn currentTime
 
         val token = runBlocking {
-            refreshTokenService.generateRefreshToken(fry.himself.userName)
+            refreshTokenService.generateRefreshToken(testData.fry.userName)
         }
 
-        assertThat(token).isNotNull().startsWith("${fry.himself.id}:")
+        assertThat(token).isNotNull().startsWith("${testData.fry.id}:")
 
         val refreshToken = refreshTokenRepository.findByToken(token)
         assertThat(refreshToken).isNotNull.satisfies {
-            assertThat(it!!.user).isEqualTo(fry.himself)
+            assertThat(it!!.user).isEqualTo(testData.fry)
             assertThat(it.expirationTime).isEqualTo(expirationTime)
         }
     }
 
     @Test
-    fun `should build user details if token is valid`(fry: Fry) {
+    fun `should build user details if token is valid`(testData: RefreshTokenServiceTestData) {
         whenever(timeService.currentTime()) doReturn MOCK_TIME
 
         val userDetails = runBlocking {
-            refreshTokenService.validateTokenAndBuildUserDetails(fry.refreshToken.token)
+            refreshTokenService.validateTokenAndBuildUserDetails(testData.refreshToken.token)
         }
 
         assertThat(userDetails).isNotNull.satisfies {
@@ -66,34 +68,45 @@ class RefreshTokenServiceTestIT(
     }
 
     @Test
-    fun `should fail on validation if token is expired`(fry: Fry) {
+    fun `should fail on validation if token is expired`(testData: RefreshTokenServiceTestData) {
         whenever(timeService.currentTime()) doReturn MOCK_TIME.plus(30, ChronoUnit.DAYS).plusMillis(1)
 
         assertThatThrownBy {
-            runBlocking { refreshTokenService.validateTokenAndBuildUserDetails(fry.refreshToken.token) }
+            runBlocking { refreshTokenService.validateTokenAndBuildUserDetails(testData.refreshToken.token) }
         }
             .isInstanceOf(BadCredentialsException::class.java)
             .hasMessage("Token expired")
     }
 
     @Test
-    fun `should fail on validation if token is not found`(fry: Fry) {
+    fun `should fail on validation if token is not found`(testData: RefreshTokenServiceTestData) {
         assertThatThrownBy { runBlocking { refreshTokenService.validateTokenAndBuildUserDetails("??") } }
             .isInstanceOf(BadCredentialsException::class.java)
             .hasMessage("Bad token")
     }
 
     @Test
-    fun `should prolong the token`(fry: Fry) {
+    fun `should prolong the token`(testData: RefreshTokenServiceTestData) {
         whenever(timeService.currentTime()) doReturn MOCK_TIME.minus(100, ChronoUnit.DAYS)
 
         val updatedTokenString = runBlocking {
-            refreshTokenService.prolongToken(fry.refreshToken.token)
+            refreshTokenService.prolongToken(testData.refreshToken.token)
         }
 
-        assertThat(updatedTokenString).isEqualTo(fry.refreshToken.token)
+        assertThat(updatedTokenString).isEqualTo(testData.refreshToken.token)
 
         val updatedToken = refreshTokenRepository.findByToken(updatedTokenString)!!
         assertThat(updatedToken.expirationTime).isEqualTo(MOCK_TIME.minus(70, ChronoUnit.DAYS))
+    }
+
+    class RefreshTokenServiceTestData : TestData {
+        val fry = Prototypes.fry()
+        val refreshToken = RefreshToken(
+            user = fry,
+            token = "42:34jFbT3h2=",
+            expirationTime = MOCK_TIME
+        )
+
+        override fun generateData() = listOf(fry, refreshToken)
     }
 }

@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.web
+package io.orangebuffalo.accounting.simpleaccounting
 
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever

@@ -2,9 +2,9 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.web.verifyOkAndJsonBody
-import io.orangebuffalo.accounting.simpleaccounting.web.verifyUnauthorized
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
+import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
