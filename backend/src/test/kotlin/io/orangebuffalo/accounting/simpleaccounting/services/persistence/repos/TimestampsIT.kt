@@ -1,7 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos
 
+import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.web.MOCK_TIME
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -21,11 +22,19 @@ class TimestampsIT(
 ) {
 
     @Test
-    fun `Should store and load timestamp with time zone`(fry: Fry) {
+    fun `Should store and load timestamp with time zone`(testData: TimestampsTestData) {
         entityManager.clear()
-        val documentFromDb = documentRepository.findById(fry.slurmReceipt.id!!)
+        val documentFromDb = documentRepository.findById(testData.slurmReceipt.id!!)
         assertThat(documentFromDb).hasValueSatisfying {
             assertThat(it.timeUploaded).isEqualTo(MOCK_TIME)
         }
+    }
+
+    class TimestampsTestData : TestData {
+        val fry = Prototypes.fry()
+        val workspace = Prototypes.workspace(owner = fry)
+        val slurmReceipt = Prototypes.document(workspace = workspace)
+
+        override fun generateData() = listOf(fry, workspace, slurmReceipt)
     }
 }
