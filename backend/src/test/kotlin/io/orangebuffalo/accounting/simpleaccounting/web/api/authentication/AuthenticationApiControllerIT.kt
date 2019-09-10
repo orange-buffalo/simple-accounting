@@ -1,9 +1,9 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
 import com.nhaarman.mockito_kotlin.*
+import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Farnsworth
-import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Fry
+import io.orangebuffalo.accounting.simpleaccounting.junit.testdata.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshTokenService
 import kotlinx.coroutines.runBlocking
@@ -31,7 +31,7 @@ private const val TOKEN_PATH = "/api/auth/token"
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
-class LoginControllerIT(
+class AuthenticationApiControllerIT(
     @Autowired val client: WebTestClient
 ) {
 
@@ -45,7 +45,7 @@ class LoginControllerIT(
     lateinit var refreshTokenService: RefreshTokenService
 
     @Test
-    fun `should return a JWT token for valid user login credentials`(fry: Fry) {
+    fun `should return a JWT token for valid user login credentials`(testData: AuthenticationApiTestData) {
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
@@ -71,7 +71,7 @@ class LoginControllerIT(
     }
 
     @Test
-    fun `should return a JWT token for valid admin login credentials`(farnsworth: Farnsworth) {
+    fun `should return a JWT token for valid admin login credentials`(testData: AuthenticationApiTestData) {
         whenever(passwordEncoder.matches("$&#@(@", "scienceBasedHash")) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
@@ -112,7 +112,7 @@ class LoginControllerIT(
     }
 
     @Test
-    fun `should return 403 when password does not match`(fry: Fry) {
+    fun `should return 403 when password does not match`(testData: AuthenticationApiTestData) {
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
         client.post().uri(LOGIN_PATH)
@@ -207,7 +207,9 @@ class LoginControllerIT(
     }
 
     @Test
-    fun `should return a refresh token for valid user login credentials if remember me requested`(fry: Fry) {
+    fun `should return a refresh token for valid user login credentials if remember me requested`(
+        testData: AuthenticationApiTestData
+    ) {
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
@@ -244,7 +246,9 @@ class LoginControllerIT(
     }
 
     @Test
-    fun `should return a jwt token when token endpoint is hit and cookie is valid`(fry: Fry) {
+    fun `should return a jwt token when token endpoint is hit and cookie is valid`(
+        testData: AuthenticationApiTestData
+    ) {
         runBlocking {
             val userDetails = Mockito.mock(UserDetails::class.java)
 
@@ -263,7 +267,9 @@ class LoginControllerIT(
 
     @Test
     @WithMockUser(username = "Fry")
-    fun `should return a jwt token when token endpoint is hit and user is authenticated`(fry: Fry) {
+    fun `should return a jwt token when token endpoint is hit and user is authenticated`(
+        testData: AuthenticationApiTestData
+    ) {
         runBlocking {
             whenever(jwtService.buildJwtToken(argThat {
                 username == "Fry"
@@ -282,7 +288,9 @@ class LoginControllerIT(
 
     @Test
     //todo #93: should return 401? what is the spec for wrong credentials?
-    fun `should return 403 if refresh token is not valid and user is not authenticated`(fry: Fry) {
+    fun `should return 403 if refresh token is not valid and user is not authenticated`(
+        testData: AuthenticationApiTestData
+    ) {
         runBlocking {
             whenever(
                 refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")
@@ -299,12 +307,21 @@ class LoginControllerIT(
     @Test
     //todo #93: should return 401
     //todo #93: should not log warning to avoid log pollution
-    fun `should return 403 if refresh token is missing and user is not authenticated`(fry: Fry) {
+    fun `should return 403 if refresh token is missing and user is not authenticated`(
+        testData: AuthenticationApiTestData
+    ) {
         runBlocking {
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isForbidden
         }
+    }
+
+    class AuthenticationApiTestData : TestData {
+        val fry = Prototypes.fry()
+        val farnsworth = Prototypes.farnsworth()
+
+        override fun generateData() = listOf(fry, farnsworth)
     }
 }
