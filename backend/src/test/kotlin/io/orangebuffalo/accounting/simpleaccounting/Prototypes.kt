@@ -230,5 +230,19 @@ class Prototypes {
             notes = notes,
             tax = tax
         )
+
+        fun workspaceAccessToken(
+            workspace: Workspace = workspace(),
+            timeCreated: Instant = MOCK_TIME,
+            validTill: Instant = MOCK_TIME,
+            revoked: Boolean = false,
+            token: String = "token"
+        ): WorkspaceAccessToken = WorkspaceAccessToken(
+            workspace = workspace,
+            timeCreated = timeCreated,
+            validTill = validTill,
+            revoked = revoked,
+            token = token
+        )
     }
 }

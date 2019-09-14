@@ -1,0 +1,7 @@
+package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos
+
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
+import org.springframework.data.querydsl.QuerydslPredicateExecutor
+
+interface WorkspaceAccessTokenRepository : AbstractEntityRepository<WorkspaceAccessToken>,
+    QuerydslPredicateExecutor<WorkspaceAccessToken>
