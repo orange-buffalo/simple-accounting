@@ -12,6 +12,7 @@
     "@drewbot/sass-flexbox-grid": "^2.0.7",
     "axios": "^0.18.1",
     "cldrjs": "^0.5.1",
+    "copy-to-clipboard": "^3.2.0",
     "deepmerge": "^3.3.0",
     "dropzone": "^5.5.1",
     "element-ui": "^2.12.0",
