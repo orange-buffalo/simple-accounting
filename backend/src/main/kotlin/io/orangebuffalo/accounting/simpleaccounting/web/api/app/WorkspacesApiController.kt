@@ -12,21 +12,21 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @RestController
-@RequestMapping("/api/workspaces")
+@RequestMapping("/api/")
 class WorkspacesApiController(
     private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
     private val extensions: ApiControllersExtensions
 ) {
 
-    @GetMapping
+    @GetMapping("workspaces")
     fun getWorkspaces(): Mono<List<WorkspaceDto>> = extensions.toMono {
         workspaceService
             .getUserWorkspaces(getCurrentPrincipal().username)
             .map { mapWorkspaceDto(it) }
     }
 
-    @PostMapping
+    @PostMapping("workspaces")
     fun createWorkspace(
         @RequestBody @Valid createWorkspaceRequest: CreateWorkspaceDto
     ): Mono<WorkspaceDto> = extensions.toMono {
@@ -41,7 +41,7 @@ class WorkspacesApiController(
         ).let { mapWorkspaceDto(it) }
     }
 
-    @PutMapping("{workspaceId}")
+    @PutMapping("workspaces/{workspaceId}")
     fun editWorkspace(
         @RequestBody @Valid editWorkspaceRequest: EditWorkspaceDto,
         @PathVariable workspaceId: Long
@@ -53,6 +53,17 @@ class WorkspacesApiController(
             .let { workspaceService.save(it) }
             .let { mapWorkspaceDto(it) }
     }
+
+    @GetMapping("shared-workspaces")
+    fun getSharedWorkspaces(): Mono<List<WorkspaceDto>> = extensions.toMono {
+        workspaceService.getSharedWorkspaces().map { mapWorkspaceDto(it) }
+    }
+
+    @PostMapping("shared-workspaces")
+    fun saveSharedWorkspace(@Valid @RequestBody request: SaveSharedWorkspaceRequestDto): Mono<WorkspaceDto> =
+        extensions.toMono {
+            mapWorkspaceDto(workspaceService.saveSharedWorkspace(request.token))
+        }
 }
 
 data class WorkspaceDto(
@@ -74,6 +85,10 @@ data class CreateWorkspaceDto(
 
 data class EditWorkspaceDto(
     @field:NotBlank @field:Size(max = 255) val name: String
+)
+
+data class SaveSharedWorkspaceRequestDto(
+    @field:NotBlank val token: String
 )
 
 private fun mapWorkspaceDto(source: Workspace): WorkspaceDto = WorkspaceDto(

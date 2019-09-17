@@ -19,6 +19,7 @@ class WorkspaceAccessToken(
     @field:Column(nullable = false)
     val revoked: Boolean,
 
+    // todo #111: add unique constraint
     @field:Column(nullable = false)
     val token: String
 

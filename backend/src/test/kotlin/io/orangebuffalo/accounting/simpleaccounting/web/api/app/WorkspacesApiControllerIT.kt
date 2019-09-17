@@ -1,14 +1,12 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
-import io.orangebuffalo.accounting.simpleaccounting.DbHelper
-import io.orangebuffalo.accounting.simpleaccounting.sendJson
-import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
-import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -17,10 +15,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import java.time.Duration
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -31,6 +31,9 @@ internal class WorkspacesApiControllerIT(
     @Autowired val workspaceRepo: WorkspaceRepository,
     @Autowired val dbHelper: DbHelper
 ) {
+
+    @MockBean
+    private lateinit var timeService: TimeService
 
     @Test
     fun `should allow GET access only for logged in users`() {
@@ -48,13 +51,13 @@ internal class WorkspacesApiControllerIT(
                 inPath("$").isArray.containsExactly(
                     json(
                         """{
-                        name: "Property of Philip J. Fry",
-                        id: ${testData.fryWorkspace.id},
-                        version: 0,
-                        taxEnabled: false,
-                        multiCurrencyEnabled: false,
-                        defaultCurrency: "USD"
-                    }"""
+                            name: "Property of Philip J. Fry",
+                            id: ${testData.fryWorkspace.id},
+                            version: 0,
+                            taxEnabled: false,
+                            multiCurrencyEnabled: false,
+                            defaultCurrency: "USD"
+                        }"""
                     )
                 )
             }
@@ -174,6 +177,93 @@ internal class WorkspacesApiControllerIT(
             }
     }
 
+    @Test
+    fun `should allow POST of shared workspaces only for logged in users`() {
+        client.post()
+            .uri("/api/shared-workspaces")
+            .verifyUnauthorized()
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    fun `should return empty list if no shared workspace exists for user`(testData: WorkspacesApiTestData) {
+        mockCurrentTime(timeService)
+
+        client.get()
+            .uri("/api/shared-workspaces")
+            .verifyOkAndJsonBody {
+                inPath("$").isArray.isEmpty()
+            }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Fry")
+    fun `should return shared workspaces of current user`(testData: WorkspacesApiTestData) {
+        mockCurrentTime(timeService)
+
+        client.get()
+            .uri("/api/shared-workspaces")
+            .verifyOkAndJsonBody {
+                inPath("$").isArray.containsExactly(
+                    json(
+                        """{
+                            name: "Laboratory",
+                            id: ${testData.farnsworthWorkspace.id},
+                            version: 0,
+                            taxEnabled: false,
+                            multiCurrencyEnabled: false,
+                            defaultCurrency: "USD"
+                        }"""
+                    )
+                )
+            }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    fun `should save shared workspace by valid access token`(testData: WorkspacesApiTestData) {
+        mockCurrentTime(timeService)
+
+        client.post()
+            .uri("/api/shared-workspaces")
+            .sendJson(
+                """{
+                    "token": "${testData.fryWorkspaceAccessToken.token}"
+                }"""
+            )
+            .verifyOkAndJsonBody {
+                isEqualTo(
+                    json(
+                        """{
+                            name: "Property of Philip J. Fry",
+                            id: ${testData.fryWorkspace.id},
+                            version: 0,
+                            taxEnabled: false,
+                            multiCurrencyEnabled: false,
+                            defaultCurrency: "USD"
+                        }"""
+                    )
+                )
+            }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    fun `should fail on attempt to save shared workspace by expired token`(testData: WorkspacesApiTestData) {
+        mockCurrentTime(timeService)
+
+        client.post()
+            .uri("/api/shared-workspaces")
+            .sendJson(
+                """{
+                    "token": "${testData.fryWorkspaceAccessTokenExpired.token}"
+                }"""
+            )
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectBody<String>().isEqualTo("Token ${testData.fryWorkspaceAccessTokenExpired.token} is not valid")
+    }
+
     class WorkspacesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
@@ -195,6 +285,45 @@ internal class WorkspacesApiControllerIT(
             defaultCurrency = "USD"
         )
 
-        override fun generateData() = listOf(farnsworth, fry, fryWorkspace, farnsworthWorkspace, zoidberg)
+        val fryWorkspaceAccessToken = Prototypes.workspaceAccessToken(
+            workspace = fryWorkspace,
+            validTill = MOCK_TIME.plus(Duration.ofDays(1000)),
+            token = "token1"
+        )
+
+        val fryWorkspaceAccessTokenExpired = Prototypes.workspaceAccessToken(
+            workspace = fryWorkspace,
+            validTill = MOCK_TIME.minusMillis(1),
+            token = "token2"
+        )
+
+        val farnsworthWorkspaceAccessToken = Prototypes.workspaceAccessToken(
+            workspace = farnsworthWorkspace,
+            validTill = MOCK_TIME.plus(Duration.ofDays(1000)),
+            token = "token3"
+        )
+
+        val farnsworthWorkspaceSavedForFry = SavedWorkspaceAccessToken(
+            owner = fry,
+            workspaceAccessToken = farnsworthWorkspaceAccessToken
+        )
+
+        val farnsworthWorkspaceAccessTokenExpired = Prototypes.workspaceAccessToken(
+            workspace = farnsworthWorkspace,
+            validTill = MOCK_TIME.minusMillis(1),
+            token = "token4"
+        )
+
+        val farnsworthWorkspaceSavedForFryExpired = SavedWorkspaceAccessToken(
+            owner = fry,
+            workspaceAccessToken = farnsworthWorkspaceAccessTokenExpired
+        )
+
+        override fun generateData() = listOf(
+            farnsworth, fry, fryWorkspace, farnsworthWorkspace, zoidberg,
+            fryWorkspaceAccessToken, fryWorkspaceAccessTokenExpired,
+            farnsworthWorkspaceAccessToken, farnsworthWorkspaceSavedForFry,
+            farnsworthWorkspaceAccessTokenExpired, farnsworthWorkspaceSavedForFryExpired
+        )
     }
 }

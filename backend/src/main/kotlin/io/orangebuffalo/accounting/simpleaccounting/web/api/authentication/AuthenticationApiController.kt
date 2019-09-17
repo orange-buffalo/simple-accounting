@@ -22,7 +22,7 @@ import javax.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping("api/auth")
-class AuthenticationController(
+class AuthenticationApiController(
     private val authenticationManager: DelegatingReactiveAuthenticationManager,
     private val jwtService: JwtService,
     private val refreshTokenService: RefreshTokenService

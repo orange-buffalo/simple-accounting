@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import io.orangebuffalo.accounting.simpleaccounting.services.business.InvalidWorkspaceAccessTokenException
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,7 +20,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: AuthenticationException): Mono<ResponseEntity<Any>> {
-        logger.warn { "Authentication exception $exception" }
+        logger.info { "Authentication exception $exception" }
         return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build())
     }
 
@@ -87,6 +88,17 @@ class RestApiControllerAdvice {
         return Mono.just(
             ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(exception.message)
+        )
+    }
+
+    @ExceptionHandler
+    fun onException(exception: InvalidWorkspaceAccessTokenException): Mono<ResponseEntity<String>> {
+        logger.info { exception }
+
+        return Mono.just(
+            ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(exception.message)
         )
     }
