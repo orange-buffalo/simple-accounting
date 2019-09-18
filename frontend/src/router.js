@@ -4,6 +4,7 @@ import App from './views/App'
 import Login from './views/Login'
 import WorkspaceSetup from './views/WorkspaceSetup'
 import {api} from '@/services/api'
+import LoginByLink from '@/views/LoginByLink'
 
 export default new Router({
   mode: 'history',
@@ -12,6 +13,13 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: Login
+    },
+
+    {
+      path: '/login-by-link/:token',
+      name: 'login-by-link',
+      component: LoginByLink,
+      props: true
     },
 
     {

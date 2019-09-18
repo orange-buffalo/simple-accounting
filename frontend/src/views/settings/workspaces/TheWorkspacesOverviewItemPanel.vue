@@ -130,7 +130,8 @@
       },
 
       copyShareLink: function (token) {
-        copy(token)
+        let shareLink = `${window.location.origin}/login-by-link/${token}`
+        copy(shareLink)
       }
     }
   }
