@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessTokenService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QWorkspaceAccessToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
@@ -28,7 +29,7 @@ class WorkspaceAccessTokensApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<WorkspaceAccessToken>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
         accessTokenService.getAccessTokens(workspace, pageRequest.page, pageRequest.predicate)
     }
 
@@ -37,7 +38,7 @@ class WorkspaceAccessTokensApiController(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid createTokenRequest: CreateWorkspaceAccessTokenDto
     ): Mono<WorkspaceAccessTokenDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
         mapToDto(accessTokenService.createAccessToken(workspace, createTokenRequest.validTill))
     }
 }

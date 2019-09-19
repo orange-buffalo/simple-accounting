@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
@@ -46,7 +47,7 @@ class WorkspacesApiController(
         @RequestBody @Valid editWorkspaceRequest: EditWorkspaceDto,
         @PathVariable workspaceId: Long
     ): Mono<WorkspaceDto> = extensions.toMono {
-        extensions.getAccessibleWorkspace(workspaceId)
+        extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
             .apply {
                 name = editWorkspaceRequest.name
             }

@@ -1,8 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.CustomerService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
@@ -13,23 +13,16 @@ import reactor.core.publisher.Mono
 
 @Component
 class ApiControllersExtensions(
-    private val platformUserService: PlatformUserService,
     private val workspaceService: WorkspaceService,
     private val documentRepository: DocumentRepository,
     private val customerService: CustomerService,
     private val taxService: TaxService
 ) {
 
-    suspend fun getAccessibleWorkspace(workspaceId: Long): Workspace {
-        val currentUser = platformUserService.getCurrentUserAsync()
-        val workspace = workspaceService.getWorkspaceAsync(workspaceId).await()
-            ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
-        return if (workspace.owner == currentUser.await()) {
-            workspace
-        } else {
-            throw EntityNotFoundException("Workspace $workspaceId is not found")
-        }
-    }
+    suspend fun getAccessibleWorkspace(
+        workspaceId: Long,
+        accessMode: WorkspaceAccessMode
+    ): Workspace = workspaceService.getAccessibleWorkspace(workspaceId, accessMode)
 
     suspend fun getValidTax(taxId: Long?, workspace: Workspace): Tax? =
         if (taxId == null) {

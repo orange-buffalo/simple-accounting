@@ -8,6 +8,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.SavedWorkspaceAccessTokenRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceAccessTokenRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
+import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import kotlinx.coroutines.Deferred
 import org.springframework.stereotype.Service
 
@@ -75,4 +76,24 @@ class WorkspaceService(
                 )
                 .map { it.workspaceAccessToken.workspace }
         }
+
+    suspend fun getAccessibleWorkspace(
+        workspaceId: Long,
+        accessMode: WorkspaceAccessMode
+    ): Workspace {
+        val currentUser = platformUserService.getCurrentUserAsync()
+        val workspace = getWorkspaceAsync(workspaceId).await()
+            ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
+        return if (workspace.owner == currentUser.await()) {
+            workspace
+        } else {
+            throw EntityNotFoundException("Workspace $workspaceId is not found")
+        }
+    }
+}
+
+enum class WorkspaceAccessMode {
+    ADMIN,
+    READ_ONLY,
+    READ_WRITE
 }

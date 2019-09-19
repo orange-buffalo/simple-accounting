@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.services.business.InvoiceService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QInvoice
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
@@ -35,7 +36,7 @@ class InvoicesApiController(
         @RequestBody @Valid request: EditInvoiceDto
     ): Mono<InvoiceDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         invoiceService.saveInvoice(
             Invoice(
@@ -62,7 +63,7 @@ class InvoicesApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Invoice>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         invoiceService.getInvoices(workspace, pageRequest.page, pageRequest.predicate)
     }
 
@@ -71,7 +72,7 @@ class InvoicesApiController(
         @PathVariable workspaceId: Long,
         @PathVariable invoiceId: Long
     ): Mono<InvoiceDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val income = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
         mapInvoiceDto(income, timeService)
@@ -84,7 +85,7 @@ class InvoicesApiController(
         @RequestBody @Valid request: EditInvoiceDto
     ): Mono<InvoiceDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
         val income = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)

@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QTax
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Tax
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
@@ -32,7 +33,7 @@ class TaxApiController(
         @RequestBody @Valid request: EditTaxDto
     ): Mono<TaxDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         taxService.saveTax(
             Tax(
@@ -50,7 +51,7 @@ class TaxApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Tax>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         taxService.getTaxes(workspace, pageRequest.page, pageRequest.predicate)
     }
 
@@ -59,7 +60,7 @@ class TaxApiController(
         @PathVariable workspaceId: Long,
         @PathVariable taxId: Long
     ): Mono<TaxDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expense = taxService.getTaxByIdAndWorkspace(taxId, workspace)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
         mapTaxDto(expense)
@@ -72,7 +73,7 @@ class TaxApiController(
         @RequestBody @Valid request: EditTaxDto
     ): Mono<TaxDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
         val tax = taxService.getTaxByIdAndWorkspace(taxId, workspace)

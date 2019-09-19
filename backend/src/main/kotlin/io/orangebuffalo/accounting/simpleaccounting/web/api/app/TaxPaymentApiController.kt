@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxPaymentService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QTaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.TaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
@@ -36,7 +37,7 @@ class TaxPaymentApiController(
         @RequestBody @Valid request: EditTaxPaymentDto
     ): Mono<TaxPaymentDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         taxPaymentService.saveTaxPayment(
             TaxPayment(
@@ -58,7 +59,7 @@ class TaxPaymentApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<TaxPayment>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         taxPaymentService.getTaxPayments(workspace, pageRequest.page, pageRequest.predicate)
     }
 
@@ -67,7 +68,7 @@ class TaxPaymentApiController(
         @PathVariable workspaceId: Long,
         @PathVariable taxPaymentId: Long
     ): Mono<TaxPaymentDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val taxPayment = taxPaymentService.getTaxPaymentByIdAndWorkspace(taxPaymentId, workspace)
             ?: throw EntityNotFoundException("Tax Payment $taxPaymentId is not found")
         mapTaxPaymentDto(taxPayment)
@@ -80,7 +81,7 @@ class TaxPaymentApiController(
         @RequestBody @Valid request: EditTaxPaymentDto
     ): Mono<TaxPaymentDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
         val income = taxPaymentService.getTaxPaymentByIdAndWorkspace(taxPaymentId, workspace)

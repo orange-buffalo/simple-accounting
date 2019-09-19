@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.CategoryService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QCategory
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
@@ -28,7 +29,7 @@ class CategoriesApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Category>> = extensions.toMono {
-        extensions.getAccessibleWorkspace(workspaceId)
+        extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
             .let { workspace ->
                 categoryService.getCategories(workspace, pageRequest.page, pageRequest.predicate)
             }
@@ -39,7 +40,7 @@ class CategoriesApiController(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid createCategoryRequest: CreateCategoryDto
     ): Mono<CategoryDto> = extensions.toMono {
-        extensions.getAccessibleWorkspace(workspaceId)
+        extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
             .let { workspace ->
                 categoryService.createCategory(
                     Category(

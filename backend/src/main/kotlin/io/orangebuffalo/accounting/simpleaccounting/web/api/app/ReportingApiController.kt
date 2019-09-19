@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxReportingService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedTaxSummaryItem
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingTaxSummaryItem
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
@@ -22,7 +23,7 @@ class ReportingApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): Mono<TaxReportDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val report = taxReportingService.getTaxReport(fromDate, toDate, workspace)
         TaxReportDto(
             finalizedCollectedTaxes = report.finalizedCollectedTaxes.map(::convertFinalizedTaxItem),

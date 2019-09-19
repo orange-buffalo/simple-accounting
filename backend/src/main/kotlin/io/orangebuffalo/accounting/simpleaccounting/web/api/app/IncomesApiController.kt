@@ -5,6 +5,7 @@ import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.services.business.IncomeService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.InvoiceService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncome
@@ -37,7 +38,7 @@ class IncomesApiController(
         @RequestBody @Valid request: EditIncomeDto
     ): Mono<IncomeDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         incomeService.saveIncome(
             Income(
@@ -63,7 +64,7 @@ class IncomesApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Income>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         incomeService.getIncomes(workspace, pageRequest.page, pageRequest.predicate)
     }
 
@@ -72,7 +73,7 @@ class IncomesApiController(
         @PathVariable workspaceId: Long,
         @PathVariable incomeId: Long
     ): Mono<IncomeDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
             ?: throw EntityNotFoundException("Income $incomeId is not found")
         mapIncomeDto(income, invoiceService)
@@ -85,7 +86,7 @@ class IncomesApiController(
         @RequestBody @Valid request: EditIncomeDto
     ): Mono<IncomeDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
         val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)

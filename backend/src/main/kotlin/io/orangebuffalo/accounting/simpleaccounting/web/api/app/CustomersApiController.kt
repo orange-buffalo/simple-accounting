@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.accounting.simpleaccounting.services.business.CustomerService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QCustomer
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
@@ -30,7 +31,7 @@ class CustomersApiController(
         @RequestBody @Valid request: EditCustomerDto
     ): Mono<CustomerDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         customerService.saveCustomer(
             Customer(
@@ -46,7 +47,7 @@ class CustomersApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Customer>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         customerService.getCustomers(workspace, pageRequest.page, pageRequest.predicate)
     }
 
@@ -55,7 +56,7 @@ class CustomersApiController(
         @PathVariable workspaceId: Long,
         @PathVariable customerId: Long
     ): Mono<CustomerDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expense = customerService.getCustomerByIdAndWorkspace(customerId, workspace)
             ?: throw EntityNotFoundException("Customer $customerId is not found")
         mapCustomerDto(expense)
@@ -68,7 +69,7 @@ class CustomersApiController(
         @RequestBody @Valid request: EditCustomerDto
     ): Mono<CustomerDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId)
+        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
         val customer = customerService.getCustomerByIdAndWorkspace(customerId, workspace)
