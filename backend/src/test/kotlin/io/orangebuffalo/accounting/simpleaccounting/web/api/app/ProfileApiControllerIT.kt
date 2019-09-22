@@ -1,11 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.sendJson
-import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
-import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -13,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -33,7 +29,7 @@ class ProfileApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return data for full profile`(testData: ProfileApiTestData) {
         client.get()
             .uri("/api/profile")
@@ -50,7 +46,7 @@ class ProfileApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     fun `should return data for minimum profile`(testData: ProfileApiTestData) {
         client.get()
             .uri("/api/profile")
@@ -66,7 +62,7 @@ class ProfileApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should clear documents storage setting`(testData: ProfileApiTestData) {
         client.put()
             .uri("/api/profile")
@@ -87,7 +83,7 @@ class ProfileApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     fun `should update documents storage setting`(testData: ProfileApiTestData) {
         client.put()
             .uri("/api/profile")

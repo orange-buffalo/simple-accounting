@@ -64,7 +64,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return documents of a workspace of current user`(testData: DocumentsApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
@@ -99,7 +99,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found on GET`(testData: DocumentsApiTestData) {
         client.get()
             .uri("/api/workspaces/27347947239/documents")
@@ -107,7 +107,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 on GET if workspace belongs to another user`(testData: DocumentsApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
@@ -153,7 +153,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when requesting document content`(testData: DocumentsApiTestData) {
         client.get()
             .uri("/api/workspaces/5634632/documents/${testData.coffeeReceipt.id}/content")
@@ -161,7 +161,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when requesting document content`(
         testData: DocumentsApiTestData
     ) {
@@ -171,7 +171,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if document belongs to another workspace when requesting document content`(
         testData: DocumentsApiTestData
     ) {
@@ -181,7 +181,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when creating document`(testData: DocumentsApiTestData) {
         client.post()
             .uri("/api/workspaces/995943/documents")
@@ -190,7 +190,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when creating document`(testData: DocumentsApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")

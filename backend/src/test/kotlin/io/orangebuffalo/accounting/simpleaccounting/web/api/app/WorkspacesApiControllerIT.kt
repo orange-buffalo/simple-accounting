@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -43,7 +42,7 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return workspaces of current user`(testData: WorkspacesApiTestData) {
         client.get()
             .uri("/api/workspaces")
@@ -64,7 +63,7 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     fun `should return empty list if no workspace exists for user`(testData: WorkspacesApiTestData) {
         client.get()
             .uri("/api/workspaces")
@@ -81,7 +80,7 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new workspace`(testData: WorkspacesApiTestData) {
         val workspaceId = dbHelper.getNextId()
 
@@ -124,7 +123,7 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should update a workspace`(testData: WorkspacesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}")
@@ -155,7 +154,7 @@ internal class WorkspacesApiControllerIT(
 
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     fun `should return 404 on PUT if workspace belongs to another user`(
         testData: WorkspacesApiTestData
     ) {
@@ -185,7 +184,7 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     fun `should return empty list if no shared workspace exists for user`(testData: WorkspacesApiTestData) {
         mockCurrentTime(timeService)
 
@@ -197,7 +196,7 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return shared workspaces of current user`(testData: WorkspacesApiTestData) {
         mockCurrentTime(timeService)
 
@@ -220,7 +219,7 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should save shared workspace by valid access token`(testData: WorkspacesApiTestData) {
         mockCurrentTime(timeService)
 
@@ -248,7 +247,7 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should fail on attempt to save shared workspace by expired token`(testData: WorkspacesApiTestData) {
         mockCurrentTime(timeService)
 

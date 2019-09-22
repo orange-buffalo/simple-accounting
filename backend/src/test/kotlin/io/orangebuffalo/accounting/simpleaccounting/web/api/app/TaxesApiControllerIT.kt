@@ -1,12 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.sendJson
-import io.orangebuffalo.accounting.simpleaccounting.verifyNotFound
-import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
-import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -34,7 +30,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return taxes of a workspace of current user`(testData: TaxesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/taxes")
@@ -67,7 +63,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found on GET`(testData: TaxesApiTestData) {
         client.get()
             .uri("/api/workspaces/27347947239/taxes")
@@ -75,7 +71,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 on GET if workspace belongs to another user`(testData: TaxesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/taxes")
@@ -90,7 +86,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return tax by id for current user`(testData: TaxesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/taxes/${testData.firstSpaceTax.id}")
@@ -109,7 +105,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when requesting tax by id`(testData: TaxesApiTestData) {
         client.get()
             .uri("/api/workspaces/5634632/taxes/${testData.firstSpaceTax.id}")
@@ -117,7 +113,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when requesting tax by id`(
         testData: TaxesApiTestData
     ) {
@@ -127,7 +123,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if tax belongs to another workspace when requesting tax by id`(
         testData: TaxesApiTestData
     ) {
@@ -137,7 +133,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when creating tax`(testData: TaxesApiTestData) {
         client.post()
             .uri("/api/workspaces/995943/taxes")
@@ -146,7 +142,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new tax`(testData: TaxesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/taxes")
@@ -173,7 +169,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new tax with minimum data`(testData: TaxesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/taxes")
@@ -198,7 +194,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when creating tax`(testData: TaxesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/taxes")
@@ -214,7 +210,7 @@ internal class TaxesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should update tax of current user`(testData: TaxesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/taxes/${testData.firstSpaceTax.id}")

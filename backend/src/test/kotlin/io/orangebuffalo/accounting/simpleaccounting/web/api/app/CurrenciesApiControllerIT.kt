@@ -1,8 +1,9 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.WithMockFryUser
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
 import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.util.*
@@ -33,7 +33,7 @@ class CurrenciesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return currencies list`(data: CurrenciesApiTestData) {
         client.get()
             .uri("/api/currencies")

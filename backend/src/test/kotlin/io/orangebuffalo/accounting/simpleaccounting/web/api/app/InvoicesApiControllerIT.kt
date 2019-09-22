@@ -42,7 +42,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return invoices of a workspace of current user`(testData: InvoicesApiTestData) {
         mockCurrentDate(timeService)
 
@@ -96,7 +96,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found on GET`(testData: InvoicesApiTestData) {
         client.get()
             .uri("/api/workspaces/27347947239/invoices")
@@ -104,7 +104,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 on GET if workspace belongs to another user`(testData: InvoicesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
@@ -119,7 +119,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return invoice by id for current user`(testData: InvoicesApiTestData) {
         mockCurrentDate(timeService)
 
@@ -147,7 +147,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when requesting invoice by id`(testData: InvoicesApiTestData) {
         client.get()
             .uri("/api/workspaces/5634632/invoices/${testData.firstSpaceInvoice.id}")
@@ -155,7 +155,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when requesting invoice by id`(
         testData: InvoicesApiTestData
     ) {
@@ -165,7 +165,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if invoice belongs to another workspace when requesting invoice by id`(
         testData: InvoicesApiTestData
     ) {
@@ -175,7 +175,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when creating invoice`(testData: InvoicesApiTestData) {
         client.post()
             .uri("/api/workspaces/995943/invoices")
@@ -184,7 +184,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new invoice`(testData: InvoicesApiTestData) {
         mockCurrentDate(timeService)
 
@@ -234,7 +234,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when creating invoice`(testData: InvoicesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
@@ -243,7 +243,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new invoice with minimum data`(testData: InvoicesApiTestData) {
         mockCurrentDate(timeService)
 
@@ -281,7 +281,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 when customer of new invoice is not found`(testData: InvoicesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
@@ -299,7 +299,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 when customer of new invoice belongs to another workspace`(testData: InvoicesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
@@ -317,7 +317,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 when tax of new invoice is not found`(testData: InvoicesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
@@ -336,7 +336,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 when tax of new invoice belongs to another workspace`(testData: InvoicesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
@@ -362,7 +362,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should update invoice of current user`(testData: InvoicesApiTestData) {
         mockCurrentDate(timeService)
 
@@ -412,7 +412,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should update invoice of current user with minimum data`(testData: InvoicesApiTestData) {
         mockCurrentDate(timeService)
 
@@ -451,7 +451,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should fail with 404 on PUT when workspace belongs to another user`(testData: InvoicesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
@@ -460,7 +460,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when invoice belongs to another workspace`(testData: InvoicesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.pizzaInvoice.id}")
@@ -469,7 +469,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when invoice does not exist`(testData: InvoicesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/5566")
@@ -478,7 +478,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when customer is not found`(testData: InvoicesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
@@ -496,7 +496,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when customer belongs to another workspace`(testData: InvoicesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
@@ -514,7 +514,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when tax is not found`(testData: InvoicesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
@@ -533,7 +533,7 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when tax belongs to another workspace`(testData: InvoicesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")

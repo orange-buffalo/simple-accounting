@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -41,7 +40,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return expenses of a workspace of current user`(testData: ExpensesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -94,7 +93,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found on GET`(testData: ExpensesApiTestData) {
         client.get()
             .uri("/api/workspaces/27347947239/expenses")
@@ -102,7 +101,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 on GET if workspace belongs to another user`(testData: ExpensesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -117,7 +116,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return expense by id for current user`(testData: ExpensesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -146,7 +145,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when requesting expense by id`(testData: ExpensesApiTestData) {
         client.get()
             .uri("/api/workspaces/5634632/expenses/${testData.firstSlurm.id}")
@@ -154,7 +153,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when requesting expense by id`(
         testData: ExpensesApiTestData
     ) {
@@ -164,7 +163,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if expense belongs to another workspace when requesting expense by id`(
         testData: ExpensesApiTestData
     ) {
@@ -174,7 +173,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when creating expense`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/995943/expenses")
@@ -183,7 +182,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new expense`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -231,7 +230,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when creating expense`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -240,7 +239,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new expense with minimum data for default currency`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -278,7 +277,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 when category of new expense is not found`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -295,7 +294,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 when category of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -312,7 +311,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 when tax of new expense is not found`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -330,7 +329,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 when tax of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
@@ -355,7 +354,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should update expense of current user`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -403,7 +402,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should update expense of current user with minimum data`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -439,7 +438,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should fail with 404 on PUT when workspace belongs to another user`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -455,7 +454,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when expense belongs to another workspace`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.coffeeExpense.id}")
@@ -471,7 +470,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when expense does not exist`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/5566")
@@ -487,7 +486,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when category is not found`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -504,7 +503,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when category belongs to another workspace`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -521,7 +520,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when tax is not found`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -538,7 +537,7 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 on PUT when tax belongs to another workspace`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")

@@ -24,6 +24,18 @@ class Prototypes {
             isAdmin = false
         )
 
+        fun roberto() = platformUser(
+            userName = "Roberto",
+            passwordHash = "o_O",
+            isAdmin = false
+        )
+
+        fun mafiaBot() = platformUser(
+            userName = "MafiaBot",
+            passwordHash = "$$$",
+            isAdmin = false
+        )
+
         fun bender() = platformUser(
             userName = "Bender",
             passwordHash = "011101010101101001",

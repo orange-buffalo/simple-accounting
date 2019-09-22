@@ -1,10 +1,11 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.WithMockFryUser
+import io.orangebuffalo.accounting.simpleaccounting.assertNextJsonIs
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.PushNotificationService
-import io.orangebuffalo.accounting.simpleaccounting.assertNextJsonIs
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.test.StepVerifier
@@ -32,7 +32,7 @@ class PushNotificationsApiControllerIT(
 ) {
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should receive a single broadcast event`(testData: PushNotificationsApiTestData) {
         val result = GlobalScope.async {
             client.get()
@@ -62,7 +62,7 @@ class PushNotificationsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should receive multiple broadcast events`(testData: PushNotificationsApiTestData) {
         val result = GlobalScope.async {
             client.get()
@@ -105,7 +105,7 @@ class PushNotificationsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should not receive events addressed to another user`(testData: PushNotificationsApiTestData) {
         val result = GlobalScope.async {
             client.get()

@@ -1,15 +1,11 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CategoryRepository
-import io.orangebuffalo.accounting.simpleaccounting.DbHelper
-import io.orangebuffalo.accounting.simpleaccounting.sendJson
-import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
-import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -18,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -41,7 +36,7 @@ internal class CategoriesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should get categories of current user workspace`(testData: CategoriesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
@@ -71,7 +66,7 @@ internal class CategoriesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should get 404 when requesting categories of another user`(testData: CategoriesApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")
@@ -90,7 +85,7 @@ internal class CategoriesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should add a new category to the workspace`(testData: CategoriesApiTestData) {
         val categoryId = dbHelper.getNextId()
 
@@ -126,7 +121,7 @@ internal class CategoriesApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should get 404 when adding category to workspace of another user`(testData: CategoriesApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")

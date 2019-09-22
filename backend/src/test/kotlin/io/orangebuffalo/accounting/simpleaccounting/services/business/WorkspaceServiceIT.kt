@@ -3,11 +3,9 @@ package io.orangebuffalo.accounting.simpleaccounting.services.business
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import io.orangebuffalo.accounting.simpleaccounting.MOCK_TIME
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.mockCurrentTime
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.CoroutineAuthentication
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
@@ -24,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.Duration
 
@@ -76,91 +73,91 @@ internal class WorkspaceServiceIT(
         }.hasMessage("Authentication is not set")
     }
 
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     @Test
     fun `should provide admin access to workspace for its owner`(testData: WorkspaceServiceTestData) {
         assertSuccessfulGetAccessibleWorkspace(testData, WorkspaceAccessMode.ADMIN)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     @Test
     fun `should not provide admin access to workspace for users with valid token`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.ADMIN)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Roberto")
+    @WithMockRobertoUser
     @Test
     fun `should not provide admin access to workspace for users with expired tokens`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.ADMIN)
     }
 
-    @WithMockUser(roles = ["USER"], username = "MafiaBot")
+    @WithMockMafiaBotUser
     @Test
     fun `should not provide admin access to workspace for users with revoked tokens`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.ADMIN)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     @Test
     fun `should not provide admin access to workspace for other users`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.ADMIN)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     @Test
     fun `should provide read-write access to workspace for its owner`(testData: WorkspaceServiceTestData) {
         assertSuccessfulGetAccessibleWorkspace(testData, WorkspaceAccessMode.READ_WRITE)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     @Test
     fun `should not provide read-write access to workspace for users with valid token`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_WRITE)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Roberto")
+    @WithMockRobertoUser
     @Test
     fun `should not provide read-write access to workspace for users with expired tokens`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_WRITE)
     }
 
-    @WithMockUser(roles = ["USER"], username = "MafiaBot")
+    @WithMockMafiaBotUser
     @Test
     fun `should not provide read-write access to workspace for users with revoked tokens`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_WRITE)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     @Test
     fun `should not provide read-write access to workspace for other users`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_WRITE)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     @Test
     fun `should provide read-only access to workspace for its owner`(testData: WorkspaceServiceTestData) {
         assertSuccessfulGetAccessibleWorkspace(testData, WorkspaceAccessMode.READ_ONLY)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     @Test
     fun `should provide read-only access to workspace for users with valid token`(testData: WorkspaceServiceTestData) {
         assertSuccessfulGetAccessibleWorkspace(testData, WorkspaceAccessMode.READ_ONLY)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Roberto")
+    @WithMockRobertoUser
     @Test
     fun `should not provide read-only access to workspace for users with expired tokens`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_ONLY)
     }
 
-    @WithMockUser(roles = ["USER"], username = "MafiaBot")
+    @WithMockMafiaBotUser
     @Test
     fun `should not provide read-only access to workspace for users with revoked tokens`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_ONLY)
     }
 
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     @Test
     fun `should not provide read-only access to workspace for other users`(testData: WorkspaceServiceTestData) {
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_ONLY)
@@ -214,8 +211,8 @@ internal class WorkspaceServiceIT(
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
         val zoidberg = Prototypes.zoidberg()
-        val roberto = Prototypes.platformUser(userName = "Roberto")
-        val mafiaBot = Prototypes.platformUser(userName = "MafiaBot")
+        val roberto = Prototypes.roberto()
+        val mafiaBot = Prototypes.mafiaBot()
         val fryWorkspace = Prototypes.workspace(owner = fry)
         val validTokenForFryWorkspace = Prototypes.workspaceAccessToken(
             workspace = fryWorkspace,

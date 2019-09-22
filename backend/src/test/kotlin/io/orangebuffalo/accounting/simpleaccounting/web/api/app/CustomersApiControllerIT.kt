@@ -1,12 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.sendJson
-import io.orangebuffalo.accounting.simpleaccounting.verifyNotFound
-import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
-import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -14,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
@@ -34,7 +29,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return customers of a workspace of current user`(testData: CustomersApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
@@ -64,7 +59,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found on GET`(testData: CustomersApiTestData) {
         client.get()
             .uri("/api/workspaces/27347947239/customers")
@@ -72,7 +67,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 on GET if workspace belongs to another user`(testData: CustomersApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
@@ -87,7 +82,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return customer by id for current user`(testData: CustomersApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers/${testData.firstSpaceCustomer.id}")
@@ -105,7 +100,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when requesting customer by id`(testData: CustomersApiTestData) {
         client.get()
             .uri("/api/workspaces/5634632/customers/${testData.firstSpaceCustomer.id}")
@@ -113,7 +108,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when requesting customer by id`(
         testData: CustomersApiTestData
     ) {
@@ -123,7 +118,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if customer belongs to another workspace when requesting customer by id`(
         testData: CustomersApiTestData
     ) {
@@ -133,7 +128,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return 404 if workspace is not found when creating customer`(testData: CustomersApiTestData) {
         client.post()
             .uri("/api/workspaces/995943/customers")
@@ -142,7 +137,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new customer`(testData: CustomersApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
@@ -165,7 +160,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when creating customer`(testData: CustomersApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
@@ -181,7 +176,7 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should update customer of current user`(testData: CustomersApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers/${testData.firstSpaceCustomer.id}")

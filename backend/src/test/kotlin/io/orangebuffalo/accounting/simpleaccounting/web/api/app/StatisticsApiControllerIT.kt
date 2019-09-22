@@ -1,11 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
+import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.verifyNotFound
-import io.orangebuffalo.accounting.simpleaccounting.verifyOkAndJsonBody
-import io.orangebuffalo.accounting.simpleaccounting.verifyUnauthorized
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -37,7 +34,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should calculate expenses statistics`(testData: StatisticsApiTestData) {
         client.get()
             .uri(
@@ -70,7 +67,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 if workspace does not exist when requesting expenses statistics`(
         testData: StatisticsApiTestData
     ) {
@@ -83,7 +80,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should fail with 404 if workspace belongs to another user when requesting expenses statistics`(
         testData: StatisticsApiTestData
     ) {
@@ -106,7 +103,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should calculate incomes statistics`(testData: StatisticsApiTestData) {
         client.get()
             .uri(
@@ -142,7 +139,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 if workspace does not exist when requesting incomes statistics`(
         testData: StatisticsApiTestData
     ) {
@@ -155,7 +152,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should fail with 404 if workspace belongs to another user when requesting incomes statistics`(
         testData: StatisticsApiTestData
     ) {
@@ -178,7 +175,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should calculate tax payments statistics`(testData: StatisticsApiTestData) {
         client.get()
             .uri(
@@ -191,7 +188,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should fail with 404 if workspace does not exist when requesting tax payments statistics`(
         testData: StatisticsApiTestData
     ) {
@@ -204,7 +201,7 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Farnsworth")
+    @WithMockFarnsworthUser
     fun `should fail with 404 if workspace belongs to another user when requesting tax payments statistics`(
         testData: StatisticsApiTestData
     ) {

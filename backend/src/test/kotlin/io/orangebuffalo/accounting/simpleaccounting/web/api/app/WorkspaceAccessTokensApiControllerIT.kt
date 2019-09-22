@@ -46,7 +46,7 @@ internal class WorkspaceAccessTokensApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     fun `should return 404 on GET if workspace belongs to another user`(
         testData: WorkspaceAccessTokensApiTestData
     ) {
@@ -60,7 +60,7 @@ internal class WorkspaceAccessTokensApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should return tokens of current user`(testData: WorkspaceAccessTokensApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/workspace-access-tokens")
@@ -94,7 +94,7 @@ internal class WorkspaceAccessTokensApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should filter by workspace on GET`(testData: WorkspaceAccessTokensApiTestData) {
         client.get()
             .uri("/api/workspaces/${testData.emptyFryWorkspace.id}/workspace-access-tokens")
@@ -114,7 +114,7 @@ internal class WorkspaceAccessTokensApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Zoidberg")
+    @WithMockZoidbergUser
     fun `should return 404 on POST if workspace belongs to another user`(
         testData: WorkspaceAccessTokensApiTestData
     ) {
@@ -133,7 +133,7 @@ internal class WorkspaceAccessTokensApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "Fry")
+    @WithMockFryUser
     fun `should create a new access token`(testData: WorkspaceAccessTokensApiTestData) {
         whenever(tokenGenerator.generateToken()) doReturn ("new-token")
 
