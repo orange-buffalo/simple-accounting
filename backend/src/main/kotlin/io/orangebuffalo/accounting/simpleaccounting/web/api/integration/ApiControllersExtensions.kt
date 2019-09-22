@@ -19,6 +19,7 @@ class ApiControllersExtensions(
     private val taxService: TaxService
 ) {
 
+    // todo #111: remove redundant proxying
     suspend fun getAccessibleWorkspace(
         workspaceId: Long,
         accessMode: WorkspaceAccessMode

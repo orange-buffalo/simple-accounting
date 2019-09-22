@@ -1,5 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContextAsync
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
@@ -71,7 +72,7 @@ class WorkspaceService(
         withDbContext {
             savedWorkspaceAccessTokenRepository
                 .findAllValidByOwner(
-                    platformUserService.getCurrentUser(),
+                    getCurrentPrincipal().username,
                     timeService.currentTime()
                 )
                 .map { it.workspaceAccessToken.workspace }
@@ -81,14 +82,21 @@ class WorkspaceService(
         workspaceId: Long,
         accessMode: WorkspaceAccessMode
     ): Workspace {
-        val currentUser = platformUserService.getCurrentUserAsync()
-        val workspace = getWorkspaceAsync(workspaceId).await()
-            ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
-        return if (workspace.owner == currentUser.await()) {
-            workspace
-        } else {
-            throw EntityNotFoundException("Workspace $workspaceId is not found")
+        val ownWorkspaceAsync = withDbContextAsync {
+            workspaceRepository.findByIdAndOwnerUserName(workspaceId, getCurrentPrincipal().username)
         }
+
+        val sharedWorkspace = if (accessMode == WorkspaceAccessMode.READ_ONLY) {
+            withDbContext {
+                savedWorkspaceAccessTokenRepository.findValidByOwnerAndWorkspaceWithFetchedWorkspace(
+                    getCurrentPrincipal().username, workspaceId, timeService.currentTime()
+                )
+            }?.workspaceAccessToken?.workspace
+        } else null
+
+        return ownWorkspaceAsync.await()
+            ?: sharedWorkspace
+            ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
     }
 }
 

@@ -5,4 +5,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 interface WorkspaceRepository : AbstractEntityRepository<Workspace> {
 
     fun findAllByOwnerUserName(userName: String): List<Workspace>
+
+    fun findByIdAndOwnerUserName(workspaceId: Long, owner: String): Workspace?
 }

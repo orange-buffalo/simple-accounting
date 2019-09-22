@@ -5,6 +5,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -27,6 +28,11 @@ internal class InvoicesApiControllerIT(
 
     @MockBean
     lateinit var timeService: TimeService
+
+    @BeforeEach
+    fun setup() {
+        mockCurrentTime(timeService)
+    }
 
     @Test
     fun `should allow GET access only for logged in users`(testData: InvoicesApiTestData) {
@@ -180,7 +186,6 @@ internal class InvoicesApiControllerIT(
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new invoice`(testData: InvoicesApiTestData) {
-        mockCurrentTime(timeService)
         mockCurrentDate(timeService)
 
         client.post()
@@ -240,7 +245,6 @@ internal class InvoicesApiControllerIT(
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new invoice with minimum data`(testData: InvoicesApiTestData) {
-        mockCurrentTime(timeService)
         mockCurrentDate(timeService)
 
         client.post()
@@ -361,7 +365,6 @@ internal class InvoicesApiControllerIT(
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should update invoice of current user`(testData: InvoicesApiTestData) {
         mockCurrentDate(timeService)
-        mockCurrentTime(timeService)
 
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.secondSpaceInvoice.id}")

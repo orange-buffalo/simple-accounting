@@ -48,11 +48,12 @@ class DocumentsApiControllerIT(
 ) {
 
     @MockBean
-    lateinit var timeServiceMock: TimeService
+    lateinit var timeService: TimeService
 
     @BeforeEach
     fun setup() {
         whenever(testDocumentsStorage.mock.getId()) doReturn "test-storage"
+        mockCurrentTime(timeService)
     }
 
     @Test
@@ -200,7 +201,6 @@ class DocumentsApiControllerIT(
     @Test
     @WithMockUser(username = "Fry")
     fun `should upload a new file and invoke documents storage`(testData: DocumentsApiTestData) {
-        mockCurrentTime(timeServiceMock)
         mockDocumentsStorage(testData)
 
         client.post()

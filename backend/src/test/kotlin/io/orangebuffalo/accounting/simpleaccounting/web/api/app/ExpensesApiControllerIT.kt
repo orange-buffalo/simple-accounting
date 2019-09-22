@@ -5,6 +5,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -26,6 +27,11 @@ internal class ExpensesApiControllerIT(
 
     @MockBean
     lateinit var timeService: TimeService
+
+    @BeforeEach
+    fun setup() {
+        mockCurrentTime(timeService)
+    }
 
     @Test
     fun `should allow GET access only for logged in users`(testData: ExpensesApiTestData) {
@@ -179,8 +185,6 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new expense`(testData: ExpensesApiTestData) {
-        mockCurrentTime(timeService)
-
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -238,8 +242,6 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockUser(roles = ["USER"], username = "Fry")
     fun `should create a new expense with minimum data for default currency`(testData: ExpensesApiTestData) {
-        mockCurrentTime(timeService)
-
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
