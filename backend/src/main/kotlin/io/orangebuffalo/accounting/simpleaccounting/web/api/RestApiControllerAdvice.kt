@@ -20,8 +20,8 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: AuthenticationException): Mono<ResponseEntity<Any>> {
-        logger.info { "Authentication exception $exception" }
-        return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build())
+        logger.trace { "Authentication exception $exception" }
+        return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build())
     }
 
     @ExceptionHandler
@@ -32,7 +32,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: ServerWebInputException): Mono<ResponseEntity<String>> {
-        logger.info(exception) { "Bad request to ${exception.methodParameter}" }
+        logger.trace(exception) { "Bad request to ${exception.methodParameter}" }
 
         val cause = exception.mostSpecificCause
         val message = if (cause is MissingKotlinParameterException) {
@@ -50,7 +50,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: WebExchangeBindException): Mono<ResponseEntity<String>> {
-        logger.info(exception) { "Bad request ${exception.message}" }
+        logger.trace(exception) { "Bad request ${exception.message}" }
 
         val cause = exception.bindingResult.allErrors.joinToString { error ->
             if (error is FieldError) {
@@ -75,7 +75,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: ApiValidationException): Mono<ResponseEntity<String>> {
-        logger.info(exception) { "Bad request: $exception" }
+        logger.trace(exception) { "Bad request: $exception" }
         return Mono.just(
             ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -94,7 +94,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: InvalidWorkspaceAccessTokenException): Mono<ResponseEntity<String>> {
-        logger.info { exception }
+        logger.trace { exception }
 
         return Mono.just(
             ResponseEntity

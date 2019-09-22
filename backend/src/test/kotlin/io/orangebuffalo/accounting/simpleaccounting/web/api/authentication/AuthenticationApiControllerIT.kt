@@ -97,7 +97,7 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return 403 when user is unknown`() {
+    fun `should return 401 when user is unknown`() {
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
             .syncBody(
@@ -107,12 +107,12 @@ class AuthenticationApiControllerIT(
                 )
             )
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus().isUnauthorized
             .expectBody().isEmpty
     }
 
     @Test
-    fun `should return 403 when password does not match`(testData: AuthenticationApiTestData) {
+    fun `should return 401 when password does not match`(testData: AuthenticationApiTestData) {
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
         client.post().uri(LOGIN_PATH)
@@ -124,7 +124,7 @@ class AuthenticationApiControllerIT(
                 )
             )
             .exchange()
-            .expectStatus().isForbidden
+            .expectStatus().isUnauthorized
             .expectBody().isEmpty
     }
 
@@ -287,8 +287,7 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    //todo #93: should return 401? what is the spec for wrong credentials?
-    fun `should return 403 if refresh token is not valid and user is not authenticated`(
+    fun `should return 401 if refresh token is not valid and user is not authenticated`(
         testData: AuthenticationApiTestData
     ) {
         runBlocking {
@@ -300,21 +299,19 @@ class AuthenticationApiControllerIT(
                 .contentType(APPLICATION_JSON)
                 .cookie("refreshToken", "refreshTokenForFry")
                 .exchange()
-                .expectStatus().isForbidden
+                .expectStatus().isUnauthorized
         }
     }
 
     @Test
-    //todo #93: should return 401
-    //todo #93: should not log warning to avoid log pollution
-    fun `should return 403 if refresh token is missing and user is not authenticated`(
+    fun `should return 401 if refresh token is missing and user is not authenticated`(
         testData: AuthenticationApiTestData
     ) {
         runBlocking {
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isForbidden
+                .expectStatus().isUnauthorized
         }
     }
 
