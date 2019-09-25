@@ -25,7 +25,7 @@ import java.time.temporal.ChronoUnit
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-class RefreshTokenServiceTestIT(
+class RefreshTokenServiceIT(
     @Autowired private val refreshTokenService: RefreshTokenService,
     @Autowired private val refreshTokenRepository: RefreshTokenRepository
 ) {

@@ -2,25 +2,36 @@ package io.orangebuffalo.accounting.simpleaccounting.services.security.jwt
 
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
+import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.security.SecurityPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.security.createRegularUserPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.security.createTransientUserPrincipal
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.time.Duration
+import java.time.Instant
 import java.util.*
 
 @Service
-class JwtService {
+class JwtService(
+    private val timeService: TimeService
+) {
 
     private val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
 
-    fun buildJwtToken(userDetails: UserDetails): String {
-        return Jwts.builder()
-            .setSubject(userDetails.username)
-            .claim("authorities", userDetails.authorities.map { it.authority })
-            .setExpiration(Date(System.currentTimeMillis() + Duration.ofMinutes(10).toMillis()))
-            .signWith(keyPair.private)
-            .compact()
+    fun buildJwtToken(principal: SecurityPrincipal, validTill: Instant? = null): String = Jwts.builder()
+        .setSubject(principal.userName)
+        .claim("roles", principal.roles)
+        .claim("transient", principal.isTransient)
+        .setExpiration((validTill ?: getDefaultTokenExpiration()).toDate())
+        .signWith(keyPair.private)
+        .compact()
+
+    private fun getDefaultTokenExpiration() = timeService.currentTime().plus(Duration.ofMinutes(10))
+
+    private fun Instant.toDate(): Date {
+        return Date(this.toEpochMilli())
     }
 
     fun validateTokenAndBuildUserDetails(token: String): UserDetails {
@@ -34,10 +45,11 @@ class JwtService {
             throw BadCredentialsException("Bad token $token", ex)
         }
 
-        return User.builder()
-            .username(jws.body.subject)
-            .password(token)
-            .authorities(*(jws.body["authorities"] as List<String>).toTypedArray())
-            .build()
+        val transient = jws.body["transient"] as Boolean
+        return if (transient) {
+            createTransientUserPrincipal(jws.body.subject, token)
+        } else {
+            createRegularUserPrincipal(jws.body.subject, token, jws.body["roles"] as List<String>)
+        }
     }
 }

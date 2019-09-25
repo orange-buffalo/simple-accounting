@@ -14,7 +14,7 @@ let _apiStore = {
       state.isAdmin = false
       if (token) {
         let decodedToken = jwtDecode(token)
-        state.isAdmin = decodedToken.authorities && decodedToken.authorities.indexOf("ROLE_ADMIN") >= 0
+        state.isAdmin = decodedToken.roles && decodedToken.roles.indexOf("ADMIN") >= 0
       }
     }
   },

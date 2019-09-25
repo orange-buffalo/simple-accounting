@@ -25,7 +25,7 @@ class UserNamePasswordAuthenticationProvider(
             }
             ?.let { user ->
                 UsernamePasswordAuthenticationToken(
-                    user.toUserDetails(),
+                    user.toSecurityPrincipal(),
                     user.passwordHash
                 )
             }

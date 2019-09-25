@@ -10,9 +10,13 @@ interface WorkspaceAccessTokenRepository : AbstractEntityRepository<WorkspaceAcc
     QuerydslPredicateExecutor<WorkspaceAccessToken> {
 
     @Query(
-        "from WorkspaceAccessToken t " +
-                "where t.token = :token " +
-                "and t.validTill > :currentTime"
+        """
+            from WorkspaceAccessToken t 
+            where 
+                t.token = :token 
+                and t.validTill > :currentTime
+                and t.revoked = false 
+        """
     )
     fun findValidByToken(
         @Param("token") token: String,

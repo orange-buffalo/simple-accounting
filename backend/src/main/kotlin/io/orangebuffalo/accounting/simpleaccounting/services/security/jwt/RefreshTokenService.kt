@@ -5,7 +5,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeServic
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.RefreshToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.RefreshTokenRepository
-import io.orangebuffalo.accounting.simpleaccounting.services.security.toUserDetails
+import io.orangebuffalo.accounting.simpleaccounting.services.security.toSecurityPrincipal
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -55,7 +55,7 @@ class RefreshTokenService(
             throw BadCredentialsException("Token expired")
         }
 
-        return token.user.toUserDetails()
+        return token.user.toSecurityPrincipal()
     }
 
     suspend fun prolongToken(refreshTokenString: String): String =

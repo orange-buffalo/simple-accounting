@@ -37,4 +37,9 @@ class WorkspaceAccessTokenService(
         )
         repository.save(token)
     }
+
+    suspend fun getValidToken(token: String): WorkspaceAccessToken? =
+        withDbContext {
+            repository.findValidByToken(token, timeService.currentTime())
+        }
 }
