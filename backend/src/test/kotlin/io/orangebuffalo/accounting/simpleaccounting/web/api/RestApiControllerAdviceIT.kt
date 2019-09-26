@@ -1,5 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api
 
+import io.orangebuffalo.accounting.simpleaccounting.services.security.InsufficientUserType
 import io.orangebuffalo.accounting.simpleaccounting.verifyNotFound
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 
 private const val PATH_VALIDATION_EXCEPTION = "/api/auth/api-controller-advice-test-validation"
 private const val PATH_ENTITY_NOT_FOUND_EXCEPTION = "/api/auth/api-controller-advice-test-not-found"
+private const val PATH_INSUFFICIENT_USER_TYPE_EXCEPTION = "/api/auth/api-controller-advice-test-insufficient-user-type"
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -40,6 +42,13 @@ internal class RestApiControllerAdviceIT(
             .verifyNotFound("Space Bees not found")
     }
 
+    @Test
+    fun `should return 400 when InsufficientUserType is thrown`() {
+        client.get().uri(PATH_INSUFFICIENT_USER_TYPE_EXCEPTION)
+            .exchange()
+            .expectStatus().isBadRequest
+    }
+
     @TestConfiguration
     class TestConfig {
         @Bean
@@ -56,6 +65,11 @@ internal class RestApiControllerAdviceIT(
         @GetMapping(PATH_ENTITY_NOT_FOUND_EXCEPTION)
         fun testEntityNotFoundException(): String {
             throw EntityNotFoundException("Space Bees not found")
+        }
+
+        @GetMapping(PATH_INSUFFICIENT_USER_TYPE_EXCEPTION)
+        fun testInsufficientUserTypeException(): String {
+            throw InsufficientUserType()
         }
     }
 }

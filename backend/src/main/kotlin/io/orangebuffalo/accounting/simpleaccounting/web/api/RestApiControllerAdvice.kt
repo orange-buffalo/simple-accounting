@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import io.orangebuffalo.accounting.simpleaccounting.services.business.InvalidWorkspaceAccessTokenException
+import io.orangebuffalo.accounting.simpleaccounting.services.security.InsufficientUserType
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -100,6 +101,17 @@ class RestApiControllerAdvice {
             ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(exception.message)
+        )
+    }
+
+    @ExceptionHandler
+    fun onException(exception: InsufficientUserType): Mono<ResponseEntity<String>> {
+        logger.trace { exception }
+
+        return Mono.just(
+            ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .build()
         )
     }
 }

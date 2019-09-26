@@ -163,6 +163,83 @@ internal class WorkspaceServiceIT(
         assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_ONLY)
     }
 
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "valid")
+    @Test
+    fun `should not provide admin access to workspace for transient user with valid token`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.ADMIN)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "expired")
+    @Test
+    fun `should not provide admin access to workspace for transient user with expired token`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.ADMIN)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "revoked")
+    @Test
+    fun `should not provide admin access to workspace for transient user with revoked token`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.ADMIN)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "validForFarnsworth")
+    @Test
+    fun `should not provide admin access to workspace for transient user with valid token for other workspace`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.ADMIN)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "valid")
+    @Test
+    fun `should not provide read-write access to workspace for transient user with valid token`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_WRITE)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "expired")
+    @Test
+    fun `should not provide read-write access to workspace for transient user with expired token`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_WRITE)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "revoked")
+    @Test
+    fun `should not provide read-write access to workspace for transient user with revoked token`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_WRITE)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "validForFarnsworth")
+    @Test
+    fun `should not provide read-write access to workspace for transient user with valid token for other workspace`(
+        testData: WorkspaceServiceTestData
+    ) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_WRITE)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "valid")
+    @Test
+    fun `should provide read-only access to workspace for transient user with valid token`(testData: WorkspaceServiceTestData) {
+        assertSuccessfulGetAccessibleWorkspace(testData, WorkspaceAccessMode.READ_ONLY)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "expired")
+    @Test
+    fun `should not provide read-only access to workspace for transient user with expired token`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_ONLY)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "revoked")
+    @Test
+    fun `should not provide read-only access to workspace for transient user with revoked token`(testData: WorkspaceServiceTestData) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_ONLY)
+    }
+
+    @WithSaMockUser(transient = true, workspaceAccessToken = "validForFarnsworth")
+    @Test
+    fun `should not provide read-only access to workspace for transient user with valid token for other workspace`(
+        testData: WorkspaceServiceTestData
+    ) {
+        assertThatGetAccessibleWorkspaceFailed(testData, WorkspaceAccessMode.READ_ONLY)
+    }
+
     private fun assertThatGetAccessibleWorkspaceFailed(
         testData: WorkspaceServiceTestData,
         mode: WorkspaceAccessMode
@@ -214,28 +291,36 @@ internal class WorkspaceServiceIT(
         val roberto = Prototypes.roberto()
         val mafiaBot = Prototypes.mafiaBot()
         val fryWorkspace = Prototypes.workspace(owner = fry)
+        val farnsworthWorkspace = Prototypes.workspace(owner = farnsworth)
         val validTokenForFryWorkspace = Prototypes.workspaceAccessToken(
             workspace = fryWorkspace,
             token = "valid",
             validTill = MOCK_TIME.plus(Duration.ofDays(100)),
             revoked = false
         )
+        val validTokenForFarnsworthWorkspace = Prototypes.workspaceAccessToken(
+            workspace = farnsworthWorkspace,
+            token = "validForFarnsworth",
+            validTill = MOCK_TIME.plus(Duration.ofDays(100)),
+            revoked = false
+        )
         val expiredTokenForFryWorkspace = Prototypes.workspaceAccessToken(
             workspace = fryWorkspace,
-            token = "valid",
+            token = "expired",
             validTill = MOCK_TIME.minusMillis(1),
             revoked = false
         )
         val revokedTokenForFryWorkspace = Prototypes.workspaceAccessToken(
             workspace = fryWorkspace,
-            token = "valid",
+            token = "revoked",
             validTill = MOCK_TIME.plus(Duration.ofDays(100)),
             revoked = true
         )
 
         override fun generateData() = listOf(
             fry, farnsworth, zoidberg, roberto, mafiaBot,
-            fryWorkspace,
+            fryWorkspace, farnsworthWorkspace,
+            validTokenForFarnsworthWorkspace,
             validTokenForFryWorkspace,
             SavedWorkspaceAccessToken(owner = farnsworth, workspaceAccessToken = validTokenForFryWorkspace),
             expiredTokenForFryWorkspace,

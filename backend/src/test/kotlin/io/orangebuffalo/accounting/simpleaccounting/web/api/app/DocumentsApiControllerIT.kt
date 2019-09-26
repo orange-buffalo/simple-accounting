@@ -30,7 +30,6 @@ import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.util.InMemoryResource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -122,7 +121,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(username = "Fry")
+    @WithMockFryUser
     fun `should GET document content`(testData: DocumentsApiTestData) {
         runBlocking {
             whenever(testDocumentsStorage.mock.getDocumentContent(testData.fryWorkspace, "test-location"))
@@ -199,7 +198,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(username = "Fry")
+    @WithMockFryUser
     fun `should upload a new file and invoke documents storage`(testData: DocumentsApiTestData) {
         mockDocumentsStorage(testData)
 
@@ -229,7 +228,7 @@ class DocumentsApiControllerIT(
     }
 
     @Test
-    @WithMockUser(username = "Fry")
+    @WithMockFryUser
     fun `should filter documents by ids`(testData: DocumentsApiTestData) {
         client.get()
             .uri { builder ->

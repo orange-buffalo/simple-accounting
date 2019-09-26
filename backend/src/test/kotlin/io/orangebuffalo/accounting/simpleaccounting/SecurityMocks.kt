@@ -1,6 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting
 
 import io.orangebuffalo.accounting.simpleaccounting.services.security.createRegularUserPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.security.createTransientUserPrincipal
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
@@ -11,7 +12,9 @@ import org.springframework.security.test.context.support.WithSecurityContextFact
 @WithSecurityContext(factory = SaMockSecurityContextFactory::class)
 annotation class WithSaMockUser(
     val userName: String = "",
-    val roles: Array<String> = []
+    val roles: Array<String> = [],
+    val transient: Boolean = false,
+    val workspaceAccessToken: String = ""
 )
 
 @Retention(AnnotationRetention.RUNTIME)
@@ -37,7 +40,11 @@ annotation class WithMockMafiaBotUser
 class SaMockSecurityContextFactory : WithSecurityContextFactory<WithSaMockUser> {
     override fun createSecurityContext(withSaMockUser: WithSaMockUser): SecurityContext {
         val context = SecurityContextHolder.createEmptyContext()
-        val principal = createRegularUserPrincipal(withSaMockUser.userName, "", withSaMockUser.roles.asList())
+        val principal = if (withSaMockUser.transient) {
+            createTransientUserPrincipal(withSaMockUser.workspaceAccessToken)
+        } else {
+            createRegularUserPrincipal(withSaMockUser.userName, "", withSaMockUser.roles.asList())
+        }
         context.authentication = UsernamePasswordAuthenticationToken(principal, "", principal.authorities)
         return context
     }

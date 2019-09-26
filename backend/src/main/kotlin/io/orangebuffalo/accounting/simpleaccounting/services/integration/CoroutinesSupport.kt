@@ -1,21 +1,24 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.integration
 
+import io.orangebuffalo.accounting.simpleaccounting.services.security.InsufficientUserType
+import io.orangebuffalo.accounting.simpleaccounting.services.security.SecurityPrincipal
 import kotlinx.coroutines.*
 import kotlinx.coroutines.reactor.mono
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.userdetails.UserDetails
 import reactor.core.publisher.Mono
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
-fun CoroutineScope.getCurrentPrincipal(): UserDetails {
+fun CoroutineScope.ensureRegularUserPrincipal(): SecurityPrincipal = getCurrentPrincipal()
+    .apply { if (isTransient) throw InsufficientUserType() }
+
+fun CoroutineScope.getCurrentPrincipal(): SecurityPrincipal {
     return coroutineContext.getPrincipal()
 }
 
-// todo #70: add user id to gwt token and user details so we do not need to load it from database for simple cases
-fun CoroutineContext.getPrincipal(): UserDetails {
+fun CoroutineContext.getPrincipal(): SecurityPrincipal {
     val authentication = this.getAuthentication()
-    return authentication.principal as UserDetails
+    return authentication.principal as SecurityPrincipal
 }
 
 data class CoroutineAuthentication(
@@ -32,10 +35,6 @@ fun CoroutineContext.getAuthentication(): Authentication {
 fun CoroutineContext.getAuthenticationOrNull(): Authentication? {
     val coroutineAuthentication = this[CoroutineAuthentication]
     return coroutineAuthentication?.authentication
-}
-
-fun CoroutineScope.getAuthentication(): Authentication {
-    return coroutineContext.getAuthentication()
 }
 
 private val dbContext = newFixedThreadPoolContext(10, "db-context")

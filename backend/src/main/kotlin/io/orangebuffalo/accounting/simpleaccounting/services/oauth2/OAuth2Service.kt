@@ -3,8 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.services.oauth2
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.awaitMonoOrNull
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.getCurrentPrincipal
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.getPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.ensureRegularUserPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizationRequest
@@ -12,6 +11,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.oauth2.Oauth2AuthorizationRequestRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepository
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
@@ -33,8 +33,6 @@ import java.security.SecureRandom
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.function.Consumer
-import kotlin.coroutines.coroutineContext
 
 private const val TOKEN_LENGTH = 20
 
@@ -189,8 +187,9 @@ class OAuth2Service(
         )
     }
 
-    suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String): OAuth2AuthorizedClient? =
-        getOAuth2AuthorizedClient(clientRegistrationId, coroutineContext.getPrincipal().username)
+    suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String): OAuth2AuthorizedClient? = coroutineScope {
+        getOAuth2AuthorizedClient(clientRegistrationId, ensureRegularUserPrincipal().userName)
+    }
 
     suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String, userName: String): OAuth2AuthorizedClient? {
         return clientService
@@ -216,19 +215,9 @@ class OAuth2Service(
         .baseUrl(baseUrl)
         .build()
 
-    suspend fun setupWebClientAuthorizationAttributes(clientRegistrationId: String): Consumer<Map<String, Any>> {
-        val authorizedClient = getOAuth2AuthorizedClient(clientRegistrationId)
-        return if (authorizedClient != null) {
-            ServerOAuth2AuthorizedClientExchangeFilterFunction
-                .oauth2AuthorizedClient(authorizedClient)
-        } else {
-            Consumer { }
-        }
-    }
-
     suspend fun deleteAuthorizedClient(clientRegistrationId: String) = withDbContext {
         persistentAuthorizedClientRepository.deleteByClientRegistrationIdAndUserName(
-            clientRegistrationId, getCurrentPrincipal().username
+            clientRegistrationId, ensureRegularUserPrincipal().userName
         )
     }
 }

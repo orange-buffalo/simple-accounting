@@ -15,7 +15,7 @@ interface SecurityPrincipal {
      * Returns current user username for regular user. For transient users, returns token they have logged in with.
      * @see isTransient
      */
-    val userName: String?
+    val userName: String
 
     /**
      * If transient, no [io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser]
@@ -60,7 +60,7 @@ fun PlatformUser.toSecurityPrincipal(): SpringSecurityPrincipal = createRegularU
 )
 
 private class SecurityPrincipalImpl(
-    override val userName: String?,
+    override val userName: String,
     password: String?,
     authorities: Collection<GrantedAuthority>?,
     override val isTransient: Boolean
@@ -74,3 +74,5 @@ private class SecurityPrincipalImpl(
         ?.toList()
         ?: emptyList()
 }
+
+class InsufficientUserType : RuntimeException()
