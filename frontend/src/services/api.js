@@ -32,10 +32,12 @@ let scheduleTokenRefresh = function () {
   refreshTokenTimer = setTimeout(refreshToken, timeout)
 }
 
-let refreshToken = function () {
-  _api.tryAutoLogin()
-      .then(scheduleTokenRefresh)
-      .catch(() => EventBus.dispatch(LOGIN_REQUIRED_EVENT))
+let refreshToken = async function () {
+  if (await _api.tryAutoLogin()) {
+    scheduleTokenRefresh()
+  } else {
+    EventBus.dispatch(LOGIN_REQUIRED_EVENT)
+  }
 }
 
 _api.createCancelToken = function () {
@@ -73,32 +75,58 @@ _api.interceptors.request.use(
     error => Promise.reject(error)
 )
 
-_api.tryAutoLogin = function () {
+_api.tryAutoLogin = async function () {
   cancelTokenRefresh()
-  return _api
-      .post('/auth/token', {}, {
-        withCredentials: true
-      })
-      .then(response => {
-        $store.commit('api/updateJwtToken', response.data.token)
-        scheduleTokenRefresh()
-      })
+
+  try {
+    let response = await _api.post('/auth/token', {}, {
+      withCredentials: true
+    })
+
+    $store.commit('api/updateJwtToken', response.data.token)
+    scheduleTokenRefresh()
+
+    return true
+
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      return false
+    } else {
+      throw error
+    }
+  }
+}
+
+_api.loginBySharedToken = async function (sharedToken) {
+  cancelTokenRefresh()
+
+  try {
+    let tokenLoginResponse = await api.post(`/auth/login?sharedWorkspaceToken=${sharedToken}`)
+
+    $store.commit('api/updateJwtToken', tokenLoginResponse.data.token)
+
+    return true
+
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      return false
+    } else {
+      throw error
+    }
+  }
 }
 
 _api.interceptors.response.use(
     response => Promise.resolve(response),
     async error => {
-      if (error.response && error.response.status === 401) {
-        try {
-          await _api.tryAutoLogin()
-        } catch (e) {
+      if (error.response && error.response.status === 401 && error.response.config.url !== '/api/auth/token') {
+        if (await _api.tryAutoLogin()) {
+          applyAuthorization(error.config)
+          error.config.baseURL = null
+          return axios.request(error.config)
+        } else {
           EventBus.dispatch(LOGIN_REQUIRED_EVENT)
-          return
         }
-
-        applyAuthorization(error.config)
-        error.config.baseURL = null
-        return axios.request(error.config)
 
       } else {
         return Promise.reject(error)

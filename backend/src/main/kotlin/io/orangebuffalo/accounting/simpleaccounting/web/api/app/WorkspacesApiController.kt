@@ -3,7 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.ensureRegularUserPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.integration.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import org.springframework.web.bind.annotation.*
@@ -22,9 +22,17 @@ class WorkspacesApiController(
 
     @GetMapping("workspaces")
     fun getWorkspaces(): Mono<List<WorkspaceDto>> = extensions.toMono {
-        workspaceService
-            .getUserWorkspaces(ensureRegularUserPrincipal().userName)
-            .map { mapWorkspaceDto(it) }
+        val currentPrincipal = getCurrentPrincipal()
+        if (currentPrincipal.isTransient) {
+            workspaceService
+                .getValidWorkspaceAccessToken(currentPrincipal.userName)
+                .workspace
+                .let { listOf(mapWorkspaceDto(it)) }
+        } else {
+            workspaceService
+                .getUserWorkspaces(currentPrincipal.userName)
+                .map { mapWorkspaceDto(it) }
+        }
     }
 
     @PostMapping("workspaces")

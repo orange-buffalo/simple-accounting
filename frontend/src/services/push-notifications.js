@@ -28,13 +28,13 @@ export const pushNotifications = {
           .forEach(it => it.callback(message.data))
     };
 
-    this._eventSource.onerror = event => {
+    this._eventSource.onerror = async event => {
       if (event.status && event.status === 401) {
         this._eventSource.close()
-        api.tryAutoLogin().then(() => {
+        if (await api.tryAutoLogin()) {
           jwtToken = $store.state.api.jwtToken
           this._init()
-        })
+        }
       } else if (this._eventSource.readyState === 2) {
         this._eventSource = null
       }

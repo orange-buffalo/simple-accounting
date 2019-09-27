@@ -44,7 +44,7 @@ class AuthenticationApiController(
         if (loginRequest.rememberMe) {
             response
                 .withRefreshTokenCookie(
-                    refreshTokenService.generateRefreshToken(principal.userName!!),
+                    refreshTokenService.generateRefreshToken(principal.userName),
                     Duration.ofDays(TOKEN_LIFETIME_IN_DAYS)
                 )
         }
@@ -63,6 +63,7 @@ class AuthenticationApiController(
         TokenResponse(jwtToken)
     }
 
+    // todo #111: should preserve exp for transient user and not prolongate the token
     @PostMapping("token")
     fun refreshToken(
         @CookieValue("refreshToken", required = false) refreshToken: String?,

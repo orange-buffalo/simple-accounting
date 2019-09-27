@@ -21,11 +21,10 @@ router.beforeEach(async (to, from, next) => {
       && to.name !== 'logout'
       && to.name !== 'login-by-link'
       && !store.getters['api/isLoggedIn']) {
-    try {
-      await api.tryAutoLogin()
+    if (await api.tryAutoLogin()) {
       await setupApp(store, router)
       next()
-    } catch (e) {
+    } else {
       store.commit('app/setLastView', to.name)
       next({name: 'login'})
     }

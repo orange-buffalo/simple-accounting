@@ -73,6 +73,29 @@ internal class WorkspacesApiControllerIT(
     }
 
     @Test
+    @WithSaMockUser(transient = true, workspaceAccessToken = "validFryWorkspaceToken")
+    fun `should return shared workspace for transient user on GET workspaces`(testData: WorkspacesApiTestData) {
+        mockCurrentTime(timeService)
+
+        client.get()
+            .uri("/api/workspaces")
+            .verifyOkAndJsonBody {
+                inPath("$").isArray.containsExactly(
+                    json(
+                        """{
+                            name: "Property of Philip J. Fry",
+                            id: ${testData.fryWorkspace.id},
+                            version: 0,
+                            taxEnabled: false,
+                            multiCurrencyEnabled: false,
+                            defaultCurrency: "USD"
+                        }"""
+                    )
+                )
+            }
+    }
+
+    @Test
     fun `should allow POST access only for logged in users`() {
         client.post()
             .uri("/api/workspaces")
@@ -287,19 +310,19 @@ internal class WorkspacesApiControllerIT(
         val fryWorkspaceAccessToken = Prototypes.workspaceAccessToken(
             workspace = fryWorkspace,
             validTill = MOCK_TIME.plus(Duration.ofDays(1000)),
-            token = "token1"
+            token = "validFryWorkspaceToken"
         )
 
         val fryWorkspaceAccessTokenExpired = Prototypes.workspaceAccessToken(
             workspace = fryWorkspace,
             validTill = MOCK_TIME.minusMillis(1),
-            token = "token2"
+            token = "expiredFryWorkspaceToken"
         )
 
         val farnsworthWorkspaceAccessToken = Prototypes.workspaceAccessToken(
             workspace = farnsworthWorkspace,
             validTill = MOCK_TIME.plus(Duration.ofDays(1000)),
-            token = "token3"
+            token = "validFarnsworthWorkspaceToken"
         )
 
         val farnsworthWorkspaceSavedForFry = SavedWorkspaceAccessToken(
@@ -310,7 +333,7 @@ internal class WorkspacesApiControllerIT(
         val farnsworthWorkspaceAccessTokenExpired = Prototypes.workspaceAccessToken(
             workspace = farnsworthWorkspace,
             validTill = MOCK_TIME.minusMillis(1),
-            token = "token4"
+            token = "expiredFarnsworthWorkspaceToken"
         )
 
         val farnsworthWorkspaceSavedForFryExpired = SavedWorkspaceAccessToken(

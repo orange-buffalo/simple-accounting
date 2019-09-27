@@ -19,23 +19,26 @@
         this.$route.push('/')
       } else {
         try {
-          await api.tryAutoLogin()
+          if (await api.tryAutoLogin()) {
+            let sharedWorkspaceResponse = await api.post('/shared-workspaces', {
+              token: this.token
+            })
+            let workspace = sharedWorkspaceResponse.data
 
-          let sharedWorkspaceResponse = await api.post('/shared-workspaces', {
-            token: this.token
-          })
-          let sharedWorkspace = sharedWorkspaceResponse.data
+            // todo #90: do not commit directly, use wrapper action
+            this.$store.commit('workspaces/setCurrentWorkspace', workspace)
 
-          // todo #90: do not commit directly, use wrapper action
-          this.$store.commit('workspaces/setCurrentWorkspace', sharedWorkspace)
+            await setupApp(this.$store)
+            await this.$router.push('/')
 
-          await setupApp(this.$store)
-
-          await this.$router.push('/')
-
+          } else if (await api.loginBySharedToken(this.token)) {
+            await setupApp(this.$store)
+            await this.$router.push('/')
+          } else {
+            // todo #117 set login error and update ui accordingly
+          }
         } catch (e) {
-          // todo #111: for not logged in user, get access token using shared workspace token, via token-by-shared-workspace
-          // todo #111: handle expiration, revocation, invalid token cases
+          // todo #117: handle communication exception and update ui accordingly
           console.log('error', e)
         }
       }

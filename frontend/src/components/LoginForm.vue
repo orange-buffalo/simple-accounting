@@ -50,11 +50,8 @@
     },
 
     created: async function () {
-      try {
-        await api.tryAutoLogin()
+      if (await api.tryAutoLogin()) {
         this.$emit('login')
-      } catch (e) {
-        // no opt, continue with the form login
       }
     },
 
