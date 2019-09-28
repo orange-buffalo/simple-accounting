@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessTokenService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QWorkspaceAccessToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
@@ -20,7 +21,8 @@ import javax.validation.Valid
 @RequestMapping("/api/workspaces/{workspaceId}/workspace-access-tokens")
 class WorkspaceAccessTokensApiController(
     private val extensions: ApiControllersExtensions,
-    private val accessTokenService: WorkspaceAccessTokenService
+    private val accessTokenService: WorkspaceAccessTokenService,
+    private val workspaceService: WorkspaceService
 ) {
 
     @GetMapping
@@ -29,7 +31,7 @@ class WorkspaceAccessTokensApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<WorkspaceAccessToken>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
         accessTokenService.getAccessTokens(workspace, pageRequest.page, pageRequest.predicate)
     }
 
@@ -38,7 +40,7 @@ class WorkspaceAccessTokensApiController(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid createTokenRequest: CreateWorkspaceAccessTokenDto
     ): Mono<WorkspaceAccessTokenDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
         mapToDto(accessTokenService.createAccessToken(workspace, createTokenRequest.validTill))
     }
 }

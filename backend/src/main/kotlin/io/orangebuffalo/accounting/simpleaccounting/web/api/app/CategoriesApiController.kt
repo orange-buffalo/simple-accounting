@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.CategoryService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QCategory
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
@@ -20,7 +21,8 @@ import javax.validation.constraints.NotNull
 @RequestMapping("/api/workspaces/{workspaceId}/categories")
 class CategoriesApiController(
     private val categoryService: CategoryService,
-    private val extensions: ApiControllersExtensions
+    private val extensions: ApiControllersExtensions,
+    private val workspaceService: WorkspaceService
 ) {
 
     @GetMapping
@@ -29,7 +31,7 @@ class CategoriesApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Category>> = extensions.toMono {
-        extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
             .let { workspace ->
                 categoryService.getCategories(workspace, pageRequest.page, pageRequest.predicate)
             }
@@ -40,7 +42,7 @@ class CategoriesApiController(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid createCategoryRequest: CreateCategoryDto
     ): Mono<CategoryDto> = extensions.toMono {
-        extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
             .let { workspace ->
                 categoryService.createCategory(
                     Category(

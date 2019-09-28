@@ -5,6 +5,7 @@ import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
@@ -26,7 +27,8 @@ import javax.validation.constraints.Size
 class ExpensesApiController(
     private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,
-    private val timeService: TimeService
+    private val timeService: TimeService,
+    private val workspaceService: WorkspaceService
 ) {
 
     @PostMapping
@@ -35,7 +37,7 @@ class ExpensesApiController(
         @RequestBody @Valid request: EditExpenseDto
     ): Mono<ExpenseDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         val tax = extensions.getValidTax(request.tax, workspace)
 
@@ -65,7 +67,7 @@ class ExpensesApiController(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
     ): Mono<Page<Expense>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         expenseService.getExpenses(workspace, pageRequest.page, pageRequest.predicate)
     }
 
@@ -74,7 +76,7 @@ class ExpensesApiController(
         @PathVariable workspaceId: Long,
         @PathVariable expenseId: Long
     ): Mono<ExpenseDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
             ?: throw EntityNotFoundException("Expense $expenseId is not found")
         mapExpenseDto(expense)
@@ -87,7 +89,7 @@ class ExpensesApiController(
         @RequestBody @Valid request: EditExpenseDto
     ): Mono<ExpenseDto> = extensions.toMono {
 
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
         val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)

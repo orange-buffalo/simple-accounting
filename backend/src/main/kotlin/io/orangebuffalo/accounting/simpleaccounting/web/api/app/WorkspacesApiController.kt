@@ -55,7 +55,7 @@ class WorkspacesApiController(
         @RequestBody @Valid editWorkspaceRequest: EditWorkspaceDto,
         @PathVariable workspaceId: Long
     ): Mono<WorkspaceDto> = extensions.toMono {
-        extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
+        workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
             .apply {
                 name = editWorkspaceRequest.name
             }

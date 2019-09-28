@@ -2,6 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxReportingService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedTaxSummaryItem
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingTaxSummaryItem
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
@@ -14,7 +15,8 @@ import java.time.LocalDate
 @RequestMapping("/api/workspaces/{workspaceId}/reporting/")
 class ReportingApiController(
     private val taxReportingService: TaxReportingService,
-    private val extensions: ApiControllersExtensions
+    private val extensions: ApiControllersExtensions,
+    private val workspaceService: WorkspaceService
 ) {
 
     @GetMapping("taxes")
@@ -23,7 +25,7 @@ class ReportingApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): Mono<TaxReportDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val report = taxReportingService.getTaxReport(fromDate, toDate, workspace)
         TaxReportDto(
             finalizedCollectedTaxes = report.finalizedCollectedTaxes.map(::convertFinalizedTaxItem),

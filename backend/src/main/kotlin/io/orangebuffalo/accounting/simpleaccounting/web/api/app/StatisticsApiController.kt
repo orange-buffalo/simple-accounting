@@ -1,9 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.IncomeService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxPaymentService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.accounting.simpleaccounting.services.business.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import org.springframework.format.annotation.DateTimeFormat
@@ -17,7 +14,8 @@ class StatisticsApiController(
     private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,
     private val incomeService: IncomeService,
-    private val taxPaymentService: TaxPaymentService
+    private val taxPaymentService: TaxPaymentService,
+    private val workspaceService: WorkspaceService
 ) {
 
     @GetMapping("expenses")
@@ -26,7 +24,7 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): Mono<ExpensesStatisticsDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspace)
         ExpensesStatisticsDto(
             expensesStatistics.map {
@@ -46,7 +44,7 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): Mono<IncomesStatisticsDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val incomesStatistics = incomeService.getIncomesStatistics(fromDate, toDate, workspace)
         IncomesStatisticsDto(
             incomesStatistics.map {
@@ -67,14 +65,14 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): Mono<TaxPaymentsStatisticsDto> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val taxPaymentsStatistics = taxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspace)
         TaxPaymentsStatisticsDto(taxPaymentsStatistics.totalTaxPayments)
     }
 
     @GetMapping("currencies-shortlist")
     fun getCurrenciesShortlist(@PathVariable workspaceId: Long): Mono<List<String>> = extensions.toMono {
-        val workspace = extensions.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expensesCurrencies = expenseService.getCurrenciesUsageStatistics(workspace)
         val incomesCurrencies = incomeService.getCurrenciesUsageStatistics(workspace)
         (expensesCurrencies + incomesCurrencies).asSequence()
