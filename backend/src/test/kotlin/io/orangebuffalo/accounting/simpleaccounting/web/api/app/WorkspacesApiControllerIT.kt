@@ -55,7 +55,8 @@ internal class WorkspacesApiControllerIT(
                             version: 0,
                             taxEnabled: false,
                             multiCurrencyEnabled: false,
-                            defaultCurrency: "USD"
+                            defaultCurrency: "USD",
+                            editable: true
                         }"""
                     )
                 )
@@ -88,7 +89,8 @@ internal class WorkspacesApiControllerIT(
                             version: 0,
                             taxEnabled: false,
                             multiCurrencyEnabled: false,
-                            defaultCurrency: "USD"
+                            defaultCurrency: "USD",
+                            editable: false
                         }"""
                     )
                 )
@@ -126,7 +128,8 @@ internal class WorkspacesApiControllerIT(
                         version: 0,
                         taxEnabled: false,
                         multiCurrencyEnabled: true,
-                        defaultCurrency: "GPB"
+                        defaultCurrency: "GPB",
+                        editable: true
                     }"""
                     )
                 )
@@ -168,7 +171,8 @@ internal class WorkspacesApiControllerIT(
                         version: 1,
                         taxEnabled: false,
                         multiCurrencyEnabled: false,
-                        defaultCurrency: "USD"
+                        defaultCurrency: "USD",
+                        editable: true
                     }"""
                     )
                 )
@@ -234,7 +238,8 @@ internal class WorkspacesApiControllerIT(
                             version: 0,
                             taxEnabled: false,
                             multiCurrencyEnabled: false,
-                            defaultCurrency: "USD"
+                            defaultCurrency: "USD",
+                            editable: false
                         }"""
                     )
                 )
@@ -262,7 +267,8 @@ internal class WorkspacesApiControllerIT(
                             version: 0,
                             taxEnabled: false,
                             multiCurrencyEnabled: false,
-                            defaultCurrency: "USD"
+                            defaultCurrency: "USD",
+                            editable: false
                         }"""
                     )
                 )

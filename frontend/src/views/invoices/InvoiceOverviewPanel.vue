@@ -3,7 +3,8 @@
     <div class="invoice-info">
       <div class="sa-item-title-panel">
         <h3>{{invoice.title}}</h3>
-        <span class="sa-item-edit-link">
+        <span class="sa-item-edit-link"
+              v-if="currentWorkspace.editable">
           <svgicon name="pencil"/>
           <el-button type="text"
                      @click="navigateToInvoiceEdit">Edit</el-button>
@@ -85,10 +86,10 @@
       <div class="invoice-status">
         {{status}}
       </div>
-      <div v-if="isDraft">
+      <div v-if="isDraft && currentWorkspace.editable">
         <el-button @click="markSent">Sent today</el-button>
       </div>
-      <div v-if="isSent || isOverdue">
+      <div v-if="(isSent || isOverdue) && currentWorkspace.editable">
         <span>Due on {{dueDate}}</span><br/>
         <el-button @click="markPaid">Paid today</el-button>
       </div>

@@ -3,7 +3,8 @@
     <div class="income-info">
       <div class="sa-item-title-panel">
         <h3>{{income.title}}</h3>
-        <span class="sa-item-edit-link">
+        <span class="sa-item-edit-link"
+              v-if="currentWorkspace.editable">
           <svgicon name="pencil"/>
           <el-button type="text"
                      @click="navigateToIncomeEdit">Edit</el-button>

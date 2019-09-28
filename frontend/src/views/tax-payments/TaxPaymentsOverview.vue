@@ -9,7 +9,8 @@
         </div>
 
         <el-button round
-                   @click="navigateToCreateTaxPaymentView">
+                   @click="navigateToCreateTaxPaymentView"
+                   :disabled="!currentWorkspace.editable">
           <svgicon name="plus-thin"/>
           Add new
         </el-button>

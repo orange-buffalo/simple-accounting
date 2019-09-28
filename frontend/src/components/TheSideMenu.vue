@@ -18,10 +18,24 @@
       <template v-if="isCurrentUserRegular">
         <span class="the-side-menu__category">Settings</span>
 
-        <the-side-menu-link to="/settings/customers" title="Customers" icon="customer"/>
-        <the-side-menu-link to="/settings/categories" title="Categories" icon="category"/>
-        <the-side-menu-link to="/settings/taxes" title="Taxes" icon="tax"/>
-        <the-side-menu-link to="/settings/workspaces" title="Workspaces" icon="workspaces"/>
+        <the-side-menu-link to="/settings/customers"
+                            title="Customers"
+                            icon="customer"
+                            v-if="currentWorkspace.editable"/>
+
+        <the-side-menu-link to="/settings/categories"
+                            title="Categories"
+                            icon="category"
+                            v-if="currentWorkspace.editable"/>
+
+        <the-side-menu-link to="/settings/taxes"
+                            title="Taxes"
+                            icon="tax"
+                            v-if="currentWorkspace.editable"/>
+
+        <the-side-menu-link to="/settings/workspaces"
+                            title="Workspaces"
+                            icon="workspaces"/>
       </template>
 
     </template>

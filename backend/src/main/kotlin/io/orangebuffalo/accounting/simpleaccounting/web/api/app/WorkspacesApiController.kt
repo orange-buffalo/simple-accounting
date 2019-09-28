@@ -27,11 +27,11 @@ class WorkspacesApiController(
             workspaceService
                 .getValidWorkspaceAccessToken(currentPrincipal.userName)
                 .workspace
-                .let { listOf(mapWorkspaceDto(it)) }
+                .let { listOf(mapWorkspaceDto(it, false)) }
         } else {
             workspaceService
                 .getUserWorkspaces(currentPrincipal.userName)
-                .map { mapWorkspaceDto(it) }
+                .map { mapWorkspaceDto(it, true) }
         }
     }
 
@@ -47,7 +47,7 @@ class WorkspacesApiController(
                 defaultCurrency = createWorkspaceRequest.defaultCurrency,
                 owner = platformUserService.getCurrentUser()
             )
-        ).let { mapWorkspaceDto(it) }
+        ).let { mapWorkspaceDto(it, true) }
     }
 
     @PutMapping("workspaces/{workspaceId}")
@@ -60,18 +60,18 @@ class WorkspacesApiController(
                 name = editWorkspaceRequest.name
             }
             .let { workspaceService.save(it) }
-            .let { mapWorkspaceDto(it) }
+            .let { mapWorkspaceDto(it, true) }
     }
 
     @GetMapping("shared-workspaces")
     fun getSharedWorkspaces(): Mono<List<WorkspaceDto>> = extensions.toMono {
-        workspaceService.getSharedWorkspaces().map { mapWorkspaceDto(it) }
+        workspaceService.getSharedWorkspaces().map { mapWorkspaceDto(it, false) }
     }
 
     @PostMapping("shared-workspaces")
     fun saveSharedWorkspace(@Valid @RequestBody request: SaveSharedWorkspaceRequestDto): Mono<WorkspaceDto> =
         extensions.toMono {
-            mapWorkspaceDto(workspaceService.saveSharedWorkspace(request.token))
+            mapWorkspaceDto(workspaceService.saveSharedWorkspace(request.token), false)
         }
 }
 
@@ -81,7 +81,8 @@ data class WorkspaceDto(
     var name: String,
     var taxEnabled: Boolean,
     var multiCurrencyEnabled: Boolean,
-    var defaultCurrency: String
+    var defaultCurrency: String,
+    var editable: Boolean
 )
 
 data class CreateWorkspaceDto(
@@ -100,11 +101,12 @@ data class SaveSharedWorkspaceRequestDto(
     @field:NotBlank val token: String
 )
 
-private fun mapWorkspaceDto(source: Workspace): WorkspaceDto = WorkspaceDto(
+private fun mapWorkspaceDto(source: Workspace, editable: Boolean): WorkspaceDto = WorkspaceDto(
     name = source.name,
     id = source.id,
     version = source.version,
     taxEnabled = source.taxEnabled,
     multiCurrencyEnabled = source.multiCurrencyEnabled,
-    defaultCurrency = source.defaultCurrency
+    defaultCurrency = source.defaultCurrency,
+    editable = editable
 )

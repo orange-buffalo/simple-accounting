@@ -18,7 +18,8 @@
         </div>
 
         <el-button round
-                   @click="navigateToCreateExpenseView">
+                   @click="navigateToCreateExpenseView"
+                   :disabled="!currentWorkspace.editable">
           <svgicon name="plus-thin"/>
           Add new
         </el-button>
