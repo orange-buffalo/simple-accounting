@@ -5,7 +5,8 @@ let _apiStore = {
 
   state: {
     jwtToken: null,
-    isAdmin: false
+    isAdmin: false,
+    isTransient: false
   },
 
   mutations: {
@@ -15,6 +16,7 @@ let _apiStore = {
       if (token) {
         let decodedToken = jwtDecode(token)
         state.isAdmin = decodedToken.roles && decodedToken.roles.indexOf("ADMIN") >= 0
+        state.isTransient = decodedToken.transient
       }
     }
   },

@@ -15,18 +15,23 @@
       <the-side-menu-link to="/tax-payments" title="Tax payments" icon="tax"/>
       <the-side-menu-link to="/reporting" title="Reporting" icon="reporting"/>
 
-      <span class="the-side-menu__category">Settings</span>
+      <template v-if="isCurrentUserRegular">
+        <span class="the-side-menu__category">Settings</span>
 
-      <the-side-menu-link to="/settings/customers" title="Customers" icon="customer"/>
-      <the-side-menu-link to="/settings/categories" title="Categories" icon="category"/>
-      <the-side-menu-link to="/settings/taxes" title="Taxes" icon="tax"/>
-      <the-side-menu-link to="/settings/workspaces" title="Workspaces" icon="workspaces"/>
+        <the-side-menu-link to="/settings/customers" title="Customers" icon="customer"/>
+        <the-side-menu-link to="/settings/categories" title="Categories" icon="category"/>
+        <the-side-menu-link to="/settings/taxes" title="Taxes" icon="tax"/>
+        <the-side-menu-link to="/settings/workspaces" title="Workspaces" icon="workspaces"/>
+      </template>
 
     </template>
 
     <span class="the-side-menu__category">User</span>
 
-    <the-side-menu-link to="/my-profile" title="My Profile" icon="profile"/>
+    <the-side-menu-link to="/my-profile"
+                        title="My Profile"
+                        icon="profile"
+                        v-if="isCurrentUserRegular"/>
     <the-side-menu-link to="/logout" title="Logout" icon="logout"/>
   </el-aside>
 </template>
@@ -44,11 +49,12 @@
   import '@/components/icons/workspaces'
   import withWorkspaces from '@/components/mixins/with-workspaces'
   import {mapState} from 'vuex'
+  import withApi from '@/components/mixins/with-api'
 
   export default {
     name: 'TheSideMenu',
 
-    mixins: [withWorkspaces],
+    mixins: [withWorkspaces, withApi],
 
     computed: {
       ...mapState({
