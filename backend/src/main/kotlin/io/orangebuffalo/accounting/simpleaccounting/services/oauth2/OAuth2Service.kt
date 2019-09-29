@@ -11,7 +11,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entitie
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.oauth2.Oauth2AuthorizationRequestRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepository
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
@@ -185,10 +184,6 @@ class OAuth2Service(
                 clientRegistrationId = persistentAuthorizationRequest.clientRegistrationId
             )
         )
-    }
-
-    suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String): OAuth2AuthorizedClient? = coroutineScope {
-        getOAuth2AuthorizedClient(clientRegistrationId, ensureRegularUserPrincipal().userName)
     }
 
     suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String, userName: String): OAuth2AuthorizedClient? {

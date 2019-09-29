@@ -21,7 +21,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: AuthenticationException): Mono<ResponseEntity<Any>> {
-        logger.trace { "Authentication exception $exception" }
+        logger.trace(exception) {}
         return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build())
     }
 
@@ -51,7 +51,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: WebExchangeBindException): Mono<ResponseEntity<String>> {
-        logger.trace(exception) { "Bad request ${exception.message}" }
+        logger.trace(exception) {}
 
         val cause = exception.bindingResult.allErrors.joinToString { error ->
             if (error is FieldError) {
@@ -76,7 +76,8 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: ApiValidationException): Mono<ResponseEntity<String>> {
-        logger.trace(exception) { "Bad request: $exception" }
+        logger.trace(exception) {}
+
         return Mono.just(
             ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -86,6 +87,8 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: EntityNotFoundException): Mono<ResponseEntity<String>> {
+        logger.trace(exception) {}
+
         return Mono.just(
             ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -95,7 +98,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: InvalidWorkspaceAccessTokenException): Mono<ResponseEntity<String>> {
-        logger.trace { exception }
+        logger.trace(exception) {}
 
         return Mono.just(
             ResponseEntity
@@ -106,7 +109,7 @@ class RestApiControllerAdvice {
 
     @ExceptionHandler
     fun onException(exception: InsufficientUserType): Mono<ResponseEntity<String>> {
-        logger.trace { exception }
+        logger.trace(exception) {}
 
         return Mono.just(
             ResponseEntity
