@@ -20,6 +20,7 @@ create table tax_payment_attachments (tax_payment_id bigint not null, document_i
 create table tax_payment (id bigint not null, version integer not null, amount bigint not null, date_paid date not null, notes varchar(1024), reporting_date date not null, time_recorded timestamp not null, title varchar(255) not null, workspace_id bigint not null, primary key (id))
 create table workspace (id bigint not null, version integer not null, default_currency varchar(255) not null, multi_currency_enabled boolean not null, name varchar(255) not null, tax_enabled boolean not null, owner_id bigint not null, primary key (id))
 create table workspace_access_token (id bigint not null, version integer not null, revoked boolean not null, time_created timestamp not null, token varchar(255) not null, valid_till timestamp not null, workspace_id bigint not null, primary key (id))
+alter table workspace_access_token add constraint workspace_access_token_token_uq unique (token)
 alter table category add constraint category_workspace_fk foreign key (workspace_id) references workspace
 alter table customer add constraint customer_workspace_fk foreign key (workspace_id) references workspace
 alter table document add constraint document_workspace_fk foreign key (workspace_id) references workspace

@@ -4,6 +4,11 @@ import java.time.Instant
 import javax.persistence.*
 
 @Entity
+@Table(
+    uniqueConstraints = [
+        UniqueConstraint(name = "workspace_access_token_token_uq", columnNames = ["token"])
+    ]
+)
 class WorkspaceAccessToken(
 
     @field:ManyToOne(optional = false)
@@ -19,7 +24,6 @@ class WorkspaceAccessToken(
     @field:Column(nullable = false)
     val revoked: Boolean,
 
-    // todo #111: add unique constraint
     @field:Column(nullable = false)
     val token: String
 
