@@ -1,12 +1,9 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
 import com.nhaarman.mockito_kotlin.*
-import io.orangebuffalo.accounting.simpleaccounting.MOCK_TIME
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.WithMockFryUser
+import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.mockCurrentTime
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.createRegularUserPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
@@ -270,7 +267,7 @@ class AuthenticationApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return a JWT token when token endpoint is hit and user is authenticated`(
+    fun `should return a JWT token when token endpoint is hit and user is authenticated with regular user`(
         testData: AuthenticationApiTestData
     ) {
         runBlocking {
@@ -284,6 +281,29 @@ class AuthenticationApiControllerIT(
                 .expectStatus().isOk
                 .expectBody()
                 .jsonPath("$.token").isEqualTo("jwtTokenForFry")
+
+            verifyNoMoreInteractions(refreshTokenService)
+        }
+    }
+
+    @Test
+    @WithSaMockUser(transient = true, workspaceAccessToken = "validToken")
+    fun `should return a JWT token when token endpoint is hit and user is authenticated with transient user`(
+        testData: AuthenticationApiTestData
+    ) {
+        runBlocking {
+            mockCurrentTime(timeService)
+
+            whenever(jwtService.buildJwtToken(argThat {
+                userName == "validToken"
+            }, eq(testData.validAccessToken.validTill))) doReturn "jwtTokenForTransientUser"
+
+            client.post().uri(TOKEN_PATH)
+                .contentType(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk
+                .expectBody()
+                .jsonPath("$.token").isEqualTo("jwtTokenForTransientUser")
 
             verifyNoMoreInteractions(refreshTokenService)
         }

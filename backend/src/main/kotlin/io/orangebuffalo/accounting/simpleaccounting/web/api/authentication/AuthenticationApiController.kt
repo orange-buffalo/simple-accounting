@@ -63,7 +63,6 @@ class AuthenticationApiController(
         TokenResponse(jwtToken)
     }
 
-    // todo #111: should preserve exp for transient user and not prolongate the token
     @PostMapping("token")
     fun refreshToken(
         @CookieValue("refreshToken", required = false) refreshToken: String?,
@@ -80,7 +79,13 @@ class AuthenticationApiController(
         }
 
         val principal = authenticatedAuth.principal as SecurityPrincipal
-        TokenResponse(jwtService.buildJwtToken(principal))
+        if (principal.isTransient) {
+            val workspaceAccessToken = workspaceAccessTokenService.getValidToken(principal.userName)
+                ?: throw BadCredentialsException("Invalid workspace access token ${principal.userName}")
+            TokenResponse(jwtService.buildJwtToken(principal, workspaceAccessToken.validTill))
+        } else {
+            TokenResponse(jwtService.buildJwtToken(principal))
+        }
     }
 
     @PostMapping("logout")
