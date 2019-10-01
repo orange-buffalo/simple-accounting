@@ -69,4 +69,16 @@ internal class WebUiControllerIT(
             }
     }
 
+    @Test
+    fun `Should serve routed app page without authentication`() {
+        client.get().uri("/workspaces")
+            .accept(TEXT_HTML)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<String>()
+            .consumeWith {
+                assertThat(it.responseBody).isNotBlank()
+            }
+    }
+
 }

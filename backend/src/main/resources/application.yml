@@ -24,6 +24,9 @@ server:
   port: 9393
   compression:
     enabled: true
+  error:
+    whitelabel:
+      enabled: false
 
 simpleaccounting:
   documents:

@@ -11,14 +11,18 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.User
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
 
-private const val API_PATH = "/api/"
+private const val API_PATH = "/api"
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -58,11 +62,10 @@ class ApiAuthenticationIT(
             .password("token")
             .build()
 
-        client.post().uri(API_PATH)
+        client.get().uri("$API_PATH/users/test")
             .header("Authorization", "Bearer token")
-            .contentType(APPLICATION_JSON)
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus().isOk
     }
 
     @Test
@@ -73,10 +76,24 @@ class ApiAuthenticationIT(
             .password("token")
             .build()
 
-        client.post().uri(API_PATH)
+        client.get().uri("$API_PATH/non-admin-endpoint")
             .header("Authorization", "Bearer token")
-            .contentType(APPLICATION_JSON)
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus().isOk
+    }
+
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        fun testRestController(): ApiSecurityTestController = ApiSecurityTestController()
+    }
+
+    @RestController
+    class ApiSecurityTestController {
+        @GetMapping("$API_PATH/users/test")
+        fun adminEndpoint(): String = "hello test admin"
+
+        @GetMapping("$API_PATH/non-admin-endpoint")
+        fun regularUserEndpoint(): String = "hello test user"
     }
 }

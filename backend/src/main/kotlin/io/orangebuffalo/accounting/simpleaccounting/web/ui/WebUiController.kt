@@ -13,7 +13,7 @@ class WebUiController {
     @ResponseBody
     fun getRootPage(): ClassPathResource = getIndexPage()
 
-    @RequestMapping("/index.html", produces = [MediaType.TEXT_HTML_VALUE])
+    @RequestMapping("/{path}", produces = [MediaType.TEXT_HTML_VALUE])
     @ResponseBody
     fun getIndexPage(): ClassPathResource = ClassPathResource("META-INF/resources/index.html")
 }
