@@ -14,7 +14,7 @@ import org.springframework.test.web.reactive.server.expectBody
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
-internal class WebUiControllerIT(
+internal class WebUiConfigIT(
     @Autowired val client: WebTestClient
 ) {
 
@@ -81,4 +81,15 @@ internal class WebUiControllerIT(
             }
     }
 
+    @Test
+    fun `Should serve routed app page with nested path without authentication`() {
+        client.get().uri("/workspaces/42/edit")
+            .accept(TEXT_HTML)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<String>()
+            .consumeWith {
+                assertThat(it.responseBody).isNotBlank()
+            }
+    }
 }

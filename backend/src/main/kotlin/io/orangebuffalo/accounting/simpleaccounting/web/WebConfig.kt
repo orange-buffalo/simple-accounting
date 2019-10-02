@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import io.orangebuffalo.accounting.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequestResolver
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptorResolver
+import io.orangebuffalo.accounting.simpleaccounting.web.ui.SpaWebFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
@@ -115,4 +116,7 @@ class WebConfig(
             )
         }
     }
+
+    @Bean
+    fun spaWebFilter() = SpaWebFilter()
 }
