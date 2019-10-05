@@ -27,12 +27,21 @@ class Expense(
     @field:Column(nullable = false, length = 3)
     var currency: String,
 
+    /**
+     * Amount in original currency as stated in the receipt/invoice/etc.
+     */
     @field:Column(nullable = false)
     var originalAmount: Long,
 
+    /**
+     * Factual amount in default currency (i.e. from bank transaction in domestic currency).
+     */
     @field:Column(nullable = false)
     var amountInDefaultCurrency: Long,
 
+    /**
+     * Amount converted to default currency for taxation purposed (i.e. by using Tax Office exchange rate).
+     */
     @field:Column(nullable = false)
     var actualAmountInDefaultCurrency: Long,
 
@@ -58,6 +67,10 @@ class Expense(
     @field:Column
     var taxAmount: Long? = null,
 
+    /**
+     * Amount to be reported for taxation purposes. Takes into account applicable tax,
+     * partial business purpose of the expense and exchange rate used for conversion (if any).
+     */
     @field:Column(nullable = false)
     var reportedAmountInDefaultCurrency: Long,
 
@@ -67,12 +80,8 @@ class Expense(
 ) : AbstractEntity() {
 
     init {
-        if (category != null && category?.workspace != workspace) {
-            throw IllegalArgumentException("Category and workspace must match")
-        }
+        require(!(category != null && category?.workspace != workspace)) { "Category and workspace must match" }
 
-        if (tax != null && tax?.workspace != workspace) {
-            throw IllegalArgumentException("Tax and workspace must match")
-        }
+        require(!(tax != null && tax?.workspace != workspace)) { "Tax and workspace must match" }
     }
 }
