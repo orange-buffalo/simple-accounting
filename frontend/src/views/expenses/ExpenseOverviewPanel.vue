@@ -14,7 +14,7 @@
                                         icon="notes"
                                         tooltip="Additional notes provided"/>
 
-      <OverviewItemAttributePreviewIcon v-if="expense.tax && taxById(expense.tax).title"
+      <OverviewItemAttributePreviewIcon v-if="isTaxApplicable"
                                         tooltip="Tax applied"
                                         icon="tax"/>
 
@@ -135,9 +135,7 @@
                          :currency="currentWorkspace.defaultCurrency"
                          :amount="expense.amountInDefaultCurrency"/>
 
-            <span v-if="!expense.amountInDefaultCurrency">
-              Not yet available
-            </span>
+            <span v-else>Not yet available</span>
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute label="Using different exchange rate for taxation purposes?"
@@ -154,9 +152,7 @@
                          :currency="currentWorkspace.defaultCurrency"
                          :amount="expense.actualAmountInDefaultCurrency"/>
 
-            <span v-if="!expense.actualAmountInDefaultCurrency">
-              Not yet available
-            </span>
+            <span v-else>Not yet available</span>
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
@@ -226,13 +222,14 @@
     },
 
     props: {
-      expense: Object
+      expense: {
+        type: Object,
+        required: true
+      }
     },
 
     data: function () {
       return {
-        notesVisible: false,
-        attachmentsVisible: false,
         attachments: []
       }
     },

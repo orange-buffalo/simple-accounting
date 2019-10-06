@@ -1,93 +1,183 @@
 <template>
-  <div class="income-panel">
-    <div class="income-info">
-      <div class="sa-item-title-panel">
-        <h3>{{income.title}}</h3>
-        <span class="sa-item-edit-link"
-              v-if="currentWorkspace.editable">
-          <svgicon name="pencil"/>
-          <el-button type="text"
-                     @click="navigateToIncomeEdit">Edit</el-button>
-        </span>
-      </div>
+  <OverviewItem :title="income.title"
+                @details-shown="loadAttachments">
+    <template v-slot:primary-attributes>
+      <OverviewItemPrimaryAttribute v-if="dateReceived"
+                                    tooltip="Date received"
+                                    icon="calendar">
+        {{dateReceived}}
+      </OverviewItemPrimaryAttribute>
+    </template>
 
-      <div class="sa-item-attributes">
+    <template v-slot:attributes-preview>
+      <OverviewItemAttributePreviewIcon v-if="income.notes"
+                                        icon="notes"
+                                        tooltip="Additional notes provided"/>
 
-        <span class="sa-item-attribute">
-          <svgicon name="category"/>{{ categoryById(income.category).name }}
-        </span>
+      <OverviewItemAttributePreviewIcon v-if="isTaxApplicable"
+                                        tooltip="Tax applied"
+                                        icon="tax"/>
 
-        <span class="sa-item-attribute">
-          <svgicon name="calendar"/>{{dateReceived}}
-        </span>
+      <OverviewItemAttributePreviewIcon v-if="income.attachments.length"
+                                        tooltip="Attachments provided"
+                                        icon="attachment"/>
 
-        <span class="sa-item-attribute">
-          <svgicon name="banknote"/>
-          <money-output :currency="defaultCurrency"
-                        :amount="amountInDefaultCurrency"/>
+      <OverviewItemAttributePreviewIcon v-if="isForeignCurrency"
+                                        tooltip="In foreign currency"
+                                        icon="multi-currency"/>
 
-          <template v-if="isConverted">
-            <money-output :currency="income.currency"
-                          :amount="income.originalAmount"
-                          class="sa-secondary-text"/>
-          </template>
-        </span>
+      <OverviewItemAttributePreviewIcon v-if="income.linkedInvoice"
+                                        tooltip="Invoice associated"
+                                        icon="invoice"/>
+    </template>
 
-        <span class="sa-item-attribute"
-              v-if="income.linkedInvoice">
-          <svgicon name="invoice"/>
-          <span>{{income.linkedInvoice.title}}</span>
-        </span>
+    <template v-slot:middle-column>
+      <ElTooltip :content="fullStatusText"
+                 :disabled="status === 'success'"
+                 placement="bottom">
+        <SaStatusLabel :status="status">{{ shortStatusText }}</SaStatusLabel>
+      </ElTooltip>
+    </template>
 
-        <span class="sa-item-attribute"
-              v-if="income.tax && taxById(income.tax).title">
-          <svgicon name="tax"/>
-          <!-- todo #6: localize -->
-          <span>{{income.taxRateInBps / 100}}% {{taxById(income.tax).title}}</span>
-          <money-output v-if="income.taxAmount"
-                        class="sa-secondary-text"
-                        :currency="currentWorkspace.defaultCurrency"
-                        :amount="income.taxAmount"/>
-        </span>
+    <template v-slot:last-column>
+      <OverviewItemAmountPanel :currency="totalAmount.currency"
+                               :amount="totalAmount.value"/>
+    </template>
 
-        <span class="sa-item-attribute"
-              v-if="income.notes">
-          <svgicon name="notes"/>
-          <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
-        </span>
+    <template v-slot:details>
+      <OverviewItemDetailsSectionActions>
+        <SaActionLink icon="pencil" @click="navigateToIncomeEdit">
+          Edit
+        </SaActionLink>
+      </OverviewItemDetailsSectionActions>
 
-        <span class="sa-item-attribute"
-              v-if="income.attachments.length">
-          <svgicon name="attachment"/>
-          <span class="sa-clickable" @click="toggleAttachments()">Attachment provided</span>
-        </span>
-      </div>
+      <OverviewItemDetailsSection title="Summary">
+        <div class="row">
+          <OverviewItemDetailsSectionAttribute label="Status"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            <SaStatusLabel :status="status" :simplified="true">{{ fullStatusText }}</SaStatusLabel>
+          </OverviewItemDetailsSectionAttribute>
 
-      <div class="sa-item-section" v-if="notesVisible">
-        <h4>Notes</h4>
-        <!--todo #80: linebreaks-->
-        <span class="sa-item-additional-info">{{income.notes}}</span>
-      </div>
+          <OverviewItemDetailsSectionAttribute label="Category"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{ categoryById(income.category).name }}
+          </OverviewItemDetailsSectionAttribute>
 
-      <div class="sa-item-section" v-if="attachmentsVisible">
-        <h4>Attachments</h4>
-        <span v-for="attachment in attachments"
-              :key="attachment.id">
-          <document-link :document="attachment"/><br/>
-        </span>
-      </div>
-    </div>
+          <OverviewItemDetailsSectionAttribute label="Date Received"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{dateReceived}}
+          </OverviewItemDetailsSectionAttribute>
 
-    <div class="income-amount">
-      <div class="amount-value">
-        <money-output :currency="totalAmount.currency"
-                      :amount="totalAmount.value"/>
-      </div>
-      <div class="income-status">
-        {{status}}
-      </div>
-    </div>
-  </div>
+          <OverviewItemDetailsSectionAttribute label="Amount for Taxation Purposes"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            <MoneyOutput v-if="income.reportedAmountInDefaultCurrency"
+                         :currency="currentWorkspace.defaultCurrency"
+                         :amount="income.reportedAmountInDefaultCurrency"/>
+
+            <span v-else>Not yet provided</span>
+          </OverviewItemDetailsSectionAttribute>
+        </div>
+
+        <template v-if="isTaxApplicable">
+          <div class="row">
+            <OverviewItemDetailsSectionAttribute label="Applicable Tax"
+                                                 class="col col-xs-12 col-md-6 col-lg-4">
+              {{taxTitle}}
+            </OverviewItemDetailsSectionAttribute>
+
+            <OverviewItemDetailsSectionAttribute label="Applicable Tax Rate"
+                                                 class="col col-xs-12 col-md-6 col-lg-4">
+              <!-- todo #6 localize-->
+              {{income.taxRateInBps / 100}}%
+            </OverviewItemDetailsSectionAttribute>
+
+            <OverviewItemDetailsSectionAttribute label="Applicable Tax Amount"
+                                                 class="col col-xs-12 col-md-6 col-lg-4">
+              <MoneyOutput v-if="income.taxAmount"
+                           :currency="currentWorkspace.defaultCurrency"
+                           :amount="income.taxAmount"/>
+
+              <span v-else>Not yet available</span>
+            </OverviewItemDetailsSectionAttribute>
+          </div>
+        </template>
+      </OverviewItemDetailsSection>
+
+      <OverviewItemDetailsSection title="General Information">
+        <div class="row">
+          <OverviewItemDetailsSectionAttribute v-if="isForeignCurrency"
+                                               label="Original Currency"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{income.currency}}
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute label="Original Amount"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            <MoneyOutput :currency="income.currency"
+                         :amount="income.originalAmount"/>
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute v-if="income.linkedInvoice"
+                                               label="Associated Invoice"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{income.linkedInvoice.title}}
+          </OverviewItemDetailsSectionAttribute>
+        </div>
+      </OverviewItemDetailsSection>
+
+      <OverviewItemDetailsSection v-if="isForeignCurrency"
+                                  title="Currency Conversion">
+        <div class="row">
+          <OverviewItemDetailsSectionAttribute :label="`Amount in ${currentWorkspace.defaultCurrency}`"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            <MoneyOutput v-if="income.amountInDefaultCurrency"
+                         :currency="currentWorkspace.defaultCurrency"
+                         :amount="income.amountInDefaultCurrency"/>
+
+            <span v-else>Not yet available</span>
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute label="Using different exchange rate for taxation purposes?"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            <!-- todo #6 localize -->
+            <span v-if="isReportedDifferentExchangeRate">Yes</span>
+            <span v-else>No</span>
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute
+              :label="`Amount in ${currentWorkspace.defaultCurrency} for taxation purposes`"
+              class="col col-xs-12 col-md-6 col-lg-4">
+            <MoneyOutput v-if="income.actualAmountInDefaultCurrency"
+                         :currency="currentWorkspace.defaultCurrency"
+                         :amount="income.actualAmountInDefaultCurrency"/>
+
+            <span v-else>Not yet available</span>
+          </OverviewItemDetailsSectionAttribute>
+        </div>
+      </OverviewItemDetailsSection>
+
+      <OverviewItemDetailsSection title="Attachments"
+                                  v-if="attachments.length">
+        <div class="row">
+          <div class="col col-xs-12">
+            <span v-for="attachment in attachments"
+                  :key="attachment.id">
+             <document-link :document="attachment"/><br/>
+            </span>
+          </div>
+        </div>
+      </OverviewItemDetailsSection>
+
+      <OverviewItemDetailsSection title="Additional Notes"
+                                  v-if="income.notes">
+        <div class="row">
+          <div class="col col-xs-12">
+            {{income.notes}}
+          </div>
+        </div>
+      </OverviewItemDetailsSection>
+    </template>
+  </OverviewItem>
 </template>
 
 <script>
@@ -107,6 +197,17 @@
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
   import {loadDocuments} from '@/services/app-services'
   import {withTaxes} from '@/components/mixins/with-taxes'
+  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute'
+  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection'
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute'
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon'
+  import SaStatusLabel from '@/components/SaStatusLabel'
+  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel'
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
+  import SaActionLink from '@/components/SaActionLink'
+  import SaIcon from '@/components/SaIcon'
+  import OverviewItem from '@/components/overview-item/OverviewItem'
+  import {isNil} from 'lodash/lang'
 
   export default {
     name: 'IncomeOverviewPanel',
@@ -115,29 +216,48 @@
 
     components: {
       MoneyOutput,
-      DocumentLink
+      DocumentLink,
+      OverviewItem,
+      SaIcon,
+      OverviewItemAttributePreviewIcon,
+      OverviewItemPrimaryAttribute,
+      OverviewItemDetailsSection,
+      OverviewItemDetailsSectionAttribute,
+      SaActionLink,
+      OverviewItemDetailsSectionActions,
+      OverviewItemAmountPanel,
+      SaStatusLabel
     },
 
     props: {
-      income: Object
+      income: {
+        type: Object,
+        required: true
+      }
     },
 
     data: function () {
       return {
-        notesVisible: false,
-        attachmentsVisible: false,
         attachments: []
       }
     },
 
     computed: {
       status: function () {
+        return this.income.status === 'FINALIZED' ? 'success' : 'pending'
+      },
+
+      shortStatusText: function () {
+        return this.income.status === 'FINALIZED' ? 'Finalized' : 'Pending'
+      },
+
+      fullStatusText: function () {
         if (this.income.status === 'FINALIZED') {
-          return ''
+          return 'Finalized'
         } else if (this.income.status === 'PENDING_CONVERSION') {
           return `Conversion to ${this.defaultCurrency} pending`
         } else {
-          return `Waiting for actual rate`
+          return `Waiting for exchange rate`
         }
       },
 
@@ -159,33 +279,46 @@
           }
         }
       },
+
+      isForeignCurrency: function () {
+        return this.income.currency !== this.defaultCurrency
+      },
+
+      isReportedDifferentExchangeRate: function () {
+        return !isNil(this.income.actualAmountInDefaultCurrency)
+            && (this.income.actualAmountInDefaultCurrency !== this.income.amountInDefaultCurrency)
+      },
+
       amountInDefaultCurrency: function () {
         return this.income.currency === this.defaultCurrency
             ? this.income.originalAmount : this.income.amountInDefaultCurrency
       },
 
       isConverted: function () {
-        return this.income.currency !== this.defaultCurrency
-            && this.income.amountInDefaultCurrency
+        return this.income.amountInDefaultCurrency
       },
 
       dateReceived: function () {
         return this.mediumDateFormatter(new Date(this.income.dateReceived))
+      },
+
+      isTaxApplicable: function () {
+        return this.income.tax && this.taxTitle
+      },
+
+      taxTitle: function () {
+        return this.taxById(this.income.tax).title
       }
     },
 
     methods: {
-      toggleNotes: function () {
-        this.notesVisible = !this.notesVisible
-      },
-
-      toggleAttachments: async function () {
-        this.attachmentsVisible = !this.attachmentsVisible
-
-        this.attachments = await loadDocuments(
-            this.attachments,
-            this.income.attachments,
-            this.currentWorkspace.id)
+      loadAttachments: async function () {
+        if (this.income.attachments.length && !this.attachments.length) {
+          this.attachments = await loadDocuments(
+              this.attachments,
+              this.income.attachments,
+              this.currentWorkspace.id)
+        }
       },
 
       navigateToIncomeEdit: function () {
@@ -194,33 +327,3 @@
     }
   }
 </script>
-
-<style lang="scss">
-  @import "@/styles/main.scss";
-
-  .income-panel {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .income-info {
-    @extend .sa-item-info-panel;
-    border-radius: 2px 1px 1px 2px;
-    flex-grow: 1;
-  }
-
-  .income-amount {
-    @extend .sa-item-info-panel;
-    width: 15%;
-    border-radius: 1px 2px 2px 1px;
-    display: flex;
-    flex-flow: column;
-    text-align: center;
-    justify-content: center;
-
-    .amount-value {
-      font-size: 115%;
-      font-weight: bolder;
-    }
-  }
-</style>
