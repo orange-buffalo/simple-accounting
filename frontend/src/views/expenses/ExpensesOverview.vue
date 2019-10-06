@@ -27,10 +27,9 @@
     </div>
 
     <DataItems :api-path="`/workspaces/${currentWorkspace.id}/expenses`"
-               :paginator="true"
-               :filters="expensesFilters"
-               #default="{item}">
-      <ExpenseOverviewPanel :expense="item"/>
+               :filters="apiFilters"
+               #default="{item: expense}">
+      <ExpenseOverviewPanel :expense="expense"/>
     </DataItems>
   </div>
 </template>
@@ -62,8 +61,8 @@
     },
 
     computed: {
-      expensesFilters: function () {
-        // read the value instead of capturing to support reactivity
+      apiFilters: function () {
+        // read the value to support reactivity
         let freeSearchText = this.userFilters.freeSearchText
         return assign({}, {
           applyToRequest: pageRequest => {

@@ -9,41 +9,28 @@
         </div>
 
         <div>
-          <el-input placeholder="Search incomes"
-                    v-model="userFilters.freeSearchText"
-                    clearable>
+          <ElInput placeholder="Search incomes"
+                   v-model="userFilters.freeSearchText"
+                   clearable>
             <i class="el-icon-search el-input__icon"
                slot="prefix"></i>
-          </el-input>
+          </ElInput>
         </div>
 
-        <el-button round
-                   @click="navigateToCreateIncomeView"
-                   :disabled="!currentWorkspace.editable">
-          <svgicon name="plus-thin"/>
+        <ElButton round
+                  @click="navigateToCreateIncomeView"
+                  :disabled="!currentWorkspace.editable">
+          <SaIcon icon="plus-thin"/>
           Add new
-        </el-button>
+        </ElButton>
       </div>
     </div>
 
-    <h2>Pending</h2>
-
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/incomes`"
-                :paginator="false"
-                :filters="pendingIncomesFilters">
-      <template slot-scope="scope">
-        <income-overview-panel :income="scope.item"/>
-      </template>
-    </data-items>
-
-    <h2>Finalized</h2>
-
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/incomes`"
-                :filters="finalizedIncomesFilters">
-      <template slot-scope="scope">
-        <income-overview-panel :income="scope.item"/>
-      </template>
-    </data-items>
+    <DataItems :api-path="`/workspaces/${currentWorkspace.id}/incomes`"
+               :filters="apiFilters"
+               #default="{item: income}">
+      <IncomeOverviewPanel :income="income"/>
+    </DataItems>
   </div>
 </template>
 
@@ -51,8 +38,8 @@
   import DataItems from '@/components/DataItems'
   import IncomeOverviewPanel from './IncomeOverviewPanel'
   import {assign} from 'lodash'
-  import '@/components/icons/plus-thin'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
+  import SaIcon from '@/components/SaIcon'
 
   export default {
     name: 'IncomesOverview',
@@ -60,6 +47,7 @@
     mixins: [withWorkspaces],
 
     components: {
+      SaIcon,
       DataItems,
       IncomeOverviewPanel
     },
@@ -73,20 +61,12 @@
     },
 
     computed: {
-      pendingIncomesFilters: function () {
-        return assign({}, this.userFilters, {
+      apiFilters: function () {
+        // read the property to enable reactivity
+        let freeSearchText = this.userFilters.freeSearchText
+        return assign({}, {
           applyToRequest: pageRequest => {
-            pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
-            pageRequest.eqFilter('status', ['PENDING_CONVERSION', 'PENDING_ACTUAL_RATE'])
-          }
-        })
-      },
-
-      finalizedIncomesFilters: function () {
-        return assign({}, this.userFilters, {
-          applyToRequest: pageRequest => {
-            pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
-            pageRequest.eqFilter('status', 'FINALIZED')
+            pageRequest.eqFilter('freeSearchText', freeSearchText)
           }
         })
       }
