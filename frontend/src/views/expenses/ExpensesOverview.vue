@@ -9,41 +9,29 @@
         </div>
 
         <div>
-          <el-input placeholder="Search expenses"
-                    v-model="userFilters.freeSearchText"
-                    clearable>
+          <ElInput placeholder="Search expenses"
+                   v-model="userFilters.freeSearchText"
+                   clearable>
             <i class="el-icon-search el-input__icon"
                slot="prefix"></i>
-          </el-input>
+          </ElInput>
         </div>
 
-        <el-button round
-                   @click="navigateToCreateExpenseView"
-                   :disabled="!currentWorkspace.editable">
-          <svgicon name="plus-thin"/>
+        <ElButton round
+                  @click="navigateToCreateExpenseView"
+                  :disabled="!currentWorkspace.editable">
+          <SaIcon icon="plus-thin"/>
           Add new
-        </el-button>
+        </ElButton>
       </div>
     </div>
 
-    <h2>Pending</h2>
-
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/expenses`"
-                :paginator="false"
-                :filters="pendingExpensesFilters">
-      <template slot-scope="scope">
-        <expense-overview-panel :expense="scope.item"/>
-      </template>
-    </data-items>
-
-    <h2>Finalized</h2>
-
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/expenses`"
-                :filters="finalizedExpensesFilters">
-      <template slot-scope="scope">
-        <expense-overview-panel :expense="scope.item"/>
-      </template>
-    </data-items>
+    <DataItems :api-path="`/workspaces/${currentWorkspace.id}/expenses`"
+               :paginator="true"
+               :filters="expensesFilters"
+               #default="{item}">
+      <ExpenseOverviewPanel :expense="item"/>
+    </DataItems>
   </div>
 </template>
 
@@ -51,8 +39,8 @@
   import DataItems from '@/components/DataItems'
   import ExpenseOverviewPanel from './ExpenseOverviewPanel'
   import {assign} from 'lodash'
-  import '@/components/icons/plus-thin'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
+  import SaIcon from '@/components/SaIcon'
 
   export default {
     name: 'ExpensesOverview',
@@ -61,7 +49,8 @@
 
     components: {
       DataItems,
-      ExpenseOverviewPanel
+      ExpenseOverviewPanel,
+      SaIcon
     },
 
     data: function () {
@@ -73,20 +62,12 @@
     },
 
     computed: {
-      pendingExpensesFilters: function () {
-        return assign({}, this.userFilters, {
+      expensesFilters: function () {
+        // read the value instead of capturing to support reactivity
+        let freeSearchText = this.userFilters.freeSearchText
+        return assign({}, {
           applyToRequest: pageRequest => {
-            pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
-            pageRequest.eqFilter('status', ['PENDING_CONVERSION', 'PENDING_ACTUAL_RATE'])
-          }
-        })
-      },
-
-      finalizedExpensesFilters: function () {
-        return assign({}, this.userFilters, {
-          applyToRequest: pageRequest => {
-            pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
-            pageRequest.eqFilter('status', 'FINALIZED')
+            pageRequest.eqFilter('freeSearchText', freeSearchText)
           }
         })
       }
