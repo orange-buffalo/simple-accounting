@@ -32,7 +32,11 @@
     </template>
 
     <template v-slot:middle-column>
-      {{status}}
+      <ElTooltip :content="fullStatusText"
+                 :disabled="status === 'success'"
+                 placement="bottom">
+        <SaStatusLabel :status="status">{{ shortStatusText }}</SaStatusLabel>
+      </ElTooltip>
     </template>
 
     <template v-slot:last-column>
@@ -51,7 +55,7 @@
         <div class="row">
           <OverviewItemDetailsSectionAttribute label="Status"
                                                class="col col-xs-12 col-md-6 col-lg-4">
-            {{ status }}
+            <SaStatusLabel :status="status" :simplified="true">{{ fullStatusText }}</SaStatusLabel>
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute label="Category"
@@ -199,6 +203,7 @@
   import SaActionLink from '@/components/SaActionLink'
   import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel'
+  import SaStatusLabel from '@/components/SaStatusLabel'
 
   export default {
     name: 'ExpenseOverviewPanel',
@@ -216,7 +221,8 @@
       OverviewItemDetailsSectionAttribute,
       SaActionLink,
       OverviewItemDetailsSectionActions,
-      OverviewItemAmountPanel
+      OverviewItemAmountPanel,
+      SaStatusLabel
     },
 
     props: {
@@ -233,6 +239,14 @@
 
     computed: {
       status: function () {
+        return this.expense.status === 'FINALIZED' ? 'success' : 'pending'
+      },
+
+      shortStatusText: function () {
+        return this.expense.status === 'FINALIZED' ? 'Finalized' : 'Pending'
+      },
+
+      fullStatusText: function () {
         if (this.expense.status === 'FINALIZED') {
           return 'Finalized'
         } else if (this.expense.status === 'PENDING_CONVERSION') {
