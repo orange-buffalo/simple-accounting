@@ -24,23 +24,35 @@
         validator: function (value) {
           return [
             'success',
-            'pending'
+            'pending',
+            'regular',
+            'failure'
           ].indexOf(value) !== -1
         }
       },
       simplified: {
         type: Boolean,
         default: false
+      },
+      customIcon: {
+        type: String
       }
     },
 
     computed: {
       statusIcon: function () {
+        if (this.customIcon) {
+          return this.customIcon
+        }
         switch (this.status) {
           case 'success':
             return 'success'
           case 'pending':
             return 'hourglass'
+          case 'failure':
+            return 'error'
+          case 'regular':
+            return 'gear'
         }
       },
 
@@ -48,8 +60,12 @@
         return {
           'sa-status-label_success': !this.simplified && this.status === 'success',
           'sa-status-label_pending': !this.simplified && this.status === 'pending',
+          'sa-status-label_regular': !this.simplified && this.status === 'regular',
+          'sa-status-label_failure': !this.simplified && this.status === 'failure',
           'sa-status-label_success-simplified': this.simplified && this.status === 'success',
-          'sa-status-label_pending-simplified': this.simplified && this.status === 'pending'
+          'sa-status-label_pending-simplified': this.simplified && this.status === 'pending',
+          'sa-status-label_regular-simplified': this.simplified && this.status === 'regular',
+          'sa-status-label_failure-simplified': this.simplified && this.status === 'failure'
         }
       }
     }
@@ -90,6 +106,26 @@
 
     &_success-simplified {
       color: $success-color;
+      padding: 0;
+    }
+
+    &_regular {
+      background: $primary-grey;
+      color: $secondary-text-color;
+    }
+
+    &_regular-simplified {
+      color: $secondary-text-color;
+      padding: 0;
+    }
+
+    &_failure {
+      background: $danger-color-bg;
+      color: $danger-color;
+    }
+
+    &_failure-simplified {
+      color: $danger-color;
       padding: 0;
     }
   }
