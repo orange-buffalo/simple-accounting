@@ -10,7 +10,7 @@
           </el-button>
         </div>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil"/>
+          <svgicon name="pencil-solid"/>
           <el-button type="text"
                      @click="navigateToWorkspaceEdit">Edit</el-button>
         </span>
@@ -63,7 +63,7 @@
 </template>
 
 <script>
-  import '@/components/icons/pencil'
+  import '@/components/icons/pencil-solid'
   import '@/components/icons/share'
   import '@/components/icons/copy'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'

@@ -1,100 +1,175 @@
 <template>
-  <div class="invoice-panel">
-    <div class="invoice-info">
-      <div class="sa-item-title-panel">
-        <h3>{{invoice.title}}</h3>
-        <span class="sa-item-edit-link"
-              v-if="currentWorkspace.editable">
-          <svgicon name="pencil"/>
-          <el-button type="text"
-                     @click="navigateToInvoiceEdit">Edit</el-button>
-        </span>
-      </div>
+  <OverviewItem :title="invoice.title"
+                @details-shown="loadAttachments">
+    <template v-slot:primary-attributes>
+      <OverviewItemPrimaryAttribute v-if="customer"
+                                    tooltip="Customer"
+                                    icon="customer">
+        {{customer.name}}
+      </OverviewItemPrimaryAttribute>
 
-      <div class="sa-item-attributes">
+      <OverviewItemPrimaryAttribute v-if="datePaid"
+                                    tooltip="Date paid"
+                                    icon="calendar">
+        {{datePaid}}
+      </OverviewItemPrimaryAttribute>
+    </template>
 
-        <el-tooltip content="Customer" v-if="customer">
-          <span class="sa-item-attribute">
-            <svgicon name="category"/>{{ customer.name }}
-          </span>
-        </el-tooltip>
+    <template v-slot:attributes-preview>
+      <OverviewItemAttributePreviewIcon v-if="invoice.notes"
+                                        icon="notes"
+                                        tooltip="Additional notes provided"/>
 
-        <el-tooltip content="Date Issued" v-if="!invoice.dateCancelled">
-          <span class="sa-item-attribute">
-            <svgicon name="calendar"/>{{dateIssued}}
-          </span>
-        </el-tooltip>
+      <OverviewItemAttributePreviewIcon v-if="invoice.attachments.length"
+                                        tooltip="Attachments provided"
+                                        icon="attachment"/>
 
-        <el-tooltip content="Due Date" v-if="!invoice.dateCancelled">
-          <span class="sa-item-attribute">
-            <svgicon name="calendar"/>{{dueDate}}
-          </span>
-        </el-tooltip>
+      <OverviewItemAttributePreviewIcon v-if="isTaxApplicable"
+                                        tooltip="Tax applied"
+                                        icon="tax"/>
 
-        <el-tooltip content="Date Sent" v-if="!invoice.dateCancelled && invoice.dateSent">
-          <span class="sa-item-attribute">
-            <svgicon name="calendar"/>{{dateSent}}
-          </span>
-        </el-tooltip>
+      <OverviewItemAttributePreviewIcon v-if="isForeignCurrency"
+                                        tooltip="In foreign currency"
+                                        icon="multi-currency"/>
+    </template>
 
-        <el-tooltip content="Date Paid" v-if="!invoice.dateCancelled && invoice.datePaid">
-          <span class="sa-item-attribute">
-            <svgicon name="calendar"/>{{datePaid}}
-          </span>
-        </el-tooltip>
+    <template v-slot:middle-column>
+      <SaStatusLabel :status="status"
+                     :custom-icon="statusIcon">{{ statusText }}
+      </SaStatusLabel>
+    </template>
 
-        <span class="sa-item-attribute"
-              v-if="invoice.tax && taxById(invoice.tax).title">
-          <svgicon name="tax"/>
-          <!-- todo #6: localize -->
-          <span>{{taxById(invoice.tax).rateInBps / 100}}% {{taxById(invoice.tax).title}}</span>
-        </span>
+    <template v-slot:last-column>
+      <OverviewItemAmountPanel :currency="invoice.currency"
+                               :amount="invoice.amount"/>
+    </template>
 
-        <span class="sa-item-attribute"
-              v-if="invoice.notes">
-          <svgicon name="notes"/>
-          <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
-        </span>
+    <template v-slot:details>
+      <OverviewItemDetailsSectionActions>
+        <SaActionLink icon="pencil-solid"
+                      v-if="currentWorkspace.editable"
+                      @click="navigateToInvoiceEdit">
+          Edit
+        </SaActionLink>
 
-        <span class="sa-item-attribute"
-              v-if="invoice.attachments.length">
-          <svgicon name="attachment"/>
-          <span class="sa-clickable" @click="toggleAttachments()">Attachment provided</span>
-        </span>
-      </div>
+        <SaActionLink icon="send-solid"
+                      v-if="currentWorkspace.editable && isDraft"
+                      @click="markSent">
+          Sent today
+        </SaActionLink>
 
-      <div class="sa-item-section" v-if="notesVisible">
-        <h4>Notes</h4>
-        <!--todo #80: linebreaks-->
-        <span class="sa-item-additional-info">{{invoice.notes}}</span>
-      </div>
+        <SaActionLink icon="income-solid"
+                      v-if="currentWorkspace.editable && (isSent || isOverdue)"
+                      @click="markPaid">
+          Paid today
+        </SaActionLink>
+      </OverviewItemDetailsSectionActions>
 
-      <div class="sa-item-section" v-if="attachmentsVisible">
-        <h4>Attachments</h4>
-        <span v-for="attachment in attachments"
-              :key="attachment.id">
-          <document-link :document="attachment"/><br/>
-        </span>
-      </div>
-    </div>
+      <OverviewItemDetailsSection title="General Information">
+        <div class="row">
+          <OverviewItemDetailsSectionAttribute label="Status"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            <SaStatusLabel :status="status"
+                           :custom-icon="statusIcon"
+                           :simplified="true">
+              {{ statusText }}
+            </SaStatusLabel>
+          </OverviewItemDetailsSectionAttribute>
 
-    <div class="invoice-amount">
-      <div class="amount-value">
-        <money-output :currency="invoice.currency"
-                      :amount="invoice.amount"/>
-      </div>
-      <div class="invoice-status">
-        {{status}}
-      </div>
-      <div v-if="isDraft && currentWorkspace.editable">
-        <el-button @click="markSent">Sent today</el-button>
-      </div>
-      <div v-if="(isSent || isOverdue) && currentWorkspace.editable">
-        <span>Due on {{dueDate}}</span><br/>
-        <el-button @click="markPaid">Paid today</el-button>
-      </div>
-    </div>
-  </div>
+          <OverviewItemDetailsSectionAttribute label="Customer"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{ customer.name }}
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute label="Category"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{ categoryById(invoice.category).name }}
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute v-if="isForeignCurrency"
+                                               label="Invoice Currency"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{invoice.currency}}
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute label="Invoice Amount"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            <MoneyOutput :currency="invoice.currency"
+                         :amount="invoice.amount"/>
+          </OverviewItemDetailsSectionAttribute>
+        </div>
+
+        <div class="row">
+          <OverviewItemDetailsSectionAttribute label="Date Issued"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{dateIssued}}
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute label="Due Date"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{dueDate}}
+          </OverviewItemDetailsSectionAttribute>
+        </div>
+
+        <div class="row"
+             v-if="dateSent || dateCancelled || datePaid">
+          <OverviewItemDetailsSectionAttribute v-if="dateSent"
+                                               label="Date Sent"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{dateSent}}
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute v-if="dateCancelled"
+                                               label="Date Cancelled"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{dateCancelled}}
+          </OverviewItemDetailsSectionAttribute>
+
+          <OverviewItemDetailsSectionAttribute v-if="datePaid"
+                                               label="Date Paid"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{datePaid}}
+          </OverviewItemDetailsSectionAttribute>
+        </div>
+
+        <template v-if="isTaxApplicable">
+          <div class="row">
+            <OverviewItemDetailsSectionAttribute label="Applicable Tax"
+                                                 class="col col-xs-12 col-md-6 col-lg-4">
+              {{taxTitle}}
+            </OverviewItemDetailsSectionAttribute>
+
+            <OverviewItemDetailsSectionAttribute label="Applicable Tax Rate"
+                                                 class="col col-xs-12 col-md-6 col-lg-4">
+              <!-- todo #6 localize-->
+              {{taxById(invoice.tax).rateInBps / 100}}%
+            </OverviewItemDetailsSectionAttribute>
+          </div>
+        </template>
+      </OverviewItemDetailsSection>
+
+      <OverviewItemDetailsSection title="Attachments"
+                                  v-if="attachments.length">
+        <div class="row">
+          <div class="col col-xs-12">
+            <span v-for="attachment in attachments"
+                  :key="attachment.id">
+             <document-link :document="attachment"/><br/>
+            </span>
+          </div>
+        </div>
+      </OverviewItemDetailsSection>
+
+      <OverviewItemDetailsSection title="Additional Notes"
+                                  v-if="invoice.notes">
+        <div class="row">
+          <div class="col col-xs-12">
+            {{invoice.notes}}
+          </div>
+        </div>
+      </OverviewItemDetailsSection>
+    </template>
+  </OverviewItem>
 </template>
 
 <script>
@@ -102,17 +177,21 @@
   import DocumentLink from '@/components/DocumentLink'
   import {withMediumDateFormatter} from '@/components/mixins/with-medium-date-formatter'
   import api from '@/services/api'
-  import '@/components/icons/attachment'
-  import '@/components/icons/calendar'
-  import '@/components/icons/notes'
-  import '@/components/icons/category'
-  import '@/components/icons/pencil'
-  import '@/components/icons/tax'
   import {withCategories} from '@/components/mixins/with-categories'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
   import {loadDocuments} from '@/services/app-services'
   import {withCustomers} from '@/components/mixins/with-customers'
   import {withTaxes} from '@/components/mixins/with-taxes'
+  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute'
+  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection'
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute'
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon'
+  import SaStatusLabel from '@/components/SaStatusLabel'
+  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel'
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
+  import SaActionLink from '@/components/SaActionLink'
+  import SaIcon from '@/components/SaIcon'
+  import OverviewItem from '@/components/overview-item/OverviewItem'
 
   export default {
     name: 'InvoiceOverviewPanel',
@@ -121,11 +200,24 @@
 
     components: {
       MoneyOutput,
-      DocumentLink
+      DocumentLink,
+      OverviewItem,
+      SaIcon,
+      OverviewItemAttributePreviewIcon,
+      OverviewItemPrimaryAttribute,
+      OverviewItemDetailsSection,
+      OverviewItemDetailsSectionAttribute,
+      SaActionLink,
+      OverviewItemDetailsSectionActions,
+      OverviewItemAmountPanel,
+      SaStatusLabel
     },
 
     props: {
-      invoice: Object
+      invoice: {
+        type: Object,
+        required: true
+      }
     },
 
     data: function () {
@@ -157,9 +249,36 @@
         return this.invoice.status === 'OVERDUE'
       },
 
+      isForeignCurrency: function () {
+        return this.invoice.currency !== this.defaultCurrency
+      },
+
       status: function () {
         if (this.isPaid) {
-          return ''
+          return 'success'
+        } else if (this.isDraft) {
+          return `regular`
+        } else if (this.isCancelled) {
+          return `regular`
+        } else if (this.isSent) {
+          return `pending`
+        } else if (this.isOverdue) {
+          return `failure`
+        }
+      },
+
+      statusIcon: function () {
+        if (this.isDraft) {
+          return 'draft'
+        } else if (this.isCancelled) {
+          return 'cancel'
+        }
+        return null
+      },
+
+      statusText: function () {
+        if (this.isPaid) {
+          return 'Finalized'
         } else if (this.isDraft) {
           return `Draft`
         } else if (this.isCancelled) {
@@ -168,9 +287,15 @@
           return `Sent`
         } else if (this.isOverdue) {
           return `Overdue`
-        } else {
-          return `??`
         }
+      },
+
+      isTaxApplicable: function () {
+        return this.invoice.tax && this.taxTitle
+      },
+
+      taxTitle: function () {
+        return this.taxById(this.invoice.tax).title
       },
 
       dateIssued: function () {
@@ -182,15 +307,21 @@
       },
 
       dateSent: function () {
-        return this.mediumDateFormatter(new Date(this.invoice.dateSent))
+        return this.invoice.dateSent
+            ? this.mediumDateFormatter(new Date(this.invoice.dateSent))
+            : null
       },
 
       datePaid: function () {
-        return this.mediumDateFormatter(new Date(this.invoice.datePaid))
+        return this.invoice.datePaid
+            ? this.mediumDateFormatter(new Date(this.invoice.datePaid))
+            : null
       },
 
       dateCancelled: function () {
-        return this.mediumDateFormatter(new Date(this.invoice.dateCancelled))
+        return this.invoice.dateCancelled
+            ? this.mediumDateFormatter(new Date(this.invoice.dateCancelled))
+            : null
       },
 
       customer: function () {
@@ -199,17 +330,13 @@
     },
 
     methods: {
-      toggleNotes: function () {
-        this.notesVisible = !this.notesVisible
-      },
-
-      toggleAttachments: async function () {
-        this.attachmentsVisible = !this.attachmentsVisible
-
-        this.attachments = await loadDocuments(
-            this.attachments,
-            this.invoice.attachments,
-            this.currentWorkspace.id)
+      loadAttachments: async function () {
+        if (this.invoice.attachments.length && !this.attachments.length) {
+          this.attachments = await loadDocuments(
+              this.attachments,
+              this.invoice.attachments,
+              this.currentWorkspace.id)
+        }
       },
 
       navigateToInvoiceEdit: function () {
@@ -228,7 +355,7 @@
         let invoiceResponse = await api
             .put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice)
 
-        this.$router.push({
+        await this.$router.push({
           name: 'edit-income',
           params: {id: invoiceResponse.data.income}
         })
@@ -236,33 +363,3 @@
     }
   }
 </script>
-
-<style lang="scss">
-  @import "@/styles/main.scss";
-
-  .invoice-panel {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .invoice-info {
-    @extend .sa-item-info-panel;
-    border-radius: 2px 1px 1px 2px;
-    flex-grow: 1;
-  }
-
-  .invoice-amount {
-    @extend .sa-item-info-panel;
-    width: 15%;
-    border-radius: 1px 2px 2px 1px;
-    display: flex;
-    flex-flow: column;
-    text-align: center;
-    justify-content: center;
-
-    .amount-value {
-      font-size: 115%;
-      font-weight: bolder;
-    }
-  }
-</style>

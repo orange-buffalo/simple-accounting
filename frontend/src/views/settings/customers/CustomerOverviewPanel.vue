@@ -4,7 +4,7 @@
       <div class="sa-item-title-panel">
         <h3>{{customer.name}}</h3>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil"/>
+          <svgicon name="pencil-solid"/>
           <el-button type="text"
                      @click="navigateToCustomerEdit">Edit</el-button>
         </span>
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-  import '@/components/icons/pencil'
+  import '@/components/icons/pencil-solid'
 
   export default {
     name: 'CustomerOverviewPanel',

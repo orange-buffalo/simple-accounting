@@ -46,7 +46,9 @@
 
     <template v-slot:details>
       <OverviewItemDetailsSectionActions>
-        <SaActionLink icon="pencil" @click="navigateToIncomeEdit">
+        <SaActionLink icon="pencil-solid"
+                      v-if="currentWorkspace.editable"
+                      @click="navigateToIncomeEdit">
           Edit
         </SaActionLink>
       </OverviewItemDetailsSectionActions>
@@ -189,7 +191,7 @@
   import '@/components/icons/calendar'
   import '@/components/icons/notes'
   import '@/components/icons/category'
-  import '@/components/icons/pencil'
+  import '@/components/icons/pencil-solid'
   import '@/components/icons/percent'
   import '@/components/icons/invoice'
   import '@/components/icons/tax'

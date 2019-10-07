@@ -46,7 +46,9 @@
 
     <template v-slot:details>
       <OverviewItemDetailsSectionActions>
-        <SaActionLink icon="pencil" @click="navigateToExpenseEdit">
+        <SaActionLink icon="pencil-solid"
+                      v-if="currentWorkspace.editable"
+                      @click="navigateToExpenseEdit">
           Edit
         </SaActionLink>
       </OverviewItemDetailsSectionActions>

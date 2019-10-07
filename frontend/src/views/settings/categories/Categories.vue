@@ -20,7 +20,7 @@
             <h3>{{scope.item.name}}</h3>
 
             <span class="sa-item-edit-link">
-              <!--<pencil-icon/>-->
+              <!--<pencil-solid-icon/>-->
               <el-button type="text">Edit</el-button>
             </span>
           </div>
