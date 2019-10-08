@@ -8,20 +8,19 @@
           <span>Filters coming soon</span>
         </div>
 
-        <el-button round
-                   @click="navigateToCreateTaxPaymentView"
-                   :disabled="!currentWorkspace.editable">
-          <svgicon name="plus-thin"/>
+        <ElButton round
+                  @click="navigateToCreateTaxPaymentView"
+                  :disabled="!currentWorkspace.editable">
+          <SaIcon icon="plus-thin"/>
           Add new
-        </el-button>
+        </ElButton>
       </div>
     </div>
 
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/tax-payments`">
-      <template slot-scope="scope">
-        <tax-payment-overview-panel :tax-payment="scope.item"/>
-      </template>
-    </data-items>
+    <DataItems :api-path="`/workspaces/${currentWorkspace.id}/tax-payments`"
+               #default="{item: taxPayment}">
+      <TaxPaymentOverviewPanel :tax-payment="taxPayment"/>
+    </DataItems>
   </div>
 </template>
 
@@ -30,6 +29,7 @@
   import TaxPaymentOverviewPanel from './TaxPaymentOverviewPanel'
   import '@/components/icons/plus-thin'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
+  import SaIcon from '@/components/SaIcon'
 
   export default {
     name: 'TaxPaymentsOverview',
@@ -37,6 +37,7 @@
     mixins: [withWorkspaces],
 
     components: {
+      SaIcon,
       DataItems,
       TaxPaymentOverviewPanel
     },

@@ -1,60 +1,74 @@
 <template>
-  <div class="tax-payment-panel">
-    <div class="tax-payment-info">
-      <div class="sa-item-title-panel">
-        <h3>{{taxPayment.title}}</h3>
-        <span class="sa-item-edit-link"
-              v-if="currentWorkspace.editable">
-          <svgicon name="pencil-solid"/>
-          <el-button type="text"
-                     @click="navigateToTaxPaymentEdit">Edit</el-button>
-        </span>
-      </div>
+  <OverviewItem :title="taxPayment.title"
+                @details-shown="loadAttachments">
+    <template v-slot:primary-attributes>
+      <OverviewItemPrimaryAttribute v-if="datePaid"
+                                    tooltip="Date paid"
+                                    icon="calendar">
+        {{datePaid}}
+      </OverviewItemPrimaryAttribute>
+    </template>
 
-      <div class="sa-item-attributes">
+    <template v-slot:attributes-preview>
+      <OverviewItemAttributePreviewIcon v-if="taxPayment.notes"
+                                        icon="notes"
+                                        tooltip="Additional notes provided"/>
 
-        <span class="sa-item-attribute">
-          <svgicon name="calendar"/>{{reportingDate}}
-          <template v-if="taxPayment.reportingDate !== taxPayment.datePaid">
-            <span class="sa-secondary-text">{{datePaid}}</span>
-          </template>
-        </span>
+      <OverviewItemAttributePreviewIcon v-if="taxPayment.attachments.length"
+                                        tooltip="Attachments provided"
+                                        icon="attachment"/>
+    </template>
 
-        <span class="sa-item-attribute"
-              v-if="taxPayment.notes">
-          <svgicon name="notes"/>
-          <span class="sa-clickable" @click="toggleNotes()">Notes provided</span>
-        </span>
+    <template v-slot:last-column>
+      <OverviewItemAmountPanel :currency="defaultCurrency"
+                               :amount="taxPayment.amount"/>
+    </template>
 
-        <span class="sa-item-attribute"
-              v-if="taxPayment.attachments.length">
-          <svgicon name="attachment"/>
-          <span class="sa-clickable" @click="toggleAttachments()">Attachment provided</span>
-        </span>
-      </div>
+    <template v-slot:details>
+      <OverviewItemDetailsSectionActions>
+        <SaActionLink icon="pencil-solid"
+                      v-if="currentWorkspace.editable"
+                      @click="navigateToTaxPaymentEdit">
+          Edit
+        </SaActionLink>
+      </OverviewItemDetailsSectionActions>
 
-      <div class="sa-item-section" v-if="notesVisible">
-        <h4>Notes</h4>
-        <!--todo #80: linebreaks-->
-        <span class="sa-item-additional-info">{{taxPayment.notes}}</span>
-      </div>
+      <OverviewItemDetailsSection title="Summary">
+        <div class="row">
+          <OverviewItemDetailsSectionAttribute label="Date Paid"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{datePaid}}
+          </OverviewItemDetailsSectionAttribute>
 
-      <div class="sa-item-section" v-if="attachmentsVisible">
-        <h4>Attachments</h4>
-        <span v-for="attachment in attachments"
-              :key="attachment.id">
-          <document-link :document="attachment"/><br/>
-        </span>
-      </div>
-    </div>
+          <OverviewItemDetailsSectionAttribute label="Reporting Date"
+                                               class="col col-xs-12 col-md-6 col-lg-4">
+            {{reportingDate}}
+          </OverviewItemDetailsSectionAttribute>
+        </div>
+      </OverviewItemDetailsSection>
 
-    <div class="tax-payment-amount">
-      <div class="amount-value">
-        <money-output :currency="defaultCurrency"
-                      :amount="taxPayment.amount"/>
-      </div>
-    </div>
-  </div>
+      <OverviewItemDetailsSection title="Attachments"
+                                  v-if="attachments.length">
+        <div class="row">
+          <div class="col col-xs-12">
+            <span v-for="attachment in attachments"
+                  :key="attachment.id">
+             <document-link :document="attachment"/><br/>
+            </span>
+          </div>
+        </div>
+      </OverviewItemDetailsSection>
+
+      <OverviewItemDetailsSection title="Additional Notes"
+                                  v-if="taxPayment.notes">
+        <div class="row">
+          <div class="col col-xs-12">
+            {{taxPayment.notes}}
+          </div>
+        </div>
+      </OverviewItemDetailsSection>
+    </template>
+  </OverviewItem>
 </template>
 
 <script>
@@ -67,6 +81,14 @@
   import '@/components/icons/pencil-solid'
   import {loadDocuments} from '@/services/app-services'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
+  import OverviewItem from '@/components/overview-item/OverviewItem'
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute'
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon'
+  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel'
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
+  import SaActionLink from '@/components/SaActionLink'
+  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection'
+  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute'
 
   export default {
     name: 'TaxPaymentOverviewPanel',
@@ -74,18 +96,27 @@
     mixins: [withMediumDateFormatter, withWorkspaces],
 
     components: {
+      OverviewItemDetailsSectionAttribute,
+      OverviewItemDetailsSection,
+      SaActionLink,
+      OverviewItemDetailsSectionActions,
+      OverviewItemAmountPanel,
+      OverviewItemAttributePreviewIcon,
+      OverviewItemPrimaryAttribute,
+      OverviewItem,
       MoneyOutput,
       DocumentLink
     },
 
     props: {
-      taxPayment: Object
+      taxPayment: {
+        type: Object,
+        required: true
+      }
     },
 
     data: function () {
       return {
-        notesVisible: false,
-        attachmentsVisible: false,
         attachments: []
       }
     },
@@ -101,17 +132,13 @@
     },
 
     methods: {
-      toggleNotes: function () {
-        this.notesVisible = !this.notesVisible
-      },
-
-      toggleAttachments: async function () {
-        this.attachmentsVisible = !this.attachmentsVisible
-
-        this.attachments = await loadDocuments(
-            this.attachments,
-            this.taxPayment.attachments,
-            this.currentWorkspace.id)
+      loadAttachments: async function () {
+        if (this.taxPayment.attachments.length && !this.attachments.length) {
+          this.attachments = await loadDocuments(
+              this.attachments,
+              this.taxPayment.attachments,
+              this.currentWorkspace.id)
+        }
       },
 
       navigateToTaxPaymentEdit: function () {
@@ -120,33 +147,3 @@
     }
   }
 </script>
-
-<style lang="scss">
-  @import "@/styles/main.scss";
-
-  .tax-payment-panel {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .tax-payment-info {
-    @extend .sa-item-info-panel;
-    border-radius: 2px 1px 1px 2px;
-    flex-grow: 1;
-  }
-
-  .tax-payment-amount {
-    @extend .sa-item-info-panel;
-    width: 15%;
-    border-radius: 1px 2px 2px 1px;
-    display: flex;
-    flex-flow: column;
-    text-align: center;
-    justify-content: center;
-
-    .amount-value {
-      font-size: 115%;
-      font-weight: bolder;
-    }
-  }
-</style>
