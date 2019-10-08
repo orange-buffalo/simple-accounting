@@ -9,54 +9,38 @@
         </div>
 
         <div>
-          <el-input placeholder="Search invoices"
-                    v-model="userFilters.freeSearchText"
-                    clearable>
+          <ElInput placeholder="Search invoices"
+                   v-model="userFilters.freeSearchText"
+                   clearable>
             <i class="el-icon-search el-input__icon"
                slot="prefix"></i>
-          </el-input>
+          </ElInput>
         </div>
 
-        <el-button round
-                   @click="navigateToCreateInvoiceView"
-                   :disabled="!currentWorkspace.editable">
-          <svgicon name="plus-thin"/>
+        <ElButton round
+                  @click="navigateToCreateInvoiceView"
+                  :disabled="!currentWorkspace.editable">
+          <SaIcon icon="plus-thin"/>
           Add new
-        </el-button>
+        </ElButton>
       </div>
     </div>
 
-    <h2>Pending</h2>
-
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/invoices`"
-                ref="pendingInvoicesList"
-                :paginator="false"
-                :filters="pendingInvoicesFilters">
-      <template slot-scope="scope">
-        <invoice-overview-panel :invoice="scope.item"
-                                @invoice-update="onInvoiceUpdate"/>
-      </template>
-    </data-items>
-
-    <h2>Finalized</h2>
-
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/invoices`"
-                ref="finalizedInvoicesList"
-                :filters="finalizedInvoicesFilters">
-      <template slot-scope="scope">
-        <invoice-overview-panel :invoice="scope.item"
-                                @invoice-update="onInvoiceUpdate"/>
-      </template>
-    </data-items>
+    <DataItems :api-path="`/workspaces/${currentWorkspace.id}/invoices`"
+               ref="invoicesList"
+               :filters="invoicesApiFilters"
+               #default="{item: invoice}">
+      <InvoiceOverviewPanel :invoice="invoice"
+                            @invoice-update="onInvoiceUpdate"/>
+    </DataItems>
   </div>
 </template>
 
 <script>
   import DataItems from '@/components/DataItems'
   import InvoiceOverviewPanel from './InvoiceOverviewPanel'
-  import {assign} from 'lodash'
-  import '@/components/icons/plus-thin'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
+  import SaIcon from '@/components/SaIcon'
 
   export default {
     name: 'IncomesOverview',
@@ -64,6 +48,7 @@
     mixins: [withWorkspaces],
 
     components: {
+      SaIcon,
       DataItems,
       InvoiceOverviewPanel
     },
@@ -77,22 +62,14 @@
     },
 
     computed: {
-      pendingInvoicesFilters: function () {
-        return assign({}, this.userFilters, {
+      invoicesApiFilters: function () {
+        // read the property to enable reactivity
+        let freeSearchText = this.userFilters.freeSearchText
+        return {
           applyToRequest: pageRequest => {
-            pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
-            pageRequest.eqFilter('status', ['DRAFT', 'SENT', 'OVERDUE'])
+            pageRequest.eqFilter('freeSearchText', freeSearchText)
           }
-        })
-      },
-
-      finalizedInvoicesFilters: function () {
-        return assign({}, this.userFilters, {
-          applyToRequest: pageRequest => {
-            pageRequest.eqFilter('freeSearchText', this.userFilters.freeSearchText)
-            pageRequest.eqFilter('status', ['PAID', 'CANCELLED'])
-          }
-        })
+        }
       }
     },
 
@@ -102,8 +79,7 @@
       },
 
       onInvoiceUpdate: function () {
-        this.$refs.finalizedInvoicesList.reloadData()
-        this.$refs.pendingInvoicesList.reloadData()
+        this.$refs.invoicesList.reloadData()
       }
     }
   }

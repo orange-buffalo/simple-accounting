@@ -37,7 +37,6 @@
 <script>
   import DataItems from '@/components/DataItems'
   import ExpenseOverviewPanel from './ExpenseOverviewPanel'
-  import {assign} from 'lodash'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
   import SaIcon from '@/components/SaIcon'
 
@@ -64,11 +63,11 @@
       apiFilters: function () {
         // read the value to support reactivity
         let freeSearchText = this.userFilters.freeSearchText
-        return assign({}, {
+        return {
           applyToRequest: pageRequest => {
             pageRequest.eqFilter('freeSearchText', freeSearchText)
           }
-        })
+        }
       }
     },
 
