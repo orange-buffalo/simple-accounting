@@ -73,7 +73,7 @@
           <OverviewItemDetailsSectionAttribute label="Amount for Taxation Purposes"
                                                class="col col-xs-12 col-md-6 col-lg-4">
             <MoneyOutput v-if="income.reportedAmountInDefaultCurrency"
-                         :currency="currentWorkspace.defaultCurrency"
+                         :currency="defaultCurrency"
                          :amount="income.reportedAmountInDefaultCurrency"/>
 
             <span v-else>Not yet provided</span>
@@ -95,8 +95,8 @@
 
             <OverviewItemDetailsSectionAttribute label="Applicable Tax Amount"
                                                  class="col col-xs-12 col-md-6 col-lg-4">
-              <MoneyOutput v-if="income.taxAmount"
-                           :currency="currentWorkspace.defaultCurrency"
+              <MoneyOutput v-if="isTaxAmountAvailable"
+                           :currency="defaultCurrency"
                            :amount="income.taxAmount"/>
 
               <span v-else>Not yet available</span>
@@ -130,10 +130,10 @@
       <OverviewItemDetailsSection v-if="isForeignCurrency"
                                   title="Currency Conversion">
         <div class="row">
-          <OverviewItemDetailsSectionAttribute :label="`Amount in ${currentWorkspace.defaultCurrency}`"
+          <OverviewItemDetailsSectionAttribute :label="`Amount in ${defaultCurrency}`"
                                                class="col col-xs-12 col-md-6 col-lg-4">
             <MoneyOutput v-if="income.amountInDefaultCurrency"
-                         :currency="currentWorkspace.defaultCurrency"
+                         :currency="defaultCurrency"
                          :amount="income.amountInDefaultCurrency"/>
 
             <span v-else>Not yet available</span>
@@ -147,10 +147,10 @@
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-              :label="`Amount in ${currentWorkspace.defaultCurrency} for taxation purposes`"
+              :label="`Amount in ${defaultCurrency} for taxation purposes`"
               class="col col-xs-12 col-md-6 col-lg-4">
             <MoneyOutput v-if="income.actualAmountInDefaultCurrency"
-                         :currency="currentWorkspace.defaultCurrency"
+                         :currency="defaultCurrency"
                          :amount="income.actualAmountInDefaultCurrency"/>
 
             <span v-else>Not yet available</span>
@@ -306,6 +306,10 @@
 
       isTaxApplicable: function () {
         return this.income.tax && this.taxTitle
+      },
+
+      isTaxAmountAvailable: function () {
+        return this.income.status === 'FINALIZED'
       },
 
       taxTitle: function () {
