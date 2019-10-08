@@ -149,9 +149,9 @@
           <OverviewItemDetailsSectionAttribute
               :label="`Amount in ${defaultCurrency} for taxation purposes`"
               class="col col-xs-12 col-md-6 col-lg-4">
-            <MoneyOutput v-if="income.actualAmountInDefaultCurrency"
+            <MoneyOutput v-if="income.reportedAmountInDefaultCurrency"
                          :currency="defaultCurrency"
-                         :amount="income.actualAmountInDefaultCurrency"/>
+                         :amount="income.reportedAmountInDefaultCurrency"/>
 
             <span v-else>Not yet available</span>
           </OverviewItemDetailsSectionAttribute>
@@ -287,8 +287,8 @@
       },
 
       isReportedDifferentExchangeRate: function () {
-        return !isNil(this.income.actualAmountInDefaultCurrency)
-            && (this.income.actualAmountInDefaultCurrency !== this.income.amountInDefaultCurrency)
+        return !isNil(this.income.reportedAmountInDefaultCurrency)
+            && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency)
       },
 
       amountInDefaultCurrency: function () {
