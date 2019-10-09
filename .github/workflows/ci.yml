@@ -1,0 +1,19 @@
+name: "Continuous Integration"
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: "Build and Tests"
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@master
+      name: "Checkout"
+    - uses: actions/setup-java@v1
+      with:
+        java-version: '1.8'
+      name: "Setup Java"
+    - uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: build --scan --console=plain
+      name: "Run Gradle"
