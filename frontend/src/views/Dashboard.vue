@@ -83,9 +83,9 @@
 
           <money-output class="home-page__row__hero__header__amount"
                         :currency="defaultCurrency"
-                        :amount="profit"/>
+                        :amount="Math.max(taxableAmount, 0)"/>
 
-          <span class="home-page__row__hero__header__finalized">Profit</span>
+          <span class="home-page__row__hero__header__finalized">Taxable Amount</span>
           <span class="home-page__row__hero__header__pending">&nbsp;</span>
         </div>
 
@@ -93,23 +93,27 @@
              v-if="profitDetailsVisible">
           <div class="home-page__row__hero__details__item"
                v-if="incomes.currencyExchangeGain">
-            <span>Currency exchange gain</span>
+            <span>Currency exchange rate difference</span>
             <money-output :currency="defaultCurrency"
                           :amount="incomes.currencyExchangeGain"/>
           </div>
 
-          <div class="home-page__row__hero__details__item"
-               v-if="incomes.currencyExchangeGain && profit">
-            <span>Total profit</span>
+          <div class="home-page__row__hero__details__item">
+            <span>Tax Payments</span>
             <money-output :currency="defaultCurrency"
-                          :amount="totalProfit"/>
+                          :amount="taxPayments.totalTaxPayments || 0"/>
+          </div>
+
+          <div class="home-page__row__hero__details__item">
+            <span>Estimated Tax</span>
+            <span>coming soon..</span>
           </div>
 
           <div class="home-page__row__hero__details__item"
-               v-if="taxPayments.totalTaxPayments">
-            <span>Tax Payments</span>
+               v-if="totalProfit">
+            <span>Profit</span>
             <money-output :currency="defaultCurrency"
-                          :amount="taxPayments.totalTaxPayments"/>
+                          :amount="totalProfit"/>
           </div>
         </div>
       </div>
@@ -197,19 +201,20 @@
         return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount)
       },
 
-      profit: function () {
+      taxableAmount: function () {
         return (!isNil(this.expenses.totalAmount) && !isNil(this.incomes.totalAmount))
             ? this.incomes.totalAmount - this.expenses.totalAmount
             : null
       },
 
       profitDetailsVisible: function () {
-        return this.incomes.currencyExchangeGain || this.taxPayments.totalTaxPayments
+        return this.totalProfit !== null
       },
 
       totalProfit: function () {
-        return (this.profit && this.incomes.currencyExchangeGain)
-            ? this.profit + this.incomes.currencyExchangeGain
+        let taxPayments = this.taxPayments.totalTaxPayments || 0
+        return (this.taxableAmount && this.incomes.currencyExchangeGain)
+            ? this.taxableAmount + this.incomes.currencyExchangeGain - taxPayments
             : null
       },
 
