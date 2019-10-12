@@ -8,6 +8,10 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
+    - name: "Context"
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "Building in context of $GITHUB_CONTEXT"
     - name: "Checkout"
       uses: actions/checkout@master
     - name: "Setup Java"
@@ -18,8 +22,14 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-    - name: "Run Gradle"
+    - name: "Build"
+      if: github.ref != 'master' && github.ref != 'refs/heads/master'
       uses: eskatos/gradle-command-action@v1
       with:
         arguments: buildDockerImage --scan --console=plain
+    - name: "Build and Publish"
+      if: github.ref == 'master' || github.ref == 'refs/heads/master'
+      uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: publishDockerImage --scan --console=plain -Pdocker.hub.username={{ secrets.dockerhub_username }} -Pdocker.hub.password={{ secrets.dockerhub_token }}
       
