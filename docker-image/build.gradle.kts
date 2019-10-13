@@ -35,12 +35,11 @@ val prepareDockerBuild = tasks.register("prepareDockerBuild") {
 val buildDockerImage = tasks.register<DockerBuildImage>("buildDockerImage") {
     inputDir.set(file(dockerBuildDir))
     tags.add("orangebuffalo/simple-accounting:${project.version}")
-    tags.add("orangebuffalo/simple-accounting:latest")
     dependsOn(prepareDockerBuild)
 }
 
 tasks.register<DockerPushImage>("pushDockerImage") {
     imageName.set("orangebuffalo/simple-accounting")
-    tag.set("latest")
+    tag.set("${project.version}")
     dependsOn(buildDockerImage)
 }

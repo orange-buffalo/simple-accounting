@@ -1,10 +1,12 @@
 plugins {
     id("com.gradle.build-scan") version Versions.buildScanPlugin
+    id("io.wusa.semver-git-plugin") version Versions.semverGitPlugin
 }
 
-subprojects {
+val semVersion = semver.info.version
+allprojects {
+    version = semVersion
     group = "io.orangebuffalo.accounting"
-    version = "0.0.1-SNAPSHOT"
 }
 
 buildScan {
