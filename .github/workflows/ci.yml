@@ -1,0 +1,39 @@
+name: "Continuous Integration"
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: "Build and Tests"
+    runs-on: ubuntu-18.04
+    container: orangebuffalo/simple-accounting-ci:v1
+
+    steps:
+    - name: "Context"
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "Building in context of $GITHUB_CONTEXT"
+    - name: "Checkout"
+      uses: actions/checkout@master
+    - name: "Show Info"
+      uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: showInfo
+    - name: "Build"
+      if: github.ref != 'master' && github.ref != 'refs/heads/master'
+      uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: check buildDockerImage --scan --console=plain
+    - name: "Build and Publish"
+      if: github.ref == 'master' || github.ref == 'refs/heads/master'
+      uses: eskatos/gradle-command-action@v1
+      env:
+        DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
+      with:
+        arguments: check publishDockerImage --scan --console=plain -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password=$DOCKERHUB_TOKEN
+    - name: "Create Version Tag"
+      if: github.ref == 'master' || github.ref == 'refs/heads/master'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
+      run: ci create-tag
