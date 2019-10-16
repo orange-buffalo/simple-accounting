@@ -98,9 +98,15 @@
             </el-form-item>
 
             <el-form-item label="Notes" prop="notes">
-              <el-input type="textarea" v-model="income.notes"
-                        placeholder="Any additional information to be stored for this income record"/>
+              <el-input type="textarea"
+                        v-model="income.notes"
+                        placeholder="Any additional information to be stored for this income record"
+                        rows="5"/>
             </el-form-item>
+
+            <SaMarkdownOutput :source="income.notes"
+                              v-if="income.notes"
+                              preview/>
 
             <h2>Attachments</h2>
 
@@ -132,6 +138,7 @@
   import {isNil} from 'lodash'
   import {withTaxes} from '@/components/mixins/with-taxes'
   import withCategories from '@/components/mixins/with-categories'
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {
     name: 'EditIncome',
@@ -141,7 +148,8 @@
     components: {
       DocumentsUpload,
       CurrencyInput,
-      MoneyInput
+      MoneyInput,
+      SaMarkdownOutput
     },
 
     data: function () {

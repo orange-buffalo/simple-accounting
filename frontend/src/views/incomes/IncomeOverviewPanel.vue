@@ -174,7 +174,7 @@
                                   v-if="income.notes">
         <div class="row">
           <div class="col col-xs-12">
-            {{income.notes}}
+            <SaMarkdownOutput :source="income.notes"/>
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -210,6 +210,7 @@
   import SaIcon from '@/components/SaIcon'
   import OverviewItem from '@/components/overview-item/OverviewItem'
   import {isNil} from 'lodash/lang'
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {
     name: 'IncomeOverviewPanel',
@@ -228,7 +229,8 @@
       SaActionLink,
       OverviewItemDetailsSectionActions,
       OverviewItemAmountPanel,
-      SaStatusLabel
+      SaStatusLabel,
+      SaMarkdownOutput
     },
 
     props: {

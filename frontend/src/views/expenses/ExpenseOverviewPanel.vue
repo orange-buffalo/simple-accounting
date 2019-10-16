@@ -175,7 +175,7 @@
                                   v-if="expense.notes">
         <div class="row">
           <div class="col col-xs-12">
-            {{expense.notes}}
+            <SaMarkdownOutput :source="expense.notes"/>
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -202,6 +202,7 @@
   import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel'
   import SaStatusLabel from '@/components/SaStatusLabel'
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {
     name: 'ExpenseOverviewPanel',
@@ -220,7 +221,8 @@
       SaActionLink,
       OverviewItemDetailsSectionActions,
       OverviewItemAmountPanel,
-      SaStatusLabel
+      SaStatusLabel,
+      SaMarkdownOutput
     },
 
     props: {

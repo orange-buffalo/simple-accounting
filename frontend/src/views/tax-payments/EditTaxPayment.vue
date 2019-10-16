@@ -51,8 +51,13 @@
 
             <el-form-item label="Notes" prop="notes">
               <el-input type="textarea" v-model="taxPayment.notes"
-                        placeholder="Any additional information to be stored for this tax payment record"/>
+                        placeholder="Any additional information to be stored for this tax payment record"
+                        rows="5"/>
             </el-form-item>
+
+            <SaMarkdownOutput :source="taxPayment.notes"
+                              v-if="taxPayment.notes"
+                              preview/>
 
             <h2>Attachments</h2>
 
@@ -83,6 +88,7 @@
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter'
   import {assign} from 'lodash'
   import {isNil} from 'lodash'
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {
     name: 'EditTaxPayment',
@@ -92,7 +98,8 @@
     components: {
       DocumentsUpload,
       CurrencyInput,
-      MoneyInput
+      MoneyInput,
+      SaMarkdownOutput
     },
 
     data: function () {

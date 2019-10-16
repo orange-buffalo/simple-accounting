@@ -134,8 +134,13 @@
 
             <el-form-item label="Notes" prop="notes">
               <el-input type="textarea" v-model="invoice.notes"
-                        placeholder="Any additional information to be stored for this invoice record"/>
+                        placeholder="Any additional information to be stored for this invoice record"
+                        rows="5"/>
             </el-form-item>
+
+            <SaMarkdownOutput :source="invoice.notes"
+                              v-if="invoice.notes"
+                              preview/>
 
             <h2>Attachments</h2>
 
@@ -168,6 +173,7 @@
   import {assign, isNil} from 'lodash'
   import {withCustomers} from '@/components/mixins/with-customers'
   import {withTaxes} from '@/components/mixins/with-taxes'
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {
     name: 'EditInvoice',
@@ -177,7 +183,8 @@
     components: {
       DocumentsUpload,
       CurrencyInput,
-      MoneyInput
+      MoneyInput,
+      SaMarkdownOutput
     },
 
     data: function () {
