@@ -63,7 +63,7 @@
                                   v-if="taxPayment.notes">
         <div class="row">
           <div class="col col-xs-12">
-            {{taxPayment.notes}}
+            <SaMarkdownOutput :source="taxPayment.notes"/>
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -89,6 +89,7 @@
   import SaActionLink from '@/components/SaActionLink'
   import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection'
   import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute'
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {
     name: 'TaxPaymentOverviewPanel',
@@ -105,7 +106,8 @@
       OverviewItemPrimaryAttribute,
       OverviewItem,
       MoneyOutput,
-      DocumentLink
+      DocumentLink,
+      SaMarkdownOutput
     },
 
     props: {

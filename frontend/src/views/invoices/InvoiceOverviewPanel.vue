@@ -164,7 +164,7 @@
                                   v-if="invoice.notes">
         <div class="row">
           <div class="col col-xs-12">
-            {{invoice.notes}}
+            <SaMarkdownOutput :source="invoice.notes"/>
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -192,6 +192,7 @@
   import SaActionLink from '@/components/SaActionLink'
   import SaIcon from '@/components/SaIcon'
   import OverviewItem from '@/components/overview-item/OverviewItem'
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {
     name: 'InvoiceOverviewPanel',
@@ -210,7 +211,8 @@
       SaActionLink,
       OverviewItemDetailsSectionActions,
       OverviewItemAmountPanel,
-      SaStatusLabel
+      SaStatusLabel,
+      SaMarkdownOutput
     },
 
     props: {

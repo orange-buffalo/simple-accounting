@@ -109,8 +109,13 @@
 
             <el-form-item label="Notes" prop="notes">
               <el-input type="textarea" v-model="expense.notes"
-                        placeholder="Any additional information to be stored for this expense record"/>
+                        placeholder="Any additional information to be stored for this expense record"
+                        rows="5"/>
             </el-form-item>
+
+            <SaMarkdownOutput :source="expense.notes"
+                              v-if="expense.notes"
+                              preview/>
 
             <h2>Attachments</h2>
 
@@ -143,6 +148,7 @@
   import {isNil} from 'lodash'
   import {withTaxes} from '@/components/mixins/with-taxes'
   import withCategories from '@/components/mixins/with-categories'
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {
     name: 'EditExpense',
@@ -152,7 +158,8 @@
     components: {
       DocumentsUpload,
       CurrencyInput,
-      MoneyInput
+      MoneyInput,
+      SaMarkdownOutput
     },
 
     data: function () {
