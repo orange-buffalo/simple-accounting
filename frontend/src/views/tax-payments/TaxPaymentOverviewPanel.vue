@@ -72,23 +72,19 @@
 </template>
 
 <script>
-  import MoneyOutput from '@/components/MoneyOutput'
-  import DocumentLink from '@/components/DocumentLink'
   import {withMediumDateFormatter} from '@/components/mixins/with-medium-date-formatter'
-  import '@/components/icons/attachment'
-  import '@/components/icons/calendar'
-  import '@/components/icons/notes'
-  import '@/components/icons/pencil-solid'
-  import {loadDocuments} from '@/services/app-services'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
+  import {loadDocuments} from '@/services/app-services'
+  import DocumentLink from '@/components/DocumentLink'
+  import MoneyOutput from '@/components/MoneyOutput'
   import OverviewItem from '@/components/overview-item/OverviewItem'
-  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute'
-  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon'
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel'
-  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
-  import SaActionLink from '@/components/SaActionLink'
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon'
   import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection'
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
   import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute'
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute'
+  import SaActionLink from '@/components/SaActionLink'
   import SaMarkdownOutput from '@/components/SaMarkdownOutput'
 
   export default {

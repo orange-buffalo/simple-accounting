@@ -184,25 +184,25 @@
 </template>
 
 <script>
-  import MoneyOutput from '@/components/MoneyOutput'
-  import DocumentLink from '@/components/DocumentLink'
+  import {isNil} from 'lodash/lang'
   import {withMediumDateFormatter} from '@/components/mixins/with-medium-date-formatter'
   import {withCategories} from '@/components/mixins/with-categories'
   import {withWorkspaces} from '@/components/mixins/with-workspaces'
-  import {loadDocuments} from '@/services/app-services'
   import {withTaxes} from '@/components/mixins/with-taxes'
+  import {loadDocuments} from '@/services/app-services'
+  import DocumentLink from '@/components/DocumentLink'
+  import MoneyOutput from '@/components/MoneyOutput'
   import OverviewItem from '@/components/overview-item/OverviewItem'
-  import SaIcon from '@/components/SaIcon'
-  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon'
-  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute'
-  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection'
-  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute'
-  import {isNil} from 'lodash/lang'
-  import SaActionLink from '@/components/SaActionLink'
-  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel'
-  import SaStatusLabel from '@/components/SaStatusLabel'
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon'
+  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection'
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
+  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute'
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute'
+  import SaActionLink from '@/components/SaActionLink'
+  import SaIcon from '@/components/SaIcon'
   import SaMarkdownOutput from '@/components/SaMarkdownOutput'
+  import SaStatusLabel from '@/components/SaStatusLabel'
 
   export default {
     name: 'ExpenseOverviewPanel',

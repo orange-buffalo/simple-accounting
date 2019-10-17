@@ -7,6 +7,13 @@ module.exports = {
     disableHostCheck: true
   },
 
+  configureWebpack: config => {
+    config.performance = {
+      // todo #88: enable back when we properly split into chunks
+      hints: false
+    }
+  },
+
   chainWebpack: config => {
     // custom loader for CLDR data
     config.module
