@@ -28,14 +28,16 @@ jobs:
       run: ci create-tag
 
     - name: "Build"
-      if: github.ref != 'refs/heads/master'
-      run: ./gradlew check buildDockerImage --scan --console=plain
+      run: ./gradlew assemble --scan --console=plain
 
-    - name: "Build and Publish"
+    - name: "Test"
+      run: ./gradlew check --scan --console=plain
+
+    - name: "Publish"
       if: github.ref == 'refs/heads/master'
       env:
         DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
-      run: ./gradlew check pushDockerImage --scan --console=plain -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN"
+      run: ./gradlew pushDockerImage --scan --console=plain -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN"
 
     - name: "Push Version Tag"
       if: github.ref == 'refs/heads/master'
