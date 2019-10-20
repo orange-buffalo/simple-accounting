@@ -14,7 +14,6 @@ object Versions {
     const val jsonUnit = "2.0.2"
 
     const val dockerPlugin = "5.2.0"
-    const val nodePlugin = "1.3.1"
     const val buildScanPlugin = "2.4.2"
     const val semverGitPlugin = "1.2.1"
 }
