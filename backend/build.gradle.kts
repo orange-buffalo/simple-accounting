@@ -82,14 +82,9 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.register("copyFrontend") {
-    doLast {
-        copy {
-            from(project(":frontend").file("dist"))
-            into("$frontendDistDir/META-INF/resources")
-        }
-    }
-    dependsOn(":frontend:build")
+tasks.register<Copy>("copyFrontend") {
+    from(tasks.getByPath(":frontend:npmBuild"))
+    into("$frontendDistDir/META-INF/resources")
 }
 
 tasks {
