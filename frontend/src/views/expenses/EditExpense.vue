@@ -162,6 +162,15 @@
       SaMarkdownOutput
     },
 
+    props: {
+      id: {
+        type: String | Number
+      },
+      prototype: {
+        type: Object
+      }
+    },
+
     data: function () {
       return {
         expense: {
@@ -191,27 +200,10 @@
     },
 
     created: async function () {
-      if (this.$route.params.id) {
-        let expenseResponse = await api.get(`/workspaces/${this.workspace.id}/expenses/${this.$route.params.id}`)
-        this.expense = assign({}, this.expense, expenseResponse.data)
-
-        this.alreadyConverted = this.expense.currency !== this.defaultCurrency
-            && !isNil(this.expense.amountInDefaultCurrency)
-            && this.expense.amountInDefaultCurrency > 0
-
-        this.reportedAnotherExchangeRate = this.expense.currency !== this.defaultCurrency
-            && !isNil(this.expense.actualAmountInDefaultCurrency)
-            && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency)
-
-        this.partialForBusiness = this.expense.percentOnBusiness !== 100
-
-        if (this.expense.attachments && this.expense.attachments.length) {
-          let attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
-              .eager()
-              .eqFilter("id", this.expense.attachments)
-              .getPageData()
-          attachments.forEach(attachment => this.expense.uploads.add(attachment))
-        }
+      if (this.id) {
+        await this.loadExpense()
+      } else if (this.prototype) {
+        await this.copyExpenseFromPrototype()
       }
     },
 
@@ -241,11 +233,52 @@
       },
 
       pageHeader: function () {
-        return this.$route.params.id ? 'Edit Expense' : 'Record New Expense'
+        return this.id ? 'Edit Expense' : 'Record New Expense'
       }
     },
 
     methods: {
+      loadExpense: async function () {
+        let expenseResponse = await api.get(`/workspaces/${this.workspace.id}/expenses/${this.id}`)
+        this.expense = assign({}, this.expense, expenseResponse.data)
+        await this.setupComponentState()
+      },
+
+      copyExpenseFromPrototype: async function () {
+        this.expense = {...this.expense, ...{
+          category: this.prototype.category,
+          title: this.prototype.title,
+          currency: this.prototype.currency,
+          originalAmount: this.prototype.originalAmount,
+          amountInDefaultCurrency: this.prototype.amountInDefaultCurrency,
+          actualAmountInDefaultCurrency: this.prototype.actualAmountInDefaultCurrency,
+          percentOnBusiness: this.prototype.percentOnBusiness,
+          notes: this.prototype.notes,
+          tax: this.prototype.tax
+        }}
+        await this.setupComponentState()
+      },
+
+      setupComponentState: async function () {
+        this.alreadyConverted = this.expense.currency !== this.defaultCurrency
+            && !isNil(this.expense.amountInDefaultCurrency)
+            && this.expense.amountInDefaultCurrency > 0
+
+        this.reportedAnotherExchangeRate = this.expense.currency !== this.defaultCurrency
+            && !isNil(this.expense.actualAmountInDefaultCurrency)
+            && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency)
+
+        this.partialForBusiness = this.expense.percentOnBusiness !== 100
+
+        if (this.expense.attachments && this.expense.attachments.length) {
+          let attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
+              .eager()
+              .eqFilter("id", this.expense.attachments)
+              .getPageData()
+          attachments.forEach(attachment => this.expense.uploads.add(attachment))
+        }
+      },
+
       navigateToExpensesOverview: function () {
         this.$router.push({name: 'expenses-overview'})
       },

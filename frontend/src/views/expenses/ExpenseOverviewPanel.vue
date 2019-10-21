@@ -46,6 +46,11 @@
 
     <template v-slot:details>
       <OverviewItemDetailsSectionActions>
+        <SaActionLink icon="copy"
+                      v-if="currentWorkspace.editable"
+                      @click="navigateToExpenseCreateWithPrototype">
+          Copy
+        </SaActionLink>
         <SaActionLink icon="pencil-solid"
                       v-if="currentWorkspace.editable"
                       @click="navigateToExpenseEdit">
@@ -323,6 +328,10 @@
 
       navigateToExpenseEdit: function () {
         this.$router.push({name: 'edit-expense', params: {id: this.expense.id}})
+      },
+
+      navigateToExpenseCreateWithPrototype: function () {
+         this.$router.push({name: 'create-new-expense', params: {prototype: this.expense}})
       }
     }
   }
