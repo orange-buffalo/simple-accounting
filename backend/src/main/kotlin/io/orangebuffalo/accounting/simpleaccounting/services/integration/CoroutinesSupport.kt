@@ -45,7 +45,7 @@ suspend fun <T> withDbContextAsync(block: suspend CoroutineScope.() -> T): Defer
     async(context = dbContext, block = block)
 }
 
-fun voidMono(block: suspend CoroutineScope.() -> Unit): Mono<Void> = GlobalScope.mono {
+fun voidMono(block: suspend CoroutineScope.() -> Unit): Mono<Void> = mono {
     block()
     null
 }

@@ -1,7 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.integration
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
@@ -12,7 +11,7 @@ import kotlin.coroutines.coroutineContext
 fun <T> toMono(block: suspend CoroutineScope.() -> T): Mono<T> = ReactiveSecurityContextHolder.getContext()
     .map { it.authentication }
     .flatMap { authentication ->
-        GlobalScope.mono(CoroutineAuthentication(authentication)) {
+        mono(CoroutineAuthentication(authentication)) {
             block()
         }
     }

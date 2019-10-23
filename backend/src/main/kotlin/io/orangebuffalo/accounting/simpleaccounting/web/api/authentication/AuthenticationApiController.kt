@@ -9,7 +9,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtSer
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshAuthenticationToken
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshTokenService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.TOKEN_LIFETIME_IN_DAYS
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
@@ -33,7 +32,7 @@ class AuthenticationApiController(
 ) {
 
     @PostMapping("login")
-    fun login(@Valid @RequestBody loginRequest: LoginRequest) = GlobalScope.mono {
+    fun login(@Valid @RequestBody loginRequest: LoginRequest) = mono {
         val authenticationToken = UsernamePasswordAuthenticationToken(loginRequest.userName, loginRequest.password)
         val authentication = authenticationManager.authenticate(authenticationToken).awaitMono()
         val principal = authentication.principal as SecurityPrincipal
@@ -53,7 +52,7 @@ class AuthenticationApiController(
     }
 
     @PostMapping(path = ["login"], params = ["sharedWorkspaceToken"])
-    fun login(@RequestParam("sharedWorkspaceToken") sharedWorkspaceToken: String) = GlobalScope.mono {
+    fun login(@RequestParam("sharedWorkspaceToken") sharedWorkspaceToken: String) = mono {
         val workspaceAccessToken = workspaceAccessTokenService.getValidToken(sharedWorkspaceToken)
             ?: throw BadCredentialsException("Token $sharedWorkspaceToken is not valid")
         val jwtToken = jwtService.buildJwtToken(
@@ -67,7 +66,7 @@ class AuthenticationApiController(
     fun refreshToken(
         @CookieValue("refreshToken", required = false) refreshToken: String?,
         authentication: Authentication?
-    ) = GlobalScope.mono {
+    ) = mono {
 
         val authenticatedAuth = when {
             authentication != null && authentication.isAuthenticated -> authentication
@@ -89,7 +88,7 @@ class AuthenticationApiController(
     }
 
     @PostMapping("logout")
-    fun logout() = GlobalScope.mono {
+    fun logout() = mono {
         ResponseEntity.ok().withRefreshTokenCookie(null, Duration.ZERO).body("")
     }
 
