@@ -6,42 +6,39 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceA
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QWorkspaceAccessToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import java.time.Instant
 import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/workspace-access-tokens")
 class WorkspaceAccessTokensApiController(
-    private val extensions: ApiControllersExtensions,
     private val accessTokenService: WorkspaceAccessTokenService,
     private val workspaceService: WorkspaceService
 ) {
 
     @GetMapping
     @PageableApi(WorkspaceAccessTokenPageableApiDescriptor::class)
-    fun getAccessTokens(
+    suspend fun getAccessTokens(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<WorkspaceAccessToken>> = extensions.toMono {
+    ): Page<WorkspaceAccessToken> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
-        accessTokenService.getAccessTokens(workspace, pageRequest.page, pageRequest.predicate)
+        return accessTokenService.getAccessTokens(workspace, pageRequest.page, pageRequest.predicate)
     }
 
     @PostMapping
-    fun createToken(
+    suspend fun createToken(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid createTokenRequest: CreateWorkspaceAccessTokenDto
-    ): Mono<WorkspaceAccessTokenDto> = extensions.toMono {
+    ): WorkspaceAccessTokenDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
-        mapToDto(accessTokenService.createAccessToken(workspace, createTokenRequest.validTill))
+        return mapToDto(accessTokenService.createAccessToken(workspace, createTokenRequest.validTill))
     }
 }
 

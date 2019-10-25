@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import java.time.Instant
 import java.time.LocalDate
 import javax.validation.Valid
@@ -33,59 +32,61 @@ class InvoicesApiController(
 ) {
 
     @PostMapping
-    fun createInvoice(
+    suspend fun createInvoice(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditInvoiceDto
-    ): Mono<InvoiceDto> = extensions.toMono {
+    ): InvoiceDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
-        invoiceService.saveInvoice(
-            Invoice(
-                title = request.title,
-                timeRecorded = timeService.currentTime(),
-                customer = extensions.getValidCustomer(workspace, request.customer),
-                currency = request.currency,
-                notes = request.notes,
-                attachments = extensions.getValidDocuments(workspace, request.attachments),
-                dateIssued = request.dateIssued,
-                dateSent = request.dateSent,
-                datePaid = request.datePaid,
-                dateCancelled = request.dateCancelled,
-                dueDate = request.dueDate,
-                amount = request.amount,
-                tax = extensions.getValidTax(request.tax, workspace)
+        return invoiceService
+            .saveInvoice(
+                Invoice(
+                    title = request.title,
+                    timeRecorded = timeService.currentTime(),
+                    customer = extensions.getValidCustomer(workspace, request.customer),
+                    currency = request.currency,
+                    notes = request.notes,
+                    attachments = extensions.getValidDocuments(workspace, request.attachments),
+                    dateIssued = request.dateIssued,
+                    dateSent = request.dateSent,
+                    datePaid = request.datePaid,
+                    dateCancelled = request.dateCancelled,
+                    dueDate = request.dueDate,
+                    amount = request.amount,
+                    tax = extensions.getValidTax(request.tax, workspace)
+                )
             )
-        ).let { mapInvoiceDto(it, timeService) }
+            .let { mapInvoiceDto(it, timeService) }
     }
 
     @GetMapping
     @PageableApi(InvoicePageableApiDescriptor::class)
-    fun getInvoices(
+    suspend fun getInvoices(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<Invoice>> = extensions.toMono {
+    ): Page<Invoice> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        invoiceService.getInvoices(workspace, pageRequest.page, pageRequest.predicate)
+        return invoiceService.getInvoices(workspace, pageRequest.page, pageRequest.predicate)
     }
 
     @GetMapping("{invoiceId}")
-    fun getInvoice(
+    suspend fun getInvoice(
         @PathVariable workspaceId: Long,
         @PathVariable invoiceId: Long
-    ): Mono<InvoiceDto> = extensions.toMono {
+    ): InvoiceDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val income = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
-        mapInvoiceDto(income, timeService)
+        return mapInvoiceDto(income, timeService)
     }
 
     @PutMapping("{invoiceId}")
-    fun updateInvoice(
+    suspend fun updateInvoice(
         @PathVariable workspaceId: Long,
         @PathVariable invoiceId: Long,
         @RequestBody @Valid request: EditInvoiceDto
-    ): Mono<InvoiceDto> = extensions.toMono {
+    ): InvoiceDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
@@ -93,24 +94,27 @@ class InvoicesApiController(
         val income = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
 
-        income.apply {
-            title = request.title
-            customer = extensions.getValidCustomer(workspace, request.customer)
-            currency = request.currency
-            notes = request.notes
-            attachments = extensions.getValidDocuments(workspace, request.attachments)
-            dateIssued = request.dateIssued
-            dateSent = request.dateSent
-            datePaid = request.datePaid
-            dateCancelled = request.dateCancelled
-            dueDate = request.dueDate
-            amount = request.amount
-            tax = extensions.getValidTax(request.tax, workspace)
-        }.let {
-            invoiceService.saveInvoice(it)
-        }.let {
-            mapInvoiceDto(it, timeService)
-        }
+        return income
+            .apply {
+                title = request.title
+                customer = extensions.getValidCustomer(workspace, request.customer)
+                currency = request.currency
+                notes = request.notes
+                attachments = extensions.getValidDocuments(workspace, request.attachments)
+                dateIssued = request.dateIssued
+                dateSent = request.dateSent
+                datePaid = request.datePaid
+                dateCancelled = request.dateCancelled
+                dueDate = request.dueDate
+                amount = request.amount
+                tax = extensions.getValidTax(request.tax, workspace)
+            }
+            .let {
+                invoiceService.saveInvoice(it)
+            }
+            .let {
+                mapInvoiceDto(it, timeService)
+            }
     }
 }
 

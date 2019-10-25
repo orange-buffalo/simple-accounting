@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import java.time.Instant
 import java.time.LocalDate
 import javax.validation.Valid
@@ -34,54 +33,56 @@ class TaxPaymentApiController(
 ) {
 
     @PostMapping
-    fun createTaxPayment(
+    suspend fun createTaxPayment(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditTaxPaymentDto
-    ): Mono<TaxPaymentDto> = extensions.toMono {
+    ): TaxPaymentDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
-        taxPaymentService.saveTaxPayment(
-            TaxPayment(
-                timeRecorded = timeService.currentTime(),
-                datePaid = request.datePaid,
-                reportingDate = request.reportingDate ?: request.datePaid,
-                notes = request.notes,
-                attachments = extensions.getValidDocuments(workspace, request.attachments),
-                amount = request.amount,
-                workspace = workspace,
-                title = request.title
+        return taxPaymentService
+            .saveTaxPayment(
+                TaxPayment(
+                    timeRecorded = timeService.currentTime(),
+                    datePaid = request.datePaid,
+                    reportingDate = request.reportingDate ?: request.datePaid,
+                    notes = request.notes,
+                    attachments = extensions.getValidDocuments(workspace, request.attachments),
+                    amount = request.amount,
+                    workspace = workspace,
+                    title = request.title
+                )
             )
-        ).let(::mapTaxPaymentDto)
+            .let(::mapTaxPaymentDto)
     }
 
     @GetMapping
     @PageableApi(TaxPaymentPageableApiDescriptor::class)
-    fun getTaxPayments(
+    suspend fun getTaxPayments(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<TaxPayment>> = extensions.toMono {
+    ): Page<TaxPayment> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        taxPaymentService.getTaxPayments(workspace, pageRequest.page, pageRequest.predicate)
+        return taxPaymentService.getTaxPayments(workspace, pageRequest.page, pageRequest.predicate)
     }
 
     @GetMapping("{taxPaymentId}")
-    fun getTaxPayment(
+    suspend fun getTaxPayment(
         @PathVariable workspaceId: Long,
         @PathVariable taxPaymentId: Long
-    ): Mono<TaxPaymentDto> = extensions.toMono {
+    ): TaxPaymentDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val taxPayment = taxPaymentService.getTaxPaymentByIdAndWorkspace(taxPaymentId, workspace)
             ?: throw EntityNotFoundException("Tax Payment $taxPaymentId is not found")
-        mapTaxPaymentDto(taxPayment)
+        return mapTaxPaymentDto(taxPayment)
     }
 
     @PutMapping("{taxPaymentId}")
-    fun updateTaxPayment(
+    suspend fun updateTaxPayment(
         @PathVariable workspaceId: Long,
         @PathVariable taxPaymentId: Long,
         @RequestBody @Valid request: EditTaxPaymentDto
-    ): Mono<TaxPaymentDto> = extensions.toMono {
+    ): TaxPaymentDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
@@ -89,18 +90,21 @@ class TaxPaymentApiController(
         val income = taxPaymentService.getTaxPaymentByIdAndWorkspace(taxPaymentId, workspace)
             ?: throw EntityNotFoundException("Tax Payment $taxPaymentId is not found")
 
-        income.apply {
-            notes = request.notes
-            attachments = extensions.getValidDocuments(workspace, request.attachments)
-            datePaid = request.datePaid
-            reportingDate = request.reportingDate ?: request.datePaid
-            amount = request.amount
-            title = request.title
-        }.let {
-            taxPaymentService.saveTaxPayment(it)
-        }.let {
-            mapTaxPaymentDto(it)
-        }
+        return income
+            .apply {
+                notes = request.notes
+                attachments = extensions.getValidDocuments(workspace, request.attachments)
+                datePaid = request.datePaid
+                reportingDate = request.reportingDate ?: request.datePaid
+                amount = request.amount
+                title = request.title
+            }
+            .let {
+                taxPaymentService.saveTaxPayment(it)
+            }
+            .let {
+                mapTaxPaymentDto(it)
+            }
     }
 }
 

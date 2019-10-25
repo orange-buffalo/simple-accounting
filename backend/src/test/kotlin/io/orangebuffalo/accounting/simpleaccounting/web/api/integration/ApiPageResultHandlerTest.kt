@@ -47,39 +47,39 @@ internal class ApiPageResultHandlerTest {
     }
 
     @Test
-    fun `should not support non-mono methods`() {
+    fun `should not support mono methods`() {
         assertFalse(
             handler.supports(
                 HandlerResult(
                     this,
-                    Page.empty<Any>(),
-                    getMethodParameter("nonMonoControllerMethod")
+                    Mono.just(Page.empty<Any>()),
+                    getMethodParameter("monoMethod")
                 )
             )
         )
     }
 
     @Test
-    fun `should not support mono of non-Page methods`() {
+    fun `should not support non-Page methods`() {
         assertFalse(
             handler.supports(
                 HandlerResult(
                     this,
-                    Mono.empty<Any>(),
-                    getMethodParameter("nonPageMonoControllerMethod")
+                    "",
+                    getMethodParameter("nonPageMethod")
                 )
             )
         )
     }
 
     @Test
-    fun `should support mono of Page methods`() {
+    fun `should support Page methods`() {
         assertTrue(
             handler.supports(
                 HandlerResult(
                     this,
-                    Mono.empty<Page<Any>>(),
-                    getMethodParameter("emptyMonoControllerMethodWithoutAnnotation")
+                    Page.empty<Any>(),
+                    getMethodParameter("pagerMethod")
                 )
             )
         )
@@ -94,17 +94,17 @@ internal class ApiPageResultHandlerTest {
     private class TestController {
 
         @GetMapping
-        fun nonPageMonoControllerMethod(): Mono<Any> {
+        fun nonPageMethod(): String {
+            return ""
+        }
+
+        @GetMapping
+        fun monoMethod(): Mono<Page<*>> {
             return Mono.empty()
         }
 
         @GetMapping
-        fun emptyMonoControllerMethodWithoutAnnotation(): Mono<Page<*>> {
-            return Mono.empty()
-        }
-
-        @GetMapping
-        fun nonMonoControllerMethod(): Page<*> {
+        fun pagerMethod(): Page<*> {
             return Page.empty<Any>()
         }
     }

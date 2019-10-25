@@ -7,7 +7,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceS
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QCustomer
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
@@ -15,61 +14,61 @@ import org.hibernate.validator.constraints.Length
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/customers")
 class CustomersApiController(
-    private val extensions: ApiControllersExtensions,
     private val customerService: CustomerService,
     private val workspaceService: WorkspaceService
 ) {
 
     @PostMapping
-    fun createCustomer(
+    suspend fun createCustomer(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditCustomerDto
-    ): Mono<CustomerDto> = extensions.toMono {
+    ): CustomerDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
-        customerService.saveCustomer(
-            Customer(
-                name = request.name,
-                workspace = workspace
+        return customerService
+            .saveCustomer(
+                Customer(
+                    name = request.name,
+                    workspace = workspace
+                )
             )
-        ).let(::mapCustomerDto)
+            .let(::mapCustomerDto)
     }
 
     @GetMapping
     @PageableApi(CustomerPageableApiDescriptor::class)
-    fun getCustomers(
+    suspend fun getCustomers(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<Customer>> = extensions.toMono {
+    ): Page<Customer> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        customerService.getCustomers(workspace, pageRequest.page, pageRequest.predicate)
+        return customerService.getCustomers(workspace, pageRequest.page, pageRequest.predicate)
     }
 
     @GetMapping("{customerId}")
-    fun getCustomer(
+    suspend fun getCustomer(
         @PathVariable workspaceId: Long,
         @PathVariable customerId: Long
-    ): Mono<CustomerDto> = extensions.toMono {
+    ): CustomerDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expense = customerService.getCustomerByIdAndWorkspace(customerId, workspace)
             ?: throw EntityNotFoundException("Customer $customerId is not found")
-        mapCustomerDto(expense)
+        return mapCustomerDto(expense)
     }
 
     @PutMapping("{customerId}")
-    fun updateCustomer(
+    suspend fun updateCustomer(
         @PathVariable workspaceId: Long,
         @PathVariable customerId: Long,
         @RequestBody @Valid request: EditCustomerDto
-    ): Mono<CustomerDto> = extensions.toMono {
+    ): CustomerDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
@@ -77,13 +76,16 @@ class CustomersApiController(
         val customer = customerService.getCustomerByIdAndWorkspace(customerId, workspace)
             ?: throw EntityNotFoundException("Customer $customerId is not found")
 
-        customer.apply {
-            name = request.name
-        }.let {
-            customerService.saveCustomer(it)
-        }.let {
-            mapCustomerDto(it)
-        }
+        return customer
+            .apply {
+                name = request.name
+            }
+            .let {
+                customerService.saveCustomer(it)
+            }
+            .let {
+                mapCustomerDto(it)
+            }
     }
 }
 

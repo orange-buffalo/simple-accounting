@@ -6,7 +6,6 @@ import assertk.assertions.isEqualTo
 import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.CoroutineAuthentication
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
@@ -21,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.Duration
 
@@ -274,7 +272,7 @@ internal class WorkspaceServiceIT(
         var workspace: Workspace? = null
 
         val thrownBy = assertThatCode {
-            workspace = runBlocking(CoroutineAuthentication(SecurityContextHolder.getContext().authentication)) {
+            workspace = runBlocking {
                 workspaceService.getAccessibleWorkspace(testData.fryWorkspace.id!!, mode)
             }
         }

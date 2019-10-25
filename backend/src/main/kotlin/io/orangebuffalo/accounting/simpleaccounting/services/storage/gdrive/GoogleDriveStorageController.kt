@@ -1,9 +1,7 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.storage.gdrive
 
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.toMono
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Mono
 
 @RestController
 class GoogleDriveStorageController(
@@ -11,7 +9,6 @@ class GoogleDriveStorageController(
 ) {
 
     @RequestMapping("/api/storage/google-drive/status")
-    fun getIntegrationStatus(): Mono<GoogleDriveStorageIntegrationStatus> = toMono {
+    suspend fun getIntegrationStatus(): GoogleDriveStorageIntegrationStatus =
         storageService.getCurrentUserIntegrationStatus()
-    }
 }

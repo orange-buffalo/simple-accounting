@@ -2,16 +2,16 @@ package io.orangebuffalo.accounting.simpleaccounting.services.oauth2
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.awaitMonoOrNull
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.ensureRegularUserPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizationRequest
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.oauth2.Oauth2AuthorizationRequestRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepository
+import io.orangebuffalo.accounting.simpleaccounting.services.security.ensureRegularUserPrincipal
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService
@@ -82,7 +82,7 @@ class OAuth2Service(
 
     private suspend fun getClientRegistration(clientRegistrationId: String): ClientRegistration {
         return clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-            .awaitMonoOrNull()
+            .awaitFirstOrNull()
             ?: throw IllegalArgumentException("$clientRegistrationId is not known")
     }
 
@@ -154,7 +154,7 @@ class OAuth2Service(
             )
         )
 
-        val tokenResponse = accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitMonoOrNull()
+        val tokenResponse = accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitFirstOrNull()
             ?: throw IllegalStateException("Cannot get token")
 
         withDbContext {
@@ -189,7 +189,7 @@ class OAuth2Service(
     suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String, userName: String): OAuth2AuthorizedClient? {
         return clientService
             .loadAuthorizedClient<OAuth2AuthorizedClient>(clientRegistrationId, userName)
-            .awaitMonoOrNull()
+            .awaitFirstOrNull()
             ?.let { client -> if (expiresSoon(client)) null else client }
     }
 

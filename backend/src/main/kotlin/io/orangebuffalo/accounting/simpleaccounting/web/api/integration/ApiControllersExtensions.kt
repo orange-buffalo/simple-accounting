@@ -24,10 +24,6 @@ class ApiControllersExtensions(
                 ?: throw EntityNotFoundException("Tax $taxId is not found")
         }
 
-    //todo #65: remove
-    fun <T> toMono(block: suspend CoroutineScope.() -> T): Mono<T> =
-        io.orangebuffalo.accounting.simpleaccounting.services.integration.toMono(block)
-
     suspend fun getValidDocuments(
         workspace: Workspace,
         documentIds: List<Long>?

@@ -3,33 +3,31 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import javax.validation.Valid
 import javax.validation.constraints.Size
 
 @RestController
 @RequestMapping("/api/profile")
 class ProfileApiController(
-    private val extensions: ApiControllersExtensions,
     private val platformUserService: PlatformUserService
 ) {
     @GetMapping
-    fun getProfile(): Mono<ProfileDto> = extensions.toMono {
+    suspend fun getProfile(): ProfileDto {
         val currentUser = platformUserService.getCurrentUser()
-        mapToProfileDto(currentUser)
+        return mapToProfileDto(currentUser)
     }
 
     @PutMapping
-    fun updateProfile(@RequestBody @Valid request: UpdateProfileRequestDto): Mono<ProfileDto> = extensions.toMono {
-        platformUserService.getCurrentUser()
-            .apply {
-                documentsStorage = request.documentsStorage
-            }
-            .let { platformUserService.save(it) }
-            .let { mapToProfileDto(it) }
-    }
+    suspend fun updateProfile(
+        @RequestBody @Valid request: UpdateProfileRequestDto
+    ): ProfileDto = platformUserService
+        .getCurrentUser()
+        .apply {
+            documentsStorage = request.documentsStorage
+        }
+        .let { platformUserService.save(it) }
+        .let { mapToProfileDto(it) }
 }
 
 private fun mapToProfileDto(currentUser: PlatformUser): ProfileDto = ProfileDto(

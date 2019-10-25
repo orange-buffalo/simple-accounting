@@ -1,7 +1,5 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.ensureRegularUserPrincipal
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContextAsync
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
@@ -11,8 +9,9 @@ import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.S
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceAccessTokenRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.security.SecurityPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.security.ensureRegularUserPrincipal
+import io.orangebuffalo.accounting.simpleaccounting.services.security.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
-import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Service
 
 @Service
@@ -78,11 +77,11 @@ class WorkspaceService(
     suspend fun getAccessibleWorkspace(
         workspaceId: Long,
         accessMode: WorkspaceAccessMode
-    ): Workspace = coroutineScope {
+    ): Workspace {
 
         val currentPrincipal = getCurrentPrincipal()
 
-        if (currentPrincipal.isTransient) {
+        return if (currentPrincipal.isTransient) {
             getAccessibleWorkspaceForTransientUser(accessMode, workspaceId, currentPrincipal)
         } else {
             getAccessibleWorkspaceForRegularUser(workspaceId, currentPrincipal, accessMode)

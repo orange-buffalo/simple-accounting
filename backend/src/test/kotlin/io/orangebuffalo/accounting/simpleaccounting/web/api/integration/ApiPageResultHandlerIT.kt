@@ -17,7 +17,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Mono
 
 private const val PATH = "/api/auth/api-page-request-handler-test"
 
@@ -63,22 +62,19 @@ internal class ApiPageResultHandlerIT(
 
         @GetMapping(PATH)
         @PageableApi(ApiPageResultHandlerTestPageableApiDescriptor::class)
-        fun get(apiPageRequest: ApiPageRequest): Mono<Page<ApiPageResultHandlerTestRepositoryUser>> {
-            return Mono.just(
-                PageImpl(
-                    listOf(
-                        ApiPageResultHandlerTestRepositoryUser(
-                            "Leela",
-                            1,
-                            0,
-                            "&#@*(@#(MG;dfd6yrtFdl3'0s*^"
-                        )
-                    ),
-                    PageRequest.of(2, 10),
-                    42
-                )
+        suspend fun get(apiPageRequest: ApiPageRequest): Page<ApiPageResultHandlerTestRepositoryUser> =
+            PageImpl(
+                listOf(
+                    ApiPageResultHandlerTestRepositoryUser(
+                        "Leela",
+                        1,
+                        0,
+                        "&#@*(@#(MG;dfd6yrtFdl3'0s*^"
+                    )
+                ),
+                PageRequest.of(2, 10),
+                42
             )
-        }
     }
 
     data class ApiPageResultHandlerTestApiUser(

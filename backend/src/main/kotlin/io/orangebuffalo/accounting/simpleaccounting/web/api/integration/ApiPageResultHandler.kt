@@ -35,10 +35,7 @@ class ApiPageResultHandler(
     }
 
     override fun supports(result: HandlerResult): Boolean {
-        val adapter = getAdapter(result)
-        return adapter != null
-                && !adapter.isNoValue
-                && isSupportedType(result.returnTypeSource.nested().nestedParameterType)
+        return isSupportedType(result.returnTypeSource.parameterType)
     }
 
     private fun isSupportedType(clazz: Class<*>): Boolean {
@@ -49,9 +46,7 @@ class ApiPageResultHandler(
         val adapter = getAdapter(result)
             ?: throw IllegalArgumentException("Reactive adapter is missing")
 
-        if (adapter.isMultiValue) {
-            throw IllegalArgumentException("Return value should support a single result")
-        }
+        require(!adapter.isMultiValue) { "Return value should support a single result" }
 
         val bodyParameter = result.returnTypeSource.nested().nested()
 

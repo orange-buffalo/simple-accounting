@@ -1,9 +1,9 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.business
 
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.ensureRegularUserPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PlatformUserRepository
+import io.orangebuffalo.accounting.simpleaccounting.services.security.ensureRegularUserPrincipal
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service

@@ -5,14 +5,12 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceA
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QCategory
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
@@ -21,41 +19,38 @@ import javax.validation.constraints.NotNull
 @RequestMapping("/api/workspaces/{workspaceId}/categories")
 class CategoriesApiController(
     private val categoryService: CategoryService,
-    private val extensions: ApiControllersExtensions,
     private val workspaceService: WorkspaceService
 ) {
 
     @GetMapping
     @PageableApi(CategoryPageableApiDescriptor::class)
-    fun getCategories(
+    suspend fun getCategories(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<Category>> = extensions.toMono {
-        workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-            .let { workspace ->
-                categoryService.getCategories(workspace, pageRequest.page, pageRequest.predicate)
-            }
-    }
+    ): Page<Category> = workspaceService
+        .getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        .let { workspace ->
+            categoryService.getCategories(workspace, pageRequest.page, pageRequest.predicate)
+        }
 
     @PostMapping
-    fun createCategory(
+    suspend fun createCategory(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid createCategoryRequest: CreateCategoryDto
-    ): Mono<CategoryDto> = extensions.toMono {
-        workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
-            .let { workspace ->
-                categoryService.createCategory(
-                    Category(
-                        name = createCategoryRequest.name,
-                        workspace = workspace,
-                        expense = createCategoryRequest.expense,
-                        income = createCategoryRequest.income,
-                        description = createCategoryRequest.description
-                    )
+    ): CategoryDto = workspaceService
+        .getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        .let { workspace ->
+            categoryService.createCategory(
+                Category(
+                    name = createCategoryRequest.name,
+                    workspace = workspace,
+                    expense = createCategoryRequest.expense,
+                    income = createCategoryRequest.income,
+                    description = createCategoryRequest.description
                 )
-            }
-            .let { mapCategoryDto(it) }
-    }
+            )
+        }
+        .let { mapCategoryDto(it) }
 }
 
 data class CategoryDto(
