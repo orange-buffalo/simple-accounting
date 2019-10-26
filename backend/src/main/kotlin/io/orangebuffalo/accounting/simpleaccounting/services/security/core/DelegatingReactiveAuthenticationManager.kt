@@ -14,7 +14,7 @@ class DelegatingReactiveAuthenticationManager(
     private val providers: List<AuthenticationProvider>
 ) : ReactiveAuthenticationManager {
 
-    override fun authenticate(authentication: Authentication): Mono<Authentication> = GlobalScope.mono {
+    override fun authenticate(authentication: Authentication): Mono<Authentication> = mono {
         val authenticationProvider = providers
             .firstOrNull { it.supports(authentication::class) }
             ?: throw ProviderNotFoundException(

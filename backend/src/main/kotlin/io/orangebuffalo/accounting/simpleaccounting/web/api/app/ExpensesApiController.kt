@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import java.time.Instant
 import java.time.LocalDate
 import javax.validation.Valid
@@ -32,62 +31,64 @@ class ExpensesApiController(
 ) {
 
     @PostMapping
-    fun createExpense(
+    suspend fun createExpense(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditExpenseDto
-    ): Mono<ExpenseDto> = extensions.toMono {
+    ): ExpenseDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         val tax = extensions.getValidTax(request.tax, workspace)
 
-        expenseService.saveExpense(
-            Expense(
-                workspace = workspace,
-                category = extensions.getValidCategory(workspace, request.category),
-                title = request.title,
-                timeRecorded = timeService.currentTime(),
-                datePaid = request.datePaid,
-                currency = request.currency,
-                originalAmount = request.originalAmount,
-                amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
-                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0,
-                notes = request.notes,
-                percentOnBusiness = request.percentOnBusiness ?: 100,
-                attachments = extensions.getValidDocuments(workspace, request.attachments),
-                reportedAmountInDefaultCurrency = 0,
-                tax = tax
+        return expenseService
+            .saveExpense(
+                Expense(
+                    workspace = workspace,
+                    category = extensions.getValidCategory(workspace, request.category),
+                    title = request.title,
+                    timeRecorded = timeService.currentTime(),
+                    datePaid = request.datePaid,
+                    currency = request.currency,
+                    originalAmount = request.originalAmount,
+                    amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
+                    actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0,
+                    notes = request.notes,
+                    percentOnBusiness = request.percentOnBusiness ?: 100,
+                    attachments = extensions.getValidDocuments(workspace, request.attachments),
+                    reportedAmountInDefaultCurrency = 0,
+                    tax = tax
+                )
             )
-        ).let(::mapExpenseDto)
+            .let(::mapExpenseDto)
     }
 
     @GetMapping
     @PageableApi(ExpensePageableApiDescriptor::class)
-    fun getExpenses(
+    suspend fun getExpenses(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<Expense>> = extensions.toMono {
+    ): Page<Expense> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        expenseService.getExpenses(workspace, pageRequest.page, pageRequest.predicate)
+        return expenseService.getExpenses(workspace, pageRequest.page, pageRequest.predicate)
     }
 
     @GetMapping("{expenseId}")
-    fun getExpense(
+    suspend fun getExpense(
         @PathVariable workspaceId: Long,
         @PathVariable expenseId: Long
-    ): Mono<ExpenseDto> = extensions.toMono {
+    ): ExpenseDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
             ?: throw EntityNotFoundException("Expense $expenseId is not found")
-        mapExpenseDto(expense)
+        return mapExpenseDto(expense)
     }
 
     @PutMapping("{expenseId}")
-    fun updateExpense(
+    suspend fun updateExpense(
         @PathVariable workspaceId: Long,
         @PathVariable expenseId: Long,
         @RequestBody @Valid request: EditExpenseDto
-    ): Mono<ExpenseDto> = extensions.toMono {
+    ): ExpenseDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
@@ -95,23 +96,26 @@ class ExpensesApiController(
         val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
             ?: throw EntityNotFoundException("Expense $expenseId is not found")
 
-        expense.apply {
-            category = extensions.getValidCategory(workspace, request.category)
-            title = request.title
-            datePaid = request.datePaid
-            currency = request.currency
-            originalAmount = request.originalAmount
-            amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0
-            actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0
-            notes = request.notes
-            percentOnBusiness = request.percentOnBusiness ?: 100
-            attachments = extensions.getValidDocuments(workspace, request.attachments)
-            tax = extensions.getValidTax(request.tax, workspace)
-        }.let {
-            expenseService.saveExpense(it)
-        }.let {
-            mapExpenseDto(it)
-        }
+        return expense
+            .apply {
+                category = extensions.getValidCategory(workspace, request.category)
+                title = request.title
+                datePaid = request.datePaid
+                currency = request.currency
+                originalAmount = request.originalAmount
+                amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0
+                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0
+                notes = request.notes
+                percentOnBusiness = request.percentOnBusiness ?: 100
+                attachments = extensions.getValidDocuments(workspace, request.attachments)
+                tax = extensions.getValidTax(request.tax, workspace)
+            }
+            .let {
+                expenseService.saveExpense(it)
+            }
+            .let {
+                mapExpenseDto(it)
+            }
     }
 }
 

@@ -1,7 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.oauth2
 
 import io.orangebuffalo.accounting.simpleaccounting.services.oauth2.OAuth2Service
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactor.mono
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,7 +20,7 @@ class OAuth2CallbackController(
         @RequestParam(required = false) code: String?,
         @RequestParam(required = false) error: String?,
         @RequestParam(required = false) state: String?
-    ): Mono<String> = GlobalScope.mono {
+    ): Mono<String> = mono {
         oauth2Service.onAuthCallback(code = code, error = error, state = state)
         //todo #83: render "nice" page
         "Done.. hold on a second.."

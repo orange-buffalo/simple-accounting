@@ -23,7 +23,7 @@ class DbReactiveOAuth2AuthorizedClientService(
     override fun <T : OAuth2AuthorizedClient?> loadAuthorizedClient(
         clientRegistrationId: String,
         principalName: String
-    ): Mono<T> = GlobalScope.mono {
+    ): Mono<T> = mono {
         val clientRegistration = clientRegistrationRepository.findByRegistrationId(clientRegistrationId).awaitSingle()
 
         withDbContext {

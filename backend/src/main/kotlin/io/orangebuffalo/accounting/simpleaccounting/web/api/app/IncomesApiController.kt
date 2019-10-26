@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import java.time.Instant
 import java.time.LocalDate
 import javax.validation.Valid
@@ -31,58 +30,60 @@ class IncomesApiController(
 ) {
 
     @PostMapping
-    fun createIncome(
+    suspend fun createIncome(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditIncomeDto
-    ): Mono<IncomeDto> = extensions.toMono {
+    ): IncomeDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
-        incomeService.saveIncome(
-            Income(
-                workspace = workspace,
-                category = extensions.getValidCategory(workspace, request.category),
-                title = request.title,
-                timeRecorded = timeService.currentTime(),
-                dateReceived = request.dateReceived,
-                currency = request.currency,
-                originalAmount = request.originalAmount,
-                amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
-                reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0,
-                notes = request.notes,
-                attachments = extensions.getValidDocuments(workspace, request.attachments),
-                tax = extensions.getValidTax(request.tax, workspace)
+        return incomeService
+            .saveIncome(
+                Income(
+                    workspace = workspace,
+                    category = extensions.getValidCategory(workspace, request.category),
+                    title = request.title,
+                    timeRecorded = timeService.currentTime(),
+                    dateReceived = request.dateReceived,
+                    currency = request.currency,
+                    originalAmount = request.originalAmount,
+                    amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
+                    reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0,
+                    notes = request.notes,
+                    attachments = extensions.getValidDocuments(workspace, request.attachments),
+                    tax = extensions.getValidTax(request.tax, workspace)
+                )
             )
-        ).let { mapIncomeDto(it, invoiceService) }
+            .let { mapIncomeDto(it, invoiceService) }
     }
 
     @GetMapping
     @PageableApi(IncomePageableApiDescriptor::class)
-    fun getIncomes(
+    suspend fun getIncomes(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Mono<Page<Income>> = extensions.toMono {
+    ): Page<Income> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        incomeService.getIncomes(workspace, pageRequest.page, pageRequest.predicate)
+        return incomeService.getIncomes(workspace, pageRequest.page, pageRequest.predicate)
     }
 
     @GetMapping("{incomeId}")
-    fun getIncome(
+    suspend fun getIncome(
         @PathVariable workspaceId: Long,
         @PathVariable incomeId: Long
-    ): Mono<IncomeDto> = extensions.toMono {
+    ): IncomeDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
             ?: throw EntityNotFoundException("Income $incomeId is not found")
-        mapIncomeDto(income, invoiceService)
+        return mapIncomeDto(income, invoiceService)
     }
 
     @PutMapping("{incomeId}")
-    fun updateIncome(
+    suspend fun updateIncome(
         @PathVariable workspaceId: Long,
         @PathVariable incomeId: Long,
         @RequestBody @Valid request: EditIncomeDto
-    ): Mono<IncomeDto> = extensions.toMono {
+    ): IncomeDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
@@ -90,22 +91,25 @@ class IncomesApiController(
         val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
             ?: throw EntityNotFoundException("Income $incomeId is not found")
 
-        income.apply {
-            category = extensions.getValidCategory(workspace, request.category)
-            title = request.title
-            dateReceived = request.dateReceived
-            currency = request.currency
-            originalAmount = request.originalAmount
-            amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0
-            reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0
-            notes = request.notes
-            attachments = extensions.getValidDocuments(workspace, request.attachments)
-            tax = extensions.getValidTax(request.tax, workspace)
-        }.let {
-            incomeService.saveIncome(it)
-        }.let {
-            mapIncomeDto(it, invoiceService)
-        }
+        return income
+            .apply {
+                category = extensions.getValidCategory(workspace, request.category)
+                title = request.title
+                dateReceived = request.dateReceived
+                currency = request.currency
+                originalAmount = request.originalAmount
+                amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0
+                reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0
+                notes = request.notes
+                attachments = extensions.getValidDocuments(workspace, request.attachments)
+                tax = extensions.getValidTax(request.tax, workspace)
+            }
+            .let {
+                incomeService.saveIncome(it)
+            }
+            .let {
+                mapIncomeDto(it, invoiceService)
+            }
     }
 }
 

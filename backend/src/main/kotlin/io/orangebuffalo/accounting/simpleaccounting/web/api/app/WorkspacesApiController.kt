@@ -3,11 +3,9 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.getCurrentPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
+import io.orangebuffalo.accounting.simpleaccounting.services.security.getCurrentPrincipal
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -16,14 +14,13 @@ import javax.validation.constraints.Size
 @RequestMapping("/api/")
 class WorkspacesApiController(
     private val platformUserService: PlatformUserService,
-    private val workspaceService: WorkspaceService,
-    private val extensions: ApiControllersExtensions
+    private val workspaceService: WorkspaceService
 ) {
 
     @GetMapping("workspaces")
-    fun getWorkspaces(): Mono<List<WorkspaceDto>> = extensions.toMono {
+    suspend fun getWorkspaces(): List<WorkspaceDto> {
         val currentPrincipal = getCurrentPrincipal()
-        if (currentPrincipal.isTransient) {
+        return if (currentPrincipal.isTransient) {
             workspaceService
                 .getValidWorkspaceAccessToken(currentPrincipal.userName)
                 .workspace
@@ -36,10 +33,10 @@ class WorkspacesApiController(
     }
 
     @PostMapping("workspaces")
-    fun createWorkspace(
+    suspend fun createWorkspace(
         @RequestBody @Valid createWorkspaceRequest: CreateWorkspaceDto
-    ): Mono<WorkspaceDto> = extensions.toMono {
-        workspaceService.createWorkspace(
+    ): WorkspaceDto = workspaceService
+        .createWorkspace(
             Workspace(
                 name = createWorkspaceRequest.name,
                 taxEnabled = false,
@@ -47,32 +44,28 @@ class WorkspacesApiController(
                 defaultCurrency = createWorkspaceRequest.defaultCurrency,
                 owner = platformUserService.getCurrentUser()
             )
-        ).let { mapWorkspaceDto(it, true) }
-    }
+        )
+        .let { mapWorkspaceDto(it, true) }
 
     @PutMapping("workspaces/{workspaceId}")
-    fun editWorkspace(
+    suspend fun editWorkspace(
         @RequestBody @Valid editWorkspaceRequest: EditWorkspaceDto,
         @PathVariable workspaceId: Long
-    ): Mono<WorkspaceDto> = extensions.toMono {
-        workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
-            .apply {
-                name = editWorkspaceRequest.name
-            }
-            .let { workspaceService.save(it) }
-            .let { mapWorkspaceDto(it, true) }
-    }
+    ): WorkspaceDto = workspaceService
+        .getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
+        .apply {
+            name = editWorkspaceRequest.name
+        }
+        .let { workspaceService.save(it) }
+        .let { mapWorkspaceDto(it, true) }
 
     @GetMapping("shared-workspaces")
-    fun getSharedWorkspaces(): Mono<List<WorkspaceDto>> = extensions.toMono {
-        workspaceService.getSharedWorkspaces().map { mapWorkspaceDto(it, false) }
-    }
+    suspend fun getSharedWorkspaces(): List<WorkspaceDto> = workspaceService
+        .getSharedWorkspaces().map { mapWorkspaceDto(it, false) }
 
     @PostMapping("shared-workspaces")
-    fun saveSharedWorkspace(@Valid @RequestBody request: SaveSharedWorkspaceRequestDto): Mono<WorkspaceDto> =
-        extensions.toMono {
-            mapWorkspaceDto(workspaceService.saveSharedWorkspace(request.token), false)
-        }
+    suspend fun saveSharedWorkspace(@Valid @RequestBody request: SaveSharedWorkspaceRequestDto): WorkspaceDto =
+        mapWorkspaceDto(workspaceService.saveSharedWorkspace(request.token), false)
 }
 
 data class WorkspaceDto(

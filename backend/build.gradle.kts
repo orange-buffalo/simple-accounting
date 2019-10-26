@@ -26,8 +26,6 @@ repositories {
 }
 
 dependencies {
-    platform("org.junit:junit-bom:${Versions.junit}")
-
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile("org.springframework.boot:spring-boot-starter-webflux")
     compile("org.springframework.boot:spring-boot-starter-security")

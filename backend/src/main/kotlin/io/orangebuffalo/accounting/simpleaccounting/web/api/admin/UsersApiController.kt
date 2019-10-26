@@ -3,7 +3,6 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.admin
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QPlatformUser
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApiDescriptor
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Page
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
@@ -20,26 +18,23 @@ import javax.validation.constraints.NotNull
 @RequestMapping("/api/users")
 class UsersApiController(
     private val userService: PlatformUserService,
-    private val passwordEncoder: PasswordEncoder,
-    private val extensions: ApiControllersExtensions
+    private val passwordEncoder: PasswordEncoder
 ) {
 
     @GetMapping
     @PageableApi(UserPageableApiDescriptor::class)
-    fun getUsers(pageRequest: ApiPageRequest): Mono<Page<PlatformUser>> = extensions.toMono {
-        userService.getUsers(pageRequest.page)
-    }
+    suspend fun getUsers(pageRequest: ApiPageRequest): Page<PlatformUser> = userService.getUsers(pageRequest.page)
 
     @PostMapping
-    fun createUser(@RequestBody @Valid user: CreateUserDto): Mono<UserDto> = extensions.toMono {
-        userService.save(
+    suspend fun createUser(@RequestBody @Valid user: CreateUserDto): UserDto = userService
+        .save(
             PlatformUser(
                 userName = user.userName!!,
                 passwordHash = passwordEncoder.encode(user.password!!),
                 isAdmin = user.admin!!
             )
-        ).let(::mapUserDto)
-    }
+        )
+        .let(::mapUserDto)
 }
 
 data class UserDto(

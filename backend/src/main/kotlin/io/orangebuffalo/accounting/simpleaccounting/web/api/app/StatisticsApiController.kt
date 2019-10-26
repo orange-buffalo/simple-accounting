@@ -2,16 +2,13 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
-import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
-import reactor.core.publisher.Mono
 import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/statistics/")
 class StatisticsApiController(
-    private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,
     private val incomeService: IncomeService,
     private val taxPaymentService: TaxPaymentService,
@@ -19,14 +16,14 @@ class StatisticsApiController(
 ) {
 
     @GetMapping("expenses")
-    fun getExpensesStatistics(
+    suspend fun getExpensesStatistics(
         @PathVariable workspaceId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): Mono<ExpensesStatisticsDto> = extensions.toMono {
+    ): ExpensesStatisticsDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspace)
-        ExpensesStatisticsDto(
+        return ExpensesStatisticsDto(
             expensesStatistics.map {
                 ExpensesStatisticsItemDto(
                     it.categoryId,
@@ -39,14 +36,14 @@ class StatisticsApiController(
     }
 
     @GetMapping("incomes")
-    fun getIncomesStatistics(
+    suspend fun getIncomesStatistics(
         @PathVariable workspaceId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): Mono<IncomesStatisticsDto> = extensions.toMono {
+    ): IncomesStatisticsDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val incomesStatistics = incomeService.getIncomesStatistics(fromDate, toDate, workspace)
-        IncomesStatisticsDto(
+        return IncomesStatisticsDto(
             incomesStatistics.map {
                 IncomesStatisticsItemDto(
                     it.categoryId,
@@ -60,22 +57,22 @@ class StatisticsApiController(
     }
 
     @GetMapping("tax-payments")
-    fun getTaxPaymentsStatistics(
+    suspend fun getTaxPaymentsStatistics(
         @PathVariable workspaceId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): Mono<TaxPaymentsStatisticsDto> = extensions.toMono {
+    ): TaxPaymentsStatisticsDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val taxPaymentsStatistics = taxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspace)
-        TaxPaymentsStatisticsDto(taxPaymentsStatistics.totalTaxPayments)
+        return TaxPaymentsStatisticsDto(taxPaymentsStatistics.totalTaxPayments)
     }
 
     @GetMapping("currencies-shortlist")
-    fun getCurrenciesShortlist(@PathVariable workspaceId: Long): Mono<List<String>> = extensions.toMono {
+    suspend fun getCurrenciesShortlist(@PathVariable workspaceId: Long): List<String> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expensesCurrencies = expenseService.getCurrenciesUsageStatistics(workspace)
         val incomesCurrencies = incomeService.getCurrenciesUsageStatistics(workspace)
-        (expensesCurrencies + incomesCurrencies).asSequence()
+        return (expensesCurrencies + incomesCurrencies).asSequence()
             .groupingBy(CurrenciesUsageStatistics::currency)
             .reduce { currency, accumulator, next ->
                 CurrenciesUsageStatistics(

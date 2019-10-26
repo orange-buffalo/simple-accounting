@@ -27,7 +27,7 @@ class PushNotificationService(
         .map { it.authentication.principal }
         .cast(UserDetails::class.java)
         .flatMap { principal ->
-            GlobalScope.mono {
+            mono {
                 platformUserService.getUserByUserName(principal.username)
             }
         }

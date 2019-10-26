@@ -3,14 +3,13 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Mono
 import java.util.*
 
 @RestController
 @RequestMapping("/api/currencies")
 class CurrenciesApiController {
 
-    val currencies = Currency.getAvailableCurrencies().asSequence()
+    val availableCurrencies = Currency.getAvailableCurrencies().asSequence()
         .map { currency ->
             CurrencyDto(
                 code = currency.currencyCode,
@@ -21,7 +20,7 @@ class CurrenciesApiController {
         .toList()
 
     @GetMapping
-    fun getCurrencies(): Mono<List<CurrencyDto>> = Mono.just(currencies)
+    fun getCurrencies(): List<CurrencyDto> = availableCurrencies
 }
 
 data class CurrencyDto(

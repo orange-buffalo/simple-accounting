@@ -1,8 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.storage
 
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.awaitMonoOrNull
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.withContext
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.buffer.DataBuffer
@@ -38,7 +38,7 @@ class LocalFileSystemDocumentStorage(
             val documentDir = File(config.baseDirectory.toFile(), workspace.id.toString()).apply { mkdirs() }
             val documentName = "${UUID.randomUUID()}.${File(file.filename()).extension}"
             val documentFile = File(documentDir, documentName)
-            file.transferTo(documentFile).awaitMonoOrNull()
+            file.transferTo(documentFile).awaitFirstOrNull()
             val location = documentFile.relativeTo(config.baseDirectory.toFile()).toString()
             StorageProviderResponse(location, documentFile.length())
         }

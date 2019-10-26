@@ -1,7 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import com.querydsl.core.types.EntityPath
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactor.mono
 import org.reactivestreams.Publisher
 import org.springframework.core.ReactiveAdapterRegistry
@@ -36,10 +35,7 @@ class ApiPageResultHandler(
     }
 
     override fun supports(result: HandlerResult): Boolean {
-        val adapter = getAdapter(result)
-        return adapter != null
-                && !adapter.isNoValue
-                && isSupportedType(result.returnTypeSource.nested().nestedParameterType)
+        return isSupportedType(result.returnTypeSource.parameterType)
     }
 
     private fun isSupportedType(clazz: Class<*>): Boolean {
@@ -50,9 +46,7 @@ class ApiPageResultHandler(
         val adapter = getAdapter(result)
             ?: throw IllegalArgumentException("Reactive adapter is missing")
 
-        if (adapter.isMultiValue) {
-            throw IllegalArgumentException("Return value should support a single result")
-        }
+        require(!adapter.isMultiValue) { "Return value should support a single result" }
 
         val bodyParameter = result.returnTypeSource.nested().nested()
 
@@ -63,7 +57,7 @@ class ApiPageResultHandler(
         return Mono.from(adapter.toPublisher<Page<Any>>(result.returnValue))
             .flatMap { repositoryPage ->
                 //todo #110: wrap the whole method into a coroutine mono: subscribers context needs to be propagated to support security
-                GlobalScope.mono {
+                mono {
                     ApiPage(
                         pageNumber = repositoryPage.number + 1,
                         pageSize = repositoryPage.size,

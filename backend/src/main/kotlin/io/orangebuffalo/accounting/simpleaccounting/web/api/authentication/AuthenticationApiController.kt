@@ -1,7 +1,6 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessTokenService
-import io.orangebuffalo.accounting.simpleaccounting.services.integration.awaitMono
 import io.orangebuffalo.accounting.simpleaccounting.services.security.SecurityPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.security.core.DelegatingReactiveAuthenticationManager
 import io.orangebuffalo.accounting.simpleaccounting.services.security.createTransientUserPrincipal
@@ -9,8 +8,7 @@ import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtSer
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshAuthenticationToken
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshTokenService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.TOKEN_LIFETIME_IN_DAYS
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.reactor.mono
+import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
@@ -33,9 +31,9 @@ class AuthenticationApiController(
 ) {
 
     @PostMapping("login")
-    fun login(@Valid @RequestBody loginRequest: LoginRequest) = GlobalScope.mono {
+    suspend fun login(@Valid @RequestBody loginRequest: LoginRequest): ResponseEntity<TokenResponse> {
         val authenticationToken = UsernamePasswordAuthenticationToken(loginRequest.userName, loginRequest.password)
-        val authentication = authenticationManager.authenticate(authenticationToken).awaitMono()
+        val authentication = authenticationManager.authenticate(authenticationToken).awaitFirst()
         val principal = authentication.principal as SecurityPrincipal
         val jwtToken = jwtService.buildJwtToken(principal)
 
@@ -49,37 +47,37 @@ class AuthenticationApiController(
                 )
         }
 
-        response.body(TokenResponse(jwtToken))
+        return response.body(TokenResponse(jwtToken))
     }
 
     @PostMapping(path = ["login"], params = ["sharedWorkspaceToken"])
-    fun login(@RequestParam("sharedWorkspaceToken") sharedWorkspaceToken: String) = GlobalScope.mono {
+    suspend fun login(@RequestParam("sharedWorkspaceToken") sharedWorkspaceToken: String): TokenResponse {
         val workspaceAccessToken = workspaceAccessTokenService.getValidToken(sharedWorkspaceToken)
             ?: throw BadCredentialsException("Token $sharedWorkspaceToken is not valid")
         val jwtToken = jwtService.buildJwtToken(
             createTransientUserPrincipal(workspaceAccessToken.token),
             workspaceAccessToken.validTill
         )
-        TokenResponse(jwtToken)
+        return TokenResponse(jwtToken)
     }
 
     @PostMapping("token")
-    fun refreshToken(
+    suspend fun refreshToken(
         @CookieValue("refreshToken", required = false) refreshToken: String?,
         authentication: Authentication?
-    ) = GlobalScope.mono {
+    ): TokenResponse {
 
         val authenticatedAuth = when {
             authentication != null && authentication.isAuthenticated -> authentication
             refreshToken != null -> {
                 val authenticationToken = RefreshAuthenticationToken(refreshToken)
-                authenticationManager.authenticate(authenticationToken).awaitMono()
+                authenticationManager.authenticate(authenticationToken).awaitFirst()
             }
             else -> throw InsufficientAuthenticationException("Not authenticated")
         }
 
         val principal = authenticatedAuth.principal as SecurityPrincipal
-        if (principal.isTransient) {
+        return if (principal.isTransient) {
             val workspaceAccessToken = workspaceAccessTokenService.getValidToken(principal.userName)
                 ?: throw BadCredentialsException("Invalid workspace access token ${principal.userName}")
             TokenResponse(jwtService.buildJwtToken(principal, workspaceAccessToken.validTill))
@@ -89,9 +87,8 @@ class AuthenticationApiController(
     }
 
     @PostMapping("logout")
-    fun logout() = GlobalScope.mono {
+    suspend fun logout() =
         ResponseEntity.ok().withRefreshTokenCookie(null, Duration.ZERO).body("")
-    }
 
     private fun ResponseEntity.BodyBuilder.withRefreshTokenCookie(
         value: String?,
