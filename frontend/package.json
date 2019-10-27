@@ -5,8 +5,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
-    "svg-icons": "vsvg -s ./src/icons/svg -t ./src/components/icons"
+    "lint": "vue-cli-service lint",
+    "reformat": "vue-cli-service lint --fix",
+    "svg-icons": "vsvg -s ./src/icons/svg -t ./src/components/icons",
+    "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
     "@drewbot/sass-flexbox-grid": "^2.0.7",
@@ -34,11 +36,16 @@
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.11.0",
+    "@vue/cli-plugin-eslint": "^4.0.5",
     "@vue/cli-plugin-unit-mocha": "^3.11.0",
     "@vue/cli-service": "^3.11.0",
+    "@vue/eslint-config-airbnb": "^4.0.0",
     "@vue/test-utils": "^1.0.0-beta.29",
+    "babel-eslint": "^10.0.3",
     "chai": "^4.2.0",
     "cldr-data": "^34.0.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
     "mocha": "^5.2.0",
     "node-sass": "^4.12.0",
     "sass-loader": "^7.3.1",

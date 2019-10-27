@@ -1,16 +1,16 @@
-import {mapState} from 'vuex'
+import { mapState } from 'vuex';
 
 export const withWorkspaces = {
   computed: {
     ...mapState('workspaces', {
       currentWorkspace: 'currentWorkspace',
-      workspaces: 'workspaces'
+      workspaces: 'workspaces',
     }),
 
-    defaultCurrency: function () {
-      return this.currentWorkspace.defaultCurrency
-    }
-  }
-}
+    defaultCurrency() {
+      return this.currentWorkspace.defaultCurrency;
+    },
+  },
+};
 
-export default withWorkspaces
+export default withWorkspaces;

@@ -1,85 +1,124 @@
 <template>
   <el-aside class="the-side-menu">
-    <div class="the-side-menu__logo"></div>
+    <div class="the-side-menu__logo" />
 
-    <div class="the-side-menu__workspace-name"
-         v-if="isUser">
-      {{currentWorkspace.name}}
+    <div
+      v-if="isUser"
+      class="the-side-menu__workspace-name"
+    >
+      {{ currentWorkspace.name }}
     </div>
 
     <template v-if="isUser">
-      <the-side-menu-link to="/" title="Dashboard" icon="dashboard"/>
-      <the-side-menu-link to="/expenses" title="Expenses" icon="expense"/>
-      <the-side-menu-link to="/incomes" title="Incomes" icon="income"/>
-      <the-side-menu-link to="/invoices" title="Invoices" icon="invoice"/>
-      <the-side-menu-link to="/tax-payments" title="Tax payments" icon="tax"/>
-      <the-side-menu-link to="/reporting" title="Reporting" icon="reporting"/>
+      <the-side-menu-link
+        to="/"
+        title="Dashboard"
+        icon="dashboard"
+      />
+      <the-side-menu-link
+        to="/expenses"
+        title="Expenses"
+        icon="expense"
+      />
+      <the-side-menu-link
+        to="/incomes"
+        title="Incomes"
+        icon="income"
+      />
+      <the-side-menu-link
+        to="/invoices"
+        title="Invoices"
+        icon="invoice"
+      />
+      <the-side-menu-link
+        to="/tax-payments"
+        title="Tax payments"
+        icon="tax"
+      />
+      <the-side-menu-link
+        to="/reporting"
+        title="Reporting"
+        icon="reporting"
+      />
 
       <template v-if="isCurrentUserRegular">
         <span class="the-side-menu__category">Settings</span>
 
-        <the-side-menu-link to="/settings/customers"
-                            title="Customers"
-                            icon="customer"
-                            v-if="currentWorkspace.editable"/>
+        <the-side-menu-link
+          v-if="currentWorkspace.editable"
+          to="/settings/customers"
+          title="Customers"
+          icon="customer"
+        />
 
-        <the-side-menu-link to="/settings/categories"
-                            title="Categories"
-                            icon="category"
-                            v-if="currentWorkspace.editable"/>
+        <the-side-menu-link
+          v-if="currentWorkspace.editable"
+          to="/settings/categories"
+          title="Categories"
+          icon="category"
+        />
 
-        <the-side-menu-link to="/settings/taxes"
-                            title="Taxes"
-                            icon="tax"
-                            v-if="currentWorkspace.editable"/>
+        <the-side-menu-link
+          v-if="currentWorkspace.editable"
+          to="/settings/taxes"
+          title="Taxes"
+          icon="tax"
+        />
 
-        <the-side-menu-link to="/settings/workspaces"
-                            title="Workspaces"
-                            icon="workspaces"/>
+        <the-side-menu-link
+          to="/settings/workspaces"
+          title="Workspaces"
+          icon="workspaces"
+        />
       </template>
-
     </template>
 
     <span class="the-side-menu__category">User</span>
 
-    <the-side-menu-link to="/my-profile"
-                        title="My Profile"
-                        icon="profile"
-                        v-if="isCurrentUserRegular"/>
-    <the-side-menu-link to="/logout" title="Logout" icon="logout"/>
+    <the-side-menu-link
+      v-if="isCurrentUserRegular"
+      to="/my-profile"
+      title="My Profile"
+      icon="profile"
+    />
+    <the-side-menu-link
+      to="/logout"
+      title="Logout"
+      icon="logout"
+    />
   </el-aside>
 </template>
 
 <script>
-  import TheSideMenuLink from '@/components/TheSideMenuLink'
-  import '@/components/icons/reporting'
-  import '@/components/icons/dashboard'
-  import '@/components/icons/expense'
-  import '@/components/icons/income'
-  import '@/components/icons/invoice'
-  import '@/components/icons/tax'
-  import '@/components/icons/customer'
-  import '@/components/icons/category'
-  import '@/components/icons/workspaces'
-  import withWorkspaces from '@/components/mixins/with-workspaces'
-  import {mapState} from 'vuex'
-  import withApi from '@/components/mixins/with-api'
+import TheSideMenuLink from '@/components/TheSideMenuLink';
+import '@/components/icons/reporting';
+import '@/components/icons/dashboard';
+import '@/components/icons/expense';
+import '@/components/icons/income';
+import '@/components/icons/invoice';
+import '@/components/icons/tax';
+import '@/components/icons/customer';
+import '@/components/icons/category';
+import '@/components/icons/workspaces';
+import withWorkspaces from '@/components/mixins/with-workspaces';
+import { mapState } from 'vuex';
+import withApi from '@/components/mixins/with-api';
 
-  export default {
-    name: 'TheSideMenu',
+export default {
+  name: 'TheSideMenu',
 
-    mixins: [withWorkspaces, withApi],
+  mixins: [withWorkspaces, withApi],
 
-    computed: {
-      ...mapState({
-        isUser: state => !state.api.isAdmin
-      })
-    },
+  computed: {
+    ...mapState({
+      isUser: state => !state.api.isAdmin,
+    }),
+  },
 
-    components: {
-      TheSideMenuLink
-    }
-  }
+  components: {
+    TheSideMenuLink,
+  },
+};
 </script>
 
 <style lang="scss">

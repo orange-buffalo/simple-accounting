@@ -1,32 +1,32 @@
-import {mapState} from 'vuex'
-import {isNil} from 'lodash'
-import {api} from '@/services/api'
+import { mapState } from 'vuex';
+import { isNil } from 'lodash';
+import { api } from '@/services/api';
 
 export const withCustomers = {
-  data: function () {
+  data() {
     return {
-      customers: []
-    }
+      customers: [],
+    };
   },
 
-  created: async function () {
+  async created() {
     this.customers = await api.pageRequest(`/workspaces/${this.$_withCustomers_currentWorkspace.id}/customers`)
-        .eager()
-        .getPageData()
+      .eager()
+      .getPageData();
   },
 
   computed: {
     ...mapState({
-      $_withCustomers_currentWorkspace: state => state.workspaces.currentWorkspace
+      $_withCustomers_currentWorkspace: state => state.workspaces.currentWorkspace,
     }),
 
-    customerById: function () {
-      return customerId => {
-        let customer = this.customers.find(customer => customer.id === customerId)
-        return isNil(customer) ? {} : customer
-      }
-    }
-  }
-}
+    customerById() {
+      return (customerId) => {
+        const customer = this.customers.find(customer => customer.id === customerId);
+        return isNil(customer) ? {} : customer;
+      };
+    },
+  },
+};
 
-export default withCustomers
+export default withCustomers;

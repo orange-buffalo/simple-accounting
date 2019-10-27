@@ -1,40 +1,41 @@
-import {api} from '@/services/api'
+import { api } from '@/services/api';
 
 export const reportGenerator = {
 
   props: {
-    dateRange: {}
+    dateRange: {},
   },
 
-  data: function () {
+  data() {
     return {
-      report: null
-    }
+      report: null,
+    };
   },
 
   methods: {
-    $_reportGenerator_reload: async function () {
-      let apiResponse = await this.reload(
-          api,
-          api.dateToString(this.dateRange[0]),
-          api.dateToString(this.dateRange[1]))
-      this.report = apiResponse.data
-      this.$emit('report-loaded')
-    }
+    async $_reportGenerator_reload() {
+      const apiResponse = await this.reload(
+        api,
+        api.dateToString(this.dateRange[0]),
+        api.dateToString(this.dateRange[1]),
+      );
+      this.report = apiResponse.data;
+      this.$emit('report-loaded');
+    },
   },
 
-  mounted: function () {
-    this.$_reportGenerator_reload()
+  mounted() {
+    this.$_reportGenerator_reload();
   },
 
   watch: {
     dateRange: {
-      handler: function () {
-        this.$_reportGenerator_reload()
+      handler() {
+        this.$_reportGenerator_reload();
       },
-      deep: true
-    }
-  }
-}
+      deep: true,
+    },
+  },
+};
 
-export default reportGenerator
+export default reportGenerator;

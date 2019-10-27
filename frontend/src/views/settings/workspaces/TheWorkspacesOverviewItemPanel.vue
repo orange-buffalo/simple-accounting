@@ -3,39 +3,49 @@
     <div class="workspace-panel__info-panel">
       <div class="sa-item-title-panel">
         <div class="workspace-panel__info-panel__name">
-          <h3>{{workspace.name}}</h3>
-          <el-button type="text"
-                     v-if="!isCurrent"
-                     @click="switchToWorkspace">Switch to this workspace
+          <h3>{{ workspace.name }}</h3>
+          <el-button
+            v-if="!isCurrent"
+            type="text"
+            @click="switchToWorkspace"
+          >
+            Switch to this workspace
           </el-button>
         </div>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil-solid"/>
-          <el-button type="text"
-                     @click="navigateToWorkspaceEdit">Edit</el-button>
+          <svgicon name="pencil-solid" />
+          <el-button
+            type="text"
+            @click="navigateToWorkspaceEdit"
+          >Edit</el-button>
         </span>
       </div>
 
       <div class="sa-item-attributes">
         <sa-attribute-value label="Default Currency">
-          {{ workspace.defaultCurrency}}
+          {{ workspace.defaultCurrency }}
         </sa-attribute-value>
-        <br/>
+        <br>
         <sa-attribute-value label="Workspace Shares">
-          <el-table v-if="hasAccessTokens"
-                    :data="accessTokens">
+          <el-table
+            v-if="hasAccessTokens"
+            :data="accessTokens"
+          >
             <el-table-column
-                label="Valid Till">
+              label="Valid Till"
+            >
               <template slot-scope="scope">
-                {{mediumDateTimeFormatterFromString(scope.row.validTill)}}
+                {{ mediumDateTimeFormatterFromString(scope.row.validTill) }}
               </template>
             </el-table-column>
             <el-table-column align="right">
               <template slot-scope="scope">
                 <div class="workspace-panel__share-link-panel">
-                  <svgicon name="copy"/>
-                  <el-button type="text"
-                             @click="copyShareLink(scope.row.token)">
+                  <svgicon name="copy" />
+                  <el-button
+                    type="text"
+                    @click="copyShareLink(scope.row.token)"
+                  >
                     Copy link
                   </el-button>
                 </div>
@@ -44,15 +54,17 @@
           </el-table>
 
           <div class="workspace-panel__create-share-panel">
-            {{hasAccessTokens ? 'Add another share valid till' : 'Start sharing workspace, new link valid till'}}:
+            {{ hasAccessTokens ? 'Add another share valid till' : 'Start sharing workspace, new link valid till' }}:
             <el-date-picker
-                v-model="newShareValidTill"
-                type="datetime"
-                placeholder="Link valid till">
-            </el-date-picker>
-            <svgicon name="share"/>
-            <el-button type="text"
-                       @click="shareWorkspace">
+              v-model="newShareValidTill"
+              type="datetime"
+              placeholder="Link valid till"
+            />
+            <svgicon name="share" />
+            <el-button
+              type="text"
+              @click="shareWorkspace"
+            >
               Create share link
             </el-button>
           </div>
@@ -63,78 +75,78 @@
 </template>
 
 <script>
-  import '@/components/icons/pencil-solid'
-  import '@/components/icons/share'
-  import '@/components/icons/copy'
-  import {withWorkspaces} from '@/components/mixins/with-workspaces'
-  import SaAttributeValue from '@/components/SaAttributeValue'
-  import {api} from '@/services/api'
-  import {withMediumDateTimeFormatter} from '@/components/mixins/with-medium-datetime-formatter'
-  import copy from 'copy-to-clipboard';
+import '@/components/icons/pencil-solid';
+import '@/components/icons/share';
+import '@/components/icons/copy';
+import copy from 'copy-to-clipboard';
+import { withWorkspaces } from '@/components/mixins/with-workspaces';
+import SaAttributeValue from '@/components/SaAttributeValue';
+import { api } from '@/services/api';
+import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
 
-  export default {
-    name: 'TheWorkspacesOverviewItemPanel',
+export default {
+  name: 'TheWorkspacesOverviewItemPanel',
 
-    mixins: [withWorkspaces, withMediumDateTimeFormatter],
+  components: {
+    SaAttributeValue,
+  },
 
-    components: {
-      SaAttributeValue
+  mixins: [withWorkspaces, withMediumDateTimeFormatter],
+
+  props: {
+    workspace: Object,
+  },
+
+  data() {
+    return {
+      accessTokens: [],
+      newShareValidTill: new Date(),
+    };
+  },
+
+  computed: {
+    hasAccessTokens() {
+      return this.accessTokens.length;
     },
 
-    props: {
-      workspace: Object
+    isCurrent() {
+      return this.workspace.id === this.currentWorkspace.id;
+    },
+  },
+
+  async created() {
+    this._reloadAccessTokens();
+  },
+
+  methods: {
+    navigateToWorkspaceEdit() {
+      this.$router.push({ name: 'edit-workspace', params: { id: this.workspace.id } });
     },
 
-    data: function () {
-      return {
-        accessTokens: [],
-        newShareValidTill: new Date()
-      }
+    switchToWorkspace() {
+      // todo #90: do not commit directly, use wrapper action
+      this.$store.commit('workspaces/setCurrentWorkspace', this.workspace);
+      this.$router.push('/');
     },
 
-    created: async function () {
-      this._reloadAccessTokens()
+    async shareWorkspace() {
+      await api.post(`/workspaces/${this.workspace.id}/workspace-access-tokens`, {
+        validTill: this.newShareValidTill.toISOString(),
+      });
+      this._reloadAccessTokens();
     },
 
-    computed: {
-      hasAccessTokens: function () {
-        return this.accessTokens.length
-      },
-
-      isCurrent: function () {
-        return this.workspace.id === this.currentWorkspace.id
-      }
+    async _reloadAccessTokens() {
+      const response = await api.get(`/workspaces/${this.workspace.id}/workspace-access-tokens`);
+      this.accessTokens = response.data.data;
     },
 
-    methods: {
-      navigateToWorkspaceEdit: function () {
-        this.$router.push({name: 'edit-workspace', params: {id: this.workspace.id}})
-      },
-
-      switchToWorkspace: function () {
-        // todo #90: do not commit directly, use wrapper action
-        this.$store.commit('workspaces/setCurrentWorkspace', this.workspace)
-        this.$router.push("/")
-      },
-
-      shareWorkspace: async function () {
-        await api.post(`/workspaces/${this.workspace.id}/workspace-access-tokens`, {
-          validTill: this.newShareValidTill.toISOString()
-        })
-        this._reloadAccessTokens()
-      },
-
-      _reloadAccessTokens: async function () {
-        let response = await api.get(`/workspaces/${this.workspace.id}/workspace-access-tokens`)
-        this.accessTokens = response.data.data
-      },
-
-      copyShareLink: function (token) {
-        let shareLink = `${window.location.origin}/login-by-link/${token}`
-        copy(shareLink)
-      }
-    }
-  }
+    copyShareLink(token) {
+      const shareLink = `${window.location.origin}/login-by-link/${token}`;
+      copy(shareLink);
+    },
+  },
+};
 </script>
 
 <style lang="scss">

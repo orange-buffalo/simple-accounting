@@ -1,21 +1,23 @@
 <template>
   <div class="overview-item-details-section">
-    <div class="overview-item-details-section__title">{{title}}</div>
-    <slot/>
+    <div class="overview-item-details-section__title">
+      {{ title }}
+    </div>
+    <slot />
   </div>
 </template>
 
 <script>
-  export default {
-    name: 'OverviewItemDetailsSection',
+export default {
+  name: 'OverviewItemDetailsSection',
 
-    props: {
-      title: {
-        type: String,
-        required: true
-      }
-    }
-  }
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+  },
+};
 </script>
 
 <style lang="scss">

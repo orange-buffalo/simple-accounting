@@ -1,72 +1,78 @@
 <template>
   <div class="">
-    <div class="row overview-item__panel"
-         :class="{'row overview-item__panel_with-details': detailsVisible}">
+    <div
+      class="row overview-item__panel"
+      :class="{'row overview-item__panel_with-details': detailsVisible}"
+    >
       <div class="col col-xs-6 col-lg-8">
-        <span class="overview-item__title">{{title}}</span>
-        <br/>
+        <span class="overview-item__title">{{ title }}</span>
+        <br>
 
-        <slot name="primary-attributes"/>
+        <slot name="primary-attributes" />
 
         <span class="overview-item__attributes-preview">
-          <slot name="attributes-preview"/>
+          <slot name="attributes-preview" />
         </span>
       </div>
 
       <div class="col col-xs-3 col-lg-2 overview-item__middle-column">
-        <slot name="middle-column"/>
+        <slot name="middle-column" />
       </div>
 
       <div class="col col-xs-3 col-lg-2 overview-item__last-column">
-        <slot name="last-column"/>
+        <slot name="last-column" />
       </div>
 
-      <ElButton circle
-                v-if="detailsAvailable"
-                icon="el-icon-arrow-down"
-                @click="toggleDetailsVisibility"
-                class="overview-item__details-trigger"
-                :class="{ 'overview-item__details-trigger_open' : detailsVisible }"/>
+      <ElButton
+        v-if="detailsAvailable"
+        circle
+        icon="el-icon-arrow-down"
+        class="overview-item__details-trigger"
+        :class="{ 'overview-item__details-trigger_open' : detailsVisible }"
+        @click="toggleDetailsVisibility"
+      />
     </div>
 
-    <div v-if="detailsVisible"
-         class="overview-item__details">
-      <slot name="details"/>
+    <div
+      v-if="detailsVisible"
+      class="overview-item__details"
+    >
+      <slot name="details" />
     </div>
   </div>
 </template>
 
 <script>
-  import '@/components/icons/empty-box'
+import '@/components/icons/empty-box';
 
-  export default {
-    name: 'OverviewItem',
+export default {
+  name: 'OverviewItem',
 
-    props: {
-      title: {
-        type: String,
-        required: true
-      }
+  props: {
+    title: {
+      type: String,
+      required: true,
     },
+  },
 
-    data: function () {
-      return {
-        detailsAvailable: false,
-        detailsVisible: false
-      }
+  data() {
+    return {
+      detailsAvailable: false,
+      detailsVisible: false,
+    };
+  },
+
+  mounted() {
+    this.detailsAvailable = this.$slots.details !== undefined;
+  },
+
+  methods: {
+    toggleDetailsVisibility() {
+      this.detailsVisible = !this.detailsVisible;
+      this.$emit(this.detailsVisible ? 'details-shown' : 'details-closed');
     },
-
-    mounted: function () {
-      this.detailsAvailable = this.$slots.details !== undefined
-    },
-
-    methods: {
-      toggleDetailsVisibility: function () {
-        this.detailsVisible = !this.detailsVisible;
-        this.$emit(this.detailsVisible ? 'details-shown' : 'details-closed')
-      }
-    }
-  }
+  },
+};
 </script>
 
 <style lang="scss">

@@ -1,75 +1,79 @@
 <template>
-  <div class="sa-status-label"
-       :class="statusClass">
-    <SaIcon :icon="statusIcon"
-            class="sa-status-label__icon"/>
-    <slot/>
+  <div
+    class="sa-status-label"
+    :class="statusClass"
+  >
+    <SaIcon
+      :icon="statusIcon"
+      class="sa-status-label__icon"
+    />
+    <slot />
   </div>
 </template>
 
 <script>
-  import SaIcon from '@/components/SaIcon'
+import SaIcon from '@/components/SaIcon';
 
-  export default {
-    name: 'SaStatusLabel',
+export default {
+  name: 'SaStatusLabel',
 
-    components: {
-      SaIcon
+  components: {
+    SaIcon,
+  },
+
+  props: {
+    status: {
+      type: String,
+      required: true,
+      validator(value) {
+        return [
+          'success',
+          'pending',
+          'regular',
+          'failure',
+        ].indexOf(value) !== -1;
+      },
     },
+    simplified: {
+      type: Boolean,
+      default: false,
+    },
+    customIcon: {
+      type: String,
+    },
+  },
 
-    props: {
-      status: {
-        type: String,
-        required: true,
-        validator: function (value) {
-          return [
-            'success',
-            'pending',
-            'regular',
-            'failure'
-          ].indexOf(value) !== -1
-        }
-      },
-      simplified: {
-        type: Boolean,
-        default: false
-      },
-      customIcon: {
-        type: String
+  computed: {
+    statusIcon() {
+      if (this.customIcon) {
+        return this.customIcon;
+      }
+      switch (this.status) {
+        case 'success':
+          return 'success';
+        case 'pending':
+          return 'hourglass';
+        case 'failure':
+          return 'error';
+        case 'regular':
+          return 'gear';
       }
     },
 
-    computed: {
-      statusIcon: function () {
-        if (this.customIcon) {
-          return this.customIcon
-        }
-        switch (this.status) {
-          case 'success':
-            return 'success'
-          case 'pending':
-            return 'hourglass'
-          case 'failure':
-            return 'error'
-          case 'regular':
-            return 'gear'
-        }
-      },
-
-      statusClass: function () {
-        return {
-          'sa-status-label_success': !this.simplified && this.status === 'success',
-          'sa-status-label_pending': !this.simplified && this.status === 'pending',
-          'sa-status-label_regular': !this.simplified && this.status === 'regular',
-          'sa-status-label_failure': !this.simplified && this.status === 'failure',
-          'sa-status-label_success-simplified': this.simplified && this.status === 'success',
-          'sa-status-label_pending-simplified': this.simplified && this.status === 'pending',
-          'sa-status-label_regular-simplified': this.simplified && this.status === 'regular',
-          'sa-status-label_failure-simplified': this.simplified && this.status === 'failure'
-        }
-      }
-    }
-  }
+    statusClass() {
+      return {
+        'sa-status-label_success': !this.simplified && this.status === 'success',
+        'sa-status-label_pending': !this.simplified && this.status === 'pending',
+        'sa-status-label_regular': !this.simplified && this.status === 'regular',
+        'sa-status-label_failure': !this.simplified && this.status === 'failure',
+        'sa-status-label_success-simplified': this.simplified && this.status === 'success',
+        'sa-status-label_pending-simplified': this.simplified && this.status === 'pending',
+        'sa-status-label_regular-simplified': this.simplified && this.status === 'regular',
+        'sa-status-label_failure-simplified': this.simplified && this.status === 'failure',
+      };
+    },
+  },
+};
 </script>
 
 <style lang="scss">

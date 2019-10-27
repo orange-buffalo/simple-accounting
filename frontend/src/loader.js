@@ -1,4 +1,4 @@
-import "@/styles/loader.scss"
+import '@/styles/loader.scss';
 
 document.body.innerHTML += `
 <div class="app-loader-screen" id="app-loader-screen">
@@ -8,10 +8,10 @@ document.body.innerHTML += `
     </div>
   </div>
 </div>
-`
+`;
 
 import('./main').then(() => {
-  let loaderScreen = document.getElementById("app-loader-screen")
-  loaderScreen.setAttribute("style", "opacity: 0")
-  setTimeout(() => loaderScreen.remove(), 500)
-})
+  const loaderScreen = document.getElementById('app-loader-screen');
+  loaderScreen.setAttribute('style', 'opacity: 0');
+  setTimeout(() => loaderScreen.remove(), 500);
+});

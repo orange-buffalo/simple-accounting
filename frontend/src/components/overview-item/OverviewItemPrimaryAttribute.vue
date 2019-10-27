@@ -1,34 +1,39 @@
 <template>
-  <ElTooltip :content="tooltip"
-             :disabled="!tooltip"
-             placement="bottom">
+  <ElTooltip
+    :content="tooltip"
+    :disabled="!tooltip"
+    placement="bottom"
+  >
     <span class="overview-item-primary-attribute">
-      <SaIcon :icon="icon" class="overview-item-primary-attribute__icon"/>
-      <slot/>
+      <SaIcon
+        :icon="icon"
+        class="overview-item-primary-attribute__icon"
+      />
+      <slot />
     </span>
   </ElTooltip>
 </template>
 
 <script>
-  import SaIcon from '@/components/SaIcon'
+import SaIcon from '@/components/SaIcon';
 
-  export default {
-    name: 'OverviewItemPrimaryAttribute',
+export default {
+  name: 'OverviewItemPrimaryAttribute',
 
-    components: {
-      SaIcon
+  components: {
+    SaIcon,
+  },
+
+  props: {
+    icon: {
+      type: String,
+      required: true,
     },
-
-    props: {
-      icon: {
-        type: String,
-        required: true
-      },
-      tooltip: {
-        type: String
-      }
-    }
-  }
+    tooltip: {
+      type: String,
+    },
+  },
+};
 </script>
 
 <style lang="scss">

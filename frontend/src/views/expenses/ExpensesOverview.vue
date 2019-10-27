@@ -9,72 +9,80 @@
         </div>
 
         <div>
-          <ElInput placeholder="Search expenses"
-                   v-model="userFilters.freeSearchText"
-                   clearable>
-            <i class="el-icon-search el-input__icon"
-               slot="prefix"></i>
+          <ElInput
+            v-model="userFilters.freeSearchText"
+            placeholder="Search expenses"
+            clearable
+          >
+            <i
+              slot="prefix"
+              class="el-icon-search el-input__icon"
+            />
           </ElInput>
         </div>
 
-        <ElButton round
-                  @click="navigateToCreateExpenseView"
-                  :disabled="!currentWorkspace.editable">
-          <SaIcon icon="plus-thin"/>
+        <ElButton
+          round
+          :disabled="!currentWorkspace.editable"
+          @click="navigateToCreateExpenseView"
+        >
+          <SaIcon icon="plus-thin" />
           Add new
         </ElButton>
       </div>
     </div>
 
-    <DataItems :api-path="`/workspaces/${currentWorkspace.id}/expenses`"
-               :filters="apiFilters"
-               #default="{item: expense}">
-      <ExpenseOverviewPanel :expense="expense"/>
+    <DataItems
+      :api-path="`/workspaces/${currentWorkspace.id}/expenses`"
+      :filters="apiFilters"
+      #default="{item: expense}"
+    >
+      <ExpenseOverviewPanel :expense="expense" />
     </DataItems>
   </div>
 </template>
 
 <script>
-  import DataItems from '@/components/DataItems'
-  import ExpenseOverviewPanel from './ExpenseOverviewPanel'
-  import {withWorkspaces} from '@/components/mixins/with-workspaces'
-  import SaIcon from '@/components/SaIcon'
+import DataItems from '@/components/DataItems';
+import ExpenseOverviewPanel from './ExpenseOverviewPanel';
+import { withWorkspaces } from '@/components/mixins/with-workspaces';
+import SaIcon from '@/components/SaIcon';
 
-  export default {
-    name: 'ExpensesOverview',
+export default {
+  name: 'ExpensesOverview',
 
-    mixins: [withWorkspaces],
+  components: {
+    DataItems,
+    ExpenseOverviewPanel,
+    SaIcon,
+  },
 
-    components: {
-      DataItems,
-      ExpenseOverviewPanel,
-      SaIcon
-    },
+  mixins: [withWorkspaces],
 
-    data: function () {
+  data() {
+    return {
+      userFilters: {
+        freeSearchText: null,
+      },
+    };
+  },
+
+  computed: {
+    apiFilters() {
+      // read the value to support reactivity
+      const { freeSearchText } = this.userFilters;
       return {
-        userFilters: {
-          freeSearchText: null
-        }
-      }
+        applyToRequest: (pageRequest) => {
+          pageRequest.eqFilter('freeSearchText', freeSearchText);
+        },
+      };
     },
+  },
 
-    computed: {
-      apiFilters: function () {
-        // read the value to support reactivity
-        let freeSearchText = this.userFilters.freeSearchText
-        return {
-          applyToRequest: pageRequest => {
-            pageRequest.eqFilter('freeSearchText', freeSearchText)
-          }
-        }
-      }
+  methods: {
+    navigateToCreateExpenseView() {
+      this.$router.push({ name: 'create-new-expense' });
     },
-
-    methods: {
-      navigateToCreateExpenseView: function () {
-        this.$router.push({name: 'create-new-expense'})
-      }
-    }
-  }
+  },
+};
 </script>

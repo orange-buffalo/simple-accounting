@@ -7,14 +7,14 @@
         <span>&nbsp;</span>
 
         <el-date-picker
-            v-model="selectedDateRange"
-            type="daterange"
-            align="right"
-            unlink-panels
-            range-separator="To"
-            start-placeholder="Start date"
-            end-placeholder="End date">
-        </el-date-picker>
+          v-model="selectedDateRange"
+          type="daterange"
+          align="right"
+          unlink-panels
+          range-separator="To"
+          start-placeholder="Start date"
+          end-placeholder="End date"
+        />
       </div>
     </div>
 
@@ -22,27 +22,40 @@
       <div class="home-page__row__hero">
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <svgicon name="expense"/>
+            <svgicon name="expense" />
           </span>
 
-          <money-output class="home-page__row__hero__header__amount"
-                        :currency="defaultCurrency"
-                        :amount="expenses.totalAmount"/>
+          <money-output
+            class="home-page__row__hero__header__amount"
+            :currency="defaultCurrency"
+            :amount="expenses.totalAmount"
+          />
 
-          <span class="home-page__row__hero__header__finalized">Total of {{expenses.finalizedCount}} expenses</span>
+          <span class="home-page__row__hero__header__finalized">Total of {{ expenses.finalizedCount }} expenses</span>
 
-          <span v-if="expenses.pendingCount"
-                class="home-page__row__hero__header__pending">Pending {{expenses.pendingCount}} more</span>
-          <span v-if="!expenses.pendingCount"
-                class="home-page__row__hero__header__pending">&nbsp;</span>
+          <span
+            v-if="expenses.pendingCount"
+            class="home-page__row__hero__header__pending"
+          >Pending {{ expenses.pendingCount }} more</span>
+          <span
+            v-if="!expenses.pendingCount"
+            class="home-page__row__hero__header__pending"
+          >&nbsp;</span>
         </div>
 
-        <div class="home-page__row__hero__details" v-if="expenses.totalAmount">
-          <div class="home-page__row__hero__details__item"
-               v-for="item in expensesItems">
-            <span>{{categoryById(item.categoryId).name}}</span>
-            <money-output :currency="defaultCurrency"
-                          :amount="item.totalAmount"/>
+        <div
+          v-if="expenses.totalAmount"
+          class="home-page__row__hero__details"
+        >
+          <div
+            v-for="item in expensesItems"
+            class="home-page__row__hero__details__item"
+          >
+            <span>{{ categoryById(item.categoryId).name }}</span>
+            <money-output
+              :currency="defaultCurrency"
+              :amount="item.totalAmount"
+            />
           </div>
         </div>
       </div>
@@ -50,27 +63,40 @@
       <div class="home-page__row__hero">
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <svgicon name="income"/>
+            <svgicon name="income" />
           </span>
 
-          <money-output class="home-page__row__hero__header__amount"
-                        :currency="defaultCurrency"
-                        :amount="incomes.totalAmount"/>
+          <money-output
+            class="home-page__row__hero__header__amount"
+            :currency="defaultCurrency"
+            :amount="incomes.totalAmount"
+          />
 
-          <span class="home-page__row__hero__header__finalized">Total of {{incomes.finalizedCount}} incomes</span>
+          <span class="home-page__row__hero__header__finalized">Total of {{ incomes.finalizedCount }} incomes</span>
 
-          <span v-if="incomes.pendingCount"
-                class="home-page__row__hero__header__pending">Pending {{incomes.pendingCount}} more</span>
-          <span v-if="!incomes.pendingCount"
-                class="home-page__row__hero__header__pending">&nbsp;</span>
+          <span
+            v-if="incomes.pendingCount"
+            class="home-page__row__hero__header__pending"
+          >Pending {{ incomes.pendingCount }} more</span>
+          <span
+            v-if="!incomes.pendingCount"
+            class="home-page__row__hero__header__pending"
+          >&nbsp;</span>
         </div>
 
-        <div class="home-page__row__hero__details" v-if="incomes.totalAmount">
-          <div class="home-page__row__hero__details__item"
-               v-for="item in incomesItems">
-            <span>{{categoryById(item.categoryId).name}}</span>
-            <money-output :currency="defaultCurrency"
-                          :amount="item.totalAmount"/>
+        <div
+          v-if="incomes.totalAmount"
+          class="home-page__row__hero__details"
+        >
+          <div
+            v-for="item in incomesItems"
+            class="home-page__row__hero__details__item"
+          >
+            <span>{{ categoryById(item.categoryId).name }}</span>
+            <money-output
+              :currency="defaultCurrency"
+              :amount="item.totalAmount"
+            />
           </div>
         </div>
       </div>
@@ -78,30 +104,40 @@
       <div class="home-page__row__hero">
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <svgicon name="profit"/>
+            <svgicon name="profit" />
           </span>
 
-          <money-output class="home-page__row__hero__header__amount"
-                        :currency="defaultCurrency"
-                        :amount="Math.max(taxableAmount, 0)"/>
+          <money-output
+            class="home-page__row__hero__header__amount"
+            :currency="defaultCurrency"
+            :amount="Math.max(taxableAmount, 0)"
+          />
 
           <span class="home-page__row__hero__header__finalized">Taxable Amount</span>
           <span class="home-page__row__hero__header__pending">&nbsp;</span>
         </div>
 
-        <div class="home-page__row__hero__details"
-             v-if="profitDetailsVisible">
-          <div class="home-page__row__hero__details__item"
-               v-if="incomes.currencyExchangeGain">
+        <div
+          v-if="profitDetailsVisible"
+          class="home-page__row__hero__details"
+        >
+          <div
+            v-if="incomes.currencyExchangeGain"
+            class="home-page__row__hero__details__item"
+          >
             <span>Currency exchange rate difference</span>
-            <money-output :currency="defaultCurrency"
-                          :amount="incomes.currencyExchangeGain"/>
+            <money-output
+              :currency="defaultCurrency"
+              :amount="incomes.currencyExchangeGain"
+            />
           </div>
 
           <div class="home-page__row__hero__details__item">
             <span>Tax Payments</span>
-            <money-output :currency="defaultCurrency"
-                          :amount="taxPayments.totalTaxPayments || 0"/>
+            <money-output
+              :currency="defaultCurrency"
+              :amount="taxPayments.totalTaxPayments || 0"
+            />
           </div>
 
           <div class="home-page__row__hero__details__item">
@@ -109,50 +145,58 @@
             <span>coming soon..</span>
           </div>
 
-          <div class="home-page__row__hero__details__item"
-               v-if="totalProfit">
+          <div
+            v-if="totalProfit"
+            class="home-page__row__hero__details__item"
+          >
             <span>Profit</span>
-            <money-output :currency="defaultCurrency"
-                          :amount="totalProfit"/>
+            <money-output
+              :currency="defaultCurrency"
+              :amount="totalProfit"
+            />
           </div>
         </div>
       </div>
 
-      <div class="home-page__row__hero"
-           v-for="invoice in pendingInvoices">
+      <div
+        v-for="invoice in pendingInvoices"
+        class="home-page__row__hero"
+      >
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <svgicon name="invoice"/>
+            <svgicon name="invoice" />
           </span>
 
-          <money-output class="home-page__row__hero__header__amount"
-                        :currency="invoice.currency"
-                        :amount="invoice.amount"/>
+          <money-output
+            class="home-page__row__hero__header__amount"
+            :currency="invoice.currency"
+            :amount="invoice.amount"
+          />
 
-          <span class="home-page__row__hero__header__finalized">{{invoice.title}}</span>
-          <span class="home-page__row__hero__header__finalized">{{invoiceStatus(invoice)}}</span>
+          <span class="home-page__row__hero__header__finalized">{{ invoice.title }}</span>
+          <span class="home-page__row__hero__header__finalized">{{ invoiceStatus(invoice) }}</span>
           <span class="home-page__row__hero__header__pending">&nbsp;</span>
         </div>
 
         <div class="home-page__row__hero__details">
           <div class="home-page__row__hero__details__item">
             <span>To</span>
-            <span>{{invoiceCustomerName(invoice)}}</span>
+            <span>{{ invoiceCustomerName(invoice) }}</span>
           </div>
 
           <div class="home-page__row__hero__details__item">
             <span>Issue Date</span>
-            <span>{{invoiceDateIssued(invoice)}}</span>
+            <span>{{ invoiceDateIssued(invoice) }}</span>
           </div>
 
           <div class="home-page__row__hero__details__item">
             <span>Date Sent</span>
-            <span>{{invoiceDateSent(invoice)}}</span>
+            <span>{{ invoiceDateSent(invoice) }}</span>
           </div>
 
           <div class="home-page__row__hero__details__item">
             <span>Due Date</span>
-            <span>{{invoiceDueDate(invoice)}}</span>
+            <span>{{ invoiceDueDate(invoice) }}</span>
           </div>
         </div>
       </div>
@@ -161,149 +205,140 @@
 </template>
 
 <script>
-  import {api} from '@/services/api'
-  import {withWorkspaces} from '@/components/mixins/with-workspaces'
-  import {withCategories} from '@/components/mixins/with-categories'
-  import '@/components/icons/expense'
-  import '@/components/icons/income'
-  import '@/components/icons/profit'
-  import MoneyOutput from '@/components/MoneyOutput'
-  import {lockr} from '@/services/app-services'
-  import {isNil} from 'lodash'
-  import {withMediumDateFormatter} from '@/components/mixins/with-medium-date-formatter'
-  import {withCustomers} from '@/components/mixins/with-customers'
+import { api } from '@/services/api';
+import { withWorkspaces } from '@/components/mixins/with-workspaces';
+import { withCategories } from '@/components/mixins/with-categories';
+import '@/components/icons/expense';
+import '@/components/icons/income';
+import '@/components/icons/profit';
+import MoneyOutput from '@/components/MoneyOutput';
+import { lockr } from '@/services/app-services';
+import { isNil } from 'lodash';
+import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
+import { withCustomers } from '@/components/mixins/with-customers';
 
-  const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range'
+const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range';
 
-  export default {
-    name: 'Dashboard',
+export default {
+  name: 'Dashboard',
 
-    mixins: [withWorkspaces, withCategories, withMediumDateFormatter, withCustomers],
+  components: { MoneyOutput },
 
-    components: {MoneyOutput},
+  mixins: [withWorkspaces, withCategories, withMediumDateFormatter, withCustomers],
 
-    data: function () {
-      return {
-        expenses: {},
-        incomes: {},
-        taxPayments: {},
-        selectedDateRange: [],
-        pendingInvoices: []
-      }
+  data() {
+    return {
+      expenses: {},
+      incomes: {},
+      taxPayments: {},
+      selectedDateRange: [],
+      pendingInvoices: [],
+    };
+  },
+
+  computed: {
+    expensesItems() {
+      return (this.expenses.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
     },
 
-    computed: {
-      expensesItems: function () {
-        return (this.expenses.items || []).sort((a, b) => b.totalAmount - a.totalAmount)
-      },
-
-      incomesItems: function () {
-        return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount)
-      },
-
-      taxableAmount: function () {
-        return (!isNil(this.expenses.totalAmount) && !isNil(this.incomes.totalAmount))
-            ? this.incomes.totalAmount - this.expenses.totalAmount
-            : null
-      },
-
-      profitDetailsVisible: function () {
-        return this.totalProfit !== null
-      },
-
-      totalProfit: function () {
-        let taxPayments = this.taxPayments.totalTaxPayments || 0
-        return (this.taxableAmount && this.incomes.currencyExchangeGain)
-            ? this.taxableAmount + this.incomes.currencyExchangeGain - taxPayments
-            : null
-      },
-
-      invoiceStatus: function () {
-        return (invoice) => {
-          if (invoice.status === 'OVERDUE') {
-            return 'Overdue'
-          } else {
-            return 'Pending'
-          }
-        }
-      },
-
-      invoiceDateIssued: function () {
-        return (invoice) => {
-          return this.mediumDateFormatter(new Date(invoice.dateIssued))
-        }
-      },
-
-      invoiceDueDate: function () {
-        return (invoice) => {
-          return this.mediumDateFormatter(new Date(invoice.dueDate))
-        }
-      },
-
-      invoiceDateSent: function () {
-        return (invoice) => {
-          return this.mediumDateFormatter(new Date(invoice.dateSent))
-        }
-      },
-
-      invoiceCustomerName: function () {
-        return (invoice) => {
-          return this.customerById(invoice.customer).name
-        }
-      }
+    incomesItems() {
+      return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
     },
 
-    created: function () {
-      let selectedDateRange = lockr.get(SELECTED_DATE_RANGE_KEY)
-      if (isNil(selectedDateRange)) {
-        let now = new Date();
-        this.selectedDateRange = [
-          new Date(now.getFullYear(), 0, 1),
-          now
-        ]
-      } else {
-        this.selectedDateRange = selectedDateRange.map(it => new Date(it))
-      }
-
-      this.reload()
+    taxableAmount() {
+      return (!isNil(this.expenses.totalAmount) && !isNil(this.incomes.totalAmount))
+        ? this.incomes.totalAmount - this.expenses.totalAmount
+        : null;
     },
 
-    methods: {
-      reload: function () {
-        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/expenses` +
-            `?fromDate=${api.dateToString(this.selectedDateRange[0])}` +
-            `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-            .then(response => this.expenses = response.data)
-
-        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/incomes` +
-            `?fromDate=${api.dateToString(this.selectedDateRange[0])}` +
-            `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-            .then(response => this.incomes = response.data)
-
-        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/tax-payments` +
-            `?fromDate=${api.dateToString(this.selectedDateRange[0])}` +
-            `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-            .then(response => this.taxPayments = response.data)
-
-        api.pageRequest(`/workspaces/${this.currentWorkspace.id}/invoices`)
-            .eager()
-            .eqFilter('status', ['SENT', 'OVERDUE'])
-            .getPageData()
-            .then(invoices => this.pendingInvoices = invoices)
-      }
+    profitDetailsVisible() {
+      return this.totalProfit !== null;
     },
 
-    watch: {
-      currentWorkspace: function () {
-        this.reload()
-      },
+    totalProfit() {
+      const taxPayments = this.taxPayments.totalTaxPayments || 0;
+      return (this.taxableAmount && this.incomes.currencyExchangeGain)
+        ? this.taxableAmount + this.incomes.currencyExchangeGain - taxPayments
+        : null;
+    },
 
-      selectedDateRange: function () {
-        lockr.set(SELECTED_DATE_RANGE_KEY, this.selectedDateRange)
-        this.reload()
-      }
+    invoiceStatus() {
+      return (invoice) => {
+        if (invoice.status === 'OVERDUE') {
+          return 'Overdue';
+        }
+        return 'Pending';
+      };
+    },
+
+    invoiceDateIssued() {
+      return invoice => this.mediumDateFormatter(new Date(invoice.dateIssued));
+    },
+
+    invoiceDueDate() {
+      return invoice => this.mediumDateFormatter(new Date(invoice.dueDate));
+    },
+
+    invoiceDateSent() {
+      return invoice => this.mediumDateFormatter(new Date(invoice.dateSent));
+    },
+
+    invoiceCustomerName() {
+      return invoice => this.customerById(invoice.customer).name;
+    },
+  },
+
+  watch: {
+    currentWorkspace() {
+      this.reload();
+    },
+
+    selectedDateRange() {
+      lockr.set(SELECTED_DATE_RANGE_KEY, this.selectedDateRange);
+      this.reload();
+    },
+  },
+
+  created() {
+    const selectedDateRange = lockr.get(SELECTED_DATE_RANGE_KEY);
+    if (isNil(selectedDateRange)) {
+      const now = new Date();
+      this.selectedDateRange = [
+        new Date(now.getFullYear(), 0, 1),
+        now,
+      ];
+    } else {
+      this.selectedDateRange = selectedDateRange.map(it => new Date(it));
     }
-  }
+
+    this.reload();
+  },
+
+  methods: {
+    reload() {
+      api.get(`/workspaces/${this.currentWorkspace.id}/statistics/expenses`
+            + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
+            + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
+        .then(response => this.expenses = response.data);
+
+      api.get(`/workspaces/${this.currentWorkspace.id}/statistics/incomes`
+            + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
+            + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
+        .then(response => this.incomes = response.data);
+
+      api.get(`/workspaces/${this.currentWorkspace.id}/statistics/tax-payments`
+            + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
+            + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
+        .then(response => this.taxPayments = response.data);
+
+      api.pageRequest(`/workspaces/${this.currentWorkspace.id}/invoices`)
+        .eager()
+        .eqFilter('status', ['SENT', 'OVERDUE'])
+        .getPageData()
+        .then(invoices => this.pendingInvoices = invoices);
+    },
+  },
+};
 </script>
 
 <style lang="scss">

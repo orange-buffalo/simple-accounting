@@ -1,13 +1,13 @@
 <template>
   <div class="overview-item-details-section-actions">
-    <slot/>
+    <slot />
   </div>
 </template>
 
 <script>
-  export default {
-    name: 'OverviewItemDetailsSectionActions'
-  }
+export default {
+  name: 'OverviewItemDetailsSectionActions',
+};
 </script>
 
 <style lang="scss">

@@ -1,24 +1,23 @@
 export const withMediumDateTimeFormatter = {
-  created: function () {
-    this.ensureMediumDateTimeFormatter()
+  created() {
+    this.ensureMediumDateTimeFormatter();
   },
 
   computed: {
-    mediumDateTimeFormatter: function () {
-      return this.$store.state.i18n.mediumDateTimeFormatter
+    mediumDateTimeFormatter() {
+      return this.$store.state.i18n.mediumDateTimeFormatter;
     },
 
-    mediumDateTimeFormatterFromString: function () {
-      return (dateTimeIsoString) =>
-          this.mediumDateTimeFormatter(new Date(dateTimeIsoString))
-    }
+    mediumDateTimeFormatterFromString() {
+      return dateTimeIsoString => this.mediumDateTimeFormatter(new Date(dateTimeIsoString));
+    },
   },
 
   methods: {
-    ensureMediumDateTimeFormatter: function () {
-      this.$store.dispatch('i18n/ensureMediumDateTimeFormatter')
-    }
-  }
-}
+    ensureMediumDateTimeFormatter() {
+      this.$store.dispatch('i18n/ensureMediumDateTimeFormatter');
+    },
+  },
+};
 
-export default withMediumDateTimeFormatter
+export default withMediumDateTimeFormatter;

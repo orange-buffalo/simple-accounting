@@ -1,228 +1,222 @@
-import axios from 'axios'
-import EventBus from 'eventbusjs'
-import qs from 'qs'
-import {assign} from 'lodash'
-import jwtDecode from 'jwt-decode'
+import axios from 'axios';
+import EventBus from 'eventbusjs';
+import qs from 'qs';
+import { assign } from 'lodash';
+import jwtDecode from 'jwt-decode';
 
-const CancelToken = axios.CancelToken
+const { CancelToken } = axios;
 
 const _api = axios.create({
   baseURL: '/api',
   timeout: 10000,
-  paramsSerializer: function (params) {
-    return qs.stringify(params, {arrayFormat: 'repeat'})
-  }
-})
+  paramsSerializer(params) {
+    return qs.stringify(params, { arrayFormat: 'repeat' });
+  },
+});
 
-let $store
+let $store;
 
-let refreshTokenTimer
+let refreshTokenTimer;
 
-let cancelTokenRefresh = function () {
+const cancelTokenRefresh = function () {
   if (refreshTokenTimer) {
-    clearTimeout(refreshTokenTimer)
+    clearTimeout(refreshTokenTimer);
   }
-}
+};
 
-let scheduleTokenRefresh = function () {
-  cancelTokenRefresh()
+const scheduleTokenRefresh = function () {
+  cancelTokenRefresh();
 
-  let token = jwtDecode($store.state.api.jwtToken)
-  let timeout = token.exp * 1000 - Date.now() - 30000
-  refreshTokenTimer = setTimeout(refreshToken, timeout)
-}
+  const token = jwtDecode($store.state.api.jwtToken);
+  const timeout = token.exp * 1000 - Date.now() - 30000;
+  refreshTokenTimer = setTimeout(refreshToken, timeout);
+};
 
 let refreshToken = async function () {
   if (await _api.tryAutoLogin()) {
-    scheduleTokenRefresh()
+    scheduleTokenRefresh();
   } else {
-    EventBus.dispatch(LOGIN_REQUIRED_EVENT)
+    EventBus.dispatch(LOGIN_REQUIRED_EVENT);
   }
-}
+};
 
 _api.createCancelToken = function () {
-  return CancelToken.source()
-}
+  return CancelToken.source();
+};
 
 _api.login = function (request) {
-  cancelTokenRefresh()
+  cancelTokenRefresh();
   return _api
-      .post('/auth/login', request)
-      .then(response => {
-        $store.commit('api/updateJwtToken', response.data.token)
-        scheduleTokenRefresh()
-      })
-}
+    .post('/auth/login', request)
+    .then((response) => {
+      $store.commit('api/updateJwtToken', response.data.token);
+      scheduleTokenRefresh();
+    });
+};
 
 _api.logout = async function (request) {
-  cancelTokenRefresh()
-  await _api.post('/auth/logout', request)
-  $store.commit('api/updateJwtToken', null)
-}
+  cancelTokenRefresh();
+  await _api.post('/auth/logout', request);
+  $store.commit('api/updateJwtToken', null);
+};
 
-let applyAuthorization = function (config) {
-  let jwtToken = $store.state.api.jwtToken
+const applyAuthorization = function (config) {
+  const { jwtToken } = $store.state.api;
   if (jwtToken) {
-    config.headers['Authorization'] = `Bearer ${jwtToken}`
+    config.headers.Authorization = `Bearer ${jwtToken}`;
   }
-}
+};
 
 _api.interceptors.request.use(
-    config => {
-      applyAuthorization(config)
-      return config;
-    },
-    error => Promise.reject(error)
-)
+  (config) => {
+    applyAuthorization(config);
+    return config;
+  },
+  error => Promise.reject(error),
+);
 
 _api.tryAutoLogin = async function () {
-  cancelTokenRefresh()
+  cancelTokenRefresh();
 
   try {
-    let response = await _api.post('/auth/token', {}, {
-      withCredentials: true
-    })
+    const response = await _api.post('/auth/token', {}, {
+      withCredentials: true,
+    });
 
-    $store.commit('api/updateJwtToken', response.data.token)
-    scheduleTokenRefresh()
+    $store.commit('api/updateJwtToken', response.data.token);
+    scheduleTokenRefresh();
 
-    return true
-
+    return true;
   } catch (error) {
     if (error.response && error.response.status === 401) {
-      return false
-    } else {
-      throw error
+      return false;
     }
+    throw error;
   }
-}
+};
 
 _api.loginBySharedToken = async function (sharedToken) {
-  cancelTokenRefresh()
+  cancelTokenRefresh();
 
   try {
-    let tokenLoginResponse = await api.post(`/auth/login?sharedWorkspaceToken=${sharedToken}`)
+    const tokenLoginResponse = await api.post(`/auth/login?sharedWorkspaceToken=${sharedToken}`);
 
-    $store.commit('api/updateJwtToken', tokenLoginResponse.data.token)
+    $store.commit('api/updateJwtToken', tokenLoginResponse.data.token);
 
-    return true
-
+    return true;
   } catch (error) {
     if (error.response && error.response.status === 401) {
-      return false
-    } else {
-      throw error
+      return false;
     }
+    throw error;
   }
-}
+};
 
 _api.interceptors.response.use(
-    response => Promise.resolve(response),
-    async error => {
-      if (error.response && error.response.status === 401 && error.response.config.url !== '/api/auth/token') {
-        if (await _api.tryAutoLogin()) {
-          applyAuthorization(error.config)
-          error.config.baseURL = null
-          return axios.request(error.config)
-        } else {
-          EventBus.dispatch(LOGIN_REQUIRED_EVENT)
-        }
-
-      } else {
-        return Promise.reject(error)
+  response => Promise.resolve(response),
+  async (error) => {
+    if (error.response && error.response.status === 401 && error.response.config.url !== '/api/auth/token') {
+      if (await _api.tryAutoLogin()) {
+        applyAuthorization(error.config);
+        error.config.baseURL = null;
+        return axios.request(error.config);
       }
+      EventBus.dispatch(LOGIN_REQUIRED_EVENT);
+    } else {
+      return Promise.reject(error);
     }
-)
+  },
+);
 
 _api.isCancel = function (e) {
-  return axios.isCancel(e)
-}
+  return axios.isCancel(e);
+};
 
 _api.pageRequest = function (uri) {
-  let limit = 10
-  let page = 1
-  let customConfig = {}
-  let filters = {}
+  let limit = 10;
+  let page = 1;
+  let customConfig = {};
+  const filters = {};
 
-  let addFilter = (property, value, operator) => {
+  const addFilter = (property, value, operator) => {
     if (typeof value !== 'undefined' && value !== null) {
-      let filter = {}
+      const filter = {};
 
       if (value instanceof Array) {
-        filter[property] = value.map(item => {
-          let itemFilter = {}
-          itemFilter[operator] = item
-          return itemFilter
-        })
+        filter[property] = value.map((item) => {
+          const itemFilter = {};
+          itemFilter[operator] = item;
+          return itemFilter;
+        });
       } else {
-        filter[property] = {}
-        filter[property][operator] = value
+        filter[property] = {};
+        filter[property][operator] = value;
       }
 
-      assign(filters, filter)
+      assign(filters, filter);
     }
-  }
+  };
 
   return {
-    limit: function (value) {
-      limit = value
-      return this
+    limit(value) {
+      limit = value;
+      return this;
     },
 
-    eager: function () {
+    eager() {
       // we still want to limit the data amount with some reasonable number
-      return this.limit(100)
+      return this.limit(100);
     },
 
-    page: function (value) {
-      page = value
-      return this
+    page(value) {
+      page = value;
+      return this;
     },
 
-    config: function (value) {
-      customConfig = value
-      return this
+    config(value) {
+      customConfig = value;
+      return this;
     },
 
-    eqFilter: function (property, value) {
-      addFilter(property, value, 'eq')
-      return this
+    eqFilter(property, value) {
+      addFilter(property, value, 'eq');
+      return this;
     },
 
-    get: function () {
+    get() {
       let params = {
-        limit: limit,
-        page: page
-      }
-      params = assign(params, filters)
+        limit,
+        page,
+      };
+      params = assign(params, filters);
 
       let config = {
-        params: params
-      }
-      config = assign(config, customConfig)
+        params,
+      };
+      config = assign(config, customConfig);
 
-      return _api.get(uri, config)
+      return _api.get(uri, config);
     },
 
-    getPage: function () {
-      return this.get().then(response => response.data)
+    getPage() {
+      return this.get().then(response => response.data);
     },
 
-    getPageData: function () {
-      return this.getPage().then(page => page.data)
-    }
-  }
-}
+    getPageData() {
+      return this.getPage().then(page => page.data);
+    },
+  };
+};
 
 _api.dateToString = function (date) {
-  return date.getFullYear() + '-' +
-      ('0' + (date.getMonth() + 1)).slice(-2) + '-' +
-      ('0' + date.getDate()).slice(-2);
-}
+  return `${date.getFullYear()}-${
+    (`0${date.getMonth() + 1}`).slice(-2)}-${
+    (`0${date.getDate()}`).slice(-2)}`;
+};
 
-export default _api
-export const api = _api
+export default _api;
+export const api = _api;
 export const initApi = function (store) {
-  $store = store
-}
-export const LOGIN_REQUIRED_EVENT = 'login-required'
+  $store = store;
+};
+export const LOGIN_REQUIRED_EVENT = 'login-required';

@@ -1,92 +1,112 @@
 <template>
-  <el-form ref="form"
-           class="login-form"
-           :model="form"
-           :rules="formValidationRules"
-           label-width="0px">
+  <el-form
+    ref="form"
+    class="login-form"
+    :model="form"
+    :rules="formValidationRules"
+    label-width="0px"
+  >
     <el-form-item prop="userName">
-      <el-input v-model="form.userName"
-                placeholder="Login">
-        <svgicon name="login" slot="prefix"/>
+      <el-input
+        v-model="form.userName"
+        placeholder="Login"
+      >
+        <svgicon
+          slot="prefix"
+          name="login"
+        />
       </el-input>
     </el-form-item>
 
     <el-form-item prop="password">
-      <el-input type="password"
-                v-model="form.password"
-                placeholder="Password">
-        <svgicon name="password" slot="prefix"/>
+      <el-input
+        v-model="form.password"
+        type="password"
+        placeholder="Password"
+      >
+        <svgicon
+          slot="prefix"
+          name="password"
+        />
       </el-input>
     </el-form-item>
 
-    <el-form-item prop="rememberMe" align="center">
-      <el-checkbox v-model="form.rememberMe">Remember me</el-checkbox>
+    <el-form-item
+      prop="rememberMe"
+      align="center"
+    >
+      <el-checkbox v-model="form.rememberMe">
+        Remember me
+      </el-checkbox>
     </el-form-item>
 
-    <el-button type="primary"
-               @click="login"
-               :disabled="!loginEnabled">Login
+    <el-button
+      type="primary"
+      :disabled="!loginEnabled"
+      @click="login"
+    >
+      Login
     </el-button>
   </el-form>
 </template>
 
 <script>
 
-  import api from '@/services/api'
-  import '@/components/icons/login'
-  import '@/components/icons/password'
+import api from '@/services/api';
+import '@/components/icons/login';
+import '@/components/icons/password';
 
-  export default {
-    name: 'LoginForm',
+export default {
+  name: 'LoginForm',
 
-    data: function () {
-      return {
-        form: {
-          userName: '',
-          password: '',
-          rememberMe: true
-        }
-      }
+  data() {
+    return {
+      form: {
+        userName: '',
+        password: '',
+        rememberMe: true,
+      },
+    };
+  },
+
+  computed: {
+    loginEnabled() {
+      return this.form.userName && this.form.password;
     },
+  },
 
-    created: async function () {
-      if (await api.tryAutoLogin()) {
-        this.$emit('login')
-      }
-    },
-
-    computed: {
-      loginEnabled: function () {
-        return this.form.userName && this.form.password;
-      }
-    },
-
-    methods: {
-      login: function () {
-        this.$refs.form.validate((valid) => {
-          if (valid) {
-            api
-                .login({
-                  userName: this.form.userName,
-                  password: this.form.password,
-                  rememberMe: this.form.rememberMe
-                })
-                .then(() => {
-                  this.$emit('login')
-                })
-                .catch(() => {
-                  this.$refs.form.clearValidate()
-                  this.$message({
-                    showClose: true,
-                    message: 'Login failed',
-                    type: 'error'
-                  });
-                })
-          }
-        })
-      }
+  async created() {
+    if (await api.tryAutoLogin()) {
+      this.$emit('login');
     }
-  }
+  },
+
+  methods: {
+    login() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          api
+            .login({
+              userName: this.form.userName,
+              password: this.form.password,
+              rememberMe: this.form.rememberMe,
+            })
+            .then(() => {
+              this.$emit('login');
+            })
+            .catch(() => {
+              this.$refs.form.clearValidate();
+              this.$message({
+                showClose: true,
+                message: 'Login failed',
+                type: 'error',
+              });
+            });
+        }
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss">

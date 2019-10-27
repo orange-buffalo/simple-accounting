@@ -1,11 +1,11 @@
 <template>
   <el-container>
-    <the-side-menu/>
+    <the-side-menu />
 
     <el-container>
       <el-main>
         <div class="content-panel">
-          <router-view></router-view>
+          <router-view />
         </div>
       </el-main>
     </el-container>
@@ -13,13 +13,13 @@
 </template>
 
 <script>
-  import TheSideMenu from '@/components/TheSideMenu'
+import TheSideMenu from '@/components/TheSideMenu';
 
-  export default {
-    name: 'UserApp',
+export default {
+  name: 'UserApp',
 
-    components: {TheSideMenu}
-  }
+  components: { TheSideMenu },
+};
 </script>
 
 

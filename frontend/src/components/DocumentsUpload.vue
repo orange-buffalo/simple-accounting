@@ -1,99 +1,101 @@
 <template>
   <div>
-    <el-form-item v-for="(upload, index) in uploadsInfo.uploads"
-                  :prop="`${formProperty}.uploads.${index}`"
-                  :key="upload.id"
-                  :rules="validationRules">
+    <el-form-item
+      v-for="(upload, index) in uploadsInfo.uploads"
+      :key="upload.id"
+      :prop="`${formProperty}.uploads.${index}`"
+      :rules="validationRules"
+    >
       <document-upload
-          ref="documentUploads"
-          @upload-complete="onUploadComplete"
-          @upload-error="onUploadError"
-          v-model="uploadsInfo.uploads[index]"
+        ref="documentUploads"
+        v-model="uploadsInfo.uploads[index]"
+        @upload-complete="onUploadComplete"
+        @upload-error="onUploadError"
       />
     </el-form-item>
   </div>
 </template>
 
 <script>
-  import DocumentUpload from './DocumentUpload'
-  import {UploadsInfo} from './uploads-info'
+import DocumentUpload from './DocumentUpload';
+import { UploadsInfo } from './uploads-info';
 
-  export default {
-    name: 'DocumentsUpload',
+export default {
+  name: 'DocumentsUpload',
 
-    props: {
-      formProperty: String,
-      value: UploadsInfo
+  components: {
+    DocumentUpload,
+  },
+
+  props: {
+    formProperty: String,
+    value: UploadsInfo,
+  },
+
+  data() {
+    return {
+      uploadsInfo: this.value,
+      validationRules: [
+        { validator: this.validateUpload, trigger: 'change' },
+      ],
+    };
+  },
+
+  computed: {},
+
+  watch: {
+    uploadsInfo: {
+      handler(val) {
+        this.uploadsInfo.ensureCompleteness();
+        this.$emit('input', val);
+      },
+      deep: true,
+    },
+  },
+
+  created() {
+    this.addNewUpload();
+  },
+
+  methods: {
+    addNewUpload() {
+      this.uploadsInfo.add();
     },
 
-    components: {
-      DocumentUpload
+    validateUpload(rule, value, callback) {
+      value.validate(callback);
     },
 
-    data: function () {
-      return {
-        uploadsInfo: this.value,
-        validationRules: [
-          {validator: this.validateUpload, trigger: 'change'}
-        ]
-      }
+    onUploadComplete() {
+      this.onUploadDone();
     },
 
-    created: function () {
-      this.addNewUpload()
+    onUploadError() {
+      this.onUploadDone();
     },
 
-    methods: {
-      addNewUpload: function () {
-        this.uploadsInfo.add()
-      },
-
-      validateUpload: function (rule, value, callback) {
-        value.validate(callback)
-      },
-
-      onUploadComplete: function () {
-        this.onUploadDone()
-      },
-
-      onUploadError: function () {
-        this.onUploadDone()
-      },
-
-      onUploadDone: function () {
-        this.uploadsInfo.executeIfUploaded(() => {
-          this.submitUploadPromise.resolve()
-          this.submitUploadPromise = null
-        }, () => {
-          this.submitUploadPromise.reject()
-          this.submitUploadPromise = false
-        })
-      },
-
-      submitUploads: function () {
-        return new Promise((resolve, reject) => {
-          this.submitUploadPromise = {
-            resolve: resolve,
-            reject: reject
-          }
-          this.$refs.documentUploads.forEach(upload => upload.submitUpload())
-          this.onUploadDone()
-        })
-      }
+    onUploadDone() {
+      this.uploadsInfo.executeIfUploaded(() => {
+        this.submitUploadPromise.resolve();
+        this.submitUploadPromise = null;
+      }, () => {
+        this.submitUploadPromise.reject();
+        this.submitUploadPromise = false;
+      });
     },
 
-    computed: {},
-
-    watch: {
-      uploadsInfo: {
-        handler: function (val) {
-          this.uploadsInfo.ensureCompleteness()
-          this.$emit('input', val)
-        },
-        deep: true
-      }
-    }
-  }
+    submitUploads() {
+      return new Promise((resolve, reject) => {
+        this.submitUploadPromise = {
+          resolve,
+          reject,
+        };
+        this.$refs.documentUploads.forEach(upload => upload.submitUpload());
+        this.onUploadDone();
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss">
