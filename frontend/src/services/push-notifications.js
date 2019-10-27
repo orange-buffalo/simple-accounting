@@ -21,7 +21,6 @@ export const pushNotifications = {
         })
 
     this._eventSource.onmessage = event => {
-
       let message = JSON.parse(event.data)
       this._eventListeners
           .filter(it => it.eventName === message.eventName)
@@ -52,9 +51,13 @@ export const pushNotifications = {
   },
 
   unsubscribe: function (eventName, callback) {
-    //todo #19: close the event source if no more subscribers
     this._eventListeners = this._eventListeners
         .filter(it => it.eventName !== eventName && it.callback !== callback)
+
+    if (this._eventListeners.length === 0) {
+      this._eventSource.close()
+      this._eventSource = null
+    }
   }
 }
 
