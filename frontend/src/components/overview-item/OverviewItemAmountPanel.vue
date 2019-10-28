@@ -1,30 +1,33 @@
 <template>
   <div class="overview-item-amount-panel">
-    <MoneyOutput :amount="amount" :currency="currency"/>
+    <MoneyOutput
+      :amount="amount"
+      :currency="currency"
+    />
   </div>
 </template>
 
 <script>
-  import MoneyOutput from '@/components/MoneyOutput'
+import MoneyOutput from '@/components/MoneyOutput';
 
-  export default {
-    name: 'OverviewItemAmountPanel',
+export default {
+  name: 'OverviewItemAmountPanel',
 
-    components: {
-      MoneyOutput
+  components: {
+    MoneyOutput,
+  },
+
+  props: {
+    currency: {
+      type: String,
+      required: true,
     },
-
-    props: {
-      currency: {
-        type: String,
-        required: true
-      },
-      amount: {
-        type: Number,
-        required: true
-      }
-    }
-  }
+    amount: {
+      type: Number,
+      required: true,
+    },
+  },
+};
 </script>
 
 <style lang="scss">

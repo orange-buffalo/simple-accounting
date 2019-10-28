@@ -1,58 +1,63 @@
 <template>
-  <div class="markdown-output"
-       :class="panelClass">
-    <div class="markdown-output__preview-label"
-         v-if="preview">Preview
+  <div
+    class="markdown-output"
+    :class="panelClass"
+  >
+    <div
+      v-if="preview"
+      class="markdown-output__preview-label"
+    >
+      Preview
     </div>
-    <div v-html="renderedMarkdown"></div>
+    <div v-html="renderedMarkdown" />
   </div>
 </template>
 
 <script>
-  import DOMPurify from 'dompurify'
-  import marked from 'marked'
-  import debounce from 'lodash/debounce'
+import DOMPurify from 'dompurify';
+import marked from 'marked';
+import debounce from 'lodash/debounce';
 
-  function renderMarkdown(source) {
-    return source ? DOMPurify.sanitize(marked(source)) : '';
-  }
+function renderMarkdown(source) {
+  return source ? DOMPurify.sanitize(marked(source)) : '';
+}
 
-  export default {
-    name: 'SaMarkdownOutput',
+export default {
+  name: 'SaMarkdownOutput',
 
-    props: {
-      source: {
-        type: String
-      },
-      preview: {
-        type: Boolean,
-        default: false
-      }
+  props: {
+    source: {
+      type: String,
     },
+    preview: {
+      type: Boolean,
+      default: false,
+    },
+  },
 
-    data: function () {
+  data() {
+    return {
+      renderedMarkdown: renderMarkdown(this.source),
+      updateMarkdown: debounce(() => {
+        this.renderedMarkdown = renderMarkdown(this.source);
+      }, 300),
+    };
+  },
+
+  computed: {
+    panelClass() {
       return {
-        renderedMarkdown: renderMarkdown(this.source),
-        updateMarkdown: debounce(() => {
-          this.renderedMarkdown = renderMarkdown(this.source)
-        }, 300)
-      }
+        'markdown-output_preview': this.preview,
+      };
     },
+  },
 
-    computed: {
-      panelClass: function () {
-        return {
-          'markdown-output_preview': this.preview
-        }
-      }
+  watch: {
+    source() {
+      this.updateMarkdown();
     },
-
-    watch: {
-      source: function () {
-        this.updateMarkdown();
-      }
-    }
-  }
+  },
+};
 </script>
 
 <style lang="scss">

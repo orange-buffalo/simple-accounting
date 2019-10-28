@@ -1,32 +1,32 @@
-import {mapState} from 'vuex'
-import {isNil} from 'lodash'
-import {api} from '@/services/api'
+import { mapState } from 'vuex';
+import { isNil } from 'lodash';
+import { api } from '@/services/api';
 
 export const withTaxes = {
-  data: function () {
+  data() {
     return {
-      taxes: []
-    }
+      taxes: [],
+    };
   },
 
-  created: async function () {
+  async created() {
     this.taxes = await api.pageRequest(`/workspaces/${this.$_withTaxes_currentWorkspace.id}/taxes`)
-        .eager()
-        .getPageData()
+      .eager()
+      .getPageData();
   },
 
   computed: {
     ...mapState({
-      $_withTaxes_currentWorkspace: state => state.workspaces.currentWorkspace
+      $_withTaxes_currentWorkspace: state => state.workspaces.currentWorkspace,
     }),
 
-    taxById: function () {
-      return taxId => {
-        let tax = this.taxes.find(tax => tax.id === taxId)
-        return isNil(tax) ? {} : tax
-      }
-    }
-  }
-}
+    taxById() {
+      return (taxId) => {
+        const tax = this.taxes.find(tax => tax.id === taxId);
+        return isNil(tax) ? {} : tax;
+      };
+    },
+  },
+};
 
-export default withTaxes
+export default withTaxes;

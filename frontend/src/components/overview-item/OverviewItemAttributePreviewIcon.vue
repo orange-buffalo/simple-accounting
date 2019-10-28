@@ -1,31 +1,36 @@
 <template>
-  <ElTooltip :content="tooltip"
-             :disabled="!tooltip"
-             placement="bottom">
-    <SaIcon :icon="icon" class="overview-item-attribute-preview-icon"/>
+  <ElTooltip
+    :content="tooltip"
+    :disabled="!tooltip"
+    placement="bottom"
+  >
+    <SaIcon
+      :icon="icon"
+      class="overview-item-attribute-preview-icon"
+    />
   </ElTooltip>
 </template>
 
 <script>
-  import SaIcon from '@/components/SaIcon'
+import SaIcon from '@/components/SaIcon';
 
-  export default {
-    name: 'OverviewItemAttributePreviewIcon',
+export default {
+  name: 'OverviewItemAttributePreviewIcon',
 
-    components: {
-      SaIcon
+  components: {
+    SaIcon,
+  },
+
+  props: {
+    icon: {
+      type: String,
+      required: true,
     },
-
-    props: {
-      icon: {
-        type: String,
-        required: true
-      },
-      tooltip: {
-        type: String
-      }
-    }
-  }
+    tooltip: {
+      type: String,
+    },
+  },
+};
 </script>
 
 <style lang="scss">

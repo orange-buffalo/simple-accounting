@@ -1,35 +1,41 @@
 <template>
   <div class="sa-action-link">
-    <SaIcon :icon="icon" class="sa-action-link__icon"/>
-    <ElButton type="text" @click="click">
-      <slot/>
+    <SaIcon
+      :icon="icon"
+      class="sa-action-link__icon"
+    />
+    <ElButton
+      type="text"
+      @click="click"
+    >
+      <slot />
     </ElButton>
   </div>
 </template>
 
 <script>
-  import SaIcon from '@/components/SaIcon'
+import SaIcon from '@/components/SaIcon';
 
-  export default {
-    name: 'SaActionLink',
+export default {
+  name: 'SaActionLink',
 
-    components: {
-      SaIcon
+  components: {
+    SaIcon,
+  },
+
+  props: {
+    icon: {
+      type: String,
+      required: true,
     },
+  },
 
-    props: {
-      icon: {
-        type: String,
-        required: true
-      }
+  methods: {
+    click() {
+      this.$emit('click');
     },
-
-    methods: {
-      click: function () {
-        this.$emit('click')
-      }
-    }
-  }
+  },
+};
 </script>
 
 

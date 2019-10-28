@@ -4,42 +4,40 @@
       New here? We are launching public access soon.
     </div>
     <div class="login-page__login">
-      <div class="login-page__login__logo"></div>
-      <login-form @login="onLogin"/>
+      <div class="login-page__login__logo" />
+      <login-form @login="onLogin" />
     </div>
   </div>
 </template>
 
 <script>
-  import {setupApp} from '@/services/app-services'
-  import LoginForm from '@/components/LoginForm'
+import { setupApp } from '@/services/app-services';
+import LoginForm from '@/components/LoginForm';
 
-  export default {
-    name: 'Login',
+export default {
+  name: 'Login',
 
-    components: {
-      LoginForm
-    },
+  components: {
+    LoginForm,
+  },
 
-    methods: {
-      onLogin: async function () {
-        if (this.$store.state.api.isAdmin) {
-          this.$router.push({name: 'users-overview'})
+  methods: {
+    async onLogin() {
+      if (this.$store.state.api.isAdmin) {
+        this.$router.push({ name: 'users-overview' });
+      } else {
+        await setupApp(this.$store, this.$router);
+        if (!this.$store.state.workspaces.currentWorkspace) {
+          this.$router.push('/workspace-setup');
+        } else if (this.$store.state.app.lastView) {
+          this.$router.push({ name: this.$store.state.app.lastView });
         } else {
-          await setupApp(this.$store, this.$router)
-          if (!this.$store.state.workspaces.currentWorkspace) {
-            this.$router.push('/workspace-setup')
-          } else {
-            if (this.$store.state.app.lastView) {
-              this.$router.push({name: this.$store.state.app.lastView})
-            } else {
-              this.$router.push('/')
-            }
-          }
+          this.$router.push('/');
         }
       }
-    }
-  }
+    },
+  },
+};
 </script>
 
 <style lang="scss">

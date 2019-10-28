@@ -5,19 +5,23 @@
     </div>
 
     <div class="top-buttons-bar">
-      <el-button round
-                 @click="navigateToNewCategoryView">
-        <svgicon name="plus-thin"/>
+      <el-button
+        round
+        @click="navigateToNewCategoryView"
+      >
+        <svgicon name="plus-thin" />
         Add new
       </el-button>
     </div>
 
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/categories`"
-                :paginator="false">
+    <data-items
+      :api-path="`/workspaces/${currentWorkspace.id}/categories`"
+      :paginator="false"
+    >
       <template slot-scope="scope">
         <div class="sa-item-info-panel">
           <div class="sa-item-title-panel">
-            <h3>{{scope.item.name}}</h3>
+            <h3>{{ scope.item.name }}</h3>
 
             <span class="sa-item-edit-link">
               <!--<pencil-solid-icon/>-->
@@ -25,13 +29,13 @@
             </span>
           </div>
           <p>
-            {{scope.item.description}}
+            {{ scope.item.description }}
           </p>
           <p>
-            Income: {{scope.item.income}}
+            Income: {{ scope.item.income }}
           </p>
           <p>
-            Expense: {{scope.item.expense}}
+            Expense: {{ scope.item.expense }}
           </p>
         </div>
       </template>
@@ -40,25 +44,25 @@
 </template>
 
 <script>
-  import '@/components/icons/plus-thin'
-  import withWorkspaces from '@/components/mixins/with-workspaces'
-  import DataItems from '@/components/DataItems'
+import '@/components/icons/plus-thin';
+import withWorkspaces from '@/components/mixins/with-workspaces';
+import DataItems from '@/components/DataItems';
 
-  export default {
-    name: 'Categories',
+export default {
+  name: 'Categories',
 
-    mixins: [withWorkspaces],
+  components: {
+    DataItems,
+  },
 
-    components: {
-      DataItems
+  mixins: [withWorkspaces],
+
+  methods: {
+    navigateToNewCategoryView() {
+      this.$router.push({ name: 'create-new-category' });
     },
-
-    methods: {
-      navigateToNewCategoryView: function () {
-        this.$router.push({name: 'create-new-category'})
-      }
-    }
-  }
+  },
+};
 </script>
 
 <style lang="scss">

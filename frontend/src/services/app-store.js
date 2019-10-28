@@ -1,34 +1,34 @@
-import userApi from '@/services/user-api'
+import userApi from '@/services/user-api';
 
 export const appStore = {
   namespaced: true,
 
   state: {
     currencies: [],
-    lastView: null
+    lastView: null,
   },
 
   mutations: {
     setCurrencies(state, currencies) {
-      state.currencies = currencies
+      state.currencies = currencies;
     },
 
     setLastView(state, view) {
-      state.lastView = view
-    }
+      state.lastView = view;
+    },
   },
 
   actions: {
-    loadCurrencies({commit}) {
+    loadCurrencies({ commit }) {
       if (this.currenciesRequested) {
-        return
+        return;
       }
-      this.currenciesRequested = true
+      this.currenciesRequested = true;
 
       userApi.getCurrencies()
-          .then(currencies => commit('setCurrencies', currencies))
-    }
-  }
-}
+        .then(currencies => commit('setCurrencies', currencies));
+    },
+  },
+};
 
-export default appStore
+export default appStore;

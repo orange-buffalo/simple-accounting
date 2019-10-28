@@ -2,11 +2,13 @@
   <div class="customer-panel">
     <div class="customer-info">
       <div class="sa-item-title-panel">
-        <h3>{{customer.name}}</h3>
+        <h3>{{ customer.name }}</h3>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil-solid"/>
-          <el-button type="text"
-                     @click="navigateToCustomerEdit">Edit</el-button>
+          <svgicon name="pencil-solid" />
+          <el-button
+            type="text"
+            @click="navigateToCustomerEdit"
+          >Edit</el-button>
         </span>
       </div>
     </div>
@@ -14,21 +16,21 @@
 </template>
 
 <script>
-  import '@/components/icons/pencil-solid'
+import '@/components/icons/pencil-solid';
 
-  export default {
-    name: 'CustomerOverviewPanel',
+export default {
+  name: 'CustomerOverviewPanel',
 
-    props: {
-      customer: Object
+  props: {
+    customer: Object,
+  },
+
+  methods: {
+    navigateToCustomerEdit() {
+      this.$router.push({ name: 'edit-customer', params: { id: this.customer.id } });
     },
-
-    methods: {
-      navigateToCustomerEdit: function () {
-        this.$router.push({name: 'edit-customer', params: {id: this.customer.id}})
-      }
-    }
-  }
+  },
+};
 </script>
 
 <style lang="scss">

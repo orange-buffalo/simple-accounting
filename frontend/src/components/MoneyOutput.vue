@@ -3,23 +3,23 @@
 </template>
 
 <script>
-  import withCurrencyFormatter from '@/components/mixins/with-currency-formatter'
-  import {withCurrencyInfo} from '@/components/mixins/with-currency-info'
+import withCurrencyFormatter from '@/components/mixins/with-currency-formatter';
+import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
 
-  export default {
-    name: 'MoneyOutput',
+export default {
+  name: 'MoneyOutput',
 
-    mixins: [withCurrencyFormatter, withCurrencyInfo],
+  mixins: [withCurrencyFormatter, withCurrencyInfo],
 
-    props: {
-      currency: String,
-      amount: Number
+  props: {
+    currency: String,
+    amount: Number,
+  },
+
+  computed: {
+    amountLabel() {
+      return this.currencyFormatter(this.amount / Math.pow(10, this.currencyDigits(this.currency)));
     },
-
-    computed: {
-      amountLabel: function () {
-        return this.currencyFormatter(this.amount / Math.pow(10, this.currencyDigits(this.currency)))
-      }
-    }
-  }
+  },
+};
 </script>

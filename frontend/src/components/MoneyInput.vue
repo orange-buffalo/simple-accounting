@@ -1,78 +1,77 @@
 <template>
   <div class="el-input el-input-group el-input-group--append money-input">
-
     <masked-input
-        type="text"
-        name="phone"
-        class="el-input__inner "
-        v-model="inputValue"
-        :mask="inputMask"
-        :guide="false"
-        :disabled="!currency">
-    </masked-input>
+      v-model="inputValue"
+      type="text"
+      name="phone"
+      class="el-input__inner "
+      :mask="inputMask"
+      :guide="false"
+      :disabled="!currency"
+    />
 
     <div class="el-input-group__append">
-      {{currency}}
+      {{ currency }}
     </div>
   </div>
 </template>
 
 <script>
-  import withCurrencyFormatter from '@/components/mixins/with-currency-formatter'
-  import {withCurrencyInfo} from '@/components/mixins/with-currency-info'
-  import {withNumberFormatter} from '@/components/mixins/with-number-formatter'
-  import MaskedInput from 'vue-text-mask'
-  import createNumberMask from 'text-mask-addons/dist/createNumberMask'
+import MaskedInput from 'vue-text-mask';
+import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import withCurrencyFormatter from '@/components/mixins/with-currency-formatter';
+import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
+import { withNumberFormatter } from '@/components/mixins/with-number-formatter';
 
-  export default {
-    name: 'MoneyInput',
+export default {
+  name: 'MoneyInput',
 
-    mixins: [withCurrencyFormatter, withCurrencyInfo, withNumberFormatter],
+  components: {
+    MaskedInput,
+  },
 
-    props: {
-      value: Number,
-      currency: String
+  mixins: [withCurrencyFormatter, withCurrencyInfo, withNumberFormatter],
+
+  props: {
+    value: Number,
+    currency: String,
+  },
+
+  data() {
+    return {
+      inputValue: null,
+    };
+  },
+
+  computed: {
+    inputMask() {
+      return createNumberMask({
+        prefix: '',
+        thousandsSeparatorSymbol: this.thousandSeparator,
+        allowDecimal: this.currencyDigits(this.currency) > 0,
+        decimalSymbol: this.decimalSeparator,
+      });
     },
 
-    components: {
-      MaskedInput
+    digitsMultiplier() {
+      return Math.pow(10, this.currencyDigits(this.currency));
+    },
+  },
+
+  watch: {
+    value(val) {
+      this.inputValue = !val ? null : this.formatNumberDefault(this.value / this.digitsMultiplier);
     },
 
-    data: function () {
-      return {
-        inputValue: null
-      }
+    inputValue(val) {
+      this.$emit('input', !val ? null : Math.round(this.parserNumberDefault(this.inputValue) * this.digitsMultiplier));
     },
+  },
 
-    created: function () {
-      this.inputValue = this.value ? this.formatNumberDefault(this.value / this.digitsMultiplier) : null
-    },
-
-    computed: {
-      inputMask: function () {
-        return createNumberMask({
-          prefix: '',
-          thousandsSeparatorSymbol: this.thousandSeparator,
-          allowDecimal: this.currencyDigits(this.currency) > 0,
-          decimalSymbol: this.decimalSeparator
-        })
-      },
-
-      digitsMultiplier: function () {
-        return Math.pow(10, this.currencyDigits(this.currency))
-      }
-    },
-
-    watch: {
-      value: function (val) {
-        this.inputValue = !val ? null : this.formatNumberDefault(this.value / this.digitsMultiplier)
-      },
-
-      inputValue: function (val) {
-        this.$emit('input', !val ? null : Math.round(this.parserNumberDefault(this.inputValue) * this.digitsMultiplier))
-      }
-    }
-  }
+  created() {
+    this.inputValue = this.value ? this.formatNumberDefault(this.value / this.digitsMultiplier) : null;
+  },
+};
 </script>
 
 <style lang="scss">

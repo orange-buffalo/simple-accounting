@@ -9,72 +9,80 @@
         </div>
 
         <div>
-          <ElInput placeholder="Search incomes"
-                   v-model="userFilters.freeSearchText"
-                   clearable>
-            <i class="el-icon-search el-input__icon"
-               slot="prefix"></i>
+          <ElInput
+            v-model="userFilters.freeSearchText"
+            placeholder="Search incomes"
+            clearable
+          >
+            <i
+              slot="prefix"
+              class="el-icon-search el-input__icon"
+            />
           </ElInput>
         </div>
 
-        <ElButton round
-                  @click="navigateToCreateIncomeView"
-                  :disabled="!currentWorkspace.editable">
-          <SaIcon icon="plus-thin"/>
+        <ElButton
+          round
+          :disabled="!currentWorkspace.editable"
+          @click="navigateToCreateIncomeView"
+        >
+          <SaIcon icon="plus-thin" />
           Add new
         </ElButton>
       </div>
     </div>
 
-    <DataItems :api-path="`/workspaces/${currentWorkspace.id}/incomes`"
-               :filters="apiFilters"
-               #default="{item: income}">
-      <IncomeOverviewPanel :income="income"/>
+    <DataItems
+      :api-path="`/workspaces/${currentWorkspace.id}/incomes`"
+      :filters="apiFilters"
+      #default="{item: income}"
+    >
+      <IncomeOverviewPanel :income="income" />
     </DataItems>
   </div>
 </template>
 
 <script>
-  import DataItems from '@/components/DataItems'
-  import IncomeOverviewPanel from './IncomeOverviewPanel'
-  import {withWorkspaces} from '@/components/mixins/with-workspaces'
-  import SaIcon from '@/components/SaIcon'
+import DataItems from '@/components/DataItems';
+import IncomeOverviewPanel from './IncomeOverviewPanel';
+import { withWorkspaces } from '@/components/mixins/with-workspaces';
+import SaIcon from '@/components/SaIcon';
 
-  export default {
-    name: 'IncomesOverview',
+export default {
+  name: 'IncomesOverview',
 
-    mixins: [withWorkspaces],
+  components: {
+    SaIcon,
+    DataItems,
+    IncomeOverviewPanel,
+  },
 
-    components: {
-      SaIcon,
-      DataItems,
-      IncomeOverviewPanel
-    },
+  mixins: [withWorkspaces],
 
-    data: function () {
+  data() {
+    return {
+      userFilters: {
+        freeSearchText: null,
+      },
+    };
+  },
+
+  computed: {
+    apiFilters() {
+      // read the property to enable reactivity
+      const { freeSearchText } = this.userFilters;
       return {
-        userFilters: {
-          freeSearchText: null
-        }
-      }
+        applyToRequest: (pageRequest) => {
+          pageRequest.eqFilter('freeSearchText', freeSearchText);
+        },
+      };
     },
+  },
 
-    computed: {
-      apiFilters: function () {
-        // read the property to enable reactivity
-        let freeSearchText = this.userFilters.freeSearchText
-        return {
-          applyToRequest: pageRequest => {
-            pageRequest.eqFilter('freeSearchText', freeSearchText)
-          }
-        }
-      }
+  methods: {
+    navigateToCreateIncomeView() {
+      this.$router.push({ name: 'create-new-income' });
     },
-
-    methods: {
-      navigateToCreateIncomeView: function () {
-        this.$router.push({name: 'create-new-income'})
-      }
-    }
-  }
+  },
+};
 </script>

@@ -8,43 +8,47 @@
           <span>Filters coming soon</span>
         </div>
 
-        <el-button round
-                   @click="navigateToCreateTaxView">
-          <svgicon name="plus-thin"/>
+        <el-button
+          round
+          @click="navigateToCreateTaxView"
+        >
+          <svgicon name="plus-thin" />
           Add new
         </el-button>
       </div>
     </div>
 
-    <data-items :api-path="`/workspaces/${currentWorkspace.id}/taxes`"
-                ref="taxesList">
+    <data-items
+      ref="taxesList"
+      :api-path="`/workspaces/${currentWorkspace.id}/taxes`"
+    >
       <template slot-scope="scope">
-        <tax-overview-panel :tax="scope.item"/>
+        <tax-overview-panel :tax="scope.item" />
       </template>
     </data-items>
   </div>
 </template>
 
 <script>
-  import DataItems from '@/components/DataItems'
-  import TaxOverviewPanel from './TaxOverviewPanel'
-  import '@/components/icons/plus-thin'
-  import {withWorkspaces} from '@/components/mixins/with-workspaces'
+import DataItems from '@/components/DataItems';
+import TaxOverviewPanel from './TaxOverviewPanel';
+import '@/components/icons/plus-thin';
+import { withWorkspaces } from '@/components/mixins/with-workspaces';
 
-  export default {
-    name: 'TaxesOverview',
+export default {
+  name: 'TaxesOverview',
 
-    mixins: [withWorkspaces],
+  components: {
+    DataItems,
+    TaxOverviewPanel,
+  },
 
-    components: {
-      DataItems,
-      TaxOverviewPanel
+  mixins: [withWorkspaces],
+
+  methods: {
+    navigateToCreateTaxView() {
+      this.$router.push({ name: 'create-new-tax' });
     },
-
-    methods: {
-      navigateToCreateTaxView: function () {
-        this.$router.push({name: 'create-new-tax'})
-      }
-    }
-  }
+  },
+};
 </script>

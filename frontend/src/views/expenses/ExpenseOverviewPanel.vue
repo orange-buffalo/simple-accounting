@@ -1,85 +1,124 @@
 <template>
-  <OverviewItem :title="expense.title"
-                @details-shown="loadAttachments">
+  <OverviewItem
+    :title="expense.title"
+    @details-shown="loadAttachments"
+  >
     <template v-slot:primary-attributes>
-      <OverviewItemPrimaryAttribute v-if="datePaid"
-                                    tooltip="Date paid"
-                                    icon="calendar">
-        {{datePaid}}
+      <OverviewItemPrimaryAttribute
+        v-if="datePaid"
+        tooltip="Date paid"
+        icon="calendar"
+      >
+        {{ datePaid }}
       </OverviewItemPrimaryAttribute>
     </template>
 
     <template v-slot:attributes-preview>
-      <OverviewItemAttributePreviewIcon v-if="expense.notes"
-                                        icon="notes"
-                                        tooltip="Additional notes provided"/>
+      <OverviewItemAttributePreviewIcon
+        v-if="expense.notes"
+        icon="notes"
+        tooltip="Additional notes provided"
+      />
 
-      <OverviewItemAttributePreviewIcon v-if="isTaxApplicable"
-                                        tooltip="Tax applied"
-                                        icon="tax"/>
+      <OverviewItemAttributePreviewIcon
+        v-if="isTaxApplicable"
+        tooltip="Tax applied"
+        icon="tax"
+      />
 
-      <OverviewItemAttributePreviewIcon v-if="expense.attachments.length"
-                                        tooltip="Attachments provided"
-                                        icon="attachment"/>
+      <OverviewItemAttributePreviewIcon
+        v-if="expense.attachments.length"
+        tooltip="Attachments provided"
+        icon="attachment"
+      />
 
-      <OverviewItemAttributePreviewIcon v-if="isForeignCurrency"
-                                        tooltip="In foreign currency"
-                                        icon="multi-currency"/>
+      <OverviewItemAttributePreviewIcon
+        v-if="isForeignCurrency"
+        tooltip="In foreign currency"
+        icon="multi-currency"
+      />
 
-      <OverviewItemAttributePreviewIcon v-if="expense.percentOnBusiness < 100"
-                                        tooltip="Partial business purpose"
-                                        icon="percent"/>
+      <OverviewItemAttributePreviewIcon
+        v-if="expense.percentOnBusiness < 100"
+        tooltip="Partial business purpose"
+        icon="percent"
+      />
     </template>
 
     <template v-slot:middle-column>
-      <ElTooltip :content="fullStatusText"
-                 :disabled="status === 'success'"
-                 placement="bottom">
-        <SaStatusLabel :status="status">{{ shortStatusText }}</SaStatusLabel>
+      <ElTooltip
+        :content="fullStatusText"
+        :disabled="status === 'success'"
+        placement="bottom"
+      >
+        <SaStatusLabel :status="status">
+          {{ shortStatusText }}
+        </SaStatusLabel>
       </ElTooltip>
     </template>
 
     <template v-slot:last-column>
-      <OverviewItemAmountPanel :currency="totalAmount.currency"
-                               :amount="totalAmount.value"/>
+      <OverviewItemAmountPanel
+        :currency="totalAmount.currency"
+        :amount="totalAmount.value"
+      />
     </template>
 
     <template v-slot:details>
       <OverviewItemDetailsSectionActions>
-        <SaActionLink icon="copy"
-                      v-if="currentWorkspace.editable"
-                      @click="navigateToExpenseCreateWithPrototype">
+        <SaActionLink
+          v-if="currentWorkspace.editable"
+          icon="copy"
+          @click="navigateToExpenseCreateWithPrototype"
+        >
           Copy
         </SaActionLink>
-        <SaActionLink icon="pencil-solid"
-                      v-if="currentWorkspace.editable"
-                      @click="navigateToExpenseEdit">
+        <SaActionLink
+          v-if="currentWorkspace.editable"
+          icon="pencil-solid"
+          @click="navigateToExpenseEdit"
+        >
           Edit
         </SaActionLink>
       </OverviewItemDetailsSectionActions>
 
       <OverviewItemDetailsSection title="Summary">
         <div class="row">
-          <OverviewItemDetailsSectionAttribute label="Status"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
-            <SaStatusLabel :status="status" :simplified="true">{{ fullStatusText }}</SaStatusLabel>
+          <OverviewItemDetailsSectionAttribute
+            label="Status"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <SaStatusLabel
+              :status="status"
+              :simplified="true"
+            >
+              {{ fullStatusText }}
+            </SaStatusLabel>
           </OverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute label="Category"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
+          <OverviewItemDetailsSectionAttribute
+            label="Category"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
             {{ categoryById(expense.category).name }}
           </OverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute label="Date Paid"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
-            {{datePaid}}
+          <OverviewItemDetailsSectionAttribute
+            label="Date Paid"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            {{ datePaid }}
           </OverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute label="Amount for Taxation Purposes"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
-            <MoneyOutput v-if="expense.reportedAmountInDefaultCurrency"
-                         :currency="defaultCurrency"
-                         :amount="expense.reportedAmountInDefaultCurrency"/>
+          <OverviewItemDetailsSectionAttribute
+            label="Amount for Taxation Purposes"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <MoneyOutput
+              v-if="expense.reportedAmountInDefaultCurrency"
+              :currency="defaultCurrency"
+              :amount="expense.reportedAmountInDefaultCurrency"
+            />
 
             <span v-else>Not yet provided</span>
           </OverviewItemDetailsSectionAttribute>
@@ -87,22 +126,30 @@
 
         <template v-if="isTaxApplicable">
           <div class="row">
-            <OverviewItemDetailsSectionAttribute label="Applicable Tax"
-                                                 class="col col-xs-12 col-md-6 col-lg-4">
-              {{taxTitle}}
+            <OverviewItemDetailsSectionAttribute
+              label="Applicable Tax"
+              class="col col-xs-12 col-md-6 col-lg-4"
+            >
+              {{ taxTitle }}
             </OverviewItemDetailsSectionAttribute>
 
-            <OverviewItemDetailsSectionAttribute label="Applicable Tax Rate"
-                                                 class="col col-xs-12 col-md-6 col-lg-4">
+            <OverviewItemDetailsSectionAttribute
+              label="Applicable Tax Rate"
+              class="col col-xs-12 col-md-6 col-lg-4"
+            >
               <!-- todo #6 localize-->
-              {{expense.taxRateInBps / 100}}%
+              {{ expense.taxRateInBps / 100 }}%
             </OverviewItemDetailsSectionAttribute>
 
-            <OverviewItemDetailsSectionAttribute label="Applicable Tax Amount"
-                                                 class="col col-xs-12 col-md-6 col-lg-4">
-              <MoneyOutput v-if="isTaxAmountAvailable"
-                           :currency="defaultCurrency"
-                           :amount="expense.taxAmount"/>
+            <OverviewItemDetailsSectionAttribute
+              label="Applicable Tax Amount"
+              class="col col-xs-12 col-md-6 col-lg-4"
+            >
+              <MoneyOutput
+                v-if="isTaxAmountAvailable"
+                :currency="defaultCurrency"
+                :amount="expense.taxAmount"
+              />
 
               <span v-else>Not yet available</span>
             </OverviewItemDetailsSectionAttribute>
@@ -112,75 +159,100 @@
 
       <OverviewItemDetailsSection title="General Information">
         <div class="row">
-          <OverviewItemDetailsSectionAttribute v-if="isForeignCurrency"
-                                               label="Original Currency"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
-            {{expense.currency}}
+          <OverviewItemDetailsSectionAttribute
+            v-if="isForeignCurrency"
+            label="Original Currency"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            {{ expense.currency }}
           </OverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute label="Original Amount"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
-            <MoneyOutput :currency="expense.currency"
-                         :amount="expense.originalAmount"/>
+          <OverviewItemDetailsSectionAttribute
+            label="Original Amount"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <MoneyOutput
+              :currency="expense.currency"
+              :amount="expense.originalAmount"
+            />
           </OverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute v-if="expense.percentOnBusiness < 100"
-                                               label="Partial Business Purpose"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
+          <OverviewItemDetailsSectionAttribute
+            v-if="expense.percentOnBusiness < 100"
+            label="Partial Business Purpose"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
             <!-- todo #6 localize -->
-            {{expense.percentOnBusiness}}% related to business activities
+            {{ expense.percentOnBusiness }}% related to business activities
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
 
-      <OverviewItemDetailsSection v-if="isForeignCurrency"
-                                  title="Currency Conversion">
+      <OverviewItemDetailsSection
+        v-if="isForeignCurrency"
+        title="Currency Conversion"
+      >
         <div class="row">
-          <OverviewItemDetailsSectionAttribute :label="`Amount in ${defaultCurrency}`"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
-            <MoneyOutput v-if="expense.amountInDefaultCurrency"
-                         :currency="defaultCurrency"
-                         :amount="expense.amountInDefaultCurrency"/>
+          <OverviewItemDetailsSectionAttribute
+            :label="`Amount in ${defaultCurrency}`"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <MoneyOutput
+              v-if="expense.amountInDefaultCurrency"
+              :currency="defaultCurrency"
+              :amount="expense.amountInDefaultCurrency"
+            />
 
             <span v-else>Not yet available</span>
           </OverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute label="Using different exchange rate for taxation purposes?"
-                                               class="col col-xs-12 col-md-6 col-lg-4">
+          <OverviewItemDetailsSectionAttribute
+            label="Using different exchange rate for taxation purposes?"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
             <!-- todo #6 localize -->
             <span v-if="isReportedDifferentExchangeRate">Yes</span>
             <span v-else>No</span>
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-              :label="`Amount in ${defaultCurrency} for taxation purposes`"
-              class="col col-xs-12 col-md-6 col-lg-4">
-            <MoneyOutput v-if="expense.actualAmountInDefaultCurrency"
-                         :currency="defaultCurrency"
-                         :amount="expense.actualAmountInDefaultCurrency"/>
+            :label="`Amount in ${defaultCurrency} for taxation purposes`"
+            class="col col-xs-12 col-md-6 col-lg-4"
+          >
+            <MoneyOutput
+              v-if="expense.actualAmountInDefaultCurrency"
+              :currency="defaultCurrency"
+              :amount="expense.actualAmountInDefaultCurrency"
+            />
 
             <span v-else>Not yet available</span>
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
 
-      <OverviewItemDetailsSection title="Attachments"
-                                  v-if="attachments.length">
+      <OverviewItemDetailsSection
+        v-if="attachments.length"
+        title="Attachments"
+      >
         <div class="row">
           <div class="col col-xs-12">
-            <span v-for="attachment in attachments"
-                  :key="attachment.id">
-             <document-link :document="attachment"/><br/>
+            <span
+              v-for="attachment in attachments"
+              :key="attachment.id"
+            >
+              <document-link :document="attachment" /><br>
             </span>
           </div>
         </div>
       </OverviewItemDetailsSection>
 
-      <OverviewItemDetailsSection title="Additional Notes"
-                                  v-if="expense.notes">
+      <OverviewItemDetailsSection
+        v-if="expense.notes"
+        title="Additional Notes"
+      >
         <div class="row">
           <div class="col col-xs-12">
-            <SaMarkdownOutput :source="expense.notes"/>
+            <SaMarkdownOutput :source="expense.notes" />
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -189,150 +261,149 @@
 </template>
 
 <script>
-  import {isNil} from 'lodash/lang'
-  import {withMediumDateFormatter} from '@/components/mixins/with-medium-date-formatter'
-  import {withCategories} from '@/components/mixins/with-categories'
-  import {withWorkspaces} from '@/components/mixins/with-workspaces'
-  import {withTaxes} from '@/components/mixins/with-taxes'
-  import {loadDocuments} from '@/services/app-services'
-  import DocumentLink from '@/components/DocumentLink'
-  import MoneyOutput from '@/components/MoneyOutput'
-  import OverviewItem from '@/components/overview-item/OverviewItem'
-  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel'
-  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon'
-  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection'
-  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions'
-  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute'
-  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute'
-  import SaActionLink from '@/components/SaActionLink'
-  import SaIcon from '@/components/SaIcon'
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput'
-  import SaStatusLabel from '@/components/SaStatusLabel'
+import { isNil } from 'lodash/lang';
+import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
+import { withCategories } from '@/components/mixins/with-categories';
+import { withWorkspaces } from '@/components/mixins/with-workspaces';
+import { withTaxes } from '@/components/mixins/with-taxes';
+import { loadDocuments } from '@/services/app-services';
+import DocumentLink from '@/components/DocumentLink';
+import MoneyOutput from '@/components/MoneyOutput';
+import OverviewItem from '@/components/overview-item/OverviewItem';
+import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
+import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
+import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
+import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
+import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
+import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
+import SaActionLink from '@/components/SaActionLink';
+import SaIcon from '@/components/SaIcon';
+import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+import SaStatusLabel from '@/components/SaStatusLabel';
 
-  export default {
-    name: 'ExpenseOverviewPanel',
+export default {
+  name: 'ExpenseOverviewPanel',
 
-    mixins: [withMediumDateFormatter, withCategories, withWorkspaces, withTaxes],
+  components: {
+    MoneyOutput,
+    DocumentLink,
+    OverviewItem,
+    SaIcon,
+    OverviewItemAttributePreviewIcon,
+    OverviewItemPrimaryAttribute,
+    OverviewItemDetailsSection,
+    OverviewItemDetailsSectionAttribute,
+    SaActionLink,
+    OverviewItemDetailsSectionActions,
+    OverviewItemAmountPanel,
+    SaStatusLabel,
+    SaMarkdownOutput,
+  },
 
-    components: {
-      MoneyOutput,
-      DocumentLink,
-      OverviewItem,
-      SaIcon,
-      OverviewItemAttributePreviewIcon,
-      OverviewItemPrimaryAttribute,
-      OverviewItemDetailsSection,
-      OverviewItemDetailsSectionAttribute,
-      SaActionLink,
-      OverviewItemDetailsSectionActions,
-      OverviewItemAmountPanel,
-      SaStatusLabel,
-      SaMarkdownOutput
+  mixins: [withMediumDateFormatter, withCategories, withWorkspaces, withTaxes],
+
+  props: {
+    expense: {
+      type: Object,
+      required: true,
+    },
+  },
+
+  data() {
+    return {
+      attachments: [],
+    };
+  },
+
+  computed: {
+    status() {
+      return this.expense.status === 'FINALIZED' ? 'success' : 'pending';
     },
 
-    props: {
-      expense: {
-        type: Object,
-        required: true
+    shortStatusText() {
+      return this.expense.status === 'FINALIZED' ? 'Finalized' : 'Pending';
+    },
+
+    fullStatusText() {
+      if (this.expense.status === 'FINALIZED') {
+        return 'Finalized';
+      } if (this.expense.status === 'PENDING_CONVERSION') {
+        return `Conversion to ${this.defaultCurrency} pending`;
       }
+      return 'Waiting for exchange rate';
     },
 
-    data: function () {
+    totalAmount() {
+      if (this.expense.status === 'FINALIZED') {
+        return {
+          value: this.expense.reportedAmountInDefaultCurrency,
+          currency: this.defaultCurrency,
+        };
+      } if (this.expense.status === 'PENDING_CONVERSION') {
+        return {
+          value: this.expense.originalAmount,
+          currency: this.expense.currency,
+        };
+      }
       return {
-        attachments: []
+        value: this.expense.amountInDefaultCurrency,
+        currency: this.defaultCurrency,
+      };
+    },
+
+    amountInDefaultCurrency() {
+      return this.expense.currency === this.defaultCurrency
+        ? this.expense.originalAmount : this.expense.amountInDefaultCurrency;
+    },
+
+    isForeignCurrency() {
+      return this.expense.currency !== this.defaultCurrency;
+    },
+
+    isConverted() {
+      return this.expense.amountInDefaultCurrency;
+    },
+
+    isReportedDifferentExchangeRate() {
+      return !isNil(this.expense.actualAmountInDefaultCurrency)
+            && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency);
+    },
+
+    datePaid() {
+      return this.mediumDateFormatter(new Date(this.expense.datePaid));
+    },
+
+    isTaxApplicable() {
+      return this.expense.tax && this.taxTitle;
+    },
+
+    isTaxAmountAvailable() {
+      return this.expense.status === 'FINALIZED';
+    },
+
+    taxTitle() {
+      return this.taxById(this.expense.tax).title;
+    },
+  },
+
+  methods: {
+    async loadAttachments() {
+      if (this.expense.attachments.length && !this.attachments.length) {
+        this.attachments = await loadDocuments(
+          this.attachments,
+          this.expense.attachments,
+          this.currentWorkspace.id,
+        );
       }
     },
 
-    computed: {
-      status: function () {
-        return this.expense.status === 'FINALIZED' ? 'success' : 'pending'
-      },
-
-      shortStatusText: function () {
-        return this.expense.status === 'FINALIZED' ? 'Finalized' : 'Pending'
-      },
-
-      fullStatusText: function () {
-        if (this.expense.status === 'FINALIZED') {
-          return 'Finalized'
-        } else if (this.expense.status === 'PENDING_CONVERSION') {
-          return `Conversion to ${this.defaultCurrency} pending`
-        } else {
-          return `Waiting for exchange rate`
-        }
-      },
-
-      totalAmount: function () {
-        if (this.expense.status === 'FINALIZED') {
-          return {
-            value: this.expense.reportedAmountInDefaultCurrency,
-            currency: this.defaultCurrency
-          }
-        } else if (this.expense.status === 'PENDING_CONVERSION') {
-          return {
-            value: this.expense.originalAmount,
-            currency: this.expense.currency
-          }
-        } else {
-          return {
-            value: this.expense.amountInDefaultCurrency,
-            currency: this.defaultCurrency
-          }
-        }
-      },
-
-      amountInDefaultCurrency: function () {
-        return this.expense.currency === this.defaultCurrency
-            ? this.expense.originalAmount : this.expense.amountInDefaultCurrency
-      },
-
-      isForeignCurrency: function () {
-        return this.expense.currency !== this.defaultCurrency
-      },
-
-      isConverted: function () {
-        return this.expense.amountInDefaultCurrency
-      },
-
-      isReportedDifferentExchangeRate: function () {
-        return !isNil(this.expense.actualAmountInDefaultCurrency)
-            && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency)
-      },
-
-      datePaid: function () {
-        return this.mediumDateFormatter(new Date(this.expense.datePaid))
-      },
-
-      isTaxApplicable: function () {
-        return this.expense.tax && this.taxTitle
-      },
-
-      isTaxAmountAvailable: function () {
-        return this.expense.status === 'FINALIZED'
-      },
-
-      taxTitle: function () {
-        return this.taxById(this.expense.tax).title
-      }
+    navigateToExpenseEdit() {
+      this.$router.push({ name: 'edit-expense', params: { id: this.expense.id } });
     },
 
-    methods: {
-      loadAttachments: async function () {
-        if (this.expense.attachments.length && !this.attachments.length) {
-          this.attachments = await loadDocuments(
-              this.attachments,
-              this.expense.attachments,
-              this.currentWorkspace.id)
-        }
-      },
-
-      navigateToExpenseEdit: function () {
-        this.$router.push({name: 'edit-expense', params: {id: this.expense.id}})
-      },
-
-      navigateToExpenseCreateWithPrototype: function () {
-         this.$router.push({name: 'create-new-expense', params: {prototype: this.expense}})
-      }
-    }
-  }
+    navigateToExpenseCreateWithPrototype() {
+      this.$router.push({ name: 'create-new-expense', params: { prototype: this.expense } });
+    },
+  },
+};
 </script>
