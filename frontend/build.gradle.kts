@@ -1,7 +1,5 @@
-apply {
-    plugin(FrontendPlugin::class.java)
-}
+apply<SaFrontendPlugin>()
 
-tasks.register("build") {
+tasks.register("assemble") {
     dependsOn("npmBuild")
 }

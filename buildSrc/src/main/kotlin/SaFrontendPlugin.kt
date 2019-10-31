@@ -5,19 +5,18 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
-class FrontendPlugin : Plugin<Project> {
+class SaFrontendPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val npmInstall = project.tasks.register("npmInstall", NpmTask::class.java) {
+        val npmInstall = project.tasks.register("npmInstall", SaNpmTask::class.java) {
             args.set("install")
             outputDirectories.from(project.file("node_modules"))
         }
 
-        project.tasks.register("npmBuild", NpmTask::class.java) {
+        project.tasks.register("npmBuild", SaNpmTask::class.java) {
             args.set("run-script build")
             outputDirectories.from(project.file("dist"))
             inputFiles.from(project.file("src"), project.file("public"))
@@ -28,19 +27,19 @@ class FrontendPlugin : Plugin<Project> {
 
 }
 
-open class NpmTask @javax.inject.Inject constructor(objects: ObjectFactory) : DefaultTask() {
+open class SaNpmTask : DefaultTask() {
 
     @InputFile
-    val packageJson: RegularFileProperty = objects.fileProperty()
+    val packageJson: RegularFileProperty = project.objects.fileProperty()
 
     @InputFiles
-    val inputFiles: ConfigurableFileCollection = objects.fileCollection()
+    val inputFiles: ConfigurableFileCollection = project.objects.fileCollection()
 
     @OutputDirectories
-    val outputDirectories: ConfigurableFileCollection = objects.fileCollection()
+    val outputDirectories: ConfigurableFileCollection = project.objects.fileCollection()
 
     @Input
-    val args: Property<String> = objects.property(String::class.java)
+    val args: Property<String> = project.objects.property(String::class.java)
 
     private val fullCommandLine = args.map { userInput ->
         listOf(

@@ -5,6 +5,8 @@ plugins {
     id("com.bmuschko.docker-remote-api") version Versions.dockerPlugin
 }
 
+apply<SaDockerPlugin>()
+
 docker {
     registryCredentials {
         username.set(project.properties["docker.hub.username"] as String?)
@@ -12,34 +14,33 @@ docker {
     }
 }
 
-val dockerBuildDir = "$buildDir/docker-build/"
+val saDockerImageExtension = the<SaDockerImageExtension>()
 
-val prepareDockerBuild = tasks.register("prepareDockerBuild") {
-    doLast {
-        copy {
-            from(tasks.getByPath(":backend:bootJar").outputs)
-            into(dockerBuildDir)
-            include("*.jar")
-            rename("""(.*)\.jar""", "app.jar")
-        }
+configure<SaDockerImageExtension> {
+    imageName.set("orangebuffalo/simple-accounting")
+    imageTag.set("${project.version}")
+    dockerBuildDir.set(project.layout.buildDirectory.map { projectBuildDir ->
+        projectBuildDir.dir("docker-build")
+    })
 
-        copy {
-            from("src/main/docker")
-            into(dockerBuildDir)
-        }
-    }
-
-    dependsOn(":backend:bootJar")
 }
 
 val buildDockerImage = tasks.register<DockerBuildImage>("buildDockerImage") {
-    inputDir.set(file(dockerBuildDir))
-    tags.add("orangebuffalo/simple-accounting:${project.version}")
-    dependsOn(prepareDockerBuild)
+    inputDir.set(saDockerImageExtension.dockerBuildDir)
+    tags.add(saDockerImageExtension.imageName.flatMap { imageName ->
+        saDockerImageExtension.imageTag.map { imageTag ->
+            "${imageName}:${imageTag}"
+        }
+    })
+    dependsOn("prepareDockerBuild")
 }
 
-tasks.register<DockerPushImage>("pushDockerImage") {
-    imageName.set("orangebuffalo/simple-accounting")
-    tag.set("${project.version}")
+project.tasks.register<DockerPushImage>("pushDockerImage") {
+    imageName.set(saDockerImageExtension.imageName)
+    tag.set(saDockerImageExtension.imageTag)
+    dependsOn(buildDockerImage)
+}
+
+tasks.register("assemble") {
     dependsOn(buildDockerImage)
 }
