@@ -28,7 +28,9 @@ jobs:
       run: ci create-tag
 
     - name: "Build"
-      run: ./gradlew assemble --scan --console=plain
+      env:
+        DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
+      run: ./gradlew assemble --scan --console=plain -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN"
 
     - name: "Test"
       run: ./gradlew check --scan --console=plain
