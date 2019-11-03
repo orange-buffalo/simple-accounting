@@ -37,7 +37,7 @@ class InvoiceService(
                         reportedAmountInDefaultCurrency = 0,
                         amountInDefaultCurrency = 0,
                         category = null,
-                        tax = invoice.tax
+                        generalTax = invoice.generalTax
                     )
                 )
             }

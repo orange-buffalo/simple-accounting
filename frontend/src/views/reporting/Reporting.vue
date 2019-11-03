@@ -38,8 +38,8 @@
         >
           <svgicon name="tax" />
           <div>
-            <h4>Tax Report</h4>
-            <span>Collected and paid taxes</span>
+            <h4>General Tax Report</h4>
+            <span>Collected and paid general taxes</span>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@
         v-if="viewReportActive"
         class="reporting-panel--content"
       >
-        <the-tax-report
+        <the-general-tax-report
           :date-range="selectedDateRange"
           @report-loaded="reportGenerationInProgress = false"
         />
@@ -84,8 +84,8 @@
 
 <script>
 import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import TheTaxReport from './TheTaxReport';
 import { api } from '@/services/api';
+import TheGeneralTaxReport from '@/views/reporting/TheGeneralTaxReport';
 
 const SELECT_REPORT_STEP = 0;
 const SELECT_DATES_STEP = 1;
@@ -98,7 +98,7 @@ export default {
   name: 'Reporting',
 
   components: {
-    TheTaxReport,
+    TheGeneralTaxReport,
   },
 
   mixins: [withWorkspaces],
@@ -126,7 +126,7 @@ export default {
     },
 
     taxReportSelected() {
-      return this.selectedReport = TAX_REPORT;
+      return this.selectedReport === TAX_REPORT;
     },
 
     reportSelectionStepDescription() {

@@ -107,16 +107,16 @@
             </el-form-item>
 
             <el-form-item
-              label="Added Tax"
-              prop="tax"
+              label="Added General Tax"
+              prop="generalTax"
             >
               <el-select
-                v-model="income.tax"
+                v-model="income.generalTax"
                 clearable
                 placeholder="Select a tax"
               >
                 <el-option
-                  v-for="tax in taxes"
+                  v-for="tax in generalTaxes"
                   :key="tax.id"
                   :label="tax.title"
                   :value="tax.id"
@@ -191,7 +191,7 @@ import MoneyInput from '@/components/MoneyInput';
 import { UploadsInfo } from '@/components/uploads-info';
 import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
 
-import { withTaxes } from '@/components/mixins/with-taxes';
+import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
 import withCategories from '@/components/mixins/with-categories';
 import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
@@ -205,7 +205,7 @@ export default {
     SaMarkdownOutput,
   },
 
-  mixins: [withMediumDateFormatter, withTaxes, withCategories],
+  mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories],
 
   data() {
     return {
@@ -220,7 +220,7 @@ export default {
         notes: null,
         dateReceived: new Date(),
         uploads: new UploadsInfo(),
-        tax: null,
+        generalTax: null,
       },
       incomeValidationRules: {
         currency: { required: true, message: 'Please select a currency' },
@@ -316,7 +316,7 @@ export default {
           ? this.income.reportedAmountInDefaultCurrency : this.income.amountInDefaultCurrency,
         attachments: this.income.uploads.getDocumentsIds(),
         notes: this.income.notes,
-        tax: this.income.tax,
+        generalTax: this.income.generalTax,
       };
 
       if (this.income.id) {
@@ -324,7 +324,7 @@ export default {
       } else {
         await api.post(`/workspaces/${this.workspace.id}/incomes`, incomeToPush);
       }
-      this.$router.push({ name: 'incomes-overview' });
+      await this.$router.push({ name: 'incomes-overview' });
     },
   },
 };

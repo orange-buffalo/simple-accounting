@@ -133,19 +133,19 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-customer" */ './views/settings/customers/EditCustomer.vue'),
         },
         {
-          path: 'settings/taxes',
-          name: 'taxes-overview',
-          component: () => import(/* webpackChunkName: "taxes-overview" */ './views/settings/taxes/TaxesOverview.vue'),
+          path: 'settings/general-taxes',
+          name: 'general-taxes-overview',
+          component: () => import(/* webpackChunkName: "taxes-overview" */ './views/settings/general-taxes/GeneralTaxesOverview.vue'),
         },
         {
-          path: 'settings/taxes/create',
-          name: 'create-new-tax',
-          component: () => import(/* webpackChunkName: "create-new-tax" */ './views/settings/taxes/EditTax.vue'),
+          path: 'settings/general-taxes/create',
+          name: 'create-new-general-tax',
+          component: () => import(/* webpackChunkName: "create-new-tax" */ './views/settings/general-taxes/EditGeneralTax.vue'),
         },
         {
-          path: 'setting/taxes/:id/edit',
-          name: 'edit-tax',
-          component: () => import(/* webpackChunkName: "edit-tax" */ './views/settings/taxes/EditTax.vue'),
+          path: 'setting/general-taxes/:id/edit',
+          name: 'edit-general-tax',
+          component: () => import(/* webpackChunkName: "edit-tax" */ './views/settings/general-taxes/EditGeneralTax.vue'),
         },
         {
           path: 'settings/workspaces',

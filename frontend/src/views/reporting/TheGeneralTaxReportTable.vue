@@ -58,7 +58,7 @@ import { withWorkspaces } from '@/components/mixins/with-workspaces';
 import MoneyOutput from '@/components/MoneyOutput';
 
 export default {
-  name: 'TheTaxReportTable',
+  name: 'TheGeneralTaxReportTable',
 
   components: {
     MoneyOutput,

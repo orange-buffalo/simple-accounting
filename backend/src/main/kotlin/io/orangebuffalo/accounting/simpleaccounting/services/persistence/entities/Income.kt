@@ -49,24 +49,20 @@ class Income(
     var notes: String? = null,
 
     @field:ManyToOne
-    @field:JoinColumn(foreignKey = ForeignKey(name = "income_tax_fk"))
-    var tax: Tax?,
+    @field:JoinColumn(foreignKey = ForeignKey(name = "income_general_tax_fk"))
+    var generalTax: GeneralTax?,
 
     @field:Column
-    var taxRateInBps: Int? = null,
+    var generalTaxRateInBps: Int? = null,
 
     @field:Column
-    var taxAmount: Long? = null
+    var generalTaxAmount: Long? = null
 
 ) : AbstractEntity() {
 
     init {
-        if (category != null && category?.workspace != workspace) {
-            throw IllegalArgumentException("Category and workspace must match")
-        }
+        require(category == null || category?.workspace == workspace) { "Category and workspace must match" }
 
-        if (tax != null && tax?.workspace != workspace) {
-            throw IllegalArgumentException("Tax and workspace must match")
-        }
+        require(generalTax == null || generalTax?.workspace == workspace) { "Tax and workspace must match" }
     }
 }

@@ -74,16 +74,16 @@
             </el-form-item>
 
             <el-form-item
-              label="Included Tax"
-              prop="tax"
+              label="Included General Tax"
+              prop="generalTax"
             >
               <el-select
-                v-model="expense.tax"
+                v-model="expense.generalTax"
                 clearable
                 placeholder="Select a tax"
               >
                 <el-option
-                  v-for="tax in taxes"
+                  v-for="tax in generalTaxes"
                   :key="tax.id"
                   :label="tax.title"
                   :value="tax.id"
@@ -203,7 +203,7 @@ import MoneyInput from '@/components/MoneyInput';
 import { UploadsInfo } from '@/components/uploads-info';
 import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
 
-import { withTaxes } from '@/components/mixins/with-taxes';
+import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
 import withCategories from '@/components/mixins/with-categories';
 import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
@@ -217,14 +217,16 @@ export default {
     SaMarkdownOutput,
   },
 
-  mixins: [withMediumDateFormatter, withTaxes, withCategories],
+  mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories],
 
   props: {
     id: {
-      type: String | Number,
+      type: Number,
+      required: true,
     },
     prototype: {
       type: Object,
+      default: null,
     },
   },
 
@@ -242,7 +244,7 @@ export default {
         notes: null,
         datePaid: new Date(),
         uploads: new UploadsInfo(),
-        tax: null,
+        generalTax: null,
       },
       expenseValidationRules: {
         currency: { required: true, message: 'Please select a currency' },
@@ -254,14 +256,6 @@ export default {
       reportedAnotherExchangeRate: false,
       partialForBusiness: false,
     };
-  },
-
-  async created() {
-    if (this.id) {
-      await this.loadExpense();
-    } else if (this.prototype) {
-      await this.copyExpenseFromPrototype();
-    }
   },
 
   computed: {
@@ -294,6 +288,14 @@ export default {
     },
   },
 
+  async created() {
+    if (this.id) {
+      await this.loadExpense();
+    } else if (this.prototype) {
+      await this.copyExpenseFromPrototype();
+    }
+  },
+
   methods: {
     async loadExpense() {
       const expenseResponse = await api.get(`/workspaces/${this.workspace.id}/expenses/${this.id}`);
@@ -313,7 +315,7 @@ export default {
           actualAmountInDefaultCurrency: this.prototype.actualAmountInDefaultCurrency,
           percentOnBusiness: this.prototype.percentOnBusiness,
           notes: this.prototype.notes,
-          tax: this.prototype.tax,
+          generalTax: this.prototype.generalTax,
         },
       };
       await this.setupComponentState();
@@ -373,7 +375,7 @@ export default {
         attachments: this.expense.uploads.getDocumentsIds(),
         percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
         notes: this.expense.notes,
-        tax: this.expense.tax,
+        generalTax: this.expense.generalTax,
       };
 
       if (this.expense.id) {
@@ -381,7 +383,7 @@ export default {
       } else {
         await api.post(`/workspaces/${this.workspace.id}/expenses`, expenseToPush);
       }
-      this.$router.push({ name: 'expenses-overview' });
+      await this.$router.push({ name: 'expenses-overview' });
     },
   },
 };

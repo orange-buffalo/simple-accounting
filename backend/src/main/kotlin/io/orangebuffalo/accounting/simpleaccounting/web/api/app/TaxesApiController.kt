@@ -1,11 +1,11 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.GeneralTaxService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QTax
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Tax
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.GeneralTax
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QGeneralTax
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.PageableApi
@@ -20,23 +20,23 @@ import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 
 @RestController
-@RequestMapping("/api/workspaces/{workspaceId}/taxes")
-class TaxApiController(
-    private val taxService: TaxService,
+@RequestMapping("/api/workspaces/{workspaceId}/general-taxes")
+class GeneralTaxApiController(
+    private val taxService: GeneralTaxService,
     private val workspaceService: WorkspaceService
 ) {
 
     @PostMapping
     suspend fun createTax(
         @PathVariable workspaceId: Long,
-        @RequestBody @Valid request: EditTaxDto
-    ): TaxDto {
+        @RequestBody @Valid request: EditGeneralTaxDto
+    ): GeneralTaxDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         return taxService
             .saveTax(
-                Tax(
+                GeneralTax(
                     title = request.title,
                     description = request.description,
                     rateInBps = request.rateInBps,
@@ -47,11 +47,11 @@ class TaxApiController(
     }
 
     @GetMapping
-    @PageableApi(TaxPageableApiDescriptor::class)
+    @PageableApi(GeneralTaxPageableApiDescriptor::class)
     suspend fun getTaxes(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Page<Tax> {
+    ): Page<GeneralTax> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         return taxService.getTaxes(workspace, pageRequest.page, pageRequest.predicate)
     }
@@ -60,7 +60,7 @@ class TaxApiController(
     suspend fun getTax(
         @PathVariable workspaceId: Long,
         @PathVariable taxId: Long
-    ): TaxDto {
+    ): GeneralTaxDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expense = taxService.getTaxByIdAndWorkspace(taxId, workspace)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
@@ -71,8 +71,8 @@ class TaxApiController(
     suspend fun updateTax(
         @PathVariable workspaceId: Long,
         @PathVariable taxId: Long,
-        @RequestBody @Valid request: EditTaxDto
-    ): TaxDto {
+        @RequestBody @Valid request: EditGeneralTaxDto
+    ): GeneralTaxDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
@@ -96,7 +96,7 @@ class TaxApiController(
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class TaxDto(
+data class GeneralTaxDto(
     val title: String,
     val id: Long,
     val version: Int,
@@ -104,13 +104,13 @@ data class TaxDto(
     val rateInBps: Int
 )
 
-data class EditTaxDto(
+data class EditGeneralTaxDto(
     @field:NotBlank @field:Length(max = 255) val title: String,
     @field:Length(max = 255) val description: String? = null,
     @field:Min(0) @field:Max(100_00) val rateInBps: Int
 )
 
-private fun mapTaxDto(source: Tax) = TaxDto(
+private fun mapTaxDto(source: GeneralTax) = GeneralTaxDto(
     title = source.title,
     id = source.id!!,
     version = source.version,
@@ -119,6 +119,6 @@ private fun mapTaxDto(source: Tax) = TaxDto(
 )
 
 @Component
-class TaxPageableApiDescriptor : PageableApiDescriptor<Tax, QTax> {
-    override suspend fun mapEntityToDto(entity: Tax) = mapTaxDto(entity)
+class GeneralTaxPageableApiDescriptor : PageableApiDescriptor<GeneralTax, QGeneralTax> {
+    override suspend fun mapEntityToDto(entity: GeneralTax) = mapTaxDto(entity)
 }

@@ -110,16 +110,16 @@
             </el-form-item>
 
             <el-form-item
-              label="Included Tax"
-              prop="tax"
+              label="Included General Tax"
+              prop="generalTax"
             >
               <el-select
-                v-model="invoice.tax"
+                v-model="invoice.generalTax"
                 clearable
                 placeholder="Select a tax"
               >
                 <el-option
-                  v-for="tax in taxes"
+                  v-for="tax in generalTaxes"
                   :key="tax.id"
                   :label="tax.title"
                   :value="tax.id"
@@ -228,7 +228,7 @@ import { UploadsInfo } from '@/components/uploads-info';
 import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
 import withMediumDateTimeFormatter from '@/components/mixins/with-medium-datetime-formatter';
 import { withCustomers } from '@/components/mixins/with-customers';
-import { withTaxes } from '@/components/mixins/with-taxes';
+import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
 import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
 export default {
@@ -241,7 +241,7 @@ export default {
     SaMarkdownOutput,
   },
 
-  mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withTaxes],
+  mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withGeneralTaxes],
 
   data() {
     return {
@@ -257,6 +257,7 @@ export default {
         datePaid: null,
         dateSent: null,
         uploads: new UploadsInfo(),
+        generalTax: null,
       },
       invoiceValidationRules: {
         customer: { required: true, message: 'Please select a customer' },
@@ -366,7 +367,7 @@ export default {
         amount: this.invoice.amount,
         attachments: this.invoice.uploads.getDocumentsIds(),
         notes: this.invoice.notes,
-        tax: this.invoice.tax,
+        generalTax: this.invoice.generalTax,
       };
 
       if (this.isEditing) {

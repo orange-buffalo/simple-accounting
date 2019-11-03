@@ -54,7 +54,7 @@ class InvoicesApiController(
                     dateCancelled = request.dateCancelled,
                     dueDate = request.dueDate,
                     amount = request.amount,
-                    tax = extensions.getValidTax(request.tax, workspace)
+                    generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
                 )
             )
             .let { mapInvoiceDto(it, timeService) }
@@ -107,7 +107,7 @@ class InvoicesApiController(
                 dateCancelled = request.dateCancelled
                 dueDate = request.dueDate
                 amount = request.amount
-                tax = extensions.getValidTax(request.tax, workspace)
+                generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
             }
             .let {
                 invoiceService.saveInvoice(it)
@@ -136,7 +136,7 @@ data class InvoiceDto(
     val id: Long,
     val version: Int,
     val status: InvoiceStatus,
-    val tax: Long?
+    val generalTax: Long?
 )
 
 enum class InvoiceStatus {
@@ -159,7 +159,7 @@ data class EditInvoiceDto(
     val amount: Long,
     val attachments: List<Long>?,
     @field:Size(max = 1024) val notes: String?,
-    val tax: Long?
+    val generalTax: Long?
 )
 
 private fun mapInvoiceDto(source: Invoice, timeService: TimeService) = InvoiceDto(
@@ -179,7 +179,7 @@ private fun mapInvoiceDto(source: Invoice, timeService: TimeService) = InvoiceDt
     id = source.id!!,
     version = source.version,
     status = getInvoiceStatus(source, timeService),
-    tax = source.tax?.id
+    generalTax = source.generalTax?.id
 )
 
 private fun getInvoiceStatus(invoice: Invoice, timeService: TimeService): InvoiceStatus {

@@ -35,8 +35,8 @@
       />
 
       <OverviewItemAttributePreviewIcon
-        v-if="isTaxApplicable"
-        tooltip="Tax applied"
+        v-if="isGeneralTaxApplicable"
+        tooltip="General Tax applied"
         icon="tax"
       />
 
@@ -183,21 +183,21 @@
           </OverviewItemDetailsSectionAttribute>
         </div>
 
-        <template v-if="isTaxApplicable">
+        <template v-if="isGeneralTaxApplicable">
           <div class="row">
             <OverviewItemDetailsSectionAttribute
-              label="Applicable Tax"
+              label="Applicable General Tax"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ taxTitle }}
+              {{ generalTaxTitle }}
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable Tax Rate"
+              label="Applicable General Tax Rate"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <!-- todo #6 localize-->
-              {{ taxById(invoice.tax).rateInBps / 100 }}%
+              {{ generalTaxById(invoice.generalTax).rateInBps / 100 }}%
             </OverviewItemDetailsSectionAttribute>
           </div>
         </template>
@@ -239,7 +239,7 @@ import DocumentLink from '@/components/DocumentLink';
 import { withCategories } from '@/components/mixins/with-categories';
 import { withCustomers } from '@/components/mixins/with-customers';
 import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-import { withTaxes } from '@/components/mixins/with-taxes';
+import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
 import { withWorkspaces } from '@/components/mixins/with-workspaces';
 import api from '@/services/api';
 import { loadDocuments } from '@/services/app-services';
@@ -274,7 +274,7 @@ export default {
     SaMarkdownOutput,
   },
 
-  mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers, withTaxes],
+  mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
 
   props: {
     invoice: {
@@ -353,12 +353,12 @@ export default {
       }
     },
 
-    isTaxApplicable() {
-      return this.invoice.tax && this.taxTitle;
+    isGeneralTaxApplicable() {
+      return this.invoice.generalTax && this.generalTaxTitle;
     },
 
-    taxTitle() {
-      return this.taxById(this.invoice.tax).title;
+    generalTaxTitle() {
+      return this.generalTaxById(this.invoice.generalTax).title;
     },
 
     dateIssued() {

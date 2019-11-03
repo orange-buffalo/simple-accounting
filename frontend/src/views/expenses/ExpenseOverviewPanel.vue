@@ -21,8 +21,8 @@
       />
 
       <OverviewItemAttributePreviewIcon
-        v-if="isTaxApplicable"
-        tooltip="Tax applied"
+        v-if="isGeneralTaxApplicable"
+        tooltip="General Tax applied"
         icon="tax"
       />
 
@@ -124,31 +124,31 @@
           </OverviewItemDetailsSectionAttribute>
         </div>
 
-        <template v-if="isTaxApplicable">
+        <template v-if="isGeneralTaxApplicable">
           <div class="row">
             <OverviewItemDetailsSectionAttribute
-              label="Applicable Tax"
+              label="Applicable General Tax"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ taxTitle }}
+              {{ generalTaxTitle }}
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable Tax Rate"
+              label="Applicable General Tax Rate"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <!-- todo #6 localize-->
-              {{ expense.taxRateInBps / 100 }}%
+              {{ expense.generalTaxRateInBps / 100 }}%
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable Tax Amount"
+              label="Applicable General Tax Amount"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <MoneyOutput
-                v-if="isTaxAmountAvailable"
+                v-if="isGeneralTaxAmountAvailable"
                 :currency="defaultCurrency"
-                :amount="expense.taxAmount"
+                :amount="expense.generalTaxAmount"
               />
 
               <span v-else>Not yet available</span>
@@ -265,7 +265,7 @@ import { isNil } from 'lodash/lang';
 import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
 import { withCategories } from '@/components/mixins/with-categories';
 import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import { withTaxes } from '@/components/mixins/with-taxes';
+import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
 import { loadDocuments } from '@/services/app-services';
 import DocumentLink from '@/components/DocumentLink';
 import MoneyOutput from '@/components/MoneyOutput';
@@ -300,7 +300,7 @@ export default {
     SaMarkdownOutput,
   },
 
-  mixins: [withMediumDateFormatter, withCategories, withWorkspaces, withTaxes],
+  mixins: [withMediumDateFormatter, withCategories, withWorkspaces, withGeneralTaxes],
 
   props: {
     expense: {
@@ -373,16 +373,16 @@ export default {
       return this.mediumDateFormatter(new Date(this.expense.datePaid));
     },
 
-    isTaxApplicable() {
-      return this.expense.tax && this.taxTitle;
+    isGeneralTaxApplicable() {
+      return this.expense.generalTax && this.generalTaxTitle;
     },
 
-    isTaxAmountAvailable() {
+    isGeneralTaxAmountAvailable() {
       return this.expense.status === 'FINALIZED';
     },
 
-    taxTitle() {
-      return this.taxById(this.expense.tax).title;
+    generalTaxTitle() {
+      return this.generalTaxById(this.expense.generalTax).title;
     },
   },
 

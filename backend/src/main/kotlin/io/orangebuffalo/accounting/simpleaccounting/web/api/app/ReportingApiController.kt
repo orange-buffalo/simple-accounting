@@ -1,10 +1,10 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
-import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxReportingService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.GeneralTaxReportingService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedTaxSummaryItem
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingTaxSummaryItem
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedGeneralTaxSummaryItem
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingGeneralTaxSummaryItem
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
@@ -12,19 +12,19 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/reporting/")
 class ReportingApiController(
-    private val taxReportingService: TaxReportingService,
+    private val taxReportingService: GeneralTaxReportingService,
     private val workspaceService: WorkspaceService
 ) {
 
-    @GetMapping("taxes")
-    suspend fun getTaxReport(
+    @GetMapping("general-taxes")
+    suspend fun getGeneralTaxReport(
         @PathVariable workspaceId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): TaxReportDto {
+    ): GeneralTaxReportDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val report = taxReportingService.getTaxReport(fromDate, toDate, workspace)
-        return TaxReportDto(
+        val report = taxReportingService.getGeneralTaxReport(fromDate, toDate, workspace)
+        return GeneralTaxReportDto(
             finalizedCollectedTaxes = report.finalizedCollectedTaxes.map(::convertFinalizedTaxItem),
             finalizedPaidTaxes = report.finalizedPaidTaxes.map(::convertFinalizedTaxItem),
             pendingPaidTaxes = report.pendingPaidTaxes.map(::convertPendingTaxItem),
@@ -32,12 +32,12 @@ class ReportingApiController(
         )
     }
 
-    private fun convertPendingTaxItem(item: PendingTaxSummaryItem) = PendingTaxSummaryItemDto(
+    private fun convertPendingTaxItem(item: PendingGeneralTaxSummaryItem) = PendingTaxSummaryItemDto(
         tax = item.tax,
         includedItemsNumber = item.includedItemsNumber
     )
 
-    private fun convertFinalizedTaxItem(item: FinalizedTaxSummaryItem) = FinalizedTaxSummaryItemDto(
+    private fun convertFinalizedTaxItem(item: FinalizedGeneralTaxSummaryItem) = FinalizedTaxSummaryItemDto(
         taxAmount = item.taxAmount,
         tax = item.tax,
         includedItemsNumber = item.includedItemsNumber,
@@ -45,7 +45,7 @@ class ReportingApiController(
     )
 }
 
-data class TaxReportDto(
+data class GeneralTaxReportDto(
     var finalizedCollectedTaxes: List<FinalizedTaxSummaryItemDto>,
     var finalizedPaidTaxes: List<FinalizedTaxSummaryItemDto>,
     var pendingCollectedTaxes: List<PendingTaxSummaryItemDto>,

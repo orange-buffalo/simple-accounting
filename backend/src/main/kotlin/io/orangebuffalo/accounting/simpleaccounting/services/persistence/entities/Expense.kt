@@ -58,14 +58,14 @@ class Expense(
     var percentOnBusiness: Int,
 
     @field:ManyToOne
-    @field:JoinColumn(foreignKey = ForeignKey(name = "expense_tax_fk"))
-    var tax: Tax?,
+    @field:JoinColumn(foreignKey = ForeignKey(name = "expense_general_tax_fk"))
+    var generalTax: GeneralTax?,
 
     @field:Column
-    var taxRateInBps: Int? = null,
+    var generalTaxRateInBps: Int? = null,
 
     @field:Column
-    var taxAmount: Long? = null,
+    var generalTaxAmount: Long? = null,
 
     /**
      * Amount to be reported for taxation purposes. Takes into account applicable tax,
@@ -80,8 +80,8 @@ class Expense(
 ) : AbstractEntity() {
 
     init {
-        require(!(category != null && category?.workspace != workspace)) { "Category and workspace must match" }
+        require(category == null || category?.workspace == workspace) { "Category and workspace must match" }
 
-        require(!(tax != null && tax?.workspace != workspace)) { "Tax and workspace must match" }
+        require(generalTax == null || generalTax?.workspace == workspace) { "Tax and workspace must match" }
     }
 }

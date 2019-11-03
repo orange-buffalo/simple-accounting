@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
@@ -72,7 +71,7 @@ internal class InvoicesApiControllerIT(
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "CANCELLED",
                             notes: "space notes",
-                            tax: ${testData.planetExpressTax.id}
+                            generalTax: ${testData.planetExpressTax.id}
                     }"""
                     ),
 
@@ -203,7 +202,7 @@ internal class InvoicesApiControllerIT(
                     "dateSent": "3000-02-03",
                     "dueDate": "3000-02-05",
                     "notes": "new space notes",
-                    "tax": ${testData.planetExpressTax.id}
+                    "generalTax": ${testData.planetExpressTax.id}
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -226,7 +225,7 @@ internal class InvoicesApiControllerIT(
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "CANCELLED",
                             notes: "new space notes",
-                            tax: ${testData.planetExpressTax.id}
+                            generalTax: ${testData.planetExpressTax.id}
                         }"""
                     )
                 )
@@ -329,7 +328,7 @@ internal class InvoicesApiControllerIT(
                     "customer": ${testData.spaceCustomer.id},
                     "dateIssued": "3000-02-01",
                     "dueDate": "3000-02-02",
-                    "tax": 4455
+                    "generalTax": 4455
                 }"""
             )
             .verifyNotFound("Tax 4455 is not found")
@@ -348,7 +347,7 @@ internal class InvoicesApiControllerIT(
                     "customer": ${testData.spaceCustomer.id},
                     "dateIssued": "3000-02-01",
                     "dueDate": "3000-02-02",
-                    "tax": ${testData.pizzaDeliveryTax.id}
+                    "generalTax": ${testData.pizzaDeliveryTax.id}
                 }"""
             )
             .verifyNotFound("Tax ${testData.pizzaDeliveryTax.id} is not found")
@@ -381,7 +380,7 @@ internal class InvoicesApiControllerIT(
                     "dateSent": "3000-02-03",
                     "dueDate": "3000-02-05",
                     "notes": "new space notes",
-                    "tax": ${testData.planetExpressTax.id}
+                    "generalTax": ${testData.planetExpressTax.id}
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -404,7 +403,7 @@ internal class InvoicesApiControllerIT(
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "CANCELLED",
                             notes: "new space notes",
-                            tax: ${testData.planetExpressTax.id}
+                            generalTax: ${testData.planetExpressTax.id}
                         }"""
                     )
                 )
@@ -526,7 +525,7 @@ internal class InvoicesApiControllerIT(
                     "customer": ${testData.spaceCustomer.id},
                     "dateIssued": "3000-02-01",
                     "dueDate": "3000-02-02",
-                    "tax": 5566
+                    "generalTax": 5566
                 }"""
             )
             .verifyNotFound("Tax 5566 is not found")
@@ -545,7 +544,7 @@ internal class InvoicesApiControllerIT(
                     "customer": ${testData.spaceCustomer.id},
                     "dateIssued": "3000-02-01",
                     "dueDate": "3000-02-02",
-                    "tax": ${testData.pizzaDeliveryTax.id}
+                    "generalTax": ${testData.pizzaDeliveryTax.id}
                 }"""
             )
             .verifyNotFound("Tax ${testData.pizzaDeliveryTax.id} is not found")
@@ -562,8 +561,8 @@ internal class InvoicesApiControllerIT(
         val pizzaCategory = Prototypes.category(workspace = pizzaDeliveryWorkspace)
         val spaceDeliveryCategory = Prototypes.category(workspace = planetExpressWorkspace)
         val pensionCategory = Prototypes.category(workspace = planetExpressWorkspace)
-        val pizzaDeliveryTax = Prototypes.tax(workspace = pizzaDeliveryWorkspace)
-        val planetExpressTax = Prototypes.tax(workspace = planetExpressWorkspace)
+        val pizzaDeliveryTax = Prototypes.generalTax(workspace = pizzaDeliveryWorkspace)
+        val planetExpressTax = Prototypes.generalTax(workspace = planetExpressWorkspace)
         val spaceDeliveryInvoicePrint = Prototypes.document(workspace = planetExpressWorkspace)
 
         val pizzaInvoice = Prototypes.invoice(
@@ -592,7 +591,7 @@ internal class InvoicesApiControllerIT(
             notes = "space notes",
             attachments = setOf(spaceDeliveryInvoicePrint),
             income = spaceIncome,
-            tax = planetExpressTax
+            generalTax = planetExpressTax
         )
 
         val secondSpaceInvoice = Prototypes.invoice(

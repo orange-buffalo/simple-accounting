@@ -69,7 +69,7 @@ import { assign } from 'lodash';
 import api from '@/services/api';
 
 export default {
-  name: 'EditTax',
+  name: 'EditGeneralTax',
 
   components: {
   },
@@ -86,26 +86,26 @@ export default {
     };
   },
 
-  async created() {
-    if (this.$route.params.id) {
-      const incomeResponse = await api.get(`/workspaces/${this.workspace.id}/taxes/${this.$route.params.id}`);
-      this.tax = assign({}, this.tax, incomeResponse.data);
-    }
-  },
-
   computed: {
     ...mapState('workspaces', {
       workspace: 'currentWorkspace',
     }),
 
     pageHeader() {
-      return this.$route.params.id ? 'Edit Tax' : 'Create New Tax';
+      return this.$route.params.id ? 'Edit General Tax' : 'Create New General Tax';
     },
+  },
+
+  async created() {
+    if (this.$route.params.id) {
+      const taxResponse = await api.get(`/workspaces/${this.workspace.id}/general-taxes/${this.$route.params.id}`);
+      this.tax = assign({}, this.tax, taxResponse.data);
+    }
   },
 
   methods: {
     navigateToTaxesOverview() {
-      this.$router.push({ name: 'taxes-overview' });
+      this.$router.push({ name: 'general-taxes-overview' });
     },
 
     async save() {
@@ -122,11 +122,11 @@ export default {
       };
 
       if (this.tax.id) {
-        await api.put(`/workspaces/${this.workspace.id}/taxes/${this.tax.id}`, taxToPush);
+        await api.put(`/workspaces/${this.workspace.id}/general-taxes/${this.tax.id}`, taxToPush);
       } else {
-        await api.post(`/workspaces/${this.workspace.id}/taxes`, taxToPush);
+        await api.post(`/workspaces/${this.workspace.id}/general-taxes`, taxToPush);
       }
-      this.$router.push({ name: 'taxes-overview' });
+      await this.$router.push({ name: 'general-taxes-overview' });
     },
   },
 };

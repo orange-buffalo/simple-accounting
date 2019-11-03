@@ -51,7 +51,7 @@ class IncomesApiController(
                     reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0,
                     notes = request.notes,
                     attachments = extensions.getValidDocuments(workspace, request.attachments),
-                    tax = extensions.getValidTax(request.tax, workspace)
+                    generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
                 )
             )
             .let { mapIncomeDto(it, invoiceService) }
@@ -102,7 +102,7 @@ class IncomesApiController(
                 reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0
                 notes = request.notes
                 attachments = extensions.getValidDocuments(workspace, request.attachments)
-                tax = extensions.getValidTax(request.tax, workspace)
+                generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
             }
             .let {
                 incomeService.saveIncome(it)
@@ -129,9 +129,9 @@ data class IncomeDto(
     val version: Int,
     val status: IncomeStatus,
     val linkedInvoice: LinkedInvoiceDto?,
-    val tax: Long?,
-    val taxRateInBps: Int?,
-    val taxAmount: Long?
+    val generalTax: Long?,
+    val generalTaxRateInBps: Int?,
+    val generalTaxAmount: Long?
 )
 
 data class LinkedInvoiceDto(
@@ -155,7 +155,7 @@ data class EditIncomeDto(
     val reportedAmountInDefaultCurrency: Long?,
     val attachments: List<Long>?,
     @field:Size(max = 1024) val notes: String?,
-    val tax: Long?
+    val generalTax: Long?
 )
 
 private suspend fun mapIncomeDto(source: Income, invoiceService: InvoiceService): IncomeDto {
@@ -180,9 +180,9 @@ private suspend fun mapIncomeDto(source: Income, invoiceService: InvoiceService)
                 title = it.title
             )
         },
-        tax = source.tax?.id,
-        taxAmount = source.taxAmount,
-        taxRateInBps = source.taxRateInBps
+        generalTax = source.generalTax?.id,
+        generalTaxAmount = source.generalTaxAmount,
+        generalTaxRateInBps = source.generalTaxRateInBps
     )
 }
 

@@ -60,8 +60,8 @@
 
         <the-side-menu-link
           v-if="currentWorkspace.editable"
-          to="/settings/taxes"
-          title="Taxes"
+          to="/settings/general-taxes"
+          title="General Taxes"
           icon="tax"
         />
 

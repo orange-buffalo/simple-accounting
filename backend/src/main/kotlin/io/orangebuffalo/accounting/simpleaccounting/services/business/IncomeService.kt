@@ -25,12 +25,12 @@ class IncomeService(
             income.reportedAmountInDefaultCurrency = income.originalAmount
         }
 
-        val tax = income.tax
-        income.taxRateInBps = tax?.rateInBps
-        income.taxAmount = if (tax == null || income.reportedAmountInDefaultCurrency == 0L) {
+        val generalTax = income.generalTax
+        income.generalTaxRateInBps = generalTax?.rateInBps
+        income.generalTaxAmount = if (generalTax == null || income.reportedAmountInDefaultCurrency == 0L) {
             null
         } else {
-            income.reportedAmountInDefaultCurrency.bpsPart(tax.rateInBps)
+            income.reportedAmountInDefaultCurrency.bpsPart(generalTax.rateInBps)
         }
 
         return withDbContext {

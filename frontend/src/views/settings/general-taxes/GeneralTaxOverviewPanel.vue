@@ -29,15 +29,18 @@ import '@/components/icons/pencil-solid';
 import '@/components/icons/percent';
 
 export default {
-  name: 'TaxOverviewPanel',
+  name: 'GeneralTaxOverviewPanel',
 
   props: {
-    tax: Object,
+    tax: {
+      type: Object,
+      required: true,
+    },
   },
 
   methods: {
     navigateToTaxEdit() {
-      this.$router.push({ name: 'edit-tax', params: { id: this.tax.id } });
+      this.$router.push({ name: 'edit-general-tax', params: { id: this.tax.id } });
     },
   },
 };

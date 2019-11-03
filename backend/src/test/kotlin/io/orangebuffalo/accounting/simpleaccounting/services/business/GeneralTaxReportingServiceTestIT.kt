@@ -2,11 +2,11 @@ package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
+import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.Prototypes
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedTaxSummaryItem
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingTaxSummaryItem
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedGeneralTaxSummaryItem
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingGeneralTaxSummaryItem
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -17,24 +17,24 @@ import java.time.LocalDate
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-internal class TaxReportingServiceTestIT(
-    @Autowired private val taxReportingService: TaxReportingService
+internal class GeneralTaxReportingServiceTestIT(
+    @Autowired private val taxReportingService: GeneralTaxReportingService
 ) {
 
     @Test
-    fun `should calculate tax report`(testData: TaxReportTestData) {
+    fun `should calculate general tax report`(testData: GeneralTaxReportTestData) {
         val actualReport = runBlocking {
-            taxReportingService.getTaxReport(testData.dateFrom, testData.dateTo, testData.planetExpress)
+            taxReportingService.getGeneralTaxReport(testData.dateFrom, testData.dateTo, testData.planetExpress)
         }
 
         assertThat(actualReport.finalizedCollectedTaxes).containsOnly(
-            FinalizedTaxSummaryItem(
+            FinalizedGeneralTaxSummaryItem(
                 tax = testData.generalTax.id!!,
                 includedItemsNumber = 1,
                 includedItemsAmount = 400,
                 taxAmount = 76
             ),
-            FinalizedTaxSummaryItem(
+            FinalizedGeneralTaxSummaryItem(
                 tax = testData.paidTax1.id!!,
                 includedItemsNumber = 2,
                 includedItemsAmount = 576,
@@ -43,14 +43,14 @@ internal class TaxReportingServiceTestIT(
         )
 
         assertThat(actualReport.finalizedPaidTaxes).containsOnly(
-            FinalizedTaxSummaryItem(
+            FinalizedGeneralTaxSummaryItem(
                 tax = testData.generalTax.id!!,
                 includedItemsNumber = 1,
                 includedItemsAmount = 20,
                 taxAmount = 2
             ),
 
-            FinalizedTaxSummaryItem(
+            FinalizedGeneralTaxSummaryItem(
                 tax = testData.collectedTax2.id!!,
                 includedItemsNumber = 2,
                 includedItemsAmount = 70,
@@ -59,14 +59,14 @@ internal class TaxReportingServiceTestIT(
         )
 
         assertThat(actualReport.pendingCollectedTaxes).containsOnly(
-            PendingTaxSummaryItem(
+            PendingGeneralTaxSummaryItem(
                 tax = testData.paidTax1.id!!,
                 includedItemsNumber = 2
             )
         )
 
         assertThat(actualReport.pendingPaidTaxes).containsOnly(
-            PendingTaxSummaryItem(
+            PendingGeneralTaxSummaryItem(
                 tax = testData.collectedTax1.id!!,
                 includedItemsNumber = 1
             )
@@ -74,7 +74,7 @@ internal class TaxReportingServiceTestIT(
     }
 }
 
-class TaxReportTestData : TestData {
+class GeneralTaxReportTestData : TestData {
 
     val dateFrom: LocalDate = LocalDate.of(3000, 1, 1)
     val dateTo: LocalDate = LocalDate.of(3010, 1, 1)
@@ -99,23 +99,23 @@ class TaxReportTestData : TestData {
         name = "Secret category"
     )
 
-    private val secretTax = Prototypes.tax(
+    private val secretTax = Prototypes.generalTax(
         workspace = leagueOfRobots
     )
 
-    val collectedTax1 = Prototypes.tax(
+    val collectedTax1 = Prototypes.generalTax(
         workspace = planetExpress
     )
 
-    val collectedTax2 = Prototypes.tax(
+    val collectedTax2 = Prototypes.generalTax(
         workspace = planetExpress
     )
 
-    val paidTax1 = Prototypes.tax(
+    val paidTax1 = Prototypes.generalTax(
         workspace = planetExpress
     )
 
-    val generalTax = Prototypes.tax(
+    val generalTax = Prototypes.generalTax(
         workspace = planetExpress
     )
 
@@ -126,19 +126,19 @@ class TaxReportTestData : TestData {
             workspace = leagueOfRobots,
             datePaid = dateFrom.plusDays(1),
             reportedAmountInDefaultCurrency = 30000,
-            tax = secretTax,
-            taxAmount = 4555
+            generalTax = secretTax,
+            generalTaxAmount = 4555
         ),
         collectedTax1, collectedTax2, paidTax1, generalTax,
 
-        Prototypes.tax(
+        Prototypes.generalTax(
             workspace = planetExpress
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = null,
+            generalTax = null,
             reportedAmountInDefaultCurrency = 10000,
             datePaid = dateFrom.plusDays(1)
         ),
@@ -146,34 +146,34 @@ class TaxReportTestData : TestData {
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = generalTax,
+            generalTax = generalTax,
             reportedAmountInDefaultCurrency = 20,
-            taxAmount = 2,
+            generalTaxAmount = 2,
             datePaid = dateFrom.plusDays(1)
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = collectedTax2,
+            generalTax = collectedTax2,
             reportedAmountInDefaultCurrency = 30,
-            taxAmount = 4,
+            generalTaxAmount = 4,
             datePaid = dateFrom
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = collectedTax2,
+            generalTax = collectedTax2,
             reportedAmountInDefaultCurrency = 40,
-            taxAmount = 6,
+            generalTaxAmount = 6,
             datePaid = dateTo
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = null,
+            generalTax = null,
             reportedAmountInDefaultCurrency = 0,
             datePaid = dateFrom.plusDays(1)
         ),
@@ -181,7 +181,7 @@ class TaxReportTestData : TestData {
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = collectedTax1,
+            generalTax = collectedTax1,
             reportedAmountInDefaultCurrency = 0,
             datePaid = dateFrom.plusDays(1)
         ),
@@ -189,25 +189,25 @@ class TaxReportTestData : TestData {
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = collectedTax1,
+            generalTax = collectedTax1,
             reportedAmountInDefaultCurrency = 100,
-            taxAmount = 20,
+            generalTaxAmount = 20,
             datePaid = dateFrom.minusDays(1)
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = collectedTax1,
+            generalTax = collectedTax1,
             reportedAmountInDefaultCurrency = 100,
-            taxAmount = 30,
+            generalTaxAmount = 30,
             datePaid = dateTo.plusDays(1)
         ),
 
         Prototypes.income(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = null,
+            generalTax = null,
             reportedAmountInDefaultCurrency = 100000,
             dateReceived = dateFrom.plusDays(1)
         ),
@@ -215,34 +215,34 @@ class TaxReportTestData : TestData {
         Prototypes.income(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = generalTax,
+            generalTax = generalTax,
             reportedAmountInDefaultCurrency = 400,
-            taxAmount = 76,
+            generalTaxAmount = 76,
             dateReceived = dateFrom.plusDays(1)
         ),
 
         Prototypes.income(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = paidTax1,
+            generalTax = paidTax1,
             reportedAmountInDefaultCurrency = 320,
-            taxAmount = 31,
+            generalTaxAmount = 31,
             dateReceived = dateFrom.plusDays(1)
         ),
 
         Prototypes.income(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = paidTax1,
+            generalTax = paidTax1,
             reportedAmountInDefaultCurrency = 256,
-            taxAmount = 98,
+            generalTaxAmount = 98,
             dateReceived = dateFrom.plusDays(1)
         ),
 
         Prototypes.income(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = null,
+            generalTax = null,
             reportedAmountInDefaultCurrency = 0,
             dateReceived = dateFrom.plusDays(1)
         ),
@@ -250,7 +250,7 @@ class TaxReportTestData : TestData {
         Prototypes.income(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = paidTax1,
+            generalTax = paidTax1,
             reportedAmountInDefaultCurrency = 0,
             dateReceived = dateFrom.plusDays(1)
         ),
@@ -258,7 +258,7 @@ class TaxReportTestData : TestData {
         Prototypes.income(
             category = deliveryCategory,
             workspace = planetExpress,
-            tax = paidTax1,
+            generalTax = paidTax1,
             reportedAmountInDefaultCurrency = 0,
             dateReceived = dateFrom.plusDays(1)
         )

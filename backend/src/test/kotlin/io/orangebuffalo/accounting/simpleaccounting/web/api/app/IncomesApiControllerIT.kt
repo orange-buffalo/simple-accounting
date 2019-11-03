@@ -191,7 +191,7 @@ internal class IncomesApiControllerIT(
                     "attachments": [${testData.spaceDeliveryPayslip.id}],
                     "notes": "delivery",
                     "dateReceived": "$MOCK_DATE_VALUE",
-                    "tax": ${testData.planetExpressTax.id}
+                    "generalTax": ${testData.planetExpressTax.id}
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -211,9 +211,9 @@ internal class IncomesApiControllerIT(
                             dateReceived: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED",
-                            tax: ${testData.planetExpressTax.id},
-                            taxRateInBps: 1000,
-                            taxAmount: 3773
+                            generalTax: ${testData.planetExpressTax.id},
+                            generalTaxRateInBps: 1000,
+                            generalTaxAmount: 3773
                     }"""
                     )
                 )
@@ -311,7 +311,7 @@ internal class IncomesApiControllerIT(
                     "currency": "USD",
                     "originalAmount": 150,
                     "dateReceived": "$MOCK_DATE_VALUE",
-                    "tax": 4455
+                    "generalTax": 4455
                 }"""
             )
             .verifyNotFound("Tax 4455 is not found")
@@ -329,7 +329,7 @@ internal class IncomesApiControllerIT(
                     "currency": "USD",
                     "originalAmount": 150,
                     "dateReceived": "$MOCK_DATE_VALUE",
-                    "tax": ${testData.pizzaDeliveryTax.id}
+                    "generalTax": ${testData.pizzaDeliveryTax.id}
                 }"""
             )
             .verifyNotFound("Tax ${testData.pizzaDeliveryTax.id} is not found")
@@ -358,7 +358,7 @@ internal class IncomesApiControllerIT(
                     "attachments": [],
                     "notes": "pension",
                     "dateReceived": "3000-02-02",
-                    "tax": ${testData.planetExpressTax.id}
+                    "generalTax": ${testData.planetExpressTax.id}
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -378,9 +378,9 @@ internal class IncomesApiControllerIT(
                             dateReceived: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED",
-                            tax: ${testData.planetExpressTax.id},
-                            taxRateInBps: 1000,
-                            taxAmount: 3273
+                            generalTax: ${testData.planetExpressTax.id},
+                            generalTaxRateInBps: 1000,
+                            generalTaxAmount: 3273
                     }"""
                     )
                 )
@@ -510,7 +510,7 @@ internal class IncomesApiControllerIT(
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
                 """{
-                    "tax": 5566,
+                    "generalTax": 5566,
                     "title": "income updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
@@ -527,7 +527,7 @@ internal class IncomesApiControllerIT(
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
                 """{
-                    "tax": ${testData.pizzaDeliveryTax.id},
+                    "generalTax": ${testData.pizzaDeliveryTax.id},
                     "title": "income updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
@@ -545,8 +545,8 @@ internal class IncomesApiControllerIT(
         val pizzaCategory = Prototypes.category(workspace = pizzaDeliveryWorkspace)
         val spaceDeliveryCategory = Prototypes.category(workspace = planetExpressWorkspace)
         val pensionCategory = Prototypes.category(workspace = planetExpressWorkspace)
-        val pizzaDeliveryTax = Prototypes.tax(workspace = pizzaDeliveryWorkspace)
-        val planetExpressTax = Prototypes.tax(workspace = planetExpressWorkspace)
+        val pizzaDeliveryTax = Prototypes.generalTax(workspace = pizzaDeliveryWorkspace)
+        val planetExpressTax = Prototypes.generalTax(workspace = planetExpressWorkspace)
         val spaceDeliveryPayslip = Prototypes.document(workspace = planetExpressWorkspace)
 
         val pizzaWageIncome = Prototypes.income(
@@ -578,7 +578,7 @@ internal class IncomesApiControllerIT(
             reportedAmountInDefaultCurrency = 455,
             notes = "nice!",
             attachments = setOf(spaceDeliveryPayslip),
-            tax = null
+            generalTax = null
         )
 
         override fun generateData() = listOf(

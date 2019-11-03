@@ -198,7 +198,7 @@ internal class ExpensesApiControllerIT(
                     "notes": "coffee",
                     "percentOnBusiness": 100,
                     "datePaid": "$MOCK_DATE_VALUE",
-                    "tax": ${testData.slurmTax.id}
+                    "generalTax": ${testData.slurmTax.id}
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -220,9 +220,9 @@ internal class ExpensesApiControllerIT(
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED",
-                            tax: ${testData.slurmTax.id},
-                            taxRateInBps: 1000,
-                            taxAmount: 3773
+                            generalTax: ${testData.slurmTax.id},
+                            generalTaxRateInBps: 1000,
+                            generalTaxAmount: 3773
                     }"""
                     )
                 )
@@ -322,7 +322,7 @@ internal class ExpensesApiControllerIT(
                     "currency": "USD",
                     "originalAmount": 150,
                     "datePaid": "$MOCK_DATE_VALUE",
-                    "tax": 4455
+                    "generalTax": 4455
                 }"""
             )
             .verifyNotFound("Tax 4455 is not found")
@@ -340,7 +340,7 @@ internal class ExpensesApiControllerIT(
                     "currency": "USD",
                     "originalAmount": 150,
                     "datePaid": "$MOCK_DATE_VALUE",
-                    "tax": ${testData.coffeeTax.id}
+                    "generalTax": ${testData.coffeeTax.id}
                 }"""
             )
             .verifyNotFound("Tax ${testData.coffeeTax.id} is not found")
@@ -370,7 +370,7 @@ internal class ExpensesApiControllerIT(
                     "notes": "beer",
                     "percentOnBusiness": 90,
                     "datePaid": "3000-02-02",
-                    "tax": ${testData.slurmTax.id}
+                    "generalTax": ${testData.slurmTax.id}
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -392,9 +392,9 @@ internal class ExpensesApiControllerIT(
                             datePaid: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED",
-                            tax: ${testData.slurmTax.id},
-                            taxRateInBps: 1000,
-                            taxAmount: 3273
+                            generalTax: ${testData.slurmTax.id},
+                            generalTaxRateInBps: 1000,
+                            generalTaxAmount: 3273
                     }"""
                     )
                 )
@@ -526,7 +526,7 @@ internal class ExpensesApiControllerIT(
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
                 """{
-                    "tax": 5566,
+                    "generalTax": 5566,
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
@@ -543,7 +543,7 @@ internal class ExpensesApiControllerIT(
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
                 """{
-                    "tax": ${testData.coffeeTax.id},
+                    "generalTax": ${testData.coffeeTax.id},
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
@@ -561,8 +561,8 @@ internal class ExpensesApiControllerIT(
         val coffeeCategory = Prototypes.category(workspace = fryCoffeeWorkspace)
         val slurmCategory = Prototypes.category(workspace = fryWorkspace)
         val beerCategory = Prototypes.category(workspace = fryWorkspace)
-        val coffeeTax = Prototypes.tax(workspace = fryCoffeeWorkspace)
-        val slurmTax = Prototypes.tax(workspace = fryWorkspace)
+        val coffeeTax = Prototypes.generalTax(workspace = fryCoffeeWorkspace)
+        val slurmTax = Prototypes.generalTax(workspace = fryWorkspace)
         val slurmReceipt = Prototypes.document(workspace = fryWorkspace)
 
         val coffeeExpense = Prototypes.expense(
@@ -599,7 +599,7 @@ internal class ExpensesApiControllerIT(
             percentOnBusiness = 99,
             notes = "nice!",
             attachments = setOf(slurmReceipt),
-            tax = null
+            generalTax = null
         )
 
         override fun generateData() = listOf(

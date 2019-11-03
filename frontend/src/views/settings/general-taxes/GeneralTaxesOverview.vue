@@ -1,53 +1,53 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Taxes</h1>
+      <h1>General Taxes</h1>
 
       <div class="sa-header-options">
         <div>
           <span>Filters coming soon</span>
         </div>
 
-        <el-button
+        <ElButton
           round
           @click="navigateToCreateTaxView"
         >
-          <svgicon name="plus-thin" />
+          <SaIcon icon="plus-thin" />
           Add new
-        </el-button>
+        </ElButton>
       </div>
     </div>
 
-    <data-items
+    <DataItems
       ref="taxesList"
-      :api-path="`/workspaces/${currentWorkspace.id}/taxes`"
+      :api-path="`/workspaces/${currentWorkspace.id}/general-taxes`"
+      #default="{item: tax}"
     >
-      <template slot-scope="scope">
-        <tax-overview-panel :tax="scope.item" />
-      </template>
-    </data-items>
+      <GeneralTaxOverviewPanel :tax="tax" />
+    </DataItems>
   </div>
 </template>
 
 <script>
 import DataItems from '@/components/DataItems';
-import TaxOverviewPanel from './TaxOverviewPanel';
-import '@/components/icons/plus-thin';
+import GeneralTaxOverviewPanel from './GeneralTaxOverviewPanel';
 import { withWorkspaces } from '@/components/mixins/with-workspaces';
+import SaIcon from '@/components/SaIcon';
 
 export default {
-  name: 'TaxesOverview',
+  name: 'GeneralTaxesOverview',
 
   components: {
+    SaIcon,
     DataItems,
-    TaxOverviewPanel,
+    GeneralTaxOverviewPanel,
   },
 
   mixins: [withWorkspaces],
 
   methods: {
     navigateToCreateTaxView() {
-      this.$router.push({ name: 'create-new-tax' });
+      this.$router.push({ name: 'create-new-general-tax' });
     },
   },
 };

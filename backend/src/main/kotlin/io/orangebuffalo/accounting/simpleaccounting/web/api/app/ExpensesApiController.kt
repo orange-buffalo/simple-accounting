@@ -38,7 +38,7 @@ class ExpensesApiController(
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
-        val tax = extensions.getValidTax(request.tax, workspace)
+        val generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
 
         return expenseService
             .saveExpense(
@@ -56,7 +56,7 @@ class ExpensesApiController(
                     percentOnBusiness = request.percentOnBusiness ?: 100,
                     attachments = extensions.getValidDocuments(workspace, request.attachments),
                     reportedAmountInDefaultCurrency = 0,
-                    tax = tax
+                    generalTax = generalTax
                 )
             )
             .let(::mapExpenseDto)
@@ -108,7 +108,7 @@ class ExpensesApiController(
                 notes = request.notes
                 percentOnBusiness = request.percentOnBusiness ?: 100
                 attachments = extensions.getValidDocuments(workspace, request.attachments)
-                tax = extensions.getValidTax(request.tax, workspace)
+                generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
             }
             .let {
                 expenseService.saveExpense(it)
@@ -136,9 +136,9 @@ data class ExpenseDto(
     val id: Long,
     val version: Int,
     val status: ExpenseStatus,
-    val tax: Long?,
-    val taxRateInBps: Int?,
-    val taxAmount: Long?
+    val generalTax: Long?,
+    val generalTaxRateInBps: Int?,
+    val generalTaxAmount: Long?
 )
 
 enum class ExpenseStatus {
@@ -158,7 +158,7 @@ data class EditExpenseDto(
     val attachments: List<Long>?,
     val percentOnBusiness: Int?,
     @field:Size(max = 1024) val notes: String?,
-    val tax: Long?
+    val generalTax: Long?
 )
 
 private fun mapExpenseDto(source: Expense) = ExpenseDto(
@@ -177,9 +177,9 @@ private fun mapExpenseDto(source: Expense) = ExpenseDto(
     id = source.id!!,
     version = source.version,
     status = getExpenseStatus(source),
-    tax = source.tax?.id,
-    taxAmount = source.taxAmount,
-    taxRateInBps = source.taxRateInBps
+    generalTax = source.generalTax?.id,
+    generalTaxAmount = source.generalTaxAmount,
+    generalTaxRateInBps = source.generalTaxRateInBps
 )
 
 private fun getExpenseStatus(expense: Expense): ExpenseStatus {

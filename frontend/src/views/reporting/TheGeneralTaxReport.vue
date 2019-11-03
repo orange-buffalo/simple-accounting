@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Collected</h2>
-    <the-tax-report-table :data="collectedTaxes" />
+    <TheGeneralTaxReportTable :data="collectedTaxes" />
     <div
       v-if="report"
       class="text-right"
@@ -17,7 +17,7 @@
     <br>
 
     <h2>Paid</h2>
-    <the-tax-report-table :data="paidTaxes" />
+    <TheGeneralTaxReportTable :data="paidTaxes" />
     <div
       v-if="report"
       class="text-right"
@@ -37,20 +37,20 @@
 import { assign, isNil } from 'lodash';
 
 import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import { withTaxes } from '@/components/mixins/with-taxes';
+import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
 import MoneyOutput from '@/components/MoneyOutput';
-import TheTaxReportTable from '@/views/reporting/TheTaxReportTable';
 import { reportGenerator } from '@/views/reporting/report-generator';
+import TheGeneralTaxReportTable from '@/views/reporting/TheGeneralTaxReportTable';
 
 export default {
-  name: 'TheTaxReport',
+  name: 'TheGeneralTaxReport',
 
   components: {
-    TheTaxReportTable,
+    TheGeneralTaxReportTable,
     MoneyOutput,
   },
 
-  mixins: [withWorkspaces, withTaxes, reportGenerator],
+  mixins: [withWorkspaces, withGeneralTaxes, reportGenerator],
 
   computed: {
     collectedTaxes() {
@@ -72,7 +72,7 @@ export default {
 
   methods: {
     reload(api, fromDate, toDate) {
-      return api.get(`/workspaces/${this.currentWorkspace.id}/reporting/taxes`
+      return api.get(`/workspaces/${this.currentWorkspace.id}/reporting/general-taxes`
             + `?fromDate=${fromDate}&toDate=${toDate}`);
     },
 
@@ -85,12 +85,12 @@ export default {
 
       let taxes = finalizedTaxes.map(tax => assign({}, tax, {
         finalized: true,
-        tax: this.taxById(tax.tax),
+        tax: this.generalTaxById(tax.tax),
       }));
 
       taxes = taxes.concat(pendingTaxes.map(tax => assign({}, tax, {
         finalized: false,
-        tax: this.taxById(tax.tax),
+        tax: this.generalTaxById(tax.tax),
       })));
 
       return taxes;

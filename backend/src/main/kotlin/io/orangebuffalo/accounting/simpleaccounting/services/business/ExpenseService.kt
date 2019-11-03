@@ -30,22 +30,22 @@ class ExpenseService(
             expense.actualAmountInDefaultCurrency = 0
         }
 
-        val tax = expense.tax
-        expense.taxRateInBps = tax?.rateInBps
+        val generalTax = expense.generalTax
+        expense.generalTaxRateInBps = generalTax?.rateInBps
 
         val actualAmountOnBusiness = expense.actualAmountInDefaultCurrency.percentPart(expense.percentOnBusiness)
 
-        val baseAmountForAddedTax = if (tax == null) {
+        val baseAmountForAddedGeneralTax = if (generalTax == null) {
             actualAmountOnBusiness
         } else {
-            actualAmountOnBusiness.bpsBasePart(tax.rateInBps)
+            actualAmountOnBusiness.bpsBasePart(generalTax.rateInBps)
         }
 
-        expense.reportedAmountInDefaultCurrency = baseAmountForAddedTax
-        expense.taxAmount = if (tax == null) {
+        expense.reportedAmountInDefaultCurrency = baseAmountForAddedGeneralTax
+        expense.generalTaxAmount = if (generalTax == null) {
             null
         } else {
-            actualAmountOnBusiness - baseAmountForAddedTax
+            actualAmountOnBusiness - baseAmountForAddedGeneralTax
         }
 
         return withDbContext {

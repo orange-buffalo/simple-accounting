@@ -70,12 +70,12 @@ class Prototypes {
             categories = categories
         )
 
-        fun tax(
+        fun generalTax(
             title: String = "Tax",
             rateInBps: Int = 10_00,
             description: String? = null,
             workspace: Workspace = workspace()
-        ) = Tax(
+        ) = GeneralTax(
             title = title,
             workspace = workspace,
             rateInBps = rateInBps,
@@ -109,9 +109,9 @@ class Prototypes {
             actualAmountInDefaultCurrency: Long = 100,
             attachments: Set<Document> = setOf(),
             percentOnBusiness: Int = 100,
-            tax: Tax? = null,
-            taxRateInBps: Int? = null,
-            taxAmount: Long? = null,
+            generalTax: GeneralTax? = null,
+            generalTaxRateInBps: Int? = null,
+            generalTaxAmount: Long? = null,
             reportedAmountInDefaultCurrency: Long = 100,
             notes: String? = null
         ) = Expense(
@@ -126,10 +126,10 @@ class Prototypes {
             actualAmountInDefaultCurrency = actualAmountInDefaultCurrency,
             reportedAmountInDefaultCurrency = reportedAmountInDefaultCurrency,
             percentOnBusiness = percentOnBusiness,
-            tax = tax,
+            generalTax = generalTax,
             attachments = attachments,
-            taxAmount = taxAmount,
-            taxRateInBps = taxRateInBps,
+            generalTaxAmount = generalTaxAmount,
+            generalTaxRateInBps = generalTaxRateInBps,
             notes = notes
         )
 
@@ -145,17 +145,17 @@ class Prototypes {
             reportedAmountInDefaultCurrency: Long = 100,
             attachments: Set<Document> = setOf(),
             notes: String? = null,
-            tax: Tax? = null,
-            taxRateInBps: Int? = null,
-            taxAmount: Long? = null
+            generalTax: GeneralTax? = null,
+            generalTaxRateInBps: Int? = null,
+            generalTaxAmount: Long? = null
         ) = Income(
             category = category,
             workspace = workspace,
-            taxAmount = taxAmount,
+            generalTaxAmount = generalTaxAmount,
             reportedAmountInDefaultCurrency = reportedAmountInDefaultCurrency,
-            tax = tax,
+            generalTax = generalTax,
             notes = notes,
-            taxRateInBps = taxRateInBps,
+            generalTaxRateInBps = generalTaxRateInBps,
             attachments = attachments,
             amountInDefaultCurrency = amountInDefaultCurrency,
             currency = currency,
@@ -225,7 +225,7 @@ class Prototypes {
             amount: Long = 100,
             attachments: Set<Document> = setOf(),
             notes: String? = null,
-            tax: Tax? = null
+            generalTax: GeneralTax? = null
         ): Invoice = Invoice(
             income = income,
             customer = customer,
@@ -240,7 +240,7 @@ class Prototypes {
             amount = amount,
             attachments = attachments,
             notes = notes,
-            tax = tax
+            generalTax = generalTax
         )
 
         fun workspaceAccessToken(
