@@ -1,4 +1,4 @@
-export const withMediumDateFormatter = {
+const withMediumDateFormatter = {
   created() {
     this.ensureMediumDateFormatter();
   },

@@ -194,18 +194,17 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
   import { assign, isNil } from 'lodash';
-  import api from '@/services/api';
+  import { api } from '@/services/api';
   import DocumentsUpload from '@/components/DocumentsUpload';
   import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
   import { UploadsInfo } from '@/components/uploads-info';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-
-  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withCategories from '@/components/mixins/with-categories';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'EditExpense',
@@ -217,12 +216,12 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories],
+    mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories, withWorkspaces],
 
     props: {
       id: {
         type: Number,
-        required: true,
+        default: null,
       },
       prototype: {
         type: Object,
@@ -247,10 +246,22 @@
           generalTax: null,
         },
         expenseValidationRules: {
-          currency: { required: true, message: 'Please select a currency' },
-          title: { required: true, message: 'Please provide the title' },
-          datePaid: { required: true, message: 'Please provide the date when expense is paid' },
-          originalAmount: { required: true, message: 'Please provide expense amount' },
+          currency: {
+            required: true,
+            message: 'Please select a currency',
+          },
+          title: {
+            required: true,
+            message: 'Please provide the title',
+          },
+          datePaid: {
+            required: true,
+            message: 'Please provide the date when expense is paid',
+          },
+          originalAmount: {
+            required: true,
+            message: 'Please provide expense amount',
+          },
         },
         alreadyConverted: false,
         reportedAnotherExchangeRate: false,
@@ -259,16 +270,8 @@
     },
 
     computed: {
-      ...mapState('workspaces', {
-        workspace: 'currentWorkspace',
-      }),
-
       isInDefaultCurrency() {
         return this.expense.currency === this.defaultCurrency;
-      },
-
-      defaultCurrency() {
-        return this.workspace.defaultCurrency;
       },
 
       defaultCurrencyAmountVisible() {
@@ -298,7 +301,7 @@
 
     methods: {
       async loadExpense() {
-        const expenseResponse = await api.get(`/workspaces/${this.workspace.id}/expenses/${this.id}`);
+        const expenseResponse = await api.get(`/workspaces/${this.currentWorkspace.id}/expenses/${this.id}`);
         this.expense = assign({}, this.expense, expenseResponse.data);
         await this.setupComponentState();
       },
@@ -307,16 +310,16 @@
         this.expense = {
           ...this.expense,
           ...{
-          category: this.prototype.category,
-          title: this.prototype.title,
-          currency: this.prototype.currency,
-          originalAmount: this.prototype.originalAmount,
-          amountInDefaultCurrency: this.prototype.amountInDefaultCurrency,
-          actualAmountInDefaultCurrency: this.prototype.actualAmountInDefaultCurrency,
-          percentOnBusiness: this.prototype.percentOnBusiness,
-          notes: this.prototype.notes,
-          generalTax: this.prototype.generalTax,
-        },
+            category: this.prototype.category,
+            title: this.prototype.title,
+            currency: this.prototype.currency,
+            originalAmount: this.prototype.originalAmount,
+            amountInDefaultCurrency: this.prototype.amountInDefaultCurrency,
+            actualAmountInDefaultCurrency: this.prototype.actualAmountInDefaultCurrency,
+            percentOnBusiness: this.prototype.percentOnBusiness,
+            notes: this.prototype.notes,
+            generalTax: this.prototype.generalTax,
+          },
         };
         await this.setupComponentState();
       },
@@ -333,7 +336,7 @@
         this.partialForBusiness = this.expense.percentOnBusiness !== 100;
 
         if (this.expense.attachments && this.expense.attachments.length) {
-          const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
+          const attachments = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
             .eager()
             .eqFilter('id', this.expense.attachments)
             .getPageData();
@@ -379,9 +382,9 @@
         };
 
         if (this.expense.id) {
-          await api.put(`/workspaces/${this.workspace.id}/expenses/${this.expense.id}`, expenseToPush);
+          await api.put(`/workspaces/${this.currentWorkspace.id}/expenses/${this.expense.id}`, expenseToPush);
         } else {
-          await api.post(`/workspaces/${this.workspace.id}/expenses`, expenseToPush);
+          await api.post(`/workspaces/${this.currentWorkspace.id}/expenses`, expenseToPush);
         }
         await this.$router.push({ name: 'expenses-overview' });
       },

@@ -182,18 +182,17 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
   import { assign, isNil } from 'lodash';
-  import api from '@/services/api';
+  import { api } from '@/services/api';
   import DocumentsUpload from '@/components/DocumentsUpload';
   import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
   import { UploadsInfo } from '@/components/uploads-info';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-
-  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withCategories from '@/components/mixins/with-categories';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'EditIncome',
@@ -205,7 +204,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories],
+    mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories, withWorkspaces],
 
     data() {
       return {
@@ -223,50 +222,31 @@
           generalTax: null,
         },
         incomeValidationRules: {
-          currency: { required: true, message: 'Please select a currency' },
-          title: { required: true, message: 'Please provide the title' },
-          dateReceived: { required: true, message: 'Please provide the date when income is received' },
-          originalAmount: { required: true, message: 'Please provide income amount' },
+          currency: {
+            required: true,
+            message: 'Please select a currency',
+          },
+          title: {
+            required: true,
+            message: 'Please provide the title',
+          },
+          dateReceived: {
+            required: true,
+            message: 'Please provide the date when income is received',
+          },
+          originalAmount: {
+            required: true,
+            message: 'Please provide income amount',
+          },
         },
         alreadyConverted: false,
         reportedAnotherExchangeRate: false,
       };
     },
 
-    async created() {
-      if (this.$route.params.id) {
-        const incomeResponse = await api.get(`/workspaces/${this.workspace.id}/incomes/${this.$route.params.id}`);
-        this.income = assign({}, this.income, incomeResponse.data);
-
-        this.alreadyConverted = this.income.currency !== this.defaultCurrency
-          && !isNil(this.income.amountInDefaultCurrency)
-          && this.income.amountInDefaultCurrency > 0;
-
-        this.reportedAnotherExchangeRate = this.income.currency !== this.defaultCurrency
-          && !isNil(this.income.reportedAmountInDefaultCurrency)
-          && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency);
-
-        if (this.income.attachments && this.income.attachments.length) {
-          const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
-            .eager()
-            .eqFilter('id', this.income.attachments)
-            .getPageData();
-          attachments.forEach(attachment => this.income.uploads.add(attachment));
-        }
-      }
-    },
-
     computed: {
-      ...mapState('workspaces', {
-        workspace: 'currentWorkspace',
-      }),
-
       isInDefaultCurrency() {
         return this.income.currency === this.defaultCurrency;
-      },
-
-      defaultCurrency() {
-        return this.workspace.defaultCurrency;
       },
 
       defaultCurrencyAmountVisible() {
@@ -280,6 +260,30 @@
       pageHeader() {
         return this.$route.params.id ? 'Edit Income' : 'Record New Income';
       },
+    },
+
+    async created() {
+      if (this.$route.params.id) {
+        const incomeResponse = await api
+          .get(`/workspaces/${this.currentWorkspace.id}/incomes/${this.$route.params.id}`);
+        this.income = assign({}, this.income, incomeResponse.data);
+
+        this.alreadyConverted = this.income.currency !== this.defaultCurrency
+          && !isNil(this.income.amountInDefaultCurrency)
+          && this.income.amountInDefaultCurrency > 0;
+
+        this.reportedAnotherExchangeRate = this.income.currency !== this.defaultCurrency
+          && !isNil(this.income.reportedAmountInDefaultCurrency)
+          && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency);
+
+        if (this.income.attachments && this.income.attachments.length) {
+          const attachments = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
+            .eager()
+            .eqFilter('id', this.income.attachments)
+            .getPageData();
+          attachments.forEach(attachment => this.income.uploads.add(attachment));
+        }
+      }
     },
 
     methods: {
@@ -320,9 +324,9 @@
         };
 
         if (this.income.id) {
-          await api.put(`/workspaces/${this.workspace.id}/incomes/${this.income.id}`, incomeToPush);
+          await api.put(`/workspaces/${this.currentWorkspace.id}/incomes/${this.income.id}`, incomeToPush);
         } else {
-          await api.post(`/workspaces/${this.workspace.id}/incomes`, incomeToPush);
+          await api.post(`/workspaces/${this.currentWorkspace.id}/incomes`, incomeToPush);
         }
         await this.$router.push({ name: 'incomes-overview' });
       },

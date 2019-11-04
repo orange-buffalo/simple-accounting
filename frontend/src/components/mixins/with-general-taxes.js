@@ -2,7 +2,7 @@ import { mapState } from 'vuex';
 import { isNil } from 'lodash/lang';
 import { api } from '@/services/api';
 
-export const withGeneralTaxes = {
+const withGeneralTaxes = {
   data() {
     return {
       generalTaxes: [],

@@ -236,11 +236,11 @@
 <script>
   import MoneyOutput from '@/components/MoneyOutput';
   import DocumentLink from '@/components/DocumentLink';
-  import { withCategories } from '@/components/mixins/with-categories';
+  import withCategories from '@/components/mixins/with-categories';
   import { withCustomers } from '@/components/mixins/with-customers';
-  import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import api from '@/services/api';
   import { loadDocuments } from '@/services/app-services';
   import OverviewItem from '@/components/overview-item/OverviewItem';

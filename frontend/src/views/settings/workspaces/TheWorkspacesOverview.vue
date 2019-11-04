@@ -41,7 +41,7 @@
 
 <script>
   import '@/components/icons/plus-thin';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
   import { api } from '@/services/api';
 

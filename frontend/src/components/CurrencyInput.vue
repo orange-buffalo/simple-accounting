@@ -29,7 +29,7 @@
   import { mapState, mapActions } from 'vuex';
   import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
   import { api } from '@/services/api';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'CurrencyInput',

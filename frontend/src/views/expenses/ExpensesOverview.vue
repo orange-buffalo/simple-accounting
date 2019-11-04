@@ -45,7 +45,7 @@
 <script>
   import DataItems from '@/components/DataItems';
   import ExpenseOverviewPanel from './ExpenseOverviewPanel';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
 
   export default {

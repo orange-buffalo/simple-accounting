@@ -30,7 +30,7 @@
 
 <script>
   import DataItems from '@/components/DataItems';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
   import IncomeTaxPaymentOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentOverviewPanel';
 

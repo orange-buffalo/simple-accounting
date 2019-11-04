@@ -83,7 +83,7 @@
 </template>
 
 <script>
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
   import TheGeneralTaxReport from '@/views/reporting/TheGeneralTaxReport';
 

@@ -254,10 +254,10 @@
 
 <script>
   import { isNil } from 'lodash/lang';
-  import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-  import { withCategories } from '@/components/mixins/with-categories';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
-  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import withCategories from '@/components/mixins/with-categories';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import { loadDocuments } from '@/services/app-services';
   import DocumentLink from '@/components/DocumentLink';
   import MoneyOutput from '@/components/MoneyOutput';

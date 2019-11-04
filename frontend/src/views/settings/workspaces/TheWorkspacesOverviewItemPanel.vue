@@ -79,7 +79,7 @@
   import '@/components/icons/share';
   import '@/components/icons/copy';
   import copy from 'copy-to-clipboard';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaAttributeValue from '@/components/SaAttributeValue';
   import { api } from '@/services/api';
   import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';

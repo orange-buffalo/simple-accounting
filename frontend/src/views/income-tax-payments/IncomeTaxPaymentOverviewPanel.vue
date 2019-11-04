@@ -94,8 +94,8 @@
 </template>
 
 <script>
-  import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import { loadDocuments } from '@/services/app-services';
   import DocumentLink from '@/components/DocumentLink';
   import OverviewItem from '@/components/overview-item/OverviewItem';

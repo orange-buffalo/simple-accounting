@@ -228,7 +228,7 @@
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withMediumDateTimeFormatter from '@/components/mixins/with-medium-datetime-formatter';
   import { withCustomers } from '@/components/mixins/with-customers';
-  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
   export default {

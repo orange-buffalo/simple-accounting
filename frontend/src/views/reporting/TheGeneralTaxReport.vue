@@ -36,8 +36,8 @@
 <script>
   import { assign, isNil } from 'lodash';
 
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
-  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import MoneyOutput from '@/components/MoneyOutput';
   import { reportGenerator } from '@/views/reporting/report-generator';
   import TheGeneralTaxReportTable from '@/views/reporting/TheGeneralTaxReportTable';

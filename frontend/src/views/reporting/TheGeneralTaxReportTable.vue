@@ -54,7 +54,7 @@
 </template>
 
 <script>
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import MoneyOutput from '@/components/MoneyOutput';
 
   export default {

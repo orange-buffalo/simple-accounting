@@ -1,6 +1,6 @@
 import { mapState } from 'vuex';
 
-export const withWorkspaces = {
+const withWorkspaces = {
   computed: {
     ...mapState('workspaces', {
       currentWorkspace: 'currentWorkspace',

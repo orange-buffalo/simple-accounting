@@ -207,11 +207,11 @@
 <script>
   import isNil from 'lodash/isNil';
   import { api } from '@/services/api';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
-  import { withCategories } from '@/components/mixins/with-categories';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import withCategories from '@/components/mixins/with-categories';
   import MoneyOutput from '@/components/MoneyOutput';
   import { lockr } from '@/services/app-services';
-  import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import { withCustomers } from '@/components/mixins/with-customers';
   import SaIcon from '@/components/SaIcon';
 

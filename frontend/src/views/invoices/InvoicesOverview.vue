@@ -49,7 +49,7 @@
 <script>
   import DataItems from '@/components/DataItems';
   import InvoiceOverviewPanel from './InvoiceOverviewPanel';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
 
   export default {

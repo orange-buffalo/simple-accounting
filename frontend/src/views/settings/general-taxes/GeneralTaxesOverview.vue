@@ -31,7 +31,7 @@
 <script>
   import DataItems from '@/components/DataItems';
   import GeneralTaxOverviewPanel from './GeneralTaxOverviewPanel';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
 
   export default {

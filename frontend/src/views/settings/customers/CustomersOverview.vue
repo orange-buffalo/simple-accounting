@@ -33,7 +33,7 @@
   import DataItems from '@/components/DataItems';
   import CustomerOverviewPanel from './CustomerOverviewPanel';
   import '@/components/icons/plus-thin';
-  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'CustomersOverview',
