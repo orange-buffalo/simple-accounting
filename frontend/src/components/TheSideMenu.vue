@@ -31,8 +31,8 @@
         icon="invoice"
       />
       <the-side-menu-link
-        to="/tax-payments"
-        title="Tax payments"
+        to="/income-tax-payments"
+        title="Income Tax Payments"
         icon="tax"
       />
       <the-side-menu-link

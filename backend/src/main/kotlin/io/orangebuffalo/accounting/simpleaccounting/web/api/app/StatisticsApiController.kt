@@ -11,7 +11,7 @@ import java.time.LocalDate
 class StatisticsApiController(
     private val expenseService: ExpenseService,
     private val incomeService: IncomeService,
-    private val taxPaymentService: TaxPaymentService,
+    private val incomeTaxPaymentService: IncomeTaxPaymentService,
     private val workspaceService: WorkspaceService
 ) {
 
@@ -56,15 +56,15 @@ class StatisticsApiController(
         )
     }
 
-    @GetMapping("tax-payments")
+    @GetMapping("income-tax-payments")
     suspend fun getTaxPaymentsStatistics(
         @PathVariable workspaceId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): TaxPaymentsStatisticsDto {
+    ): IncomeTaxPaymentsStatisticsDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val taxPaymentsStatistics = taxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspace)
-        return TaxPaymentsStatisticsDto(taxPaymentsStatistics.totalTaxPayments)
+        val incomeTaxPaymentsStatistics = incomeTaxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspace)
+        return IncomeTaxPaymentsStatisticsDto(incomeTaxPaymentsStatistics.totalTaxPayments)
     }
 
     @GetMapping("currencies-shortlist")
@@ -90,7 +90,7 @@ class StatisticsApiController(
     }
 }
 
-data class TaxPaymentsStatisticsDto(
+data class IncomeTaxPaymentsStatisticsDto(
     val totalTaxPayments: Long
 )
 

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
@@ -168,7 +167,7 @@ internal class StatisticsApiControllerIT(
     fun `should allow access to tax payments statistics only for authenticated users`(testData: StatisticsApiTestData) {
         client.get()
             .uri(
-                "/api/workspaces/${testData.workspace.id}/statistics/tax-payments" +
+                "/api/workspaces/${testData.workspace.id}/statistics/income-tax-payments" +
                         "?fromDate=3000-04-10&toDate=3000-10-01"
             )
             .verifyUnauthorized()
@@ -179,7 +178,7 @@ internal class StatisticsApiControllerIT(
     fun `should calculate tax payments statistics`(testData: StatisticsApiTestData) {
         client.get()
             .uri(
-                "/api/workspaces/${testData.workspace.id}/statistics/tax-payments" +
+                "/api/workspaces/${testData.workspace.id}/statistics/income-tax-payments" +
                         "?fromDate=3005-07-02&toDate=3005-08-01"
             )
             .verifyOkAndJsonBody {
@@ -194,7 +193,7 @@ internal class StatisticsApiControllerIT(
     ) {
         client.get()
             .uri(
-                "/api/workspaces/5555/statistics/tax-payments" +
+                "/api/workspaces/5555/statistics/income-tax-payments" +
                         "?fromDate=3000-04-10&toDate=3000-10-01"
             )
             .verifyNotFound("Workspace 5555 is not found")
@@ -207,7 +206,7 @@ internal class StatisticsApiControllerIT(
     ) {
         client.get()
             .uri(
-                "/api/workspaces/${testData.workspace.id}/statistics/tax-payments" +
+                "/api/workspaces/${testData.workspace.id}/statistics/income-tax-payments" +
                         "?fromDate=3000-04-10&toDate=3000-10-01"
             )
             .verifyNotFound("Workspace ${testData.workspace.id} is not found")
@@ -380,23 +379,23 @@ internal class StatisticsApiControllerIT(
                 amountInDefaultCurrency = 233,
                 reportedAmountInDefaultCurrency = 233
             ),
-            Prototypes.taxPayment(
+            Prototypes.incomeTaxPayment(
                 workspace = workspace,
                 reportingDate = LocalDate.of(3005, 7, 1),
                 amount = 23
             ),
-            Prototypes.taxPayment(
+            Prototypes.incomeTaxPayment(
                 workspace = workspace,
                 reportingDate = LocalDate.of(3005, 7, 2),
                 amount = 43
             ),
 
-            Prototypes.taxPayment(
+            Prototypes.incomeTaxPayment(
                 workspace = workspace,
                 reportingDate = LocalDate.of(3005, 8, 1),
                 amount = 34
             ),
-            Prototypes.taxPayment(
+            Prototypes.incomeTaxPayment(
                 workspace = workspace,
                 reportingDate = LocalDate.of(3005, 8, 2),
                 amount = 111

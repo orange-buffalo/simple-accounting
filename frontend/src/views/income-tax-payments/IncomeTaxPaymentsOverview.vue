@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Tax Payments</h1>
+      <h1>Income Tax Payments</h1>
 
       <div class="sa-header-options">
         <div>
@@ -20,35 +20,34 @@
     </div>
 
     <DataItems
-      :api-path="`/workspaces/${currentWorkspace.id}/tax-payments`"
+      :api-path="`/workspaces/${currentWorkspace.id}/income-tax-payments`"
       #default="{item: taxPayment}"
     >
-      <TaxPaymentOverviewPanel :tax-payment="taxPayment" />
+      <IncomeTaxPaymentOverviewPanel :tax-payment="taxPayment" />
     </DataItems>
   </div>
 </template>
 
 <script>
 import DataItems from '@/components/DataItems';
-import TaxPaymentOverviewPanel from './TaxPaymentOverviewPanel';
-import '@/components/icons/plus-thin';
 import { withWorkspaces } from '@/components/mixins/with-workspaces';
 import SaIcon from '@/components/SaIcon';
+import IncomeTaxPaymentOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentOverviewPanel';
 
 export default {
   name: 'TaxPaymentsOverview',
 
   components: {
+    IncomeTaxPaymentOverviewPanel,
     SaIcon,
     DataItems,
-    TaxPaymentOverviewPanel,
   },
 
   mixins: [withWorkspaces],
 
   methods: {
     navigateToCreateTaxPaymentView() {
-      this.$router.push({ name: 'create-new-tax-payment' });
+      this.$router.push({ name: 'create-new-income-tax-payment' });
     },
   },
 };

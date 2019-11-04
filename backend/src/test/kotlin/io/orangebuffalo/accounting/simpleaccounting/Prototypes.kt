@@ -183,7 +183,7 @@ class Prototypes {
             notes = notes
         )
 
-        fun taxPayment(
+        fun incomeTaxPayment(
             workspace: Workspace = workspace(),
             timeRecorded: Instant = MOCK_TIME,
             datePaid: LocalDate = MOCK_DATE,
@@ -192,7 +192,7 @@ class Prototypes {
             title: String = "Tax Payment",
             attachments: Set<Document> = setOf(),
             notes: String? = null
-        ): TaxPayment = TaxPayment(
+        ): IncomeTaxPayment = IncomeTaxPayment(
             workspace = workspace,
             timeRecorded = timeRecorded,
             datePaid = datePaid,

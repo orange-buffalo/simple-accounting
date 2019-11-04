@@ -114,10 +114,9 @@
 
 <script>
 import { mapState } from 'vuex';
-import { assign, isNil } from 'lodash';
+import { assign } from 'lodash';
 import api from '@/services/api';
 import DocumentsUpload from '@/components/DocumentsUpload';
-import CurrencyInput from '@/components/CurrencyInput';
 import MoneyInput from '@/components/MoneyInput';
 import { UploadsInfo } from '@/components/uploads-info';
 import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
@@ -125,11 +124,10 @@ import withMediumDateFormatter from '@/components/mixins/with-medium-date-format
 import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
 export default {
-  name: 'EditTaxPayment',
+  name: 'EditIncomeTaxPayment',
 
   components: {
     DocumentsUpload,
-    CurrencyInput,
     MoneyInput,
     SaMarkdownOutput,
   },
@@ -157,7 +155,7 @@ export default {
 
   async created() {
     if (this.$route.params.id) {
-      const taxPaymentResponse = await api.get(`/workspaces/${this.workspace.id}/tax-payments/${this.$route.params.id}`);
+      const taxPaymentResponse = await api.get(`/workspaces/${this.workspace.id}/income-tax-payments/${this.$route.params.id}`);
       this.taxPayment = assign({}, this.taxPayment, taxPaymentResponse.data);
 
       if (this.taxPayment.attachments && this.taxPayment.attachments.length) {
@@ -180,13 +178,13 @@ export default {
     },
 
     pageHeader() {
-      return this.$route.params.id ? 'Edit Tax Payment' : 'Record New Tax Payment';
+      return this.$route.params.id ? 'Edit Income Tax Payment' : 'Record New Income Tax Payment';
     },
   },
 
   methods: {
     navigateToTaxPaymentsOverview() {
-      this.$router.push({ name: 'tax-payments-overview' });
+      this.$router.push({ name: 'income-tax-payments-overview' });
     },
 
     async save() {
@@ -217,11 +215,11 @@ export default {
       };
 
       if (this.taxPayment.id) {
-        await api.put(`/workspaces/${this.workspace.id}/tax-payments/${this.taxPayment.id}`, taxPaymentToPush);
+        await api.put(`/workspaces/${this.workspace.id}/income-tax-payments/${this.taxPayment.id}`, taxPaymentToPush);
       } else {
-        await api.post(`/workspaces/${this.workspace.id}/tax-payments`, taxPaymentToPush);
+        await api.post(`/workspaces/${this.workspace.id}/income-tax-payments`, taxPaymentToPush);
       }
-      this.$router.push({ name: 'tax-payments-overview' });
+      await this.$router.push({ name: 'income-tax-payments-overview' });
     },
   },
 };

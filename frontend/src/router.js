@@ -102,20 +102,20 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-invoice" */ './views/invoices/EditInvoice.vue'),
         },
         {
-          path: 'tax-payments',
-          name: 'tax-payments-overview',
-          component: () => import(/* webpackChunkName: "tax-payments-overview" */ './views/tax-payments/TaxPaymentsOverview.vue'),
+          path: 'income-tax-payments',
+          name: 'income-tax-payments-overview',
+          component: () => import(/* webpackChunkName: "income-tax-payments-overview" */ './views/income-tax-payments/IncomeTaxPaymentsOverview.vue'),
         },
         {
-          path: 'tax-payments/create',
-          name: 'create-new-tax-payment',
-          component: () => import(/* webpackChunkName: "create-new-tax-payment" */ './views/tax-payments/EditTaxPayment.vue'),
+          path: 'income-tax-payments/create',
+          name: 'create-new-income-tax-payment',
+          component: () => import(/* webpackChunkName: "create-new-income-tax-payment" */ './views/income-tax-payments/EditIncomeTaxPayment.vue'),
         },
         {
-          path: 'tax-payments/:id/edit',
-          name: 'edit-tax-payment',
+          path: 'income-tax-payments/:id/edit',
+          name: 'edit-income-tax-payment',
           // todo #88: should we use the same chunk name for edit and create as view is the same?
-          component: () => import(/* webpackChunkName: "edit-tax-payment" */ './views/tax-payments/EditTaxPayment.vue'),
+          component: () => import(/* webpackChunkName: "edit-income-tax-payment" */ './views/income-tax-payments/EditIncomeTaxPayment.vue'),
         },
         {
           path: 'settings/customers',

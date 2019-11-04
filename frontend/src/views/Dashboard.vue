@@ -6,7 +6,7 @@
       <div class="sa-header-options">
         <span>&nbsp;</span>
 
-        <el-date-picker
+        <ElDatePicker
           v-model="selectedDateRange"
           type="daterange"
           align="right"
@@ -22,10 +22,10 @@
       <div class="home-page__row__hero">
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <svgicon name="expense" />
+            <SaIcon icon="expense" />
           </span>
 
-          <money-output
+          <MoneyOutput
             class="home-page__row__hero__header__amount"
             :currency="defaultCurrency"
             :amount="expenses.totalAmount"
@@ -52,7 +52,7 @@
             class="home-page__row__hero__details__item"
           >
             <span>{{ categoryById(item.categoryId).name }}</span>
-            <money-output
+            <MoneyOutput
               :currency="defaultCurrency"
               :amount="item.totalAmount"
             />
@@ -63,10 +63,10 @@
       <div class="home-page__row__hero">
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <svgicon name="income" />
+            <SaIcon icon="income" />
           </span>
 
-          <money-output
+          <MoneyOutput
             class="home-page__row__hero__header__amount"
             :currency="defaultCurrency"
             :amount="incomes.totalAmount"
@@ -93,7 +93,7 @@
             class="home-page__row__hero__details__item"
           >
             <span>{{ categoryById(item.categoryId).name }}</span>
-            <money-output
+            <MoneyOutput
               :currency="defaultCurrency"
               :amount="item.totalAmount"
             />
@@ -104,10 +104,10 @@
       <div class="home-page__row__hero">
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <svgicon name="profit" />
+            <SaIcon icon="profit" />
           </span>
 
-          <money-output
+          <MoneyOutput
             class="home-page__row__hero__header__amount"
             :currency="defaultCurrency"
             :amount="Math.max(taxableAmount, 0)"
@@ -126,17 +126,17 @@
             class="home-page__row__hero__details__item"
           >
             <span>Currency exchange rate difference</span>
-            <money-output
+            <MoneyOutput
               :currency="defaultCurrency"
               :amount="incomes.currencyExchangeGain"
             />
           </div>
 
           <div class="home-page__row__hero__details__item">
-            <span>Tax Payments</span>
-            <money-output
+            <span>Income Tax Payments</span>
+            <MoneyOutput
               :currency="defaultCurrency"
-              :amount="taxPayments.totalTaxPayments || 0"
+              :amount="incomeTaxPayments.totalTaxPayments || 0"
             />
           </div>
 
@@ -150,7 +150,7 @@
             class="home-page__row__hero__details__item"
           >
             <span>Profit</span>
-            <money-output
+            <MoneyOutput
               :currency="defaultCurrency"
               :amount="totalProfit"
             />
@@ -164,10 +164,10 @@
       >
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <svgicon name="invoice" />
+            <SaIcon icon="invoice" />
           </span>
 
-          <money-output
+          <MoneyOutput
             class="home-page__row__hero__header__amount"
             :currency="invoice.currency"
             :amount="invoice.amount"
@@ -205,24 +205,22 @@
 </template>
 
 <script>
+import isNil from 'lodash/isNil';
 import { api } from '@/services/api';
 import { withWorkspaces } from '@/components/mixins/with-workspaces';
 import { withCategories } from '@/components/mixins/with-categories';
-import '@/components/icons/expense';
-import '@/components/icons/income';
-import '@/components/icons/profit';
 import MoneyOutput from '@/components/MoneyOutput';
 import { lockr } from '@/services/app-services';
-import { isNil } from 'lodash';
 import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
 import { withCustomers } from '@/components/mixins/with-customers';
+import SaIcon from '@/components/SaIcon';
 
 const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range';
 
 export default {
   name: 'Dashboard',
 
-  components: { MoneyOutput },
+  components: { SaIcon, MoneyOutput },
 
   mixins: [withWorkspaces, withCategories, withMediumDateFormatter, withCustomers],
 
@@ -230,7 +228,7 @@ export default {
     return {
       expenses: {},
       incomes: {},
-      taxPayments: {},
+      incomeTaxPayments: {},
       selectedDateRange: [],
       pendingInvoices: [],
     };
@@ -256,7 +254,7 @@ export default {
     },
 
     totalProfit() {
-      const taxPayments = this.taxPayments.totalTaxPayments || 0;
+      const taxPayments = this.incomeTaxPayments.totalTaxPayments || 0;
       return (this.taxableAmount && this.incomes.currencyExchangeGain)
         ? this.taxableAmount + this.incomes.currencyExchangeGain - taxPayments
         : null;
@@ -326,10 +324,10 @@ export default {
             + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
         .then(response => this.incomes = response.data);
 
-      api.get(`/workspaces/${this.currentWorkspace.id}/statistics/tax-payments`
+      api.get(`/workspaces/${this.currentWorkspace.id}/statistics/income-tax-payments`
             + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
             + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-        .then(response => this.taxPayments = response.data);
+        .then(response => this.incomeTaxPayments = response.data);
 
       api.pageRequest(`/workspaces/${this.currentWorkspace.id}/invoices`)
         .eager()

@@ -1,12 +1,12 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxPaymentService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.IncomeTaxPaymentService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QTaxPayment
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.TaxPayment
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.IncomeTaxPayment
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncomeTaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.ApiControllersExtensions
@@ -24,10 +24,10 @@ import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 
 @RestController
-@RequestMapping("/api/workspaces/{workspaceId}/tax-payments")
-class TaxPaymentApiController(
+@RequestMapping("/api/workspaces/{workspaceId}/income-tax-payments")
+class IncomeTaxPaymentApiController(
     private val extensions: ApiControllersExtensions,
-    private val taxPaymentService: TaxPaymentService,
+    private val taxPaymentService: IncomeTaxPaymentService,
     private val timeService: TimeService,
     private val workspaceService: WorkspaceService
 ) {
@@ -35,14 +35,14 @@ class TaxPaymentApiController(
     @PostMapping
     suspend fun createTaxPayment(
         @PathVariable workspaceId: Long,
-        @RequestBody @Valid request: EditTaxPaymentDto
-    ): TaxPaymentDto {
+        @RequestBody @Valid request: EditIncomeTaxPaymentDto
+    ): IncomeTaxPaymentDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         return taxPaymentService
             .saveTaxPayment(
-                TaxPayment(
+                IncomeTaxPayment(
                     timeRecorded = timeService.currentTime(),
                     datePaid = request.datePaid,
                     reportingDate = request.reportingDate ?: request.datePaid,
@@ -53,15 +53,15 @@ class TaxPaymentApiController(
                     title = request.title
                 )
             )
-            .let(::mapTaxPaymentDto)
+            .let(::mapIncomeTaxPaymentDto)
     }
 
     @GetMapping
-    @PageableApi(TaxPaymentPageableApiDescriptor::class)
+    @PageableApi(IncomeTaxPaymentPageableApiDescriptor::class)
     suspend fun getTaxPayments(
         @PathVariable workspaceId: Long,
         pageRequest: ApiPageRequest
-    ): Page<TaxPayment> {
+    ): Page<IncomeTaxPayment> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         return taxPaymentService.getTaxPayments(workspace, pageRequest.page, pageRequest.predicate)
     }
@@ -70,19 +70,19 @@ class TaxPaymentApiController(
     suspend fun getTaxPayment(
         @PathVariable workspaceId: Long,
         @PathVariable taxPaymentId: Long
-    ): TaxPaymentDto {
+    ): IncomeTaxPaymentDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val taxPayment = taxPaymentService.getTaxPaymentByIdAndWorkspace(taxPaymentId, workspace)
             ?: throw EntityNotFoundException("Tax Payment $taxPaymentId is not found")
-        return mapTaxPaymentDto(taxPayment)
+        return mapIncomeTaxPaymentDto(taxPayment)
     }
 
     @PutMapping("{taxPaymentId}")
     suspend fun updateTaxPayment(
         @PathVariable workspaceId: Long,
         @PathVariable taxPaymentId: Long,
-        @RequestBody @Valid request: EditTaxPaymentDto
-    ): TaxPaymentDto {
+        @RequestBody @Valid request: EditIncomeTaxPaymentDto
+    ): IncomeTaxPaymentDto {
 
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
@@ -103,13 +103,13 @@ class TaxPaymentApiController(
                 taxPaymentService.saveTaxPayment(it)
             }
             .let {
-                mapTaxPaymentDto(it)
+                mapIncomeTaxPaymentDto(it)
             }
     }
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class TaxPaymentDto(
+data class IncomeTaxPaymentDto(
     val id: Long,
     val version: Int,
     val title: String,
@@ -121,7 +121,7 @@ data class TaxPaymentDto(
     val notes: String?
 )
 
-data class EditTaxPaymentDto(
+data class EditIncomeTaxPaymentDto(
     val datePaid: LocalDate,
     val reportingDate: LocalDate?,
     val amount: Long,
@@ -130,7 +130,7 @@ data class EditTaxPaymentDto(
     @field:NotBlank @field:Length(max = 255) val title: String
 )
 
-private fun mapTaxPaymentDto(source: TaxPayment) = TaxPaymentDto(
+private fun mapIncomeTaxPaymentDto(source: IncomeTaxPayment) = IncomeTaxPaymentDto(
     id = source.id!!,
     version = source.version,
     timeRecorded = source.timeRecorded,
@@ -143,8 +143,8 @@ private fun mapTaxPaymentDto(source: TaxPayment) = TaxPaymentDto(
 )
 
 @Component
-class TaxPaymentPageableApiDescriptor : PageableApiDescriptor<TaxPayment, QTaxPayment> {
-    override suspend fun mapEntityToDto(entity: TaxPayment) = mapTaxPaymentDto(entity)
+class IncomeTaxPaymentPageableApiDescriptor : PageableApiDescriptor<IncomeTaxPayment, QIncomeTaxPayment> {
+    override suspend fun mapEntityToDto(entity: IncomeTaxPayment) = mapIncomeTaxPaymentDto(entity)
 
-    override fun getDefaultSorting(): Sort = QTaxPayment.taxPayment.datePaid.desc().toSort()
+    override fun getDefaultSorting(): Sort = QIncomeTaxPayment.incomeTaxPayment.datePaid.desc().toSort()
 }

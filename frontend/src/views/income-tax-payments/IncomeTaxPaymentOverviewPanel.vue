@@ -98,7 +98,6 @@ import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-fo
 import { withWorkspaces } from '@/components/mixins/with-workspaces';
 import { loadDocuments } from '@/services/app-services';
 import DocumentLink from '@/components/DocumentLink';
-import MoneyOutput from '@/components/MoneyOutput';
 import OverviewItem from '@/components/overview-item/OverviewItem';
 import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
 import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
@@ -110,7 +109,7 @@ import SaActionLink from '@/components/SaActionLink';
 import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
 export default {
-  name: 'TaxPaymentOverviewPanel',
+  name: 'IncomeTaxPaymentOverviewPanel',
 
   components: {
     OverviewItemDetailsSectionAttribute,
@@ -121,7 +120,6 @@ export default {
     OverviewItemAttributePreviewIcon,
     OverviewItemPrimaryAttribute,
     OverviewItem,
-    MoneyOutput,
     DocumentLink,
     SaMarkdownOutput,
   },
@@ -163,7 +161,7 @@ export default {
     },
 
     navigateToTaxPaymentEdit() {
-      this.$router.push({ name: 'edit-tax-payment', params: { id: this.taxPayment.id } });
+      this.$router.push({ name: 'edit-income-tax-payment', params: { id: this.taxPayment.id } });
     },
   },
 };
