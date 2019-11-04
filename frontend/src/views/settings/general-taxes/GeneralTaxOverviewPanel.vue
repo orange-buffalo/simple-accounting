@@ -25,25 +25,25 @@
 </template>
 
 <script>
-import '@/components/icons/pencil-solid';
-import '@/components/icons/percent';
+  import '@/components/icons/pencil-solid';
+  import '@/components/icons/percent';
 
-export default {
-  name: 'GeneralTaxOverviewPanel',
+  export default {
+    name: 'GeneralTaxOverviewPanel',
 
-  props: {
-    tax: {
-      type: Object,
-      required: true,
+    props: {
+      tax: {
+        type: Object,
+        required: true,
+      },
     },
-  },
 
-  methods: {
-    navigateToTaxEdit() {
-      this.$router.push({ name: 'edit-general-tax', params: { id: this.tax.id } });
+    methods: {
+      navigateToTaxEdit() {
+        this.$router.push({ name: 'edit-general-tax', params: { id: this.tax.id } });
+      },
     },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

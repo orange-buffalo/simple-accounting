@@ -253,145 +253,145 @@
 </template>
 
 <script>
-import { isNil } from 'lodash/lang';
-import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-import { withCategories } from '@/components/mixins/with-categories';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
-import { loadDocuments } from '@/services/app-services';
-import DocumentLink from '@/components/DocumentLink';
-import MoneyOutput from '@/components/MoneyOutput';
-import OverviewItem from '@/components/overview-item/OverviewItem';
-import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
-import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
-import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
-import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
-import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
-import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
-import SaActionLink from '@/components/SaActionLink';
-import SaIcon from '@/components/SaIcon';
-import SaMarkdownOutput from '@/components/SaMarkdownOutput';
-import SaStatusLabel from '@/components/SaStatusLabel';
+  import { isNil } from 'lodash/lang';
+  import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
+  import { withCategories } from '@/components/mixins/with-categories';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import { loadDocuments } from '@/services/app-services';
+  import DocumentLink from '@/components/DocumentLink';
+  import MoneyOutput from '@/components/MoneyOutput';
+  import OverviewItem from '@/components/overview-item/OverviewItem';
+  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
+  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
+  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
+  import SaActionLink from '@/components/SaActionLink';
+  import SaIcon from '@/components/SaIcon';
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import SaStatusLabel from '@/components/SaStatusLabel';
 
-export default {
-  name: 'IncomeOverviewPanel',
+  export default {
+    name: 'IncomeOverviewPanel',
 
-  components: {
-    MoneyOutput,
-    DocumentLink,
-    OverviewItem,
-    SaIcon,
-    OverviewItemAttributePreviewIcon,
-    OverviewItemPrimaryAttribute,
-    OverviewItemDetailsSection,
-    OverviewItemDetailsSectionAttribute,
-    SaActionLink,
-    OverviewItemDetailsSectionActions,
-    OverviewItemAmountPanel,
-    SaStatusLabel,
-    SaMarkdownOutput,
-  },
-
-  mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withGeneralTaxes],
-
-  props: {
-    income: {
-      type: Object,
-      required: true,
-    },
-  },
-
-  data() {
-    return {
-      attachments: [],
-    };
-  },
-
-  computed: {
-    status() {
-      return this.income.status === 'FINALIZED' ? 'success' : 'pending';
+    components: {
+      MoneyOutput,
+      DocumentLink,
+      OverviewItem,
+      SaIcon,
+      OverviewItemAttributePreviewIcon,
+      OverviewItemPrimaryAttribute,
+      OverviewItemDetailsSection,
+      OverviewItemDetailsSectionAttribute,
+      SaActionLink,
+      OverviewItemDetailsSectionActions,
+      OverviewItemAmountPanel,
+      SaStatusLabel,
+      SaMarkdownOutput,
     },
 
-    shortStatusText() {
-      return this.income.status === 'FINALIZED' ? 'Finalized' : 'Pending';
+    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withGeneralTaxes],
+
+    props: {
+      income: {
+        type: Object,
+        required: true,
+      },
     },
 
-    fullStatusText() {
-      if (this.income.status === 'FINALIZED') {
-        return 'Finalized';
-      } if (this.income.status === 'PENDING_CONVERSION') {
-        return `Conversion to ${this.defaultCurrency} pending`;
-      }
-      return 'Waiting for exchange rate';
-    },
-
-    totalAmount() {
-      if (this.income.status === 'FINALIZED') {
-        return {
-          value: this.income.reportedAmountInDefaultCurrency,
-          currency: this.defaultCurrency,
-        };
-      } if (this.income.status === 'PENDING_CONVERSION') {
-        return {
-          value: this.income.originalAmount,
-          currency: this.income.currency,
-        };
-      }
+    data() {
       return {
-        value: this.income.amountInDefaultCurrency,
-        currency: this.defaultCurrency,
+        attachments: [],
       };
     },
 
-    isForeignCurrency() {
-      return this.income.currency !== this.defaultCurrency;
+    computed: {
+      status() {
+        return this.income.status === 'FINALIZED' ? 'success' : 'pending';
+      },
+
+      shortStatusText() {
+        return this.income.status === 'FINALIZED' ? 'Finalized' : 'Pending';
+      },
+
+      fullStatusText() {
+        if (this.income.status === 'FINALIZED') {
+          return 'Finalized';
+        } if (this.income.status === 'PENDING_CONVERSION') {
+          return `Conversion to ${this.defaultCurrency} pending`;
+        }
+        return 'Waiting for exchange rate';
+      },
+
+      totalAmount() {
+        if (this.income.status === 'FINALIZED') {
+          return {
+            value: this.income.reportedAmountInDefaultCurrency,
+            currency: this.defaultCurrency,
+          };
+        } if (this.income.status === 'PENDING_CONVERSION') {
+          return {
+            value: this.income.originalAmount,
+            currency: this.income.currency,
+          };
+        }
+        return {
+          value: this.income.amountInDefaultCurrency,
+          currency: this.defaultCurrency,
+        };
+      },
+
+      isForeignCurrency() {
+        return this.income.currency !== this.defaultCurrency;
+      },
+
+      isReportedDifferentExchangeRate() {
+        return !isNil(this.income.reportedAmountInDefaultCurrency)
+          && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency);
+      },
+
+      amountInDefaultCurrency() {
+        return this.income.currency === this.defaultCurrency
+          ? this.income.originalAmount : this.income.amountInDefaultCurrency;
+      },
+
+      isConverted() {
+        return this.income.amountInDefaultCurrency;
+      },
+
+      dateReceived() {
+        return this.mediumDateFormatter(new Date(this.income.dateReceived));
+      },
+
+      isGeneralTaxApplicable() {
+        return this.income.generalTax && this.generalTaxTitle;
+      },
+
+      isGeneralTaxAmountAvailable() {
+        return this.income.status === 'FINALIZED';
+      },
+
+      generalTaxTitle() {
+        return this.generalTaxById(this.income.generalTax).title;
+      },
     },
 
-    isReportedDifferentExchangeRate() {
-      return !isNil(this.income.reportedAmountInDefaultCurrency)
-            && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency);
-    },
+    methods: {
+      async loadAttachments() {
+        if (this.income.attachments.length && !this.attachments.length) {
+          this.attachments = await loadDocuments(
+            this.attachments,
+            this.income.attachments,
+            this.currentWorkspace.id,
+          );
+        }
+      },
 
-    amountInDefaultCurrency() {
-      return this.income.currency === this.defaultCurrency
-        ? this.income.originalAmount : this.income.amountInDefaultCurrency;
+      navigateToIncomeEdit() {
+        this.$router.push({ name: 'edit-income', params: { id: this.income.id } });
+      },
     },
-
-    isConverted() {
-      return this.income.amountInDefaultCurrency;
-    },
-
-    dateReceived() {
-      return this.mediumDateFormatter(new Date(this.income.dateReceived));
-    },
-
-    isGeneralTaxApplicable() {
-      return this.income.generalTax && this.generalTaxTitle;
-    },
-
-    isGeneralTaxAmountAvailable() {
-      return this.income.status === 'FINALIZED';
-    },
-
-    generalTaxTitle() {
-      return this.generalTaxById(this.income.generalTax).title;
-    },
-  },
-
-  methods: {
-    async loadAttachments() {
-      if (this.income.attachments.length && !this.attachments.length) {
-        this.attachments = await loadDocuments(
-          this.attachments,
-          this.income.attachments,
-          this.currentWorkspace.id,
-        );
-      }
-    },
-
-    navigateToIncomeEdit() {
-      this.$router.push({ name: 'edit-income', params: { id: this.income.id } });
-    },
-  },
-};
+  };
 </script>

@@ -194,119 +194,119 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { assign, isNil } from 'lodash';
-import api from '@/services/api';
-import DocumentsUpload from '@/components/DocumentsUpload';
-import CurrencyInput from '@/components/CurrencyInput';
-import MoneyInput from '@/components/MoneyInput';
-import { UploadsInfo } from '@/components/uploads-info';
-import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import { mapState } from 'vuex';
+  import { assign, isNil } from 'lodash';
+  import api from '@/services/api';
+  import DocumentsUpload from '@/components/DocumentsUpload';
+  import CurrencyInput from '@/components/CurrencyInput';
+  import MoneyInput from '@/components/MoneyInput';
+  import { UploadsInfo } from '@/components/uploads-info';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
 
-import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
-import withCategories from '@/components/mixins/with-categories';
-import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import withCategories from '@/components/mixins/with-categories';
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
-export default {
-  name: 'EditExpense',
+  export default {
+    name: 'EditExpense',
 
-  components: {
-    DocumentsUpload,
-    CurrencyInput,
-    MoneyInput,
-    SaMarkdownOutput,
-  },
-
-  mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories],
-
-  props: {
-    id: {
-      type: Number,
-      required: true,
+    components: {
+      DocumentsUpload,
+      CurrencyInput,
+      MoneyInput,
+      SaMarkdownOutput,
     },
-    prototype: {
-      type: Object,
-      default: null,
-    },
-  },
 
-  data() {
-    return {
-      expense: {
-        category: null,
-        title: null,
-        currency: null,
-        originalAmount: null,
-        amountInDefaultCurrency: null,
-        actualAmountInDefaultCurrency: null,
-        attachments: [],
-        percentOnBusiness: 100,
-        notes: null,
-        datePaid: new Date(),
-        uploads: new UploadsInfo(),
-        generalTax: null,
+    mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories],
+
+    props: {
+      id: {
+        type: Number,
+        required: true,
       },
-      expenseValidationRules: {
-        currency: { required: true, message: 'Please select a currency' },
-        title: { required: true, message: 'Please provide the title' },
-        datePaid: { required: true, message: 'Please provide the date when expense is paid' },
-        originalAmount: { required: true, message: 'Please provide expense amount' },
+      prototype: {
+        type: Object,
+        default: null,
       },
-      alreadyConverted: false,
-      reportedAnotherExchangeRate: false,
-      partialForBusiness: false,
-    };
-  },
-
-  computed: {
-    ...mapState('workspaces', {
-      workspace: 'currentWorkspace',
-    }),
-
-    isInDefaultCurrency() {
-      return this.expense.currency === this.defaultCurrency;
     },
 
-    defaultCurrency() {
-      return this.workspace.defaultCurrency;
+    data() {
+      return {
+        expense: {
+          category: null,
+          title: null,
+          currency: null,
+          originalAmount: null,
+          amountInDefaultCurrency: null,
+          actualAmountInDefaultCurrency: null,
+          attachments: [],
+          percentOnBusiness: 100,
+          notes: null,
+          datePaid: new Date(),
+          uploads: new UploadsInfo(),
+          generalTax: null,
+        },
+        expenseValidationRules: {
+          currency: { required: true, message: 'Please select a currency' },
+          title: { required: true, message: 'Please provide the title' },
+          datePaid: { required: true, message: 'Please provide the date when expense is paid' },
+          originalAmount: { required: true, message: 'Please provide expense amount' },
+        },
+        alreadyConverted: false,
+        reportedAnotherExchangeRate: false,
+        partialForBusiness: false,
+      };
     },
 
-    defaultCurrencyAmountVisible() {
-      return this.alreadyConverted && !this.isInDefaultCurrency;
+    computed: {
+      ...mapState('workspaces', {
+        workspace: 'currentWorkspace',
+      }),
+
+      isInDefaultCurrency() {
+        return this.expense.currency === this.defaultCurrency;
+      },
+
+      defaultCurrency() {
+        return this.workspace.defaultCurrency;
+      },
+
+      defaultCurrencyAmountVisible() {
+        return this.alreadyConverted && !this.isInDefaultCurrency;
+      },
+
+      actualAmountVisible() {
+        return this.defaultCurrencyAmountVisible && this.reportedAnotherExchangeRate && !this.isInDefaultCurrency;
+      },
+
+      percentOnBusinessVisible() {
+        return this.partialForBusiness;
+      },
+
+      pageHeader() {
+        return this.id ? 'Edit Expense' : 'Record New Expense';
+      },
     },
 
-    actualAmountVisible() {
-      return this.defaultCurrencyAmountVisible && this.reportedAnotherExchangeRate && !this.isInDefaultCurrency;
+    async created() {
+      if (this.id) {
+        await this.loadExpense();
+      } else if (this.prototype) {
+        await this.copyExpenseFromPrototype();
+      }
     },
 
-    percentOnBusinessVisible() {
-      return this.partialForBusiness;
-    },
+    methods: {
+      async loadExpense() {
+        const expenseResponse = await api.get(`/workspaces/${this.workspace.id}/expenses/${this.id}`);
+        this.expense = assign({}, this.expense, expenseResponse.data);
+        await this.setupComponentState();
+      },
 
-    pageHeader() {
-      return this.id ? 'Edit Expense' : 'Record New Expense';
-    },
-  },
-
-  async created() {
-    if (this.id) {
-      await this.loadExpense();
-    } else if (this.prototype) {
-      await this.copyExpenseFromPrototype();
-    }
-  },
-
-  methods: {
-    async loadExpense() {
-      const expenseResponse = await api.get(`/workspaces/${this.workspace.id}/expenses/${this.id}`);
-      this.expense = assign({}, this.expense, expenseResponse.data);
-      await this.setupComponentState();
-    },
-
-    async copyExpenseFromPrototype() {
-      this.expense = {
-        ...this.expense,
-        ...{
+      async copyExpenseFromPrototype() {
+        this.expense = {
+          ...this.expense,
+          ...{
           category: this.prototype.category,
           title: this.prototype.title,
           currency: this.prototype.currency,
@@ -317,74 +317,74 @@ export default {
           notes: this.prototype.notes,
           generalTax: this.prototype.generalTax,
         },
-      };
-      await this.setupComponentState();
+        };
+        await this.setupComponentState();
+      },
+
+      async setupComponentState() {
+        this.alreadyConverted = this.expense.currency !== this.defaultCurrency
+          && !isNil(this.expense.amountInDefaultCurrency)
+          && this.expense.amountInDefaultCurrency > 0;
+
+        this.reportedAnotherExchangeRate = this.expense.currency !== this.defaultCurrency
+          && !isNil(this.expense.actualAmountInDefaultCurrency)
+          && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency);
+
+        this.partialForBusiness = this.expense.percentOnBusiness !== 100;
+
+        if (this.expense.attachments && this.expense.attachments.length) {
+          const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
+            .eager()
+            .eqFilter('id', this.expense.attachments)
+            .getPageData();
+          attachments.forEach(attachment => this.expense.uploads.add(attachment));
+        }
+      },
+
+      navigateToExpensesOverview() {
+        this.$router.push({ name: 'expenses-overview' });
+      },
+
+      async save() {
+        try {
+          await this.$refs.expenseForm.validate();
+        } catch (e) {
+          return;
+        }
+
+        try {
+          await this.$refs.documentsUpload.submitUploads();
+        } catch (e) {
+          this.$message({
+            showClose: true,
+            message: 'Upload failed',
+            type: 'error',
+          });
+          return;
+        }
+
+        const expenseToPush = {
+          category: this.expense.category,
+          datePaid: this.expense.datePaid,
+          title: this.expense.title,
+          currency: this.expense.currency,
+          originalAmount: this.expense.originalAmount,
+          amountInDefaultCurrency: this.alreadyConverted ? this.expense.amountInDefaultCurrency : null,
+          actualAmountInDefaultCurrency: this.reportedAnotherExchangeRate
+            ? this.expense.actualAmountInDefaultCurrency : this.expense.amountInDefaultCurrency,
+          attachments: this.expense.uploads.getDocumentsIds(),
+          percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
+          notes: this.expense.notes,
+          generalTax: this.expense.generalTax,
+        };
+
+        if (this.expense.id) {
+          await api.put(`/workspaces/${this.workspace.id}/expenses/${this.expense.id}`, expenseToPush);
+        } else {
+          await api.post(`/workspaces/${this.workspace.id}/expenses`, expenseToPush);
+        }
+        await this.$router.push({ name: 'expenses-overview' });
+      },
     },
-
-    async setupComponentState() {
-      this.alreadyConverted = this.expense.currency !== this.defaultCurrency
-            && !isNil(this.expense.amountInDefaultCurrency)
-            && this.expense.amountInDefaultCurrency > 0;
-
-      this.reportedAnotherExchangeRate = this.expense.currency !== this.defaultCurrency
-            && !isNil(this.expense.actualAmountInDefaultCurrency)
-            && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency);
-
-      this.partialForBusiness = this.expense.percentOnBusiness !== 100;
-
-      if (this.expense.attachments && this.expense.attachments.length) {
-        const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
-          .eager()
-          .eqFilter('id', this.expense.attachments)
-          .getPageData();
-        attachments.forEach(attachment => this.expense.uploads.add(attachment));
-      }
-    },
-
-    navigateToExpensesOverview() {
-      this.$router.push({ name: 'expenses-overview' });
-    },
-
-    async save() {
-      try {
-        await this.$refs.expenseForm.validate();
-      } catch (e) {
-        return;
-      }
-
-      try {
-        await this.$refs.documentsUpload.submitUploads();
-      } catch (e) {
-        this.$message({
-          showClose: true,
-          message: 'Upload failed',
-          type: 'error',
-        });
-        return;
-      }
-
-      const expenseToPush = {
-        category: this.expense.category,
-        datePaid: this.expense.datePaid,
-        title: this.expense.title,
-        currency: this.expense.currency,
-        originalAmount: this.expense.originalAmount,
-        amountInDefaultCurrency: this.alreadyConverted ? this.expense.amountInDefaultCurrency : null,
-        actualAmountInDefaultCurrency: this.reportedAnotherExchangeRate
-          ? this.expense.actualAmountInDefaultCurrency : this.expense.amountInDefaultCurrency,
-        attachments: this.expense.uploads.getDocumentsIds(),
-        percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
-        notes: this.expense.notes,
-        generalTax: this.expense.generalTax,
-      };
-
-      if (this.expense.id) {
-        await api.put(`/workspaces/${this.workspace.id}/expenses/${this.expense.id}`, expenseToPush);
-      } else {
-        await api.post(`/workspaces/${this.workspace.id}/expenses`, expenseToPush);
-      }
-      await this.$router.push({ name: 'expenses-overview' });
-    },
-  },
-};
+  };
 </script>

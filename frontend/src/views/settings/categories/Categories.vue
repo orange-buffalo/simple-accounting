@@ -44,25 +44,25 @@
 </template>
 
 <script>
-import '@/components/icons/plus-thin';
-import withWorkspaces from '@/components/mixins/with-workspaces';
-import DataItems from '@/components/DataItems';
+  import '@/components/icons/plus-thin';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import DataItems from '@/components/DataItems';
 
-export default {
-  name: 'Categories',
+  export default {
+    name: 'Categories',
 
-  components: {
-    DataItems,
-  },
-
-  mixins: [withWorkspaces],
-
-  methods: {
-    navigateToNewCategoryView() {
-      this.$router.push({ name: 'create-new-category' });
+    components: {
+      DataItems,
     },
-  },
-};
+
+    mixins: [withWorkspaces],
+
+    methods: {
+      navigateToNewCategoryView() {
+        this.$router.push({ name: 'create-new-category' });
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

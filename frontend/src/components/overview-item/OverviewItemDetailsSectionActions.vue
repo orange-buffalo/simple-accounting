@@ -5,9 +5,9 @@
 </template>
 
 <script>
-export default {
-  name: 'OverviewItemDetailsSectionActions',
-};
+  export default {
+    name: 'OverviewItemDetailsSectionActions',
+  };
 </script>
 
 <style lang="scss">

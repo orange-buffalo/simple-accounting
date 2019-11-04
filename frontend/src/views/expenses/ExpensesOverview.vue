@@ -43,46 +43,46 @@
 </template>
 
 <script>
-import DataItems from '@/components/DataItems';
-import ExpenseOverviewPanel from './ExpenseOverviewPanel';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import SaIcon from '@/components/SaIcon';
+  import DataItems from '@/components/DataItems';
+  import ExpenseOverviewPanel from './ExpenseOverviewPanel';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import SaIcon from '@/components/SaIcon';
 
-export default {
-  name: 'ExpensesOverview',
+  export default {
+    name: 'ExpensesOverview',
 
-  components: {
-    DataItems,
-    ExpenseOverviewPanel,
-    SaIcon,
-  },
+    components: {
+      DataItems,
+      ExpenseOverviewPanel,
+      SaIcon,
+    },
 
-  mixins: [withWorkspaces],
+    mixins: [withWorkspaces],
 
-  data() {
-    return {
-      userFilters: {
-        freeSearchText: null,
-      },
-    };
-  },
-
-  computed: {
-    apiFilters() {
-      // read the value to support reactivity
-      const { freeSearchText } = this.userFilters;
+    data() {
       return {
-        applyToRequest: (pageRequest) => {
-          pageRequest.eqFilter('freeSearchText', freeSearchText);
+        userFilters: {
+          freeSearchText: null,
         },
       };
     },
-  },
 
-  methods: {
-    navigateToCreateExpenseView() {
-      this.$router.push({ name: 'create-new-expense' });
+    computed: {
+      apiFilters() {
+        // read the value to support reactivity
+        const { freeSearchText } = this.userFilters;
+        return {
+          applyToRequest: (pageRequest) => {
+            pageRequest.eqFilter('freeSearchText', freeSearchText);
+          },
+        };
+      },
     },
-  },
-};
+
+    methods: {
+      navigateToCreateExpenseView() {
+        this.$router.push({ name: 'create-new-expense' });
+      },
+    },
+  };
 </script>

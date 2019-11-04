@@ -64,70 +64,70 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { assign } from 'lodash';
-import api from '@/services/api';
+  import { mapState } from 'vuex';
+  import { assign } from 'lodash';
+  import api from '@/services/api';
 
-export default {
-  name: 'EditGeneralTax',
+  export default {
+    name: 'EditGeneralTax',
 
-  components: {
-  },
-
-  data() {
-    return {
-      tax: {
-        name: null,
-      },
-      taxValidationRules: {
-        title: { required: true, message: 'Please provide a title' },
-        rateInBps: { required: true, message: 'Please provide the rate' },
-      },
-    };
-  },
-
-  computed: {
-    ...mapState('workspaces', {
-      workspace: 'currentWorkspace',
-    }),
-
-    pageHeader() {
-      return this.$route.params.id ? 'Edit General Tax' : 'Create New General Tax';
-    },
-  },
-
-  async created() {
-    if (this.$route.params.id) {
-      const taxResponse = await api.get(`/workspaces/${this.workspace.id}/general-taxes/${this.$route.params.id}`);
-      this.tax = assign({}, this.tax, taxResponse.data);
-    }
-  },
-
-  methods: {
-    navigateToTaxesOverview() {
-      this.$router.push({ name: 'general-taxes-overview' });
+    components: {
     },
 
-    async save() {
-      try {
-        await this.$refs.taxForm.validate();
-      } catch (e) {
-        return;
-      }
-
-      const taxToPush = {
-        title: this.tax.title,
-        description: this.tax.description,
-        rateInBps: this.tax.rateInBps,
+    data() {
+      return {
+        tax: {
+          name: null,
+        },
+        taxValidationRules: {
+          title: { required: true, message: 'Please provide a title' },
+          rateInBps: { required: true, message: 'Please provide the rate' },
+        },
       };
-
-      if (this.tax.id) {
-        await api.put(`/workspaces/${this.workspace.id}/general-taxes/${this.tax.id}`, taxToPush);
-      } else {
-        await api.post(`/workspaces/${this.workspace.id}/general-taxes`, taxToPush);
-      }
-      await this.$router.push({ name: 'general-taxes-overview' });
     },
-  },
-};
+
+    computed: {
+      ...mapState('workspaces', {
+        workspace: 'currentWorkspace',
+      }),
+
+      pageHeader() {
+        return this.$route.params.id ? 'Edit General Tax' : 'Create New General Tax';
+      },
+    },
+
+    async created() {
+      if (this.$route.params.id) {
+        const taxResponse = await api.get(`/workspaces/${this.workspace.id}/general-taxes/${this.$route.params.id}`);
+        this.tax = assign({}, this.tax, taxResponse.data);
+      }
+    },
+
+    methods: {
+      navigateToTaxesOverview() {
+        this.$router.push({ name: 'general-taxes-overview' });
+      },
+
+      async save() {
+        try {
+          await this.$refs.taxForm.validate();
+        } catch (e) {
+          return;
+        }
+
+        const taxToPush = {
+          title: this.tax.title,
+          description: this.tax.description,
+          rateInBps: this.tax.rateInBps,
+        };
+
+        if (this.tax.id) {
+          await api.put(`/workspaces/${this.workspace.id}/general-taxes/${this.tax.id}`, taxToPush);
+        } else {
+          await api.post(`/workspaces/${this.workspace.id}/general-taxes`, taxToPush);
+        }
+        await this.$router.push({ name: 'general-taxes-overview' });
+      },
+    },
+  };
 </script>

@@ -30,25 +30,25 @@
 </template>
 
 <script>
-import DataItems from '@/components/DataItems';
-import CustomerOverviewPanel from './CustomerOverviewPanel';
-import '@/components/icons/plus-thin';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import DataItems from '@/components/DataItems';
+  import CustomerOverviewPanel from './CustomerOverviewPanel';
+  import '@/components/icons/plus-thin';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
 
-export default {
-  name: 'CustomersOverview',
+  export default {
+    name: 'CustomersOverview',
 
-  components: {
-    DataItems,
-    CustomerOverviewPanel,
-  },
-
-  mixins: [withWorkspaces],
-
-  methods: {
-    navigateToCreateCustomerView() {
-      this.$router.push({ name: 'create-new-customer' });
+    components: {
+      DataItems,
+      CustomerOverviewPanel,
     },
-  },
-};
+
+    mixins: [withWorkspaces],
+
+    methods: {
+      navigateToCreateCustomerView() {
+        this.$router.push({ name: 'create-new-customer' });
+      },
+    },
+  };
 </script>

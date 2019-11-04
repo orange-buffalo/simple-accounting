@@ -218,166 +218,166 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { assign, isNil } from 'lodash';
-import api from '@/services/api';
-import DocumentsUpload from '@/components/DocumentsUpload';
-import CurrencyInput from '@/components/CurrencyInput';
-import MoneyInput from '@/components/MoneyInput';
-import { UploadsInfo } from '@/components/uploads-info';
-import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-import withMediumDateTimeFormatter from '@/components/mixins/with-medium-datetime-formatter';
-import { withCustomers } from '@/components/mixins/with-customers';
-import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
-import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import { mapState } from 'vuex';
+  import { assign, isNil } from 'lodash';
+  import api from '@/services/api';
+  import DocumentsUpload from '@/components/DocumentsUpload';
+  import CurrencyInput from '@/components/CurrencyInput';
+  import MoneyInput from '@/components/MoneyInput';
+  import { UploadsInfo } from '@/components/uploads-info';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import withMediumDateTimeFormatter from '@/components/mixins/with-medium-datetime-formatter';
+  import { withCustomers } from '@/components/mixins/with-customers';
+  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
-export default {
-  name: 'EditInvoice',
+  export default {
+    name: 'EditInvoice',
 
-  components: {
-    DocumentsUpload,
-    CurrencyInput,
-    MoneyInput,
-    SaMarkdownOutput,
-  },
-
-  mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withGeneralTaxes],
-
-  data() {
-    return {
-      invoice: {
-        customer: null,
-        title: null,
-        currency: null,
-        amount: null,
-        attachments: [],
-        notes: null,
-        dateIssued: new Date(),
-        dueDate: null,
-        datePaid: null,
-        dateSent: null,
-        uploads: new UploadsInfo(),
-        generalTax: null,
-      },
-      invoiceValidationRules: {
-        customer: { required: true, message: 'Please select a customer' },
-        currency: { required: true, message: 'Please select a currency' },
-        title: { required: true, message: 'Please provide the title' },
-        amount: { required: true, message: 'Please provide invoice amount' },
-        dateIssued: { required: true, message: 'Please provide the date when invoice is issued' },
-        dueDate: { required: true, message: 'Please provide the date when invoice is due' },
-        dateSent: { required: true, message: 'Please provide the date when invoice is sent' },
-        datePaid: { required: true, message: 'Please provide the date when invoice is paid' },
-      },
-      alreadySent: false,
-      alreadyPaid: false,
-    };
-  },
-
-  async created() {
-    if (this.isEditing) {
-      const invoiceResponse = await api.get(`/workspaces/${this.workspace.id}/invoices/${this.$route.params.id}`);
-      this.invoice = assign({}, this.invoice, invoiceResponse.data);
-      this.alreadyPaid = !isNil(this.invoice.datePaid);
-      this.alreadySent = !isNil(this.invoice.dateSent);
-
-      if (this.invoice.attachments && this.invoice.attachments.length) {
-        const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
-          .eager()
-          .eqFilter('id', this.invoice.attachments)
-          .getPageData();
-        attachments.forEach(attachment => this.invoice.uploads.add(attachment));
-      }
-    }
-  },
-
-  computed: {
-    ...mapState('workspaces', {
-      workspace: 'currentWorkspace',
-    }),
-
-    pageHeader() {
-      return this.isEditing ? 'Edit Invoice' : 'Create New Invoice';
+    components: {
+      DocumentsUpload,
+      CurrencyInput,
+      MoneyInput,
+      SaMarkdownOutput,
     },
 
-    isEditing() {
-      return !isNil(this.$route.params.id);
-    },
+    mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withGeneralTaxes],
 
-    timeRecorded() {
-      return this.invoice.timeRecorded ? this.mediumDateTimeFormatter(new Date(this.invoice.timeRecorded)) : '';
-    },
-
-    dateCancelled() {
-      return this.invoice.dateCancelled ? this.mediumDateFormatter(new Date(this.invoice.dateCancelled)) : '';
-    },
-  },
-
-  methods: {
-    navigateToInvoicesOverview() {
-      this.$router.push({ name: 'invoices-overview' });
-    },
-
-    async save() {
-      try {
-        await this.$refs.invoiceForm.validate();
-      } catch (e) {
-        return;
-      }
-
-      try {
-        await this.$refs.documentsUpload.submitUploads();
-      } catch (e) {
-        this.$message({
-          showClose: true,
-          message: 'Upload failed',
-          type: 'error',
-        });
-        return;
-      }
-
-      this.pushInvoice();
-    },
-
-    async cancelInvoice() {
-      try {
-        await this.$confirm('This will permanently cancel this invoice. Continue?', 'Warning', {
-          confirmButtonText: 'Yes',
-          cancelButtonText: 'No',
-          type: 'warning',
-        });
-      } catch (e) {
-        return;
-      }
-
-      this.invoice.dateCancelled = api.dateToString(new Date());
-      this.pushInvoice();
-    },
-
-    async pushInvoice() {
-      const invoiceToPush = {
-        customer: this.invoice.customer,
-        dateIssued: this.invoice.dateIssued,
-        datePaid: this.alreadyPaid ? this.invoice.datePaid : null,
-        dateSent: this.alreadySent ? this.invoice.dateSent : null,
-        dateCancelled: this.invoice.dateCancelled,
-        dueDate: this.invoice.dueDate,
-        title: this.invoice.title,
-        currency: this.invoice.currency,
-        amount: this.invoice.amount,
-        attachments: this.invoice.uploads.getDocumentsIds(),
-        notes: this.invoice.notes,
-        generalTax: this.invoice.generalTax,
+    data() {
+      return {
+        invoice: {
+          customer: null,
+          title: null,
+          currency: null,
+          amount: null,
+          attachments: [],
+          notes: null,
+          dateIssued: new Date(),
+          dueDate: null,
+          datePaid: null,
+          dateSent: null,
+          uploads: new UploadsInfo(),
+          generalTax: null,
+        },
+        invoiceValidationRules: {
+          customer: { required: true, message: 'Please select a customer' },
+          currency: { required: true, message: 'Please select a currency' },
+          title: { required: true, message: 'Please provide the title' },
+          amount: { required: true, message: 'Please provide invoice amount' },
+          dateIssued: { required: true, message: 'Please provide the date when invoice is issued' },
+          dueDate: { required: true, message: 'Please provide the date when invoice is due' },
+          dateSent: { required: true, message: 'Please provide the date when invoice is sent' },
+          datePaid: { required: true, message: 'Please provide the date when invoice is paid' },
+        },
+        alreadySent: false,
+        alreadyPaid: false,
       };
-
-      if (this.isEditing) {
-        await api.put(`/workspaces/${this.workspace.id}/invoices/${this.invoice.id}`, invoiceToPush);
-      } else {
-        await api.post(`/workspaces/${this.workspace.id}/invoices`, invoiceToPush);
-      }
-
-      this.$router.push({ name: 'invoices-overview' });
     },
-  },
-};
+
+    async created() {
+      if (this.isEditing) {
+        const invoiceResponse = await api.get(`/workspaces/${this.workspace.id}/invoices/${this.$route.params.id}`);
+        this.invoice = assign({}, this.invoice, invoiceResponse.data);
+        this.alreadyPaid = !isNil(this.invoice.datePaid);
+        this.alreadySent = !isNil(this.invoice.dateSent);
+
+        if (this.invoice.attachments && this.invoice.attachments.length) {
+          const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
+            .eager()
+            .eqFilter('id', this.invoice.attachments)
+            .getPageData();
+          attachments.forEach(attachment => this.invoice.uploads.add(attachment));
+        }
+      }
+    },
+
+    computed: {
+      ...mapState('workspaces', {
+        workspace: 'currentWorkspace',
+      }),
+
+      pageHeader() {
+        return this.isEditing ? 'Edit Invoice' : 'Create New Invoice';
+      },
+
+      isEditing() {
+        return !isNil(this.$route.params.id);
+      },
+
+      timeRecorded() {
+        return this.invoice.timeRecorded ? this.mediumDateTimeFormatter(new Date(this.invoice.timeRecorded)) : '';
+      },
+
+      dateCancelled() {
+        return this.invoice.dateCancelled ? this.mediumDateFormatter(new Date(this.invoice.dateCancelled)) : '';
+      },
+    },
+
+    methods: {
+      navigateToInvoicesOverview() {
+        this.$router.push({ name: 'invoices-overview' });
+      },
+
+      async save() {
+        try {
+          await this.$refs.invoiceForm.validate();
+        } catch (e) {
+          return;
+        }
+
+        try {
+          await this.$refs.documentsUpload.submitUploads();
+        } catch (e) {
+          this.$message({
+            showClose: true,
+            message: 'Upload failed',
+            type: 'error',
+          });
+          return;
+        }
+
+        this.pushInvoice();
+      },
+
+      async cancelInvoice() {
+        try {
+          await this.$confirm('This will permanently cancel this invoice. Continue?', 'Warning', {
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            type: 'warning',
+          });
+        } catch (e) {
+          return;
+        }
+
+        this.invoice.dateCancelled = api.dateToString(new Date());
+        this.pushInvoice();
+      },
+
+      async pushInvoice() {
+        const invoiceToPush = {
+          customer: this.invoice.customer,
+          dateIssued: this.invoice.dateIssued,
+          datePaid: this.alreadyPaid ? this.invoice.datePaid : null,
+          dateSent: this.alreadySent ? this.invoice.dateSent : null,
+          dateCancelled: this.invoice.dateCancelled,
+          dueDate: this.invoice.dueDate,
+          title: this.invoice.title,
+          currency: this.invoice.currency,
+          amount: this.invoice.amount,
+          attachments: this.invoice.uploads.getDocumentsIds(),
+          notes: this.invoice.notes,
+          generalTax: this.invoice.generalTax,
+        };
+
+        if (this.isEditing) {
+          await api.put(`/workspaces/${this.workspace.id}/invoices/${this.invoice.id}`, invoiceToPush);
+        } else {
+          await api.post(`/workspaces/${this.workspace.id}/invoices`, invoiceToPush);
+        }
+
+        this.$router.push({ name: 'invoices-overview' });
+      },
+    },
+  };
 </script>

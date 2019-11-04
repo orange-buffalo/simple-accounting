@@ -54,20 +54,20 @@
 </template>
 
 <script>
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import MoneyOutput from '@/components/MoneyOutput';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import MoneyOutput from '@/components/MoneyOutput';
 
-export default {
-  name: 'TheGeneralTaxReportTable',
+  export default {
+    name: 'TheGeneralTaxReportTable',
 
-  components: {
-    MoneyOutput,
-  },
+    components: {
+      MoneyOutput,
+    },
 
-  mixins: [withWorkspaces],
+    mixins: [withWorkspaces],
 
-  props: {
-    data: {},
-  },
-};
+    props: {
+      data: {},
+    },
+  };
 </script>

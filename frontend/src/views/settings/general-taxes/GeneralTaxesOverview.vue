@@ -29,26 +29,26 @@
 </template>
 
 <script>
-import DataItems from '@/components/DataItems';
-import GeneralTaxOverviewPanel from './GeneralTaxOverviewPanel';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import SaIcon from '@/components/SaIcon';
+  import DataItems from '@/components/DataItems';
+  import GeneralTaxOverviewPanel from './GeneralTaxOverviewPanel';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import SaIcon from '@/components/SaIcon';
 
-export default {
-  name: 'GeneralTaxesOverview',
+  export default {
+    name: 'GeneralTaxesOverview',
 
-  components: {
-    SaIcon,
-    DataItems,
-    GeneralTaxOverviewPanel,
-  },
-
-  mixins: [withWorkspaces],
-
-  methods: {
-    navigateToCreateTaxView() {
-      this.$router.push({ name: 'create-new-general-tax' });
+    components: {
+      SaIcon,
+      DataItems,
+      GeneralTaxOverviewPanel,
     },
-  },
-};
+
+    mixins: [withWorkspaces],
+
+    methods: {
+      navigateToCreateTaxView() {
+        this.$router.push({ name: 'create-new-general-tax' });
+      },
+    },
+  };
 </script>

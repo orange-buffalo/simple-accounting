@@ -11,13 +11,13 @@
 
 <script>
 
-export default {
-  name: 'SaAttributeValue',
+  export default {
+    name: 'SaAttributeValue',
 
-  props: {
-    label: String,
-  },
-};
+    props: {
+      label: String,
+    },
+  };
 </script>
 
 <style lang="scss">

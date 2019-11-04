@@ -205,138 +205,138 @@
 </template>
 
 <script>
-import isNil from 'lodash/isNil';
-import { api } from '@/services/api';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import { withCategories } from '@/components/mixins/with-categories';
-import MoneyOutput from '@/components/MoneyOutput';
-import { lockr } from '@/services/app-services';
-import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-import { withCustomers } from '@/components/mixins/with-customers';
-import SaIcon from '@/components/SaIcon';
+  import isNil from 'lodash/isNil';
+  import { api } from '@/services/api';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import { withCategories } from '@/components/mixins/with-categories';
+  import MoneyOutput from '@/components/MoneyOutput';
+  import { lockr } from '@/services/app-services';
+  import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
+  import { withCustomers } from '@/components/mixins/with-customers';
+  import SaIcon from '@/components/SaIcon';
 
-const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range';
+  const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range';
 
-export default {
-  name: 'Dashboard',
+  export default {
+    name: 'Dashboard',
 
-  components: { SaIcon, MoneyOutput },
+    components: { SaIcon, MoneyOutput },
 
-  mixins: [withWorkspaces, withCategories, withMediumDateFormatter, withCustomers],
+    mixins: [withWorkspaces, withCategories, withMediumDateFormatter, withCustomers],
 
-  data() {
-    return {
-      expenses: {},
-      incomes: {},
-      incomeTaxPayments: {},
-      selectedDateRange: [],
-      pendingInvoices: [],
-    };
-  },
-
-  computed: {
-    expensesItems() {
-      return (this.expenses.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
-    },
-
-    incomesItems() {
-      return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
-    },
-
-    taxableAmount() {
-      return (!isNil(this.expenses.totalAmount) && !isNil(this.incomes.totalAmount))
-        ? this.incomes.totalAmount - this.expenses.totalAmount
-        : null;
-    },
-
-    profitDetailsVisible() {
-      return this.totalProfit !== null;
-    },
-
-    totalProfit() {
-      const taxPayments = this.incomeTaxPayments.totalTaxPayments || 0;
-      return (this.taxableAmount && this.incomes.currencyExchangeGain)
-        ? this.taxableAmount + this.incomes.currencyExchangeGain - taxPayments
-        : null;
-    },
-
-    invoiceStatus() {
-      return (invoice) => {
-        if (invoice.status === 'OVERDUE') {
-          return 'Overdue';
-        }
-        return 'Pending';
+    data() {
+      return {
+        expenses: {},
+        incomes: {},
+        incomeTaxPayments: {},
+        selectedDateRange: [],
+        pendingInvoices: [],
       };
     },
 
-    invoiceDateIssued() {
-      return invoice => this.mediumDateFormatter(new Date(invoice.dateIssued));
+    computed: {
+      expensesItems() {
+        return (this.expenses.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
+      },
+
+      incomesItems() {
+        return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
+      },
+
+      taxableAmount() {
+        return (!isNil(this.expenses.totalAmount) && !isNil(this.incomes.totalAmount))
+          ? this.incomes.totalAmount - this.expenses.totalAmount
+          : null;
+      },
+
+      profitDetailsVisible() {
+        return this.totalProfit !== null;
+      },
+
+      totalProfit() {
+        const taxPayments = this.incomeTaxPayments.totalTaxPayments || 0;
+        return (this.taxableAmount && this.incomes.currencyExchangeGain)
+          ? this.taxableAmount + this.incomes.currencyExchangeGain - taxPayments
+          : null;
+      },
+
+      invoiceStatus() {
+        return (invoice) => {
+          if (invoice.status === 'OVERDUE') {
+            return 'Overdue';
+          }
+          return 'Pending';
+        };
+      },
+
+      invoiceDateIssued() {
+        return invoice => this.mediumDateFormatter(new Date(invoice.dateIssued));
+      },
+
+      invoiceDueDate() {
+        return invoice => this.mediumDateFormatter(new Date(invoice.dueDate));
+      },
+
+      invoiceDateSent() {
+        return invoice => this.mediumDateFormatter(new Date(invoice.dateSent));
+      },
+
+      invoiceCustomerName() {
+        return invoice => this.customerById(invoice.customer).name;
+      },
     },
 
-    invoiceDueDate() {
-      return invoice => this.mediumDateFormatter(new Date(invoice.dueDate));
+    watch: {
+      currentWorkspace() {
+        this.reload();
+      },
+
+      selectedDateRange() {
+        lockr.set(SELECTED_DATE_RANGE_KEY, this.selectedDateRange);
+        this.reload();
+      },
     },
 
-    invoiceDateSent() {
-      return invoice => this.mediumDateFormatter(new Date(invoice.dateSent));
-    },
+    created() {
+      const selectedDateRange = lockr.get(SELECTED_DATE_RANGE_KEY);
+      if (isNil(selectedDateRange)) {
+        const now = new Date();
+        this.selectedDateRange = [
+          new Date(now.getFullYear(), 0, 1),
+          now,
+        ];
+      } else {
+        this.selectedDateRange = selectedDateRange.map(it => new Date(it));
+      }
 
-    invoiceCustomerName() {
-      return invoice => this.customerById(invoice.customer).name;
-    },
-  },
-
-  watch: {
-    currentWorkspace() {
       this.reload();
     },
 
-    selectedDateRange() {
-      lockr.set(SELECTED_DATE_RANGE_KEY, this.selectedDateRange);
-      this.reload();
+    methods: {
+      reload() {
+        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/expenses`
+          + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
+          + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
+          .then(response => this.expenses = response.data);
+
+        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/incomes`
+          + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
+          + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
+          .then(response => this.incomes = response.data);
+
+        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/income-tax-payments`
+          + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
+          + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
+          .then(response => this.incomeTaxPayments = response.data);
+
+        api.pageRequest(`/workspaces/${this.currentWorkspace.id}/invoices`)
+          .eager()
+          .eqFilter('status', ['SENT', 'OVERDUE'])
+          .getPageData()
+          .then(invoices => this.pendingInvoices = invoices);
+      },
     },
-  },
-
-  created() {
-    const selectedDateRange = lockr.get(SELECTED_DATE_RANGE_KEY);
-    if (isNil(selectedDateRange)) {
-      const now = new Date();
-      this.selectedDateRange = [
-        new Date(now.getFullYear(), 0, 1),
-        now,
-      ];
-    } else {
-      this.selectedDateRange = selectedDateRange.map(it => new Date(it));
-    }
-
-    this.reload();
-  },
-
-  methods: {
-    reload() {
-      api.get(`/workspaces/${this.currentWorkspace.id}/statistics/expenses`
-            + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
-            + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-        .then(response => this.expenses = response.data);
-
-      api.get(`/workspaces/${this.currentWorkspace.id}/statistics/incomes`
-            + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
-            + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-        .then(response => this.incomes = response.data);
-
-      api.get(`/workspaces/${this.currentWorkspace.id}/statistics/income-tax-payments`
-            + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
-            + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-        .then(response => this.incomeTaxPayments = response.data);
-
-      api.pageRequest(`/workspaces/${this.currentWorkspace.id}/invoices`)
-        .eager()
-        .eqFilter('status', ['SENT', 'OVERDUE'])
-        .getPageData()
-        .then(invoices => this.pendingInvoices = invoices);
-    },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

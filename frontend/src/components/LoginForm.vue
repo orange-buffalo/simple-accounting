@@ -52,61 +52,61 @@
 
 <script>
 
-import api from '@/services/api';
-import '@/components/icons/login';
-import '@/components/icons/password';
+  import api from '@/services/api';
+  import '@/components/icons/login';
+  import '@/components/icons/password';
 
-export default {
-  name: 'LoginForm',
+  export default {
+    name: 'LoginForm',
 
-  data() {
-    return {
-      form: {
-        userName: '',
-        password: '',
-        rememberMe: true,
+    data() {
+      return {
+        form: {
+          userName: '',
+          password: '',
+          rememberMe: true,
+        },
+      };
+    },
+
+    computed: {
+      loginEnabled() {
+        return this.form.userName && this.form.password;
       },
-    };
-  },
-
-  computed: {
-    loginEnabled() {
-      return this.form.userName && this.form.password;
     },
-  },
 
-  async created() {
-    if (await api.tryAutoLogin()) {
-      this.$emit('login');
-    }
-  },
+    async created() {
+      if (await api.tryAutoLogin()) {
+        this.$emit('login');
+      }
+    },
 
-  methods: {
-    login() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          api
-            .login({
-              userName: this.form.userName,
-              password: this.form.password,
-              rememberMe: this.form.rememberMe,
-            })
-            .then(() => {
-              this.$emit('login');
-            })
-            .catch(() => {
-              this.$refs.form.clearValidate();
-              this.$message({
-                showClose: true,
-                message: 'Login failed',
-                type: 'error',
+    methods: {
+      login() {
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            api
+              .login({
+                userName: this.form.userName,
+                password: this.form.password,
+                rememberMe: this.form.rememberMe,
+              })
+              .then(() => {
+                this.$emit('login');
+              })
+              .catch(() => {
+                this.$refs.form.clearValidate();
+                this.$message({
+                  showClose: true,
+                  message: 'Login failed',
+                  type: 'error',
+                });
               });
-            });
-        }
-      });
+          }
+        });
+      },
     },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

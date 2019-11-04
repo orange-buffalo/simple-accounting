@@ -10,16 +10,16 @@
 </template>
 
 <script>
-export default {
-  name: 'OverviewItemDetailsSectionAttribute',
+  export default {
+    name: 'OverviewItemDetailsSectionAttribute',
 
-  props: {
-    label: {
-      type: String,
-      required: true,
+    props: {
+      label: {
+        type: String,
+        required: true,
+      },
     },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

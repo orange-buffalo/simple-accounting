@@ -234,196 +234,196 @@
 </template>
 
 <script>
-import MoneyOutput from '@/components/MoneyOutput';
-import DocumentLink from '@/components/DocumentLink';
-import { withCategories } from '@/components/mixins/with-categories';
-import { withCustomers } from '@/components/mixins/with-customers';
-import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import api from '@/services/api';
-import { loadDocuments } from '@/services/app-services';
-import OverviewItem from '@/components/overview-item/OverviewItem';
-import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
-import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
-import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
-import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
-import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
-import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
-import SaActionLink from '@/components/SaActionLink';
-import SaIcon from '@/components/SaIcon';
-import SaMarkdownOutput from '@/components/SaMarkdownOutput';
-import SaStatusLabel from '@/components/SaStatusLabel';
+  import MoneyOutput from '@/components/MoneyOutput';
+  import DocumentLink from '@/components/DocumentLink';
+  import { withCategories } from '@/components/mixins/with-categories';
+  import { withCustomers } from '@/components/mixins/with-customers';
+  import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
+  import { withGeneralTaxes } from '@/components/mixins/with-general-taxes';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import api from '@/services/api';
+  import { loadDocuments } from '@/services/app-services';
+  import OverviewItem from '@/components/overview-item/OverviewItem';
+  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
+  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
+  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
+  import SaActionLink from '@/components/SaActionLink';
+  import SaIcon from '@/components/SaIcon';
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import SaStatusLabel from '@/components/SaStatusLabel';
 
-export default {
-  name: 'InvoiceOverviewPanel',
+  export default {
+    name: 'InvoiceOverviewPanel',
 
-  components: {
-    MoneyOutput,
-    DocumentLink,
-    OverviewItem,
-    SaIcon,
-    OverviewItemAttributePreviewIcon,
-    OverviewItemPrimaryAttribute,
-    OverviewItemDetailsSection,
-    OverviewItemDetailsSectionAttribute,
-    SaActionLink,
-    OverviewItemDetailsSectionActions,
-    OverviewItemAmountPanel,
-    SaStatusLabel,
-    SaMarkdownOutput,
-  },
-
-  mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
-
-  props: {
-    invoice: {
-      type: Object,
-      required: true,
-    },
-  },
-
-  data() {
-    return {
-      notesVisible: false,
-      attachmentsVisible: false,
-      attachments: [],
-    };
-  },
-
-  computed: {
-    isDraft() {
-      return this.invoice.status === 'DRAFT';
+    components: {
+      MoneyOutput,
+      DocumentLink,
+      OverviewItem,
+      SaIcon,
+      OverviewItemAttributePreviewIcon,
+      OverviewItemPrimaryAttribute,
+      OverviewItemDetailsSection,
+      OverviewItemDetailsSectionAttribute,
+      SaActionLink,
+      OverviewItemDetailsSectionActions,
+      OverviewItemAmountPanel,
+      SaStatusLabel,
+      SaMarkdownOutput,
     },
 
-    isPaid() {
-      return this.invoice.status === 'PAID';
+    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
+
+    props: {
+      invoice: {
+        type: Object,
+        required: true,
+      },
     },
 
-    isCancelled() {
-      return this.invoice.status === 'CANCELLED';
+    data() {
+      return {
+        notesVisible: false,
+        attachmentsVisible: false,
+        attachments: [],
+      };
     },
 
-    isSent() {
-      return this.invoice.status === 'SENT';
+    computed: {
+      isDraft() {
+        return this.invoice.status === 'DRAFT';
+      },
+
+      isPaid() {
+        return this.invoice.status === 'PAID';
+      },
+
+      isCancelled() {
+        return this.invoice.status === 'CANCELLED';
+      },
+
+      isSent() {
+        return this.invoice.status === 'SENT';
+      },
+
+      isOverdue() {
+        return this.invoice.status === 'OVERDUE';
+      },
+
+      isForeignCurrency() {
+        return this.invoice.currency !== this.defaultCurrency;
+      },
+
+      status() {
+        if (this.isPaid) {
+          return 'success';
+        } if (this.isDraft) {
+          return 'regular';
+        } if (this.isCancelled) {
+          return 'regular';
+        } if (this.isSent) {
+          return 'pending';
+        } if (this.isOverdue) {
+          return 'failure';
+        }
+      },
+
+      statusIcon() {
+        if (this.isDraft) {
+          return 'draft';
+        } if (this.isCancelled) {
+          return 'cancel';
+        }
+        return null;
+      },
+
+      statusText() {
+        if (this.isPaid) {
+          return 'Finalized';
+        } if (this.isDraft) {
+          return 'Draft';
+        } if (this.isCancelled) {
+          return 'Cancelled';
+        } if (this.isSent) {
+          return 'Sent';
+        } if (this.isOverdue) {
+          return 'Overdue';
+        }
+      },
+
+      isGeneralTaxApplicable() {
+        return this.invoice.generalTax && this.generalTaxTitle;
+      },
+
+      generalTaxTitle() {
+        return this.generalTaxById(this.invoice.generalTax).title;
+      },
+
+      dateIssued() {
+        return this.mediumDateFormatter(new Date(this.invoice.dateIssued));
+      },
+
+      dueDate() {
+        return this.mediumDateFormatter(new Date(this.invoice.dueDate));
+      },
+
+      dateSent() {
+        return this.invoice.dateSent
+          ? this.mediumDateFormatter(new Date(this.invoice.dateSent))
+          : null;
+      },
+
+      datePaid() {
+        return this.invoice.datePaid
+          ? this.mediumDateFormatter(new Date(this.invoice.datePaid))
+          : null;
+      },
+
+      dateCancelled() {
+        return this.invoice.dateCancelled
+          ? this.mediumDateFormatter(new Date(this.invoice.dateCancelled))
+          : null;
+      },
+
+      customer() {
+        return this.customerById(this.invoice.customer);
+      },
     },
 
-    isOverdue() {
-      return this.invoice.status === 'OVERDUE';
+    methods: {
+      async loadAttachments() {
+        if (this.invoice.attachments.length && !this.attachments.length) {
+          this.attachments = await loadDocuments(
+            this.attachments,
+            this.invoice.attachments,
+            this.currentWorkspace.id,
+          );
+        }
+      },
+
+      navigateToInvoiceEdit() {
+        this.$router.push({ name: 'edit-invoice', params: { id: this.invoice.id } });
+      },
+
+      async markSent() {
+        this.invoice.dateSent = api.dateToString(new Date());
+        await api.put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice);
+        this.$emit('invoice-update');
+      },
+
+      async markPaid() {
+        this.invoice.datePaid = api.dateToString(new Date());
+
+        const invoiceResponse = await api
+          .put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice);
+
+        await this.$router.push({
+          name: 'edit-income',
+          params: { id: invoiceResponse.data.income },
+        });
+      },
     },
-
-    isForeignCurrency() {
-      return this.invoice.currency !== this.defaultCurrency;
-    },
-
-    status() {
-      if (this.isPaid) {
-        return 'success';
-      } if (this.isDraft) {
-        return 'regular';
-      } if (this.isCancelled) {
-        return 'regular';
-      } if (this.isSent) {
-        return 'pending';
-      } if (this.isOverdue) {
-        return 'failure';
-      }
-    },
-
-    statusIcon() {
-      if (this.isDraft) {
-        return 'draft';
-      } if (this.isCancelled) {
-        return 'cancel';
-      }
-      return null;
-    },
-
-    statusText() {
-      if (this.isPaid) {
-        return 'Finalized';
-      } if (this.isDraft) {
-        return 'Draft';
-      } if (this.isCancelled) {
-        return 'Cancelled';
-      } if (this.isSent) {
-        return 'Sent';
-      } if (this.isOverdue) {
-        return 'Overdue';
-      }
-    },
-
-    isGeneralTaxApplicable() {
-      return this.invoice.generalTax && this.generalTaxTitle;
-    },
-
-    generalTaxTitle() {
-      return this.generalTaxById(this.invoice.generalTax).title;
-    },
-
-    dateIssued() {
-      return this.mediumDateFormatter(new Date(this.invoice.dateIssued));
-    },
-
-    dueDate() {
-      return this.mediumDateFormatter(new Date(this.invoice.dueDate));
-    },
-
-    dateSent() {
-      return this.invoice.dateSent
-        ? this.mediumDateFormatter(new Date(this.invoice.dateSent))
-        : null;
-    },
-
-    datePaid() {
-      return this.invoice.datePaid
-        ? this.mediumDateFormatter(new Date(this.invoice.datePaid))
-        : null;
-    },
-
-    dateCancelled() {
-      return this.invoice.dateCancelled
-        ? this.mediumDateFormatter(new Date(this.invoice.dateCancelled))
-        : null;
-    },
-
-    customer() {
-      return this.customerById(this.invoice.customer);
-    },
-  },
-
-  methods: {
-    async loadAttachments() {
-      if (this.invoice.attachments.length && !this.attachments.length) {
-        this.attachments = await loadDocuments(
-          this.attachments,
-          this.invoice.attachments,
-          this.currentWorkspace.id,
-        );
-      }
-    },
-
-    navigateToInvoiceEdit() {
-      this.$router.push({ name: 'edit-invoice', params: { id: this.invoice.id } });
-    },
-
-    async markSent() {
-      this.invoice.dateSent = api.dateToString(new Date());
-      await api.put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice);
-      this.$emit('invoice-update');
-    },
-
-    async markPaid() {
-      this.invoice.datePaid = api.dateToString(new Date());
-
-      const invoiceResponse = await api
-        .put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice);
-
-      await this.$router.push({
-        name: 'edit-income',
-        params: { id: invoiceResponse.data.income },
-      });
-    },
-  },
-};
+  };
 </script>

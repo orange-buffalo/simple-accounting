@@ -8,26 +8,26 @@
 </template>
 
 <script>
-import MoneyOutput from '@/components/MoneyOutput';
+  import MoneyOutput from '@/components/MoneyOutput';
 
-export default {
-  name: 'OverviewItemAmountPanel',
+  export default {
+    name: 'OverviewItemAmountPanel',
 
-  components: {
-    MoneyOutput,
-  },
-
-  props: {
-    currency: {
-      type: String,
-      required: true,
+    components: {
+      MoneyOutput,
     },
-    amount: {
-      type: Number,
-      required: true,
+
+    props: {
+      currency: {
+        type: String,
+        required: true,
+      },
+      amount: {
+        type: Number,
+        required: true,
+      },
     },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

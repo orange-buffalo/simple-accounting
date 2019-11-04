@@ -40,49 +40,49 @@
 </template>
 
 <script>
-import '@/components/icons/plus-thin';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
-import { api } from '@/services/api';
+  import '@/components/icons/plus-thin';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
+  import { api } from '@/services/api';
 
-export default {
-  name: 'TheWorkspacesOverview',
+  export default {
+    name: 'TheWorkspacesOverview',
 
-  components: {
-    TheWorkspacesOverviewItemPanel,
-  },
-
-  mixins: [withWorkspaces],
-
-  data() {
-    return {
-      sharedWorkspaces: [],
-    };
-  },
-
-  computed: {
-    ownOtherWorkspaces() {
-      return this.workspaces.filter(it => it.id !== this.currentWorkspace.id);
+    components: {
+      TheWorkspacesOverviewItemPanel,
     },
 
-    hasOtherOwnWorkspaces() {
-      return this.ownOtherWorkspaces.length;
+    mixins: [withWorkspaces],
+
+    data() {
+      return {
+        sharedWorkspaces: [],
+      };
     },
 
-    hasSharedWorkspaces() {
-      return this.sharedWorkspaces.length;
-    },
-  },
+    computed: {
+      ownOtherWorkspaces() {
+        return this.workspaces.filter(it => it.id !== this.currentWorkspace.id);
+      },
 
-  async created() {
-    const sharedWorkspacesResponse = await api.get('/shared-workspaces');
-    this.sharedWorkspaces = sharedWorkspacesResponse.data;
-  },
+      hasOtherOwnWorkspaces() {
+        return this.ownOtherWorkspaces.length;
+      },
 
-  methods: {
-    navigateToCreateWorkspace() {
-      this.$router.push({ name: 'create-new-workspace' });
+      hasSharedWorkspaces() {
+        return this.sharedWorkspaces.length;
+      },
     },
-  },
-};
+
+    async created() {
+      const sharedWorkspacesResponse = await api.get('/shared-workspaces');
+      this.sharedWorkspaces = sharedWorkspacesResponse.data;
+    },
+
+    methods: {
+      navigateToCreateWorkspace() {
+        this.$router.push({ name: 'create-new-workspace' });
+      },
+    },
+  };
 </script>

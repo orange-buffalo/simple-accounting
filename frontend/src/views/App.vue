@@ -13,13 +13,13 @@
 </template>
 
 <script>
-import TheSideMenu from '@/components/TheSideMenu';
+  import TheSideMenu from '@/components/TheSideMenu';
 
-export default {
-  name: 'UserApp',
+  export default {
+    name: 'UserApp',
 
-  components: { TheSideMenu },
-};
+    components: { TheSideMenu },
+  };
 </script>
 
 

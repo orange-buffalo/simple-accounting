@@ -90,35 +90,35 @@
 </template>
 
 <script>
-import TheSideMenuLink from '@/components/TheSideMenuLink';
-import '@/components/icons/reporting';
-import '@/components/icons/dashboard';
-import '@/components/icons/expense';
-import '@/components/icons/income';
-import '@/components/icons/invoice';
-import '@/components/icons/tax';
-import '@/components/icons/customer';
-import '@/components/icons/category';
-import '@/components/icons/workspaces';
-import withWorkspaces from '@/components/mixins/with-workspaces';
-import { mapState } from 'vuex';
-import withApi from '@/components/mixins/with-api';
+  import TheSideMenuLink from '@/components/TheSideMenuLink';
+  import '@/components/icons/reporting';
+  import '@/components/icons/dashboard';
+  import '@/components/icons/expense';
+  import '@/components/icons/income';
+  import '@/components/icons/invoice';
+  import '@/components/icons/tax';
+  import '@/components/icons/customer';
+  import '@/components/icons/category';
+  import '@/components/icons/workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { mapState } from 'vuex';
+  import withApi from '@/components/mixins/with-api';
 
-export default {
-  name: 'TheSideMenu',
+  export default {
+    name: 'TheSideMenu',
 
-  mixins: [withWorkspaces, withApi],
+    mixins: [withWorkspaces, withApi],
 
-  computed: {
-    ...mapState({
-      isUser: state => !state.api.isAdmin,
-    }),
-  },
+    computed: {
+      ...mapState({
+        isUser: state => !state.api.isAdmin,
+      }),
+    },
 
-  components: {
-    TheSideMenuLink,
-  },
-};
+    components: {
+      TheSideMenuLink,
+    },
+  };
 </script>
 
 <style lang="scss">

@@ -46,57 +46,57 @@
 
 <script>
 
-import { mapActions } from 'vuex';
-import api from '@/services/api';
+  import { mapActions } from 'vuex';
+  import api from '@/services/api';
 
-export default {
-  name: 'WorkspaceSetup',
+  export default {
+    name: 'WorkspaceSetup',
 
-  data() {
-    return {
-      form: {
-        name: '',
-        taxEnabled: false,
-        multiCurrencyEnabled: false,
-        defaultCurrency: 'AUD',
-      },
-      formValidationRules: {
-        name: [
-          { required: true, message: 'Please input name', trigger: 'blur' },
-        ],
-        defaultCurrency: [
-          { required: true, message: 'Please input currency', trigger: 'blur' },
-        ],
-      },
-    };
-  },
-
-  methods: {
-    save() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          api
-            .post('/workspaces', this.form)
-            .then((response) => {
-              console.log(response);
-              this.createWorkspace(response.data);
-              this.$router.push('/');
-            })
-            .catch(() => {
-              this.$refs.form.clearValidate();
-              this.$message({
-                showClose: true,
-                message: 'Sorry, failed',
-                type: 'error',
-              });
-            });
-        }
-      });
+    data() {
+      return {
+        form: {
+          name: '',
+          taxEnabled: false,
+          multiCurrencyEnabled: false,
+          defaultCurrency: 'AUD',
+        },
+        formValidationRules: {
+          name: [
+            { required: true, message: 'Please input name', trigger: 'blur' },
+          ],
+          defaultCurrency: [
+            { required: true, message: 'Please input currency', trigger: 'blur' },
+          ],
+        },
+      };
     },
 
-    ...mapActions({
-      createWorkspace: 'workspaces/createWorkspace',
-    }),
-  },
-};
+    methods: {
+      save() {
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            api
+              .post('/workspaces', this.form)
+              .then((response) => {
+                console.log(response);
+                this.createWorkspace(response.data);
+                this.$router.push('/');
+              })
+              .catch(() => {
+                this.$refs.form.clearValidate();
+                this.$message({
+                  showClose: true,
+                  message: 'Sorry, failed',
+                  type: 'error',
+                });
+              });
+          }
+        });
+      },
+
+      ...mapActions({
+        createWorkspace: 'workspaces/createWorkspace',
+      }),
+    },
+  };
 </script>

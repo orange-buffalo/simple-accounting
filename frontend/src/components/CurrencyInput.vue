@@ -26,91 +26,91 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
-import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
-import { api } from '@/services/api';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import { mapState, mapActions } from 'vuex';
+  import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
+  import { api } from '@/services/api';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
 
-export default {
-  name: 'CurrencyInput',
+  export default {
+    name: 'CurrencyInput',
 
-  mixins: [withCurrencyInfo, withWorkspaces],
+    mixins: [withCurrencyInfo, withWorkspaces],
 
-  props: {
-    value: String,
-    placeholder: String,
-    disabled: Boolean,
-  },
-
-  data() {
-    return {
-      inputValue: this.value,
-      currenciesShortlist: [],
-    };
-  },
-
-  async created() {
-    this.loadCurrencies();
-    if (!this.inputValue) {
-      this.inputValue = this.defaultCurrency;
-    }
-
-    const currenciesShortlistResponse = await api
-      .get(`/workspaces/${this.currentWorkspace.id}/statistics/currencies-shortlist`);
-    this.currenciesShortlist = currenciesShortlistResponse.data;
-  },
-
-  methods: {
-    ...mapActions('app', {
-      loadCurrencies: 'loadCurrencies',
-    }),
-
-    currencyLabel(currency) {
-      return `${currency.code} - ${currency.displayName}`;
-    },
-  },
-
-  computed: {
-    ...mapState({
-      currencies: state => state.app.currencies,
-      defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency,
-    }),
-
-    currenciesData() {
-      return currencies => currencies.map(currency => ({
-        code: currency.code,
-        symbol: this.currencySymbol(currency.code),
-        displayName: this.currencyDisplayName(currency.code),
-      }));
+    props: {
+      value: String,
+      placeholder: String,
+      disabled: Boolean,
     },
 
-    currenciesGroups() {
-      const groups = [];
-      if (this.currenciesShortlist.length > 0) {
-        // todo #6: i18n
-        groups.push({
-          title: 'Recently Used Currencies',
-          currencies: this.currenciesShortlist.map(it => ({ code: it })),
-        });
+    data() {
+      return {
+        inputValue: this.value,
+        currenciesShortlist: [],
+      };
+    },
+
+    async created() {
+      this.loadCurrencies();
+      if (!this.inputValue) {
+        this.inputValue = this.defaultCurrency;
       }
-      groups.push({
-        title: 'All Currencies',
-        currencies: this.currencies,
-      });
-      return groups;
-    },
-  },
 
-  watch: {
-    value(val) {
-      this.inputValue = val;
+      const currenciesShortlistResponse = await api
+        .get(`/workspaces/${this.currentWorkspace.id}/statistics/currencies-shortlist`);
+      this.currenciesShortlist = currenciesShortlistResponse.data;
     },
 
-    inputValue(val) {
-      this.$emit('input', val);
+    methods: {
+      ...mapActions('app', {
+        loadCurrencies: 'loadCurrencies',
+      }),
+
+      currencyLabel(currency) {
+        return `${currency.code} - ${currency.displayName}`;
+      },
     },
-  },
-};
+
+    computed: {
+      ...mapState({
+        currencies: state => state.app.currencies,
+        defaultCurrency: state => state.workspaces.currentWorkspace.defaultCurrency,
+      }),
+
+      currenciesData() {
+        return currencies => currencies.map(currency => ({
+          code: currency.code,
+          symbol: this.currencySymbol(currency.code),
+          displayName: this.currencyDisplayName(currency.code),
+        }));
+      },
+
+      currenciesGroups() {
+        const groups = [];
+        if (this.currenciesShortlist.length > 0) {
+          // todo #6: i18n
+          groups.push({
+            title: 'Recently Used Currencies',
+            currencies: this.currenciesShortlist.map(it => ({ code: it })),
+          });
+        }
+        groups.push({
+          title: 'All Currencies',
+          currencies: this.currencies,
+        });
+        return groups;
+      },
+    },
+
+    watch: {
+      value(val) {
+        this.inputValue = val;
+      },
+
+      inputValue(val) {
+        this.$emit('input', val);
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

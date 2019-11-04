@@ -12,41 +12,41 @@
 </template>
 
 <script>
-export default {
-  name: 'DocumentsStorageConfig',
+  export default {
+    name: 'DocumentsStorageConfig',
 
-  props: {
-    storageName: String,
-    storageId: String,
-    userDocumentsStorage: String,
-  },
+    props: {
+      storageName: String,
+      storageId: String,
+      userDocumentsStorage: String,
+    },
 
-  data() {
-    return {
-      enabled: false,
-    };
-  },
+    data() {
+      return {
+        enabled: false,
+      };
+    },
 
-  watch: {
-    userDocumentsStorage() {
+    watch: {
+      userDocumentsStorage() {
+        this._setEnabled();
+      },
+    },
+
+    created() {
       this._setEnabled();
     },
-  },
 
-  created() {
-    this._setEnabled();
-  },
+    methods: {
+      _setEnabled() {
+        this.enabled = this.storageId === this.userDocumentsStorage;
+      },
 
-  methods: {
-    _setEnabled() {
-      this.enabled = this.storageId === this.userDocumentsStorage;
+      onEnabledChange() {
+        this.$emit(this.enabled ? 'storage-enabled' : 'storage-disabled', this.storageId);
+      },
     },
-
-    onEnabledChange() {
-      this.$emit(this.enabled ? 'storage-enabled' : 'storage-disabled', this.storageId);
-    },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

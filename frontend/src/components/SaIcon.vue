@@ -3,18 +3,18 @@
 </template>
 
 <script>
-export default {
-  name: 'SaIcon',
+  export default {
+    name: 'SaIcon',
 
-  props: {
-    icon: {
-      type: String,
-      required: true,
+    props: {
+      icon: {
+        type: String,
+        required: true,
+      },
     },
-  },
 
-  created() {
-    require(`./icons/${this.icon}`);
-  },
-};
+    created() {
+      require(`./icons/${this.icon}`);
+    },
+  };
 </script>

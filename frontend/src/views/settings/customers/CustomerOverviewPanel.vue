@@ -16,21 +16,21 @@
 </template>
 
 <script>
-import '@/components/icons/pencil-solid';
+  import '@/components/icons/pencil-solid';
 
-export default {
-  name: 'CustomerOverviewPanel',
+  export default {
+    name: 'CustomerOverviewPanel',
 
-  props: {
-    customer: Object,
-  },
-
-  methods: {
-    navigateToCustomerEdit() {
-      this.$router.push({ name: 'edit-customer', params: { id: this.customer.id } });
+    props: {
+      customer: Object,
     },
-  },
-};
+
+    methods: {
+      navigateToCustomerEdit() {
+        this.$router.push({ name: 'edit-customer', params: { id: this.customer.id } });
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

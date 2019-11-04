@@ -11,33 +11,33 @@
 </template>
 
 <script>
-import { setupApp } from '@/services/app-services';
-import LoginForm from '@/components/LoginForm';
+  import { setupApp } from '@/services/app-services';
+  import LoginForm from '@/components/LoginForm';
 
-export default {
-  name: 'Login',
+  export default {
+    name: 'Login',
 
-  components: {
-    LoginForm,
-  },
-
-  methods: {
-    async onLogin() {
-      if (this.$store.state.api.isAdmin) {
-        this.$router.push({ name: 'users-overview' });
-      } else {
-        await setupApp(this.$store, this.$router);
-        if (!this.$store.state.workspaces.currentWorkspace) {
-          this.$router.push('/workspace-setup');
-        } else if (this.$store.state.app.lastView) {
-          this.$router.push({ name: this.$store.state.app.lastView });
-        } else {
-          this.$router.push('/');
-        }
-      }
+    components: {
+      LoginForm,
     },
-  },
-};
+
+    methods: {
+      async onLogin() {
+        if (this.$store.state.api.isAdmin) {
+          this.$router.push({ name: 'users-overview' });
+        } else {
+          await setupApp(this.$store, this.$router);
+          if (!this.$store.state.workspaces.currentWorkspace) {
+            this.$router.push('/workspace-setup');
+          } else if (this.$store.state.app.lastView) {
+            this.$router.push({ name: this.$store.state.app.lastView });
+          } else {
+            this.$router.push('/');
+          }
+        }
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

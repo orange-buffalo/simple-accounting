@@ -29,26 +29,26 @@
 </template>
 
 <script>
-import DataItems from '@/components/DataItems';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import SaIcon from '@/components/SaIcon';
-import IncomeTaxPaymentOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentOverviewPanel';
+  import DataItems from '@/components/DataItems';
+  import { withWorkspaces } from '@/components/mixins/with-workspaces';
+  import SaIcon from '@/components/SaIcon';
+  import IncomeTaxPaymentOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentOverviewPanel';
 
-export default {
-  name: 'TaxPaymentsOverview',
+  export default {
+    name: 'TaxPaymentsOverview',
 
-  components: {
-    IncomeTaxPaymentOverviewPanel,
-    SaIcon,
-    DataItems,
-  },
-
-  mixins: [withWorkspaces],
-
-  methods: {
-    navigateToCreateTaxPaymentView() {
-      this.$router.push({ name: 'create-new-income-tax-payment' });
+    components: {
+      IncomeTaxPaymentOverviewPanel,
+      SaIcon,
+      DataItems,
     },
-  },
-};
+
+    mixins: [withWorkspaces],
+
+    methods: {
+      navigateToCreateTaxPaymentView() {
+        this.$router.push({ name: 'create-new-income-tax-payment' });
+      },
+    },
+  };
 </script>

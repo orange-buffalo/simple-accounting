@@ -52,62 +52,62 @@
 
 <script>
 
-import { mapMutations } from 'vuex';
-import api from '@/services/api';
+  import { mapMutations } from 'vuex';
+  import api from '@/services/api';
 
-export default {
-  name: 'CreateUser',
+  export default {
+    name: 'CreateUser',
 
-  data() {
-    return {
-      form: {
-        userName: '',
-        password: '',
-        confirmPassword: '',
-        admin: false,
-      },
-      formValidationRules: {
-        userName: [
-          { required: true, message: 'Please input Activity name', trigger: 'blur' },
-        ],
-        password: [
-          { required: true, message: 'Please input Activity name', trigger: 'blur' },
-        ],
-        confirmPassword: [
-          { required: true, message: 'Please input Activity name', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              if (value !== this.form.password) {
-                callback(new Error('Two inputs don\'t match!'));
-              } else {
-                callback();
-              }
+    data() {
+      return {
+        form: {
+          userName: '',
+          password: '',
+          confirmPassword: '',
+          admin: false,
+        },
+        formValidationRules: {
+          userName: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          password: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          confirmPassword: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+            {
+              validator: (rule, value, callback) => {
+                if (value !== this.form.password) {
+                  callback(new Error('Two inputs don\'t match!'));
+                } else {
+                  callback();
+                }
+              },
+              trigger: 'blur',
             },
-            trigger: 'blur',
-          },
-        ],
-      },
-    };
-  },
-
-  methods: {
-
-    saveUser() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          console.log('saving');
-          api
-            .post('/users', {
-              userName: this.form.userName,
-              password: this.form.password,
-              admin: this.form.admin,
-            })
-            .then((response) => {
-              this.$router.push('/users');
-            });
-        }
-      });
+          ],
+        },
+      };
     },
-  },
-};
+
+    methods: {
+
+      saveUser() {
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            console.log('saving');
+            api
+              .post('/users', {
+                userName: this.form.userName,
+                password: this.form.password,
+                admin: this.form.admin,
+              })
+              .then((response) => {
+                this.$router.push('/users');
+              });
+          }
+        });
+      },
+    },
+  };
 </script>

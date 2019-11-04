@@ -28,12 +28,12 @@
 </template>
 
 <script>
-import DataTable from '@/components/DataTable';
+  import DataTable from '@/components/DataTable';
 
-export default {
-  name: 'UsersOverview',
-  components: {
-    DataTable,
-  },
-};
+  export default {
+    name: 'UsersOverview',
+    components: {
+      DataTable,
+    },
+  };
 </script>
