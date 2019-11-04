@@ -5,7 +5,7 @@
     </div>
 
     <div class="sa-form">
-      <el-form
+      <ElForm
         ref="expenseForm"
         :model="expense"
         label-position="right"
@@ -16,148 +16,148 @@
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
 
-            <el-form-item
+            <ElFormItem
               label="Category"
               prop="category"
             >
-              <el-select
+              <ElSelect
                 v-model="expense.category"
                 placeholder="Select a category"
               >
-                <el-option
+                <ElOption
                   v-for="category in categories"
                   :key="category.id"
                   :label="category.name"
                   :value="category.id"
                 />
-              </el-select>
-            </el-form-item>
+              </ElSelect>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Description / Title"
               prop="title"
             >
-              <el-input
+              <ElInput
                 v-model="expense.title"
                 placeholder="Provide a short summary"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Currency"
               prop="currency"
             >
-              <currency-input v-model="expense.currency" />
-            </el-form-item>
+              <CurrencyInput v-model="expense.currency" />
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Amount"
               prop="originalAmount"
             >
-              <money-input
+              <MoneyInput
                 v-model="expense.originalAmount"
                 :currency="expense.currency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Date Paid"
               prop="datePaid"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="expense.datePaid"
                 type="date"
                 placeholder="Date expense is paid"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Included General Tax"
               prop="generalTax"
             >
-              <el-select
+              <ElSelect
                 v-model="expense.generalTax"
                 clearable
                 placeholder="Select a tax"
               >
-                <el-option
+                <ElOption
                   v-for="tax in generalTaxes"
                   :key="tax.id"
                   :label="tax.title"
                   :value="tax.id"
                 />
-              </el-select>
-            </el-form-item>
+              </ElSelect>
+            </ElFormItem>
 
-            <el-form-item v-if="!isInDefaultCurrency">
-              <el-checkbox v-model="alreadyConverted">
+            <ElFormItem v-if="!isInDefaultCurrency">
+              <ElCheckbox v-model="alreadyConverted">
                 Already converted
-              </el-checkbox>
-            </el-form-item>
+              </ElCheckbox>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               v-if="defaultCurrencyAmountVisible"
               :label="`Amount in ${defaultCurrency}`"
               prop="amountInDefaultCurrency"
             >
-              <money-input
+              <MoneyInput
                 v-model="expense.amountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item v-if="alreadyConverted">
-              <el-checkbox v-model="reportedAnotherExchangeRate">
+            <ElFormItem v-if="alreadyConverted">
+              <ElCheckbox v-model="reportedAnotherExchangeRate">
                 Reported converted amount is different (using another rate)
-              </el-checkbox>
-            </el-form-item>
+              </ElCheckbox>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               v-if="actualAmountVisible"
               label="Reported Amount"
               prop="actualAmountInDefaultCurrency"
             >
-              <money-input
+              <MoneyInput
                 v-model="expense.actualAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item>
-              <el-checkbox v-model="partialForBusiness">
+            <ElFormItem>
+              <ElCheckbox v-model="partialForBusiness">
                 Expense is partially purposed for the business needs
-              </el-checkbox>
-            </el-form-item>
+              </ElCheckbox>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               v-if="percentOnBusinessVisible"
               label="% spent on business"
               prop="percentOnBusiness"
             >
-              <el-input-number
+              <ElInputNumber
                 v-model="expense.percentOnBusiness"
                 :min="0"
                 :max="100"
               />
-            </el-form-item>
+            </ElFormItem>
           </div>
 
           <div class="col col-xs-12 col-lg-6">
             <h2>Additional notes</h2>
 
-            <el-form-item
+            <ElFormItem
               label="Notes"
               prop="notes"
             >
-              <el-input
+              <ElInput
                 v-model="expense.notes"
                 type="textarea"
                 placeholder="Any additional information to be stored for this expense record"
                 rows="5"
               />
-            </el-form-item>
+            </ElFormItem>
 
             <SaMarkdownOutput
               v-if="expense.notes"
@@ -167,7 +167,7 @@
 
             <h2>Attachments</h2>
 
-            <documents-upload
+            <DocumentsUpload
               ref="documentsUpload"
               v-model="expense.uploads"
               form-property="uploads"
@@ -178,17 +178,17 @@
         <hr>
 
         <div class="sa-buttons-bar">
-          <el-button @click="navigateToExpensesOverview">
+          <ElButton @click="navigateToExpensesOverview">
             Cancel
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
+          </ElButton>
         </div>
-      </el-form>
+      </ElForm>
     </div>
   </div>
 </template>

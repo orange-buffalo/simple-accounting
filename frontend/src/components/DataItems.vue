@@ -1,6 +1,6 @@
 <template>
   <div class="data-items">
-    <el-pagination
+    <ElPagination
       v-if="paginator && totalElements > 0"
       :current-page.sync="currentPage"
       :page-size="pageSize"
@@ -9,25 +9,25 @@
       @current-change="onCurrentPageChange"
     />
 
-    <el-row
+    <ElRow
       :gutter="10"
       v-bind="$props"
       :class="loading ? 'loading' : ''"
     >
-      <el-col
+      <ElCol
         v-for="dataItem in data"
         :key="dataItem.id"
         v-bind="$props"
       >
         <slot :item="dataItem" />
-      </el-col>
-    </el-row>
+      </ElCol>
+    </ElRow>
 
     <div
       v-if="totalElements === 0 && !loading"
       class="empty-results"
     >
-      <svgicon name="empty-box" />
+      <Svgicon name="empty-box" />
       <span>No results here</span>
     </div>
 
@@ -39,7 +39,7 @@
       <span>Loading..</span>
     </div>
 
-    <el-pagination
+    <ElPagination
       v-if="paginator && totalElements > 0"
       :current-page.sync="currentPage"
       :page-size="pageSize"

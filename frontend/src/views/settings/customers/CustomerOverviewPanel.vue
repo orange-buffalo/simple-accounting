@@ -4,11 +4,11 @@
       <div class="sa-item-title-panel">
         <h3>{{ customer.name }}</h3>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil-solid" />
-          <el-button
+          <Svgicon name="pencil-solid" />
+          <ElButton
             type="text"
             @click="navigateToCustomerEdit"
-          >Edit</el-button>
+          >Edit</ElButton>
         </span>
       </div>
     </div>

@@ -13,22 +13,22 @@
         </div>
 
         <div>
-          <el-button type="danger">
+          <ElButton type="danger">
             Delete
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             v-if="!invoice.dateCancelled"
             type="danger"
             @click="cancelInvoice"
           >
             Cancel Invoice
-          </el-button>
+          </ElButton>
         </div>
       </div>
     </div>
 
     <div class="sa-form">
-      <el-form
+      <ElForm
         ref="invoiceForm"
         :model="invoice"
         label-position="right"
@@ -39,149 +39,149 @@
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
 
-            <el-form-item
+            <ElFormItem
               label="Customer"
               prop="customer"
             >
-              <el-select
+              <ElSelect
                 v-model="invoice.customer"
                 placeholder="Select a customer"
               >
-                <el-option
+                <ElOption
                   v-for="customer in customers"
                   :key="customer.id"
                   :label="customer.name"
                   :value="customer.id"
                 />
-              </el-select>
-            </el-form-item>
+              </ElSelect>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Description / Title"
               prop="title"
             >
-              <el-input
+              <ElInput
                 v-model="invoice.title"
                 placeholder="Provide a short summary"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Currency"
               prop="currency"
             >
-              <currency-input v-model="invoice.currency" />
-            </el-form-item>
+              <CurrencyInput v-model="invoice.currency" />
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Amount"
               prop="amount"
             >
-              <money-input
+              <MoneyInput
                 v-model="invoice.amount"
                 :currency="invoice.currency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Date Issued"
               prop="dateIssued"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="invoice.dateIssued"
                 type="date"
                 placeholder="Date invoice is issued"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Due Date"
               prop="dueDate"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="invoice.dueDate"
                 type="date"
                 placeholder="Date invoice is due"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Included General Tax"
               prop="generalTax"
             >
-              <el-select
+              <ElSelect
                 v-model="invoice.generalTax"
                 clearable
                 placeholder="Select a tax"
               >
-                <el-option
+                <ElOption
                   v-for="tax in generalTaxes"
                   :key="tax.id"
                   :label="tax.title"
                   :value="tax.id"
                 />
-              </el-select>
-            </el-form-item>
+              </ElSelect>
+            </ElFormItem>
 
-            <el-form-item>
-              <el-checkbox v-model="alreadySent">
+            <ElFormItem>
+              <ElCheckbox v-model="alreadySent">
                 Already Sent
-              </el-checkbox>
-            </el-form-item>
+              </ElCheckbox>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               v-if="alreadySent"
               label="Date Sent"
               prop="dateSent"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="invoice.dateSent"
                 type="date"
                 placeholder="Date invoice is sent"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item>
-              <el-checkbox v-model="alreadyPaid">
+            <ElFormItem>
+              <ElCheckbox v-model="alreadyPaid">
                 Already Paid
-              </el-checkbox>
-            </el-form-item>
+              </ElCheckbox>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               v-if="alreadyPaid"
               label="Date Paid"
               prop="datePaid"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="invoice.datePaid"
                 type="date"
                 placeholder="Date invoice is paid"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
           </div>
 
           <div class="col col-xs-12 col-lg-6">
             <h2>Additional notes</h2>
 
-            <el-form-item
+            <ElFormItem
               label="Notes"
               prop="notes"
             >
-              <el-input
+              <ElInput
                 v-model="invoice.notes"
                 type="textarea"
                 placeholder="Any additional information to be stored for this invoice record"
                 rows="5"
               />
-            </el-form-item>
+            </ElFormItem>
 
             <SaMarkdownOutput
               v-if="invoice.notes"
@@ -191,7 +191,7 @@
 
             <h2>Attachments</h2>
 
-            <documents-upload
+            <DocumentsUpload
               ref="documentsUpload"
               v-model="invoice.uploads"
               form-property="uploads"
@@ -202,17 +202,17 @@
         <hr>
 
         <div class="sa-buttons-bar">
-          <el-button @click="navigateToInvoicesOverview">
+          <ElButton @click="navigateToInvoicesOverview">
             Cancel
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
+          </ElButton>
         </div>
-      </el-form>
+      </ElForm>
     </div>
   </div>
 </template>

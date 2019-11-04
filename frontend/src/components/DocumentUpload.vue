@@ -13,7 +13,7 @@
         >Files up to 5MB are allowed</span>
       </div>
 
-      <el-input
+      <ElInput
         v-model="upload.notes"
         placeholder="Additional notes..."
         clearable
@@ -23,19 +23,19 @@
     <template v-if="!isDropPanelEnabled">
       <div class="sa-document-upload_summary">
         <div class="sa-document-upload_summary_icon">
-          <svgicon :name="documentTypeIcon" />
+          <Svgicon :name="documentTypeIcon" />
         </div>
         <div class="sa-document-upload_summary_file">
           <div class="sa-document-upload_summary_header">
             <span :title="upload.name">{{ upload.name }}</span>
-            <svgicon
+            <Svgicon
               v-if="!uploading"
               name="delete"
               @click="onRemove"
             />
           </div>
           <div class="sa-document-upload_summary_status">
-            <svgicon :name="documentStatusIcon" />
+            <Svgicon :name="documentStatusIcon" />
             <span>{{ documentStatus }}</span>
             <!--todo #76: pretty print size-->
             <span>({{ upload.size }})</span>
@@ -47,7 +47,7 @@
             {{ upload.notes }}
           </div>
           <div>
-            <el-progress
+            <ElProgress
               v-if="uploading"
               :percentage="uploadingProgress"
             />

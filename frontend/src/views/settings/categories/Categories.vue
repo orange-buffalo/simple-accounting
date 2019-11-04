@@ -5,16 +5,16 @@
     </div>
 
     <div class="top-buttons-bar">
-      <el-button
+      <ElButton
         round
         @click="navigateToNewCategoryView"
       >
-        <svgicon name="plus-thin" />
+        <Svgicon name="plus-thin" />
         Add new
-      </el-button>
+      </ElButton>
     </div>
 
-    <data-items
+    <DataItems
       :api-path="`/workspaces/${currentWorkspace.id}/categories`"
       :paginator="false"
     >
@@ -25,7 +25,7 @@
 
             <span class="sa-item-edit-link">
               <!--<pencil-solid-icon/>-->
-              <el-button type="text">Edit</el-button>
+              <ElButton type="text">Edit</ElButton>
             </span>
           </div>
           <p>
@@ -39,7 +39,7 @@
           </p>
         </div>
       </template>
-    </data-items>
+    </DataItems>
   </div>
 </template>
 

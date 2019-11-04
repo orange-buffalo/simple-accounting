@@ -8,24 +8,24 @@
           <span>Filters coming soon</span>
         </div>
 
-        <el-button
+        <ElButton
           round
           @click="navigateToCreateCustomerView"
         >
-          <svgicon name="plus-thin" />
+          <Svgicon name="plus-thin" />
           Add new
-        </el-button>
+        </ElButton>
       </div>
     </div>
 
-    <data-items
+    <DataItems
       ref="customersList"
       :api-path="`/workspaces/${currentWorkspace.id}/customers`"
     >
       <template slot-scope="scope">
-        <customer-overview-panel :customer="scope.item" />
+        <CustomerOverviewPanel :customer="scope.item" />
       </template>
-    </data-items>
+    </DataItems>
   </div>
 </template>
 

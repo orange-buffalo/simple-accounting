@@ -1,53 +1,53 @@
 <template>
-  <el-container>
-    <el-main>
+  <ElContainer>
+    <ElMain>
       <h1>New user</h1>
-      <el-form
+      <ElForm
         ref="form"
         :model="form"
         :rules="formValidationRules"
       >
-        <el-form-item
+        <ElFormItem
           label="Username"
           prop="userName"
         >
-          <el-input v-model="form.userName" />
-        </el-form-item>
-        <el-form-item
+          <ElInput v-model="form.userName" />
+        </ElFormItem>
+        <ElFormItem
           label="Password"
           prop="password"
         >
-          <el-input
+          <ElInput
             v-model="form.password"
             type="password"
           />
-        </el-form-item>
-        <el-form-item
+        </ElFormItem>
+        <ElFormItem
           label="Confirm Password"
           prop="confirmPassword"
         >
-          <el-input
+          <ElInput
             v-model="form.confirmPassword"
             type="password"
           />
-        </el-form-item>
-        <el-form-item
+        </ElFormItem>
+        <ElFormItem
           label="Admin?"
           prop="admin"
         >
-          <el-checkbox v-model="form.admin" />
-        </el-form-item>
-        <el-form-item>
-          <el-button
+          <ElCheckbox v-model="form.admin" />
+        </ElFormItem>
+        <ElFormItem>
+          <ElButton
             type="primary"
             @click="saveUser"
           >
             Save
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-main>
-  </el-container>
+          </ElButton>
+        </ElFormItem>
+      </ElForm>
+    </ElMain>
+  </ElContainer>
 </template>
 
 <script>

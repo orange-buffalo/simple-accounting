@@ -8,7 +8,7 @@
     >
       <br>
       <b>Total:
-        <money-output
+        <MoneyOutput
           :currency="defaultCurrency"
           :amount="totalCollectedAmount"
         />
@@ -24,7 +24,7 @@
     >
       <br>
       <b>Total:
-        <money-output
+        <MoneyOutput
           :currency="defaultCurrency"
           :amount="totalPaidAmount"
         />

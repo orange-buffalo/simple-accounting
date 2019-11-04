@@ -1,24 +1,24 @@
 <template>
   <div>
     <!--todo #89: highlight pending items differently-->
-    <el-table
+    <ElTable
       :data="data"
     >
-      <el-table-column
+      <ElTableColumn
         align="left"
         header-align="left"
         prop="tax.title"
         label="Tax"
       />
 
-      <el-table-column
+      <ElTableColumn
         align="right"
         header-align="right"
         prop="includedItemsNumber"
         label="Number of Items"
       />
 
-      <el-table-column
+      <ElTableColumn
         align="right"
         header-align="right"
         label="Items Amount"
@@ -27,14 +27,14 @@
           v-if="scope.row.finalized"
           slot-scope="scope"
         >
-          <money-output
+          <MoneyOutput
             :currency="defaultCurrency"
             :amount="scope.row.includedItemsAmount"
           />
         </template>
-      </el-table-column>
+      </ElTableColumn>
 
-      <el-table-column
+      <ElTableColumn
         align="right"
         header-align="right"
         label="Tax Amount"
@@ -43,13 +43,13 @@
           v-if="scope.row.finalized"
           slot-scope="scope"
         >
-          <money-output
+          <MoneyOutput
             :currency="defaultCurrency"
             :amount="scope.row.taxAmount"
           />
         </template>
-      </el-table-column>
-    </el-table>
+      </ElTableColumn>
+    </ElTable>
   </div>
 </template>
 

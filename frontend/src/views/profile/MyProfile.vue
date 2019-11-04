@@ -8,15 +8,15 @@
       <div>
         <h2>Documents Storage</h2>
 
-        <documents-storage-config
+        <DocumentsStorageConfig
           storage-name="Google Drive"
           storage-id="google-drive"
           :user-documents-storage="profile.documentsStorage"
           @storage-enabled="onStorageEnabled"
           @storage-disabled="onStorageDisabled"
         >
-          <google-drive />
-        </documents-storage-config>
+          <GoogleDrive />
+        </DocumentsStorageConfig>
       </div>
     </div>
   </div>

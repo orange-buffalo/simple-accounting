@@ -5,7 +5,7 @@
     </div>
 
     <div class="sa-form">
-      <el-form
+      <ElForm
         ref="taxForm"
         :model="tax"
         label-position="right"
@@ -14,51 +14,51 @@
       >
         <h2>General Information</h2>
 
-        <el-form-item
+        <ElFormItem
           label="Title"
           prop="title"
         >
-          <el-input
+          <ElInput
             v-model="tax.title"
             placeholder="Provide a title of the tax"
           />
-        </el-form-item>
+        </ElFormItem>
 
-        <el-form-item
+        <ElFormItem
           label="Description"
           prop="description"
         >
-          <el-input
+          <ElInput
             v-model="tax.description"
             placeholder="Short description of a tax"
           />
-        </el-form-item>
+        </ElFormItem>
 
         <!--todo #79: input in bps-->
-        <el-form-item
+        <ElFormItem
           label="Rate"
           prop="rateInBps"
         >
-          <el-input
+          <ElInput
             v-model="tax.rateInBps"
             placeholder="Provide a rate for this tax"
           />
-        </el-form-item>
+        </ElFormItem>
 
         <hr>
 
         <div class="sa-buttons-bar">
-          <el-button @click="navigateToTaxesOverview">
+          <ElButton @click="navigateToTaxesOverview">
             Cancel
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
+          </ElButton>
         </div>
-      </el-form>
+      </ElForm>
     </div>
   </div>
 </template>

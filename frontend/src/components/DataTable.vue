@@ -1,14 +1,14 @@
 <template>
   <div>
-    <el-table
+    <ElTable
       :data="data"
       v-bind="$props"
       @sort-change="onSortChange"
     >
       <slot />
-    </el-table>
+    </ElTable>
 
-    <el-pagination
+    <ElPagination
       :page-sizes="[10, 20, 30, 100]"
       :page-size="10"
       layout="sizes, prev, pager, next"

@@ -1,48 +1,48 @@
 <template>
   <div>
-    <el-card>
-      <el-form
+    <ElCard>
+      <ElForm
         ref="categoryForm"
         :model="category"
         :rules="categoryValidationRules"
       >
-        <el-form-item
+        <ElFormItem
           label="Name"
           prop="name"
         >
-          <el-input v-model="category.name" />
-        </el-form-item>
-        <el-form-item
+          <ElInput v-model="category.name" />
+        </ElFormItem>
+        <ElFormItem
           label="Description"
           prop="description"
         >
-          <el-input
+          <ElInput
             v-model="category.description"
             type="textarea"
           />
-        </el-form-item>
-        <el-form-item
+        </ElFormItem>
+        <ElFormItem
           label="Income"
           prop="income"
         >
-          <el-checkbox v-model="category.income" />
-        </el-form-item>
-        <el-form-item
+          <ElCheckbox v-model="category.income" />
+        </ElFormItem>
+        <ElFormItem
           label="Expense"
           prop="expense"
         >
-          <el-checkbox v-model="category.expense" />
-        </el-form-item>
-        <el-form-item>
-          <el-button
+          <ElCheckbox v-model="category.expense" />
+        </ElFormItem>
+        <ElFormItem>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+          </ElButton>
+        </ElFormItem>
+      </ElForm>
+    </ElCard>
   </div>
 </template>
 

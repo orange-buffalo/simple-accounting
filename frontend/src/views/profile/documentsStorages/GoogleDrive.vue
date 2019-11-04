@@ -9,9 +9,9 @@
         {{ status.folderName }}
       </a><br>
     </template>
-    <el-button @click="initGoogleDriveAuthorization">
+    <ElButton @click="initGoogleDriveAuthorization">
       Connect to Google Drive
-    </el-button>
+    </ElButton>
   </div>
 </template>
 

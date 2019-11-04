@@ -5,7 +5,7 @@
     </div>
 
     <div class="sa-form">
-      <el-form
+      <ElForm
         ref="taxPaymentForm"
         :model="taxPayment"
         label-position="right"
@@ -16,67 +16,67 @@
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
 
-            <el-form-item
+            <ElFormItem
               label="Description / Title"
               prop="title"
             >
-              <el-input
+              <ElInput
                 v-model="taxPayment.title"
                 placeholder="Provide a short summary"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Amount"
               prop="amount"
             >
-              <money-input
+              <MoneyInput
                 v-model="taxPayment.amount"
                 :currency="defaultCurrency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Date Paid"
               prop="datePaid"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="taxPayment.datePaid"
                 type="date"
                 placeholder="Date tax is paid"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Reporting Date"
               prop="reportingDate"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="taxPayment.reportingDate"
                 type="date"
                 placeholder="Date to include this payment into reporting by"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
           </div>
 
           <div class="col col-xs-12 col-lg-6">
             <h2>Additional notes</h2>
 
-            <el-form-item
+            <ElFormItem
               label="Notes"
               prop="notes"
             >
-              <el-input
+              <ElInput
                 v-model="taxPayment.notes"
                 type="textarea"
                 placeholder="Any additional information to be stored for this tax payment record"
                 rows="5"
               />
-            </el-form-item>
+            </ElFormItem>
 
             <SaMarkdownOutput
               v-if="taxPayment.notes"
@@ -86,7 +86,7 @@
 
             <h2>Attachments</h2>
 
-            <documents-upload
+            <DocumentsUpload
               ref="documentsUpload"
               v-model="taxPayment.uploads"
               form-property="uploads"
@@ -97,17 +97,17 @@
         <hr>
 
         <div class="sa-buttons-bar">
-          <el-button @click="navigateToTaxPaymentsOverview">
+          <ElButton @click="navigateToTaxPaymentsOverview">
             Cancel
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
+          </ElButton>
         </div>
-      </el-form>
+      </ElForm>
     </div>
   </div>
 </template>

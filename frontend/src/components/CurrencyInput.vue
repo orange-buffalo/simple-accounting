@@ -1,16 +1,16 @@
 <template>
-  <el-select
+  <ElSelect
     v-model="inputValue"
     filterable
     :placeholder="placeholder"
     :disabled="disabled"
   >
-    <el-option-group
+    <ElOptionGroup
       v-for="group in currenciesGroups"
       :key="group.title"
       :label="group.title"
     >
-      <el-option
+      <ElOption
         v-for="currency in currenciesData(group.currencies)"
         :key="currency.code"
         :label="currencyLabel(currency)"
@@ -20,9 +20,9 @@
           <span class="currency-code">{{ currency.code }}</span>
           <span class="currency-name">{{ currency.displayName }}</span>
         </div>
-      </el-option>
-    </el-option-group>
-  </el-select>
+      </ElOption>
+    </ElOptionGroup>
+  </ElSelect>
 </template>
 
 <script>

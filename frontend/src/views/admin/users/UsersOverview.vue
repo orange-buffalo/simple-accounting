@@ -1,29 +1,29 @@
 <template>
   <div>
-    <router-link to="/">
+    <RouterLink to="/">
       Home
-    </router-link>
+    </RouterLink>
     <br>
-    <router-link to="/admin/users/create">
+    <RouterLink to="/admin/users/create">
       Add User
-    </router-link>
+    </RouterLink>
     <br>
-    <data-table
+    <DataTable
       stripe
       api-path="/users"
     >
-      <el-table-column
+      <ElTableColumn
         prop="userName"
         label="Username"
       />
-      <el-table-column
+      <ElTableColumn
         label="Is Administrator?"
       >
         <template slot-scope="scope">
           {{ scope.row.admin ? 'Yes' : 'No' }}
         </template>
-      </el-table-column>
-    </data-table>
+      </ElTableColumn>
+    </DataTable>
   </div>
 </template>
 

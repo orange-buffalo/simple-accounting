@@ -1,5 +1,5 @@
 <template>
-  <svgicon :name="icon" />
+  <Svgicon :name="icon" />
 </template>
 
 <script>

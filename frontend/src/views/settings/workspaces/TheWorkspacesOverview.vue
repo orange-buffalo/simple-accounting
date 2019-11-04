@@ -6,22 +6,22 @@
       <div class="sa-header-options">
         <span />
 
-        <el-button
+        <ElButton
           round
           @click="navigateToCreateWorkspace"
         >
-          <svgicon name="plus-thin" />
+          <Svgicon name="plus-thin" />
           Create new workspace
-        </el-button>
+        </ElButton>
       </div>
     </div>
 
     <h2>Current Workspace</h2>
-    <the-workspaces-overview-item-panel :workspace="currentWorkspace" />
+    <TheWorkspacesOverviewItemPanel :workspace="currentWorkspace" />
 
     <template v-if="hasOtherOwnWorkspaces">
       <h2>My Other Workspaces</h2>
-      <the-workspaces-overview-item-panel
+      <TheWorkspacesOverviewItemPanel
         v-for="workspace in ownOtherWorkspaces"
         :key="workspace.id"
         :workspace="workspace"
@@ -30,7 +30,7 @@
 
     <template v-if="hasSharedWorkspaces">
       <h2>Workspaces Shared With Me</h2>
-      <the-workspaces-overview-item-panel
+      <TheWorkspacesOverviewItemPanel
         v-for="workspace in sharedWorkspaces"
         :key="workspace.id"
         :workspace="workspace"

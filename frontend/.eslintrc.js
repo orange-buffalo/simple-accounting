@@ -13,6 +13,9 @@ module.exports = {
     'vue/script-indent': ['error', 2, {
       baseIndent: 1,
     }],
+    'vue/component-name-in-template-casing': ['error', 'PascalCase', {
+      registeredComponentsOnly: false,
+    }],
   },
   overrides: [
     {

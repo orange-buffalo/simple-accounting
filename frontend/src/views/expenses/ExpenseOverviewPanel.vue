@@ -240,7 +240,7 @@
               v-for="attachment in attachments"
               :key="attachment.id"
             >
-              <document-link :document="attachment" /><br>
+              <DocumentLink :document="attachment" /><br>
             </span>
           </div>
         </div>

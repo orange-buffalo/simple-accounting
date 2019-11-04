@@ -7,25 +7,25 @@
     <!-- todo #64: navigation between steps-->
 
     <div class="reporting-panel">
-      <el-steps
+      <ElSteps
         :active="activeWizardStep"
         align-center
         finish-status="success"
       >
-        <el-step
+        <ElStep
           title="Select a report"
           :description="reportSelectionStepDescription"
         />
-        <el-step
+        <ElStep
           title="Select reporting dates"
           :description="datesSelectionStepDescription"
         />
-        <el-step
+        <ElStep
           title="View the report"
           :description="viewReportStepDescription"
           :status="viewReportStepStatus"
         />
-      </el-steps>
+      </ElSteps>
 
       <div
         v-if="reportSelectionActive"
@@ -36,7 +36,7 @@
           data-title="Select"
           @click="selectTaxReport"
         >
-          <svgicon name="tax" />
+          <Svgicon name="tax" />
           <div>
             <h4>General Tax Report</h4>
             <span>Collected and paid general taxes</span>
@@ -48,7 +48,7 @@
         v-if="datesSelectionActive"
         class="reporting-panel--content text-center"
       >
-        <el-date-picker
+        <ElDatePicker
           v-model="selectedDateRange"
           type="daterange"
           align="right"
@@ -61,19 +61,19 @@
         <br>
 
         <!-- todo #64: navigation -->
-        <el-button
+        <ElButton
           :disabled="selectedDateRange.length !== 2"
           @click="navigateToViewReportStep"
         >
           Next
-        </el-button>
+        </ElButton>
       </div>
 
       <div
         v-if="viewReportActive"
         class="reporting-panel--content"
       >
-        <the-general-tax-report
+        <TheGeneralTaxReport
           :date-range="selectedDateRange"
           @report-loaded="reportGenerationInProgress = false"
         />

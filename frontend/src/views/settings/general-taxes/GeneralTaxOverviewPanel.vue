@@ -5,11 +5,11 @@
         <!--todo #6: localize-->
         <h3>{{ tax.title }} ({{ tax.rateInBps / 100 }}%)</h3>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil-solid" />
-          <el-button
+          <Svgicon name="pencil-solid" />
+          <ElButton
             type="text"
             @click="navigateToTaxEdit"
-          >Edit</el-button>
+          >Edit</ElButton>
         </span>
       </div>
 

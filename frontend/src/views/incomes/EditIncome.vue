@@ -5,7 +5,7 @@
     </div>
 
     <div class="sa-form">
-      <el-form
+      <ElForm
         ref="incomeForm"
         :model="income"
         label-position="right"
@@ -15,138 +15,138 @@
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
 
-            <el-form-item
+            <ElFormItem
               label="Category"
               prop="category"
             >
-              <el-select
+              <ElSelect
                 v-model="income.category"
                 placeholder="Select a category"
               >
-                <el-option
+                <ElOption
                   v-for="category in categories"
                   :key="category.id"
                   :label="category.name"
                   :value="category.id"
                 />
-              </el-select>
-            </el-form-item>
+              </ElSelect>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Description / Title"
               prop="title"
             >
-              <el-input
+              <ElInput
                 v-model="income.title"
                 placeholder="Provide a short summary"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Currency"
               prop="currency"
             >
-              <currency-input v-model="income.currency" />
-            </el-form-item>
+              <CurrencyInput v-model="income.currency" />
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Amount"
               prop="originalAmount"
             >
-              <money-input
+              <MoneyInput
                 v-model="income.originalAmount"
                 :currency="income.currency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Date Paid"
               prop="datePaid"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="income.dateReceived"
                 type="date"
                 placeholder="Date income is received"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item v-if="!isInDefaultCurrency">
-              <el-checkbox v-model="alreadyConverted">
+            <ElFormItem v-if="!isInDefaultCurrency">
+              <ElCheckbox v-model="alreadyConverted">
                 Already converted
-              </el-checkbox>
-            </el-form-item>
+              </ElCheckbox>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               v-if="defaultCurrencyAmountVisible"
               :label="`Amount in ${defaultCurrency}`"
               prop="amountInDefaultCurrency"
             >
-              <money-input
+              <MoneyInput
                 v-model="income.amountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item v-if="alreadyConverted">
-              <el-checkbox v-model="reportedAnotherExchangeRate">
+            <ElFormItem v-if="alreadyConverted">
+              <ElCheckbox v-model="reportedAnotherExchangeRate">
                 Reported converted amount is different (using another rate)
-              </el-checkbox>
-            </el-form-item>
+              </ElCheckbox>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               v-if="reportedAmountVisible"
               label="Reported Amount"
               prop="reportedAmountInDefaultCurrency"
             >
-              <money-input
+              <MoneyInput
                 v-model="income.reportedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Added General Tax"
               prop="generalTax"
             >
-              <el-select
+              <ElSelect
                 v-model="income.generalTax"
                 clearable
                 placeholder="Select a tax"
               >
-                <el-option
+                <ElOption
                   v-for="tax in generalTaxes"
                   :key="tax.id"
                   :label="tax.title"
                   :value="tax.id"
                 />
-              </el-select>
-            </el-form-item>
+              </ElSelect>
+            </ElFormItem>
           </div>
 
           <div class="col col-xs-12 col-lg-6">
             <h2>Additional Information</h2>
 
-            <el-form-item
+            <ElFormItem
               v-if="income.linkedInvoice"
               label="Linked Invoice"
               prop="reportedAmountInDefaultCurrency"
             >
               <span>{{ income.linkedInvoice.title }}</span>
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Notes"
               prop="notes"
             >
-              <el-input
+              <ElInput
                 v-model="income.notes"
                 type="textarea"
                 placeholder="Any additional information to be stored for this income record"
                 rows="5"
               />
-            </el-form-item>
+            </ElFormItem>
 
             <SaMarkdownOutput
               v-if="income.notes"
@@ -156,7 +156,7 @@
 
             <h2>Attachments</h2>
 
-            <documents-upload
+            <DocumentsUpload
               ref="documentsUpload"
               v-model="income.uploads"
               form-property="uploads"
@@ -166,17 +166,17 @@
         <hr>
 
         <div class="sa-buttons-bar">
-          <el-button @click="navigateToIncomesOverview">
+          <ElButton @click="navigateToIncomesOverview">
             Cancel
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
+          </ElButton>
         </div>
-      </el-form>
+      </ElForm>
     </div>
   </div>
 </template>

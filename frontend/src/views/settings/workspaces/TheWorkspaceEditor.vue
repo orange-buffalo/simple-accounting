@@ -5,7 +5,7 @@
     </div>
 
     <div class="sa-form">
-      <el-form
+      <ElForm
         ref="workspaceForm"
         :model="workspaceForm"
         :rules="workspaceValidationRules"
@@ -13,39 +13,39 @@
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
-            <el-form-item
+            <ElFormItem
               label="Workspace Name"
               prop="name"
             >
-              <el-input v-model="workspaceForm.name" />
-            </el-form-item>
+              <ElInput v-model="workspaceForm.name" />
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Default Currency"
               prop="defaultCurrency"
             >
-              <currency-input
+              <CurrencyInput
                 v-model="workspaceForm.defaultCurrency"
                 :disabled="isEditing"
               />
-            </el-form-item>
+            </ElFormItem>
           </div>
         </div>
 
         <hr>
 
         <div class="sa-buttons-bar">
-          <el-button @click="navigateToWorkspacesOverview">
+          <ElButton @click="navigateToWorkspacesOverview">
             Cancel
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             type="primary"
             @click="saveWorkspace"
           >
             Save
-          </el-button>
+          </ElButton>
         </div>
-      </el-form>
+      </ElForm>
     </div>
   </div>
 </template>

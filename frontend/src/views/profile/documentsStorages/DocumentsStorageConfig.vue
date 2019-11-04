@@ -1,7 +1,7 @@
 <template>
   <div class="documents-storage-config">
     <div class="documents-storage-config__header">
-      <el-switch
+      <ElSwitch
         v-model="enabled"
         @change="onEnabledChange"
       />

@@ -1,6 +1,6 @@
 <template>
   <div class="el-input el-input-group el-input-group--append money-input">
-    <masked-input
+    <MaskedInput
       v-model="inputValue"
       type="text"
       name="phone"

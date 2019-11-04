@@ -1,5 +1,5 @@
 <template>
-  <el-button
+  <ElButton
     type="text"
     @click="startDownload"
   >
@@ -7,7 +7,7 @@
     <template v-if="sizeKnown">
       ({{ sizeLabel }})
     </template>
-  </el-button>
+  </ElButton>
 </template>
 
 <script>

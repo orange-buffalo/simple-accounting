@@ -5,7 +5,7 @@
     </div>
 
     <div class="sa-form">
-      <el-form
+      <ElForm
         ref="customerForm"
         :model="customer"
         label-position="right"
@@ -14,30 +14,30 @@
       >
         <h2>General Information</h2>
 
-        <el-form-item
+        <ElFormItem
           label="Name"
           prop="name"
         >
-          <el-input
+          <ElInput
             v-model="customer.name"
             placeholder="Provide a name of the customer"
           />
-        </el-form-item>
+        </ElFormItem>
 
         <hr>
 
         <div class="sa-buttons-bar">
-          <el-button @click="navigateToCustomersOverview">
+          <ElButton @click="navigateToCustomersOverview">
             Cancel
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
+          </ElButton>
         </div>
-      </el-form>
+      </ElForm>
     </div>
   </div>
 </template>

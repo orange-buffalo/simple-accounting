@@ -5,7 +5,7 @@
     </div>
     <div class="login-page__login">
       <div class="login-page__login__logo" />
-      <login-form @login="onLogin" />
+      <LoginForm @login="onLogin" />
     </div>
   </div>
 </template>

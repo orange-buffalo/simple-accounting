@@ -1,18 +1,18 @@
 <template>
   <div>
-    <el-form-item
+    <ElFormItem
       v-for="(upload, index) in uploadsInfo.uploads"
       :key="upload.id"
       :prop="`${formProperty}.uploads.${index}`"
       :rules="validationRules"
     >
-      <document-upload
+      <DocumentUpload
         ref="documentUploads"
         v-model="uploadsInfo.uploads[index]"
         @upload-complete="onUploadComplete"
         @upload-error="onUploadError"
       />
-    </el-form-item>
+    </ElFormItem>
   </div>
 </template>
 

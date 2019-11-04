@@ -1,53 +1,53 @@
 <template>
-  <el-form
+  <ElForm
     ref="form"
     class="login-form"
     :model="form"
     :rules="formValidationRules"
     label-width="0px"
   >
-    <el-form-item prop="userName">
-      <el-input
+    <ElFormItem prop="userName">
+      <ElInput
         v-model="form.userName"
         placeholder="Login"
       >
-        <svgicon
+        <Svgicon
           slot="prefix"
           name="login"
         />
-      </el-input>
-    </el-form-item>
+      </ElInput>
+    </ElFormItem>
 
-    <el-form-item prop="password">
-      <el-input
+    <ElFormItem prop="password">
+      <ElInput
         v-model="form.password"
         type="password"
         placeholder="Password"
       >
-        <svgicon
+        <Svgicon
           slot="prefix"
           name="password"
         />
-      </el-input>
-    </el-form-item>
+      </ElInput>
+    </ElFormItem>
 
-    <el-form-item
+    <ElFormItem
       prop="rememberMe"
       align="center"
     >
-      <el-checkbox v-model="form.rememberMe">
+      <ElCheckbox v-model="form.rememberMe">
         Remember me
-      </el-checkbox>
-    </el-form-item>
+      </ElCheckbox>
+    </ElFormItem>
 
-    <el-button
+    <ElButton
       type="primary"
       :disabled="!loginEnabled"
       @click="login"
     >
       Login
-    </el-button>
-  </el-form>
+    </ElButton>
+  </ElForm>
 </template>
 
 <script>

@@ -1,14 +1,14 @@
 <template>
-  <router-link
+  <RouterLink
     :to="to"
     :class="styleClass"
   >
-    <svgicon
+    <Svgicon
       v-if="icon"
       :name="icon"
     />
     {{ title }}
-  </router-link>
+  </RouterLink>
 </template>
 
 <script>

@@ -4,71 +4,71 @@
       <div class="sa-item-title-panel">
         <div class="workspace-panel__info-panel__name">
           <h3>{{ workspace.name }}</h3>
-          <el-button
+          <ElButton
             v-if="!isCurrent"
             type="text"
             @click="switchToWorkspace"
           >
             Switch to this workspace
-          </el-button>
+          </ElButton>
         </div>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil-solid" />
-          <el-button
+          <Svgicon name="pencil-solid" />
+          <ElButton
             type="text"
             @click="navigateToWorkspaceEdit"
-          >Edit</el-button>
+          >Edit</ElButton>
         </span>
       </div>
 
       <div class="sa-item-attributes">
-        <sa-attribute-value label="Default Currency">
+        <SaAttributeValue label="Default Currency">
           {{ workspace.defaultCurrency }}
-        </sa-attribute-value>
+        </SaAttributeValue>
         <br>
-        <sa-attribute-value label="Workspace Shares">
-          <el-table
+        <SaAttributeValue label="Workspace Shares">
+          <ElTable
             v-if="hasAccessTokens"
             :data="accessTokens"
           >
-            <el-table-column
+            <ElTableColumn
               label="Valid Till"
             >
               <template slot-scope="scope">
                 {{ mediumDateTimeFormatterFromString(scope.row.validTill) }}
               </template>
-            </el-table-column>
-            <el-table-column align="right">
+            </ElTableColumn>
+            <ElTableColumn align="right">
               <template slot-scope="scope">
                 <div class="workspace-panel__share-link-panel">
-                  <svgicon name="copy" />
-                  <el-button
+                  <Svgicon name="copy" />
+                  <ElButton
                     type="text"
                     @click="copyShareLink(scope.row.token)"
                   >
                     Copy link
-                  </el-button>
+                  </ElButton>
                 </div>
               </template>
-            </el-table-column>
-          </el-table>
+            </ElTableColumn>
+          </ElTable>
 
           <div class="workspace-panel__create-share-panel">
             {{ hasAccessTokens ? 'Add another share valid till' : 'Start sharing workspace, new link valid till' }}:
-            <el-date-picker
+            <ElDatePicker
               v-model="newShareValidTill"
               type="datetime"
               placeholder="Link valid till"
             />
-            <svgicon name="share" />
-            <el-button
+            <Svgicon name="share" />
+            <ElButton
               type="text"
               @click="shareWorkspace"
             >
               Create share link
-            </el-button>
+            </ElButton>
           </div>
-        </sa-attribute-value>
+        </SaAttributeValue>
       </div>
     </div>
   </div>

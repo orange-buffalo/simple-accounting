@@ -1,15 +1,15 @@
 <template>
-  <el-container>
-    <the-side-menu />
+  <ElContainer>
+    <TheSideMenu />
 
-    <el-container>
-      <el-main>
+    <ElContainer>
+      <ElMain>
         <div class="content-panel">
-          <router-view />
+          <RouterView />
         </div>
-      </el-main>
-    </el-container>
-  </el-container>
+      </ElMain>
+    </ElContainer>
+  </ElContainer>
 </template>
 
 <script>
