@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.persistence
+package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos
 
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import org.springframework.jdbc.core.BeanPropertyRowMapper
@@ -67,8 +67,8 @@ class GeneralTaxReportingRepository(private val jdbcTemplate: JdbcTemplate) {
             from (
             select e.general_tax_amount as tax_amount,
                    e.general_tax_id as tax_id,
-                   e.reported_amount_in_default_currency as amount,
-                   e.reported_amount_in_default_currency > 0 as finalized,
+                   coalesce(e.income_taxable_adjusted_amount_in_default_currency, 0) as amount,
+                   e.status = 'FINALIZED' as finalized,
                    true as paid,
                    e.date_paid as target_date,
                    e.workspace_id

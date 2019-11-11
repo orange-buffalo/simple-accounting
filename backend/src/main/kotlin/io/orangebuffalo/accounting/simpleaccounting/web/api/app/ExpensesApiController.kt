@@ -6,7 +6,9 @@ import io.orangebuffalo.accounting.simpleaccounting.services.business.ExpenseSer
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
@@ -50,16 +52,23 @@ class ExpensesApiController(
                     datePaid = request.datePaid,
                     currency = request.currency,
                     originalAmount = request.originalAmount,
-                    amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
-                    actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0,
+                    convertedAmounts = AmountsInDefaultCurrency(
+                        originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency,
+                        adjustedAmountInDefaultCurrency = null
+                    ),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(
+                        originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency,
+                        adjustedAmountInDefaultCurrency = null
+                    ),
+                    useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes,
                     notes = request.notes,
                     percentOnBusiness = request.percentOnBusiness ?: 100,
                     attachments = extensions.getValidDocuments(workspace, request.attachments),
-                    reportedAmountInDefaultCurrency = 0,
-                    generalTax = generalTax
+                    generalTax = generalTax,
+                    status = ExpenseStatus.PENDING_CONVERSION
                 )
             )
-            .let(::mapExpenseDto)
+            .let(Expense::mapToExpenseDto)
     }
 
     @GetMapping
@@ -80,7 +89,7 @@ class ExpensesApiController(
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
             ?: throw EntityNotFoundException("Expense $expenseId is not found")
-        return mapExpenseDto(expense)
+        return expense.mapToExpenseDto()
     }
 
     @PutMapping("{expenseId}")
@@ -103,19 +112,16 @@ class ExpensesApiController(
                 datePaid = request.datePaid
                 currency = request.currency
                 originalAmount = request.originalAmount
-                amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0
-                actualAmountInDefaultCurrency = request.actualAmountInDefaultCurrency ?: 0
+                convertedAmounts.originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency
+                incomeTaxableAmounts.originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency
+                useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes
                 notes = request.notes
                 percentOnBusiness = request.percentOnBusiness ?: 100
                 attachments = extensions.getValidDocuments(workspace, request.attachments)
                 generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
             }
-            .let {
-                expenseService.saveExpense(it)
-            }
-            .let {
-                mapExpenseDto(it)
-            }
+            .let { expenseService.saveExpense(it) }
+            .mapToExpenseDto()
     }
 }
 
@@ -127,9 +133,6 @@ data class ExpenseDto(
     val datePaid: LocalDate,
     val currency: String,
     val originalAmount: Long,
-    val amountInDefaultCurrency: Long,
-    val actualAmountInDefaultCurrency: Long,
-    val reportedAmountInDefaultCurrency: Long,
     val attachments: List<Long>,
     val percentOnBusiness: Int,
     val notes: String?,
@@ -138,14 +141,17 @@ data class ExpenseDto(
     val status: ExpenseStatus,
     val generalTax: Long?,
     val generalTaxRateInBps: Int?,
-    val generalTaxAmount: Long?
+    val generalTaxAmount: Long?,
+    val convertedAmounts: AmountsDto,
+    val incomeTaxableAmounts: AmountsDto,
+    val useDifferentExchangeRateForIncomeTaxPurposes: Boolean
 )
 
-enum class ExpenseStatus {
-    FINALIZED,
-    PENDING_CONVERSION,
-    PENDING_ACTUAL_RATE
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class AmountsDto(
+    val originalAmountInDefaultCurrency: Long?,
+    val adjustedAmountInDefaultCurrency: Long?
+)
 
 data class EditExpenseDto(
     val category: Long?,
@@ -153,46 +159,44 @@ data class EditExpenseDto(
     @field:NotBlank val title: String,
     @field:NotBlank val currency: String,
     val originalAmount: Long,
-    val amountInDefaultCurrency: Long?,
-    val actualAmountInDefaultCurrency: Long?,
+    val convertedAmountInDefaultCurrency: Long?,
+    val useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
+    val incomeTaxableAmountInDefaultCurrency: Long?,
     val attachments: List<Long>?,
     val percentOnBusiness: Int?,
     @field:Size(max = 1024) val notes: String?,
     val generalTax: Long?
 )
 
-private fun mapExpenseDto(source: Expense) = ExpenseDto(
-    category = source.category?.id,
-    title = source.title,
-    datePaid = source.datePaid,
-    timeRecorded = source.timeRecorded,
-    currency = source.currency,
-    originalAmount = source.originalAmount,
-    amountInDefaultCurrency = source.amountInDefaultCurrency,
-    actualAmountInDefaultCurrency = source.actualAmountInDefaultCurrency,
-    attachments = source.attachments.map { it.id!! },
-    percentOnBusiness = source.percentOnBusiness,
-    reportedAmountInDefaultCurrency = source.reportedAmountInDefaultCurrency,
-    notes = source.notes,
-    id = source.id!!,
-    version = source.version,
-    status = getExpenseStatus(source),
-    generalTax = source.generalTax?.id,
-    generalTaxAmount = source.generalTaxAmount,
-    generalTaxRateInBps = source.generalTaxRateInBps
+private fun Expense.mapToExpenseDto() = ExpenseDto(
+    category = category?.id,
+    title = title,
+    datePaid = datePaid,
+    timeRecorded = timeRecorded,
+    currency = currency,
+    originalAmount = originalAmount,
+    convertedAmounts = convertedAmounts.mapToAmountsDto(),
+    useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+    incomeTaxableAmounts = incomeTaxableAmounts.mapToAmountsDto(),
+    attachments = attachments.map { it.id!! },
+    percentOnBusiness = percentOnBusiness,
+    notes = notes,
+    id = id!!,
+    version = version,
+    status = status,
+    generalTax = generalTax?.id,
+    generalTaxAmount = generalTaxAmount,
+    generalTaxRateInBps = generalTaxRateInBps
 )
 
-private fun getExpenseStatus(expense: Expense): ExpenseStatus {
-    return when {
-        expense.reportedAmountInDefaultCurrency > 0 -> ExpenseStatus.FINALIZED
-        expense.amountInDefaultCurrency > 0 -> ExpenseStatus.PENDING_ACTUAL_RATE
-        else -> ExpenseStatus.PENDING_CONVERSION
-    }
-}
+private fun AmountsInDefaultCurrency.mapToAmountsDto() = AmountsDto(
+    originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
+    adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency
+)
 
 @Component
 class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
-    override suspend fun mapEntityToDto(entity: Expense) = mapExpenseDto(entity)
+    override suspend fun mapEntityToDto(entity: Expense) = entity.mapToExpenseDto()
 
     override fun getSupportedFilters() = apiFilters(QExpense.expense) {
         byApiField("freeSearchText", String::class) {
@@ -202,18 +206,6 @@ class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
                     title.containsIgnoreCase(value),
                     category.name.containsIgnoreCase(value)
                 )
-            }
-        }
-
-        byApiField("status", ExpenseStatus::class) {
-            onOperator(PageableApiFilterOperator.EQ) { value ->
-                when (value) {
-                    ExpenseStatus.FINALIZED -> reportedAmountInDefaultCurrency.gt(0)
-                    ExpenseStatus.PENDING_ACTUAL_RATE -> reportedAmountInDefaultCurrency.eq(0)
-                        .and(amountInDefaultCurrency.gt(0))
-                    ExpenseStatus.PENDING_CONVERSION -> reportedAmountInDefaultCurrency.eq(0)
-                        .and(amountInDefaultCurrency.eq(0))
-                }
             }
         }
     }

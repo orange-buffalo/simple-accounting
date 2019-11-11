@@ -4,6 +4,8 @@ import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.ExpenseStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -47,7 +49,7 @@ internal class ExpensesApiControllerIT(
             .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("2")
+                inPath("$.totalElements").isNumber.isEqualTo("4")
 
                 inPath("$.data").isArray.containsExactlyInAnyOrder(
                     json(
@@ -56,9 +58,15 @@ internal class ExpensesApiControllerIT(
                             title: "best ever slurm",
                             currency: "THF",
                             originalAmount: 5000,
-                            amountInDefaultCurrency: 500,
-                            actualAmountInDefaultCurrency: 450,
-                            reportedAmountInDefaultCurrency: 450,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 500,
+                                adjustedAmountInDefaultCurrency: 500
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 500,
+                                adjustedAmountInDefaultCurrency: 500
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: false,
                             attachments: [],
                             percentOnBusiness: 100,
                             id: ${testData.firstSlurm.id},
@@ -75,9 +83,15 @@ internal class ExpensesApiControllerIT(
                             title: "another great slurm",
                             currency: "ZZB",
                             originalAmount: 5100,
-                            amountInDefaultCurrency: 510,
-                            actualAmountInDefaultCurrency: 460,
-                            reportedAmountInDefaultCurrency: 455,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 510,
+                                adjustedAmountInDefaultCurrency: 505
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 460,
+                                adjustedAmountInDefaultCurrency: 455
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [${testData.slurmReceipt.id}],
                             notes: "nice!",
                             percentOnBusiness: 99,
@@ -86,6 +100,53 @@ internal class ExpensesApiControllerIT(
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED"
+                    }"""
+                    ),
+
+                    json(
+                        """{
+                            category: ${testData.slurmCategory.id},
+                            title: "slurm is never enough",
+                            currency: "ZZB",
+                            originalAmount: 5100,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 510,
+                                adjustedAmountInDefaultCurrency: 459
+                            },
+                            incomeTaxableAmounts: {
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
+                            attachments: [],
+                            percentOnBusiness: 99,
+                            id: ${testData.thirdSlurm.id},
+                            version: 0,
+                            datePaid: "$MOCK_DATE_VALUE",
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            status: "PENDING_CONVERSION_FOR_TAXATION_PURPOSES",
+                            generalTax: ${testData.slurmTax.id},
+                            generalTaxRateInBps: 1000,
+                            generalTaxAmount: 46
+                    }"""
+                    ),
+
+                    json(
+                        """{
+                            category: ${testData.slurmCategory.id},
+                            title: "need more slurm",
+                            currency: "ZZB",
+                            originalAmount: 5100,
+                            convertedAmounts: {
+                            },
+                            incomeTaxableAmounts: {
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: false,
+                            attachments: [],
+                            percentOnBusiness: 100,
+                            id: ${testData.fourthSlurm.id},
+                            version: 0,
+                            datePaid: "$MOCK_DATE_VALUE",
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            status: "PENDING_CONVERSION"
                     }"""
                     )
                 )
@@ -128,9 +189,15 @@ internal class ExpensesApiControllerIT(
                             title: "best ever slurm",
                             currency: "THF",
                             originalAmount: 5000,
-                            amountInDefaultCurrency: 500,
-                            actualAmountInDefaultCurrency: 450,
-                            reportedAmountInDefaultCurrency: 450,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 500,
+                                adjustedAmountInDefaultCurrency: 500
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 500,
+                                adjustedAmountInDefaultCurrency: 500
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: false,
                             attachments: [],
                             percentOnBusiness: 100,
                             id: ${testData.firstSlurm.id},
@@ -192,9 +259,10 @@ internal class ExpensesApiControllerIT(
                     "title": "ever best drink",
                     "currency": "AUD",
                     "originalAmount": 30000,
-                    "amountInDefaultCurrency": 42000,
-                    "actualAmountInDefaultCurrency": 41500,
+                    "convertedAmountInDefaultCurrency": 42000,
+                    "incomeTaxableAmountInDefaultCurrency": 41500,
                     "attachments": [${testData.slurmReceipt.id}],
+                    "useDifferentExchangeRateForIncomeTaxPurposes": true,
                     "notes": "coffee",
                     "percentOnBusiness": 100,
                     "datePaid": "$MOCK_DATE_VALUE",
@@ -209,9 +277,15 @@ internal class ExpensesApiControllerIT(
                             title: "ever best drink",
                             currency: "AUD",
                             originalAmount: 30000,
-                            amountInDefaultCurrency: 42000,
-                            actualAmountInDefaultCurrency: 41500,
-                            reportedAmountInDefaultCurrency: 37727,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 42000,
+                                adjustedAmountInDefaultCurrency: 38182
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 41500,
+                                adjustedAmountInDefaultCurrency: 37727
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [${testData.slurmReceipt.id}],
                             notes: "coffee",
                             percentOnBusiness: 100,
@@ -249,7 +323,8 @@ internal class ExpensesApiControllerIT(
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
-                    "datePaid": "$MOCK_DATE_VALUE"
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -260,9 +335,15 @@ internal class ExpensesApiControllerIT(
                             title: "ever best drink",
                             currency: "USD",
                             originalAmount: 150,
-                            amountInDefaultCurrency: 150,
-                            actualAmountInDefaultCurrency: 150,
-                            reportedAmountInDefaultCurrency: 150,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 150,
+                                adjustedAmountInDefaultCurrency: 150
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 150,
+                                adjustedAmountInDefaultCurrency: 150
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: false,
                             percentOnBusiness: 100,
                             id: "#{json-unit.any-number}",
                             version: 0,
@@ -287,7 +368,8 @@ internal class ExpensesApiControllerIT(
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
-                    "datePaid": "$MOCK_DATE_VALUE"
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Category 537453 is not found")
@@ -304,7 +386,8 @@ internal class ExpensesApiControllerIT(
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
-                    "datePaid": "$MOCK_DATE_VALUE"
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Category ${testData.coffeeCategory.id} is not found")
@@ -322,7 +405,8 @@ internal class ExpensesApiControllerIT(
                     "currency": "USD",
                     "originalAmount": 150,
                     "datePaid": "$MOCK_DATE_VALUE",
-                    "generalTax": 4455
+                    "generalTax": 4455,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Tax 4455 is not found")
@@ -340,7 +424,8 @@ internal class ExpensesApiControllerIT(
                     "currency": "USD",
                     "originalAmount": 150,
                     "datePaid": "$MOCK_DATE_VALUE",
-                    "generalTax": ${testData.coffeeTax.id}
+                    "generalTax": ${testData.coffeeTax.id},
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Tax ${testData.coffeeTax.id} is not found")
@@ -364,8 +449,9 @@ internal class ExpensesApiControllerIT(
                     "title": "slurm -> beer",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "amountInDefaultCurrency": 30000,
-                    "actualAmountInDefaultCurrency": 40000,
+                    "convertedAmountInDefaultCurrency": 30000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": true,
+                    "incomeTaxableAmountInDefaultCurrency": 40000,
                     "attachments": [],
                     "notes": "beer",
                     "percentOnBusiness": 90,
@@ -381,9 +467,15 @@ internal class ExpensesApiControllerIT(
                             title: "slurm -> beer",
                             currency: "HHD",
                             originalAmount: 20000,
-                            amountInDefaultCurrency: 30000,
-                            actualAmountInDefaultCurrency: 40000,
-                            reportedAmountInDefaultCurrency: 32727,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 30000,
+                                adjustedAmountInDefaultCurrency: 24545
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 40000,
+                                adjustedAmountInDefaultCurrency: 32727
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [],
                             notes: "beer",
                             percentOnBusiness: 90,
@@ -411,7 +503,8 @@ internal class ExpensesApiControllerIT(
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "datePaid": "3000-02-02"
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -427,9 +520,11 @@ internal class ExpensesApiControllerIT(
                             datePaid: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "PENDING_CONVERSION",
-                            amountInDefaultCurrency: 0,
-                            actualAmountInDefaultCurrency: 0,
-                            reportedAmountInDefaultCurrency: 0,
+                            convertedAmounts: {
+                            },
+                            incomeTaxableAmounts: {
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: false,
                             percentOnBusiness: 100
                     }"""
                     )
@@ -447,7 +542,8 @@ internal class ExpensesApiControllerIT(
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "datePaid": "3000-02-02"
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
@@ -463,7 +559,8 @@ internal class ExpensesApiControllerIT(
                     "title": "coffee updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "datePaid": "3000-02-02"
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Expense ${testData.coffeeExpense.id} is not found")
@@ -479,7 +576,8 @@ internal class ExpensesApiControllerIT(
                     "title": "coffee updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "datePaid": "3000-02-02"
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Expense 5566 is not found")
@@ -496,7 +594,8 @@ internal class ExpensesApiControllerIT(
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "datePaid": "3000-02-02"
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Category 5566 is not found")
@@ -513,7 +612,8 @@ internal class ExpensesApiControllerIT(
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "datePaid": "3000-02-02"
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Category ${testData.coffeeCategory.id} is not found")
@@ -530,7 +630,8 @@ internal class ExpensesApiControllerIT(
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "datePaid": "3000-02-02"
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Tax 5566 is not found")
@@ -547,7 +648,8 @@ internal class ExpensesApiControllerIT(
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "datePaid": "3000-02-02"
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
             .verifyNotFound("Tax ${testData.coffeeTax.id} is not found")
@@ -570,9 +672,10 @@ internal class ExpensesApiControllerIT(
             category = coffeeCategory,
             currency = "THF",
             originalAmount = 50,
-            amountInDefaultCurrency = 50,
-            actualAmountInDefaultCurrency = 50,
-            reportedAmountInDefaultCurrency = 50,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(50),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(50),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
+            status = ExpenseStatus.FINALIZED,
             percentOnBusiness = 100
         )
 
@@ -582,9 +685,10 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "THF",
             originalAmount = 5000,
-            amountInDefaultCurrency = 500,
-            actualAmountInDefaultCurrency = 450,
-            reportedAmountInDefaultCurrency = 450
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(500),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(500),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
+            status = ExpenseStatus.FINALIZED
         )
 
         val secondSlurm = Prototypes.expense(
@@ -593,19 +697,59 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            amountInDefaultCurrency = 510,
-            actualAmountInDefaultCurrency = 460,
-            reportedAmountInDefaultCurrency = 455,
+            convertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 510,
+                adjustedAmountInDefaultCurrency = 505
+            ),
+            incomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 460,
+                adjustedAmountInDefaultCurrency = 455
+            ),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
+            status = ExpenseStatus.FINALIZED,
             percentOnBusiness = 99,
             notes = "nice!",
             attachments = setOf(slurmReceipt),
             generalTax = null
         )
 
+        val thirdSlurm = Prototypes.expense(
+            title = "slurm is never enough",
+            workspace = slurmCategory.workspace,
+            category = slurmCategory,
+            currency = "ZZB",
+            originalAmount = 5100,
+            convertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 510,
+                adjustedAmountInDefaultCurrency = 459
+            ),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
+            status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
+            percentOnBusiness = 99,
+            generalTax = slurmTax,
+            generalTaxRateInBps = 10_00,
+            generalTaxAmount = 46
+        )
+
+        val fourthSlurm = Prototypes.expense(
+            title = "need more slurm",
+            workspace = slurmCategory.workspace,
+            category = slurmCategory,
+            currency = "ZZB",
+            originalAmount = 5100,
+            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
+            status = ExpenseStatus.PENDING_CONVERSION,
+            percentOnBusiness = 100
+        )
+
         override fun generateData() = listOf(
-            farnsworth, fry, fryWorkspace, slurmCategory, slurmReceipt, firstSlurm, secondSlurm,
-            fryCoffeeWorkspace, coffeeCategory, coffeeExpense,
-            coffeeTax, slurmTax, beerCategory
+            farnsworth, fry, fryWorkspace, slurmCategory, slurmReceipt,
+            slurmTax, firstSlurm, secondSlurm, thirdSlurm, fourthSlurm,
+            fryCoffeeWorkspace, coffeeCategory, coffeeExpense, coffeeTax,
+            beerCategory
         )
 
         fun defaultNewExpense(): String = """{
@@ -613,8 +757,9 @@ internal class ExpensesApiControllerIT(
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 30000,
-                    "amountInDefaultCurrency": 42000,
-                    "actualAmountInDefaultCurrency": 41500,
+                    "convertedAmountInDefaultCurrency": 42000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": true,
+                    "incomeTaxableAmountInDefaultCurrency": 41500,
                     "attachments": [${slurmReceipt.id}],
                     "notes": "coffee",
                     "percentOnBusiness": 100,

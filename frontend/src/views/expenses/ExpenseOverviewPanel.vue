@@ -115,9 +115,9 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="expense.reportedAmountInDefaultCurrency"
+              v-if="expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="expense.reportedAmountInDefaultCurrency"
+              :amount="expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet provided</span>
@@ -146,7 +146,7 @@
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <MoneyOutput
-                v-if="isGeneralTaxAmountAvailable"
+                v-if="expense.generalTaxAmount"
                 :currency="defaultCurrency"
                 :amount="expense.generalTaxAmount"
               />
@@ -198,9 +198,9 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="expense.amountInDefaultCurrency"
+              v-if="expense.convertedAmounts.originalAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="expense.amountInDefaultCurrency"
+              :amount="expense.convertedAmounts.originalAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet available</span>
@@ -211,7 +211,7 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <!-- todo #6 localize -->
-            <span v-if="isReportedDifferentExchangeRate">Yes</span>
+            <span v-if="expense.useDifferentExchangeRateForIncomeTaxPurposes">Yes</span>
             <span v-else>No</span>
           </OverviewItemDetailsSectionAttribute>
 
@@ -220,9 +220,9 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="expense.actualAmountInDefaultCurrency"
+              v-if="expense.incomeTaxableAmounts.originalAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="expense.actualAmountInDefaultCurrency"
+              :amount="expense.incomeTaxableAmounts.originalAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet available</span>
@@ -261,7 +261,6 @@
 </template>
 
 <script>
-  import { isNil } from 'lodash/lang';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
@@ -277,7 +276,6 @@
   import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
   import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
   import SaActionLink from '@/components/SaActionLink';
-  import SaIcon from '@/components/SaIcon';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
 
@@ -288,7 +286,6 @@
       MoneyOutput,
       DocumentLink,
       OverviewItem,
-      SaIcon,
       OverviewItemAttributePreviewIcon,
       OverviewItemPrimaryAttribute,
       OverviewItemDetailsSection,
@@ -327,46 +324,34 @@
       fullStatusText() {
         if (this.expense.status === 'FINALIZED') {
           return 'Finalized';
-        } if (this.expense.status === 'PENDING_CONVERSION') {
+        }
+        if (this.expense.status === 'PENDING_CONVERSION') {
           return `Conversion to ${this.defaultCurrency} pending`;
         }
         return 'Waiting for exchange rate';
       },
 
       totalAmount() {
-        if (this.expense.status === 'FINALIZED') {
+        if (this.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
           return {
-            value: this.expense.reportedAmountInDefaultCurrency,
+            value: this.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
             currency: this.defaultCurrency,
           };
-        } if (this.expense.status === 'PENDING_CONVERSION') {
+        }
+        if (this.expense.convertedAmounts.adjustedAmountInDefaultCurrency) {
           return {
-            value: this.expense.originalAmount,
-            currency: this.expense.currency,
+            value: this.expense.convertedAmounts.adjustedAmountInDefaultCurrency,
+            currency: this.defaultCurrency,
           };
         }
         return {
-          value: this.expense.amountInDefaultCurrency,
-          currency: this.defaultCurrency,
+          value: this.expense.originalAmount,
+          currency: this.expense.currency,
         };
-      },
-
-      amountInDefaultCurrency() {
-        return this.expense.currency === this.defaultCurrency
-          ? this.expense.originalAmount : this.expense.amountInDefaultCurrency;
       },
 
       isForeignCurrency() {
         return this.expense.currency !== this.defaultCurrency;
-      },
-
-      isConverted() {
-        return this.expense.amountInDefaultCurrency;
-      },
-
-      isReportedDifferentExchangeRate() {
-        return !isNil(this.expense.actualAmountInDefaultCurrency)
-          && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency);
       },
 
       datePaid() {
@@ -375,10 +360,6 @@
 
       isGeneralTaxApplicable() {
         return this.expense.generalTax && this.generalTaxTitle;
-      },
-
-      isGeneralTaxAmountAvailable() {
-        return this.expense.status === 'FINALIZED';
       },
 
       generalTaxTitle() {
@@ -398,11 +379,17 @@
       },
 
       navigateToExpenseEdit() {
-        this.$router.push({ name: 'edit-expense', params: { id: this.expense.id } });
+        this.$router.push({
+          name: 'edit-expense',
+          params: { id: this.expense.id },
+        });
       },
 
       navigateToExpenseCreateWithPrototype() {
-        this.$router.push({ name: 'create-new-expense', params: { prototype: this.expense } });
+        this.$router.push({
+          name: 'create-new-expense',
+          params: { prototype: this.expense },
+        });
       },
     },
   };

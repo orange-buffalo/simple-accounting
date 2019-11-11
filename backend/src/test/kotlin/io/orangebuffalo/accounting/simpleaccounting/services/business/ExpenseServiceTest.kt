@@ -3,26 +3,32 @@ package io.orangebuffalo.accounting.simpleaccounting.services.business
 import com.nhaarman.mockito_kotlin.doAnswer
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.accounting.simpleaccounting.Prototypes
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Expense
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.GeneralTax
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.ExpenseRepository
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import java.time.Instant
-import java.time.LocalDate
+import javax.persistence.EntityManagerFactory
 
 @ExtendWith(MockitoExtension::class)
+@DisplayName("ExpenseService")
 internal class ExpenseServiceTest {
 
     @field:Mock
     private lateinit var expenseRepository: ExpenseRepository
+
+    @field:Mock
+    private lateinit var entityManagerFactory: EntityManagerFactory
 
     @field:InjectMocks
     private lateinit var expenseService: ExpenseService
@@ -30,290 +36,544 @@ internal class ExpenseServiceTest {
     private val workspace = Prototypes.workspace()
     private val generalTaxFromWorkspace = Prototypes.generalTax(workspace = workspace, rateInBps = 10_00)
 
-    @BeforeEach
-    fun setup() {
-        whenever(expenseRepository.save(any<Expense>())) doAnswer { invocation ->
-            invocation.arguments[0] as Expense
-        }
+    @Test
+    fun `should fail on expense validation if expense is in default currency and converted amount differs`() {
+        val expense = Prototypes.expense(
+            currency = workspace.defaultCurrency,
+            originalAmount = 200,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(199)
+        )
+        assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
+            .hasMessage("Inconsistent expense: converted amount does not match original for default currency")
     }
 
     @Test
-    fun `should set reset the values for default currency`() =
+    fun `should fail on expense validation if expense is in default currency and income taxable amount differs`() {
+        val expense = Prototypes.expense(
+            currency = workspace.defaultCurrency,
+            originalAmount = 200,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(200),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(199)
+        )
+        assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
+            .hasMessage("Inconsistent expense: income taxable amount does not match original for default currency")
+    }
+
+    @Test
+    fun `should fail on expense validation if same conversion rate is used but amounts differ`() {
+        val expense = Prototypes.expense(
+            currency = "--${workspace.defaultCurrency}--",
+            originalAmount = 200,
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(200),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(199)
+        )
+        assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
+            .hasMessage("Inconsistent expense: amounts do not match but same exchange rate is used")
+    }
+
+    @Test
+    fun `should fail on expense validation if expense is finalized but amounts are missing`() {
+        val expense = Prototypes.expense(
+            status = ExpenseStatus.FINALIZED,
+            currency = "--${workspace.defaultCurrency}--",
+            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency()
+        )
+        assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
+            .hasMessage("Inconsistent expense: amounts are not provided for finalized expense")
+    }
+
+    @Test
+    fun `should successfully validate valid expense`() {
+        val expense = Prototypes.expense(
+            status = ExpenseStatus.FINALIZED,
+            currency = "--${workspace.defaultCurrency}--",
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(200)
+        )
+        expenseService.validateExpenseConsistency(expense)
+    }
+
+    @Test
+    fun `should reset the values for default currency`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                amountInDefaultCurrency = 33,
-                actualAmountInDefaultCurrency = 33,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = workspace.defaultCurrency,
-                percentOnBusiness = 100
+                workspace = workspace,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 45,
-            expectedAmountInDefaultCurrency = 45,
-            expectedActualAmountInDefaultCurrency = 45,
-            expectedReportedAmountInDefaultCurrency = 45,
+            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(45),
+            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(45),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
-            expectedGeneralTaxRateInBps = null
+            expectedGeneralTaxRateInBps = null,
+            expectedStatus = ExpenseStatus.FINALIZED,
+            expectedUseDifferentExchangeRates = false
         )
 
     @Test
     fun `should calculate percent on business for default currency`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                amountInDefaultCurrency = 33,
-                actualAmountInDefaultCurrency = 33,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = workspace.defaultCurrency,
-                percentOnBusiness = 10
+                workspace = workspace,
+                percentOnBusiness = 10,
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 45,
-            expectedAmountInDefaultCurrency = 45,
-            expectedActualAmountInDefaultCurrency = 45,
-            expectedReportedAmountInDefaultCurrency = 5,
+            expectedConvertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 45,
+                adjustedAmountInDefaultCurrency = 5
+            ),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 45,
+                adjustedAmountInDefaultCurrency = 5
+            ),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
-            expectedGeneralTaxRateInBps = null
+            expectedGeneralTaxRateInBps = null,
+            expectedStatus = ExpenseStatus.FINALIZED,
+            expectedUseDifferentExchangeRates = false
         )
 
     @Test
     fun `should calculate tax on default currency`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 4500,
-                amountInDefaultCurrency = 33,
-                actualAmountInDefaultCurrency = 33,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = workspace.defaultCurrency,
-                percentOnBusiness = 100
+                workspace = workspace,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 4500,
-            expectedAmountInDefaultCurrency = 4500,
-            expectedActualAmountInDefaultCurrency = 4500,
-            expectedReportedAmountInDefaultCurrency = 4091, // base for 10% added tax
+            expectedConvertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 4500,
+                adjustedAmountInDefaultCurrency = 4091 // base for 10% added tax
+            ),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 4500,
+                adjustedAmountInDefaultCurrency = 4091
+            ),
             expectedGeneralTax = generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 409, // original amount - reported amount
-            expectedGeneralTaxRateInBps = 10_00
+            expectedGeneralTaxRateInBps = 10_00,
+            expectedStatus = ExpenseStatus.FINALIZED,
+            expectedUseDifferentExchangeRates = false
         )
 
     @Test
     fun `should calculate tax on default currency with percent on business`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 450,
-                amountInDefaultCurrency = 33,
-                actualAmountInDefaultCurrency = 33,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = workspace.defaultCurrency,
-                percentOnBusiness = 90
+                workspace = workspace,
+                percentOnBusiness = 90,
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 450,
-            expectedAmountInDefaultCurrency = 450,
-            expectedActualAmountInDefaultCurrency = 450,
-            expectedReportedAmountInDefaultCurrency = 368, // 90% of 450 = 405, base for 10% added tax is 368
+            expectedConvertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 450,
+                adjustedAmountInDefaultCurrency = 368 // 90% of 450 = 405, base for 10% added tax is 368
+            ),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 450,
+                adjustedAmountInDefaultCurrency = 368
+            ),
             expectedGeneralTax = generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 37, // business spent amount 405 - base amount 368
-            expectedGeneralTaxRateInBps = 10_00
+            expectedGeneralTaxRateInBps = 10_00,
+            expectedStatus = ExpenseStatus.FINALIZED,
+            expectedUseDifferentExchangeRates = false
         )
 
     @Test
-    fun `should keep amounts at 0 if not yet converted`() =
+    fun `should keep amounts as null if not yet converted`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                amountInDefaultCurrency = 0,
-                actualAmountInDefaultCurrency = 33,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
-                percentOnBusiness = 100
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 45,
-            expectedAmountInDefaultCurrency = 0,
-            expectedActualAmountInDefaultCurrency = 0,
-            expectedReportedAmountInDefaultCurrency = 0,
+            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
-            expectedGeneralTaxRateInBps = null
+            expectedGeneralTaxRateInBps = null,
+            expectedStatus = ExpenseStatus.PENDING_CONVERSION,
+            expectedUseDifferentExchangeRates = true
         )
 
     @Test
-    fun `should keep amounts at 0 if actual amount not yet provided`() =
+    fun `should set amount to null if not yet converted and same rate used for conversion`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                amountInDefaultCurrency = 40,
-                actualAmountInDefaultCurrency = 0,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = null,
+                    adjustedAmountInDefaultCurrency = 42
+                ),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
-                percentOnBusiness = 100
+                workspace = workspace,
+                percentOnBusiness = 100,
+                status = ExpenseStatus.FINALIZED,
+                useDifferentExchangeRateForIncomeTaxPurposes = false
             ),
             expectedOriginalAmount = 45,
-            expectedAmountInDefaultCurrency = 40,
-            expectedActualAmountInDefaultCurrency = 0,
-            expectedReportedAmountInDefaultCurrency = 0,
+            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
-            expectedGeneralTaxRateInBps = null
+            expectedGeneralTaxRateInBps = null,
+            expectedUseDifferentExchangeRates = false,
+            expectedStatus = ExpenseStatus.PENDING_CONVERSION
         )
 
     @Test
-    fun `should use actual amount if provided`() =
+    fun `should keep income taxable amount if not yet converted and different rate used for conversion`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                amountInDefaultCurrency = 40,
-                actualAmountInDefaultCurrency = 41,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = null,
+                    adjustedAmountInDefaultCurrency = 42
+                ),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
-                percentOnBusiness = 100
+                workspace = workspace,
+                percentOnBusiness = 100,
+                status = ExpenseStatus.FINALIZED,
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 45,
-            expectedAmountInDefaultCurrency = 40,
-            expectedActualAmountInDefaultCurrency = 41,
-            expectedReportedAmountInDefaultCurrency = 41,
+            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
-            expectedGeneralTaxRateInBps = null
+            expectedGeneralTaxRateInBps = null,
+            expectedUseDifferentExchangeRates = true,
+            expectedStatus = ExpenseStatus.PENDING_CONVERSION
         )
 
     @Test
-    fun `should use actual amount to calculate percent on business`() =
+    fun `should propagate converted amount if same rate is used`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                amountInDefaultCurrency = 40,
-                actualAmountInDefaultCurrency = 41,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
-                percentOnBusiness = 90
+                workspace = workspace,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 45,
-            expectedAmountInDefaultCurrency = 40,
-            expectedActualAmountInDefaultCurrency = 41,
-            expectedReportedAmountInDefaultCurrency = 37, // 90% of actual amount 41
+            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(30),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
-            expectedGeneralTaxRateInBps = null
+            expectedGeneralTaxRateInBps = null,
+            expectedUseDifferentExchangeRates = false,
+            expectedStatus = ExpenseStatus.FINALIZED
         )
 
     @Test
-    fun `should calculate tax bases on actual amount`() =
+    fun `should keep income taxable amount if different rate is used`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
+                generalTax = null,
+                originalAmount = 45,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+                generalTaxRateInBps = 33,
+                generalTaxAmount = 33,
+                currency = "--${workspace.defaultCurrency}--",
+                workspace = workspace,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                status = ExpenseStatus.PENDING_CONVERSION
+            ),
+            expectedOriginalAmount = 45,
+            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+            expectedGeneralTax = null,
+            expectedGeneralTaxAmount = null,
+            expectedGeneralTaxRateInBps = null,
+            expectedUseDifferentExchangeRates = true,
+            expectedStatus = ExpenseStatus.FINALIZED
+        )
+
+    @Test
+    fun `should keep income taxable amount empty if different rate is used`() =
+        executeSaveExpenseAndAssert(
+            expense = Prototypes.expense(
+                generalTax = null,
+                originalAmount = 45,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = null,
+                    adjustedAmountInDefaultCurrency = 300
+                ),
+                generalTaxRateInBps = 33,
+                generalTaxAmount = 33,
+                currency = "--${workspace.defaultCurrency}--",
+                workspace = workspace,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                status = ExpenseStatus.PENDING_CONVERSION
+            ),
+            expectedOriginalAmount = 45,
+            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedGeneralTax = null,
+            expectedGeneralTaxAmount = null,
+            expectedGeneralTaxRateInBps = null,
+            expectedUseDifferentExchangeRates = true,
+            expectedStatus = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
+        )
+
+    @Test
+    fun `should use converted amounts to calculate percent on business`() =
+        executeSaveExpenseAndAssert(
+            expense = Prototypes.expense(
+                generalTax = null,
+                originalAmount = 45,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(41),
+                generalTaxRateInBps = 33,
+                generalTaxAmount = 33,
+                currency = "--${workspace.defaultCurrency}--",
+                workspace = workspace,
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                percentOnBusiness = 90,
+                status = ExpenseStatus.PENDING_CONVERSION
+            ),
+            expectedOriginalAmount = 45,
+            expectedConvertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 30,
+                adjustedAmountInDefaultCurrency = 27 // 90% of amount of 30
+            ),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 41,
+                adjustedAmountInDefaultCurrency = 37 // 90% of actual amount 41
+            ),
+            expectedGeneralTax = null,
+            expectedGeneralTaxAmount = null,
+            expectedGeneralTaxRateInBps = null,
+            expectedUseDifferentExchangeRates = true,
+            expectedStatus = ExpenseStatus.FINALIZED
+        )
+
+    @Test
+    fun `should calculate tax based on income taxable amount if different rate is used`() =
+        executeSaveExpenseAndAssert(
+            expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 45,
-                amountInDefaultCurrency = 40,
-                actualAmountInDefaultCurrency = 41,
-                reportedAmountInDefaultCurrency = 33,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(41),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
-                percentOnBusiness = 100
+                workspace = workspace,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 45,
-            expectedAmountInDefaultCurrency = 40,
-            expectedActualAmountInDefaultCurrency = 41,
-            expectedReportedAmountInDefaultCurrency = 37, // base for 10% added tax to get 41
+            expectedConvertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 30,
+                adjustedAmountInDefaultCurrency = 27 // base for 10% added tax to get 30
+            ),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 41,
+                adjustedAmountInDefaultCurrency = 37 // base for 10% added tax to get 41
+            ),
             expectedGeneralTax = generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 4, // actual amount 41 - base amount 37
-            expectedGeneralTaxRateInBps = 10_00
+            expectedGeneralTaxRateInBps = 10_00,
+            expectedUseDifferentExchangeRates = true,
+            expectedStatus = ExpenseStatus.FINALIZED
         )
 
     @Test
-    fun `should calculate tax bases on actual amount if percent on business provided`() =
+    fun `should calculate tax bases on converted amount if same rate is used`() =
         executeSaveExpenseAndAssert(
-            expense = createExpense(
+            expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
-                originalAmount = 4500,
-                amountInDefaultCurrency = 4000,
-                actualAmountInDefaultCurrency = 4100,
-                reportedAmountInDefaultCurrency = 3300,
+                originalAmount = 45,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(41),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
-                percentOnBusiness = 80
+                workspace = workspace,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.PENDING_CONVERSION
+            ),
+            expectedOriginalAmount = 45,
+            expectedConvertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 41,
+                adjustedAmountInDefaultCurrency = 37 // base for 10% added tax to get 41
+            ),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 41,
+                adjustedAmountInDefaultCurrency = 37
+            ),
+            expectedGeneralTax = generalTaxFromWorkspace,
+            expectedGeneralTaxAmount = 4, // actual amount 41 - base amount 37
+            expectedGeneralTaxRateInBps = 10_00,
+            expectedUseDifferentExchangeRates = false,
+            expectedStatus = ExpenseStatus.FINALIZED
+        )
+
+    @Test
+    fun `should calculate tax based on income taxable amount if percent on business provided and different rate used`() =
+        executeSaveExpenseAndAssert(
+            expense = Prototypes.expense(
+                generalTax = generalTaxFromWorkspace,
+                originalAmount = 4500,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(4000),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(4100),
+                generalTaxRateInBps = 33,
+                generalTaxAmount = 33,
+                currency = "--${workspace.defaultCurrency}--",
+                workspace = workspace,
+                percentOnBusiness = 80,
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 4500,
-            expectedAmountInDefaultCurrency = 4000,
-            expectedActualAmountInDefaultCurrency = 4100,
-            expectedReportedAmountInDefaultCurrency = 2982, // 80% of 4100 = 3280, base for 10% added tax for 3280 is 2982
+            expectedConvertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 4000,
+                adjustedAmountInDefaultCurrency = 2909  // 80% of 4000 = 3200, base for 10% added tax for 3200 is 2909
+            ),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 4100,
+                adjustedAmountInDefaultCurrency = 2982 // 80% of 4100 = 3280, base for 10% added tax for 3280 is 2982
+            ),
             expectedGeneralTax = generalTaxFromWorkspace,
-            expectedGeneralTaxAmount = 298, // 3280 of actual amount - base amount of 2982
-            expectedGeneralTaxRateInBps = 10_00
+            expectedGeneralTaxAmount = 298, // 3280 of taxable amount - base amount of 2982
+            expectedGeneralTaxRateInBps = 10_00,
+            expectedUseDifferentExchangeRates = true,
+            expectedStatus = ExpenseStatus.FINALIZED
+        )
+
+    @Test
+    fun `should calculate tax based on converted amount if percent on business provided and same rate used`() =
+        executeSaveExpenseAndAssert(
+            expense = Prototypes.expense(
+                generalTax = generalTaxFromWorkspace,
+                originalAmount = 4500,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(4000),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(4100),
+                generalTaxRateInBps = 33,
+                generalTaxAmount = 33,
+                currency = "--${workspace.defaultCurrency}--",
+                workspace = workspace,
+                percentOnBusiness = 80,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.PENDING_CONVERSION
+            ),
+            expectedOriginalAmount = 4500,
+            expectedConvertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 4000,
+                adjustedAmountInDefaultCurrency = 2909  // 80% of 4000 = 3200, base for 10% added tax for 3200 is 2909
+            ),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 4000,
+                adjustedAmountInDefaultCurrency = 2909
+            ),
+            expectedGeneralTax = generalTaxFromWorkspace,
+            expectedGeneralTaxAmount = 291, // based on converted amount of 3200
+            expectedGeneralTaxRateInBps = 10_00,
+            expectedUseDifferentExchangeRates = false,
+            expectedStatus = ExpenseStatus.FINALIZED
         )
 
     private fun executeSaveExpenseAndAssert(
         expense: Expense,
         expectedOriginalAmount: Long,
-        expectedAmountInDefaultCurrency: Long,
-        expectedActualAmountInDefaultCurrency: Long,
+        expectedConvertedAmounts: AmountsInDefaultCurrency,
+        expectedIncomeTaxableAmounts: AmountsInDefaultCurrency,
         expectedGeneralTax: GeneralTax?,
-        expectedGeneralTaxRateInBps: Int? = null,
-        expectedGeneralTaxAmount: Long? = null,
-        expectedReportedAmountInDefaultCurrency: Long
+        expectedGeneralTaxRateInBps: Int?,
+        expectedGeneralTaxAmount: Long?,
+        expectedStatus: ExpenseStatus,
+        expectedUseDifferentExchangeRates: Boolean
     ) {
+        setupSaveExpenseMock()
+
         val actualExpense = runBlocking {
             expenseService.saveExpense(expense)
         }
 
         assertThat(actualExpense.originalAmount).isEqualTo(expectedOriginalAmount)
-        assertThat(actualExpense.amountInDefaultCurrency).isEqualTo(expectedAmountInDefaultCurrency)
-        assertThat(actualExpense.actualAmountInDefaultCurrency).isEqualTo(expectedActualAmountInDefaultCurrency)
-        assertThat(actualExpense.reportedAmountInDefaultCurrency).isEqualTo(expectedReportedAmountInDefaultCurrency)
+        assertThat(actualExpense.status).isEqualTo(expectedStatus)
+        assertThat(actualExpense.convertedAmounts).isEqualTo(expectedConvertedAmounts)
+        assertThat(actualExpense.incomeTaxableAmounts).isEqualTo(expectedIncomeTaxableAmounts)
         assertThat(actualExpense.generalTax).isEqualTo(expectedGeneralTax)
         assertThat(actualExpense.generalTaxAmount).isEqualTo(expectedGeneralTaxAmount)
         assertThat(actualExpense.generalTaxRateInBps).isEqualTo(expectedGeneralTaxRateInBps)
+        assertThat(actualExpense.useDifferentExchangeRateForIncomeTaxPurposes)
+            .isEqualTo(expectedUseDifferentExchangeRates)
     }
 
-    private fun createExpense(
-        currency: String,
-        originalAmount: Long,
-        amountInDefaultCurrency: Long,
-        actualAmountInDefaultCurrency: Long,
-        percentOnBusiness: Int,
-        generalTax: GeneralTax?,
-        generalTaxRateInBps: Int? = null,
-        generalTaxAmount: Long? = null,
-        reportedAmountInDefaultCurrency: Long
-    ) = Expense(
-        currency = currency,
-        generalTax = generalTax,
-        originalAmount = originalAmount,
-        amountInDefaultCurrency = amountInDefaultCurrency,
-        actualAmountInDefaultCurrency = actualAmountInDefaultCurrency,
-        reportedAmountInDefaultCurrency = reportedAmountInDefaultCurrency,
-        percentOnBusiness = percentOnBusiness,
-        generalTaxRateInBps = generalTaxRateInBps,
-        generalTaxAmount = generalTaxAmount,
-        category = Prototypes.category(workspace = workspace),
-        workspace = workspace,
-        title = "title",
-        timeRecorded = Instant.MIN,
-        datePaid = LocalDate.MIN
-    )
+    private fun setupSaveExpenseMock() {
+        whenever(expenseRepository.save(any<Expense>())) doAnswer { invocation ->
+            invocation.arguments[0] as Expense
+        }
+    }
 }

@@ -51,7 +51,7 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Amount"
+              label="Original Amount"
               prop="originalAmount"
             >
               <MoneyInput
@@ -91,49 +91,43 @@
               </ElSelect>
             </ElFormItem>
 
-            <ElFormItem v-if="!isInDefaultCurrency">
-              <ElCheckbox v-model="alreadyConverted">
-                Already converted
-              </ElCheckbox>
-            </ElFormItem>
-
             <ElFormItem
-              v-if="defaultCurrencyAmountVisible"
+              v-if="isInForeignCurrency"
               :label="`Amount in ${defaultCurrency}`"
-              prop="amountInDefaultCurrency"
+              prop="convertedAmountInDefaultCurrency"
             >
               <MoneyInput
-                v-model="expense.amountInDefaultCurrency"
+                v-model="expense.convertedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
             </ElFormItem>
 
-            <ElFormItem v-if="alreadyConverted">
-              <ElCheckbox v-model="reportedAnotherExchangeRate">
-                Reported converted amount is different (using another rate)
+            <ElFormItem v-if="isInForeignCurrency">
+              <ElCheckbox v-model="expense.useDifferentExchangeRateForIncomeTaxPurposes">
+                Using different exchange rate for taxation purposes
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
-              v-if="actualAmountVisible"
-              label="Reported Amount"
-              prop="actualAmountInDefaultCurrency"
+              v-if="expense.useDifferentExchangeRateForIncomeTaxPurposes"
+              :label="`Amount in ${defaultCurrency} for taxation purposes`"
+              prop="incomeTaxableAmountInDefaultCurrency"
             >
               <MoneyInput
-                v-model="expense.actualAmountInDefaultCurrency"
+                v-model="expense.incomeTaxableAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
             </ElFormItem>
 
             <ElFormItem>
               <ElCheckbox v-model="partialForBusiness">
-                Expense is partially purposed for the business needs
+                Partial Business Purpose
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
-              v-if="percentOnBusinessVisible"
-              label="% spent on business"
+              v-if="partialForBusiness"
+              label="% related to business activities"
               prop="percentOnBusiness"
             >
               <ElInputNumber
@@ -194,7 +188,6 @@
 </template>
 
 <script>
-  import { assign, isNil } from 'lodash';
   import { api } from '@/services/api';
   import DocumentsUpload from '@/components/DocumentsUpload';
   import CurrencyInput from '@/components/CurrencyInput';
@@ -236,8 +229,9 @@
           title: null,
           currency: null,
           originalAmount: null,
-          amountInDefaultCurrency: null,
-          actualAmountInDefaultCurrency: null,
+          convertedAmountInDefaultCurrency: null,
+          incomeTaxableAmountInDefaultCurrency: null,
+          useDifferentExchangeRateForIncomeTaxPurposes: false,
           attachments: [],
           percentOnBusiness: 100,
           notes: null,
@@ -263,27 +257,13 @@
             message: 'Please provide expense amount',
           },
         },
-        alreadyConverted: false,
-        reportedAnotherExchangeRate: false,
         partialForBusiness: false,
       };
     },
 
     computed: {
-      isInDefaultCurrency() {
-        return this.expense.currency === this.defaultCurrency;
-      },
-
-      defaultCurrencyAmountVisible() {
-        return this.alreadyConverted && !this.isInDefaultCurrency;
-      },
-
-      actualAmountVisible() {
-        return this.defaultCurrencyAmountVisible && this.reportedAnotherExchangeRate && !this.isInDefaultCurrency;
-      },
-
-      percentOnBusinessVisible() {
-        return this.partialForBusiness;
+      isInForeignCurrency() {
+        return this.expense.currency !== this.defaultCurrency;
       },
 
       pageHeader() {
@@ -295,44 +275,41 @@
       if (this.id) {
         await this.loadExpense();
       } else if (this.prototype) {
-        await this.copyExpenseFromPrototype();
+        this.copyExpenseProperties(this.prototype, {
+          datePaid: null,
+        });
+        await this.setupComponentState();
       }
     },
 
     methods: {
       async loadExpense() {
         const expenseResponse = await api.get(`/workspaces/${this.currentWorkspace.id}/expenses/${this.id}`);
-        this.expense = assign({}, this.expense, expenseResponse.data);
+        this.copyExpenseProperties(expenseResponse.data);
         await this.setupComponentState();
       },
 
-      async copyExpenseFromPrototype() {
+      copyExpenseProperties(sourceExpense, overrides) {
+        const {
+          convertedAmounts,
+          incomeTaxableAmounts,
+          generalTaxRateInBps,
+          generalTaxAmount,
+          status,
+          version,
+          timeRecorded,
+          ...expenseEditProperties
+        } = sourceExpense;
         this.expense = {
-          ...this.expense,
-          ...{
-            category: this.prototype.category,
-            title: this.prototype.title,
-            currency: this.prototype.currency,
-            originalAmount: this.prototype.originalAmount,
-            amountInDefaultCurrency: this.prototype.amountInDefaultCurrency,
-            actualAmountInDefaultCurrency: this.prototype.actualAmountInDefaultCurrency,
-            percentOnBusiness: this.prototype.percentOnBusiness,
-            notes: this.prototype.notes,
-            generalTax: this.prototype.generalTax,
-          },
+          ...expenseEditProperties,
+          convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
+          incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
+          ...overrides,
+          uploads: new UploadsInfo(),
         };
-        await this.setupComponentState();
       },
 
       async setupComponentState() {
-        this.alreadyConverted = this.expense.currency !== this.defaultCurrency
-          && !isNil(this.expense.amountInDefaultCurrency)
-          && this.expense.amountInDefaultCurrency > 0;
-
-        this.reportedAnotherExchangeRate = this.expense.currency !== this.defaultCurrency
-          && !isNil(this.expense.actualAmountInDefaultCurrency)
-          && (this.expense.actualAmountInDefaultCurrency !== this.expense.amountInDefaultCurrency);
-
         this.partialForBusiness = this.expense.percentOnBusiness !== 100;
 
         if (this.expense.attachments && this.expense.attachments.length) {
@@ -366,19 +343,16 @@
           return;
         }
 
+        const {
+          uploads,
+          id,
+          ...expensePropertiesToPush
+        } = this.expense;
+
         const expenseToPush = {
-          category: this.expense.category,
-          datePaid: this.expense.datePaid,
-          title: this.expense.title,
-          currency: this.expense.currency,
-          originalAmount: this.expense.originalAmount,
-          amountInDefaultCurrency: this.alreadyConverted ? this.expense.amountInDefaultCurrency : null,
-          actualAmountInDefaultCurrency: this.reportedAnotherExchangeRate
-            ? this.expense.actualAmountInDefaultCurrency : this.expense.amountInDefaultCurrency,
-          attachments: this.expense.uploads.getDocumentsIds(),
+          ...expensePropertiesToPush,
           percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
-          notes: this.expense.notes,
-          generalTax: this.expense.generalTax,
+          attachments: this.expense.uploads.getDocumentsIds(),
         };
 
         if (this.expense.id) {

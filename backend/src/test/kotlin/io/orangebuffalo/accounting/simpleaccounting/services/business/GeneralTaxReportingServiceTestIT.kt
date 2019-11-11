@@ -5,8 +5,9 @@ import assertk.assertions.containsOnly
 import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedGeneralTaxSummaryItem
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingGeneralTaxSummaryItem
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.ExpenseStatus
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.FinalizedGeneralTaxSummaryItem
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PendingGeneralTaxSummaryItem
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -125,9 +126,13 @@ class GeneralTaxReportTestData : TestData {
             category = secretCategory,
             workspace = leagueOfRobots,
             datePaid = dateFrom.plusDays(1),
-            reportedAmountInDefaultCurrency = 30000,
+            originalAmount = 30000,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(30000),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(30000),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
             generalTax = secretTax,
-            generalTaxAmount = 4555
+            generalTaxAmount = 4555,
+            status = ExpenseStatus.FINALIZED
         ),
         collectedTax1, collectedTax2, paidTax1, generalTax,
 
@@ -139,69 +144,104 @@ class GeneralTaxReportTestData : TestData {
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = null,
-            reportedAmountInDefaultCurrency = 10000,
-            datePaid = dateFrom.plusDays(1)
+            originalAmount = 10000,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(10000),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(10000),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
+            datePaid = dateFrom.plusDays(1),
+            status = ExpenseStatus.FINALIZED
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = generalTax,
-            reportedAmountInDefaultCurrency = 20,
+            currency = "ZZG",
+            originalAmount = 30000,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(100000),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(20),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
             generalTaxAmount = 2,
-            datePaid = dateFrom.plusDays(1)
+            datePaid = dateFrom.plusDays(1),
+            status = ExpenseStatus.FINALIZED
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = collectedTax2,
-            reportedAmountInDefaultCurrency = 30,
+            originalAmount = 30,
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(30),
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
             generalTaxAmount = 4,
-            datePaid = dateFrom
+            datePaid = dateFrom,
+            status = ExpenseStatus.FINALIZED
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = collectedTax2,
-            reportedAmountInDefaultCurrency = 40,
+            originalAmount = 40,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(40),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(40),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
             generalTaxAmount = 6,
-            datePaid = dateTo
+            datePaid = dateTo,
+            status = ExpenseStatus.FINALIZED
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = null,
-            reportedAmountInDefaultCurrency = 0,
-            datePaid = dateFrom.plusDays(1)
+            currency = "ZZG",
+            originalAmount = 30000,
+            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
+            datePaid = dateFrom.plusDays(1),
+            status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = collectedTax1,
-            reportedAmountInDefaultCurrency = 0,
-            datePaid = dateFrom.plusDays(1)
+            currency = "ZZG",
+            originalAmount = 30000,
+            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
+            datePaid = dateFrom.plusDays(1),
+            status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = collectedTax1,
-            reportedAmountInDefaultCurrency = 100,
+            originalAmount = 100,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
             generalTaxAmount = 20,
-            datePaid = dateFrom.minusDays(1)
+            datePaid = dateFrom.minusDays(1),
+            status = ExpenseStatus.FINALIZED
         ),
 
         Prototypes.expense(
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = collectedTax1,
-            reportedAmountInDefaultCurrency = 100,
+            originalAmount = 100,
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
             generalTaxAmount = 30,
-            datePaid = dateTo.plusDays(1)
+            datePaid = dateTo.plusDays(1),
+            status = ExpenseStatus.FINALIZED
         ),
 
         Prototypes.income(

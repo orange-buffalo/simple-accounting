@@ -28,22 +28,34 @@
     },
 
     props: {
-      formProperty: String,
-      value: UploadsInfo,
+      formProperty: {
+        type: String,
+        required: true,
+      },
+      value: {
+        type: UploadsInfo,
+        required: true,
+      },
     },
 
     data() {
       return {
         uploadsInfo: this.value,
         validationRules: [
-          { validator: this.validateUpload, trigger: 'change' },
+          {
+            validator: this.validateUpload,
+            trigger: 'change',
+          },
         ],
       };
     },
 
-    computed: {},
-
     watch: {
+      value() {
+        this.uploadsInfo = this.value;
+        this.addNewUpload();
+      },
+
       uploadsInfo: {
         handler(val) {
           this.uploadsInfo.ensureCompleteness();

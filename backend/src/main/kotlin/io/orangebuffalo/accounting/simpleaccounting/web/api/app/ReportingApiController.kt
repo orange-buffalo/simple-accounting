@@ -3,8 +3,8 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.services.business.GeneralTaxReportingService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.FinalizedGeneralTaxSummaryItem
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.PendingGeneralTaxSummaryItem
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.FinalizedGeneralTaxSummaryItem
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PendingGeneralTaxSummaryItem
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate

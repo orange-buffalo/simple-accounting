@@ -32,4 +32,8 @@ abstract class AbstractEntity {
     override fun hashCode(): Int {
         return stickyHash.hashCode()
     }
+
+    override fun toString(): String {
+        return "[${this.javaClass.simpleName}#${this.id}/v${this.version}]"
+    }
 }

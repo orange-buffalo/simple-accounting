@@ -20,6 +20,10 @@ spring:
       cachecontrol:
         max-age: 999999999
 
+  jpa:
+    properties:
+      hibernate.create_empty_composites.enabled: true
+
 server:
   port: 9393
   compression:

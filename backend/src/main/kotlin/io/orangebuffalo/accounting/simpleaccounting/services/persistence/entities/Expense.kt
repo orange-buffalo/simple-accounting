@@ -24,6 +24,9 @@ class Expense(
     @field:Column(nullable = false)
     var datePaid: LocalDate,
 
+    /**
+     * Original currency of this receipt/invoice/etc.
+     */
     @field:Column(nullable = false, length = 3)
     var currency: String,
 
@@ -34,16 +37,44 @@ class Expense(
     var originalAmount: Long,
 
     /**
-     * Factual amount in default currency (i.e. from bank transaction in domestic currency).
+     * Converted amounts in default currency (i.e. from bank transaction in domestic currency).
      */
-    @field:Column(nullable = false)
-    var amountInDefaultCurrency: Long,
+    @field:Embedded
+    @field:AttributeOverrides(
+        AttributeOverride(
+            name = "originalAmountInDefaultCurrency",
+            column = Column(name = "converted_original_amount_in_default_currency")
+        ),
+        AttributeOverride(
+            name = "adjustedAmountInDefaultCurrency",
+            column = Column(name = "converted_adjusted_amount_in_default_currency")
+        )
+    )
+    var convertedAmounts: AmountsInDefaultCurrency,
 
     /**
-     * Amount converted to default currency for taxation purposed (i.e. by using Tax Office exchange rate).
+     * Indicates if [incomeTaxableAmounts] are using different exchange rate than [convertedAmounts]
+     * (i.e. by using Tax Office exchange rate).
      */
     @field:Column(nullable = false)
-    var actualAmountInDefaultCurrency: Long,
+    var useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
+
+    /**
+     * Amounts for income tax purposes. In case [useDifferentExchangeRateForIncomeTaxPurposes]
+     * is `false`, are the same as [convertedAmounts]. Otherwise amounts are different.
+     */
+    @field:Column(nullable = false)
+    @field:AttributeOverrides(
+        AttributeOverride(
+            name = "originalAmountInDefaultCurrency",
+            column = Column(name = "income_taxable_original_amount_in_default_currency")
+        ),
+        AttributeOverride(
+            name = "adjustedAmountInDefaultCurrency",
+            column = Column(name = "income_taxable_adjusted_amount_in_default_currency")
+        )
+    )
+    var incomeTaxableAmounts: AmountsInDefaultCurrency,
 
     @field:ManyToMany(fetch = FetchType.EAGER)
     @field:JoinTable(
@@ -64,18 +95,21 @@ class Expense(
     @field:Column
     var generalTaxRateInBps: Int? = null,
 
+    /**
+     * Amount that is a part of original amount (after conversion to the default currency,
+     * if applicable) and is related to the [GeneralTax] applied to this expense.
+     * This amount is deducted from the `originalAmountInDefaultCurrency` when
+     * `adjustedAmountInDefaultCurrency` is calculated.
+     */
     @field:Column
     var generalTaxAmount: Long? = null,
 
-    /**
-     * Amount to be reported for taxation purposes. Takes into account applicable tax,
-     * partial business purpose of the expense and exchange rate used for conversion (if any).
-     */
-    @field:Column(nullable = false)
-    var reportedAmountInDefaultCurrency: Long,
-
     @field:Column(length = 1024)
-    var notes: String? = null
+    var notes: String? = null,
+
+    @field:Column(nullable = false)
+    @field:Enumerated(EnumType.STRING)
+    var status: ExpenseStatus
 
 ) : AbstractEntity() {
 
@@ -84,4 +118,23 @@ class Expense(
 
         require(generalTax == null || generalTax?.workspace == workspace) { "Tax and workspace must match" }
     }
+}
+
+enum class ExpenseStatus {
+
+    /**
+     * All data has been provided, all amounts calculated.
+     */
+    FINALIZED,
+
+    /**
+     * At least [Expense.convertedAmounts] has not yet been provided.
+     */
+    PENDING_CONVERSION,
+
+    /**
+     * [Expense.useDifferentExchangeRateForIncomeTaxPurposes] is set to `true`
+     * and [Expense.incomeTaxableAmounts] has not been provided yet.
+     */
+    PENDING_CONVERSION_FOR_TAXATION_PURPOSES
 }

@@ -97,7 +97,7 @@ class Prototypes {
         )
 
         fun expense(
-            category: Category? = category(),
+            category: Category? = null,
             workspace: Workspace = workspace(),
             title: String = "Expense",
 
@@ -105,15 +105,16 @@ class Prototypes {
             datePaid: LocalDate = MOCK_DATE,
             currency: String = "USD",
             originalAmount: Long = 100,
-            amountInDefaultCurrency: Long = 100,
-            actualAmountInDefaultCurrency: Long = 100,
+            convertedAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+            incomeTaxableAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+            useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
             attachments: Set<Document> = setOf(),
             percentOnBusiness: Int = 100,
             generalTax: GeneralTax? = null,
             generalTaxRateInBps: Int? = null,
             generalTaxAmount: Long? = null,
-            reportedAmountInDefaultCurrency: Long = 100,
-            notes: String? = null
+            notes: String? = null,
+            status: ExpenseStatus = ExpenseStatus.FINALIZED
         ) = Expense(
             workspace = workspace,
             category = category,
@@ -122,15 +123,16 @@ class Prototypes {
             timeRecorded = timeRecorded,
             currency = currency,
             originalAmount = originalAmount,
-            amountInDefaultCurrency = amountInDefaultCurrency,
-            actualAmountInDefaultCurrency = actualAmountInDefaultCurrency,
-            reportedAmountInDefaultCurrency = reportedAmountInDefaultCurrency,
+            convertedAmounts = convertedAmounts,
+            incomeTaxableAmounts = incomeTaxableAmounts,
+            useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
             percentOnBusiness = percentOnBusiness,
             generalTax = generalTax,
             attachments = attachments,
             generalTaxAmount = generalTaxAmount,
             generalTaxRateInBps = generalTaxRateInBps,
-            notes = notes
+            notes = notes,
+            status = status
         )
 
         fun income(
@@ -255,6 +257,15 @@ class Prototypes {
             validTill = validTill,
             revoked = revoked,
             token = token
+        )
+
+        fun amountsInDefaultCurrency(
+            amount: Long
+        ): AmountsInDefaultCurrency = AmountsInDefaultCurrency(amount, amount)
+
+        fun emptyAmountsInDefaultCurrency(): AmountsInDefaultCurrency = AmountsInDefaultCurrency(
+            originalAmountInDefaultCurrency = null,
+            adjustedAmountInDefaultCurrency = null
         )
     }
 }

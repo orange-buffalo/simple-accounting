@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.ExpenseStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -229,90 +230,103 @@ internal class StatisticsApiControllerIT(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 4, 10),
-                reportedAmountInDefaultCurrency = 111,
-                actualAmountInDefaultCurrency = 111,
-                amountInDefaultCurrency = 111,
-                originalAmount = 111
+                originalAmount = 111,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(111),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(111),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED
             ),
             Prototypes.expense(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 4, 9),
-                reportedAmountInDefaultCurrency = 110,
-                actualAmountInDefaultCurrency = 110,
-                amountInDefaultCurrency = 110,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(110),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(110),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED,
                 originalAmount = 110
             ),
             Prototypes.expense(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 10, 1),
-                reportedAmountInDefaultCurrency = 112,
-                actualAmountInDefaultCurrency = 112,
-                amountInDefaultCurrency = 112,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(112),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(112),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED,
                 originalAmount = 112
             ),
             Prototypes.expense(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 10, 2),
-                reportedAmountInDefaultCurrency = 113,
-                actualAmountInDefaultCurrency = 113,
-                amountInDefaultCurrency = 113,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(113),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(113),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED,
                 originalAmount = 113
             ),
             Prototypes.expense(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                reportedAmountInDefaultCurrency = 210,
-                actualAmountInDefaultCurrency = 210,
-                amountInDefaultCurrency = 210,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(210),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(210),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED,
                 originalAmount = 210
             ),
             Prototypes.expense(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 7),
-                reportedAmountInDefaultCurrency = 211,
-                actualAmountInDefaultCurrency = 211,
-                amountInDefaultCurrency = 211,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(211),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(211),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED,
                 originalAmount = 211
             ),
             Prototypes.expense(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                reportedAmountInDefaultCurrency = 0,
-                actualAmountInDefaultCurrency = 210,
-                amountInDefaultCurrency = 210,
+                currency = "ZZG",
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(210),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 originalAmount = 210
             ),
             Prototypes.expense(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                reportedAmountInDefaultCurrency = 0,
-                actualAmountInDefaultCurrency = 0,
-                amountInDefaultCurrency = 210,
+                currency = "ZZG",
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(210),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 originalAmount = 210
             ),
             Prototypes.expense(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                reportedAmountInDefaultCurrency = 0,
-                actualAmountInDefaultCurrency = 0,
-                amountInDefaultCurrency = 0,
+                currency = "ZZG",
+                convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.PENDING_CONVERSION,
                 originalAmount = 210
             ),
             Prototypes.expense(
                 workspace = irrelevantCategory.workspace,
                 category = irrelevantCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                reportedAmountInDefaultCurrency = 33,
-                actualAmountInDefaultCurrency = 33,
-                amountInDefaultCurrency = 33,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED,
                 originalAmount = 33
             ),
             Prototypes.income(
