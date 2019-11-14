@@ -2,10 +2,7 @@ package io.orangebuffalo.accounting.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Income
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Invoice
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QInvoice
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.IncomeRepository
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.InvoiceRepository
 import org.springframework.data.domain.Page
@@ -34,10 +31,18 @@ class InvoiceService(
                         dateReceived = invoice.datePaid!!,
                         currency = invoice.currency,
                         originalAmount = invoice.amount,
-                        reportedAmountInDefaultCurrency = 0,
-                        amountInDefaultCurrency = 0,
+                        convertedAmounts = AmountsInDefaultCurrency(
+                            originalAmountInDefaultCurrency = null,
+                            adjustedAmountInDefaultCurrency = null
+                        ),
+                        useDifferentExchangeRateForIncomeTaxPurposes = false,
+                        incomeTaxableAmounts = AmountsInDefaultCurrency(
+                            originalAmountInDefaultCurrency = null,
+                            adjustedAmountInDefaultCurrency = null
+                        ),
                         category = null,
-                        generalTax = invoice.generalTax
+                        generalTax = invoice.generalTax,
+                        status = IncomeStatus.PENDING_CONVERSION
                     )
                 )
             }

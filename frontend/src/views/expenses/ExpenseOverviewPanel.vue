@@ -146,7 +146,7 @@
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <MoneyOutput
-                v-if="expense.generalTaxAmount"
+                v-if="expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
                 :amount="expense.generalTaxAmount"
               />

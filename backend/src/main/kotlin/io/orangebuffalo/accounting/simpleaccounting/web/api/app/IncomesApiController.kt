@@ -3,9 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.app
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.services.business.*
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Income
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Invoice
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncome
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.toSort
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
 import io.orangebuffalo.accounting.simpleaccounting.web.api.integration.*
@@ -47,14 +45,21 @@ class IncomesApiController(
                     dateReceived = request.dateReceived,
                     currency = request.currency,
                     originalAmount = request.originalAmount,
-                    amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0,
-                    reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0,
+                    convertedAmounts = AmountsInDefaultCurrency(
+                        originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency,
+                        adjustedAmountInDefaultCurrency = null
+                    ),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(
+                        originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency,
+                        adjustedAmountInDefaultCurrency = null
+                    ),
+                    useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes,
                     notes = request.notes,
                     attachments = extensions.getValidDocuments(workspace, request.attachments),
-                    generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
+                    generalTax = extensions.getValidGeneralTax(request.generalTax, workspace),
+                    status = IncomeStatus.PENDING_CONVERSION
                 )
-            )
-            .let { mapIncomeDto(it, invoiceService) }
+            ).mapToIncomeDto(invoiceService)
     }
 
     @GetMapping
@@ -75,7 +80,7 @@ class IncomesApiController(
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
             ?: throw EntityNotFoundException("Income $incomeId is not found")
-        return mapIncomeDto(income, invoiceService)
+        return income.mapToIncomeDto(invoiceService)
     }
 
     @PutMapping("{incomeId}")
@@ -98,8 +103,9 @@ class IncomesApiController(
                 dateReceived = request.dateReceived
                 currency = request.currency
                 originalAmount = request.originalAmount
-                amountInDefaultCurrency = request.amountInDefaultCurrency ?: 0
-                reportedAmountInDefaultCurrency = request.reportedAmountInDefaultCurrency ?: 0
+                convertedAmounts.originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency
+                incomeTaxableAmounts.originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency
+                useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes
                 notes = request.notes
                 attachments = extensions.getValidDocuments(workspace, request.attachments)
                 generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
@@ -107,9 +113,7 @@ class IncomesApiController(
             .let {
                 incomeService.saveIncome(it)
             }
-            .let {
-                mapIncomeDto(it, invoiceService)
-            }
+            .mapToIncomeDto(invoiceService)
     }
 }
 
@@ -121,8 +125,6 @@ data class IncomeDto(
     val dateReceived: LocalDate,
     val currency: String,
     val originalAmount: Long,
-    val amountInDefaultCurrency: Long,
-    val reportedAmountInDefaultCurrency: Long,
     val attachments: List<Long>,
     val notes: String?,
     val id: Long,
@@ -131,7 +133,10 @@ data class IncomeDto(
     val linkedInvoice: LinkedInvoiceDto?,
     val generalTax: Long?,
     val generalTaxRateInBps: Int?,
-    val generalTaxAmount: Long?
+    val generalTaxAmount: Long?,
+    val convertedAmounts: IncomeAmountsDto,
+    val incomeTaxableAmounts: IncomeAmountsDto,
+    val useDifferentExchangeRateForIncomeTaxPurposes: Boolean
 )
 
 data class LinkedInvoiceDto(
@@ -139,11 +144,11 @@ data class LinkedInvoiceDto(
     val title: String
 )
 
-enum class IncomeStatus {
-    FINALIZED,
-    PENDING_CONVERSION,
-    PENDING_ACTUAL_RATE
-}
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class IncomeAmountsDto(
+    val originalAmountInDefaultCurrency: Long?,
+    val adjustedAmountInDefaultCurrency: Long?
+)
 
 data class EditIncomeDto(
     val category: Long?,
@@ -151,55 +156,54 @@ data class EditIncomeDto(
     @field:NotBlank val title: String,
     @field:NotBlank val currency: String,
     val originalAmount: Long,
-    val amountInDefaultCurrency: Long?,
-    val reportedAmountInDefaultCurrency: Long?,
+    val convertedAmountInDefaultCurrency: Long?,
+    val useDifferentExchangeRateForIncomeTaxPurposes: Boolean,
+    val incomeTaxableAmountInDefaultCurrency: Long?,
     val attachments: List<Long>?,
     @field:Size(max = 1024) val notes: String?,
     val generalTax: Long?
 )
 
-private suspend fun mapIncomeDto(source: Income, invoiceService: InvoiceService): IncomeDto {
-    val linkedInvoice: Invoice? = invoiceService.findByIncome(source)
+private suspend fun Income.mapToIncomeDto(invoiceService: InvoiceService): IncomeDto {
+    val linkedInvoice: Invoice? = invoiceService.findByIncome(this)
     return IncomeDto(
-        category = source.category?.id,
-        title = source.title,
-        dateReceived = source.dateReceived,
-        timeRecorded = source.timeRecorded,
-        currency = source.currency,
-        originalAmount = source.originalAmount,
-        amountInDefaultCurrency = source.amountInDefaultCurrency,
-        attachments = source.attachments.map { it.id!! },
-        reportedAmountInDefaultCurrency = source.reportedAmountInDefaultCurrency,
-        notes = source.notes,
-        id = source.id!!,
-        version = source.version,
-        status = getIncomeStatus(source),
+        category = category?.id,
+        title = title,
+        dateReceived = dateReceived,
+        timeRecorded = timeRecorded,
+        currency = currency,
+        originalAmount = originalAmount,
+        convertedAmounts = convertedAmounts.mapToAmountsDto(),
+        attachments = attachments.map { it.id!! },
+        incomeTaxableAmounts = incomeTaxableAmounts.mapToAmountsDto(),
+        useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+        notes = notes,
+        id = id!!,
+        version = version,
+        status = status,
         linkedInvoice = linkedInvoice?.let {
             LinkedInvoiceDto(
                 id = it.id!!,
                 title = it.title
             )
         },
-        generalTax = source.generalTax?.id,
-        generalTaxAmount = source.generalTaxAmount,
-        generalTaxRateInBps = source.generalTaxRateInBps
+        generalTax = generalTax?.id,
+        generalTaxAmount = generalTaxAmount,
+        generalTaxRateInBps = generalTaxRateInBps
     )
 }
 
-private fun getIncomeStatus(income: Income): IncomeStatus {
-    return when {
-        income.reportedAmountInDefaultCurrency > 0 -> IncomeStatus.FINALIZED
-        income.amountInDefaultCurrency > 0 -> IncomeStatus.PENDING_ACTUAL_RATE
-        else -> IncomeStatus.PENDING_CONVERSION
-    }
-}
+private fun AmountsInDefaultCurrency.mapToAmountsDto() = IncomeAmountsDto(
+    originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
+    adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency
+)
 
 @Component
 class IncomePageableApiDescriptor(
     private val invoiceService: InvoiceService
 ) : PageableApiDescriptor<Income, QIncome> {
 
-    override suspend fun mapEntityToDto(entity: Income) = mapIncomeDto(entity, invoiceService)
+    override suspend fun mapEntityToDto(entity: Income) = entity.mapToIncomeDto(invoiceService)
 
     override fun getSupportedFilters() = apiFilters(QIncome.income) {
         byApiField("freeSearchText", String::class) {
@@ -209,18 +213,6 @@ class IncomePageableApiDescriptor(
                     title.containsIgnoreCase(value),
                     category.name.containsIgnoreCase(value)
                 )
-            }
-        }
-
-        byApiField("status", IncomeStatus::class) {
-            onOperator(PageableApiFilterOperator.EQ) { value ->
-                when (value) {
-                    IncomeStatus.FINALIZED -> reportedAmountInDefaultCurrency.gt(0)
-                    IncomeStatus.PENDING_ACTUAL_RATE -> reportedAmountInDefaultCurrency.eq(0)
-                        .and(amountInDefaultCurrency.gt(0))
-                    IncomeStatus.PENDING_CONVERSION -> reportedAmountInDefaultCurrency.eq(0)
-                        .and(amountInDefaultCurrency.eq(0))
-                }
             }
         }
     }

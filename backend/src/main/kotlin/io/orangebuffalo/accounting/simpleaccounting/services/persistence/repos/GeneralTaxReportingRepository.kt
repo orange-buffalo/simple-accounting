@@ -77,8 +77,8 @@ class GeneralTaxReportingRepository(private val jdbcTemplate: JdbcTemplate) {
             union all
             select i.general_tax_amount as tax_amount,
                    i.general_tax_id as tax_id,
-                   i.reported_amount_in_default_currency as amount,
-                   i.reported_amount_in_default_currency > 0 as finalized,
+                   coalesce(i.income_taxable_adjusted_amount_in_default_currency, 0) as amount,
+                   i.status = 'FINALIZED' as finalized,
                    false as paid,
                    i.date_received as target_date,
                    i.workspace_id

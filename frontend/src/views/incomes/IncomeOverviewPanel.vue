@@ -108,9 +108,9 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="income.reportedAmountInDefaultCurrency"
+              v-if="income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="income.reportedAmountInDefaultCurrency"
+              :amount="income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet provided</span>
@@ -139,7 +139,7 @@
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <MoneyOutput
-                v-if="isGeneralTaxAmountAvailable"
+                v-if="income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
                 :amount="income.generalTaxAmount"
               />
@@ -190,9 +190,9 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="income.amountInDefaultCurrency"
+              v-if="income.convertedAmounts.originalAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="income.amountInDefaultCurrency"
+              :amount="income.convertedAmounts.originalAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet available</span>
@@ -203,7 +203,7 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <!-- todo #6 localize -->
-            <span v-if="isReportedDifferentExchangeRate">Yes</span>
+            <span v-if="income.useDifferentExchangeRateForIncomeTaxPurposes">Yes</span>
             <span v-else>No</span>
           </OverviewItemDetailsSectionAttribute>
 
@@ -212,9 +212,9 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="income.reportedAmountInDefaultCurrency"
+              v-if="income.incomeTaxableAmounts.originalAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="income.reportedAmountInDefaultCurrency"
+              :amount="income.incomeTaxableAmounts.originalAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet available</span>
@@ -253,7 +253,6 @@
 </template>
 
 <script>
-  import { isNil } from 'lodash/lang';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
@@ -269,7 +268,6 @@
   import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
   import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
   import SaActionLink from '@/components/SaActionLink';
-  import SaIcon from '@/components/SaIcon';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
 
@@ -280,7 +278,6 @@
       MoneyOutput,
       DocumentLink,
       OverviewItem,
-      SaIcon,
       OverviewItemAttributePreviewIcon,
       OverviewItemPrimaryAttribute,
       OverviewItemDetailsSection,
@@ -326,39 +323,26 @@
       },
 
       totalAmount() {
-        if (this.income.status === 'FINALIZED') {
+        if (this.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
           return {
-            value: this.income.reportedAmountInDefaultCurrency,
+            value: this.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
             currency: this.defaultCurrency,
           };
-        } if (this.income.status === 'PENDING_CONVERSION') {
+        }
+        if (this.income.convertedAmounts.adjustedAmountInDefaultCurrency) {
           return {
-            value: this.income.originalAmount,
-            currency: this.income.currency,
+            value: this.income.convertedAmounts.adjustedAmountInDefaultCurrency,
+            currency: this.defaultCurrency,
           };
         }
         return {
-          value: this.income.amountInDefaultCurrency,
-          currency: this.defaultCurrency,
+          value: this.income.originalAmount,
+          currency: this.income.currency,
         };
       },
 
       isForeignCurrency() {
         return this.income.currency !== this.defaultCurrency;
-      },
-
-      isReportedDifferentExchangeRate() {
-        return !isNil(this.income.reportedAmountInDefaultCurrency)
-          && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency);
-      },
-
-      amountInDefaultCurrency() {
-        return this.income.currency === this.defaultCurrency
-          ? this.income.originalAmount : this.income.amountInDefaultCurrency;
-      },
-
-      isConverted() {
-        return this.income.amountInDefaultCurrency;
       },
 
       dateReceived() {
@@ -367,10 +351,6 @@
 
       isGeneralTaxApplicable() {
         return this.income.generalTax && this.generalTaxTitle;
-      },
-
-      isGeneralTaxAmountAvailable() {
-        return this.income.status === 'FINALIZED';
       },
 
       generalTaxTitle() {

@@ -60,8 +60,8 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Date Paid"
-              prop="datePaid"
+              label="Date Received"
+              prop="dateReceived"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
@@ -72,42 +72,36 @@
               />
             </ElFormItem>
 
-            <ElFormItem v-if="!isInDefaultCurrency">
-              <ElCheckbox v-model="alreadyConverted">
-                Already converted
-              </ElCheckbox>
-            </ElFormItem>
-
             <ElFormItem
-              v-if="defaultCurrencyAmountVisible"
+              v-if="isInForeignCurrency"
               :label="`Amount in ${defaultCurrency}`"
-              prop="amountInDefaultCurrency"
+              prop="convertedAmountInDefaultCurrency"
             >
               <MoneyInput
-                v-model="income.amountInDefaultCurrency"
+                v-model="income.convertedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
             </ElFormItem>
 
-            <ElFormItem v-if="alreadyConverted">
-              <ElCheckbox v-model="reportedAnotherExchangeRate">
-                Reported converted amount is different (using another rate)
+            <ElFormItem v-if="isInForeignCurrency">
+              <ElCheckbox v-model="income.useDifferentExchangeRateForIncomeTaxPurposes">
+                Using different exchange rate for taxation purposes
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
-              v-if="reportedAmountVisible"
-              label="Reported Amount"
-              prop="reportedAmountInDefaultCurrency"
+              v-if="income.useDifferentExchangeRateForIncomeTaxPurposes"
+              :label="`Amount in ${defaultCurrency} for taxation purposes`"
+              prop="incomeTaxableAmountInDefaultCurrency"
             >
               <MoneyInput
-                v-model="income.reportedAmountInDefaultCurrency"
+                v-model="income.incomeTaxableAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
             </ElFormItem>
 
             <ElFormItem
-              label="Added General Tax"
+              label="Included General Tax"
               prop="generalTax"
             >
               <ElSelect
@@ -182,7 +176,6 @@
 </template>
 
 <script>
-  import { assign, isNil } from 'lodash';
   import { api } from '@/services/api';
   import DocumentsUpload from '@/components/DocumentsUpload';
   import CurrencyInput from '@/components/CurrencyInput';
@@ -213,8 +206,9 @@
           title: null,
           currency: null,
           originalAmount: null,
-          amountInDefaultCurrency: null,
-          reportedAmountInDefaultCurrency: null,
+          convertedAmountInDefaultCurrency: null,
+          incomeTaxableAmountInDefaultCurrency: null,
+          useDifferentExchangeRateForIncomeTaxPurposes: false,
           attachments: [],
           notes: null,
           dateReceived: new Date(),
@@ -239,22 +233,12 @@
             message: 'Please provide income amount',
           },
         },
-        alreadyConverted: false,
-        reportedAnotherExchangeRate: false,
       };
     },
 
     computed: {
-      isInDefaultCurrency() {
-        return this.income.currency === this.defaultCurrency;
-      },
-
-      defaultCurrencyAmountVisible() {
-        return this.alreadyConverted && !this.isInDefaultCurrency;
-      },
-
-      reportedAmountVisible() {
-        return this.defaultCurrencyAmountVisible && this.reportedAnotherExchangeRate && !this.isInDefaultCurrency;
+      isInForeignCurrency() {
+        return this.income.currency !== this.defaultCurrency;
       },
 
       pageHeader() {
@@ -262,19 +246,40 @@
       },
     },
 
+    watch: {
+      'income.currency': {
+        handler() {
+          if (this.income.currency !== this.defaultCurrency) {
+            this.income.useDifferentExchangeRateForIncomeTaxPurposes = false;
+            this.income.convertedAmountInDefaultCurrency = null;
+            this.income.incomeTaxableAmountInDefaultCurrency = null;
+          }
+        },
+
+      },
+    },
+
     async created() {
       if (this.$route.params.id) {
         const incomeResponse = await api
           .get(`/workspaces/${this.currentWorkspace.id}/incomes/${this.$route.params.id}`);
-        this.income = assign({}, this.income, incomeResponse.data);
 
-        this.alreadyConverted = this.income.currency !== this.defaultCurrency
-          && !isNil(this.income.amountInDefaultCurrency)
-          && this.income.amountInDefaultCurrency > 0;
-
-        this.reportedAnotherExchangeRate = this.income.currency !== this.defaultCurrency
-          && !isNil(this.income.reportedAmountInDefaultCurrency)
-          && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency);
+        const {
+          convertedAmounts,
+          incomeTaxableAmounts,
+          generalTaxRateInBps,
+          generalTaxAmount,
+          status,
+          version,
+          timeRecorded,
+          ...incomeEditProperties
+        } = incomeResponse.data;
+        this.income = {
+          ...incomeEditProperties,
+          convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
+          incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
+          uploads: new UploadsInfo(),
+        };
 
         if (this.income.attachments && this.income.attachments.length) {
           const attachments = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
@@ -309,18 +314,15 @@
           return;
         }
 
+        const {
+          uploads,
+          id,
+          ...incomePropertiesToPush
+        } = this.income;
+
         const incomeToPush = {
-          category: this.income.category,
-          dateReceived: this.income.dateReceived,
-          title: this.income.title,
-          currency: this.income.currency,
-          originalAmount: this.income.originalAmount,
-          amountInDefaultCurrency: this.alreadyConverted ? this.income.amountInDefaultCurrency : null,
-          reportedAmountInDefaultCurrency: this.reportedAnotherExchangeRate
-            ? this.income.reportedAmountInDefaultCurrency : this.income.amountInDefaultCurrency,
+          ...incomePropertiesToPush,
           attachments: this.income.uploads.getDocumentsIds(),
-          notes: this.income.notes,
-          generalTax: this.income.generalTax,
         };
 
         if (this.income.id) {

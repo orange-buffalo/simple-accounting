@@ -4,6 +4,8 @@ import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.IncomeStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -47,7 +49,7 @@ internal class IncomesApiControllerIT(
             .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("2")
+                inPath("$.totalElements").isNumber.isEqualTo("3")
 
                 inPath("$.data").isArray.containsExactlyInAnyOrder(
                     json(
@@ -56,14 +58,24 @@ internal class IncomesApiControllerIT(
                             title: "first space delivery",
                             currency: "THF",
                             originalAmount: 5000,
-                            amountInDefaultCurrency: 500,
-                            reportedAmountInDefaultCurrency: 450,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 520,
+                                adjustedAmountInDefaultCurrency: 500
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 450,
+                                adjustedAmountInDefaultCurrency: 430
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [],
                             id: ${testData.firstSpaceIncome.id},
                             version: 0,
                             dateReceived: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED"
+                            status: "FINALIZED",
+                            generalTax: ${testData.spaceTax.id},
+                            generalTaxAmount: 20,
+                            generalTaxRateInBps: 12000
                     }"""
                     ),
 
@@ -73,15 +85,39 @@ internal class IncomesApiControllerIT(
                             title: "second space delivery",
                             currency: "ZZB",
                             originalAmount: 5100,
-                            amountInDefaultCurrency: 510,
-                            reportedAmountInDefaultCurrency: 455,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 510,
+                                adjustedAmountInDefaultCurrency: 510
+                            },
+                            incomeTaxableAmounts: {
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [${testData.spaceDeliveryPayslip.id}],
                             notes: "nice!",
                             id: ${testData.secondSpaceIncome.id},
                             version: 0,
                             dateReceived: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED"
+                            status: "PENDING_CONVERSION_FOR_TAXATION_PURPOSES"
+                    }"""
+                    ),
+
+                    json(
+                        """{
+                            title: "third space delivery",
+                            currency: "ZZA",
+                            originalAmount: 200,
+                            convertedAmounts: {
+                            },
+                            incomeTaxableAmounts: {
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: false,
+                            attachments: [],
+                            id: ${testData.thirdSpaceIncome.id},
+                            version: 0,
+                            dateReceived: "$MOCK_DATE_VALUE",
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            status: "PENDING_CONVERSION"
                     }"""
                     )
                 )
@@ -124,14 +160,24 @@ internal class IncomesApiControllerIT(
                             title: "first space delivery",
                             currency: "THF",
                             originalAmount: 5000,
-                            amountInDefaultCurrency: 500,
-                            reportedAmountInDefaultCurrency: 450,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 520,
+                                adjustedAmountInDefaultCurrency: 500
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 450,
+                                adjustedAmountInDefaultCurrency: 430
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [],
                             id: ${testData.firstSpaceIncome.id},
                             version: 0,
                             dateReceived: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED"
+                            status: "FINALIZED",
+                            generalTax: ${testData.spaceTax.id},
+                            generalTaxAmount: 20,
+                            generalTaxRateInBps: 12000
                     }"""
                     )
                 )
@@ -186,8 +232,9 @@ internal class IncomesApiControllerIT(
                     "title": "new space delivery",
                     "currency": "AUD",
                     "originalAmount": 30000,
-                    "amountInDefaultCurrency": 42000,
-                    "reportedAmountInDefaultCurrency": 37727,
+                    "convertedAmountInDefaultCurrency": 42000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": true,
+                    "incomeTaxableAmountInDefaultCurrency": 37727,
                     "attachments": [${testData.spaceDeliveryPayslip.id}],
                     "notes": "delivery",
                     "dateReceived": "$MOCK_DATE_VALUE",
@@ -202,8 +249,15 @@ internal class IncomesApiControllerIT(
                             title: "new space delivery",
                             currency: "AUD",
                             originalAmount: 30000,
-                            amountInDefaultCurrency: 42000,
-                            reportedAmountInDefaultCurrency: 37727,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 42000,
+                                adjustedAmountInDefaultCurrency: 38182
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 37727,
+                                adjustedAmountInDefaultCurrency: 34297
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [${testData.spaceDeliveryPayslip.id}],
                             notes: "delivery",
                             id: "#{json-unit.any-number}",
@@ -213,7 +267,7 @@ internal class IncomesApiControllerIT(
                             status: "FINALIZED",
                             generalTax: ${testData.planetExpressTax.id},
                             generalTaxRateInBps: 1000,
-                            generalTaxAmount: 3773
+                            generalTaxAmount: 3430
                     }"""
                     )
                 )
@@ -240,6 +294,7 @@ internal class IncomesApiControllerIT(
                     "title": "new income",
                     "currency": "USD",
                     "originalAmount": 150,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "$MOCK_DATE_VALUE"
                 }"""
             )
@@ -251,8 +306,15 @@ internal class IncomesApiControllerIT(
                             title: "new income",
                             currency: "USD",
                             originalAmount: 150,
-                            amountInDefaultCurrency: 150,
-                            reportedAmountInDefaultCurrency: 150,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 150,
+                                adjustedAmountInDefaultCurrency: 150
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 150,
+                                adjustedAmountInDefaultCurrency: 150
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: false,
                             id: "#{json-unit.any-number}",
                             version: 0,
                             dateReceived: "$MOCK_DATE_VALUE",
@@ -276,6 +338,9 @@ internal class IncomesApiControllerIT(
                     "title": "new space income",
                     "currency": "USD",
                     "originalAmount": 150,
+                    "convertedAmountInDefaultCurrency": 150,
+                    "incomeTaxableAmountInDefaultCurrency": 150,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "$MOCK_DATE_VALUE"
                 }"""
             )
@@ -293,6 +358,9 @@ internal class IncomesApiControllerIT(
                     "title": "new space income",
                     "currency": "USD",
                     "originalAmount": 150,
+                    "convertedAmountInDefaultCurrency": 150,
+                    "incomeTaxableAmountInDefaultCurrency": 150,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "$MOCK_DATE_VALUE"
                 }"""
             )
@@ -310,6 +378,9 @@ internal class IncomesApiControllerIT(
                     "title": "new space income",
                     "currency": "USD",
                     "originalAmount": 150,
+                    "convertedAmountInDefaultCurrency": 150,
+                    "incomeTaxableAmountInDefaultCurrency": 150,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "$MOCK_DATE_VALUE",
                     "generalTax": 4455
                 }"""
@@ -328,6 +399,9 @@ internal class IncomesApiControllerIT(
                     "title": "new space income",
                     "currency": "USD",
                     "originalAmount": 150,
+                    "convertedAmountInDefaultCurrency": 150,
+                    "incomeTaxableAmountInDefaultCurrency": 150,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "$MOCK_DATE_VALUE",
                     "generalTax": ${testData.pizzaDeliveryTax.id}
                 }"""
@@ -353,8 +427,9 @@ internal class IncomesApiControllerIT(
                     "title": "space -> pension",
                     "currency": "HHD",
                     "originalAmount": 20000,
-                    "amountInDefaultCurrency": 30000,
-                    "reportedAmountInDefaultCurrency": 32727,
+                    "convertedAmountInDefaultCurrency": 30000,
+                    "incomeTaxableAmountInDefaultCurrency": 32727,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": true,
                     "attachments": [],
                     "notes": "pension",
                     "dateReceived": "3000-02-02",
@@ -369,8 +444,15 @@ internal class IncomesApiControllerIT(
                             title: "space -> pension",
                             currency: "HHD",
                             originalAmount: 20000,
-                            amountInDefaultCurrency: 30000,
-                            reportedAmountInDefaultCurrency: 32727,
+                            convertedAmounts: {
+                                originalAmountInDefaultCurrency: 30000,
+                                adjustedAmountInDefaultCurrency: 27273
+                            },
+                            incomeTaxableAmounts: {
+                                originalAmountInDefaultCurrency: 32727,
+                                adjustedAmountInDefaultCurrency: 29752
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [],
                             notes: "pension",
                             id: ${testData.firstSpaceIncome.id},
@@ -380,7 +462,7 @@ internal class IncomesApiControllerIT(
                             status: "FINALIZED",
                             generalTax: ${testData.planetExpressTax.id},
                             generalTaxRateInBps: 1000,
-                            generalTaxAmount: 3273
+                            generalTaxAmount: 2975
                     }"""
                     )
                 )
@@ -397,6 +479,7 @@ internal class IncomesApiControllerIT(
                     "title": "delivery updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "3000-02-02"
                 }"""
             )
@@ -413,8 +496,11 @@ internal class IncomesApiControllerIT(
                             dateReceived: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "PENDING_CONVERSION",
-                            amountInDefaultCurrency: 0,
-                            reportedAmountInDefaultCurrency: 0
+                            convertedAmounts: {
+                            },
+                            incomeTaxableAmounts: {
+                            },
+                            useDifferentExchangeRateForIncomeTaxPurposes: false
                     }"""
                     )
                 )
@@ -431,6 +517,7 @@ internal class IncomesApiControllerIT(
                     "title": "delivery updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "3000-02-02"
                 }"""
             )
@@ -447,6 +534,7 @@ internal class IncomesApiControllerIT(
                     "title": "pizza updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "3000-02-02"
                 }"""
             )
@@ -463,6 +551,7 @@ internal class IncomesApiControllerIT(
                     "title": "updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "3000-02-02"
                 }"""
             )
@@ -480,6 +569,7 @@ internal class IncomesApiControllerIT(
                     "title": "income updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "3000-02-02"
                 }"""
             )
@@ -497,6 +587,7 @@ internal class IncomesApiControllerIT(
                     "title": "income updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "3000-02-02"
                 }"""
             )
@@ -514,6 +605,7 @@ internal class IncomesApiControllerIT(
                     "title": "income updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "3000-02-02"
                 }"""
             )
@@ -531,6 +623,7 @@ internal class IncomesApiControllerIT(
                     "title": "income updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
                     "dateReceived": "3000-02-02"
                 }"""
             )
@@ -546,16 +639,17 @@ internal class IncomesApiControllerIT(
         val spaceDeliveryCategory = Prototypes.category(workspace = planetExpressWorkspace)
         val pensionCategory = Prototypes.category(workspace = planetExpressWorkspace)
         val pizzaDeliveryTax = Prototypes.generalTax(workspace = pizzaDeliveryWorkspace)
-        val planetExpressTax = Prototypes.generalTax(workspace = planetExpressWorkspace)
+        val planetExpressTax = Prototypes.generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
         val spaceDeliveryPayslip = Prototypes.document(workspace = planetExpressWorkspace)
+        val spaceTax = Prototypes.generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
 
         val pizzaWageIncome = Prototypes.income(
             workspace = pizzaCategory.workspace,
             category = pizzaCategory,
             currency = "THF",
             originalAmount = 50,
-            amountInDefaultCurrency = 50,
-            reportedAmountInDefaultCurrency = 50
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(50),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(50)
         )
 
         val firstSpaceIncome = Prototypes.income(
@@ -564,8 +658,19 @@ internal class IncomesApiControllerIT(
             category = spaceDeliveryCategory,
             currency = "THF",
             originalAmount = 5000,
-            amountInDefaultCurrency = 500,
-            reportedAmountInDefaultCurrency = 450
+            convertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 520,
+                adjustedAmountInDefaultCurrency = 500
+            ),
+            incomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 450,
+                adjustedAmountInDefaultCurrency = 430
+            ),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
+            status = IncomeStatus.FINALIZED,
+            generalTax = spaceTax,
+            generalTaxAmount = 20,
+            generalTaxRateInBps = 12000
         )
 
         val secondSpaceIncome = Prototypes.income(
@@ -574,16 +679,30 @@ internal class IncomesApiControllerIT(
             category = spaceDeliveryCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            amountInDefaultCurrency = 510,
-            reportedAmountInDefaultCurrency = 455,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(510),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
             notes = "nice!",
             attachments = setOf(spaceDeliveryPayslip),
-            generalTax = null
+            generalTax = null,
+            status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
+        )
+
+        val thirdSpaceIncome = Prototypes.income(
+            title = "third space delivery",
+            workspace = spaceDeliveryCategory.workspace,
+            currency = "ZZA",
+            originalAmount = 200,
+            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
+            generalTax = null,
+            status = IncomeStatus.PENDING_CONVERSION
         )
 
         override fun generateData() = listOf(
             farnsworth, fry, planetExpressWorkspace, spaceDeliveryCategory, spaceDeliveryPayslip,
-            firstSpaceIncome, secondSpaceIncome,
+            spaceTax, firstSpaceIncome, secondSpaceIncome, thirdSpaceIncome,
             pizzaDeliveryWorkspace, pizzaCategory, pizzaWageIncome,
             pizzaDeliveryTax, planetExpressTax, pensionCategory
         )
@@ -593,7 +712,9 @@ internal class IncomesApiControllerIT(
                     "title": "new income",
                     "currency": "USD",
                     "originalAmount": 30000,
-                    "amountInDefaultCurrency": 42000,
+                    "convertedAmountInDefaultCurrency": 42000,
+                    "incomeTaxableAmountInDefaultCurrency": 43000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": true,
                     "attachments": [${spaceDeliveryPayslip.id}],
                     "notes": "space delivery",
                     "dateReceived": "$MOCK_DATE_VALUE"

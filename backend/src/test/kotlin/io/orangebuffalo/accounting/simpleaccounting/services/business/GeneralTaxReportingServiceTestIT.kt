@@ -5,7 +5,9 @@ import assertk.assertions.containsOnly
 import io.orangebuffalo.accounting.simpleaccounting.Prototypes
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.ExpenseStatus
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.IncomeStatus
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.FinalizedGeneralTaxSummaryItem
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.PendingGeneralTaxSummaryItem
 import kotlinx.coroutines.runBlocking
@@ -248,7 +250,11 @@ class GeneralTaxReportTestData : TestData {
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = null,
-            reportedAmountInDefaultCurrency = 100000,
+            currency = planetExpress.defaultCurrency,
+            originalAmount = 100000,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(100000),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100000),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
             dateReceived = dateFrom.plusDays(1)
         ),
 
@@ -256,7 +262,17 @@ class GeneralTaxReportTestData : TestData {
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = generalTax,
-            reportedAmountInDefaultCurrency = 400,
+            currency = planetExpress.defaultCurrency,
+            originalAmount = 500,
+            convertedAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 500,
+                adjustedAmountInDefaultCurrency = 400
+            ),
+            incomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 500,
+                adjustedAmountInDefaultCurrency = 400
+            ),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
             generalTaxAmount = 76,
             dateReceived = dateFrom.plusDays(1)
         ),
@@ -265,7 +281,14 @@ class GeneralTaxReportTestData : TestData {
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = paidTax1,
-            reportedAmountInDefaultCurrency = 320,
+            currency = "ZZH",
+            originalAmount = 100,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(100000),
+            incomeTaxableAmounts = AmountsInDefaultCurrency(
+                originalAmountInDefaultCurrency = 10000,
+                adjustedAmountInDefaultCurrency = 320
+            ),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
             generalTaxAmount = 31,
             dateReceived = dateFrom.plusDays(1)
         ),
@@ -274,7 +297,11 @@ class GeneralTaxReportTestData : TestData {
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = paidTax1,
-            reportedAmountInDefaultCurrency = 256,
+            currency = planetExpress.defaultCurrency,
+            originalAmount = 256,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(256),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(256),
+            useDifferentExchangeRateForIncomeTaxPurposes = false,
             generalTaxAmount = 98,
             dateReceived = dateFrom.plusDays(1)
         ),
@@ -283,7 +310,12 @@ class GeneralTaxReportTestData : TestData {
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = null,
-            reportedAmountInDefaultCurrency = 0,
+            currency = "ZZH",
+            originalAmount = 500,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(256),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
             dateReceived = dateFrom.plusDays(1)
         ),
 
@@ -291,7 +323,12 @@ class GeneralTaxReportTestData : TestData {
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = paidTax1,
-            reportedAmountInDefaultCurrency = 0,
+            currency = "ZZH",
+            originalAmount = 322,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(256),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
             dateReceived = dateFrom.plusDays(1)
         ),
 
@@ -299,7 +336,12 @@ class GeneralTaxReportTestData : TestData {
             category = deliveryCategory,
             workspace = planetExpress,
             generalTax = paidTax1,
-            reportedAmountInDefaultCurrency = 0,
+            currency = "ZZH",
+            originalAmount = 754,
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(256),
+            useDifferentExchangeRateForIncomeTaxPurposes = true,
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
             dateReceived = dateFrom.plusDays(1)
         )
     )

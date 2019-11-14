@@ -74,24 +74,6 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Included General Tax"
-              prop="generalTax"
-            >
-              <ElSelect
-                v-model="expense.generalTax"
-                clearable
-                placeholder="Select a tax"
-              >
-                <ElOption
-                  v-for="tax in generalTaxes"
-                  :key="tax.id"
-                  :label="tax.title"
-                  :value="tax.id"
-                />
-              </ElSelect>
-            </ElFormItem>
-
-            <ElFormItem
               v-if="isInForeignCurrency"
               :label="`Amount in ${defaultCurrency}`"
               prop="convertedAmountInDefaultCurrency"
@@ -117,6 +99,24 @@
                 v-model="expense.incomeTaxableAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
+            </ElFormItem>
+
+            <ElFormItem
+              label="Included General Tax"
+              prop="generalTax"
+            >
+              <ElSelect
+                v-model="expense.generalTax"
+                clearable
+                placeholder="Select a tax"
+              >
+                <ElOption
+                  v-for="tax in generalTaxes"
+                  :key="tax.id"
+                  :label="tax.title"
+                  :value="tax.id"
+                />
+              </ElSelect>
             </ElFormItem>
 
             <ElFormItem>
@@ -268,6 +268,18 @@
 
       pageHeader() {
         return this.id ? 'Edit Expense' : 'Record New Expense';
+      },
+    },
+
+    watch: {
+      'expense.currency': {
+        handler() {
+          if (this.expense.currency !== this.defaultCurrency) {
+            this.expense.useDifferentExchangeRateForIncomeTaxPurposes = false;
+            this.expense.convertedAmountInDefaultCurrency = null;
+            this.expense.incomeTaxableAmountInDefaultCurrency = null;
+          }
+        },
       },
     },
 

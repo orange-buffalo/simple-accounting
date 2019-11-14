@@ -577,7 +577,11 @@ internal class InvoicesApiControllerIT(
             dueDate = LocalDate.of(1999, 12, 24)
         )
 
-        val spaceIncome = Prototypes.income(category = spaceDeliveryCategory)
+        val spaceIncome = Prototypes.income(
+            category = spaceDeliveryCategory,
+            workspace = planetExpressWorkspace
+        )
+
         val firstSpaceInvoice = Prototypes.invoice(
             title = "first space invoice",
             customer = spaceCustomer,

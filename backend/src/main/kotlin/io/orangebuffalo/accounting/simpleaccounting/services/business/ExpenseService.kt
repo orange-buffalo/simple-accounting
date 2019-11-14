@@ -135,9 +135,9 @@ class ExpenseService(
     suspend fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> = withDbContext {
         expenseRepository.getCurrenciesUsageStatistics(workspace)
     }
-}
 
-private data class AdjustedAmounts(
-    val generalTaxAmount: Long?,
-    val adjustedAmount: Long?
-)
+    private data class AdjustedAmounts(
+        val generalTaxAmount: Long?,
+        val adjustedAmount: Long?
+    )
+}

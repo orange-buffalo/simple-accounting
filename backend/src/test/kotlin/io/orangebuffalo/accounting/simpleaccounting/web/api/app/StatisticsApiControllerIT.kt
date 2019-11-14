@@ -4,6 +4,7 @@ import io.orangebuffalo.accounting.simpleaccounting.*
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestData
 import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.ExpenseStatus
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.IncomeStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -334,64 +335,77 @@ internal class StatisticsApiControllerIT(
                 category = irrelevantCategory,
                 dateReceived = LocalDate.of(3010, 5, 23),
                 originalAmount = 177,
-                amountInDefaultCurrency = 177,
-                reportedAmountInDefaultCurrency = 177
+                currency = irrelevantWorkspace.defaultCurrency,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(177),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(177)
             ),
             Prototypes.income(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 4, 20),
                 originalAmount = 166,
-                amountInDefaultCurrency = 166,
-                reportedAmountInDefaultCurrency = 166
+                currency = firstCategory.workspace.defaultCurrency,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(166),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(166)
             ),
             Prototypes.income(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 4, 21),
                 originalAmount = 167,
-                amountInDefaultCurrency = 185,
-                reportedAmountInDefaultCurrency = 167
+                currency = "ZZH",
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(185),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(167),
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             Prototypes.income(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 9, 15),
                 originalAmount = 168,
-                amountInDefaultCurrency = 175,
-                reportedAmountInDefaultCurrency = 168
+                currency = "ZZH",
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(175),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(168),
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             Prototypes.income(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 9, 16),
                 originalAmount = 177,
-                amountInDefaultCurrency = 177,
-                reportedAmountInDefaultCurrency = 177
+                currency = firstCategory.workspace.defaultCurrency,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(177),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(177)
             ),
             Prototypes.income(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 233,
-                amountInDefaultCurrency = 0,
-                reportedAmountInDefaultCurrency = 0
+                currency = "ZZH",
+                convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                status = IncomeStatus.PENDING_CONVERSION
             ),
             Prototypes.income(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 233,
-                amountInDefaultCurrency = 233,
-                reportedAmountInDefaultCurrency = 0
+                currency = "ZZH",
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(233),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
+                useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             Prototypes.income(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 233,
-                amountInDefaultCurrency = 233,
-                reportedAmountInDefaultCurrency = 233
+                currency = secondCategory.workspace.defaultCurrency,
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(233),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(233)
             ),
             Prototypes.incomeTaxPayment(
                 workspace = workspace,

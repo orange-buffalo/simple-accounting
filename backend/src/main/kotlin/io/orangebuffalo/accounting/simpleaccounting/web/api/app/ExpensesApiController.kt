@@ -142,13 +142,13 @@ data class ExpenseDto(
     val generalTax: Long?,
     val generalTaxRateInBps: Int?,
     val generalTaxAmount: Long?,
-    val convertedAmounts: AmountsDto,
-    val incomeTaxableAmounts: AmountsDto,
+    val convertedAmounts: ExpenseAmountsDto,
+    val incomeTaxableAmounts: ExpenseAmountsDto,
     val useDifferentExchangeRateForIncomeTaxPurposes: Boolean
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class AmountsDto(
+data class ExpenseAmountsDto(
     val originalAmountInDefaultCurrency: Long?,
     val adjustedAmountInDefaultCurrency: Long?
 )
@@ -189,7 +189,7 @@ private fun Expense.mapToExpenseDto() = ExpenseDto(
     generalTaxRateInBps = generalTaxRateInBps
 )
 
-private fun AmountsInDefaultCurrency.mapToAmountsDto() = AmountsDto(
+private fun AmountsInDefaultCurrency.mapToAmountsDto() = ExpenseAmountsDto(
     originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
     adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency
 )
