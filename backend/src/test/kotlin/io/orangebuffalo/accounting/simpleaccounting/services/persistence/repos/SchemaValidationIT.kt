@@ -1,24 +1,21 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos
 
-import org.assertj.core.api.Assertions.assertThat
-import org.hibernate.boot.Metadata
-import org.hibernate.internal.SessionFactoryImpl
-import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl
-import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor
-import org.hibernate.service.ServiceRegistry
-import org.hibernate.tool.schema.spi.DelayedDropRegistryNotAvailableImpl
-import org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.autoconfigure.flyway.FlywayDataSource
+import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.core.io.Resource
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.io.StringWriter
-import java.nio.file.Files
+import javax.sql.DataSource
 import javax.transaction.Transactional
 
 @ExtendWith(SpringExtension::class)
@@ -28,70 +25,51 @@ import javax.transaction.Transactional
 class SchemaValidationIT {
 
     @Autowired
-    private lateinit var localContainerEntityManagerFactoryBean: LocalContainerEntityManagerFactoryBean
+    @Qualifier("hibernateJdbcTemplate")
+    private lateinit var hibernateJdbcTemplate: JdbcTemplate
 
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    @Value("classpath:hibernate-ddl.sql")
-    private lateinit var persistedHibernateDdl: Resource
+    @Qualifier("flywayJdbcTemplate")
+    private lateinit var flywayJdbcTemplate: JdbcTemplate
 
     @Test
-    fun `Flyway should produce Hibernate-valid schema`() {
-        val schemaToolSetup = getSchemaToolSetup()
-        schemaToolSetup.properties["hibernate.hbm2ddl.auto"] = "validate"
+    fun `Hibernate and Flyway DDL should be in sync`() {
+        val flywayDdl = getDbDdl(flywayJdbcTemplate)
+        val hibernateDdl = getDbDdl(hibernateJdbcTemplate)
 
-        SchemaManagementToolCoordinator.process(
-            schemaToolSetup.metadata,
-            schemaToolSetup.serviceRegistry,
-            schemaToolSetup.properties,
-            DelayedDropRegistryNotAvailableImpl.INSTANCE
-        )
+        assertThat(flywayDdl).isEqualTo(hibernateDdl)
     }
 
-    @Test
-    fun `Hibernate DDL should be up to date for tracking and manual validation purposes`() {
-        val schemaToolSetup = getSchemaToolSetup()
-        val ddlWriter = StringWriter()
-        schemaToolSetup.properties["javax.persistence.schema-generation.scripts.action"] = "create"
-        schemaToolSetup.properties["javax.persistence.schema-generation.scripts.create-target"] = ddlWriter
+    @TestConfiguration
+    class SchemaValidationITConfiguration {
 
-        SchemaManagementToolCoordinator.process(
-            schemaToolSetup.metadata,
-            schemaToolSetup.serviceRegistry,
-            schemaToolSetup.properties,
-            DelayedDropRegistryNotAvailableImpl.INSTANCE
-        )
+        @Bean(name = ["hibernateDatasource"])
+        @Primary
+        fun hibernateDatasource(): DataSource {
+            return DataSourceBuilder.create()
+                .driverClassName("org.h2.Driver")
+                .url("jdbc:h2:mem:hibernate")
+                .build()
+        }
 
-        val actualDdl = ddlWriter.toString()
-        assertThat(actualDdl.trim())
-            .isEqualTo(String(Files.readAllBytes(persistedHibernateDdl.file.toPath())).trim())
+        @Bean(name = ["hibernateJdbcTemplate"])
+        @Primary
+        fun jdbcTemplate(hibernateDatasource: DataSource): JdbcTemplate {
+            return JdbcTemplate(hibernateDatasource)
+        }
+
+        @Bean(name = ["flywayDatasource"])
+        @FlywayDataSource
+        fun flywayDatasource(): DataSource {
+            return DataSourceBuilder.create()
+                .driverClassName("org.h2.Driver")
+                .url("jdbc:h2:mem:flyway")
+                .build()
+        }
+
+        @Bean(name = ["flywayJdbcTemplate"])
+        fun flywayJdbcTemplate(@FlywayDataSource flywayDatasource: DataSource): JdbcTemplate {
+            return JdbcTemplate(flywayDatasource)
+        }
     }
-
-    private fun getSchemaToolSetup(): SchemaToolSetup {
-        val persistenceUnitInfo = localContainerEntityManagerFactoryBean.persistenceUnitInfo
-
-        val jpaPropertyMap = localContainerEntityManagerFactoryBean.jpaPropertyMap
-
-        val builder = EntityManagerFactoryBuilderImpl(
-            PersistenceUnitInfoDescriptor(persistenceUnitInfo),
-            jpaPropertyMap,
-            SchemaValidationIT::class.java.classLoader
-        )
-
-        val managerFactory = builder.build()
-
-        val factoryImpl = managerFactory.unwrap(SessionFactoryImpl::class.java)
-
-        return SchemaToolSetup(
-            builder.metadata,
-            factoryImpl.serviceRegistry,
-            HashMap(builder.configurationValues)
-        )
-    }
-
-    private data class SchemaToolSetup(
-        val metadata: Metadata,
-        val serviceRegistry: ServiceRegistry,
-        val properties: MutableMap<in Any, in Any>
-    )
 }

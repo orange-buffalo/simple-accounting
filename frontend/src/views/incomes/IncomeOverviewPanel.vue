@@ -21,8 +21,8 @@
       />
 
       <OverviewItemAttributePreviewIcon
-        v-if="isTaxApplicable"
-        tooltip="Tax applied"
+        v-if="isGeneralTaxApplicable"
+        tooltip="General Tax applied"
         icon="tax"
       />
 
@@ -108,40 +108,40 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="income.reportedAmountInDefaultCurrency"
+              v-if="income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="income.reportedAmountInDefaultCurrency"
+              :amount="income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet provided</span>
           </OverviewItemDetailsSectionAttribute>
         </div>
 
-        <template v-if="isTaxApplicable">
+        <template v-if="isGeneralTaxApplicable">
           <div class="row">
             <OverviewItemDetailsSectionAttribute
-              label="Applicable Tax"
+              label="Applicable General Tax"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ taxTitle }}
+              {{ generalTaxTitle }}
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable Tax Rate"
+              label="Applicable General Tax Rate"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <!-- todo #6 localize-->
-              {{ income.taxRateInBps / 100 }}%
+              {{ income.generalTaxRateInBps / 100 }}%
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable Tax Amount"
+              label="Applicable General Tax Amount"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <MoneyOutput
-                v-if="isTaxAmountAvailable"
+                v-if="income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
-                :amount="income.taxAmount"
+                :amount="income.generalTaxAmount"
               />
 
               <span v-else>Not yet available</span>
@@ -190,9 +190,9 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="income.amountInDefaultCurrency"
+              v-if="income.convertedAmounts.originalAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="income.amountInDefaultCurrency"
+              :amount="income.convertedAmounts.originalAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet available</span>
@@ -203,7 +203,7 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <!-- todo #6 localize -->
-            <span v-if="isReportedDifferentExchangeRate">Yes</span>
+            <span v-if="income.useDifferentExchangeRateForIncomeTaxPurposes">Yes</span>
             <span v-else>No</span>
           </OverviewItemDetailsSectionAttribute>
 
@@ -212,9 +212,9 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
-              v-if="income.reportedAmountInDefaultCurrency"
+              v-if="income.incomeTaxableAmounts.originalAmountInDefaultCurrency"
               :currency="defaultCurrency"
-              :amount="income.reportedAmountInDefaultCurrency"
+              :amount="income.incomeTaxableAmounts.originalAmountInDefaultCurrency"
             />
 
             <span v-else>Not yet available</span>
@@ -232,7 +232,7 @@
               v-for="attachment in attachments"
               :key="attachment.id"
             >
-              <document-link :document="attachment" /><br>
+              <DocumentLink :document="attachment" /><br>
             </span>
           </div>
         </div>
@@ -253,145 +253,125 @@
 </template>
 
 <script>
-import { isNil } from 'lodash/lang';
-import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-import { withCategories } from '@/components/mixins/with-categories';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import { withTaxes } from '@/components/mixins/with-taxes';
-import { loadDocuments } from '@/services/app-services';
-import DocumentLink from '@/components/DocumentLink';
-import MoneyOutput from '@/components/MoneyOutput';
-import OverviewItem from '@/components/overview-item/OverviewItem';
-import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
-import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
-import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
-import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
-import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
-import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
-import SaActionLink from '@/components/SaActionLink';
-import SaIcon from '@/components/SaIcon';
-import SaMarkdownOutput from '@/components/SaMarkdownOutput';
-import SaStatusLabel from '@/components/SaStatusLabel';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import withCategories from '@/components/mixins/with-categories';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
+  import { loadDocuments } from '@/services/app-services';
+  import DocumentLink from '@/components/DocumentLink';
+  import MoneyOutput from '@/components/MoneyOutput';
+  import OverviewItem from '@/components/overview-item/OverviewItem';
+  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
+  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
+  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
+  import SaActionLink from '@/components/SaActionLink';
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import SaStatusLabel from '@/components/SaStatusLabel';
 
-export default {
-  name: 'IncomeOverviewPanel',
+  export default {
+    name: 'IncomeOverviewPanel',
 
-  components: {
-    MoneyOutput,
-    DocumentLink,
-    OverviewItem,
-    SaIcon,
-    OverviewItemAttributePreviewIcon,
-    OverviewItemPrimaryAttribute,
-    OverviewItemDetailsSection,
-    OverviewItemDetailsSectionAttribute,
-    SaActionLink,
-    OverviewItemDetailsSectionActions,
-    OverviewItemAmountPanel,
-    SaStatusLabel,
-    SaMarkdownOutput,
-  },
-
-  mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withTaxes],
-
-  props: {
-    income: {
-      type: Object,
-      required: true,
-    },
-  },
-
-  data() {
-    return {
-      attachments: [],
-    };
-  },
-
-  computed: {
-    status() {
-      return this.income.status === 'FINALIZED' ? 'success' : 'pending';
+    components: {
+      MoneyOutput,
+      DocumentLink,
+      OverviewItem,
+      OverviewItemAttributePreviewIcon,
+      OverviewItemPrimaryAttribute,
+      OverviewItemDetailsSection,
+      OverviewItemDetailsSectionAttribute,
+      SaActionLink,
+      OverviewItemDetailsSectionActions,
+      OverviewItemAmountPanel,
+      SaStatusLabel,
+      SaMarkdownOutput,
     },
 
-    shortStatusText() {
-      return this.income.status === 'FINALIZED' ? 'Finalized' : 'Pending';
+    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withGeneralTaxes],
+
+    props: {
+      income: {
+        type: Object,
+        required: true,
+      },
     },
 
-    fullStatusText() {
-      if (this.income.status === 'FINALIZED') {
-        return 'Finalized';
-      } if (this.income.status === 'PENDING_CONVERSION') {
-        return `Conversion to ${this.defaultCurrency} pending`;
-      }
-      return 'Waiting for exchange rate';
+    data() {
+      return {
+        attachments: [],
+      };
     },
 
-    totalAmount() {
-      if (this.income.status === 'FINALIZED') {
-        return {
-          value: this.income.reportedAmountInDefaultCurrency,
-          currency: this.defaultCurrency,
-        };
-      } if (this.income.status === 'PENDING_CONVERSION') {
+    computed: {
+      status() {
+        return this.income.status === 'FINALIZED' ? 'success' : 'pending';
+      },
+
+      shortStatusText() {
+        return this.income.status === 'FINALIZED' ? 'Finalized' : 'Pending';
+      },
+
+      fullStatusText() {
+        if (this.income.status === 'FINALIZED') {
+          return 'Finalized';
+        } if (this.income.status === 'PENDING_CONVERSION') {
+          return `Conversion to ${this.defaultCurrency} pending`;
+        }
+        return 'Waiting for exchange rate';
+      },
+
+      totalAmount() {
+        if (this.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
+          return {
+            value: this.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
+            currency: this.defaultCurrency,
+          };
+        }
+        if (this.income.convertedAmounts.adjustedAmountInDefaultCurrency) {
+          return {
+            value: this.income.convertedAmounts.adjustedAmountInDefaultCurrency,
+            currency: this.defaultCurrency,
+          };
+        }
         return {
           value: this.income.originalAmount,
           currency: this.income.currency,
         };
-      }
-      return {
-        value: this.income.amountInDefaultCurrency,
-        currency: this.defaultCurrency,
-      };
+      },
+
+      isForeignCurrency() {
+        return this.income.currency !== this.defaultCurrency;
+      },
+
+      dateReceived() {
+        return this.mediumDateFormatter(new Date(this.income.dateReceived));
+      },
+
+      isGeneralTaxApplicable() {
+        return this.income.generalTax && this.generalTaxTitle;
+      },
+
+      generalTaxTitle() {
+        return this.generalTaxById(this.income.generalTax).title;
+      },
     },
 
-    isForeignCurrency() {
-      return this.income.currency !== this.defaultCurrency;
-    },
+    methods: {
+      async loadAttachments() {
+        if (this.income.attachments.length && !this.attachments.length) {
+          this.attachments = await loadDocuments(
+            this.attachments,
+            this.income.attachments,
+            this.currentWorkspace.id,
+          );
+        }
+      },
 
-    isReportedDifferentExchangeRate() {
-      return !isNil(this.income.reportedAmountInDefaultCurrency)
-            && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency);
+      navigateToIncomeEdit() {
+        this.$router.push({ name: 'edit-income', params: { id: this.income.id } });
+      },
     },
-
-    amountInDefaultCurrency() {
-      return this.income.currency === this.defaultCurrency
-        ? this.income.originalAmount : this.income.amountInDefaultCurrency;
-    },
-
-    isConverted() {
-      return this.income.amountInDefaultCurrency;
-    },
-
-    dateReceived() {
-      return this.mediumDateFormatter(new Date(this.income.dateReceived));
-    },
-
-    isTaxApplicable() {
-      return this.income.tax && this.taxTitle;
-    },
-
-    isTaxAmountAvailable() {
-      return this.income.status === 'FINALIZED';
-    },
-
-    taxTitle() {
-      return this.taxById(this.income.tax).title;
-    },
-  },
-
-  methods: {
-    async loadAttachments() {
-      if (this.income.attachments.length && !this.attachments.length) {
-        this.attachments = await loadDocuments(
-          this.attachments,
-          this.income.attachments,
-          this.currentWorkspace.id,
-        );
-      }
-    },
-
-    navigateToIncomeEdit() {
-      this.$router.push({ name: 'edit-income', params: { id: this.income.id } });
-    },
-  },
-};
+  };
 </script>

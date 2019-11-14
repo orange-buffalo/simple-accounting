@@ -8,63 +8,63 @@
       <div>
         <h2>Documents Storage</h2>
 
-        <documents-storage-config
+        <DocumentsStorageConfig
           storage-name="Google Drive"
           storage-id="google-drive"
           :user-documents-storage="profile.documentsStorage"
           @storage-enabled="onStorageEnabled"
           @storage-disabled="onStorageDisabled"
         >
-          <google-drive />
-        </documents-storage-config>
+          <GoogleDrive />
+        </DocumentsStorageConfig>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import GoogleDrive from '@/views/profile/documentsStorages/GoogleDrive';
-import DocumentsStorageConfig from '@/views/profile/documentsStorages/DocumentsStorageConfig';
-import { api } from '@/services/api';
+  import GoogleDrive from '@/views/profile/documentsStorages/GoogleDrive';
+  import DocumentsStorageConfig from '@/views/profile/documentsStorages/DocumentsStorageConfig';
+  import { api } from '@/services/api';
 
-export default {
-  name: 'MyProfile',
+  export default {
+    name: 'MyProfile',
 
-  components: {
-    DocumentsStorageConfig,
-    GoogleDrive,
-  },
+    components: {
+      DocumentsStorageConfig,
+      GoogleDrive,
+    },
 
-  data() {
-    return {
-      profile: {
-        documentsStorage: null,
-        userName: null,
+    data() {
+      return {
+        profile: {
+          documentsStorage: null,
+          userName: null,
+        },
+      };
+    },
+
+    async created() {
+      const profileResponse = await api.get('/profile');
+      this.profile = profileResponse.data;
+    },
+
+    methods: {
+      onStorageEnabled(storageId) {
+        this.profile.documentsStorage = storageId;
+        this._updateProfile();
       },
-    };
-  },
 
-  async created() {
-    const profileResponse = await api.get('/profile');
-    this.profile = profileResponse.data;
-  },
+      onStorageDisabled() {
+        this.profile.documentsStorage = null;
+        this._updateProfile();
+      },
 
-  methods: {
-    onStorageEnabled(storageId) {
-      this.profile.documentsStorage = storageId;
-      this._updateProfile();
+      _updateProfile() {
+        api.put('/profile', this.profile);
+      },
     },
-
-    onStorageDisabled() {
-      this.profile.documentsStorage = null;
-      this._updateProfile();
-    },
-
-    _updateProfile() {
-      api.put('/profile', this.profile);
-    },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

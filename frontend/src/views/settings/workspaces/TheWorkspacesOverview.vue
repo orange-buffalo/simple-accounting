@@ -6,22 +6,22 @@
       <div class="sa-header-options">
         <span />
 
-        <el-button
+        <ElButton
           round
           @click="navigateToCreateWorkspace"
         >
-          <svgicon name="plus-thin" />
+          <Svgicon name="plus-thin" />
           Create new workspace
-        </el-button>
+        </ElButton>
       </div>
     </div>
 
     <h2>Current Workspace</h2>
-    <the-workspaces-overview-item-panel :workspace="currentWorkspace" />
+    <TheWorkspacesOverviewItemPanel :workspace="currentWorkspace" />
 
     <template v-if="hasOtherOwnWorkspaces">
       <h2>My Other Workspaces</h2>
-      <the-workspaces-overview-item-panel
+      <TheWorkspacesOverviewItemPanel
         v-for="workspace in ownOtherWorkspaces"
         :key="workspace.id"
         :workspace="workspace"
@@ -30,7 +30,7 @@
 
     <template v-if="hasSharedWorkspaces">
       <h2>Workspaces Shared With Me</h2>
-      <the-workspaces-overview-item-panel
+      <TheWorkspacesOverviewItemPanel
         v-for="workspace in sharedWorkspaces"
         :key="workspace.id"
         :workspace="workspace"
@@ -40,49 +40,49 @@
 </template>
 
 <script>
-import '@/components/icons/plus-thin';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
-import { api } from '@/services/api';
+  import '@/components/icons/plus-thin';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
+  import { api } from '@/services/api';
 
-export default {
-  name: 'TheWorkspacesOverview',
+  export default {
+    name: 'TheWorkspacesOverview',
 
-  components: {
-    TheWorkspacesOverviewItemPanel,
-  },
-
-  mixins: [withWorkspaces],
-
-  data() {
-    return {
-      sharedWorkspaces: [],
-    };
-  },
-
-  computed: {
-    ownOtherWorkspaces() {
-      return this.workspaces.filter(it => it.id !== this.currentWorkspace.id);
+    components: {
+      TheWorkspacesOverviewItemPanel,
     },
 
-    hasOtherOwnWorkspaces() {
-      return this.ownOtherWorkspaces.length;
+    mixins: [withWorkspaces],
+
+    data() {
+      return {
+        sharedWorkspaces: [],
+      };
     },
 
-    hasSharedWorkspaces() {
-      return this.sharedWorkspaces.length;
-    },
-  },
+    computed: {
+      ownOtherWorkspaces() {
+        return this.workspaces.filter(it => it.id !== this.currentWorkspace.id);
+      },
 
-  async created() {
-    const sharedWorkspacesResponse = await api.get('/shared-workspaces');
-    this.sharedWorkspaces = sharedWorkspacesResponse.data;
-  },
+      hasOtherOwnWorkspaces() {
+        return this.ownOtherWorkspaces.length;
+      },
 
-  methods: {
-    navigateToCreateWorkspace() {
-      this.$router.push({ name: 'create-new-workspace' });
+      hasSharedWorkspaces() {
+        return this.sharedWorkspaces.length;
+      },
     },
-  },
-};
+
+    async created() {
+      const sharedWorkspacesResponse = await api.get('/shared-workspaces');
+      this.sharedWorkspaces = sharedWorkspacesResponse.data;
+    },
+
+    methods: {
+      navigateToCreateWorkspace() {
+        this.$router.push({ name: 'create-new-workspace' });
+      },
+    },
+  };
 </script>

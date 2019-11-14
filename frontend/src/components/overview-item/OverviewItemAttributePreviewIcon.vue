@@ -12,25 +12,25 @@
 </template>
 
 <script>
-import SaIcon from '@/components/SaIcon';
+  import SaIcon from '@/components/SaIcon';
 
-export default {
-  name: 'OverviewItemAttributePreviewIcon',
+  export default {
+    name: 'OverviewItemAttributePreviewIcon',
 
-  components: {
-    SaIcon,
-  },
-
-  props: {
-    icon: {
-      type: String,
-      required: true,
+    components: {
+      SaIcon,
     },
-    tooltip: {
-      type: String,
+
+    props: {
+      icon: {
+        type: String,
+        required: true,
+      },
+      tooltip: {
+        type: String,
+      },
     },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

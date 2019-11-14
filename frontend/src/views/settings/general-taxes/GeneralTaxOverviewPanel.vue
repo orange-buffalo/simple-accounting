@@ -5,11 +5,11 @@
         <!--todo #6: localize-->
         <h3>{{ tax.title }} ({{ tax.rateInBps / 100 }}%)</h3>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil-solid" />
-          <el-button
+          <Svgicon name="pencil-solid" />
+          <ElButton
             type="text"
             @click="navigateToTaxEdit"
-          >Edit</el-button>
+          >Edit</ElButton>
         </span>
       </div>
 
@@ -25,22 +25,25 @@
 </template>
 
 <script>
-import '@/components/icons/pencil-solid';
-import '@/components/icons/percent';
+  import '@/components/icons/pencil-solid';
+  import '@/components/icons/percent';
 
-export default {
-  name: 'TaxOverviewPanel',
+  export default {
+    name: 'GeneralTaxOverviewPanel',
 
-  props: {
-    tax: Object,
-  },
-
-  methods: {
-    navigateToTaxEdit() {
-      this.$router.push({ name: 'edit-tax', params: { id: this.tax.id } });
+    props: {
+      tax: {
+        type: Object,
+        required: true,
+      },
     },
-  },
-};
+
+    methods: {
+      navigateToTaxEdit() {
+        this.$router.push({ name: 'edit-general-tax', params: { id: this.tax.id } });
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

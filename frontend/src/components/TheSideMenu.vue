@@ -1,5 +1,5 @@
 <template>
-  <el-aside class="the-side-menu">
+  <ElAside class="the-side-menu">
     <div class="the-side-menu__logo" />
 
     <div
@@ -10,32 +10,32 @@
     </div>
 
     <template v-if="isUser">
-      <the-side-menu-link
+      <TheSideMenuLink
         to="/"
         title="Dashboard"
         icon="dashboard"
       />
-      <the-side-menu-link
+      <TheSideMenuLink
         to="/expenses"
         title="Expenses"
         icon="expense"
       />
-      <the-side-menu-link
+      <TheSideMenuLink
         to="/incomes"
         title="Incomes"
         icon="income"
       />
-      <the-side-menu-link
+      <TheSideMenuLink
         to="/invoices"
         title="Invoices"
         icon="invoice"
       />
-      <the-side-menu-link
-        to="/tax-payments"
-        title="Tax payments"
+      <TheSideMenuLink
+        to="/income-tax-payments"
+        title="Income Tax Payments"
         icon="tax"
       />
-      <the-side-menu-link
+      <TheSideMenuLink
         to="/reporting"
         title="Reporting"
         icon="reporting"
@@ -44,28 +44,28 @@
       <template v-if="isCurrentUserRegular">
         <span class="the-side-menu__category">Settings</span>
 
-        <the-side-menu-link
+        <TheSideMenuLink
           v-if="currentWorkspace.editable"
           to="/settings/customers"
           title="Customers"
           icon="customer"
         />
 
-        <the-side-menu-link
+        <TheSideMenuLink
           v-if="currentWorkspace.editable"
           to="/settings/categories"
           title="Categories"
           icon="category"
         />
 
-        <the-side-menu-link
+        <TheSideMenuLink
           v-if="currentWorkspace.editable"
-          to="/settings/taxes"
-          title="Taxes"
+          to="/settings/general-taxes"
+          title="General Taxes"
           icon="tax"
         />
 
-        <the-side-menu-link
+        <TheSideMenuLink
           to="/settings/workspaces"
           title="Workspaces"
           icon="workspaces"
@@ -75,50 +75,50 @@
 
     <span class="the-side-menu__category">User</span>
 
-    <the-side-menu-link
+    <TheSideMenuLink
       v-if="isCurrentUserRegular"
       to="/my-profile"
       title="My Profile"
       icon="profile"
     />
-    <the-side-menu-link
+    <TheSideMenuLink
       to="/logout"
       title="Logout"
       icon="logout"
     />
-  </el-aside>
+  </ElAside>
 </template>
 
 <script>
-import TheSideMenuLink from '@/components/TheSideMenuLink';
-import '@/components/icons/reporting';
-import '@/components/icons/dashboard';
-import '@/components/icons/expense';
-import '@/components/icons/income';
-import '@/components/icons/invoice';
-import '@/components/icons/tax';
-import '@/components/icons/customer';
-import '@/components/icons/category';
-import '@/components/icons/workspaces';
-import withWorkspaces from '@/components/mixins/with-workspaces';
-import { mapState } from 'vuex';
-import withApi from '@/components/mixins/with-api';
+  import TheSideMenuLink from '@/components/TheSideMenuLink';
+  import '@/components/icons/reporting';
+  import '@/components/icons/dashboard';
+  import '@/components/icons/expense';
+  import '@/components/icons/income';
+  import '@/components/icons/invoice';
+  import '@/components/icons/tax';
+  import '@/components/icons/customer';
+  import '@/components/icons/category';
+  import '@/components/icons/workspaces';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { mapState } from 'vuex';
+  import withApi from '@/components/mixins/with-api';
 
-export default {
-  name: 'TheSideMenu',
+  export default {
+    name: 'TheSideMenu',
 
-  mixins: [withWorkspaces, withApi],
+    mixins: [withWorkspaces, withApi],
 
-  computed: {
-    ...mapState({
-      isUser: state => !state.api.isAdmin,
-    }),
-  },
+    computed: {
+      ...mapState({
+        isUser: state => !state.api.isAdmin,
+      }),
+    },
 
-  components: {
-    TheSideMenuLink,
-  },
-};
+    components: {
+      TheSideMenuLink,
+    },
+  };
 </script>
 
 <style lang="scss">

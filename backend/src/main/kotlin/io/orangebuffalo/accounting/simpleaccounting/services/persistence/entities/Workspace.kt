@@ -15,10 +15,10 @@ class Workspace(
     @field:Column(nullable = false)
     var taxEnabled: Boolean,
 
-    @field:Column(nullable = false, length = 3)
+    @field:Column(nullable = false)
     var multiCurrencyEnabled: Boolean,
 
-    @field:Column(nullable = false)
+    @field:Column(nullable = false, length = 3)
     val defaultCurrency: String,
 
     @field:OneToMany(mappedBy = "workspace", fetch = FetchType.EAGER)

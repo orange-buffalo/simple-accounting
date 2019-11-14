@@ -1,102 +1,102 @@
 <template>
-  <el-container>
-    <el-main>
+  <ElContainer>
+    <ElMain>
       <h1>Workspace</h1>
-      <el-form
+      <ElForm
         ref="form"
         :model="form"
         :rules="formValidationRules"
       >
-        <el-form-item
+        <ElFormItem
           label="Name"
           prop="name"
         >
-          <el-input v-model="form.name" />
-        </el-form-item>
-        <el-form-item
+          <ElInput v-model="form.name" />
+        </ElFormItem>
+        <ElFormItem
           label="Tax Enabled"
           prop="taxEnabled"
         >
-          <el-checkbox v-model="form.taxEnabled" />
-        </el-form-item>
-        <el-form-item
+          <ElCheckbox v-model="form.taxEnabled" />
+        </ElFormItem>
+        <ElFormItem
           label="Multi-currency Enabled"
           prop="multiCurrencyEnabled"
         >
-          <el-checkbox v-model="form.multiCurrencyEnabled" />
-        </el-form-item>
-        <el-form-item
+          <ElCheckbox v-model="form.multiCurrencyEnabled" />
+        </ElFormItem>
+        <ElFormItem
           label="Default Currency"
           prop="defaultCurrency"
         >
-          <el-input v-model="form.defaultCurrency" />
-        </el-form-item>
-        <el-form-item>
-          <el-button
+          <ElInput v-model="form.defaultCurrency" />
+        </ElFormItem>
+        <ElFormItem>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-main>
-  </el-container>
+          </ElButton>
+        </ElFormItem>
+      </ElForm>
+    </ElMain>
+  </ElContainer>
 </template>
 
 <script>
 
-import { mapActions } from 'vuex';
-import api from '@/services/api';
+  import { mapActions } from 'vuex';
+  import api from '@/services/api';
 
-export default {
-  name: 'WorkspaceSetup',
+  export default {
+    name: 'WorkspaceSetup',
 
-  data() {
-    return {
-      form: {
-        name: '',
-        taxEnabled: false,
-        multiCurrencyEnabled: false,
-        defaultCurrency: 'AUD',
-      },
-      formValidationRules: {
-        name: [
-          { required: true, message: 'Please input name', trigger: 'blur' },
-        ],
-        defaultCurrency: [
-          { required: true, message: 'Please input currency', trigger: 'blur' },
-        ],
-      },
-    };
-  },
-
-  methods: {
-    save() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          api
-            .post('/workspaces', this.form)
-            .then((response) => {
-              console.log(response);
-              this.createWorkspace(response.data);
-              this.$router.push('/');
-            })
-            .catch(() => {
-              this.$refs.form.clearValidate();
-              this.$message({
-                showClose: true,
-                message: 'Sorry, failed',
-                type: 'error',
-              });
-            });
-        }
-      });
+    data() {
+      return {
+        form: {
+          name: '',
+          taxEnabled: false,
+          multiCurrencyEnabled: false,
+          defaultCurrency: 'AUD',
+        },
+        formValidationRules: {
+          name: [
+            { required: true, message: 'Please input name', trigger: 'blur' },
+          ],
+          defaultCurrency: [
+            { required: true, message: 'Please input currency', trigger: 'blur' },
+          ],
+        },
+      };
     },
 
-    ...mapActions({
-      createWorkspace: 'workspaces/createWorkspace',
-    }),
-  },
-};
+    methods: {
+      save() {
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            api
+              .post('/workspaces', this.form)
+              .then((response) => {
+                console.log(response);
+                this.createWorkspace(response.data);
+                this.$router.push('/');
+              })
+              .catch(() => {
+                this.$refs.form.clearValidate();
+                this.$message({
+                  showClose: true,
+                  message: 'Sorry, failed',
+                  type: 'error',
+                });
+              });
+          }
+        });
+      },
+
+      ...mapActions({
+        createWorkspace: 'workspaces/createWorkspace',
+      }),
+    },
+  };
 </script>

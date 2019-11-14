@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.
 import com.querydsl.core.types.dsl.CaseBuilder
 import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQuery
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.*
@@ -34,27 +35,33 @@ class ExpenseRepositoryExtImpl(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspace: Workspace
-    ): List<ExpensesStatistics> = JPAQuery<ExpensesStatistics>(entityManager)
-        .from(expense)
-        .where(
-            expense.workspace.eq(workspace),
-            expense.datePaid.goe(fromDate),
-            expense.datePaid.loe(toDate)
-        )
-        .groupBy(expense.category.id)
-        .select(
-            QExpensesStatistics(
-                expense.category.id,
-                expense.reportedAmountInDefaultCurrency.sum(),
-                CaseBuilder()
-                    .`when`(expense.reportedAmountInDefaultCurrency.gt(0)).then(1)
-                    .otherwise(Expressions.nullExpression())
-                    .count(),
-                CaseBuilder()
-                    .`when`(expense.reportedAmountInDefaultCurrency.eq(0)).then(1)
-                    .otherwise(Expressions.nullExpression())
-                    .count()
+    ): List<ExpensesStatistics> {
+        val incomeTaxableAmount = expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency
+        return JPAQuery<ExpensesStatistics>(entityManager)
+            .from(expense)
+            .where(
+                expense.workspace.eq(workspace),
+                expense.datePaid.goe(fromDate),
+                expense.datePaid.loe(toDate)
             )
-        )
-        .fetch()
+            .groupBy(expense.category.id)
+            .select(
+                QExpensesStatistics(
+                    expense.category.id,
+                    CaseBuilder()
+                        .`when`(incomeTaxableAmount.isNull).then(0L)
+                        .otherwise(incomeTaxableAmount)
+                        .sum(),
+                    CaseBuilder()
+                        .`when`(expense.status.eq(ExpenseStatus.FINALIZED)).then(1)
+                        .otherwise(Expressions.nullExpression())
+                        .count(),
+                    CaseBuilder()
+                        .`when`(expense.status.ne(ExpenseStatus.FINALIZED)).then(1)
+                        .otherwise(Expressions.nullExpression())
+                        .count()
+                )
+            )
+            .fetch()
+    }
 }

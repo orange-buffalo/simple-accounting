@@ -8,16 +8,16 @@
 </template>
 
 <script>
-export default {
-  name: 'OverviewItemDetailsSection',
+  export default {
+    name: 'OverviewItemDetailsSection',
 
-  props: {
-    title: {
-      type: String,
-      required: true,
+    props: {
+      title: {
+        type: String,
+        required: true,
+      },
     },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

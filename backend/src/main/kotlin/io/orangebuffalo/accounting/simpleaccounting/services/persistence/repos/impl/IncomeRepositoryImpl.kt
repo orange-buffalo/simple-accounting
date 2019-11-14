@@ -3,6 +3,7 @@ package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.
 import com.querydsl.core.types.dsl.CaseBuilder
 import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQuery
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.IncomeStatus
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncome
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.*
@@ -34,31 +35,40 @@ class IncomeRepositoryExtImpl(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspace: Workspace
-    ): List<IncomesStatistics> = JPAQuery<IncomesStatistics>(entityManager)
-        .from(income)
-        .where(
-            income.workspace.eq(workspace),
-            income.dateReceived.goe(fromDate),
-            income.dateReceived.loe(toDate)
-        )
-        .groupBy(income.category.id)
-        .select(
-            QIncomesStatistics(
-                income.category.id,
-                income.reportedAmountInDefaultCurrency.sum(),
-                CaseBuilder()
-                    .`when`(income.reportedAmountInDefaultCurrency.gt(0)).then(1)
-                    .otherwise(Expressions.nullExpression())
-                    .count(),
-                CaseBuilder()
-                    .`when`(income.reportedAmountInDefaultCurrency.eq(0)).then(1)
-                    .otherwise(Expressions.nullExpression())
-                    .count(),
-                CaseBuilder()
-                    .`when`(income.reportedAmountInDefaultCurrency.eq(0)).then(0L)
-                    .otherwise(income.amountInDefaultCurrency.subtract(income.reportedAmountInDefaultCurrency))
-                    .sum()
+    ): List<IncomesStatistics> {
+        val incomeTaxableAmount = income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency
+        return JPAQuery<IncomesStatistics>(entityManager)
+            .from(income)
+            .where(
+                income.workspace.eq(workspace),
+                income.dateReceived.goe(fromDate),
+                income.dateReceived.loe(toDate)
             )
-        )
-        .fetch()
+            .groupBy(income.category.id)
+            .select(
+                QIncomesStatistics(
+                    income.category.id,
+                    CaseBuilder()
+                        .`when`(incomeTaxableAmount.isNull).then(0L)
+                        .otherwise(incomeTaxableAmount)
+                        .sum(),
+                    CaseBuilder()
+                        .`when`(income.status.eq(IncomeStatus.FINALIZED)).then(1)
+                        .otherwise(Expressions.nullExpression())
+                        .count(),
+                    CaseBuilder()
+                        .`when`(income.status.ne(IncomeStatus.FINALIZED)).then(1)
+                        .otherwise(Expressions.nullExpression())
+                        .count(),
+                    CaseBuilder()
+                        .`when`(income.status.ne(IncomeStatus.FINALIZED)).then(0L)
+                        .otherwise(
+                            income.convertedAmounts.adjustedAmountInDefaultCurrency
+                                .subtract(income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency)
+                        )
+                        .sum()
+                )
+            )
+            .fetch()
+    }
 }

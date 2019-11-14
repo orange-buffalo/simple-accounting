@@ -70,12 +70,12 @@ class Prototypes {
             categories = categories
         )
 
-        fun tax(
+        fun generalTax(
             title: String = "Tax",
             rateInBps: Int = 10_00,
             description: String? = null,
             workspace: Workspace = workspace()
-        ) = Tax(
+        ) = GeneralTax(
             title = title,
             workspace = workspace,
             rateInBps = rateInBps,
@@ -97,7 +97,7 @@ class Prototypes {
         )
 
         fun expense(
-            category: Category? = category(),
+            category: Category? = null,
             workspace: Workspace = workspace(),
             title: String = "Expense",
 
@@ -105,15 +105,16 @@ class Prototypes {
             datePaid: LocalDate = MOCK_DATE,
             currency: String = "USD",
             originalAmount: Long = 100,
-            amountInDefaultCurrency: Long = 100,
-            actualAmountInDefaultCurrency: Long = 100,
+            convertedAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+            incomeTaxableAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+            useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
             attachments: Set<Document> = setOf(),
             percentOnBusiness: Int = 100,
-            tax: Tax? = null,
-            taxRateInBps: Int? = null,
-            taxAmount: Long? = null,
-            reportedAmountInDefaultCurrency: Long = 100,
-            notes: String? = null
+            generalTax: GeneralTax? = null,
+            generalTaxRateInBps: Int? = null,
+            generalTaxAmount: Long? = null,
+            notes: String? = null,
+            status: ExpenseStatus = ExpenseStatus.FINALIZED
         ) = Expense(
             workspace = workspace,
             category = category,
@@ -122,42 +123,47 @@ class Prototypes {
             timeRecorded = timeRecorded,
             currency = currency,
             originalAmount = originalAmount,
-            amountInDefaultCurrency = amountInDefaultCurrency,
-            actualAmountInDefaultCurrency = actualAmountInDefaultCurrency,
-            reportedAmountInDefaultCurrency = reportedAmountInDefaultCurrency,
+            convertedAmounts = convertedAmounts,
+            incomeTaxableAmounts = incomeTaxableAmounts,
+            useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
             percentOnBusiness = percentOnBusiness,
-            tax = tax,
+            generalTax = generalTax,
             attachments = attachments,
-            taxAmount = taxAmount,
-            taxRateInBps = taxRateInBps,
-            notes = notes
+            generalTaxAmount = generalTaxAmount,
+            generalTaxRateInBps = generalTaxRateInBps,
+            notes = notes,
+            status = status
         )
 
         fun income(
-            category: Category = category(),
-            workspace: Workspace = category.workspace,
+            category: Category? = null,
+            workspace: Workspace = workspace(),
             title: String = "Income",
             timeRecorded: Instant = MOCK_TIME,
             dateReceived: LocalDate = MOCK_DATE,
             currency: String = "USD",
             originalAmount: Long = 100,
-            amountInDefaultCurrency: Long = 100,
-            reportedAmountInDefaultCurrency: Long = 100,
+            convertedAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+            incomeTaxableAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+            useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
             attachments: Set<Document> = setOf(),
             notes: String? = null,
-            tax: Tax? = null,
-            taxRateInBps: Int? = null,
-            taxAmount: Long? = null
+            generalTax: GeneralTax? = null,
+            generalTaxRateInBps: Int? = null,
+            generalTaxAmount: Long? = null,
+            status: IncomeStatus= IncomeStatus.FINALIZED
         ) = Income(
             category = category,
             workspace = workspace,
-            taxAmount = taxAmount,
-            reportedAmountInDefaultCurrency = reportedAmountInDefaultCurrency,
-            tax = tax,
+            generalTaxAmount = generalTaxAmount,
+            convertedAmounts = convertedAmounts,
+            useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+            incomeTaxableAmounts = incomeTaxableAmounts,
+            status = status,
+            generalTax = generalTax,
             notes = notes,
-            taxRateInBps = taxRateInBps,
+            generalTaxRateInBps = generalTaxRateInBps,
             attachments = attachments,
-            amountInDefaultCurrency = amountInDefaultCurrency,
             currency = currency,
             dateReceived = dateReceived,
             originalAmount = originalAmount,
@@ -183,7 +189,7 @@ class Prototypes {
             notes = notes
         )
 
-        fun taxPayment(
+        fun incomeTaxPayment(
             workspace: Workspace = workspace(),
             timeRecorded: Instant = MOCK_TIME,
             datePaid: LocalDate = MOCK_DATE,
@@ -192,7 +198,7 @@ class Prototypes {
             title: String = "Tax Payment",
             attachments: Set<Document> = setOf(),
             notes: String? = null
-        ): TaxPayment = TaxPayment(
+        ): IncomeTaxPayment = IncomeTaxPayment(
             workspace = workspace,
             timeRecorded = timeRecorded,
             datePaid = datePaid,
@@ -225,7 +231,7 @@ class Prototypes {
             amount: Long = 100,
             attachments: Set<Document> = setOf(),
             notes: String? = null,
-            tax: Tax? = null
+            generalTax: GeneralTax? = null
         ): Invoice = Invoice(
             income = income,
             customer = customer,
@@ -240,7 +246,7 @@ class Prototypes {
             amount = amount,
             attachments = attachments,
             notes = notes,
-            tax = tax
+            generalTax = generalTax
         )
 
         fun workspaceAccessToken(
@@ -255,6 +261,15 @@ class Prototypes {
             validTill = validTill,
             revoked = revoked,
             token = token
+        )
+
+        fun amountsInDefaultCurrency(
+            amount: Long
+        ): AmountsInDefaultCurrency = AmountsInDefaultCurrency(amount, amount)
+
+        fun emptyAmountsInDefaultCurrency(): AmountsInDefaultCurrency = AmountsInDefaultCurrency(
+            originalAmountInDefaultCurrency = null,
+            adjustedAmountInDefaultCurrency = null
         )
     }
 }

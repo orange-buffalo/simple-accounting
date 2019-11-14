@@ -43,36 +43,36 @@
 </template>
 
 <script>
-import '@/components/icons/empty-box';
+  import '@/components/icons/empty-box';
 
-export default {
-  name: 'OverviewItem',
+  export default {
+    name: 'OverviewItem',
 
-  props: {
-    title: {
-      type: String,
-      required: true,
+    props: {
+      title: {
+        type: String,
+        required: true,
+      },
     },
-  },
 
-  data() {
-    return {
-      detailsAvailable: false,
-      detailsVisible: false,
-    };
-  },
-
-  mounted() {
-    this.detailsAvailable = this.$slots.details !== undefined;
-  },
-
-  methods: {
-    toggleDetailsVisibility() {
-      this.detailsVisible = !this.detailsVisible;
-      this.$emit(this.detailsVisible ? 'details-shown' : 'details-closed');
+    data() {
+      return {
+        detailsAvailable: false,
+        detailsVisible: false,
+      };
     },
-  },
-};
+
+    mounted() {
+      this.detailsAvailable = this.$slots.details !== undefined;
+    },
+
+    methods: {
+      toggleDetailsVisibility() {
+        this.detailsVisible = !this.detailsVisible;
+        this.$emit(this.detailsVisible ? 'details-shown' : 'details-closed');
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

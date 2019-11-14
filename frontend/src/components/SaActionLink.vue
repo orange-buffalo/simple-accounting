@@ -14,28 +14,28 @@
 </template>
 
 <script>
-import SaIcon from '@/components/SaIcon';
+  import SaIcon from '@/components/SaIcon';
 
-export default {
-  name: 'SaActionLink',
+  export default {
+    name: 'SaActionLink',
 
-  components: {
-    SaIcon,
-  },
-
-  props: {
-    icon: {
-      type: String,
-      required: true,
+    components: {
+      SaIcon,
     },
-  },
 
-  methods: {
-    click() {
-      this.$emit('click');
+    props: {
+      icon: {
+        type: String,
+        required: true,
+      },
     },
-  },
-};
+
+    methods: {
+      click() {
+        this.$emit('click');
+      },
+    },
+  };
 </script>
 
 

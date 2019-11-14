@@ -1,26 +1,24 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.CustomerService
-import io.orangebuffalo.accounting.simpleaccounting.services.business.TaxService
+import io.orangebuffalo.accounting.simpleaccounting.services.business.GeneralTaxService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.accounting.simpleaccounting.web.api.EntityNotFoundException
-import kotlinx.coroutines.CoroutineScope
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 
 @Component
 class ApiControllersExtensions(
     private val documentRepository: DocumentRepository,
     private val customerService: CustomerService,
-    private val taxService: TaxService
+    private val generalTaxService: GeneralTaxService
 ) {
 
-    suspend fun getValidTax(taxId: Long?, workspace: Workspace): Tax? =
+    suspend fun getValidGeneralTax(taxId: Long?, workspace: Workspace): GeneralTax? =
         if (taxId == null) {
             null
         } else {
-            taxService.getTaxByIdAndWorkspace(taxId, workspace)
+            generalTaxService.getTaxByIdAndWorkspace(taxId, workspace)
                 ?: throw EntityNotFoundException("Tax $taxId is not found")
         }
 

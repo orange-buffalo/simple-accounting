@@ -30,7 +30,7 @@ jobs:
     - name: "Build"
       env:
         DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
-      run: ./gradlew assemble --scan --console=plain -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN"
+      run: ./gradlew assemble buildDockerImage --scan --console=plain -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN"
 
     - name: "Test"
       run: ./gradlew check --scan --console=plain

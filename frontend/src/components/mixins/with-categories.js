@@ -1,7 +1,7 @@
-import { isNil } from 'lodash';
+import isNil from 'lodash/isNil';
 import { api } from '@/services/api';
 
-export const withCategories = {
+const withCategories = {
   data() {
     return {
       categories: [],

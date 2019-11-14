@@ -47,50 +47,50 @@
 </template>
 
 <script>
-import DataItems from '@/components/DataItems';
-import InvoiceOverviewPanel from './InvoiceOverviewPanel';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import SaIcon from '@/components/SaIcon';
+  import DataItems from '@/components/DataItems';
+  import InvoiceOverviewPanel from './InvoiceOverviewPanel';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaIcon from '@/components/SaIcon';
 
-export default {
-  name: 'IncomesOverview',
+  export default {
+    name: 'IncomesOverview',
 
-  components: {
-    SaIcon,
-    DataItems,
-    InvoiceOverviewPanel,
-  },
+    components: {
+      SaIcon,
+      DataItems,
+      InvoiceOverviewPanel,
+    },
 
-  mixins: [withWorkspaces],
+    mixins: [withWorkspaces],
 
-  data() {
-    return {
-      userFilters: {
-        freeSearchText: null,
-      },
-    };
-  },
-
-  computed: {
-    invoicesApiFilters() {
-      // read the property to enable reactivity
-      const { freeSearchText } = this.userFilters;
+    data() {
       return {
-        applyToRequest: (pageRequest) => {
-          pageRequest.eqFilter('freeSearchText', freeSearchText);
+        userFilters: {
+          freeSearchText: null,
         },
       };
     },
-  },
 
-  methods: {
-    navigateToCreateInvoiceView() {
-      this.$router.push({ name: 'create-new-invoice' });
+    computed: {
+      invoicesApiFilters() {
+        // read the property to enable reactivity
+        const { freeSearchText } = this.userFilters;
+        return {
+          applyToRequest: (pageRequest) => {
+            pageRequest.eqFilter('freeSearchText', freeSearchText);
+          },
+        };
+      },
     },
 
-    onInvoiceUpdate() {
-      this.$refs.invoicesList.reloadData();
+    methods: {
+      navigateToCreateInvoiceView() {
+        this.$router.push({ name: 'create-new-invoice' });
+      },
+
+      onInvoiceUpdate() {
+        this.$refs.invoicesList.reloadData();
+      },
     },
-  },
-};
+  };
 </script>

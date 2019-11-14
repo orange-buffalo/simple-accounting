@@ -55,7 +55,14 @@ class Invoice(
     var notes: String? = null,
 
     @field:ManyToOne
-    @field:JoinColumn(foreignKey = ForeignKey(name = "invoice_tax_fk"))
-    var tax: Tax? = null
+    @field:JoinColumn(foreignKey = ForeignKey(name = "invoice_general_tax_fk"))
+    var generalTax: GeneralTax? = null
 
-) : AbstractEntity()
+) : AbstractEntity() {
+
+    init {
+        require(generalTax == null || generalTax?.workspace == customer.workspace) {
+            "Tax and customer workspace must match"
+        }
+    }
+}

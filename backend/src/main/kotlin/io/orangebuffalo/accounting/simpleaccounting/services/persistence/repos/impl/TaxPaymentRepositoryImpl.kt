@@ -1,26 +1,26 @@
 package io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.impl
 
 import com.querydsl.jpa.impl.JPAQuery
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QTaxPayment
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.QIncomeTaxPayment
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.QTaxPaymentsStatistics
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.TaxPaymentRepositoryExt
-import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.TaxPaymentsStatistics
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.IncomeTaxPaymentRepositoryExt
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.IncomeTaxPaymentsStatistics
+import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.QIncomeTaxPaymentsStatistics
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import javax.persistence.EntityManager
 
 @Component
-class TaxPaymentRepositoryExtImpl(
+class IncomeTaxPaymentRepositoryExtImpl(
     private val entityManager: EntityManager
-) : TaxPaymentRepositoryExt {
+) : IncomeTaxPaymentRepositoryExt {
     override fun getTaxPaymentsStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspace: Workspace
-    ): TaxPaymentsStatistics {
-        val taxPayment = QTaxPayment.taxPayment
-        return JPAQuery<TaxPaymentsStatistics>(entityManager)
+    ): IncomeTaxPaymentsStatistics {
+        val taxPayment = QIncomeTaxPayment.incomeTaxPayment
+        return JPAQuery<IncomeTaxPaymentsStatistics>(entityManager)
             .from(taxPayment)
             .where(
                 taxPayment.workspace.eq(workspace),
@@ -28,7 +28,7 @@ class TaxPaymentRepositoryExtImpl(
                 taxPayment.reportingDate.loe(toDate)
             )
             .select(
-                QTaxPaymentsStatistics(
+                QIncomeTaxPaymentsStatistics(
                     taxPayment.amount.sum().coalesce(0)
                 )
             )

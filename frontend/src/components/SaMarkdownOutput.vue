@@ -14,50 +14,50 @@
 </template>
 
 <script>
-import DOMPurify from 'dompurify';
-import marked from 'marked';
-import debounce from 'lodash/debounce';
+  import DOMPurify from 'dompurify';
+  import marked from 'marked';
+  import debounce from 'lodash/debounce';
 
-function renderMarkdown(source) {
-  return source ? DOMPurify.sanitize(marked(source)) : '';
-}
+  function renderMarkdown(source) {
+    return source ? DOMPurify.sanitize(marked(source)) : '';
+  }
 
-export default {
-  name: 'SaMarkdownOutput',
+  export default {
+    name: 'SaMarkdownOutput',
 
-  props: {
-    source: {
-      type: String,
+    props: {
+      source: {
+        type: String,
+      },
+      preview: {
+        type: Boolean,
+        default: false,
+      },
     },
-    preview: {
-      type: Boolean,
-      default: false,
-    },
-  },
 
-  data() {
-    return {
-      renderedMarkdown: renderMarkdown(this.source),
-      updateMarkdown: debounce(() => {
-        this.renderedMarkdown = renderMarkdown(this.source);
-      }, 300),
-    };
-  },
-
-  computed: {
-    panelClass() {
+    data() {
       return {
-        'markdown-output_preview': this.preview,
+        renderedMarkdown: renderMarkdown(this.source),
+        updateMarkdown: debounce(() => {
+          this.renderedMarkdown = renderMarkdown(this.source);
+        }, 300),
       };
     },
-  },
 
-  watch: {
-    source() {
-      this.updateMarkdown();
+    computed: {
+      panelClass() {
+        return {
+          'markdown-output_preview': this.preview,
+        };
+      },
     },
-  },
-};
+
+    watch: {
+      source() {
+        this.updateMarkdown();
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

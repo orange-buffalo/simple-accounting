@@ -41,6 +41,6 @@ project.tasks.register<DockerPushImage>("pushDockerImage") {
     dependsOn(buildDockerImage)
 }
 
-tasks.register("assemble") {
+tasks.register("build") {
     dependsOn(buildDockerImage)
 }

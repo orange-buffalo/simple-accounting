@@ -1,112 +1,112 @@
 <template>
-  <el-form
+  <ElForm
     ref="form"
     class="login-form"
     :model="form"
     :rules="formValidationRules"
     label-width="0px"
   >
-    <el-form-item prop="userName">
-      <el-input
+    <ElFormItem prop="userName">
+      <ElInput
         v-model="form.userName"
         placeholder="Login"
       >
-        <svgicon
+        <Svgicon
           slot="prefix"
           name="login"
         />
-      </el-input>
-    </el-form-item>
+      </ElInput>
+    </ElFormItem>
 
-    <el-form-item prop="password">
-      <el-input
+    <ElFormItem prop="password">
+      <ElInput
         v-model="form.password"
         type="password"
         placeholder="Password"
       >
-        <svgicon
+        <Svgicon
           slot="prefix"
           name="password"
         />
-      </el-input>
-    </el-form-item>
+      </ElInput>
+    </ElFormItem>
 
-    <el-form-item
+    <ElFormItem
       prop="rememberMe"
       align="center"
     >
-      <el-checkbox v-model="form.rememberMe">
+      <ElCheckbox v-model="form.rememberMe">
         Remember me
-      </el-checkbox>
-    </el-form-item>
+      </ElCheckbox>
+    </ElFormItem>
 
-    <el-button
+    <ElButton
       type="primary"
       :disabled="!loginEnabled"
       @click="login"
     >
       Login
-    </el-button>
-  </el-form>
+    </ElButton>
+  </ElForm>
 </template>
 
 <script>
 
-import api from '@/services/api';
-import '@/components/icons/login';
-import '@/components/icons/password';
+  import api from '@/services/api';
+  import '@/components/icons/login';
+  import '@/components/icons/password';
 
-export default {
-  name: 'LoginForm',
+  export default {
+    name: 'LoginForm',
 
-  data() {
-    return {
-      form: {
-        userName: '',
-        password: '',
-        rememberMe: true,
+    data() {
+      return {
+        form: {
+          userName: '',
+          password: '',
+          rememberMe: true,
+        },
+      };
+    },
+
+    computed: {
+      loginEnabled() {
+        return this.form.userName && this.form.password;
       },
-    };
-  },
-
-  computed: {
-    loginEnabled() {
-      return this.form.userName && this.form.password;
     },
-  },
 
-  async created() {
-    if (await api.tryAutoLogin()) {
-      this.$emit('login');
-    }
-  },
+    async created() {
+      if (await api.tryAutoLogin()) {
+        this.$emit('login');
+      }
+    },
 
-  methods: {
-    login() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          api
-            .login({
-              userName: this.form.userName,
-              password: this.form.password,
-              rememberMe: this.form.rememberMe,
-            })
-            .then(() => {
-              this.$emit('login');
-            })
-            .catch(() => {
-              this.$refs.form.clearValidate();
-              this.$message({
-                showClose: true,
-                message: 'Login failed',
-                type: 'error',
+    methods: {
+      login() {
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            api
+              .login({
+                userName: this.form.userName,
+                password: this.form.password,
+                rememberMe: this.form.rememberMe,
+              })
+              .then(() => {
+                this.$emit('login');
+              })
+              .catch(() => {
+                this.$refs.form.clearValidate();
+                this.$message({
+                  showClose: true,
+                  message: 'Login failed',
+                  type: 'error',
+                });
               });
-            });
-        }
-      });
+          }
+        });
+      },
     },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

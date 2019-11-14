@@ -13,7 +13,7 @@
         >Files up to 5MB are allowed</span>
       </div>
 
-      <el-input
+      <ElInput
         v-model="upload.notes"
         placeholder="Additional notes..."
         clearable
@@ -23,19 +23,19 @@
     <template v-if="!isDropPanelEnabled">
       <div class="sa-document-upload_summary">
         <div class="sa-document-upload_summary_icon">
-          <svgicon :name="documentTypeIcon" />
+          <Svgicon :name="documentTypeIcon" />
         </div>
         <div class="sa-document-upload_summary_file">
           <div class="sa-document-upload_summary_header">
             <span :title="upload.name">{{ upload.name }}</span>
-            <svgicon
+            <Svgicon
               v-if="!uploading"
               name="delete"
               @click="onRemove"
             />
           </div>
           <div class="sa-document-upload_summary_status">
-            <svgicon :name="documentStatusIcon" />
+            <Svgicon :name="documentStatusIcon" />
             <span>{{ documentStatus }}</span>
             <!--todo #76: pretty print size-->
             <span>({{ upload.size }})</span>
@@ -47,7 +47,7 @@
             {{ upload.notes }}
           </div>
           <div>
-            <el-progress
+            <ElProgress
               v-if="uploading"
               :percentage="uploadingProgress"
             />
@@ -65,177 +65,177 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import emitter from 'element-ui/src/mixins/emitter';
-import Dropzone from 'dropzone';
-import { isNil } from 'lodash';
-import { UploadInfo } from './uploads-info';
-import '@/components/icons/done';
-import '@/components/icons/delete';
-import '@/components/icons/upload';
-import '@/components/icons/file';
-import '@/components/icons/pdf';
-import '@/components/icons/doc';
-import '@/components/icons/jpg';
-import '@/components/icons/zip';
+  import { mapState } from 'vuex';
+  import emitter from 'element-ui/src/mixins/emitter';
+  import Dropzone from 'dropzone';
+  import { isNil } from 'lodash';
+  import { UploadInfo } from './uploads-info';
+  import '@/components/icons/done';
+  import '@/components/icons/delete';
+  import '@/components/icons/upload';
+  import '@/components/icons/file';
+  import '@/components/icons/pdf';
+  import '@/components/icons/doc';
+  import '@/components/icons/jpg';
+  import '@/components/icons/zip';
 
-Dropzone.autoDiscover = false;
+  Dropzone.autoDiscover = false;
 
-export default {
-  name: 'DocumentUpload',
+  export default {
+    name: 'DocumentUpload',
 
-  mixins: [emitter],
+    mixins: [emitter],
 
-  props: {
-    value: UploadInfo,
-  },
-
-  data() {
-    return {
-      uploadRequest: {
-        notes: '',
-      },
-      upload: this.value,
-      uploading: false,
-      uploadingProgress: 0,
-      error: false,
-    };
-  },
-
-  mounted() {
-    if (!this.dropzone && this.$refs.dropPanel) {
-      this.dropzone = new Dropzone(this.$refs.dropPanel, {
-        url: `/api/workspaces/${this.workspaceId}/documents`,
-        paramName: 'file',
-        createImageThumbnails: false,
-        autoProcessQueue: false,
-        previewTemplate: '<span>',
-        accept: (file, done) => {
-          this.error = false;
-          if (file.size > 5 * 1024 * 1024) {
-            this.error = true;
-            done();
-            this.dropzone.removeAllFiles();
-          } else {
-            this.upload.selectFile(file);
-            this.dispatch('ElFormItem', 'el.form.change');
-            done();
-          }
-        },
-      });
-
-      this.dropzone.on('uploadprogress', (file, progress) => {
-        this.uploadingProgress = progress;
-      });
-
-      this.dropzone.on('error', (file, error) => {
-        // todo #72: special processing for storage service config error
-        // todo #77: handle 401 by acquiring new token and restarting upload
-        this.uploading = false;
-        this.error = true;
-        this.upload.uploadError = error;
-        this.dropzone.files[0].status = 'queued';
-        this.$emit('upload-error', error);
-      });
-
-      this.dropzone.on('success', (file, response) => {
-        this.uploading = false;
-        this.upload.document = response;
-        this.$emit('upload-complete', this.upload);
-      });
-
-      this.dropzone.on('processing', () => {
-        if (!isNil(this.uploadRequest.notes)) {
-          this.dropzone.options.params = { notes: this.uploadRequest.notes };
-        }
-        this.dropzone.options.headers = this.headers;
-      });
-    }
-  },
-
-  destroyed() {
-    if (this.dropzone) {
-      this.dropzone.destroy();
-    }
-  },
-
-  methods: {
-    onRemove() {
-      if (this.dropzone) {
-        this.dropzone.removeAllFiles();
-      }
-      this.upload.clear();
-      this.dispatch('ElFormItem', 'el.form.change');
+    props: {
+      value: UploadInfo,
     },
 
-    submitUpload() {
-      if (!this.upload.isEmpty() && !this.upload.isDocumentUploaded()) {
-        this.upload.uploadError = null;
-        this.uploading = true;
-        this.error = false;
-        this.uploadingProgress = 0;
-        this.dropzone.processQueue();
-      }
-    },
-  },
-
-  computed: {
-    ...mapState({
-      workspaceId: state => state.workspaces.currentWorkspace.id,
-      bearerToken: state => state.api.jwtToken,
-    }),
-
-    headers() {
+    data() {
       return {
-        Authorization: `Bearer ${this.bearerToken}`,
+        uploadRequest: {
+          notes: '',
+        },
+        upload: this.value,
+        uploading: false,
+        uploadingProgress: 0,
+        error: false,
       };
     },
 
-    isDropPanelEnabled() {
-      return !this.upload.isFileSelected() && !this.upload.isDocumentUploaded();
-    },
+    mounted() {
+      if (!this.dropzone && this.$refs.dropPanel) {
+        this.dropzone = new Dropzone(this.$refs.dropPanel, {
+          url: `/api/workspaces/${this.workspaceId}/documents`,
+          paramName: 'file',
+          createImageThumbnails: false,
+          autoProcessQueue: false,
+          previewTemplate: '<span>',
+          accept: (file, done) => {
+            this.error = false;
+            if (file.size > 5 * 1024 * 1024) {
+              this.error = true;
+              done();
+              this.dropzone.removeAllFiles();
+            } else {
+              this.upload.selectFile(file);
+              this.dispatch('ElFormItem', 'el.form.change');
+              done();
+            }
+          },
+        });
 
-    documentStatusIcon() {
-      return this.upload.isDocumentUploaded() ? 'done' : 'upload';
-    },
+        this.dropzone.on('uploadprogress', (file, progress) => {
+          this.uploadingProgress = progress;
+        });
 
-    documentStatus() {
-      // todo #6: i18n
-      return this.upload.isDocumentUploaded() ? 'Uploaded' : 'New file to be uploaded';
-    },
+        this.dropzone.on('error', (file, error) => {
+          // todo #72: special processing for storage service config error
+          // todo #77: handle 401 by acquiring new token and restarting upload
+          this.uploading = false;
+          this.error = true;
+          this.upload.uploadError = error;
+          this.dropzone.files[0].status = 'queued';
+          this.$emit('upload-error', error);
+        });
 
-    documentTypeIcon() {
-      const fileName = this.upload.name.toLowerCase();
-      if (fileName.endsWith('.pdf')) {
-        return 'pdf';
-      } if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
-        return 'jpg';
-      } if (fileName.endsWith('.zip') || fileName.endsWith('.gz') || fileName.endsWith('.rar')) {
-        return 'zip';
-      } if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
-        return 'doc';
+        this.dropzone.on('success', (file, response) => {
+          this.uploading = false;
+          this.upload.document = response;
+          this.$emit('upload-complete', this.upload);
+        });
+
+        this.dropzone.on('processing', () => {
+          if (!isNil(this.uploadRequest.notes)) {
+            this.dropzone.options.params = { notes: this.uploadRequest.notes };
+          }
+          this.dropzone.options.headers = this.headers;
+        });
       }
-      return 'file';
-    },
-  },
-
-  watch: {
-    upload: {
-      handler(val) {
-        this.$emit('input', val);
-        this.uploadRequest.notes = val.notes;
-      },
-      deep: true,
     },
 
-    value: {
-      handler(val) {
-        this.upload = val;
-      },
-      deep: true,
+    destroyed() {
+      if (this.dropzone) {
+        this.dropzone.destroy();
+      }
     },
-  },
-};
+
+    methods: {
+      onRemove() {
+        if (this.dropzone) {
+          this.dropzone.removeAllFiles();
+        }
+        this.upload.clear();
+        this.dispatch('ElFormItem', 'el.form.change');
+      },
+
+      submitUpload() {
+        if (!this.upload.isEmpty() && !this.upload.isDocumentUploaded()) {
+          this.upload.uploadError = null;
+          this.uploading = true;
+          this.error = false;
+          this.uploadingProgress = 0;
+          this.dropzone.processQueue();
+        }
+      },
+    },
+
+    computed: {
+      ...mapState({
+        workspaceId: state => state.workspaces.currentWorkspace.id,
+        bearerToken: state => state.api.jwtToken,
+      }),
+
+      headers() {
+        return {
+          Authorization: `Bearer ${this.bearerToken}`,
+        };
+      },
+
+      isDropPanelEnabled() {
+        return !this.upload.isFileSelected() && !this.upload.isDocumentUploaded();
+      },
+
+      documentStatusIcon() {
+        return this.upload.isDocumentUploaded() ? 'done' : 'upload';
+      },
+
+      documentStatus() {
+        // todo #6: i18n
+        return this.upload.isDocumentUploaded() ? 'Uploaded' : 'New file to be uploaded';
+      },
+
+      documentTypeIcon() {
+        const fileName = this.upload.name.toLowerCase();
+        if (fileName.endsWith('.pdf')) {
+          return 'pdf';
+        } if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+          return 'jpg';
+        } if (fileName.endsWith('.zip') || fileName.endsWith('.gz') || fileName.endsWith('.rar')) {
+          return 'zip';
+        } if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+          return 'doc';
+        }
+        return 'file';
+      },
+    },
+
+    watch: {
+      upload: {
+        handler(val) {
+          this.$emit('input', val);
+          this.uploadRequest.notes = val.notes;
+        },
+        deep: true,
+      },
+
+      value: {
+        handler(val) {
+          this.upload = val;
+        },
+        deep: true,
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

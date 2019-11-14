@@ -14,13 +14,15 @@ import { initPushNotifications } from '@/services/push-notifications';
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI);
-Vue.use(SvgIcon);
+Vue.use(SvgIcon, {
+  tagName: 'Svgicon',
+});
 
 router.beforeEach(async (to, from, next) => {
   if (to.name !== 'login'
-      && to.name !== 'logout'
-      && to.name !== 'login-by-link'
-      && !store.getters['api/isLoggedIn']) {
+    && to.name !== 'logout'
+    && to.name !== 'login-by-link'
+    && !store.getters['api/isLoggedIn']) {
     if (await api.tryAutoLogin()) {
       await setupApp(store, router);
       next();

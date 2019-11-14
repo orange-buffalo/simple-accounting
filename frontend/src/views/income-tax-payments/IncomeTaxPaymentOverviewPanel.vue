@@ -73,7 +73,7 @@
               v-for="attachment in attachments"
               :key="attachment.id"
             >
-              <document-link :document="attachment" /><br>
+              <DocumentLink :document="attachment" /><br>
             </span>
           </div>
         </div>
@@ -94,77 +94,75 @@
 </template>
 
 <script>
-import { withMediumDateFormatter } from '@/components/mixins/with-medium-date-formatter';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import { loadDocuments } from '@/services/app-services';
-import DocumentLink from '@/components/DocumentLink';
-import MoneyOutput from '@/components/MoneyOutput';
-import OverviewItem from '@/components/overview-item/OverviewItem';
-import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
-import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
-import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
-import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
-import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
-import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
-import SaActionLink from '@/components/SaActionLink';
-import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { loadDocuments } from '@/services/app-services';
+  import DocumentLink from '@/components/DocumentLink';
+  import OverviewItem from '@/components/overview-item/OverviewItem';
+  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
+  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
+  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection';
+  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions';
+  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
+  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
+  import SaActionLink from '@/components/SaActionLink';
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
-export default {
-  name: 'TaxPaymentOverviewPanel',
+  export default {
+    name: 'IncomeTaxPaymentOverviewPanel',
 
-  components: {
-    OverviewItemDetailsSectionAttribute,
-    OverviewItemDetailsSection,
-    SaActionLink,
-    OverviewItemDetailsSectionActions,
-    OverviewItemAmountPanel,
-    OverviewItemAttributePreviewIcon,
-    OverviewItemPrimaryAttribute,
-    OverviewItem,
-    MoneyOutput,
-    DocumentLink,
-    SaMarkdownOutput,
-  },
-
-  mixins: [withMediumDateFormatter, withWorkspaces],
-
-  props: {
-    taxPayment: {
-      type: Object,
-      required: true,
-    },
-  },
-
-  data() {
-    return {
-      attachments: [],
-    };
-  },
-
-  computed: {
-    datePaid() {
-      return this.mediumDateFormatter(new Date(this.taxPayment.datePaid));
+    components: {
+      OverviewItemDetailsSectionAttribute,
+      OverviewItemDetailsSection,
+      SaActionLink,
+      OverviewItemDetailsSectionActions,
+      OverviewItemAmountPanel,
+      OverviewItemAttributePreviewIcon,
+      OverviewItemPrimaryAttribute,
+      OverviewItem,
+      DocumentLink,
+      SaMarkdownOutput,
     },
 
-    reportingDate() {
-      return this.mediumDateFormatter(new Date(this.taxPayment.reportingDate));
-    },
-  },
+    mixins: [withMediumDateFormatter, withWorkspaces],
 
-  methods: {
-    async loadAttachments() {
-      if (this.taxPayment.attachments.length && !this.attachments.length) {
-        this.attachments = await loadDocuments(
-          this.attachments,
-          this.taxPayment.attachments,
-          this.currentWorkspace.id,
-        );
-      }
+    props: {
+      taxPayment: {
+        type: Object,
+        required: true,
+      },
     },
 
-    navigateToTaxPaymentEdit() {
-      this.$router.push({ name: 'edit-tax-payment', params: { id: this.taxPayment.id } });
+    data() {
+      return {
+        attachments: [],
+      };
     },
-  },
-};
+
+    computed: {
+      datePaid() {
+        return this.mediumDateFormatter(new Date(this.taxPayment.datePaid));
+      },
+
+      reportingDate() {
+        return this.mediumDateFormatter(new Date(this.taxPayment.reportingDate));
+      },
+    },
+
+    methods: {
+      async loadAttachments() {
+        if (this.taxPayment.attachments.length && !this.attachments.length) {
+          this.attachments = await loadDocuments(
+            this.attachments,
+            this.taxPayment.attachments,
+            this.currentWorkspace.id,
+          );
+        }
+      },
+
+      navigateToTaxPaymentEdit() {
+        this.$router.push({ name: 'edit-income-tax-payment', params: { id: this.taxPayment.id } });
+      },
+    },
+  };
 </script>

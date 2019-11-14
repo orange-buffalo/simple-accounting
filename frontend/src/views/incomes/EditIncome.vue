@@ -5,7 +5,7 @@
     </div>
 
     <div class="sa-form">
-      <el-form
+      <ElForm
         ref="incomeForm"
         :model="income"
         label-position="right"
@@ -15,138 +15,132 @@
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
 
-            <el-form-item
+            <ElFormItem
               label="Category"
               prop="category"
             >
-              <el-select
+              <ElSelect
                 v-model="income.category"
                 placeholder="Select a category"
               >
-                <el-option
+                <ElOption
                   v-for="category in categories"
                   :key="category.id"
                   :label="category.name"
                   :value="category.id"
                 />
-              </el-select>
-            </el-form-item>
+              </ElSelect>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Description / Title"
               prop="title"
             >
-              <el-input
+              <ElInput
                 v-model="income.title"
                 placeholder="Provide a short summary"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Currency"
               prop="currency"
             >
-              <currency-input v-model="income.currency" />
-            </el-form-item>
+              <CurrencyInput v-model="income.currency" />
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Amount"
               prop="originalAmount"
             >
-              <money-input
+              <MoneyInput
                 v-model="income.originalAmount"
                 :currency="income.currency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
-              label="Date Paid"
-              prop="datePaid"
+            <ElFormItem
+              label="Date Received"
+              prop="dateReceived"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
-              <el-date-picker
+              <ElDatePicker
                 v-model="income.dateReceived"
                 type="date"
                 placeholder="Date income is received"
                 value-format="yyyy-MM-dd"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item v-if="!isInDefaultCurrency">
-              <el-checkbox v-model="alreadyConverted">
-                Already converted
-              </el-checkbox>
-            </el-form-item>
-
-            <el-form-item
-              v-if="defaultCurrencyAmountVisible"
+            <ElFormItem
+              v-if="isInForeignCurrency"
               :label="`Amount in ${defaultCurrency}`"
-              prop="amountInDefaultCurrency"
+              prop="convertedAmountInDefaultCurrency"
             >
-              <money-input
-                v-model="income.amountInDefaultCurrency"
+              <MoneyInput
+                v-model="income.convertedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item v-if="alreadyConverted">
-              <el-checkbox v-model="reportedAnotherExchangeRate">
-                Reported converted amount is different (using another rate)
-              </el-checkbox>
-            </el-form-item>
+            <ElFormItem v-if="isInForeignCurrency">
+              <ElCheckbox v-model="income.useDifferentExchangeRateForIncomeTaxPurposes">
+                Using different exchange rate for taxation purposes
+              </ElCheckbox>
+            </ElFormItem>
 
-            <el-form-item
-              v-if="reportedAmountVisible"
-              label="Reported Amount"
-              prop="reportedAmountInDefaultCurrency"
+            <ElFormItem
+              v-if="income.useDifferentExchangeRateForIncomeTaxPurposes"
+              :label="`Amount in ${defaultCurrency} for taxation purposes`"
+              prop="incomeTaxableAmountInDefaultCurrency"
             >
-              <money-input
-                v-model="income.reportedAmountInDefaultCurrency"
+              <MoneyInput
+                v-model="income.incomeTaxableAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
-              label="Added Tax"
-              prop="tax"
+            <ElFormItem
+              label="Included General Tax"
+              prop="generalTax"
             >
-              <el-select
-                v-model="income.tax"
+              <ElSelect
+                v-model="income.generalTax"
                 clearable
                 placeholder="Select a tax"
               >
-                <el-option
-                  v-for="tax in taxes"
+                <ElOption
+                  v-for="tax in generalTaxes"
                   :key="tax.id"
                   :label="tax.title"
                   :value="tax.id"
                 />
-              </el-select>
-            </el-form-item>
+              </ElSelect>
+            </ElFormItem>
           </div>
 
           <div class="col col-xs-12 col-lg-6">
             <h2>Additional Information</h2>
 
-            <el-form-item
+            <ElFormItem
               v-if="income.linkedInvoice"
               label="Linked Invoice"
               prop="reportedAmountInDefaultCurrency"
             >
               <span>{{ income.linkedInvoice.title }}</span>
-            </el-form-item>
+            </ElFormItem>
 
-            <el-form-item
+            <ElFormItem
               label="Notes"
               prop="notes"
             >
-              <el-input
+              <ElInput
                 v-model="income.notes"
                 type="textarea"
                 placeholder="Any additional information to be stored for this income record"
                 rows="5"
               />
-            </el-form-item>
+            </ElFormItem>
 
             <SaMarkdownOutput
               v-if="income.notes"
@@ -156,7 +150,7 @@
 
             <h2>Attachments</h2>
 
-            <documents-upload
+            <DocumentsUpload
               ref="documentsUpload"
               v-model="income.uploads"
               form-property="uploads"
@@ -166,166 +160,178 @@
         <hr>
 
         <div class="sa-buttons-bar">
-          <el-button @click="navigateToIncomesOverview">
+          <ElButton @click="navigateToIncomesOverview">
             Cancel
-          </el-button>
-          <el-button
+          </ElButton>
+          <ElButton
             type="primary"
             @click="save"
           >
             Save
-          </el-button>
+          </ElButton>
         </div>
-      </el-form>
+      </ElForm>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { assign, isNil } from 'lodash';
-import api from '@/services/api';
-import DocumentsUpload from '@/components/DocumentsUpload';
-import CurrencyInput from '@/components/CurrencyInput';
-import MoneyInput from '@/components/MoneyInput';
-import { UploadsInfo } from '@/components/uploads-info';
-import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import { api } from '@/services/api';
+  import DocumentsUpload from '@/components/DocumentsUpload';
+  import CurrencyInput from '@/components/CurrencyInput';
+  import MoneyInput from '@/components/MoneyInput';
+  import { UploadsInfo } from '@/components/uploads-info';
+  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
+  import withCategories from '@/components/mixins/with-categories';
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
-import { withTaxes } from '@/components/mixins/with-taxes';
-import withCategories from '@/components/mixins/with-categories';
-import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  export default {
+    name: 'EditIncome',
 
-export default {
-  name: 'EditIncome',
-
-  components: {
-    DocumentsUpload,
-    CurrencyInput,
-    MoneyInput,
-    SaMarkdownOutput,
-  },
-
-  mixins: [withMediumDateFormatter, withTaxes, withCategories],
-
-  data() {
-    return {
-      income: {
-        category: null,
-        title: null,
-        currency: null,
-        originalAmount: null,
-        amountInDefaultCurrency: null,
-        reportedAmountInDefaultCurrency: null,
-        attachments: [],
-        notes: null,
-        dateReceived: new Date(),
-        uploads: new UploadsInfo(),
-        tax: null,
-      },
-      incomeValidationRules: {
-        currency: { required: true, message: 'Please select a currency' },
-        title: { required: true, message: 'Please provide the title' },
-        dateReceived: { required: true, message: 'Please provide the date when income is received' },
-        originalAmount: { required: true, message: 'Please provide income amount' },
-      },
-      alreadyConverted: false,
-      reportedAnotherExchangeRate: false,
-    };
-  },
-
-  async created() {
-    if (this.$route.params.id) {
-      const incomeResponse = await api.get(`/workspaces/${this.workspace.id}/incomes/${this.$route.params.id}`);
-      this.income = assign({}, this.income, incomeResponse.data);
-
-      this.alreadyConverted = this.income.currency !== this.defaultCurrency
-            && !isNil(this.income.amountInDefaultCurrency)
-            && this.income.amountInDefaultCurrency > 0;
-
-      this.reportedAnotherExchangeRate = this.income.currency !== this.defaultCurrency
-            && !isNil(this.income.reportedAmountInDefaultCurrency)
-            && (this.income.reportedAmountInDefaultCurrency !== this.income.amountInDefaultCurrency);
-
-      if (this.income.attachments && this.income.attachments.length) {
-        const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
-          .eager()
-          .eqFilter('id', this.income.attachments)
-          .getPageData();
-        attachments.forEach(attachment => this.income.uploads.add(attachment));
-      }
-    }
-  },
-
-  computed: {
-    ...mapState('workspaces', {
-      workspace: 'currentWorkspace',
-    }),
-
-    isInDefaultCurrency() {
-      return this.income.currency === this.defaultCurrency;
+    components: {
+      DocumentsUpload,
+      CurrencyInput,
+      MoneyInput,
+      SaMarkdownOutput,
     },
 
-    defaultCurrency() {
-      return this.workspace.defaultCurrency;
-    },
+    mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories, withWorkspaces],
 
-    defaultCurrencyAmountVisible() {
-      return this.alreadyConverted && !this.isInDefaultCurrency;
-    },
-
-    reportedAmountVisible() {
-      return this.defaultCurrencyAmountVisible && this.reportedAnotherExchangeRate && !this.isInDefaultCurrency;
-    },
-
-    pageHeader() {
-      return this.$route.params.id ? 'Edit Income' : 'Record New Income';
-    },
-  },
-
-  methods: {
-    navigateToIncomesOverview() {
-      this.$router.push({ name: 'incomes-overview' });
-    },
-
-    async save() {
-      try {
-        await this.$refs.incomeForm.validate();
-      } catch (e) {
-        return;
-      }
-
-      try {
-        await this.$refs.documentsUpload.submitUploads();
-      } catch (e) {
-        this.$message({
-          showClose: true,
-          message: 'Upload failed',
-          type: 'error',
-        });
-        return;
-      }
-
-      const incomeToPush = {
-        category: this.income.category,
-        dateReceived: this.income.dateReceived,
-        title: this.income.title,
-        currency: this.income.currency,
-        originalAmount: this.income.originalAmount,
-        amountInDefaultCurrency: this.alreadyConverted ? this.income.amountInDefaultCurrency : null,
-        reportedAmountInDefaultCurrency: this.reportedAnotherExchangeRate
-          ? this.income.reportedAmountInDefaultCurrency : this.income.amountInDefaultCurrency,
-        attachments: this.income.uploads.getDocumentsIds(),
-        notes: this.income.notes,
-        tax: this.income.tax,
+    data() {
+      return {
+        income: {
+          category: null,
+          title: null,
+          currency: null,
+          originalAmount: null,
+          convertedAmountInDefaultCurrency: null,
+          incomeTaxableAmountInDefaultCurrency: null,
+          useDifferentExchangeRateForIncomeTaxPurposes: false,
+          attachments: [],
+          notes: null,
+          dateReceived: new Date(),
+          uploads: new UploadsInfo(),
+          generalTax: null,
+        },
+        incomeValidationRules: {
+          currency: {
+            required: true,
+            message: 'Please select a currency',
+          },
+          title: {
+            required: true,
+            message: 'Please provide the title',
+          },
+          dateReceived: {
+            required: true,
+            message: 'Please provide the date when income is received',
+          },
+          originalAmount: {
+            required: true,
+            message: 'Please provide income amount',
+          },
+        },
       };
-
-      if (this.income.id) {
-        await api.put(`/workspaces/${this.workspace.id}/incomes/${this.income.id}`, incomeToPush);
-      } else {
-        await api.post(`/workspaces/${this.workspace.id}/incomes`, incomeToPush);
-      }
-      this.$router.push({ name: 'incomes-overview' });
     },
-  },
-};
+
+    computed: {
+      isInForeignCurrency() {
+        return this.income.currency !== this.defaultCurrency;
+      },
+
+      pageHeader() {
+        return this.$route.params.id ? 'Edit Income' : 'Record New Income';
+      },
+    },
+
+    watch: {
+      'income.currency': {
+        handler() {
+          if (this.income.currency !== this.defaultCurrency) {
+            this.income.useDifferentExchangeRateForIncomeTaxPurposes = false;
+            this.income.convertedAmountInDefaultCurrency = null;
+            this.income.incomeTaxableAmountInDefaultCurrency = null;
+          }
+        },
+
+      },
+    },
+
+    async created() {
+      if (this.$route.params.id) {
+        const incomeResponse = await api
+          .get(`/workspaces/${this.currentWorkspace.id}/incomes/${this.$route.params.id}`);
+
+        const {
+          convertedAmounts,
+          incomeTaxableAmounts,
+          generalTaxRateInBps,
+          generalTaxAmount,
+          status,
+          version,
+          timeRecorded,
+          ...incomeEditProperties
+        } = incomeResponse.data;
+        this.income = {
+          ...incomeEditProperties,
+          convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
+          incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
+          uploads: new UploadsInfo(),
+        };
+
+        if (this.income.attachments && this.income.attachments.length) {
+          const attachments = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
+            .eager()
+            .eqFilter('id', this.income.attachments)
+            .getPageData();
+          attachments.forEach(attachment => this.income.uploads.add(attachment));
+        }
+      }
+    },
+
+    methods: {
+      navigateToIncomesOverview() {
+        this.$router.push({ name: 'incomes-overview' });
+      },
+
+      async save() {
+        try {
+          await this.$refs.incomeForm.validate();
+        } catch (e) {
+          return;
+        }
+
+        try {
+          await this.$refs.documentsUpload.submitUploads();
+        } catch (e) {
+          this.$message({
+            showClose: true,
+            message: 'Upload failed',
+            type: 'error',
+          });
+          return;
+        }
+
+        const {
+          uploads,
+          id,
+          ...incomePropertiesToPush
+        } = this.income;
+
+        const incomeToPush = {
+          ...incomePropertiesToPush,
+          attachments: this.income.uploads.getDocumentsIds(),
+        };
+
+        if (this.income.id) {
+          await api.put(`/workspaces/${this.currentWorkspace.id}/incomes/${this.income.id}`, incomeToPush);
+        } else {
+          await api.post(`/workspaces/${this.currentWorkspace.id}/incomes`, incomeToPush);
+        }
+        await this.$router.push({ name: 'incomes-overview' });
+      },
+    },
+  };
 </script>

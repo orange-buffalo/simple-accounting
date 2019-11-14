@@ -23,7 +23,7 @@ import reactor.test.StepVerifier
 import java.time.Duration
 
 @ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
 @DisplayName("Push Notifications API ")
 class PushNotificationsApiControllerIT(

@@ -4,11 +4,11 @@
       <div class="sa-item-title-panel">
         <h3>{{ customer.name }}</h3>
         <span class="sa-item-edit-link">
-          <svgicon name="pencil-solid" />
-          <el-button
+          <Svgicon name="pencil-solid" />
+          <ElButton
             type="text"
             @click="navigateToCustomerEdit"
-          >Edit</el-button>
+          >Edit</ElButton>
         </span>
       </div>
     </div>
@@ -16,21 +16,21 @@
 </template>
 
 <script>
-import '@/components/icons/pencil-solid';
+  import '@/components/icons/pencil-solid';
 
-export default {
-  name: 'CustomerOverviewPanel',
+  export default {
+    name: 'CustomerOverviewPanel',
 
-  props: {
-    customer: Object,
-  },
-
-  methods: {
-    navigateToCustomerEdit() {
-      this.$router.push({ name: 'edit-customer', params: { id: this.customer.id } });
+    props: {
+      customer: Object,
     },
-  },
-};
+
+    methods: {
+      navigateToCustomerEdit() {
+        this.$router.push({ name: 'edit-customer', params: { id: this.customer.id } });
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

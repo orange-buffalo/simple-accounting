@@ -5,16 +5,16 @@
     </div>
 
     <div class="top-buttons-bar">
-      <el-button
+      <ElButton
         round
         @click="navigateToNewCategoryView"
       >
-        <svgicon name="plus-thin" />
+        <Svgicon name="plus-thin" />
         Add new
-      </el-button>
+      </ElButton>
     </div>
 
-    <data-items
+    <DataItems
       :api-path="`/workspaces/${currentWorkspace.id}/categories`"
       :paginator="false"
     >
@@ -25,7 +25,7 @@
 
             <span class="sa-item-edit-link">
               <!--<pencil-solid-icon/>-->
-              <el-button type="text">Edit</el-button>
+              <ElButton type="text">Edit</ElButton>
             </span>
           </div>
           <p>
@@ -39,30 +39,30 @@
           </p>
         </div>
       </template>
-    </data-items>
+    </DataItems>
   </div>
 </template>
 
 <script>
-import '@/components/icons/plus-thin';
-import withWorkspaces from '@/components/mixins/with-workspaces';
-import DataItems from '@/components/DataItems';
+  import '@/components/icons/plus-thin';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import DataItems from '@/components/DataItems';
 
-export default {
-  name: 'Categories',
+  export default {
+    name: 'Categories',
 
-  components: {
-    DataItems,
-  },
-
-  mixins: [withWorkspaces],
-
-  methods: {
-    navigateToNewCategoryView() {
-      this.$router.push({ name: 'create-new-category' });
+    components: {
+      DataItems,
     },
-  },
-};
+
+    mixins: [withWorkspaces],
+
+    methods: {
+      navigateToNewCategoryView() {
+        this.$router.push({ name: 'create-new-category' });
+      },
+    },
+  };
 </script>
 
 <style lang="scss">

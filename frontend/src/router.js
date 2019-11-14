@@ -102,20 +102,20 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-invoice" */ './views/invoices/EditInvoice.vue'),
         },
         {
-          path: 'tax-payments',
-          name: 'tax-payments-overview',
-          component: () => import(/* webpackChunkName: "tax-payments-overview" */ './views/tax-payments/TaxPaymentsOverview.vue'),
+          path: 'income-tax-payments',
+          name: 'income-tax-payments-overview',
+          component: () => import(/* webpackChunkName: "income-tax-payments-overview" */ './views/income-tax-payments/IncomeTaxPaymentsOverview.vue'),
         },
         {
-          path: 'tax-payments/create',
-          name: 'create-new-tax-payment',
-          component: () => import(/* webpackChunkName: "create-new-tax-payment" */ './views/tax-payments/EditTaxPayment.vue'),
+          path: 'income-tax-payments/create',
+          name: 'create-new-income-tax-payment',
+          component: () => import(/* webpackChunkName: "create-new-income-tax-payment" */ './views/income-tax-payments/EditIncomeTaxPayment.vue'),
         },
         {
-          path: 'tax-payments/:id/edit',
-          name: 'edit-tax-payment',
+          path: 'income-tax-payments/:id/edit',
+          name: 'edit-income-tax-payment',
           // todo #88: should we use the same chunk name for edit and create as view is the same?
-          component: () => import(/* webpackChunkName: "edit-tax-payment" */ './views/tax-payments/EditTaxPayment.vue'),
+          component: () => import(/* webpackChunkName: "edit-income-tax-payment" */ './views/income-tax-payments/EditIncomeTaxPayment.vue'),
         },
         {
           path: 'settings/customers',
@@ -133,19 +133,19 @@ export default new Router({
           component: () => import(/* webpackChunkName: "edit-customer" */ './views/settings/customers/EditCustomer.vue'),
         },
         {
-          path: 'settings/taxes',
-          name: 'taxes-overview',
-          component: () => import(/* webpackChunkName: "taxes-overview" */ './views/settings/taxes/TaxesOverview.vue'),
+          path: 'settings/general-taxes',
+          name: 'general-taxes-overview',
+          component: () => import(/* webpackChunkName: "taxes-overview" */ './views/settings/general-taxes/GeneralTaxesOverview.vue'),
         },
         {
-          path: 'settings/taxes/create',
-          name: 'create-new-tax',
-          component: () => import(/* webpackChunkName: "create-new-tax" */ './views/settings/taxes/EditTax.vue'),
+          path: 'settings/general-taxes/create',
+          name: 'create-new-general-tax',
+          component: () => import(/* webpackChunkName: "create-new-tax" */ './views/settings/general-taxes/EditGeneralTax.vue'),
         },
         {
-          path: 'setting/taxes/:id/edit',
-          name: 'edit-tax',
-          component: () => import(/* webpackChunkName: "edit-tax" */ './views/settings/taxes/EditTax.vue'),
+          path: 'setting/general-taxes/:id/edit',
+          name: 'edit-general-tax',
+          component: () => import(/* webpackChunkName: "edit-tax" */ './views/settings/general-taxes/EditGeneralTax.vue'),
         },
         {
           path: 'settings/workspaces',

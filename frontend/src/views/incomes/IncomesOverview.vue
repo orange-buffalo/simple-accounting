@@ -43,46 +43,46 @@
 </template>
 
 <script>
-import DataItems from '@/components/DataItems';
-import IncomeOverviewPanel from './IncomeOverviewPanel';
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import SaIcon from '@/components/SaIcon';
+  import DataItems from '@/components/DataItems';
+  import IncomeOverviewPanel from './IncomeOverviewPanel';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaIcon from '@/components/SaIcon';
 
-export default {
-  name: 'IncomesOverview',
+  export default {
+    name: 'IncomesOverview',
 
-  components: {
-    SaIcon,
-    DataItems,
-    IncomeOverviewPanel,
-  },
+    components: {
+      SaIcon,
+      DataItems,
+      IncomeOverviewPanel,
+    },
 
-  mixins: [withWorkspaces],
+    mixins: [withWorkspaces],
 
-  data() {
-    return {
-      userFilters: {
-        freeSearchText: null,
-      },
-    };
-  },
-
-  computed: {
-    apiFilters() {
-      // read the property to enable reactivity
-      const { freeSearchText } = this.userFilters;
+    data() {
       return {
-        applyToRequest: (pageRequest) => {
-          pageRequest.eqFilter('freeSearchText', freeSearchText);
+        userFilters: {
+          freeSearchText: null,
         },
       };
     },
-  },
 
-  methods: {
-    navigateToCreateIncomeView() {
-      this.$router.push({ name: 'create-new-income' });
+    computed: {
+      apiFilters() {
+        // read the property to enable reactivity
+        const { freeSearchText } = this.userFilters;
+        return {
+          applyToRequest: (pageRequest) => {
+            pageRequest.eqFilter('freeSearchText', freeSearchText);
+          },
+        };
+      },
     },
-  },
-};
+
+    methods: {
+      navigateToCreateIncomeView() {
+        this.$router.push({ name: 'create-new-income' });
+      },
+    },
+  };
 </script>

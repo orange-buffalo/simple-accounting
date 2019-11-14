@@ -7,25 +7,25 @@
     <!-- todo #64: navigation between steps-->
 
     <div class="reporting-panel">
-      <el-steps
+      <ElSteps
         :active="activeWizardStep"
         align-center
         finish-status="success"
       >
-        <el-step
+        <ElStep
           title="Select a report"
           :description="reportSelectionStepDescription"
         />
-        <el-step
+        <ElStep
           title="Select reporting dates"
           :description="datesSelectionStepDescription"
         />
-        <el-step
+        <ElStep
           title="View the report"
           :description="viewReportStepDescription"
           :status="viewReportStepStatus"
         />
-      </el-steps>
+      </ElSteps>
 
       <div
         v-if="reportSelectionActive"
@@ -36,10 +36,10 @@
           data-title="Select"
           @click="selectTaxReport"
         >
-          <svgicon name="tax" />
+          <Svgicon name="tax" />
           <div>
-            <h4>Tax Report</h4>
-            <span>Collected and paid taxes</span>
+            <h4>General Tax Report</h4>
+            <span>Collected and paid general taxes</span>
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
         v-if="datesSelectionActive"
         class="reporting-panel--content text-center"
       >
-        <el-date-picker
+        <ElDatePicker
           v-model="selectedDateRange"
           type="daterange"
           align="right"
@@ -61,19 +61,19 @@
         <br>
 
         <!-- todo #64: navigation -->
-        <el-button
+        <ElButton
           :disabled="selectedDateRange.length !== 2"
           @click="navigateToViewReportStep"
         >
           Next
-        </el-button>
+        </ElButton>
       </div>
 
       <div
         v-if="viewReportActive"
         class="reporting-panel--content"
       >
-        <the-tax-report
+        <TheGeneralTaxReport
           :date-range="selectedDateRange"
           @report-loaded="reportGenerationInProgress = false"
         />
@@ -83,108 +83,108 @@
 </template>
 
 <script>
-import { withWorkspaces } from '@/components/mixins/with-workspaces';
-import TheTaxReport from './TheTaxReport';
-import { api } from '@/services/api';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { api } from '@/services/api';
+  import TheGeneralTaxReport from '@/views/reporting/TheGeneralTaxReport';
 
-const SELECT_REPORT_STEP = 0;
-const SELECT_DATES_STEP = 1;
-const VIEW_REPORT_STEP = 2;
+  const SELECT_REPORT_STEP = 0;
+  const SELECT_DATES_STEP = 1;
+  const VIEW_REPORT_STEP = 2;
 
-const TAX_REPORT = 'taxReport';
+  const TAX_REPORT = 'taxReport';
 
-// todo #64: cleanup
-export default {
-  name: 'Reporting',
+  // todo #64: cleanup
+  export default {
+    name: 'Reporting',
 
-  components: {
-    TheTaxReport,
-  },
-
-  mixins: [withWorkspaces],
-
-  data() {
-    return {
-      activeWizardStep: SELECT_REPORT_STEP,
-      selectedDateRange: [],
-      selectedReport: null,
-      reportGenerationInProgress: false,
-    };
-  },
-
-  computed: {
-    reportSelectionActive() {
-      return this.activeWizardStep === SELECT_REPORT_STEP;
+    components: {
+      TheGeneralTaxReport,
     },
 
-    datesSelectionActive() {
-      return this.activeWizardStep === SELECT_DATES_STEP;
+    mixins: [withWorkspaces],
+
+    data() {
+      return {
+        activeWizardStep: SELECT_REPORT_STEP,
+        selectedDateRange: [],
+        selectedReport: null,
+        reportGenerationInProgress: false,
+      };
     },
 
-    viewReportActive() {
-      return this.activeWizardStep === VIEW_REPORT_STEP;
+    computed: {
+      reportSelectionActive() {
+        return this.activeWizardStep === SELECT_REPORT_STEP;
+      },
+
+      datesSelectionActive() {
+        return this.activeWizardStep === SELECT_DATES_STEP;
+      },
+
+      viewReportActive() {
+        return this.activeWizardStep === VIEW_REPORT_STEP;
+      },
+
+      taxReportSelected() {
+        return this.selectedReport === TAX_REPORT;
+      },
+
+      reportSelectionStepDescription() {
+        if (this.reportSelectionActive) {
+          return 'Please select a report';
+        }
+        if (this.selectedReport === TAX_REPORT) {
+          return 'Tax Report';
+        }
+        return 'Unknown Report o_O';
+      },
+
+      datesSelectionStepDescription() {
+        if (this.datesSelectionActive) {
+          return 'Please select reporting date range';
+        } if (this.viewReportActive) {
+          // todo #6: localize
+          return `${api.dateToString(this.selectedDateRange[0])} to ${api.dateToString(this.selectedDateRange[1])}`;
+        }
+      },
+
+      viewReportStepStatus() {
+        if (this.activeWizardStep === VIEW_REPORT_STEP && this.reportGenerationInProgress) {
+          return 'process';
+        } if (this.activeWizardStep === VIEW_REPORT_STEP) {
+          return 'success';
+        }
+      },
+
+      viewReportStepDescription() {
+        if (this.activeWizardStep === VIEW_REPORT_STEP && this.reportGenerationInProgress) {
+          return 'Loading..';
+        } if (this.activeWizardStep === VIEW_REPORT_STEP) {
+          return 'Ready';
+        }
+      },
     },
 
-    taxReportSelected() {
-      return this.selectedReport = TAX_REPORT;
-    },
+    methods: {
+      selectTaxReport() {
+        this.selectedReport = TAX_REPORT;
+        this.navigateToSelectDatesStep();
+      },
 
-    reportSelectionStepDescription() {
-      if (this.reportSelectionActive) {
-        return 'Please select a report';
-      }
-      if (this.selectedReport === TAX_REPORT) {
-        return 'Tax Report';
-      }
-      return 'Unknown Report o_O';
-    },
+      navigateToSelectDatesStep() {
+        this.activeWizardStep = SELECT_DATES_STEP;
+      },
 
-    datesSelectionStepDescription() {
-      if (this.datesSelectionActive) {
-        return 'Please select reporting date range';
-      } if (this.viewReportActive) {
-        // todo #6: localize
-        return `${api.dateToString(this.selectedDateRange[0])} to ${api.dateToString(this.selectedDateRange[1])}`;
-      }
-    },
+      navigateToSelectReportStep() {
+        this.activeWizardStep = SELECT_REPORT_STEP;
+      },
 
-    viewReportStepStatus() {
-      if (this.activeWizardStep === VIEW_REPORT_STEP && this.reportGenerationInProgress) {
-        return 'process';
-      } if (this.activeWizardStep === VIEW_REPORT_STEP) {
-        return 'success';
-      }
+      navigateToViewReportStep() {
+        this.activeWizardStep = VIEW_REPORT_STEP;
+        this.reportGenerationInProgress = true;
+      },
     },
-
-    viewReportStepDescription() {
-      if (this.activeWizardStep === VIEW_REPORT_STEP && this.reportGenerationInProgress) {
-        return 'Loading..';
-      } if (this.activeWizardStep === VIEW_REPORT_STEP) {
-        return 'Ready';
-      }
-    },
-  },
-
-  methods: {
-    selectTaxReport() {
-      this.selectedReport = TAX_REPORT;
-      this.navigateToSelectDatesStep();
-    },
-
-    navigateToSelectDatesStep() {
-      this.activeWizardStep = SELECT_DATES_STEP;
-    },
-
-    navigateToSelectReportStep() {
-      this.activeWizardStep = SELECT_REPORT_STEP;
-    },
-
-    navigateToViewReportStep() {
-      this.activeWizardStep = VIEW_REPORT_STEP;
-      this.reportGenerationInProgress = true;
-    },
-  },
-};
+  };
 </script>
 
 <style lang="scss">

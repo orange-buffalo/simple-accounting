@@ -5,10 +5,10 @@ import java.time.LocalDate
 import javax.persistence.*
 
 @Entity
-class TaxPayment(
+class IncomeTaxPayment(
 
     @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "tax_payment_workspace_fk"))
+    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "income_tax_payment_workspace_fk"))
     var workspace: Workspace,
 
     @field:Column(nullable = false)
@@ -28,9 +28,9 @@ class TaxPayment(
 
     @field:ManyToMany(fetch = FetchType.EAGER)
     @field:JoinTable(
-        name = "tax_payment_attachments",
-        foreignKey = ForeignKey(name = "tax_payment_attachments_tax_payment_fk"),
-        inverseForeignKey = ForeignKey(name = "tax_payment_attachments_document_fk"),
+        name = "income_tax_payment_attachments",
+        foreignKey = ForeignKey(name = "income_tax_payment_attachments_tax_payment_fk"),
+        inverseForeignKey = ForeignKey(name = "income_tax_payment_attachments_document_fk"),
         inverseJoinColumns = [JoinColumn(name = "document_id")]
     )
     var attachments: Set<Document> = setOf(),

@@ -1,6 +1,6 @@
 <template>
   <div class="data-items">
-    <el-pagination
+    <ElPagination
       v-if="paginator && totalElements > 0"
       :current-page.sync="currentPage"
       :page-size="pageSize"
@@ -9,25 +9,25 @@
       @current-change="onCurrentPageChange"
     />
 
-    <el-row
+    <ElRow
       :gutter="10"
       v-bind="$props"
       :class="loading ? 'loading' : ''"
     >
-      <el-col
+      <ElCol
         v-for="dataItem in data"
         :key="dataItem.id"
         v-bind="$props"
       >
         <slot :item="dataItem" />
-      </el-col>
-    </el-row>
+      </ElCol>
+    </ElRow>
 
     <div
       v-if="totalElements === 0 && !loading"
       class="empty-results"
     >
-      <svgicon name="empty-box" />
+      <Svgicon name="empty-box" />
       <span>No results here</span>
     </div>
 
@@ -39,7 +39,7 @@
       <span>Loading..</span>
     </div>
 
-    <el-pagination
+    <ElPagination
       v-if="paginator && totalElements > 0"
       :current-page.sync="currentPage"
       :page-size="pageSize"
@@ -51,97 +51,97 @@
 </template>
 
 <script>
-import api from '@/services/api';
-import '@/components/icons/empty-box';
+  import api from '@/services/api';
+  import '@/components/icons/empty-box';
 
-export default {
-  name: 'DataItems',
+  export default {
+    name: 'DataItems',
 
-  components: {},
+    components: {},
 
-  props: {
-    apiPath: {
-      type: String,
-      required: true,
+    props: {
+      apiPath: {
+        type: String,
+        required: true,
+      },
+
+      filters: Object,
+
+      paginator: {
+        type: Boolean,
+        default: true,
+      },
     },
 
-    filters: Object,
-
-    paginator: {
-      type: Boolean,
-      default: true,
-    },
-  },
-
-  data() {
-    return {
-      totalElements: 0,
-      data: [],
-      pageSize: 10,
-      currentPage: 1,
-      loading: false,
-    };
-  },
-
-  watch: {
-    apiPath() {
-      this.reloadData();
+    data() {
+      return {
+        totalElements: 0,
+        data: [],
+        pageSize: 10,
+        currentPage: 1,
+        loading: false,
+      };
     },
 
-    filters: {
-      handler() {
+    watch: {
+      apiPath() {
         this.reloadData();
       },
-      deep: true,
+
+      filters: {
+        handler() {
+          this.reloadData();
+        },
+        deep: true,
+      },
     },
-  },
 
-  created() {
-    this.reloadData();
-  },
-
-  methods: {
-    onCurrentPageChange() {
+    created() {
       this.reloadData();
     },
 
-    async reloadData() {
-      this.loading = true;
+    methods: {
+      onCurrentPageChange() {
+        this.reloadData();
+      },
 
-      if (this.cancelToken) {
-        this.cancelToken.cancel();
-      }
+      async reloadData() {
+        this.loading = true;
 
-      this.cancelToken = api.createCancelToken();
-
-      const pageRequest = api.pageRequest(this.apiPath)
-        .limit(this.paginator ? this.pageSize : 500)
-        .page(this.paginator ? this.currentPage : 1)
-        .config({
-          cancelToken: this.cancelToken.token,
-        });
-
-      if (this.filters) {
-        this.filters.applyToRequest(pageRequest);
-      }
-
-      try {
-        const page = await pageRequest.getPage();
-
-        this.data = page.data;
-        this.totalElements = page.totalElements;
-        this.cancelToken = null;
-        this.loading = false;
-      } catch (e) {
-        if (!api.isCancel(e)) {
-          this.loading = false;
-          // todo #72: proper error handling
-          throw e;
+        if (this.cancelToken) {
+          this.cancelToken.cancel();
         }
-      }
+
+        this.cancelToken = api.createCancelToken();
+
+        const pageRequest = api.pageRequest(this.apiPath)
+          .limit(this.paginator ? this.pageSize : 500)
+          .page(this.paginator ? this.currentPage : 1)
+          .config({
+            cancelToken: this.cancelToken.token,
+          });
+
+        if (this.filters) {
+          this.filters.applyToRequest(pageRequest);
+        }
+
+        try {
+          const page = await pageRequest.getPage();
+
+          this.data = page.data;
+          this.totalElements = page.totalElements;
+          this.cancelToken = null;
+          this.loading = false;
+        } catch (e) {
+          if (!api.isCancel(e)) {
+            this.loading = false;
+            // todo #72: proper error handling
+            throw e;
+          }
+        }
+      },
     },
-  },
-};
+  };
 </script>
 
 <style lang="scss">
