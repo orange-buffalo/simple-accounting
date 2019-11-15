@@ -52,8 +52,6 @@ dependencies {
     runtime("io.jsonwebtoken:jjwt-jackson:${Versions.jjwt}")
     runtime("org.glassfish:javax.el:${Versions.javaxEl}")
 
-    compileOnly("org.projectlombok:lombok")
-
     testCompile("org.junit.jupiter:junit-jupiter-api")
     testCompile("org.junit.jupiter:junit-jupiter-params")
     testCompile("org.springframework.boot:spring-boot-starter-test")
