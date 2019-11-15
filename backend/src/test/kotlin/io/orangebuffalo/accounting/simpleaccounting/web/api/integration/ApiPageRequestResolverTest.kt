@@ -433,30 +433,30 @@ internal class ApiPageRequestResolverTest {
     private class ApiPageRequestResolverTestController {
 
         @GetMapping
-        fun apiPageMethodWithoutAnnotation(request: ApiPageRequest): Mono<Any> {
+        fun apiPageMethodWithoutAnnotation(@Suppress("UNUSED_PARAMETER") request: ApiPageRequest): Mono<Any> {
             return Mono.empty()
         }
 
         @GetMapping
-        fun inapplicableMethod(body: String): Mono<Any> {
+        fun inapplicableMethod(@Suppress("UNUSED_PARAMETER") body: String): Mono<Any> {
             return Mono.empty()
         }
 
         @GetMapping
         @PageableApi(ApiPageRequestResolverTestPageableApiDescriptorDefault::class)
-        fun apiPageMethodDefault(request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
+        fun apiPageMethodDefault(@Suppress("UNUSED_PARAMETER") request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
             return Mono.empty()
         }
 
         @GetMapping
         @PageableApi(ApiPageRequestResolverTestPageableApiDescriptorExtended::class)
-        fun apiPageMethodExtended(request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
+        fun apiPageMethodExtended(@Suppress("UNUSED_PARAMETER") request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
             return Mono.empty()
         }
 
         @GetMapping
         @PageableApi(ApiPageRequestResolverTestPageableApiDescriptorSortable::class)
-        fun apiPageMethodSortable(request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
+        fun apiPageMethodSortable(@Suppress("UNUSED_PARAMETER") request: ApiPageRequest): Mono<ApiPageRequestResolverTestRepositoryEntity> {
             return Mono.empty()
         }
     }
@@ -473,6 +473,7 @@ internal class ApiPageRequestResolverTest {
     }
 
     enum class ApiPageRequestResolverTestEnum {
+        @Suppress("unused")
         ONE
     }
 

@@ -50,6 +50,7 @@ class ApiPageResultHandler(
 
         val bodyParameter = result.returnTypeSource.nested().nested()
 
+        @Suppress("UNCHECKED_CAST")
         val pageableApiDescriptor: PageableApiDescriptor<Any, EntityPath<Any>> =
             pageableApiDescriptorResolver.resolveDescriptor(bodyParameter.annotatedElement)
                     as PageableApiDescriptor<Any, EntityPath<Any>>
@@ -73,6 +74,7 @@ class ApiPageResultHandler(
                         writer.canWrite(elementType, MediaType.APPLICATION_JSON)
                     }
                     .map { writer ->
+                        @Suppress("UNCHECKED_CAST")
                         writer.write(
                             Mono.just(apiPage) as Publisher<out Nothing>,
                             elementType,

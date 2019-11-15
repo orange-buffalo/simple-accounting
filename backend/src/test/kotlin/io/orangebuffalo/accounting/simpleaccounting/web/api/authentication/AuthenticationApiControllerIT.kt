@@ -59,7 +59,7 @@ class AuthenticationApiControllerIT(
 
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody(
+            .bodyValue(
                 LoginRequest(
                     userName = "Fry",
                     password = "qwerty"
@@ -84,7 +84,7 @@ class AuthenticationApiControllerIT(
 
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody(
+            .bodyValue(
                 LoginRequest(
                     userName = "Farnsworth",
                     password = "$&#@(@"
@@ -101,7 +101,7 @@ class AuthenticationApiControllerIT(
     fun `should return 401 when user is unknown`() {
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody(
+            .bodyValue(
                 LoginRequest(
                     userName = "Roberto",
                     password = "qwerty"
@@ -118,7 +118,7 @@ class AuthenticationApiControllerIT(
 
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody(
+            .bodyValue(
                 LoginRequest(
                     userName = "Fry",
                     password = "qwerty"
@@ -145,7 +145,7 @@ class AuthenticationApiControllerIT(
     fun `should return 400 on invalid request body`() {
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody("{}")
+            .bodyValue("{}")
             .exchange()
             .expectStatus().isBadRequest
             .expectBody<String>()
@@ -158,7 +158,7 @@ class AuthenticationApiControllerIT(
     fun `should return 400 on non-json request body`() {
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody("hello")
+            .bodyValue("hello")
             .exchange()
             .expectStatus().isBadRequest
             .expectBody<String>()
@@ -171,7 +171,7 @@ class AuthenticationApiControllerIT(
     fun `should return 400 when username is missing in a request`() {
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody(
+            .bodyValue(
                 LoginRequest(
                     userName = "",
                     password = "qwerty"
@@ -191,7 +191,7 @@ class AuthenticationApiControllerIT(
     fun `Should return 400 when password is missing in a login request`() {
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody(
+            .bodyValue(
                 LoginRequest(
                     userName = "Fry",
                     password = ""
@@ -225,7 +225,7 @@ class AuthenticationApiControllerIT(
 
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
-            .syncBody(
+            .bodyValue(
                 LoginRequest(
                     userName = "Fry",
                     password = "qwerty",

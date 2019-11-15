@@ -16,6 +16,7 @@ import java.io.File
 import java.util.*
 
 //todo #82: use IO
+@Suppress("EXPERIMENTAL_API_USAGE")
 private val localFsStorageContext = newFixedThreadPoolContext(10, "local-fs-storage")
 
 @Service

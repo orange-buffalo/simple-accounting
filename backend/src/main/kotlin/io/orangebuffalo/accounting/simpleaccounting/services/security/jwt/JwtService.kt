@@ -49,6 +49,7 @@ class JwtService(
         return if (transient) {
             createTransientUserPrincipal(jws.body.subject, token)
         } else {
+            @Suppress("UNCHECKED_CAST")
             createRegularUserPrincipal(jws.body.subject, token, jws.body["roles"] as List<String>)
         }
     }
