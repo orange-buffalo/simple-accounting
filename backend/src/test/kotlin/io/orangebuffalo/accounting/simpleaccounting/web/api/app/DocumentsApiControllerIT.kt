@@ -184,7 +184,7 @@ class DocumentsApiControllerIT(
     fun `should return 404 if workspace is not found when creating document`(testData: DocumentsApiTestData) {
         client.post()
             .uri("/api/workspaces/995943/documents")
-            .syncBody(testData.createDefaultFileToUpload().build())
+            .bodyValue(testData.createDefaultFileToUpload().build())
             .verifyNotFound("Workspace 995943 is not found")
     }
 
@@ -193,7 +193,7 @@ class DocumentsApiControllerIT(
     fun `should return 404 if workspace belongs to another user when creating document`(testData: DocumentsApiTestData) {
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
-            .syncBody(testData.createDefaultFileToUpload().build())
+            .bodyValue(testData.createDefaultFileToUpload().build())
             .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
     }
 
@@ -204,7 +204,7 @@ class DocumentsApiControllerIT(
 
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
-            .syncBody(testData.createDefaultFileToUpload().build())
+            .bodyValue(testData.createDefaultFileToUpload().build())
             .verifyOkAndJsonBody {
                 node("name").isString.isEqualTo("test-file.txt")
                 node("id").isNumber.isNotNull

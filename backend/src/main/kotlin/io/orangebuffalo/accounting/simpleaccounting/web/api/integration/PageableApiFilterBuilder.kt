@@ -33,8 +33,14 @@ class PageableApiFiltersBuilder<E, R : EntityPath<E>>(
 
     private fun <T : Any> getConverter(fieldType: KClass<T>): (String) -> T {
         return when {
-            fieldType == Long::class -> { rawValue -> rawValue.toLong() as T }
-            fieldType == String::class -> { rawValue -> rawValue as T }
+            fieldType == Long::class -> { rawValue ->
+                @Suppress("UNCHECKED_CAST")
+                rawValue.toLong() as T
+            }
+            fieldType == String::class -> { rawValue ->
+                @Suppress("UNCHECKED_CAST")
+                rawValue as T
+            }
             fieldType.java.isEnum -> { rawValue ->
                 fieldType.java.enumConstants.first { (it as Enum<*>).name == rawValue }
             }

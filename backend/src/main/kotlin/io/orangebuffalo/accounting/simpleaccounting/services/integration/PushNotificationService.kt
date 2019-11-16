@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package io.orangebuffalo.accounting.simpleaccounting.services.integration
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService

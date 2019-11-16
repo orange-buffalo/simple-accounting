@@ -126,7 +126,7 @@ class GoogleDriveDocumentsStorageService(
                         .queryParam("fields", "id")
                         .build()
                 }
-                .syncBody(
+                .bodyValue(
                     GDriveCreateFileRequest(
                         name = "${workspace.id}",
                         mimeType = "application/vnd.google-apps.folder",
@@ -242,7 +242,7 @@ class GoogleDriveDocumentsStorageService(
                     .queryParam("fields", "id,name")
                     .build()
             }
-            .syncBody(
+            .bodyValue(
                 GDriveCreateFileRequest(
                     name = "simple-accounting",
                     mimeType = "application/vnd.google-apps.folder",

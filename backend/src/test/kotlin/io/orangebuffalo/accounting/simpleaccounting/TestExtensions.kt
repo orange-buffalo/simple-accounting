@@ -47,7 +47,7 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
         .expectThatJsonBody(spec)
 
 fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
-    contentType(MediaType.APPLICATION_JSON).syncBody(json)
+    contentType(MediaType.APPLICATION_JSON).bodyValue(json)
 
 @Component
 class DbHelper(private val jdbcTemplate: JdbcTemplate) {

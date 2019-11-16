@@ -4,7 +4,6 @@ import io.orangebuffalo.accounting.simpleaccounting.services.integration.voidMon
 import io.orangebuffalo.accounting.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepository
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.mono
 import org.springframework.security.core.Authentication
@@ -28,6 +27,7 @@ class DbReactiveOAuth2AuthorizedClientService(
 
         withDbContext {
             val persistentClient = repository.findByClientRegistrationIdAndUserName(clientRegistrationId, principalName)
+            @Suppress("UNCHECKED_CAST")
             persistentClient?.let {
                 OAuth2AuthorizedClient(
                     clientRegistration,
