@@ -1,8 +1,8 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
+import arrow.core.Either
 import com.querydsl.core.types.EntityPath
 import com.querydsl.core.types.Predicate
-import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
 import org.springframework.data.domain.Sort
 import kotlin.reflect.KClass
 
@@ -17,7 +17,7 @@ interface PageableApiDescriptor<E, R : EntityPath<E>> {
 
     fun getDefaultSorting(): Sort = Sort.by(Sort.Order.desc("id"))
 
-    fun getSupportedSorting() : Map<String, String> = emptyMap()
+    fun getSupportedSorting(): Map<String, String> = emptyMap()
 }
 
 enum class PageableApiFilterOperator(val apiValue: String) {
@@ -39,9 +39,9 @@ class PageableApiFilter<E, R : EntityPath<E>>(
     private val predicateProviders: Map<PageableApiFilterOperator, PageableApiPredicateProvider<R, *>>
 ) {
 
-    fun forOperator(operator: PageableApiFilterOperator, rawValue: String): Predicate {
+    fun forOperator(operator: PageableApiFilterOperator, rawValue: String): Either<String, Predicate> {
         val provider = predicateProviders[operator]
-            ?: throw ApiValidationException("'${operator.apiValue}' is not supported for '$apiFieldName'")
+            ?: return Either.left("'${operator.apiValue}' is not supported for '$apiFieldName'")
         return provider.predicateOnValue(root, rawValue)
     }
 
@@ -51,16 +51,13 @@ class PageableApiPredicateProvider<R, T>(
     val rawValueConverter: (String) -> T,
     val predicateBuilder: (R, T) -> Predicate
 ) {
-    fun predicateOnValue(root: R, rawValue: String): Predicate {
-        val entityFieldValue = convert(rawValue)
-        return predicateBuilder(root, entityFieldValue)
-    }
+    fun predicateOnValue(root: R, rawValue: String): Either<String, Predicate> =
+        convert(rawValue)
+            .map { entityFieldValue -> predicateBuilder(root, entityFieldValue) }
 
-    private fun convert(rawValue: String): T {
-        try {
-            return rawValueConverter(rawValue)
-        } catch (e: Exception) {
-            throw throw ApiValidationException("'$rawValue' is not a valid filter value")
-        }
+    private fun convert(rawValue: String): Either<String, T> = try {
+        Either.right(rawValueConverter(rawValue))
+    } catch (e: Exception) {
+        Either.left("'$rawValue' is not a valid filter value")
     }
 }

@@ -3,6 +3,7 @@ object Versions {
     const val kotlin = "1.3.50"
     const val kotlinCoroutines = "1.3.2"
     const val kotlinLogging = "1.7.6"
+    const val arrow = "0.10.3"
     const val jjwt = "0.10.7"
     const val queryDsl = "4.2.1"
     const val javaxEl = "3.0.1-b11"
