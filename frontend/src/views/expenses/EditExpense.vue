@@ -213,7 +213,7 @@
 
     props: {
       id: {
-        type: Number,
+        type: String,
         default: null,
       },
       prototype: {
@@ -238,6 +238,7 @@
           datePaid: new Date(),
           uploads: new UploadsInfo(),
           generalTax: null,
+          id: this.id,
         },
         expenseValidationRules: {
           currency: {
@@ -267,7 +268,7 @@
       },
 
       pageHeader() {
-        return this.id ? 'Edit Expense' : 'Record New Expense';
+        return this.expense.id ? 'Edit Expense' : 'Record New Expense';
       },
     },
 
@@ -289,6 +290,7 @@
       } else if (this.prototype) {
         this.copyExpenseProperties(this.prototype, {
           datePaid: null,
+          id: null,
         });
         await this.setupComponentState();
       }

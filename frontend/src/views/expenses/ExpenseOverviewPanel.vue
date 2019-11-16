@@ -381,7 +381,7 @@
       navigateToExpenseEdit() {
         this.$router.push({
           name: 'edit-expense',
-          params: { id: this.expense.id },
+          params: { id: `${this.expense.id}` },
         });
       },
 
