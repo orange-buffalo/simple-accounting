@@ -41,7 +41,7 @@ dependencies {
 
     compile("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
     compile("com.querydsl:querydsl-jpa:${Versions.queryDsl}")
-    compile("com.github.kittinunf.result:result:1.5.0") //todo #68: use arrow
+    compile("io.arrow-kt:arrow-core:${Versions.arrow}")
 
     kapt("com.querydsl:querydsl-apt:${Versions.queryDsl}:jpa")
     kapt("org.springframework.boot:spring-boot-configuration-processor")

@@ -1,9 +1,11 @@
 package io.orangebuffalo.accounting.simpleaccounting.web.api.integration
 
-import com.github.kittinunf.result.Result
-import com.github.kittinunf.result.flatMap
-import com.github.kittinunf.result.map
+import arrow.core.Either
+import arrow.core.Option
+import arrow.core.flatMap
+import arrow.core.getOrElse
 import com.querydsl.core.BooleanBuilder
+import com.querydsl.core.types.EntityPath
 import com.querydsl.core.types.Predicate
 import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.accounting.simpleaccounting.web.api.ApiValidationException
@@ -36,125 +38,137 @@ class ApiPageRequestResolver(
 
         val pageableApiDescriptor = pageableApiDescriptorResolver.resolveDescriptor(parameter.annotatedElement)
 
-        return validateAndGetParameter("limit", 10, exchange.request.queryParams)
-            .map { PageRequest.of(0, it) }
-            .flatMap { pageRequest ->
-                validateAndGetParameter("page", 1, exchange.request.queryParams)
-                    .map { pageNumber -> PageRequest.of(pageNumber - 1, pageRequest.pageSize) }
+        return validateAndGetSingleParameter("limit", 10, exchange.request.queryParams)
+            .map { pageSize -> DataPage(pageSize = pageSize) }
+            .flatMap { dataPage ->
+                validateAndGetSingleParameter("page", 1, exchange.request.queryParams)
+                    .map { pageNumber -> dataPage.copy(pageNumber = pageNumber) }
             }
-            .flatMap { pageRequest ->
+            .flatMap { dataPage ->
                 validateAndGetSort(exchange.request.queryParams, pageableApiDescriptor)
-                    .map { sort ->
-                        PageRequest.of(
-                            pageRequest.pageNumber,
-                            pageRequest.pageSize,
-                            sort
-                        )
+                    .map { sort -> dataPage.copy(sort = sort) }
+            }
+            .map { dataPage -> ApiPageRequest(page = dataPage.toPageRequest(), predicate = Expressions.TRUE.isTrue) }
+            .flatMap { pageRequest ->
+                getFiltersPredicate(pageableApiDescriptor, exchange.request.queryParams)
+                    .map { predicate ->
+                        if (predicate == null) pageRequest else pageRequest.copy(predicate = predicate)
                     }
             }
-            .map { page -> ApiPageRequest(page = page, predicate = Expressions.TRUE.isTrue) }
-            .map { pageRequest ->
-                val predicate = getFilterPredicate(pageableApiDescriptor, exchange.request.queryParams)
-                if (predicate == null) pageRequest else pageRequest.copy(predicate = predicate)
-            }
-            .fold({ pageRequest -> Mono.just(pageRequest) }, { error -> Mono.error(error) })
+            .fold({ error -> Mono.error(ApiValidationException(error)) }, { pageRequest -> Mono.just(pageRequest) })
     }
 
-    private fun getFilterPredicate(
+    private fun getFiltersPredicate(
         pageableApiDescriptor: PageableApiDescriptor<*, *>,
         queryParams: MultiValueMap<String, String>
-    ): Predicate? {
-        val compoundPredicate: BooleanBuilder = pageableApiDescriptor.getSupportedFilters()
-            .map { filter ->
-                queryParams.entries.asSequence()
-                    .filter {
-                        it.key.startsWith("${filter.apiFieldName}[")
-                    }
-                    .map {
-                        if (!it.key.endsWith("]")) {
-                            throw ApiValidationException("'${it.key}' is not a valid filter expression")
-                        }
-
-                        Pair(it.key.removePrefix("${filter.apiFieldName}[").removeSuffix("]"), it.value)
-                    }
-                    .map {
-                        Pair(
-                            PageableApiFilterOperator.forApiValue(it.first)
-                                ?: throw ApiValidationException("'${it.first}' is not a valid filter operator"),
-                            it.second
-                        )
-                    }
-                    .map { fieldToValues ->
-                        fieldToValues.second
-                            .map { value -> filter.forOperator(fieldToValues.first, value) }
-                            .fold(BooleanBuilder()) { builder, predicate -> builder.or(predicate) }
-                    }
-                    .toList()
+    ): Either<String, Predicate?> {
+        val compoundPredicate = BooleanBuilder()
+        pageableApiDescriptor.getSupportedFilters().forEach { pageableApiFilter ->
+            when (val predicateForFilter = buildPredicatesByFilter(queryParams, pageableApiFilter)) {
+                is Either.Left -> return predicateForFilter
+                is Either.Right -> if (predicateForFilter.b != null) compoundPredicate.and(predicateForFilter.b)
             }
-            .filter { it.isNotEmpty() }
-            .fold(BooleanBuilder()) { builder, predicates ->
-                builder.also {
-                    predicates.forEach { predicate -> builder.and(predicate) }
-                }
-            }
-
-        return compoundPredicate.value
+        }
+        return Either.right(compoundPredicate.value)
     }
+
+    private fun buildPredicatesByFilter(
+        queryParams: MultiValueMap<String, String>,
+        pageableApiFilter: PageableApiFilter<out Any?, out EntityPath<*>>
+    ): Either<String, Predicate?> {
+        val allOperatorsPredicates = BooleanBuilder()
+        queryParams.entries.asSequence()
+            .filter { queryParam -> isFilterQueryParam(queryParam.key, pageableApiFilter.apiFieldName) }
+            .forEach { queryParam ->
+                val queryParamName = queryParam.key
+                if (!queryParamName.endsWith("]")) {
+                    return Either.left("'${queryParamName}' is not a valid filter expression")
+                }
+
+                val rawFilterOperator = queryParamName
+                    .removePrefix("${pageableApiFilter.apiFieldName}[")
+                    .removeSuffix("]")
+
+                val filterOperator = PageableApiFilterOperator.forApiValue(rawFilterOperator)
+                    ?: return Either.left("'${rawFilterOperator}' is not a valid filter operator")
+
+                val rawFilterValues = queryParam.value
+                val currentOperatorPredicates = BooleanBuilder()
+                rawFilterValues.forEach { rawFilterValue ->
+                    when (val maybePredicate = pageableApiFilter.forOperator(filterOperator, rawFilterValue)) {
+                        is Either.Left -> return maybePredicate
+                        is Either.Right -> currentOperatorPredicates.or(maybePredicate.b)
+                    }
+                }
+
+                allOperatorsPredicates.and(currentOperatorPredicates.value)
+            }
+
+        return Either.right(allOperatorsPredicates.value)
+    }
+
+    private fun isFilterQueryParam(queryParam: String, apiFieldName: String) =
+        queryParam.startsWith("${apiFieldName}[")
 
     private fun validateAndGetSort(
         queryParams: MultiValueMap<String, String>,
         pageableApiDescriptor: PageableApiDescriptor<*, *>
-    ): Result<Sort, ApiValidationException> {
-        return Result.of {
-            val sortByParams = queryParams["sortBy"]
-            if (sortByParams == null) {
-                pageableApiDescriptor.getDefaultSorting()
-            } else {
-                if (sortByParams.size > 1) {
-                   throw ApiValidationException("Only a single 'sortBy' parameter is supported")
-                }
-                val sortBy = sortByParams[0]
+    ): Either<String, Sort> {
+        val sortByParams = queryParams["sortBy"]
+            ?: return Either.right(pageableApiDescriptor.getDefaultSorting())
 
-                val parts = sortBy.split(" ")
-                if (parts.size != 2) {
-                    throw ApiValidationException("'$sortBy' is not a valid sorting expression")
-                }
-
-                val directionStr = parts[1].trim()
-                val direction = Sort.Direction.fromOptionalString(directionStr)
-                    .orElseThrow { throw ApiValidationException("'$directionStr' is not a valid sorting direction") }
-
-                val apiField = parts[0].trim()
-                val entityField = pageableApiDescriptor.getSupportedSorting()[apiField]
-                    ?: throw ApiValidationException("Sorting by '$apiField' is not supported")
-
-                Sort.by(Sort.Order.by(entityField).with(direction))
-            }
+        if (sortByParams.size > 1) {
+            return Either.left("Only a single 'sortBy' parameter is supported")
         }
+        val sortBy = sortByParams[0]
+
+        val parts = sortBy.split(" ")
+        if (parts.size != 2) {
+            return Either.left("'$sortBy' is not a valid sorting expression")
+        }
+
+        val directionStr = parts[1].trim()
+        val direction = Sort.Direction.fromOptionalString(directionStr)
+            .orElse(null)
+            ?: return Either.left("'$directionStr' is not a valid sorting direction")
+
+        val apiField = parts[0].trim()
+        val entityField = pageableApiDescriptor.getSupportedSorting()[apiField]
+            ?: return Either.left("Sorting by '$apiField' is not supported")
+
+        return Either.right(Sort.by(Sort.Order.by(entityField).with(direction)))
     }
 
-    private fun validateAndGetParameter(
+    private fun validateAndGetSingleParameter(
         paramName: String,
         defaultValue: Int,
         queryParams: MultiValueMap<String, String>
-    ): Result<Int, ApiValidationException> {
-
-        val param = queryParams[paramName]
-        if (param != null && param.size > 1) {
-            return Result.error(ApiValidationException("Only a single '$paramName' parameter is supported"))
-        }
-
-        return Result.of {
-            if (param != null) {
-                val paramValue = param[0]
-                try {
-                    paramValue.toInt()
-                } catch (e: NumberFormatException) {
-                    throw ApiValidationException("Invalid '$paramName' parameter value '$paramValue'")
-                }
+    ): Either<String, Int> = Either.right(queryParams[paramName])
+        .flatMap { param ->
+            if (param != null && param.size > 1) {
+                Either.left("Only a single '$paramName' parameter is supported")
             } else {
-                defaultValue
+                Either.right(param)
             }
         }
-    }
+        .flatMap { param ->
+            Option.fromNullable(param)
+                .map { it[0] }
+                .map { paramValue ->
+                    try {
+                        Either.right(paramValue.toInt())
+                    } catch (e: NumberFormatException) {
+                        Either.left("Invalid '$paramName' parameter value '$paramValue'")
+                    }
+                }
+                .getOrElse { Either.right(defaultValue) }
+        }
+
+    private data class DataPage(
+        val pageNumber: Int? = null,
+        val pageSize: Int? = null,
+        val sort: Sort? = null
+    )
+
+    private fun DataPage.toPageRequest() = PageRequest.of(pageNumber!! - 1, pageSize!!, sort!!)
 }
