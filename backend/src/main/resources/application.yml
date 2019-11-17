@@ -15,10 +15,9 @@ spring:
             scope:
               - "https://www.googleapis.com/auth/drive.file"
             redirect-uri: "https://simple-accounting.orange-buffalo.io/api/auth/oauth2/callback"
+
   resources:
-    cache:
-      cachecontrol:
-        max-age: 999999999
+    add-mappings: false
 
   jpa:
     properties:

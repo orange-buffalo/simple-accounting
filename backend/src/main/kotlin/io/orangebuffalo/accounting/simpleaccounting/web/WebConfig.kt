@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.ReactiveAdapterRegistry
+import org.springframework.http.CacheControl
 import org.springframework.http.HttpStatus
 import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.http.codec.json.Jackson2JsonDecoder
@@ -29,9 +30,11 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
+import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer
 import reactor.core.publisher.Mono
+import java.util.concurrent.TimeUnit
 
 @Configuration
 @EnableWebFluxSecurity
@@ -57,6 +60,20 @@ class WebConfig(
 
         configurer.defaultCodecs()
             .jackson2JsonDecoder(Jackson2JsonDecoder(objectMapper))
+    }
+
+    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+        registry.addResourceHandler("/assets/**")
+            .addResourceLocations("classpath:META-INF/resources/assets/")
+            .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
+
+        registry.addResourceHandler("/*favicon.ico")
+            .addResourceLocations("classpath:META-INF/resources/favicon.ico")
+            .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
+
+        registry.addResourceHandler("/*index.html")
+            .addResourceLocations("classpath:META-INF/resources/index.html")
+            .setCacheControl(CacheControl.noCache())
     }
 
     @Bean
@@ -119,4 +136,5 @@ class WebConfig(
 
     @Bean
     fun spaWebFilter() = SpaWebFilter()
+
 }
