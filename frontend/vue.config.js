@@ -1,5 +1,5 @@
 module.exports = {
-  assetsDir: 'static',
+  assetsDir: 'assets',
 
   devServer: {
     port: 9091,

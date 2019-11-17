@@ -12,8 +12,9 @@ class SpaWebFilter : WebFilter {
 
     private val requestMatcher = AndServerWebExchangeMatcher(
         ServerWebExchangeMatchers.pathMatchers("/**"),
+        NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/favicon.ico")),
         NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/api/**")),
-        NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/static/**"))
+        NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/assets/**"))
     )
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
