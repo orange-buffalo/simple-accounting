@@ -59,7 +59,14 @@ class ExpenseRepositoryExtImpl(
                     CaseBuilder()
                         .`when`(expense.status.ne(ExpenseStatus.FINALIZED)).then(1)
                         .otherwise(Expressions.nullExpression())
-                        .count()
+                        .count(),
+                    CaseBuilder()
+                        .`when`(expense.status.ne(ExpenseStatus.FINALIZED)).then(0L)
+                        .otherwise(
+                            expense.convertedAmounts.adjustedAmountInDefaultCurrency
+                                .subtract(expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency)
+                        )
+                        .sum()
                 )
             )
             .fetch()

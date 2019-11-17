@@ -122,13 +122,13 @@
           class="home-page__row__hero__details"
         >
           <div
-            v-if="incomes.currencyExchangeGain"
+            v-if="currencyExchangeDifference"
             class="home-page__row__hero__details__item"
           >
             <span>Currency exchange rate difference</span>
             <MoneyOutput
               :currency="defaultCurrency"
-              :amount="incomes.currencyExchangeGain"
+              :amount="currencyExchangeDifference"
             />
           </div>
 
@@ -220,7 +220,10 @@
   export default {
     name: 'Dashboard',
 
-    components: { SaIcon, MoneyOutput },
+    components: {
+      SaIcon,
+      MoneyOutput,
+    },
 
     mixins: [withWorkspaces, withCategories, withMediumDateFormatter, withCustomers],
 
@@ -255,8 +258,8 @@
 
       totalProfit() {
         const taxPayments = this.incomeTaxPayments.totalTaxPayments || 0;
-        return (this.taxableAmount && this.incomes.currencyExchangeGain)
-          ? this.taxableAmount + this.incomes.currencyExchangeGain - taxPayments
+        return (this.taxableAmount)
+          ? this.taxableAmount + this.currencyExchangeDifference - taxPayments
           : null;
       },
 
@@ -283,6 +286,13 @@
 
       invoiceCustomerName() {
         return invoice => this.customerById(invoice.customer).name;
+      },
+
+      currencyExchangeDifference() {
+        if (this.expenses.currencyExchangeDifference != null && this.incomes.currencyExchangeDifference != null) {
+          return this.incomes.currencyExchangeDifference + this.expenses.currencyExchangeDifference;
+        }
+        return 0;
       },
     },
 
