@@ -25,26 +25,33 @@
             <SaIcon icon="expense" />
           </span>
 
-          <MoneyOutput
-            class="home-page__row__hero__header__amount"
-            :currency="defaultCurrency"
-            :amount="expenses.totalAmount"
-          />
+          <template v-if="expensesLoaded">
+            <MoneyOutput
+              class="home-page__row__hero__header__amount"
+              :currency="defaultCurrency"
+              :amount="expenses.totalAmount"
+            />
 
-          <span class="home-page__row__hero__header__finalized">Total of {{ expenses.finalizedCount }} expenses</span>
+            <span class="home-page__row__hero__header__finalized">Total of {{ expenses.finalizedCount }} expenses</span>
 
-          <span
-            v-if="expenses.pendingCount"
-            class="home-page__row__hero__header__pending"
-          >Pending {{ expenses.pendingCount }} more</span>
-          <span
-            v-if="!expenses.pendingCount"
-            class="home-page__row__hero__header__pending"
-          >&nbsp;</span>
+            <span
+              v-if="expenses.pendingCount"
+              class="home-page__row__hero__header__pending"
+            >Pending {{ expenses.pendingCount }} more</span>
+            <span
+              v-if="!expenses.pendingCount"
+              class="home-page__row__hero__header__pending"
+            >&nbsp;</span>
+          </template>
+
+          <div class="home-page__row__hero__header__loader"
+               v-else>
+            <i class="el-icon-loading" />
+          </div>
         </div>
 
         <div
-          v-if="expenses.totalAmount"
+          v-if="expensesLoaded"
           class="home-page__row__hero__details"
         >
           <div
@@ -66,26 +73,33 @@
             <SaIcon icon="income" />
           </span>
 
-          <MoneyOutput
-            class="home-page__row__hero__header__amount"
-            :currency="defaultCurrency"
-            :amount="incomes.totalAmount"
-          />
+          <template v-if="incomesLoaded">
+            <MoneyOutput
+              class="home-page__row__hero__header__amount"
+              :currency="defaultCurrency"
+              :amount="incomes.totalAmount"
+            />
 
-          <span class="home-page__row__hero__header__finalized">Total of {{ incomes.finalizedCount }} incomes</span>
+            <span class="home-page__row__hero__header__finalized">Total of {{ incomes.finalizedCount }} incomes</span>
 
-          <span
-            v-if="incomes.pendingCount"
-            class="home-page__row__hero__header__pending"
-          >Pending {{ incomes.pendingCount }} more</span>
-          <span
-            v-if="!incomes.pendingCount"
-            class="home-page__row__hero__header__pending"
-          >&nbsp;</span>
+            <span
+              v-if="incomes.pendingCount"
+              class="home-page__row__hero__header__pending"
+            >Pending {{ incomes.pendingCount }} more</span>
+            <span
+              v-if="!incomes.pendingCount"
+              class="home-page__row__hero__header__pending"
+            >&nbsp;</span>
+          </template>
+
+          <div class="home-page__row__hero__header__loader"
+               v-else>
+            <i class="el-icon-loading" />
+          </div>
         </div>
 
         <div
-          v-if="incomes.totalAmount"
+          v-if="incomesLoaded"
           class="home-page__row__hero__details"
         >
           <div
@@ -107,18 +121,25 @@
             <SaIcon icon="profit" />
           </span>
 
-          <MoneyOutput
-            class="home-page__row__hero__header__amount"
-            :currency="defaultCurrency"
-            :amount="Math.max(taxableAmount, 0)"
-          />
+          <template v-if="profitLoaded">
+            <MoneyOutput
+              class="home-page__row__hero__header__amount"
+              :currency="defaultCurrency"
+              :amount="Math.max(incomeTaxableAmount, 0)"
+            />
 
-          <span class="home-page__row__hero__header__finalized">Taxable Amount</span>
-          <span class="home-page__row__hero__header__pending">&nbsp;</span>
+            <span class="home-page__row__hero__header__finalized">Taxable Amount</span>
+            <span class="home-page__row__hero__header__pending">&nbsp;</span>
+          </template>
+
+          <div class="home-page__row__hero__header__loader"
+               v-else>
+            <i class="el-icon-loading" />
+          </div>
         </div>
 
         <div
-          v-if="profitDetailsVisible"
+          v-if="profitLoaded"
           class="home-page__row__hero__details"
         >
           <div
@@ -136,7 +157,7 @@
             <span>Income Tax Payments</span>
             <MoneyOutput
               :currency="defaultCurrency"
-              :amount="incomeTaxPayments.totalTaxPayments || 0"
+              :amount="incomeTaxPayments.totalTaxPayments"
             />
           </div>
 
@@ -145,9 +166,7 @@
             <span>coming soon..</span>
           </div>
 
-          <div
-            v-if="totalProfit"
-            class="home-page__row__hero__details__item"
+          <div class="home-page__row__hero__details__item"
           >
             <span>Profit</span>
             <MoneyOutput
@@ -238,6 +257,22 @@
     },
 
     computed: {
+      incomesLoaded() {
+        return this.incomes.items != null;
+      },
+
+      expensesLoaded() {
+        return this.incomes.items != null;
+      },
+
+      taxPaymentsLoaded() {
+        return this.incomeTaxPayments.totalTaxPayments != null;
+      },
+
+      profitLoaded() {
+        return this.incomesLoaded && this.expensesLoaded && this.taxPaymentsLoaded;
+      },
+
       expensesItems() {
         return (this.expenses.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
       },
@@ -246,21 +281,12 @@
         return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
       },
 
-      taxableAmount() {
-        return (!isNil(this.expenses.totalAmount) && !isNil(this.incomes.totalAmount))
-          ? this.incomes.totalAmount - this.expenses.totalAmount
-          : null;
-      },
-
-      profitDetailsVisible() {
-        return this.totalProfit !== null;
+      incomeTaxableAmount() {
+        return this.incomes.totalAmount - this.expenses.totalAmount;
       },
 
       totalProfit() {
-        const taxPayments = this.incomeTaxPayments.totalTaxPayments || 0;
-        return (this.taxableAmount)
-          ? this.taxableAmount + this.currencyExchangeDifference - taxPayments
-          : null;
+        return this.incomeTaxableAmount + this.currencyExchangeDifference - this.incomeTaxPayments.totalTaxPayments;
       },
 
       invoiceStatus() {
@@ -289,18 +315,11 @@
       },
 
       currencyExchangeDifference() {
-        if (this.expenses.currencyExchangeDifference != null && this.incomes.currencyExchangeDifference != null) {
-          return this.incomes.currencyExchangeDifference + this.expenses.currencyExchangeDifference;
-        }
-        return 0;
+        return this.incomes.currencyExchangeDifference + this.expenses.currencyExchangeDifference;
       },
     },
 
     watch: {
-      currentWorkspace() {
-        this.reload();
-      },
-
       selectedDateRange() {
         lockr.set(SELECTED_DATE_RANGE_KEY, this.selectedDateRange);
         this.reload();
@@ -309,7 +328,7 @@
 
     created() {
       const selectedDateRange = lockr.get(SELECTED_DATE_RANGE_KEY);
-      if (isNil(selectedDateRange)) {
+      if (selectedDateRange == null) {
         const now = new Date();
         this.selectedDateRange = [
           new Date(now.getFullYear(), 0, 1),
@@ -324,6 +343,11 @@
 
     methods: {
       reload() {
+        this.expenses = {};
+        this.incomes = {};
+        this.incomeTaxPayments = {};
+        this.pendingInvoices = [];
+
         api.get(`/workspaces/${this.currentWorkspace.id}/statistics/expenses`
           + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
           + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
@@ -402,6 +426,11 @@
     display: block;
     color: $warning-color;
     font-size: 90%;
+  }
+
+  .home-page__row__hero__header__loader {
+    margin-top: 20px;
+    font-size: 200%;
   }
 
   .home-page__row__hero__details {
