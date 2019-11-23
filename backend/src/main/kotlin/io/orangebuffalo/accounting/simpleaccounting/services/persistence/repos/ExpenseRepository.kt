@@ -26,5 +26,10 @@ data class ExpensesStatistics @QueryProjection constructor(
     val categoryId: Long?,
     val totalAmount: Long,
     val finalizedCount: Long,
-    val pendingCount: Long
+    val pendingCount: Long,
+
+    /**
+     * The difference between converted amount and income taxable amount over all expenses of this category
+     */
+    val currencyExchangeDifference: Long
 )

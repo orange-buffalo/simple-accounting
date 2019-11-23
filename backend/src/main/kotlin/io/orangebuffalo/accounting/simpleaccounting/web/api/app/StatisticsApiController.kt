@@ -20,16 +20,17 @@ class StatisticsApiController(
         @PathVariable workspaceId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): ExpensesStatisticsDto {
+    ): IncomesExpensesStatisticsDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspace)
-        return ExpensesStatisticsDto(
+        return IncomesExpensesStatisticsDto(
             expensesStatistics.map {
-                ExpensesStatisticsItemDto(
-                    it.categoryId,
-                    it.totalAmount,
-                    it.finalizedCount,
-                    it.pendingCount
+                IncomeExpensesStatisticsItemDto(
+                    categoryId = it.categoryId,
+                    totalAmount = it.totalAmount,
+                    finalizedCount = it.finalizedCount,
+                    pendingCount = it.pendingCount,
+                    currencyExchangeDifference = it.currencyExchangeDifference
                 )
             }
         )
@@ -40,17 +41,17 @@ class StatisticsApiController(
         @PathVariable workspaceId: Long,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
-    ): IncomesStatisticsDto {
+    ): IncomesExpensesStatisticsDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val incomesStatistics = incomeService.getIncomesStatistics(fromDate, toDate, workspace)
-        return IncomesStatisticsDto(
+        return IncomesExpensesStatisticsDto(
             incomesStatistics.map {
-                IncomesStatisticsItemDto(
-                    it.categoryId,
-                    it.totalAmount,
-                    it.finalizedCount,
-                    it.pendingCount,
-                    it.currencyExchangeGain
+                IncomeExpensesStatisticsItemDto(
+                    categoryId = it.categoryId,
+                    totalAmount = it.totalAmount,
+                    finalizedCount = it.finalizedCount,
+                    pendingCount = it.pendingCount,
+                    currencyExchangeDifference = it.currencyExchangeDifference
                 )
             }
         )
@@ -95,35 +96,19 @@ data class IncomeTaxPaymentsStatisticsDto(
 )
 
 @Suppress("unused")
-data class ExpensesStatisticsDto(
-    val items: List<ExpensesStatisticsItemDto>
+data class IncomesExpensesStatisticsDto(
+    val items: List<IncomeExpensesStatisticsItemDto>
 ) {
     val totalAmount: Long = items.map { it.totalAmount }.sum()
     val finalizedCount: Long = items.map { it.finalizedCount }.sum()
     val pendingCount: Long = items.map { it.pendingCount }.sum()
+    val currencyExchangeDifference: Long = items.map { it.currencyExchangeDifference }.sum()
 }
 
-data class ExpensesStatisticsItemDto(
-    val categoryId: Long?,
-    val totalAmount: Long,
-    val finalizedCount: Long,
-    val pendingCount: Long
-)
-
-@Suppress("unused")
-data class IncomesStatisticsDto(
-    val items: List<IncomesStatisticsItemDto>
-) {
-    val totalAmount: Long = items.map { it.totalAmount }.sum()
-    val finalizedCount: Long = items.map { it.finalizedCount }.sum()
-    val pendingCount: Long = items.map { it.pendingCount }.sum()
-    val currencyExchangeGain = items.map { it.currencyExchangeGain }.sum()
-}
-
-data class IncomesStatisticsItemDto(
+data class IncomeExpensesStatisticsItemDto(
     val categoryId: Long?,
     val totalAmount: Long,
     val finalizedCount: Long,
     val pendingCount: Long,
-    val currencyExchangeGain: Long
+    val currencyExchangeDifference: Long
 )

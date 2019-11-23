@@ -246,19 +246,6 @@
       },
     },
 
-    watch: {
-      'income.currency': {
-        handler() {
-          if (this.income.currency !== this.defaultCurrency) {
-            this.income.useDifferentExchangeRateForIncomeTaxPurposes = false;
-            this.income.convertedAmountInDefaultCurrency = null;
-            this.income.incomeTaxableAmountInDefaultCurrency = null;
-          }
-        },
-
-      },
-    },
-
     async created() {
       if (this.$route.params.id) {
         const incomeResponse = await api

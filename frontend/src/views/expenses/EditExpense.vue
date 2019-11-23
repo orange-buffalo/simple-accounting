@@ -272,18 +272,6 @@
       },
     },
 
-    watch: {
-      'expense.currency': {
-        handler() {
-          if (this.expense.currency !== this.defaultCurrency) {
-            this.expense.useDifferentExchangeRateForIncomeTaxPurposes = false;
-            this.expense.convertedAmountInDefaultCurrency = null;
-            this.expense.incomeTaxableAmountInDefaultCurrency = null;
-          }
-        },
-      },
-    },
-
     async created() {
       if (this.id) {
         await this.loadExpense();

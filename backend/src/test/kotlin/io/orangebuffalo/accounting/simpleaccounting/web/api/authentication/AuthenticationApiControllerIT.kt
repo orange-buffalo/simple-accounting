@@ -7,7 +7,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.createRegularUserPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
-import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshTokenService
+import io.orangebuffalo.accounting.simpleaccounting.services.security.remeberme.RefreshTokenService
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
