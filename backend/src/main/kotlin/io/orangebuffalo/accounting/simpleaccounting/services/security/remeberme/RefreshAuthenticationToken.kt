@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.security.jwt
+package io.orangebuffalo.accounting.simpleaccounting.services.security.remeberme
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails

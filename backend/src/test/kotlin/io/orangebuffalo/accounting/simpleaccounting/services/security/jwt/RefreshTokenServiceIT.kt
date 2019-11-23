@@ -9,6 +9,7 @@ import io.orangebuffalo.accounting.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.entities.RefreshToken
 import io.orangebuffalo.accounting.simpleaccounting.services.persistence.repos.RefreshTokenRepository
+import io.orangebuffalo.accounting.simpleaccounting.services.security.remeberme.RefreshTokenService
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy

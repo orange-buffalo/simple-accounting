@@ -2,19 +2,16 @@ package io.orangebuffalo.accounting.simpleaccounting.web.api.authentication
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.WorkspaceAccessTokenService
 import io.orangebuffalo.accounting.simpleaccounting.services.security.SecurityPrincipal
-import io.orangebuffalo.accounting.simpleaccounting.services.security.core.DelegatingReactiveAuthenticationManager
 import io.orangebuffalo.accounting.simpleaccounting.services.security.createTransientUserPrincipal
 import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.JwtService
-import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshAuthenticationToken
-import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.RefreshTokenService
-import io.orangebuffalo.accounting.simpleaccounting.services.security.jwt.TOKEN_LIFETIME_IN_DAYS
+import io.orangebuffalo.accounting.simpleaccounting.services.security.remeberme.RefreshAuthenticationToken
+import io.orangebuffalo.accounting.simpleaccounting.services.security.remeberme.RefreshTokenService
+import io.orangebuffalo.accounting.simpleaccounting.services.security.remeberme.TOKEN_LIFETIME_IN_DAYS
 import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.authentication.InsufficientAuthenticationException
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.authentication.*
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
@@ -24,7 +21,7 @@ import javax.validation.constraints.NotBlank
 @RestController
 @RequestMapping("api/auth")
 class AuthenticationApiController(
-    private val authenticationManager: DelegatingReactiveAuthenticationManager,
+    private val authenticationManager: ReactiveAuthenticationManager,
     private val jwtService: JwtService,
     private val refreshTokenService: RefreshTokenService,
     private val workspaceAccessTokenService: WorkspaceAccessTokenService
@@ -70,7 +67,10 @@ class AuthenticationApiController(
         val authenticatedAuth = when {
             authentication != null && authentication.isAuthenticated -> authentication
             refreshToken != null -> {
-                val authenticationToken = RefreshAuthenticationToken(refreshToken)
+                val authenticationToken =
+                    RefreshAuthenticationToken(
+                        refreshToken
+                    )
                 authenticationManager.authenticate(authenticationToken).awaitFirst()
             }
             else -> throw InsufficientAuthenticationException("Not authenticated")

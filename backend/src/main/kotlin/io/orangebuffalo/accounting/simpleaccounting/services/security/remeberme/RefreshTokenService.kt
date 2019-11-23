@@ -1,4 +1,4 @@
-package io.orangebuffalo.accounting.simpleaccounting.services.security.jwt
+package io.orangebuffalo.accounting.simpleaccounting.services.security.remeberme
 
 import io.orangebuffalo.accounting.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.accounting.simpleaccounting.services.business.TimeService
