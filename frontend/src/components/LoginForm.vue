@@ -3,7 +3,6 @@
     ref="form"
     class="login-form"
     :model="form"
-    :rules="formValidationRules"
     label-width="0px"
   >
     <ElFormItem prop="userName">
@@ -82,28 +81,36 @@
     },
 
     methods: {
-      login() {
-        this.$refs.form.validate((valid) => {
-          if (valid) {
-            api
-              .login({
-                userName: this.form.userName,
-                password: this.form.password,
-                rememberMe: this.form.rememberMe,
-              })
-              .then(() => {
-                this.$emit('login');
-              })
-              .catch(() => {
-                this.$refs.form.clearValidate();
-                this.$message({
-                  showClose: true,
-                  message: 'Login failed',
-                  type: 'error',
-                });
-              });
+      async login() {
+        try {
+          await api.login({
+            userName: this.form.userName,
+            password: this.form.password,
+            rememberMe: this.form.rememberMe,
+          });
+          this.$emit('login');
+        } catch ({ response: { data } }) {
+          if (data && data.error === 'AccountLocked') {
+            this.$message({
+              showClose: true,
+              // todo #6: localize and humanize
+              message: `Account is locked for ${data.lockExpiresInSec} seconds`,
+              type: 'error',
+            });
+          } else if (data && data.error === 'LoginNotAvailable') {
+            this.$message({
+              showClose: true,
+              message: 'Looks like your account is under attack!',
+              type: 'error',
+            });
+          } else {
+            this.$message({
+              showClose: true,
+              message: 'Login failed',
+              type: 'error',
+            });
           }
-        });
+        }
       },
     },
   };

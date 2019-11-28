@@ -109,7 +109,9 @@ class AuthenticationApiControllerIT(
             )
             .exchange()
             .expectStatus().isUnauthorized
-            .expectBody().isEmpty
+            .expectThatJsonBody {
+                inPath("$.error").isEqualTo("BadCredentials")
+            }
     }
 
     @Test
@@ -126,7 +128,9 @@ class AuthenticationApiControllerIT(
             )
             .exchange()
             .expectStatus().isUnauthorized
-            .expectBody().isEmpty
+            .expectThatJsonBody {
+                inPath("$.error").isEqualTo("BadCredentials")
+            }
     }
 
     @Test

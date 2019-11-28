@@ -44,14 +44,11 @@ _api.createCancelToken = function () {
   return CancelToken.source();
 };
 
-_api.login = function (request) {
+_api.login = async function (request) {
   cancelTokenRefresh();
-  return _api
-    .post('/auth/login', request)
-    .then((response) => {
-      $store.commit('api/updateJwtToken', response.data.token);
-      scheduleTokenRefresh();
-    });
+  const response = await _api.post('/auth/login', request);
+  $store.commit('api/updateJwtToken', response.data.token);
+  scheduleTokenRefresh();
 };
 
 _api.logout = async function (request) {
@@ -113,9 +110,12 @@ _api.loginBySharedToken = async function (sharedToken) {
 };
 
 _api.interceptors.response.use(
-  response => Promise.resolve(response),
+  response => response,
   async (error) => {
-    if (error.response && error.response.status === 401 && error.response.config.url !== '/api/auth/token') {
+    if (error.response && error.response.status === 401
+      && error.response.config.url !== '/api/auth/token'
+      && error.response.config.url !== '/api/auth/login') {
+
       if (await _api.tryAutoLogin()) {
         applyAuthorization(error.config);
         error.config.baseURL = null;
@@ -199,11 +199,13 @@ _api.pageRequest = function (uri) {
     },
 
     getPage() {
-      return this.get().then(response => response.data);
+      return this.get()
+        .then(response => response.data);
     },
 
     getPageData() {
-      return this.getPage().then(page => page.data);
+      return this.getPage()
+        .then(page => page.data);
     },
   };
 };
