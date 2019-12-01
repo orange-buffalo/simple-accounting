@@ -31,12 +31,11 @@ class DocumentsApiController(
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     suspend fun uploadNewDocument(
         @PathVariable workspaceId: Long,
-        @RequestPart(name = "notes", required = false) notes: String?,
         @RequestPart("file") file: Mono<Part>
     ): DocumentDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
         val filePart = file.cast(FilePart::class.java).awaitFirst()
-        return documentsService.uploadDocument(filePart, notes, workspace).let(::mapDocumentDto)
+        return documentsService.uploadDocument(filePart, workspace).let(::mapDocumentDto)
     }
 
     @GetMapping
@@ -73,7 +72,6 @@ data class DocumentDto(
     var version: Int,
     var name: String,
     var timeUploaded: Instant,
-    var notes: String?,
     var sizeInBytes: Long?
 )
 
@@ -91,7 +89,6 @@ class DocumentPageableApiDescriptor : PageableApiDescriptor<Document, QDocument>
 private fun mapDocumentDto(source: Document) = DocumentDto(
     name = source.name,
     timeUploaded = source.timeUploaded,
-    notes = source.notes,
     id = source.id,
     version = source.version,
     sizeInBytes = source.sizeInBytes

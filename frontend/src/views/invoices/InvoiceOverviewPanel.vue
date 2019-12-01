@@ -208,13 +208,16 @@
         title="Attachments"
       >
         <div class="row">
-          <div class="col col-xs-12">
-            <span
-              v-for="attachment in attachments"
-              :key="attachment.id"
-            >
-              <DocumentLink :document="attachment" /><br>
-            </span>
+          <div
+            v-for="attachment in attachments"
+            :key="attachment.id"
+            class="col col-xs-12"
+          >
+            <SaDocument
+              :document-name="attachment.name"
+              :document-id="attachment.id"
+              :document-size-in-bytes="attachment.sizeInBytes"
+            />
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -235,13 +238,12 @@
 
 <script>
   import MoneyOutput from '@/components/MoneyOutput';
-  import DocumentLink from '@/components/DocumentLink';
   import withCategories from '@/components/mixins/with-categories';
   import { withCustomers } from '@/components/mixins/with-customers';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import api from '@/services/api';
+  import { api } from '@/services/api';
   import { loadDocuments } from '@/services/app-services';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -251,18 +253,17 @@
   import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
   import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
   import SaActionLink from '@/components/SaActionLink';
-  import SaIcon from '@/components/SaIcon';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
+  import SaDocument from '@/components/documents/SaDocument';
 
   export default {
     name: 'InvoiceOverviewPanel',
 
     components: {
+      SaDocument,
       MoneyOutput,
-      DocumentLink,
       OverviewItem,
-      SaIcon,
       OverviewItemAttributePreviewIcon,
       OverviewItemPrimaryAttribute,
       OverviewItemDetailsSection,
@@ -319,13 +320,17 @@
       status() {
         if (this.isPaid) {
           return 'success';
-        } if (this.isDraft) {
+        }
+        if (this.isDraft) {
           return 'regular';
-        } if (this.isCancelled) {
+        }
+        if (this.isCancelled) {
           return 'regular';
-        } if (this.isSent) {
+        }
+        if (this.isSent) {
           return 'pending';
-        } if (this.isOverdue) {
+        }
+        if (this.isOverdue) {
           return 'failure';
         }
       },
@@ -333,7 +338,8 @@
       statusIcon() {
         if (this.isDraft) {
           return 'draft';
-        } if (this.isCancelled) {
+        }
+        if (this.isCancelled) {
           return 'cancel';
         }
         return null;
@@ -342,13 +348,17 @@
       statusText() {
         if (this.isPaid) {
           return 'Finalized';
-        } if (this.isDraft) {
+        }
+        if (this.isDraft) {
           return 'Draft';
-        } if (this.isCancelled) {
+        }
+        if (this.isCancelled) {
           return 'Cancelled';
-        } if (this.isSent) {
+        }
+        if (this.isSent) {
           return 'Sent';
-        } if (this.isOverdue) {
+        }
+        if (this.isOverdue) {
           return 'Overdue';
         }
       },
@@ -404,7 +414,10 @@
       },
 
       navigateToInvoiceEdit() {
-        this.$router.push({ name: 'edit-invoice', params: { id: this.invoice.id } });
+        this.$router.push({
+          name: 'edit-invoice',
+          params: { id: this.invoice.id },
+        });
       },
 
       async markSent() {

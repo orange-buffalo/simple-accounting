@@ -150,11 +150,14 @@
 
             <h2>Attachments</h2>
 
-            <DocumentsUpload
-              ref="documentsUpload"
-              v-model="income.uploads"
-              form-property="uploads"
-            />
+            <ElFormItem>
+              <SaDocumentsUpload
+                ref="documentsUpload"
+                :documents-ids="income.attachments"
+                @uploads-completed="onDocumentsUploadSuccess"
+                @uploads-failed="onDocumentsUploadFailure"
+              />
+            </ElFormItem>
           </div>
         </div>
         <hr>
@@ -177,21 +180,20 @@
 
 <script>
   import { api } from '@/services/api';
-  import DocumentsUpload from '@/components/DocumentsUpload';
   import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
-  import { UploadsInfo } from '@/components/uploads-info';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withCategories from '@/components/mixins/with-categories';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
 
   export default {
     name: 'EditIncome',
 
     components: {
-      DocumentsUpload,
+      SaDocumentsUpload,
       CurrencyInput,
       MoneyInput,
       SaMarkdownOutput,
@@ -212,7 +214,6 @@
           attachments: [],
           notes: null,
           dateReceived: new Date(),
-          uploads: new UploadsInfo(),
           generalTax: null,
         },
         incomeValidationRules: {
@@ -265,22 +266,40 @@
           ...incomeEditProperties,
           convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
           incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
-          uploads: new UploadsInfo(),
         };
-
-        if (this.income.attachments && this.income.attachments.length) {
-          const attachments = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
-            .eager()
-            .eqFilter('id', this.income.attachments)
-            .getPageData();
-          attachments.forEach(attachment => this.income.uploads.add(attachment));
-        }
       }
     },
 
     methods: {
       navigateToIncomesOverview() {
         this.$router.push({ name: 'incomes-overview' });
+      },
+
+      async onDocumentsUploadSuccess(documentsIds) {
+        const {
+          id,
+          ...incomePropertiesToPush
+        } = this.income;
+
+        const incomeToPush = {
+          ...incomePropertiesToPush,
+          attachments: documentsIds,
+        };
+
+        if (this.income.id) {
+          await api.put(`/workspaces/${this.currentWorkspace.id}/incomes/${this.income.id}`, incomeToPush);
+        } else {
+          await api.post(`/workspaces/${this.currentWorkspace.id}/incomes`, incomeToPush);
+        }
+        await this.$router.push({ name: 'incomes-overview' });
+      },
+
+      async onDocumentsUploadFailure() {
+        this.$message({
+          showClose: true,
+          message: 'Some of the documents have not been uploaded. Please retry or remove them.',
+          type: 'error',
+        });
       },
 
       async save() {
@@ -290,34 +309,7 @@
           return;
         }
 
-        try {
-          await this.$refs.documentsUpload.submitUploads();
-        } catch (e) {
-          this.$message({
-            showClose: true,
-            message: 'Upload failed',
-            type: 'error',
-          });
-          return;
-        }
-
-        const {
-          uploads,
-          id,
-          ...incomePropertiesToPush
-        } = this.income;
-
-        const incomeToPush = {
-          ...incomePropertiesToPush,
-          attachments: this.income.uploads.getDocumentsIds(),
-        };
-
-        if (this.income.id) {
-          await api.put(`/workspaces/${this.currentWorkspace.id}/incomes/${this.income.id}`, incomeToPush);
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/incomes`, incomeToPush);
-        }
-        await this.$router.push({ name: 'incomes-overview' });
+        await this.$refs.documentsUpload.submitUploads();
       },
     },
   };

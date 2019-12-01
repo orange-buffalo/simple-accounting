@@ -78,7 +78,6 @@
             api
               .post('/workspaces', this.form)
               .then((response) => {
-                console.log(response);
                 this.createWorkspace(response.data);
                 this.$router.push('/');
               })

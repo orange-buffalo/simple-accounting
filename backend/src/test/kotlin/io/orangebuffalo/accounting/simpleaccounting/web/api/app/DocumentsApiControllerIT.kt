@@ -78,7 +78,6 @@ class DocumentsApiControllerIT(
                         "id": ${testData.cheesePizzaAndALargeSodaReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
-                        "notes": "Panucci's Pizza",
                         "sizeInBytes": null
                     }"""
                     ),
@@ -89,7 +88,6 @@ class DocumentsApiControllerIT(
                         "id": ${testData.coffeeReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
-                        "notes": null,
                         "sizeInBytes": 42
                     }"""
                     )
@@ -210,7 +208,6 @@ class DocumentsApiControllerIT(
                 node("id").isNumber.isNotNull
                 node("version").isNumber.isEqualTo(BigDecimal.ZERO)
                 node("timeUploaded").isString.isEqualTo(MOCK_TIME_VALUE)
-                node("notes").isString.isEqualTo("Shut up and take my money")
                 node("sizeInBytes").isNumber.isEqualTo(42.toBigDecimal())
             }
     }
@@ -248,7 +245,6 @@ class DocumentsApiControllerIT(
                         "id": ${testData.cheesePizzaAndALargeSodaReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
-                        "notes": "Panucci's Pizza",
                         "sizeInBytes": null
                     }"""
                     )
@@ -274,7 +270,6 @@ class DocumentsApiControllerIT(
             name = "unknown",
             workspace = fryWorkspace,
             timeUploaded = MOCK_TIME,
-            notes = "Panucci's Pizza",
             sizeInBytes = null
         )
 
@@ -298,9 +293,6 @@ class DocumentsApiControllerIT(
                         .filename("test-file.txt")
                         .build().toString()
                 )
-            }
-            .apply {
-                part("notes", "Shut up and take my money")
             }
     }
 
