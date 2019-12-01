@@ -28,12 +28,12 @@
       <TheSideMenuLink
         to="/invoices"
         title="Invoices"
-        icon="invoice"
+        icon="invoices-overview"
       />
       <TheSideMenuLink
         to="/income-tax-payments"
         title="Income Tax Payments"
-        icon="tax"
+        icon="taxes-overview"
       />
       <TheSideMenuLink
         to="/reporting"
