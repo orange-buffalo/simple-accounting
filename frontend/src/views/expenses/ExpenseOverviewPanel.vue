@@ -235,13 +235,16 @@
         title="Attachments"
       >
         <div class="row">
-          <div class="col col-xs-12">
-            <span
-              v-for="attachment in attachments"
-              :key="attachment.id"
-            >
-              <DocumentLink :document="attachment" /><br>
-            </span>
+          <div
+            v-for="attachment in attachments"
+            :key="attachment.id"
+            class="col col-xs-12"
+          >
+            <SaDocument
+              :document-name="attachment.name"
+              :document-id="attachment.id"
+              :document-size-in-bytes="attachment.sizeInBytes"
+            />
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -266,7 +269,6 @@
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import { loadDocuments } from '@/services/app-services';
-  import DocumentLink from '@/components/DocumentLink';
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -278,13 +280,14 @@
   import SaActionLink from '@/components/SaActionLink';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
+  import SaDocument from '@/components/documents/SaDocument';
 
   export default {
     name: 'ExpenseOverviewPanel',
 
     components: {
+      SaDocument,
       MoneyOutput,
-      DocumentLink,
       OverviewItem,
       OverviewItemAttributePreviewIcon,
       OverviewItemPrimaryAttribute,

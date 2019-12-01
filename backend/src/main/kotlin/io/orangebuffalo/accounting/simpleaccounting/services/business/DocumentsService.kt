@@ -22,14 +22,13 @@ class DocumentsService(
     private val timeService: TimeService
 ) {
 
-    suspend fun uploadDocument(filePart: FilePart, notes: String?, workspace: Workspace): Document {
+    suspend fun uploadDocument(filePart: FilePart, workspace: Workspace): Document {
         val documentStorage = getDocumentStorageByUser(workspace.owner)
         val storageProviderResponse = documentStorage.saveDocument(filePart, workspace)
         return withDbContext {
             documentRepository.save(
                 Document(
                     name = filePart.filename(),
-                    notes = notes,
                     timeUploaded = timeService.currentTime(),
                     workspace = workspace,
                     storageProviderId = documentStorage.getId(),

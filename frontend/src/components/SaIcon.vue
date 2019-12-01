@@ -1,5 +1,8 @@
 <template>
-  <Svgicon :name="icon" />
+  <Svgicon
+    :name="loadedIcon"
+    @click="$emit('click')"
+  />
 </template>
 
 <script>
@@ -13,8 +16,28 @@
       },
     },
 
+    data() {
+      return {
+        // supports dynamic change of an icon with necessary data loading
+        loadedIcon: null,
+      };
+    },
+
+    watch: {
+      icon() {
+        this.loadIcon();
+      },
+    },
+
     created() {
-      require(`./icons/${this.icon}`);
+      this.loadIcon();
+    },
+
+    methods: {
+      async loadIcon() {
+        await import(`./icons/${this.icon}`);
+        this.loadedIcon = this.icon;
+      },
     },
   };
 </script>

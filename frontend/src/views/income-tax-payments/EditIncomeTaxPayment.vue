@@ -86,11 +86,14 @@
 
             <h2>Attachments</h2>
 
-            <DocumentsUpload
-              ref="documentsUpload"
-              v-model="taxPayment.uploads"
-              form-property="uploads"
-            />
+            <ElFormItem>
+              <SaDocumentsUpload
+                ref="documentsUpload"
+                :documents-ids="taxPayment.attachments"
+                @uploads-completed="onDocumentsUploadSuccess"
+                @uploads-failed="onDocumentsUploadFailure"
+              />
+            </ElFormItem>
           </div>
         </div>
 
@@ -114,20 +117,17 @@
 
 <script>
   import { mapState } from 'vuex';
-  import { assign } from 'lodash';
-  import api from '@/services/api';
-  import DocumentsUpload from '@/components/DocumentsUpload';
+  import { api } from '@/services/api';
   import MoneyInput from '@/components/MoneyInput';
-  import { UploadsInfo } from '@/components/uploads-info';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
 
   export default {
     name: 'EditIncomeTaxPayment',
 
     components: {
-      DocumentsUpload,
+      SaDocumentsUpload,
       MoneyInput,
       SaMarkdownOutput,
     },
@@ -142,30 +142,23 @@
           attachments: [],
           notes: null,
           datePaid: new Date(),
-          uploads: new UploadsInfo(),
           reportingDate: null,
         },
         taxPaymentValidationRules: {
-          title: { required: true, message: 'Please provide the title' },
-          datePaid: { required: true, message: 'Please provide the date when tax payment is done' },
-          amount: { required: true, message: 'Please provide tax payment amount' },
+          title: {
+            required: true,
+            message: 'Please provide the title',
+          },
+          datePaid: {
+            required: true,
+            message: 'Please provide the date when tax payment is done',
+          },
+          amount: {
+            required: true,
+            message: 'Please provide tax payment amount',
+          },
         },
       };
-    },
-
-    async created() {
-      if (this.$route.params.id) {
-        const taxPaymentResponse = await api.get(`/workspaces/${this.workspace.id}/income-tax-payments/${this.$route.params.id}`);
-        this.taxPayment = assign({}, this.taxPayment, taxPaymentResponse.data);
-
-        if (this.taxPayment.attachments && this.taxPayment.attachments.length) {
-          const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
-            .eager()
-            .eqFilter('id', this.taxPayment.attachments)
-            .getPageData();
-          attachments.forEach(attachment => this.taxPayment.uploads.add(attachment));
-        }
-      }
     },
 
     computed: {
@@ -182,34 +175,25 @@
       },
     },
 
+    async created() {
+      if (this.$route.params.id) {
+        const taxPaymentResponse = await api
+          .get(`/workspaces/${this.workspace.id}/income-tax-payments/${this.$route.params.id}`);
+        this.taxPayment = { ...this.taxPayment, ...taxPaymentResponse.data };
+      }
+    },
+
     methods: {
       navigateToTaxPaymentsOverview() {
         this.$router.push({ name: 'income-tax-payments-overview' });
       },
 
-      async save() {
-        try {
-          await this.$refs.taxPaymentForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        try {
-          await this.$refs.documentsUpload.submitUploads();
-        } catch (e) {
-          this.$message({
-            showClose: true,
-            message: 'Upload failed',
-            type: 'error',
-          });
-          return;
-        }
-
+      async onDocumentsUploadSuccess(documentsIds) {
         const taxPaymentToPush = {
           datePaid: this.taxPayment.datePaid,
           title: this.taxPayment.title,
           amount: this.taxPayment.amount,
-          attachments: this.taxPayment.uploads.getDocumentsIds(),
+          attachments: documentsIds,
           notes: this.taxPayment.notes,
           reportingDate: this.taxPayment.reportingDate,
         };
@@ -220,6 +204,24 @@
           await api.post(`/workspaces/${this.workspace.id}/income-tax-payments`, taxPaymentToPush);
         }
         await this.$router.push({ name: 'income-tax-payments-overview' });
+      },
+
+      async onDocumentsUploadFailure() {
+        this.$message({
+          showClose: true,
+          message: 'Some of the documents have not been uploaded. Please retry or remove them.',
+          type: 'error',
+        });
+      },
+
+      async save() {
+        try {
+          await this.$refs.taxPaymentForm.validate();
+        } catch (e) {
+          return;
+        }
+
+        await this.$refs.documentsUpload.submitUploads();
       },
     },
   };

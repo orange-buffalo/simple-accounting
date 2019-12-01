@@ -161,11 +161,14 @@
 
             <h2>Attachments</h2>
 
-            <DocumentsUpload
-              ref="documentsUpload"
-              v-model="expense.uploads"
-              form-property="uploads"
-            />
+            <ElFormItem>
+              <SaDocumentsUpload
+                ref="documentsUpload"
+                :documents-ids="expense.attachments"
+                @uploads-completed="onDocumentsUploadSuccess"
+                @uploads-failed="onDocumentsUploadFailure"
+              />
+            </ElFormItem>
           </div>
         </div>
 
@@ -189,21 +192,20 @@
 
 <script>
   import { api } from '@/services/api';
-  import DocumentsUpload from '@/components/DocumentsUpload';
   import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
-  import { UploadsInfo } from '@/components/uploads-info';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withCategories from '@/components/mixins/with-categories';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
 
   export default {
     name: 'EditExpense',
 
     components: {
-      DocumentsUpload,
+      SaDocumentsUpload,
       CurrencyInput,
       MoneyInput,
       SaMarkdownOutput,
@@ -236,7 +238,6 @@
           percentOnBusiness: 100,
           notes: null,
           datePaid: new Date(),
-          uploads: new UploadsInfo(),
           generalTax: null,
           id: this.id,
         },
@@ -307,24 +308,44 @@
           convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
           incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
           ...overrides,
-          uploads: new UploadsInfo(),
         };
       },
 
       async setupComponentState() {
         this.partialForBusiness = this.expense.percentOnBusiness !== 100;
-
-        if (this.expense.attachments && this.expense.attachments.length) {
-          const attachments = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
-            .eager()
-            .eqFilter('id', this.expense.attachments)
-            .getPageData();
-          attachments.forEach(attachment => this.expense.uploads.add(attachment));
-        }
       },
 
       navigateToExpensesOverview() {
         this.$router.push({ name: 'expenses-overview' });
+      },
+
+      async onDocumentsUploadSuccess(documentsIds) {
+        const {
+          id,
+          ...expensePropertiesToPush
+        } = this.expense;
+
+        const expenseToPush = {
+          ...expensePropertiesToPush,
+          percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
+          attachments: documentsIds,
+        };
+
+        if (this.expense.id) {
+          await api.put(`/workspaces/${this.currentWorkspace.id}/expenses/${this.expense.id}`, expenseToPush);
+        } else {
+          await api.post(`/workspaces/${this.currentWorkspace.id}/expenses`, expenseToPush);
+        }
+
+        await this.$router.push({ name: 'expenses-overview' });
+      },
+
+      async onDocumentsUploadFailure() {
+        this.$message({
+          showClose: true,
+          message: 'Some of the documents have not been uploaded. Please retry or remove them.',
+          type: 'error',
+        });
       },
 
       async save() {
@@ -334,35 +355,7 @@
           return;
         }
 
-        try {
-          await this.$refs.documentsUpload.submitUploads();
-        } catch (e) {
-          this.$message({
-            showClose: true,
-            message: 'Upload failed',
-            type: 'error',
-          });
-          return;
-        }
-
-        const {
-          uploads,
-          id,
-          ...expensePropertiesToPush
-        } = this.expense;
-
-        const expenseToPush = {
-          ...expensePropertiesToPush,
-          percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
-          attachments: this.expense.uploads.getDocumentsIds(),
-        };
-
-        if (this.expense.id) {
-          await api.put(`/workspaces/${this.currentWorkspace.id}/expenses/${this.expense.id}`, expenseToPush);
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/expenses`, expenseToPush);
-        }
-        await this.$router.push({ name: 'expenses-overview' });
+        this.$refs.documentsUpload.submitUploads();
       },
     },
   };

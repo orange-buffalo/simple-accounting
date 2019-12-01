@@ -95,7 +95,6 @@
       saveUser() {
         this.$refs.form.validate((valid) => {
           if (valid) {
-            console.log('saving');
             api
               .post('/users', {
                 userName: this.form.userName,

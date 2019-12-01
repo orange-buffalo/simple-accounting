@@ -191,11 +191,14 @@
 
             <h2>Attachments</h2>
 
-            <DocumentsUpload
-              ref="documentsUpload"
-              v-model="invoice.uploads"
-              form-property="uploads"
-            />
+            <ElFormItem>
+              <SaDocumentsUpload
+                ref="documentsUpload"
+                :documents-ids="invoice.attachments"
+                @uploads-completed="onDocumentsUploadSuccess"
+                @uploads-failed="onDocumentsUploadFailure"
+              />
+            </ElFormItem>
           </div>
         </div>
 
@@ -220,22 +223,21 @@
 <script>
   import { mapState } from 'vuex';
   import { assign, isNil } from 'lodash';
-  import api from '@/services/api';
-  import DocumentsUpload from '@/components/DocumentsUpload';
+  import { api } from '@/services/api';
   import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
-  import { UploadsInfo } from '@/components/uploads-info';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-  import withMediumDateTimeFormatter from '@/components/mixins/with-medium-datetime-formatter';
   import { withCustomers } from '@/components/mixins/with-customers';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
+  import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
 
   export default {
     name: 'EditInvoice',
 
     components: {
-      DocumentsUpload,
+      SaDocumentsUpload,
       CurrencyInput,
       MoneyInput,
       SaMarkdownOutput,
@@ -256,39 +258,45 @@
           dueDate: null,
           datePaid: null,
           dateSent: null,
-          uploads: new UploadsInfo(),
           generalTax: null,
         },
         invoiceValidationRules: {
-          customer: { required: true, message: 'Please select a customer' },
-          currency: { required: true, message: 'Please select a currency' },
-          title: { required: true, message: 'Please provide the title' },
-          amount: { required: true, message: 'Please provide invoice amount' },
-          dateIssued: { required: true, message: 'Please provide the date when invoice is issued' },
-          dueDate: { required: true, message: 'Please provide the date when invoice is due' },
-          dateSent: { required: true, message: 'Please provide the date when invoice is sent' },
-          datePaid: { required: true, message: 'Please provide the date when invoice is paid' },
+          customer: {
+            required: true,
+            message: 'Please select a customer',
+          },
+          currency: {
+            required: true,
+            message: 'Please select a currency',
+          },
+          title: {
+            required: true,
+            message: 'Please provide the title',
+          },
+          amount: {
+            required: true,
+            message: 'Please provide invoice amount',
+          },
+          dateIssued: {
+            required: true,
+            message: 'Please provide the date when invoice is issued',
+          },
+          dueDate: {
+            required: true,
+            message: 'Please provide the date when invoice is due',
+          },
+          dateSent: {
+            required: true,
+            message: 'Please provide the date when invoice is sent',
+          },
+          datePaid: {
+            required: true,
+            message: 'Please provide the date when invoice is paid',
+          },
         },
         alreadySent: false,
         alreadyPaid: false,
       };
-    },
-
-    async created() {
-      if (this.isEditing) {
-        const invoiceResponse = await api.get(`/workspaces/${this.workspace.id}/invoices/${this.$route.params.id}`);
-        this.invoice = assign({}, this.invoice, invoiceResponse.data);
-        this.alreadyPaid = !isNil(this.invoice.datePaid);
-        this.alreadySent = !isNil(this.invoice.dateSent);
-
-        if (this.invoice.attachments && this.invoice.attachments.length) {
-          const attachments = await api.pageRequest(`/workspaces/${this.workspace.id}/documents`)
-            .eager()
-            .eqFilter('id', this.invoice.attachments)
-            .getPageData();
-          attachments.forEach(attachment => this.invoice.uploads.add(attachment));
-        }
-      }
     },
 
     computed: {
@@ -313,9 +321,30 @@
       },
     },
 
+    async created() {
+      if (this.isEditing) {
+        const invoiceResponse = await api.get(`/workspaces/${this.workspace.id}/invoices/${this.$route.params.id}`);
+        this.invoice = assign({}, this.invoice, invoiceResponse.data);
+        this.alreadyPaid = this.invoice.datePaid != null;
+        this.alreadySent = this.invoice.dateSent != null;
+      }
+    },
+
     methods: {
       navigateToInvoicesOverview() {
         this.$router.push({ name: 'invoices-overview' });
+      },
+
+      async onDocumentsUploadSuccess(documentsIds) {
+        this.pushInvoice(documentsIds);
+      },
+
+      async onDocumentsUploadFailure() {
+        this.$message({
+          showClose: true,
+          message: 'Some of the documents have not been uploaded. Please retry or remove them.',
+          type: 'error',
+        });
       },
 
       async save() {
@@ -325,18 +354,7 @@
           return;
         }
 
-        try {
-          await this.$refs.documentsUpload.submitUploads();
-        } catch (e) {
-          this.$message({
-            showClose: true,
-            message: 'Upload failed',
-            type: 'error',
-          });
-          return;
-        }
-
-        this.pushInvoice();
+        await this.$refs.documentsUpload.submitUploads();
       },
 
       async cancelInvoice() {
@@ -351,10 +369,10 @@
         }
 
         this.invoice.dateCancelled = api.dateToString(new Date());
-        this.pushInvoice();
+        this.pushInvoice(this.invoice.attachments);
       },
 
-      async pushInvoice() {
+      async pushInvoice(attachments) {
         const invoiceToPush = {
           customer: this.invoice.customer,
           dateIssued: this.invoice.dateIssued,
@@ -365,7 +383,7 @@
           title: this.invoice.title,
           currency: this.invoice.currency,
           amount: this.invoice.amount,
-          attachments: this.invoice.uploads.getDocumentsIds(),
+          attachments,
           notes: this.invoice.notes,
           generalTax: this.invoice.generalTax,
         };
@@ -376,7 +394,7 @@
           await api.post(`/workspaces/${this.workspace.id}/invoices`, invoiceToPush);
         }
 
-        this.$router.push({ name: 'invoices-overview' });
+        await this.$router.push({ name: 'invoices-overview' });
       },
     },
   };

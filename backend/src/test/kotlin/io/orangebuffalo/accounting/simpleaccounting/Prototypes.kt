@@ -173,7 +173,6 @@ class Prototypes {
 
         fun document(
             name: String = "Slurm Receipt",
-            notes: String? = null,
             workspace: Workspace = workspace(),
             timeUploaded: Instant = MOCK_TIME,
             storageProviderId: String = "test-storage",
@@ -185,8 +184,7 @@ class Prototypes {
             storageProviderId = storageProviderId,
             storageProviderLocation = storageProviderLocation,
             timeUploaded = timeUploaded,
-            sizeInBytes = sizeInBytes,
-            notes = notes
+            sizeInBytes = sizeInBytes
         )
 
         fun incomeTaxPayment(
