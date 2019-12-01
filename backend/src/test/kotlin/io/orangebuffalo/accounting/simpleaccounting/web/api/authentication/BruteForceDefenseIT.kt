@@ -292,7 +292,11 @@ class BruteForceDefenseIT(
         withFryLoginStatistics {
             // depending on how many requests we process to login, different number of failed attempts is possible
             // but the number of Bad Credentials responses should be equal to failed attempts number
-            assertThat(failedAttemptsCount).isEqualTo(badCredentialsCount)
+            if (accountLockedCount > 0) {
+                assertThat(failedAttemptsCount).isEqualTo(6)
+            } else {
+                assertThat(failedAttemptsCount).isEqualTo(badCredentialsCount)
+            }
         }
     }
 
