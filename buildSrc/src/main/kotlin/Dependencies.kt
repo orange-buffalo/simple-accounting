@@ -1,6 +1,6 @@
 object Versions {
     const val springBoot = "2.2.1.RELEASE"
-    const val kotlin = "1.3.50"
+    const val kotlin = "1.3.61"
     const val kotlinCoroutines = "1.3.2"
     const val kotlinLogging = "1.7.8"
     const val arrow = "0.10.3"
