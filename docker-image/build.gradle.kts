@@ -17,8 +17,7 @@ docker {
 val saDockerImageExtension = the<SaDockerImageExtension>()
 
 configure<SaDockerImageExtension> {
-    imageName.set("orangebuffalo/simple-accounting")
-    imageTag.set("${project.version}")
+    image.set("orangebuffalo/simple-accounting:${project.version}")
     dockerBuildDir.set(project.layout.buildDirectory.map { projectBuildDir ->
         projectBuildDir.dir("docker-build")
     })
@@ -27,17 +26,12 @@ configure<SaDockerImageExtension> {
 
 val buildDockerImage = tasks.register<DockerBuildImage>("buildDockerImage") {
     inputDir.set(saDockerImageExtension.dockerBuildDir)
-    tags.add(saDockerImageExtension.imageName.flatMap { imageName ->
-        saDockerImageExtension.imageTag.map { imageTag ->
-            "${imageName}:${imageTag}"
-        }
-    })
+    images.add(saDockerImageExtension.image)
     dependsOn("prepareDockerBuild")
 }
 
 project.tasks.register<DockerPushImage>("pushDockerImage") {
-    imageName.set(saDockerImageExtension.imageName)
-    tag.set(saDockerImageExtension.imageTag)
+    images.add(saDockerImageExtension.image)
     dependsOn(buildDockerImage)
 }
 
