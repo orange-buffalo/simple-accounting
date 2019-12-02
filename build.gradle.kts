@@ -1,5 +1,4 @@
 plugins {
-    id("com.gradle.build-scan") version Versions.buildScanPlugin
     id("io.wusa.semver-git-plugin") version Versions.semverGitPlugin
     id("com.github.ben-manes.versions") version Versions.versionsPlugin
 }

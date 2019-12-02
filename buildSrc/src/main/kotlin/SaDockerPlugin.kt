@@ -31,8 +31,7 @@ open class SaDockerPlugin : Plugin<Project> {
 }
 
 open class SaDockerImageExtension(objects: ObjectFactory) {
-    var imageName : Property<String> = objects.property()
-    var imageTag : Property<String> = objects.property()
+    var image : Property<String> = objects.property()
     var dockerBuildDir : Property<Directory> = objects.directoryProperty()
 }
 
