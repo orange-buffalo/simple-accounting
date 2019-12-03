@@ -8,6 +8,8 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
+private const val NPM_DIST_DIR = "dist"
+
 class SaFrontendPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
@@ -18,10 +20,14 @@ class SaFrontendPlugin : Plugin<Project> {
 
         project.tasks.register("npmBuild", SaNpmTask::class.java) {
             args.set("run-script build")
-            outputDirectories.from(project.file("dist"))
+            outputDirectories.from(project.file(NPM_DIST_DIR))
             inputFiles.from(project.file("src"), project.file("public"))
 
             dependsOn(npmInstall)
+        }
+
+        project.tasks.register("npmClean", Delete::class.java) {
+            delete(project.files(NPM_DIST_DIR))
         }
     }
 
