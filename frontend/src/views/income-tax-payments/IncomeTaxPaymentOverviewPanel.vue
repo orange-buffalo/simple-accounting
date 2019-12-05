@@ -1,8 +1,5 @@
 <template>
-  <OverviewItem
-    :title="taxPayment.title"
-    @details-shown="loadAttachments"
-  >
+  <OverviewItem :title="taxPayment.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="datePaid"
@@ -64,20 +61,12 @@
       </OverviewItemDetailsSection>
 
       <OverviewItemDetailsSection
-        v-if="attachments.length"
+        v-if="taxPayment.attachments.length"
         title="Attachments"
       >
         <div class="row">
-          <div
-            v-for="attachment in attachments"
-            :key="attachment.id"
-            class="col col-xs-12"
-          >
-            <SaDocument
-              :document-name="attachment.name"
-              :document-id="attachment.id"
-              :document-size-in-bytes="attachment.sizeInBytes"
-            />
+          <div class="col col-xs-12">
+            <SaDocumentsList :documents-ids="taxPayment.attachments" />
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -99,7 +88,6 @@
 <script>
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import { loadDocuments } from '@/services/app-services';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
   import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
@@ -109,13 +97,13 @@
   import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
   import SaActionLink from '@/components/SaActionLink';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
-  import SaDocument from '@/components/documents/SaDocument';
+  import SaDocumentsList from '@/components/documents/SaDocumentsList';
 
   export default {
     name: 'IncomeTaxPaymentOverviewPanel',
 
     components: {
-      SaDocument,
+      SaDocumentsList,
       OverviewItemDetailsSectionAttribute,
       OverviewItemDetailsSection,
       SaActionLink,
@@ -136,12 +124,6 @@
       },
     },
 
-    data() {
-      return {
-        attachments: [],
-      };
-    },
-
     computed: {
       datePaid() {
         return this.mediumDateFormatter(new Date(this.taxPayment.datePaid));
@@ -153,16 +135,6 @@
     },
 
     methods: {
-      async loadAttachments() {
-        if (this.taxPayment.attachments.length && !this.attachments.length) {
-          this.attachments = await loadDocuments(
-            this.attachments,
-            this.taxPayment.attachments,
-            this.currentWorkspace.id,
-          );
-        }
-      },
-
       navigateToTaxPaymentEdit() {
         this.$router.push({
           name: 'edit-income-tax-payment',
