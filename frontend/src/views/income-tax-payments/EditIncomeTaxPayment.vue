@@ -70,19 +70,11 @@
               label="Notes"
               prop="notes"
             >
-              <ElInput
+              <SaNotesInput
                 v-model="taxPayment.notes"
-                type="textarea"
                 placeholder="Any additional information to be stored for this tax payment record"
-                rows="5"
               />
             </ElFormItem>
-
-            <SaMarkdownOutput
-              v-if="taxPayment.notes"
-              :source="taxPayment.notes"
-              preview
-            />
 
             <h2>Attachments</h2>
 
@@ -120,16 +112,16 @@
   import { api } from '@/services/api';
   import MoneyInput from '@/components/MoneyInput';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
+  import SaNotesInput from '@/components/SaNotesInput';
 
   export default {
     name: 'EditIncomeTaxPayment',
 
     components: {
+      SaNotesInput,
       SaDocumentsUpload,
       MoneyInput,
-      SaMarkdownOutput,
     },
 
     mixins: [withMediumDateFormatter],

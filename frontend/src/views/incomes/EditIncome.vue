@@ -134,19 +134,11 @@
               label="Notes"
               prop="notes"
             >
-              <ElInput
+              <SaNotesInput
                 v-model="income.notes"
-                type="textarea"
                 placeholder="Any additional information to be stored for this income record"
-                rows="5"
               />
             </ElFormItem>
-
-            <SaMarkdownOutput
-              v-if="income.notes"
-              :source="income.notes"
-              preview
-            />
 
             <h2>Attachments</h2>
 
@@ -185,18 +177,18 @@
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withCategories from '@/components/mixins/with-categories';
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
+  import SaNotesInput from '@/components/SaNotesInput';
 
   export default {
     name: 'EditIncome',
 
     components: {
+      SaNotesInput,
       SaDocumentsUpload,
       CurrencyInput,
       MoneyInput,
-      SaMarkdownOutput,
     },
 
     mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories, withWorkspaces],
