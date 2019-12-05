@@ -175,19 +175,11 @@
               label="Notes"
               prop="notes"
             >
-              <ElInput
+              <SaNotesInput
                 v-model="invoice.notes"
-                type="textarea"
                 placeholder="Any additional information to be stored for this invoice record"
-                rows="5"
               />
             </ElFormItem>
-
-            <SaMarkdownOutput
-              v-if="invoice.notes"
-              :source="invoice.notes"
-              preview
-            />
 
             <h2>Attachments</h2>
 
@@ -229,18 +221,18 @@
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import { withCustomers } from '@/components/mixins/with-customers';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
+  import SaNotesInput from '@/components/SaNotesInput';
 
   export default {
     name: 'EditInvoice',
 
     components: {
+      SaNotesInput,
       SaDocumentsUpload,
       CurrencyInput,
       MoneyInput,
-      SaMarkdownOutput,
     },
 
     mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withGeneralTaxes],
