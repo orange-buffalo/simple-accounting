@@ -1,8 +1,5 @@
 <template>
-  <OverviewItem
-    :title="income.title"
-    @details-shown="loadAttachments"
-  >
+  <OverviewItem :title="income.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="dateReceived"
@@ -223,20 +220,12 @@
       </OverviewItemDetailsSection>
 
       <OverviewItemDetailsSection
-        v-if="attachments.length"
+        v-if="income.attachments.length"
         title="Attachments"
       >
         <div class="row">
-          <div
-            v-for="attachment in attachments"
-            :key="attachment.id"
-            class="col col-xs-12"
-          >
-            <SaDocument
-              :document-name="attachment.name"
-              :document-id="attachment.id"
-              :document-size-in-bytes="attachment.sizeInBytes"
-            />
+          <div class="col col-xs-12">
+            <SaDocumentsList :documents-ids="income.attachments" />
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -260,7 +249,6 @@
   import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
-  import { loadDocuments } from '@/services/app-services';
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -272,13 +260,13 @@
   import SaActionLink from '@/components/SaActionLink';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
-  import SaDocument from '@/components/documents/SaDocument';
+  import SaDocumentsList from '@/components/documents/SaDocumentsList';
 
   export default {
     name: 'IncomeOverviewPanel',
 
     components: {
-      SaDocument,
+      SaDocumentsList,
       MoneyOutput,
       OverviewItem,
       OverviewItemAttributePreviewIcon,
@@ -301,12 +289,6 @@
       },
     },
 
-    data() {
-      return {
-        attachments: [],
-      };
-    },
-
     computed: {
       status() {
         return this.income.status === 'FINALIZED' ? 'success' : 'pending';
@@ -319,7 +301,8 @@
       fullStatusText() {
         if (this.income.status === 'FINALIZED') {
           return 'Finalized';
-        } if (this.income.status === 'PENDING_CONVERSION') {
+        }
+        if (this.income.status === 'PENDING_CONVERSION') {
           return `Conversion to ${this.defaultCurrency} pending`;
         }
         return 'Waiting for exchange rate';
@@ -362,18 +345,11 @@
     },
 
     methods: {
-      async loadAttachments() {
-        if (this.income.attachments.length && !this.attachments.length) {
-          this.attachments = await loadDocuments(
-            this.attachments,
-            this.income.attachments,
-            this.currentWorkspace.id,
-          );
-        }
-      },
-
       navigateToIncomeEdit() {
-        this.$router.push({ name: 'edit-income', params: { id: this.income.id } });
+        this.$router.push({
+          name: 'edit-income',
+          params: { id: this.income.id },
+        });
       },
     },
   };

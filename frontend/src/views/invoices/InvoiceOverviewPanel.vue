@@ -1,8 +1,5 @@
 <template>
-  <OverviewItem
-    :title="invoice.title"
-    @details-shown="loadAttachments"
-  >
+  <OverviewItem :title="invoice.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="customer"
@@ -204,20 +201,12 @@
       </OverviewItemDetailsSection>
 
       <OverviewItemDetailsSection
-        v-if="attachments.length"
+        v-if="invoice.attachments.length"
         title="Attachments"
       >
         <div class="row">
-          <div
-            v-for="attachment in attachments"
-            :key="attachment.id"
-            class="col col-xs-12"
-          >
-            <SaDocument
-              :document-name="attachment.name"
-              :document-id="attachment.id"
-              :document-size-in-bytes="attachment.sizeInBytes"
-            />
+          <div class="col col-xs-12">
+            <SaDocumentsList :documents-ids="invoice.attachments" />
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -244,7 +233,6 @@
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
-  import { loadDocuments } from '@/services/app-services';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
   import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
@@ -255,13 +243,13 @@
   import SaActionLink from '@/components/SaActionLink';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
-  import SaDocument from '@/components/documents/SaDocument';
+  import SaDocumentsList from '@/components/documents/SaDocumentsList';
 
   export default {
     name: 'InvoiceOverviewPanel',
 
     components: {
-      SaDocument,
+      SaDocumentsList,
       MoneyOutput,
       OverviewItem,
       OverviewItemAttributePreviewIcon,
@@ -282,14 +270,6 @@
         type: Object,
         required: true,
       },
-    },
-
-    data() {
-      return {
-        notesVisible: false,
-        attachmentsVisible: false,
-        attachments: [],
-      };
     },
 
     computed: {
@@ -333,6 +313,7 @@
         if (this.isOverdue) {
           return 'failure';
         }
+        return null;
       },
 
       statusIcon() {
@@ -361,6 +342,7 @@
         if (this.isOverdue) {
           return 'Overdue';
         }
+        return null;
       },
 
       isGeneralTaxApplicable() {
@@ -403,16 +385,6 @@
     },
 
     methods: {
-      async loadAttachments() {
-        if (this.invoice.attachments.length && !this.attachments.length) {
-          this.attachments = await loadDocuments(
-            this.attachments,
-            this.invoice.attachments,
-            this.currentWorkspace.id,
-          );
-        }
-      },
-
       navigateToInvoiceEdit() {
         this.$router.push({
           name: 'edit-invoice',

@@ -1,8 +1,5 @@
 <template>
-  <OverviewItem
-    :title="expense.title"
-    @details-shown="loadAttachments"
-  >
+  <OverviewItem :title="expense.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="datePaid"
@@ -231,20 +228,12 @@
       </OverviewItemDetailsSection>
 
       <OverviewItemDetailsSection
-        v-if="attachments.length"
+        v-if="expense.attachments.length"
         title="Attachments"
       >
         <div class="row">
-          <div
-            v-for="attachment in attachments"
-            :key="attachment.id"
-            class="col col-xs-12"
-          >
-            <SaDocument
-              :document-name="attachment.name"
-              :document-id="attachment.id"
-              :document-size-in-bytes="attachment.sizeInBytes"
-            />
+          <div class="col col-xs-12">
+            <SaDocumentsList :documents-ids="expense.attachments" />
           </div>
         </div>
       </OverviewItemDetailsSection>
@@ -268,7 +257,6 @@
   import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
-  import { loadDocuments } from '@/services/app-services';
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -280,13 +268,13 @@
   import SaActionLink from '@/components/SaActionLink';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
-  import SaDocument from '@/components/documents/SaDocument';
+  import SaDocumentsList from '@/components/documents/SaDocumentsList';
 
   export default {
     name: 'ExpenseOverviewPanel',
 
     components: {
-      SaDocument,
+      SaDocumentsList,
       MoneyOutput,
       OverviewItem,
       OverviewItemAttributePreviewIcon,
@@ -307,12 +295,6 @@
         type: Object,
         required: true,
       },
-    },
-
-    data() {
-      return {
-        attachments: [],
-      };
     },
 
     computed: {
@@ -371,16 +353,6 @@
     },
 
     methods: {
-      async loadAttachments() {
-        if (this.expense.attachments.length && !this.attachments.length) {
-          this.attachments = await loadDocuments(
-            this.attachments,
-            this.expense.attachments,
-            this.currentWorkspace.id,
-          );
-        }
-      },
-
       navigateToExpenseEdit() {
         this.$router.push({
           name: 'edit-expense',
