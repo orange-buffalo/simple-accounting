@@ -1,22 +1,18 @@
 import Vue from 'vue';
+import EventBus from 'eventbusjs';
 import ElementUI from 'element-ui';
+import Router from 'vue-router';
 import Main from './Main.vue';
 import router from './router';
 import store from './store';
 import { api, initApi, LOGIN_REQUIRED_EVENT } from '@/services/api';
 import '@/styles/main.scss';
-import EventBus from 'eventbusjs';
-import Router from 'vue-router';
 import { setupApp } from '@/services/app-services';
-import SvgIcon from 'vue-svgicon';
 import { initPushNotifications } from '@/services/push-notifications';
 
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI);
-Vue.use(SvgIcon, {
-  tagName: 'Svgicon',
-});
 
 router.beforeEach(async (to, from, next) => {
   if (to.name !== 'login'

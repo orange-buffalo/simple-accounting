@@ -10,9 +10,9 @@
         v-model="form.userName"
         placeholder="Login"
       >
-        <Svgicon
+        <SaIcon
           slot="prefix"
-          name="login"
+          icon="login"
         />
       </ElInput>
     </ElFormItem>
@@ -23,9 +23,9 @@
         type="password"
         placeholder="Password"
       >
-        <Svgicon
+        <SaIcon
           slot="prefix"
-          name="password"
+          icon="password"
         />
       </ElInput>
     </ElFormItem>
@@ -51,13 +51,12 @@
 
 <script>
 
-  import api from '@/services/api';
-  import '@/components/icons/login';
-  import '@/components/icons/password';
+  import { api } from '@/services/api';
+  import SaIcon from '@/components/SaIcon';
 
   export default {
     name: 'LoginForm',
-
+    components: { SaIcon },
     data() {
       return {
         form: {

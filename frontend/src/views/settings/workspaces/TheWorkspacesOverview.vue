@@ -10,7 +10,7 @@
           round
           @click="navigateToCreateWorkspace"
         >
-          <Svgicon name="plus-thin" />
+          <SaIcon icon="plus-thin" />
           Create new workspace
         </ElButton>
       </div>
@@ -40,15 +40,16 @@
 </template>
 
 <script>
-  import '@/components/icons/plus-thin';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
   import { api } from '@/services/api';
+  import SaIcon from '@/components/SaIcon';
 
   export default {
     name: 'TheWorkspacesOverview',
 
     components: {
+      SaIcon,
       TheWorkspacesOverviewItemPanel,
     },
 

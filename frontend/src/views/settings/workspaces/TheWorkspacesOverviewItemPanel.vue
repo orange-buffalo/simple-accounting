@@ -13,7 +13,7 @@
           </ElButton>
         </div>
         <span class="sa-item-edit-link">
-          <Svgicon name="pencil-solid" />
+          <SaIcon icon="pencil-solid" />
           <ElButton
             type="text"
             @click="navigateToWorkspaceEdit"
@@ -41,7 +41,7 @@
             <ElTableColumn align="right">
               <template slot-scope="scope">
                 <div class="workspace-panel__share-link-panel">
-                  <Svgicon name="copy" />
+                  <SaIcon icon="copy" />
                   <ElButton
                     type="text"
                     @click="copyShareLink(scope.row.token)"
@@ -60,7 +60,7 @@
               type="datetime"
               placeholder="Link valid till"
             />
-            <Svgicon name="share" />
+            <SaIcon icon="share" />
             <ElButton
               type="text"
               @click="shareWorkspace"
@@ -75,26 +75,28 @@
 </template>
 
 <script>
-  import '@/components/icons/pencil-solid';
-  import '@/components/icons/share';
-  import '@/components/icons/copy';
   import copy from 'copy-to-clipboard';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaAttributeValue from '@/components/SaAttributeValue';
   import { api } from '@/services/api';
   import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
+  import SaIcon from '@/components/SaIcon';
 
   export default {
     name: 'TheWorkspacesOverviewItemPanel',
 
     components: {
+      SaIcon,
       SaAttributeValue,
     },
 
     mixins: [withWorkspaces, withMediumDateTimeFormatter],
 
     props: {
-      workspace: Object,
+      workspace: {
+        type: Object,
+        required: true,
+      },
     },
 
     data() {
@@ -115,12 +117,15 @@
     },
 
     async created() {
-      this._reloadAccessTokens();
+      this.reloadAccessTokens();
     },
 
     methods: {
       navigateToWorkspaceEdit() {
-        this.$router.push({ name: 'edit-workspace', params: { id: this.workspace.id } });
+        this.$router.push({
+          name: 'edit-workspace',
+          params: { id: this.workspace.id },
+        });
       },
 
       switchToWorkspace() {
@@ -133,10 +138,10 @@
         await api.post(`/workspaces/${this.workspace.id}/workspace-access-tokens`, {
           validTill: this.newShareValidTill.toISOString(),
         });
-        this._reloadAccessTokens();
+        this.reloadAccessTokens();
       },
 
-      async _reloadAccessTokens() {
+      async reloadAccessTokens() {
         const response = await api.get(`/workspaces/${this.workspace.id}/workspace-access-tokens`);
         this.accessTokens = response.data.data;
       },

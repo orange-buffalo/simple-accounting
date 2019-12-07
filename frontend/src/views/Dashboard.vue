@@ -166,8 +166,7 @@
             <span>coming soon..</span>
           </div>
 
-          <div class="home-page__row__hero__details__item"
-          >
+          <div class="home-page__row__hero__details__item">
             <span>Profit</span>
             <MoneyOutput
               :currency="defaultCurrency"
@@ -183,7 +182,7 @@
       >
         <div class="home-page__row__hero__header">
           <span class="home-page__row__hero__header__icon">
-            <SaIcon icon="invoice" />
+            <SaIcon icon="invoices-overview" />
           </span>
 
           <MoneyOutput
@@ -224,7 +223,6 @@
 </template>
 
 <script>
-  import isNil from 'lodash/isNil';
   import { api } from '@/services/api';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import withCategories from '@/components/mixins/with-categories';

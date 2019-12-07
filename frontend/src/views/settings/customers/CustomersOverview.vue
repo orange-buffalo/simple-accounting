@@ -12,7 +12,7 @@
           round
           @click="navigateToCreateCustomerView"
         >
-          <Svgicon name="plus-thin" />
+          <SaIcon icon="plus-thin" />
           Add new
         </ElButton>
       </div>
@@ -32,13 +32,14 @@
 <script>
   import DataItems from '@/components/DataItems';
   import CustomerOverviewPanel from './CustomerOverviewPanel';
-  import '@/components/icons/plus-thin';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaIcon from '@/components/SaIcon';
 
   export default {
     name: 'CustomersOverview',
 
     components: {
+      SaIcon,
       DataItems,
       CustomerOverviewPanel,
     },
