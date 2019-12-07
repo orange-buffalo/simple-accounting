@@ -27,7 +27,7 @@
       v-if="totalElements === 0 && !loading"
       class="empty-results"
     >
-      <Svgicon name="empty-box" />
+      <SaIcon icon="empty-box" />
       <span>No results here</span>
     </div>
 
@@ -51,13 +51,13 @@
 </template>
 
 <script>
-  import api from '@/services/api';
-  import '@/components/icons/empty-box';
+  import { api } from '@/services/api';
+  import SaIcon from '@/components/SaIcon';
 
   export default {
     name: 'DataItems',
 
-    components: {},
+    components: { SaIcon },
 
     props: {
       apiPath: {
@@ -65,7 +65,10 @@
         required: true,
       },
 
-      filters: Object,
+      filters: {
+        type: Object,
+        default: null,
+      },
 
       paginator: {
         type: Boolean,

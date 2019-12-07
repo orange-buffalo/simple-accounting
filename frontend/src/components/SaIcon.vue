@@ -1,13 +1,20 @@
 <template>
-  <Svgicon
+  <SvgIcon
     :name="loadedIcon"
     @click="$emit('click')"
   />
 </template>
 
 <script>
+  // eslint-disable-next-line import/no-extraneous-dependencies
+  import SvgIcon from 'vue-svgicon';
+
   export default {
     name: 'SaIcon',
+
+    components: {
+      SvgIcon,
+    },
 
     props: {
       icon: {

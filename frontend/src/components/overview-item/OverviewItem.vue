@@ -43,8 +43,6 @@
 </template>
 
 <script>
-  import '@/components/icons/empty-box';
-
   export default {
     name: 'OverviewItem',
 

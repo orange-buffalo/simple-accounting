@@ -9,7 +9,7 @@
         round
         @click="navigateToNewCategoryView"
       >
-        <Svgicon name="plus-thin" />
+        <SaIcon icon="plus-thin" />
         Add new
       </ElButton>
     </div>
@@ -44,14 +44,15 @@
 </template>
 
 <script>
-  import '@/components/icons/plus-thin';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import DataItems from '@/components/DataItems';
+  import SaIcon from '@/components/SaIcon';
 
   export default {
     name: 'Categories',
 
     components: {
+      SaIcon,
       DataItems,
     },
 

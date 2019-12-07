@@ -36,7 +36,7 @@
           data-title="Select"
           @click="selectTaxReport"
         >
-          <Svgicon name="tax" />
+          <SaIcon icon="tax" />
           <div>
             <h4>General Tax Report</h4>
             <span>Collected and paid general taxes</span>
@@ -86,6 +86,7 @@
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
   import TheGeneralTaxReport from '@/views/reporting/TheGeneralTaxReport';
+  import SaIcon from '@/components/SaIcon';
 
   const SELECT_REPORT_STEP = 0;
   const SELECT_DATES_STEP = 1;
@@ -98,6 +99,7 @@
     name: 'Reporting',
 
     components: {
+      SaIcon,
       TheGeneralTaxReport,
     },
 
@@ -142,26 +144,32 @@
       datesSelectionStepDescription() {
         if (this.datesSelectionActive) {
           return 'Please select reporting date range';
-        } if (this.viewReportActive) {
+        }
+        if (this.viewReportActive) {
           // todo #6: localize
           return `${api.dateToString(this.selectedDateRange[0])} to ${api.dateToString(this.selectedDateRange[1])}`;
         }
+        return null;
       },
 
       viewReportStepStatus() {
         if (this.activeWizardStep === VIEW_REPORT_STEP && this.reportGenerationInProgress) {
           return 'process';
-        } if (this.activeWizardStep === VIEW_REPORT_STEP) {
+        }
+        if (this.activeWizardStep === VIEW_REPORT_STEP) {
           return 'success';
         }
+        return null;
       },
 
       viewReportStepDescription() {
         if (this.activeWizardStep === VIEW_REPORT_STEP && this.reportGenerationInProgress) {
           return 'Loading..';
-        } if (this.activeWizardStep === VIEW_REPORT_STEP) {
+        }
+        if (this.activeWizardStep === VIEW_REPORT_STEP) {
           return 'Ready';
         }
+        return null;
       },
     },
 

@@ -62,7 +62,7 @@
           v-if="currentWorkspace.editable"
           to="/settings/general-taxes"
           title="General Taxes"
-          icon="tax"
+          icon="taxes-overview"
         />
 
         <TheSideMenuLink
@@ -90,22 +90,17 @@
 </template>
 
 <script>
-  import TheSideMenuLink from '@/components/TheSideMenuLink';
-  import '@/components/icons/reporting';
-  import '@/components/icons/dashboard';
-  import '@/components/icons/expense';
-  import '@/components/icons/income';
-  import '@/components/icons/invoice';
-  import '@/components/icons/tax';
-  import '@/components/icons/customer';
-  import '@/components/icons/category';
-  import '@/components/icons/workspaces';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import { mapState } from 'vuex';
-  import withApi from '@/components/mixins/with-api';
+  import TheSideMenuLink from '@/components/TheSideMenuLink';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { withApi } from '@/components/mixins/with-api';
 
   export default {
     name: 'TheSideMenu',
+
+    components: {
+      TheSideMenuLink,
+    },
 
     mixins: [withWorkspaces, withApi],
 
@@ -113,10 +108,6 @@
       ...mapState({
         isUser: state => !state.api.isAdmin,
       }),
-    },
-
-    components: {
-      TheSideMenuLink,
     },
   };
 </script>

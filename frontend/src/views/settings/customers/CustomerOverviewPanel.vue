@@ -4,7 +4,7 @@
       <div class="sa-item-title-panel">
         <h3>{{ customer.name }}</h3>
         <span class="sa-item-edit-link">
-          <Svgicon name="pencil-solid" />
+          <SaIcon icon="pencil-solid" />
           <ElButton
             type="text"
             @click="navigateToCustomerEdit"
@@ -16,18 +16,24 @@
 </template>
 
 <script>
-  import '@/components/icons/pencil-solid';
+  import SaIcon from '@/components/SaIcon';
 
   export default {
     name: 'CustomerOverviewPanel',
-
+    components: { SaIcon },
     props: {
-      customer: Object,
+      customer: {
+        type: Object,
+        required: true,
+      },
     },
 
     methods: {
       navigateToCustomerEdit() {
-        this.$router.push({ name: 'edit-customer', params: { id: this.customer.id } });
+        this.$router.push({
+          name: 'edit-customer',
+          params: { id: this.customer.id },
+        });
       },
     },
   };
