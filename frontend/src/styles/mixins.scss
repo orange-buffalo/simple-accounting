@@ -36,12 +36,9 @@ $breakpoints: (
 }
 
 @mixin input-width() {
-  width: 400px;
+  width: 100%;
   @include respond-above-starting-with(lg) {
-    width: 300px;
-  }
-  @include respond-above-starting-with(xl) {
-    width: 400px;
+    max-width: 400px;
   }
 }
 

@@ -227,7 +227,6 @@
 
 <style lang="scss">
   @import "@/styles/vars.scss";
-  @import "@/styles/mixins.scss";
 
   .sa-document-upload {
     &__file-selector {
@@ -241,7 +240,6 @@
       min-height: 80px;
       transition: all 250ms ease-out;
       color: $primary-color-lighter-iii;
-      @include input-width;
 
       span {
         pointer-events: none;
