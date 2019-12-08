@@ -1,4 +1,3 @@
-import { assign } from 'lodash';
 import merge from 'deepmerge';
 
 let globalize;
@@ -31,44 +30,40 @@ export const i18nStore = {
   mutations: {},
 
   actions: {
-    loadLocaleData({ state, dispatch }) {
+    async loadLocaleData({ state, dispatch }) {
       // todo #6: move to a separate js, can be loaded without splitting
       // todo #6: based on current locale
-      import('cldrjs').then((cldrjs) => {
-        import('globalize').then((globalizejs) => {
-          import('./i18n/en-AU.cldr-data').then((module) => {
-            cldrjs.default.load(module.default);
-            globalizejs.default.load(module.default);
-            cldr = new cldrjs.default('en-AU');
-            globalize = globalizejs.default('en-AU');
+      const cldrjs = await import('cldrjs');
+      const globalizejs = await import('globalize');
+      const module = await import('./i18n/en-AU.cldr-data');
 
-            // todo #6: no need in lazy initialization for these formatters
-            if (state.mediumDateFormatter) {
-              dispatch('ensureMediumDateFormatter');
-            }
+      cldrjs.default.load(module.default);
+      globalizejs.default.load(module.default);
+      // eslint-disable-next-line new-cap
+      cldr = new cldrjs.default('en-AU');
+      globalize = globalizejs.default('en-AU');
 
-            if (state.mediumDateTimeFormatter) {
-              dispatch('ensureMediumDateTimeFormatter');
-            }
+      // todo #6: no need in lazy initialization for these formatters
+      if (state.mediumDateFormatter) {
+        dispatch('ensureMediumDateFormatter');
+      }
 
-            for (const currency in state.currencyFormatters) {
-              if (state.currencyFormatters.hasOwnProperty(currency)) {
-                dispatch('ensureCurrencyFormatter', currency);
-              }
-            }
+      if (state.mediumDateTimeFormatter) {
+        dispatch('ensureMediumDateTimeFormatter');
+      }
 
-            state.currencyInfo = merge(
-              cldr.get('/main/{bundle}/numbers/currencies'),
-              cldr.get('/supplemental/currencyData/fractions'),
-            );
+      Object.keys(state.currencyFormatters)
+        .forEach(currency => dispatch('ensureCurrencyFormatter', currency));
 
-            state.numbersInfo = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
+      state.currencyInfo = merge(
+        cldr.get('/main/{bundle}/numbers/currencies'),
+        cldr.get('/supplemental/currencyData/fractions'),
+      );
 
-            state.defaultNumberParser = globalize.numberParser();
-            state.defaultNumberFormatter = globalize.numberFormatter();
-          });
-        });
-      });
+      state.numbersInfo = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
+
+      state.defaultNumberParser = globalize.numberParser();
+      state.defaultNumberFormatter = globalize.numberFormatter();
     },
 
     ensureCurrencyFormatter({ state }, currency) {
@@ -77,7 +72,10 @@ export const i18nStore = {
         state.currencyFormatters[currency],
         () => globalize.currencyFormatter(currency),
       );
-      state.currencyFormatters = assign({}, state.currencyFormatters, currencyFormatter);
+      state.currencyFormatters = {
+        ...state.currencyFormatters,
+        ...currencyFormatter,
+      };
     },
 
     ensureMediumDateFormatter({ state }) {
@@ -101,7 +99,10 @@ export const i18nStore = {
       return currencyInfo || {};
     },
 
-    getCurrencyFormatter: state => currency => state.currencyFormatters[currency],
+    getCurrencyFormatter: state => (currency) => {
+      const currencyFormatter = state.currencyFormatters[currency];
+      return currencyFormatter == null ? emptyFormatter : currencyFormatter;
+    },
   },
 };
 
