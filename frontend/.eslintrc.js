@@ -16,6 +16,7 @@ module.exports = {
     'vue/component-name-in-template-casing': ['error', 'PascalCase', {
       registeredComponentsOnly: false,
     }],
+    'no-use-before-define': ['error', { 'functions': false }],
   },
   overrides: [
     {
