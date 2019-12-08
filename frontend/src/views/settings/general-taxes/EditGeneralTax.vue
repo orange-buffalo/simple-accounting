@@ -4,14 +4,12 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <div class="sa-form">
-      <ElForm
-        ref="taxForm"
-        :model="tax"
-        label-position="right"
-        label-width="200px"
-        :rules="taxValidationRules"
-      >
+    <SaForm
+      ref="taxForm"
+      :model="tax"
+      :rules="taxValidationRules"
+    >
+      <template #default>
         <h2>General Information</h2>
 
         <ElFormItem
@@ -44,35 +42,36 @@
             placeholder="Provide a rate for this tax"
           />
         </ElFormItem>
+      </template>
 
-        <hr>
-
-        <div class="sa-buttons-bar">
-          <ElButton @click="navigateToTaxesOverview">
-            Cancel
-          </ElButton>
-          <ElButton
-            type="primary"
-            @click="save"
-          >
-            Save
-          </ElButton>
-        </div>
-      </ElForm>
-    </div>
+      <template #buttons-bar>
+        <ElButton @click="navigateToTaxesOverview">
+          Cancel
+        </ElButton>
+        <ElButton
+          type="primary"
+          @click="save"
+        >
+          Save
+        </ElButton>
+      </template>
+    </SaForm>
   </div>
 </template>
 
 <script>
-  import { mapState } from 'vuex';
-  import { assign } from 'lodash';
-  import api from '@/services/api';
+  import { api } from '@/services/api';
+  import SaForm from '@/components/SaForm';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'EditGeneralTax',
 
     components: {
+      SaForm,
     },
+
+    mixins: [withWorkspaces],
 
     data() {
       return {
@@ -80,17 +79,19 @@
           name: null,
         },
         taxValidationRules: {
-          title: { required: true, message: 'Please provide a title' },
-          rateInBps: { required: true, message: 'Please provide the rate' },
+          title: {
+            required: true,
+            message: 'Please provide a title',
+          },
+          rateInBps: {
+            required: true,
+            message: 'Please provide the rate',
+          },
         },
       };
     },
 
     computed: {
-      ...mapState('workspaces', {
-        workspace: 'currentWorkspace',
-      }),
-
       pageHeader() {
         return this.$route.params.id ? 'Edit General Tax' : 'Create New General Tax';
       },
@@ -98,8 +99,9 @@
 
     async created() {
       if (this.$route.params.id) {
-        const taxResponse = await api.get(`/workspaces/${this.workspace.id}/general-taxes/${this.$route.params.id}`);
-        this.tax = assign({}, this.tax, taxResponse.data);
+        const taxResponse = await api
+          .get(`/workspaces/${this.currentWorkspace.id}/general-taxes/${this.$route.params.id}`);
+        this.tax = { ...taxResponse.data };
       }
     },
 
@@ -122,9 +124,9 @@
         };
 
         if (this.tax.id) {
-          await api.put(`/workspaces/${this.workspace.id}/general-taxes/${this.tax.id}`, taxToPush);
+          await api.put(`/workspaces/${this.currentWorkspace.id}/general-taxes/${this.tax.id}`, taxToPush);
         } else {
-          await api.post(`/workspaces/${this.workspace.id}/general-taxes`, taxToPush);
+          await api.post(`/workspaces/${this.currentWorkspace.id}/general-taxes`, taxToPush);
         }
         await this.$router.push({ name: 'general-taxes-overview' });
       },
