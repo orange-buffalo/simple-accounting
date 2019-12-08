@@ -1,11 +1,15 @@
 <template>
   <div>
-    <ElCard>
-      <ElForm
-        ref="categoryForm"
-        :model="category"
-        :rules="categoryValidationRules"
-      >
+    <div class="sa-page-header">
+      <h1>Create New Category</h1>
+    </div>
+
+    <SaForm
+      ref="categoryForm"
+      :model="category"
+      :rules="categoryValidationRules"
+    >
+      <template #default>
         <ElFormItem
           label="Name"
           prop="name"
@@ -33,26 +37,34 @@
         >
           <ElCheckbox v-model="category.expense" />
         </ElFormItem>
-        <ElFormItem>
-          <ElButton
-            type="primary"
-            @click="save"
-          >
-            Save
-          </ElButton>
-        </ElFormItem>
-      </ElForm>
-    </ElCard>
+      </template>
+
+      <template #buttons-bar>
+        <ElButton @click="navigateToCategoriesOverview">
+          Cancel
+        </ElButton>
+        <ElButton
+          type="primary"
+          @click="save"
+        >
+          Save
+        </ElButton>
+      </template>
+    </SaForm>
   </div>
 </template>
 
 <script>
-
-  import { mapMutations, mapState } from 'vuex';
-  import api from '@/services/api';
+  import { api } from '@/services/api';
+  import SaForm from '@/components/SaForm';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'CreateCategory',
+
+    components: { SaForm },
+
+    mixins: [withWorkspaces],
 
     data() {
       return {
@@ -64,10 +76,18 @@
         },
         categoryValidationRules: {
           name: [
-            { required: true, message: 'Please input name', trigger: 'blur' },
+            {
+              required: true,
+              message: 'Please input name',
+              trigger: 'blur',
+            },
           ],
           defaultCurrency: [
-            { required: true, message: 'Please input currency', trigger: 'blur' },
+            {
+              required: true,
+              message: 'Please input currency',
+              trigger: 'blur',
+            },
           ],
           income: [
             {
@@ -84,31 +104,20 @@
       };
     },
 
-    computed: {
-      ...mapState('workspaces', {
-        workspace: 'currentWorkspace',
-      }),
-    },
-
     methods: {
-      save() {
-        this.$refs.categoryForm.validate((valid) => {
-          if (valid) {
-            api
-              .post(`/workspaces/${this.workspace.id}/categories`, this.category)
-              .then(() => {
-                this.$router.push({ name: 'settings-categories' });
-              })
-              .catch(() => {
-                this.$refs.form.clearValidate();
-                this.$message({
-                  showClose: true,
-                  message: 'Sorry, failed',
-                  type: 'error',
-                });
-              });
-          }
-        });
+      async save() {
+        try {
+          await this.$refs.categoryForm.validate();
+        } catch (e) {
+          return;
+        }
+
+        await api.post(`/workspaces/${this.currentWorkspace.id}/categories`, this.category);
+        await this.$router.push({ name: 'settings-categories' });
+      },
+
+      navigateToCategoriesOverview() {
+        this.$router.push({ name: '/settings/categories' });
       },
     },
   };

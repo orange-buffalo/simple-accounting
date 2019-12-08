@@ -4,14 +4,12 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <div class="sa-form">
-      <ElForm
-        ref="taxPaymentForm"
-        :model="taxPayment"
-        label-position="right"
-        label-width="200px"
-        :rules="taxPaymentValidationRules"
-      >
+    <SaForm
+      ref="taxPaymentForm"
+      :model="taxPayment"
+      :rules="taxPaymentValidationRules"
+    >
+      <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
@@ -88,43 +86,43 @@
             </ElFormItem>
           </div>
         </div>
+      </template>
 
-        <hr>
-
-        <div class="sa-buttons-bar">
-          <ElButton @click="navigateToTaxPaymentsOverview">
-            Cancel
-          </ElButton>
-          <ElButton
-            type="primary"
-            @click="save"
-          >
-            Save
-          </ElButton>
-        </div>
-      </ElForm>
-    </div>
+      <template #buttons-bar>
+        <ElButton @click="navigateToTaxPaymentsOverview">
+          Cancel
+        </ElButton>
+        <ElButton
+          type="primary"
+          @click="save"
+        >
+          Save
+        </ElButton>
+      </template>
+    </SaForm>
   </div>
 </template>
 
 <script>
-  import { mapState } from 'vuex';
   import { api } from '@/services/api';
   import MoneyInput from '@/components/MoneyInput';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
+  import SaForm from '@/components/SaForm';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'EditIncomeTaxPayment',
 
     components: {
+      SaForm,
       SaNotesInput,
       SaDocumentsUpload,
       MoneyInput,
     },
 
-    mixins: [withMediumDateFormatter],
+    mixins: [withMediumDateFormatter, withWorkspaces],
 
     data() {
       return {
@@ -154,14 +152,6 @@
     },
 
     computed: {
-      ...mapState('workspaces', {
-        workspace: 'currentWorkspace',
-      }),
-
-      defaultCurrency() {
-        return this.workspace.defaultCurrency;
-      },
-
       pageHeader() {
         return this.$route.params.id ? 'Edit Income Tax Payment' : 'Record New Income Tax Payment';
       },
@@ -170,7 +160,7 @@
     async created() {
       if (this.$route.params.id) {
         const taxPaymentResponse = await api
-          .get(`/workspaces/${this.workspace.id}/income-tax-payments/${this.$route.params.id}`);
+          .get(`/workspaces/${this.currentWorkspace.id}/income-tax-payments/${this.$route.params.id}`);
         this.taxPayment = { ...this.taxPayment, ...taxPaymentResponse.data };
       }
     },
@@ -191,9 +181,12 @@
         };
 
         if (this.taxPayment.id) {
-          await api.put(`/workspaces/${this.workspace.id}/income-tax-payments/${this.taxPayment.id}`, taxPaymentToPush);
+          await api.put(
+            `/workspaces/${this.currentWorkspace.id}/income-tax-payments/${this.taxPayment.id}`,
+            taxPaymentToPush,
+          );
         } else {
-          await api.post(`/workspaces/${this.workspace.id}/income-tax-payments`, taxPaymentToPush);
+          await api.post(`/workspaces/${this.currentWorkspace.id}/income-tax-payments`, taxPaymentToPush);
         }
         await this.$router.push({ name: 'income-tax-payments-overview' });
       },

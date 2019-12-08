@@ -27,14 +27,12 @@
       </div>
     </div>
 
-    <div class="sa-form">
-      <ElForm
-        ref="invoiceForm"
-        :model="invoice"
-        label-position="right"
-        label-width="200px"
-        :rules="invoiceValidationRules"
-      >
+    <SaForm
+      ref="invoiceForm"
+      :model="invoice"
+      :rules="invoiceValidationRules"
+    >
+      <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
@@ -193,28 +191,24 @@
             </ElFormItem>
           </div>
         </div>
+      </template>
 
-        <hr>
-
-        <div class="sa-buttons-bar">
-          <ElButton @click="navigateToInvoicesOverview">
-            Cancel
-          </ElButton>
-          <ElButton
-            type="primary"
-            @click="save"
-          >
-            Save
-          </ElButton>
-        </div>
-      </ElForm>
-    </div>
+      <template #buttons-bar>
+        <ElButton @click="navigateToInvoicesOverview">
+          Cancel
+        </ElButton>
+        <ElButton
+          type="primary"
+          @click="save"
+        >
+          Save
+        </ElButton>
+      </template>
+    </SaForm>
   </div>
 </template>
 
 <script>
-  import { mapState } from 'vuex';
-  import { assign, isNil } from 'lodash';
   import { api } from '@/services/api';
   import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
@@ -224,18 +218,21 @@
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
   import SaNotesInput from '@/components/SaNotesInput';
+  import SaForm from '@/components/SaForm';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'EditInvoice',
 
     components: {
+      SaForm,
       SaNotesInput,
       SaDocumentsUpload,
       CurrencyInput,
       MoneyInput,
     },
 
-    mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withGeneralTaxes],
+    mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withGeneralTaxes, withWorkspaces],
 
     data() {
       return {
@@ -292,16 +289,12 @@
     },
 
     computed: {
-      ...mapState('workspaces', {
-        workspace: 'currentWorkspace',
-      }),
-
       pageHeader() {
         return this.isEditing ? 'Edit Invoice' : 'Create New Invoice';
       },
 
       isEditing() {
-        return !isNil(this.$route.params.id);
+        return this.$route.params.id != null;
       },
 
       timeRecorded() {
@@ -315,8 +308,9 @@
 
     async created() {
       if (this.isEditing) {
-        const invoiceResponse = await api.get(`/workspaces/${this.workspace.id}/invoices/${this.$route.params.id}`);
-        this.invoice = assign({}, this.invoice, invoiceResponse.data);
+        const invoiceResponse = await api
+          .get(`/workspaces/${this.currentWorkspace.id}/invoices/${this.$route.params.id}`);
+        this.invoice = { ...invoiceResponse.data };
         this.alreadyPaid = this.invoice.datePaid != null;
         this.alreadySent = this.invoice.dateSent != null;
       }
@@ -381,9 +375,9 @@
         };
 
         if (this.isEditing) {
-          await api.put(`/workspaces/${this.workspace.id}/invoices/${this.invoice.id}`, invoiceToPush);
+          await api.put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, invoiceToPush);
         } else {
-          await api.post(`/workspaces/${this.workspace.id}/invoices`, invoiceToPush);
+          await api.post(`/workspaces/${this.currentWorkspace.id}/invoices`, invoiceToPush);
         }
 
         await this.$router.push({ name: 'invoices-overview' });

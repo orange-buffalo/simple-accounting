@@ -4,14 +4,12 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <div class="sa-form">
-      <ElForm
-        ref="expenseForm"
-        :model="expense"
-        label-position="right"
-        label-width="200px"
-        :rules="expenseValidationRules"
-      >
+    <SaForm
+      ref="expenseForm"
+      :model="expense"
+      :rules="expenseValidationRules"
+    >
+      <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
             <h2>General Information</h2>
@@ -163,22 +161,20 @@
             </ElFormItem>
           </div>
         </div>
+      </template>
 
-        <hr>
-
-        <div class="sa-buttons-bar">
-          <ElButton @click="navigateToExpensesOverview">
-            Cancel
-          </ElButton>
-          <ElButton
-            type="primary"
-            @click="save"
-          >
-            Save
-          </ElButton>
-        </div>
-      </ElForm>
-    </div>
+      <template #buttons-bar>
+        <ElButton @click="navigateToExpensesOverview">
+          Cancel
+        </ElButton>
+        <ElButton
+          type="primary"
+          @click="save"
+        >
+          Save
+        </ElButton>
+      </template>
+    </SaForm>
   </div>
 </template>
 
@@ -192,11 +188,13 @@
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
+  import SaForm from '@/components/SaForm';
 
   export default {
     name: 'EditExpense',
 
     components: {
+      SaForm,
       SaNotesInput,
       SaDocumentsUpload,
       CurrencyInput,
