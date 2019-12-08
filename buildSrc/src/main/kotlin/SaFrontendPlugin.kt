@@ -4,7 +4,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
@@ -35,8 +34,8 @@ class SaFrontendPlugin : Plugin<Project> {
 
 open class SaNpmTask : DefaultTask() {
 
-    @InputFile
-    val packageJson: RegularFileProperty = project.objects.fileProperty()
+    @InputFiles
+    val npmConfigs: ConfigurableFileCollection = project.objects.fileCollection()
 
     @InputFiles
     val inputFiles: ConfigurableFileCollection = project.objects.fileCollection()
@@ -55,7 +54,7 @@ open class SaNpmTask : DefaultTask() {
     }
 
     init {
-        packageJson.set(project.file("package.json"))
+        npmConfigs.from(project.file("package.json"), project.file("package-lock.json"))
     }
 
     @TaskAction
