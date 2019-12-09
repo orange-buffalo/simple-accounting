@@ -1,5 +1,3 @@
-import { isNil } from 'lodash';
-
 import 'eventsource/lib/eventsource-polyfill';
 import { api } from '@/services/api';
 
@@ -7,13 +5,14 @@ let $store;
 
 export const pushNotifications = {
 
-  _eventSource: null,
-  _eventListeners: [],
+  eventSource: null,
+  eventListeners: [],
 
-  _init() {
-    let { jwtToken } = $store.state.api;
+  init() {
+    const { jwtToken } = $store.state.api;
 
-    this._eventSource = new EventSourcePolyfill(
+    // eslint-disable-next-line no-undef
+    this.eventSource = new EventSourcePolyfill(
       '/api/push-notifications', {
         headers: {
           Authorization: `Bearer ${jwtToken}`,
@@ -21,47 +20,46 @@ export const pushNotifications = {
       },
     );
 
-    this._eventSource.onmessage = (event) => {
+    this.eventSource.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      this._eventListeners
+      this.eventListeners
         .filter(it => it.eventName === message.eventName)
         .forEach(it => it.callback(message.data));
     };
 
-    this._eventSource.onerror = async (event) => {
+    this.eventSource.onerror = async (event) => {
       if (event.status && event.status === 401) {
-        this._eventSource.close();
+        this.eventSource.close();
         if (await api.tryAutoLogin()) {
-          jwtToken = $store.state.api.jwtToken;
-          this._init();
+          this.init();
         }
-      } else if (this._eventSource.readyState === 2) {
-        this._eventSource = null;
+      } else if (this.eventSource.readyState === 2) {
+        this.eventSource = null;
       }
     };
   },
 
   subscribe(eventName, callback) {
-    if (isNil(this._eventSource)) {
-      this._init();
+    if (this.eventSource == null) {
+      this.init();
     }
-    this._eventListeners.push({
+    this.eventListeners.push({
       eventName,
       callback,
     });
   },
 
   unsubscribe(eventName, callback) {
-    this._eventListeners = this._eventListeners
+    this.eventListeners = this.eventListeners
       .filter(it => it.eventName !== eventName && it.callback !== callback);
 
-    if (this._eventListeners.length === 0) {
-      this._eventSource.close();
-      this._eventSource = null;
+    if (this.eventListeners.length === 0) {
+      this.eventSource.close();
+      this.eventSource = null;
     }
   },
 };
 
-export const initPushNotifications = function (store) {
+export const initPushNotifications = function initPushNotifications(store) {
   $store = store;
 };
