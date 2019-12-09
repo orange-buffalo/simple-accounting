@@ -1,8 +1,7 @@
 import { mapState } from 'vuex';
-import { isNil } from 'lodash';
 import { api } from '@/services/api';
 
-export const withCustomers = {
+export default {
   data() {
     return {
       customers: [],
@@ -22,11 +21,9 @@ export const withCustomers = {
 
     customerById() {
       return (customerId) => {
-        const customer = this.customers.find(customer => customer.id === customerId);
-        return isNil(customer) ? {} : customer;
+        const customer = this.customers.find(it => it.id === customerId);
+        return customer == null ? {} : customer;
       };
     },
   },
 };
-
-export default withCustomers;

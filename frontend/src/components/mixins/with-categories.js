@@ -1,7 +1,6 @@
-import isNil from 'lodash/isNil';
 import { api } from '@/services/api';
 
-const withCategories = {
+export default {
   data() {
     return {
       categories: [],
@@ -14,7 +13,10 @@ const withCategories = {
       .eager()
       .getPageData();
     const emptyCategory = {
-      name: 'Not specified', income: true, expense: true, id: null,
+      name: 'Not specified',
+      income: true,
+      expense: true,
+      id: null,
     };
     this.categories = [emptyCategory].concat(categoriesResponse);
   },
@@ -22,11 +24,10 @@ const withCategories = {
   computed: {
     categoryById() {
       return (categoryId) => {
-        const category = this.categories.find(category => (category.id === categoryId) || (isNil(category.id) && isNil(categoryId)));
+        const category = this.categories
+          .find(it => (it.id === categoryId) || (it.id == null && categoryId == null));
         return category || {};
       };
     },
   },
 };
-
-export default withCategories;

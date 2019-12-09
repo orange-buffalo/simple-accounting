@@ -1,8 +1,7 @@
 import { mapState } from 'vuex';
-import { isNil } from 'lodash/lang';
 import { api } from '@/services/api';
 
-const withGeneralTaxes = {
+export default {
   data() {
     return {
       generalTaxes: [],
@@ -10,7 +9,8 @@ const withGeneralTaxes = {
   },
 
   async created() {
-    this.generalTaxes = await api.pageRequest(`/workspaces/${this.$_withGeneralTaxes_currentWorkspace.id}/general-taxes`)
+    this.generalTaxes = await api
+      .pageRequest(`/workspaces/${this.$_withGeneralTaxes_currentWorkspace.id}/general-taxes`)
       .eager()
       .getPageData();
   },
@@ -23,10 +23,8 @@ const withGeneralTaxes = {
     generalTaxById() {
       return (taxId) => {
         const tax = this.generalTaxes.find(it => it.id === taxId);
-        return isNil(tax) ? {} : tax;
+        return tax == null ? {} : tax;
       };
     },
   },
 };
-
-export default withGeneralTaxes;

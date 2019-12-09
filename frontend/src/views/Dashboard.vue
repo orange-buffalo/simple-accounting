@@ -229,7 +229,7 @@
   import MoneyOutput from '@/components/MoneyOutput';
   import { lockr } from '@/services/app-services';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-  import { withCustomers } from '@/components/mixins/with-customers';
+  import withCustomers from '@/components/mixins/with-customers';
   import SaIcon from '@/components/SaIcon';
 
   const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range';
