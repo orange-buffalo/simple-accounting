@@ -372,7 +372,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/vars.scss";
+  @import "~@/styles/vars.scss";
 
   .home-page__row {
     display: flex;

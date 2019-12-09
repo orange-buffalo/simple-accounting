@@ -24,7 +24,7 @@
 
 
 <style lang="scss">
-  @import "@/styles/vars.scss";
+  @import "~@/styles/vars.scss";
 
   .el-container {
     height: 100vh;

@@ -112,7 +112,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/vars.scss";
+  @import "~@/styles/vars.scss";
 
   .sa-document {
     display: flex;

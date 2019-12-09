@@ -49,7 +49,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/main.scss";
+  @import "~@/styles/main.scss";
 
   .tax-panel {
     display: flex;
