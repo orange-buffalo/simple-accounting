@@ -9,6 +9,7 @@
     >
       Preview
     </div>
+    <!-- eslint-disable-next-line vue/no-v-html -->
     <div v-html="renderedMarkdown" />
   </div>
 </template>
@@ -28,6 +29,7 @@
     props: {
       source: {
         type: String,
+        default: null,
       },
       preview: {
         type: Boolean,
@@ -62,7 +64,7 @@
 
 <style lang="scss">
   /*todo #73: common component refers to app styles - redesign dependencies  */
-  @import "@/styles/vars.scss";
+  @import "~@/styles/vars.scss";
 
   .markdown-output {
     p {
@@ -72,7 +74,7 @@
 
     a {
       color: $components-color;
-      text-decoration: none ;
+      text-decoration: none;
     }
 
     &_preview {

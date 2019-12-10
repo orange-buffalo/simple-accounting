@@ -1,12 +1,13 @@
 import axios from 'axios';
 import EventBus from 'eventbusjs';
 import qs from 'qs';
-import { assign } from 'lodash';
 import jwtDecode from 'jwt-decode';
 
 const { CancelToken } = axios;
 
-const _api = axios.create({
+export const LOGIN_REQUIRED_EVENT = 'login-required';
+
+export const api = axios.create({
   baseURL: '/api',
   timeout: 10000,
   paramsSerializer(params) {
@@ -18,65 +19,64 @@ let $store;
 
 let refreshTokenTimer;
 
-const cancelTokenRefresh = function () {
+function cancelTokenRefresh() {
   if (refreshTokenTimer) {
     clearTimeout(refreshTokenTimer);
   }
-};
+}
 
-const scheduleTokenRefresh = function () {
+function scheduleTokenRefresh() {
   cancelTokenRefresh();
 
   const token = jwtDecode($store.state.api.jwtToken);
   const timeout = token.exp * 1000 - Date.now() - 30000;
   refreshTokenTimer = setTimeout(refreshToken, timeout);
-};
+}
 
-let refreshToken = async function () {
-  if (await _api.tryAutoLogin()) {
+async function refreshToken() {
+  if (await api.tryAutoLogin()) {
     scheduleTokenRefresh();
   } else {
     EventBus.dispatch(LOGIN_REQUIRED_EVENT);
   }
-};
+}
 
-_api.createCancelToken = function () {
+api.createCancelToken = function createCancelToken() {
   return CancelToken.source();
 };
 
-_api.login = async function (request) {
+api.login = async function login(request) {
   cancelTokenRefresh();
-  const response = await _api.post('/auth/login', request);
+  const response = await api.post('/auth/login', request);
   $store.commit('api/updateJwtToken', response.data.token);
   scheduleTokenRefresh();
 };
 
-_api.logout = async function (request) {
+api.logout = async function logout(request) {
   cancelTokenRefresh();
-  await _api.post('/auth/logout', request);
+  await api.post('/auth/logout', request);
   $store.commit('api/updateJwtToken', null);
 };
 
-const applyAuthorization = function (config) {
+function applyAuthorization(config) {
   const { jwtToken } = $store.state.api;
+  const { headers, ...otherConfig } = config;
   if (jwtToken) {
-    config.headers.Authorization = `Bearer ${jwtToken}`;
+    headers.Authorization = `Bearer ${jwtToken}`;
   }
-};
+  return { headers, ...otherConfig };
+}
 
-_api.interceptors.request.use(
-  (config) => {
-    applyAuthorization(config);
-    return config;
-  },
+api.interceptors.request.use(
+  config => applyAuthorization(config),
   error => Promise.reject(error),
 );
 
-_api.tryAutoLogin = async function () {
+api.tryAutoLogin = async function tryAutoLogin() {
   cancelTokenRefresh();
 
   try {
-    const response = await _api.post('/auth/token', {}, {
+    const response = await api.post('/auth/token', {}, {
       withCredentials: true,
     });
 
@@ -92,7 +92,7 @@ _api.tryAutoLogin = async function () {
   }
 };
 
-_api.loginBySharedToken = async function (sharedToken) {
+api.loginBySharedToken = async function loginBySharedToken(sharedToken) {
   cancelTokenRefresh();
 
   try {
@@ -109,37 +109,35 @@ _api.loginBySharedToken = async function (sharedToken) {
   }
 };
 
-_api.interceptors.response.use(
+api.interceptors.response.use(
   response => response,
   async (error) => {
     if (error.response && error.response.status === 401
       && error.response.config.url !== '/api/auth/token'
       && error.response.config.url !== '/api/auth/login') {
-
-      if (await _api.tryAutoLogin()) {
-        applyAuthorization(error.config);
-        error.config.baseURL = null;
-        return axios.request(error.config);
+      if (await api.tryAutoLogin()) {
+        const config = applyAuthorization(error.config);
+        config.baseURL = null;
+        return axios.request(config);
       }
       EventBus.dispatch(LOGIN_REQUIRED_EVENT);
-    } else {
-      return Promise.reject(error);
     }
+    return Promise.reject(error);
   },
 );
 
-_api.isCancel = function (e) {
+api.isCancel = function isCancel(e) {
   return axios.isCancel(e);
 };
 
-_api.pageRequest = function (uri) {
+api.pageRequest = function pageRequest(uri) {
   let limit = 10;
   let page = 1;
   let customConfig = {};
-  const filters = {};
+  let filters = {};
 
   const addFilter = (property, value, operator) => {
-    if (typeof value !== 'undefined' && value !== null) {
+    if (value != null) {
       const filter = {};
 
       if (value instanceof Array) {
@@ -153,7 +151,7 @@ _api.pageRequest = function (uri) {
         filter[property][operator] = value;
       }
 
-      assign(filters, filter);
+      filters = { ...filters, ...filter };
     }
   };
 
@@ -184,18 +182,13 @@ _api.pageRequest = function (uri) {
     },
 
     get() {
-      let params = {
+      const params = {
         limit,
         page,
+        ...filters,
       };
-      params = assign(params, filters);
-
-      let config = {
-        params,
-      };
-      config = assign(config, customConfig);
-
-      return _api.get(uri, config);
+      const config = { params, ...customConfig };
+      return api.get(uri, config);
     },
 
     getPage() {
@@ -205,20 +198,18 @@ _api.pageRequest = function (uri) {
 
     getPageData() {
       return this.getPage()
-        .then(page => page.data);
+        .then(pageResponse => pageResponse.data);
     },
   };
 };
 
-_api.dateToString = function (date) {
+api.dateToString = function dateToString(date) {
   return `${date.getFullYear()}-${
     (`0${date.getMonth() + 1}`).slice(-2)}-${
     (`0${date.getDate()}`).slice(-2)}`;
 };
 
-export default _api;
-export const api = _api;
-export const initApi = function (store) {
+export default api;
+export const initApi = function initApi(store) {
   $store = store;
 };
-export const LOGIN_REQUIRED_EVENT = 'login-required';

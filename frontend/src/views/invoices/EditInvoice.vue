@@ -213,7 +213,7 @@
   import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-  import { withCustomers } from '@/components/mixins/with-customers';
+  import withCustomers from '@/components/mixins/with-customers';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';

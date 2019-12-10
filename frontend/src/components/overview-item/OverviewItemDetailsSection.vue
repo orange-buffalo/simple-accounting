@@ -21,7 +21,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/vars.scss";
+  @import "~@/styles/vars.scss";
 
   .overview-item-details-section {
     margin-bottom: 15px;

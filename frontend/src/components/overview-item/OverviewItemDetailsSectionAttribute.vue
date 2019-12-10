@@ -23,7 +23,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/vars.scss";
+  @import "~@/styles/vars.scss";
 
   .overview-item-details-section-attribute {
     &__label {

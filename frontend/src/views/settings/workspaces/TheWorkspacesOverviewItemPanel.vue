@@ -155,8 +155,8 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/main.scss";
-  @import "@/styles/vars.scss";
+  @import "~@/styles/main.scss";
+  @import "~@/styles/vars.scss";
 
   .workspace-panel {
     display: flex;

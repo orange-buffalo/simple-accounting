@@ -113,8 +113,8 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/vars.scss";
-  @import "@/styles/mixins.scss";
+  @import "~@/styles/vars.scss";
+  @import "~@/styles/mixins.scss";
 
   $menu-breakpoint: lg;
 

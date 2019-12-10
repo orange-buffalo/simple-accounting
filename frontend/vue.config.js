@@ -20,7 +20,8 @@ module.exports = {
       .rule('cldr-data')
       .test(/\.cldr-data$/)
       .use('cldr-data')
-      .loader(require('path').resolve('src/loaders/cldr-data-loader'))
+      .loader(require('path')
+        .resolve('src/loaders/cldr-data-loader'))
       .end();
 
     // workaround for globalize with webpack
@@ -30,5 +31,11 @@ module.exports = {
       .set('cldr$', 'cldrjs')
       .set('cldr', 'cldrjs/dist/cldr')
       .end();
+  },
+
+  pluginOptions: {
+    webpackBundleAnalyzer: {
+      openAnalyzer: false,
+    },
   },
 };

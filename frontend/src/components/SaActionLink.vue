@@ -40,7 +40,7 @@
 
 
 <style lang="scss">
-  @import "@/styles/vars.scss";
+  @import "~@/styles/vars.scss";
 
   .sa-action-link {
     display: inline-flex;

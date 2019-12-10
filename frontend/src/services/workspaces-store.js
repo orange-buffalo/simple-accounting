@@ -1,8 +1,7 @@
-import { isNil } from 'lodash';
-import api from '@/services/api';
+import { api } from '@/services/api';
 import { lockr } from '@/services/app-services';
 
-const _workspacesStore = {
+export default {
   namespaced: true,
 
   state: {
@@ -31,7 +30,7 @@ const _workspacesStore = {
       commit('setCurrentWorkspace', workspace);
     },
 
-    async loadWorkspaces({ state, commit }) {
+    async loadWorkspaces({ commit }) {
       const workspacesResponse = await api.get('/workspaces');
       const workspaces = workspacesResponse.data;
       commit('setWorkspaces', workspaces);
@@ -39,7 +38,7 @@ const _workspacesStore = {
       let currentWs;
       if (workspaces.length > 0) {
         const previousWsId = lockr.get('current-workspace');
-        if (!isNil(previousWsId)) {
+        if (previousWsId != null) {
           currentWs = workspaces.find(it => it.id === previousWsId);
 
           if (!currentWs) {
@@ -51,7 +50,7 @@ const _workspacesStore = {
         }
 
         if (!currentWs) {
-          currentWs = workspaces[0];
+          [currentWs] = workspaces;
         }
 
         commit('setCurrentWorkspace', currentWs);
@@ -59,6 +58,3 @@ const _workspacesStore = {
     },
   },
 };
-
-export default _workspacesStore;
-export const workspacesStore = _workspacesStore;

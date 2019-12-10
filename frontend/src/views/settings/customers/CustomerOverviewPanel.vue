@@ -40,7 +40,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/main.scss";
+  @import "~@/styles/main.scss";
 
   .customer-panel {
     display: flex;

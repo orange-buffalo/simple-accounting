@@ -196,7 +196,7 @@
 </script>
 
 <style lang="scss">
-  @import "@/styles/main.scss";
+  @import "~@/styles/main.scss";
 
   .reporting-panel {
     padding: 20px;

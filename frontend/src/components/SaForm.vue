@@ -38,8 +38,8 @@
 
 <style lang="scss">
   /*todo #73: common component refers to app styles - redesign dependencies  */
-  @import "@/styles/vars.scss";
-  @import "@/styles/mixins.scss";
+  @import "~@/styles/vars.scss";
+  @import "~@/styles/mixins.scss";
 
   .sa-form {
     padding: 20px;

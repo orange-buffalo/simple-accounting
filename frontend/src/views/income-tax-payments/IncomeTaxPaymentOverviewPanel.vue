@@ -96,8 +96,8 @@
   import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
   import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
   import SaActionLink from '@/components/SaActionLink';
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaDocumentsList from '@/components/documents/SaDocumentsList';
+  import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
   export default {
     name: 'IncomeTaxPaymentOverviewPanel',

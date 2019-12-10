@@ -228,7 +228,7 @@
 <script>
   import MoneyOutput from '@/components/MoneyOutput';
   import withCategories from '@/components/mixins/with-categories';
-  import { withCustomers } from '@/components/mixins/with-customers';
+  import withCustomers from '@/components/mixins/with-customers';
   import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
@@ -241,9 +241,9 @@
   import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
   import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
   import SaActionLink from '@/components/SaActionLink';
+  import SaDocumentsList from '@/components/documents/SaDocumentsList';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
-  import SaDocumentsList from '@/components/documents/SaDocumentsList';
 
   export default {
     name: 'InvoiceOverviewPanel',
