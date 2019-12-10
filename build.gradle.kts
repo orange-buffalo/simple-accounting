@@ -6,7 +6,7 @@ plugins {
 val semVersion = semver.info.version
 allprojects {
     version = semVersion
-    group = "io.orangebuffalo.accounting"
+    group = "io.orangebuffalo.simpleaccounting"
 }
 
 buildScan {
