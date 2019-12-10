@@ -241,9 +241,9 @@
   import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute';
   import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute';
   import SaActionLink from '@/components/SaActionLink';
+  import SaDocumentsList from '@/components/documents/SaDocumentsList';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
-  import SaDocumentsList from '@/components/documents/SaDocumentsList';
 
   export default {
     name: 'InvoiceOverviewPanel',

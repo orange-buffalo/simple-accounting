@@ -34,8 +34,6 @@
 </template>
 
 <script>
-  import { assign, isNil } from 'lodash';
-
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import MoneyOutput from '@/components/MoneyOutput';
@@ -77,18 +75,20 @@
       },
 
       $transformTaxes(collected) {
-        if (isNil(this.report)) {
+        if (this.report == null) {
           return [];
         }
         const finalizedTaxes = collected ? this.report.finalizedCollectedTaxes : this.report.finalizedPaidTaxes;
         const pendingTaxes = collected ? this.report.pendingCollectedTaxes : this.report.pendingPaidTaxes;
 
-        let taxes = finalizedTaxes.map(tax => assign({}, tax, {
+        let taxes = finalizedTaxes.map(tax => ({
+          ...tax,
           finalized: true,
           tax: this.generalTaxById(tax.tax),
         }));
 
-        taxes = taxes.concat(pendingTaxes.map(tax => assign({}, tax, {
+        taxes = taxes.concat(pendingTaxes.map(tax => ({
+          ...tax,
           finalized: false,
           tax: this.generalTaxById(tax.tax),
         })));
@@ -97,7 +97,8 @@
       },
 
       $getTotalAmount(taxes) {
-        return taxes.map(tax => tax.taxAmount).reduce((it, sum) => sum + it, 0);
+        return taxes.map(tax => tax.taxAmount)
+          .reduce((it, sum) => sum + it, 0);
       },
     },
   };

@@ -9,6 +9,7 @@
     >
       Preview
     </div>
+    <!-- eslint-disable-next-line vue/no-v-html -->
     <div v-html="renderedMarkdown" />
   </div>
 </template>
@@ -28,6 +29,7 @@
     props: {
       source: {
         type: String,
+        default: null,
       },
       preview: {
         type: Boolean,
@@ -72,7 +74,7 @@
 
     a {
       color: $components-color;
-      text-decoration: none ;
+      text-decoration: none;
     }
 
     &_preview {
