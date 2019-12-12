@@ -11,6 +11,7 @@
 </template>
 
 <script>
+  import { api } from '@/services/api';
   import { setupApp } from '@/services/app-services';
   import LoginForm from '@/components/LoginForm';
 
@@ -23,16 +24,16 @@
 
     methods: {
       async onLogin() {
-        if (this.$store.state.api.isAdmin) {
-          this.$router.push({ name: 'users-overview' });
+        if (api.isAdmin()) {
+          await this.$router.push({ name: 'users-overview' });
         } else {
           await setupApp(this.$store, this.$router);
           if (!this.$store.state.workspaces.currentWorkspace) {
-            this.$router.push('/workspace-setup');
+            await this.$router.push('/workspace-setup');
           } else if (this.$store.state.app.lastView) {
-            this.$router.push({ name: this.$store.state.app.lastView });
+            await this.$router.push({ name: this.$store.state.app.lastView });
           } else {
-            this.$router.push('/');
+            await this.$router.push('/');
           }
         }
       },

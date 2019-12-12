@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import * as eventBus from 'eventbusjs';
-import { initApi, api, LOGIN_REQUIRED_EVENT } from '@/services/api';
+import { api, LOGIN_REQUIRED_EVENT } from '@/services/api';
 
 require('jsdom-global')(null, {
   url: 'http://localhost/',
@@ -8,20 +8,12 @@ require('jsdom-global')(null, {
 
 describe('api service', () => {
   let server;
-  const storeStub = {
-    state: {
-      api: {
-        jwtToken: undefined,
-      },
-    },
-  };
   let dispatchStub;
 
   beforeEach(() => {
     const sinon = require('sinon');
     server = sinon.useFakeServer();
     global.XMLHttpRequest = global.window.XMLHttpRequest;
-    initApi(storeStub);
     dispatchStub = sinon.stub(eventBus, 'dispatch');
   });
 
@@ -36,8 +28,6 @@ describe('api service', () => {
   }
 
   it('adds a token to headers when present', (done) => {
-    storeStub.state.api.jwtToken = 'token';
-
     server.respondWith([200, {}, '']);
 
     api.get('/api-call')
@@ -52,8 +42,6 @@ describe('api service', () => {
   });
 
   it('does not set Authorization token when token is not defined', (done) => {
-    storeStub.state.api.jwtToken = undefined;
-
     server.respondWith([200, {}, '']);
 
     api.get('/api-call')

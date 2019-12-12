@@ -16,7 +16,7 @@
 </template>
 
 <script>
-  import { pushNotifications } from '@/services/push-notifications';
+  import pushNotifications from '@/services/push-notifications';
   import { api } from '@/services/api';
   import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
 

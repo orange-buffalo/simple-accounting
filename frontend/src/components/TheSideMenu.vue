@@ -90,10 +90,9 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
+  import { api } from '@/services/api';
   import TheSideMenuLink from '@/components/TheSideMenuLink';
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import { withApi } from '@/components/mixins/with-api';
 
   export default {
     name: 'TheSideMenu',
@@ -102,12 +101,16 @@
       TheSideMenuLink,
     },
 
-    mixins: [withWorkspaces, withApi],
+    mixins: [withWorkspaces],
 
     computed: {
-      ...mapState({
-        isUser: state => !state.api.isAdmin,
-      }),
+      isUser() {
+        return !api.isAdmin();
+      },
+
+      isCurrentUserRegular() {
+        return api.isCurrentUserRegular();
+      },
     },
   };
 </script>

@@ -5,10 +5,9 @@ import Router from 'vue-router';
 import Main from './Main.vue';
 import router from './router';
 import store from './store';
-import { api, initApi, LOGIN_REQUIRED_EVENT } from '@/services/api';
+import { api, LOGIN_REQUIRED_EVENT } from '@/services/api';
 import '@/styles/main.scss';
 import { setupApp } from '@/services/app-services';
-import { initPushNotifications } from '@/services/push-notifications';
 
 Vue.config.productionTip = false;
 
@@ -18,7 +17,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.name !== 'login'
     && to.name !== 'logout'
     && to.name !== 'login-by-link'
-    && !store.getters['api/isLoggedIn']) {
+    && !api.isLoggedIn()) {
     if (await api.tryAutoLogin()) {
       await setupApp(store, router);
       next();
@@ -37,9 +36,6 @@ new Vue({
   store,
   render: h => h(Main),
 }).$mount('#app');
-
-initApi(store);
-initPushNotifications(store);
 
 // todo #6: calculate proper locale
 store.dispatch('i18n/loadLocaleData');

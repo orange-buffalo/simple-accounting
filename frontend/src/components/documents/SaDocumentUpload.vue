@@ -41,8 +41,8 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex';
   import Dropzone from 'dropzone';
+  import { api } from '@/services/api';
   import SaIcon from '@/components/SaIcon';
   import SaDocument from '@/components/documents/SaDocument';
   import withWorkspaces from '@/components/mixins/with-workspaces';
@@ -87,20 +87,13 @@
         uploadingProgress: 0,
         uploadingFailed: false,
         selectedFile: null,
+        headers: {
+          Authorization: `Bearer ${api.getToken()}`,
+        },
       };
     },
 
     computed: {
-      ...mapState({
-        bearerToken: state => state.api.jwtToken,
-      }),
-
-      headers() {
-        return {
-          Authorization: `Bearer ${this.bearerToken}`,
-        };
-      },
-
       documentAvailable() {
         return this.document.id != null;
       },
