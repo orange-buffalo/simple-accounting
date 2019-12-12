@@ -31,6 +31,13 @@ module.exports = {
       .set('cldr$', 'cldrjs')
       .set('cldr', 'cldrjs/dist/cldr')
       .end();
+
+    config
+      .entry('app')
+      .clear();
+    config
+      .entry('app')
+      .add('./src/entry.js');
   },
 
   pluginOptions: {
