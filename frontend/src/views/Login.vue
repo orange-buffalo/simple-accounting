@@ -12,8 +12,8 @@
 
 <script>
   import { api } from '@/services/api';
-  import { setupApp } from '@/services/app-services';
   import LoginForm from '@/components/LoginForm';
+  import { initWorkspace } from '@/services/workspaces-service';
 
   export default {
     name: 'Login',
@@ -27,7 +27,7 @@
         if (api.isAdmin()) {
           await this.$router.push({ name: 'users-overview' });
         } else {
-          await setupApp(this.$store, this.$router);
+          await initWorkspace();
           if (!this.$store.state.workspaces.currentWorkspace) {
             await this.$router.push('/workspace-setup');
           } else if (this.$store.state.app.lastView) {

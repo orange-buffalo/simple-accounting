@@ -8,7 +8,7 @@
     <ElFormItem prop="userName">
       <ElInput
         v-model="form.userName"
-        placeholder="Login"
+        :placeholder="$t('loginPage.userName.placeholder')"
       >
         <SaIcon
           slot="prefix"
@@ -74,7 +74,7 @@
     },
 
     async created() {
-      if (await api.tryAutoLogin()) {
+      if (api.isLoggedIn()) {
         this.$emit('login');
       }
     },

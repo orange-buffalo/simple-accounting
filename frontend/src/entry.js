@@ -16,7 +16,35 @@ loaderDiv.innerHTML += `
 
 document.body.appendChild(loaderDiv);
 
-import('./main').then(() => {
+async function resolveDeferredAndSetupApp(setupAppDeferred) {
+  const { default: { app, setupApp, mountApp } } = await setupAppDeferred;
+  setupApp();
+  return ({
+    app,
+    mountApp,
+  });
+}
+
+async function initApp() {
+  const setupAppDeferred = import(/* webpackPreload: true, webpackChunkName: "setup-app" */ '@/setup/setup-app');
+  const { api } = await import(/* webpackPreload: true, webpackChunkName: "api-services" */ '@/services/api');
+  if (await api.tryAutoLogin()) {
+    const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
+    await app.router.push(window.location.pathname);
+    const { initWorkspace } = await
+      import(/* webpackChunkName: "workspaces-service" */ '@/services/workspaces-service');
+    await initWorkspace();
+    mountApp();
+  } else {
+    const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
+    await app.i18n.setLocaleFromBrowser();
+    await app.router.push({ name: 'login' });
+    mountApp();
+  }
+
   loaderDiv.setAttribute('style', 'opacity: 0');
   setTimeout(() => loaderDiv.remove(), 500);
-});
+}
+
+// noinspection JSIgnoredPromiseFromCall
+initApp();
