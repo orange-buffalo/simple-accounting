@@ -18,7 +18,6 @@ export const i18nStore = {
   namespaced: true,
 
   state: {
-    currencyFormatters: {},
     mediumDateFormatter: null,
     mediumDateTimeFormatter: null,
     currencyInfo: [],
@@ -52,9 +51,6 @@ export const i18nStore = {
         dispatch('ensureMediumDateTimeFormatter');
       }
 
-      Object.keys(state.currencyFormatters)
-        .forEach(currency => dispatch('ensureCurrencyFormatter', currency));
-
       state.currencyInfo = merge(
         cldr.get('/main/{bundle}/numbers/currencies'),
         cldr.get('/supplemental/currencyData/fractions'),
@@ -64,18 +60,6 @@ export const i18nStore = {
 
       state.defaultNumberParser = globalize.numberParser();
       state.defaultNumberFormatter = globalize.numberFormatter();
-    },
-
-    ensureCurrencyFormatter({ state }, currency) {
-      const currencyFormatter = {};
-      currencyFormatter[currency] = ensureFormatter(
-        state.currencyFormatters[currency],
-        () => globalize.currencyFormatter(currency),
-      );
-      state.currencyFormatters = {
-        ...state.currencyFormatters,
-        ...currencyFormatter,
-      };
     },
 
     ensureMediumDateFormatter({ state }) {
@@ -97,11 +81,6 @@ export const i18nStore = {
     getCurrencyInfo: state => (currency) => {
       const currencyInfo = state.currencyInfo[currency];
       return currencyInfo || {};
-    },
-
-    getCurrencyFormatter: state => (currency) => {
-      const currencyFormatter = state.currencyFormatters[currency];
-      return currencyFormatter == null ? emptyFormatter : currencyFormatter;
     },
   },
 };

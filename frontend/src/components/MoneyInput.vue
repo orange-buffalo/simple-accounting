@@ -20,7 +20,6 @@
 <script>
   import MaskedInput from 'vue-text-mask';
   import createNumberMask from 'text-mask-addons/dist/createNumberMask';
-  import withCurrencyFormatter from '@/components/mixins/with-currency-formatter';
   import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
   import { withNumberFormatter } from '@/components/mixins/with-number-formatter';
 
@@ -31,7 +30,7 @@
       MaskedInput,
     },
 
-    mixins: [withCurrencyFormatter, withCurrencyInfo, withNumberFormatter],
+    mixins: [withCurrencyInfo, withNumberFormatter],
 
     props: {
       value: Number,
