@@ -66,7 +66,7 @@
       inputValue(val) {
         this.$emit(
           'input',
-          !val ? null : Math.round(this.parserNumberDefault(this.inputValue) * this.digitsMultiplier),
+          !val ? null : Math.round(i18n.parserNumber(this.inputValue) * this.digitsMultiplier),
         );
       },
     },

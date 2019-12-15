@@ -18,7 +18,6 @@ export const i18nStore = {
   state: {
     mediumDateFormatter: null,
     mediumDateTimeFormatter: null,
-    defaultNumberParser: null,
   },
 
   // todo #6: perhaps use mutation instead of direct manipulation with state to have tooling support
@@ -47,7 +46,6 @@ export const i18nStore = {
         dispatch('ensureMediumDateTimeFormatter');
       }
 
-      state.defaultNumberParser = globalize.numberParser();
       state.defaultNumberFormatter = globalize.numberFormatter();
     },
 

@@ -13,6 +13,7 @@ let currentLocale;
 let currentLanguage;
 let currenciesInfo;
 let numbersInfo;
+let numberParser;
 
 async function loadLanguage(language) {
   const { default: messages } = await import(/* webpackChunkName: "lang-[request]" */ `@/i18n/t9n/${language}`);
@@ -35,6 +36,7 @@ async function loadLocale(locale) {
 
   Globalize.load(cldrData);
   const globalize = Globalize(locale);
+  numberParser = globalize.numberParser();
 
   i18n.formatter = new ICUFormatter({
     locale,
@@ -106,6 +108,16 @@ i18n.getDecimalSeparator = function getDecimalSeparator() {
 
 i18n.getThousandSeparator = function getThousandSeparator() {
   return this.getNumbersInfo().group;
+};
+
+i18n.parserNumber = function parseNumber(input) {
+  if (typeof input === 'number') {
+    return input;
+  }
+  if (typeof input === 'string') {
+    return numberParser(input);
+  }
+  return null;
 };
 
 export default i18n;
