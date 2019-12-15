@@ -86,6 +86,16 @@ i18n.getCurrencyDigits = function getCurrencyDigits(currency) {
   return currencyInfo._digits ? currencyInfo._digits : 2;
 };
 
+i18n.getCurrencySymbol = function getCurrencySymbol(currency) {
+  const currencyInfo = this.getCurrencyInfo(currency);
+  return currencyInfo.symbol ? currencyInfo.symbol : '';
+};
+
+i18n.getCurrencyDisplayName = function getCurrencyDisplayName(currency) {
+  const currencyInfo = this.getCurrencyInfo(currency);
+  return currencyInfo.displayName ? currencyInfo.displayName : '';
+};
+
 i18n.getNumbersInfo = function getNumbersInfo() {
   return numbersInfo;
 };

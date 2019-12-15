@@ -27,19 +27,28 @@
 
 <script>
   import { mapState, mapActions } from 'vuex';
-  import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
   import { api } from '@/services/api';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import i18n from '@/services/i18n';
 
   export default {
     name: 'CurrencyInput',
 
-    mixins: [withCurrencyInfo, withWorkspaces],
+    mixins: [withWorkspaces],
 
     props: {
-      value: String,
-      placeholder: String,
-      disabled: Boolean,
+      value: {
+        type: String,
+        default: null,
+      },
+      placeholder: {
+        type: String,
+        default: null,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     data() {
@@ -79,8 +88,8 @@
       currenciesData() {
         return currencies => currencies.map(currency => ({
           code: currency.code,
-          symbol: this.currencySymbol(currency.code),
-          displayName: this.currencyDisplayName(currency.code),
+          symbol: i18n.getCurrencySymbol(currency.code),
+          displayName: i18n.getCurrencyDisplayName(currency.code),
         }));
       },
 

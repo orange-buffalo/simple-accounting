@@ -20,7 +20,7 @@
 <script>
   import MaskedInput from 'vue-text-mask';
   import createNumberMask from 'text-mask-addons/dist/createNumberMask';
-  import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
+  import i18n from '@/services/i18n';
   import { withNumberFormatter } from '@/components/mixins/with-number-formatter';
 
   export default {
@@ -30,7 +30,7 @@
       MaskedInput,
     },
 
-    mixins: [withCurrencyInfo, withNumberFormatter],
+    mixins: [withNumberFormatter],
 
     props: {
       value: Number,
@@ -48,13 +48,13 @@
         return createNumberMask({
           prefix: '',
           thousandsSeparatorSymbol: this.thousandSeparator,
-          allowDecimal: this.currencyDigits(this.currency) > 0,
+          allowDecimal: i18n.getCurrencyDigits(this.currency) > 0,
           decimalSymbol: this.decimalSeparator,
         });
       },
 
       digitsMultiplier() {
-        return Math.pow(10, this.currencyDigits(this.currency));
+        return 10 ** i18n.getCurrencyDigits(this.currency);
       },
     },
 
@@ -64,7 +64,10 @@
       },
 
       inputValue(val) {
-        this.$emit('input', !val ? null : Math.round(this.parserNumberDefault(this.inputValue) * this.digitsMultiplier));
+        this.$emit(
+          'input',
+          !val ? null : Math.round(this.parserNumberDefault(this.inputValue) * this.digitsMultiplier),
+        );
       },
     },
 

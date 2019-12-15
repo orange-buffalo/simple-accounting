@@ -1,5 +1,3 @@
-import merge from 'deepmerge';
-
 let globalize;
 let cldr;
 
@@ -20,7 +18,6 @@ export const i18nStore = {
   state: {
     mediumDateFormatter: null,
     mediumDateTimeFormatter: null,
-    currencyInfo: [],
     numbersInfo: null,
     defaultNumberParser: null,
   },
@@ -51,11 +48,6 @@ export const i18nStore = {
         dispatch('ensureMediumDateTimeFormatter');
       }
 
-      state.currencyInfo = merge(
-        cldr.get('/main/{bundle}/numbers/currencies'),
-        cldr.get('/supplemental/currencyData/fractions'),
-      );
-
       state.numbersInfo = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
 
       state.defaultNumberParser = globalize.numberParser();
@@ -74,13 +66,6 @@ export const i18nStore = {
         state.mediumDateTimeFormatter,
         () => globalize.dateFormatter({ skeleton: 'yMMMdhm' }),
       );
-    },
-  },
-
-  getters: {
-    getCurrencyInfo: state => (currency) => {
-      const currencyInfo = state.currencyInfo[currency];
-      return currencyInfo || {};
     },
   },
 };
