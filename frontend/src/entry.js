@@ -30,10 +30,21 @@ async function initApp() {
   const { api } = await import(/* webpackPreload: true, webpackChunkName: "api-services" */ '@/services/api');
   if (await api.tryAutoLogin()) {
     const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
-    await app.router.push(window.location.pathname);
+
+    const { userApi } = await
+      import(/* webpackChunkName: "user-api" */ '@/services/user-api');
+    const profile = await userApi.getProfile();
+    await app.i18n.setLocaleFromProfile(profile.i18n);
+
+    const targetRoute = window.location.pathname;
+    if (app.router.currentRoute.path !== targetRoute) {
+      await app.router.push(targetRoute);
+    }
+
     const { initWorkspace } = await
       import(/* webpackChunkName: "workspaces-service" */ '@/services/workspaces-service');
     await initWorkspace();
+
     mountApp();
   } else {
     const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);

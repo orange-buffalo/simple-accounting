@@ -1,4 +1,4 @@
-import api from '@/services/api';
+import { api } from '@/services/api';
 
 export const userApi = {
 
@@ -10,6 +10,12 @@ export const userApi = {
         })
         .catch(error => reject(error));
     });
+  },
+
+  // todo #6 use on profile page
+  async getProfile() {
+    const { data: profile } = await api.get('/profile');
+    return profile;
   },
 
 };

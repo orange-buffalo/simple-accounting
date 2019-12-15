@@ -34,4 +34,8 @@ i18n.setLocaleFromBrowser = function setLocaleFromBrowser() {
   return loadLanguage('en');
 };
 
+i18n.setLocaleFromProfile = function setLocaleFromProfile({ locale, language }) {
+  return loadLanguage(language);
+};
+
 export default i18n;

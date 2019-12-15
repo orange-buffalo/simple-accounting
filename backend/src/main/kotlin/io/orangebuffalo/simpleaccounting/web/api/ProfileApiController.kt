@@ -33,13 +33,23 @@ class ProfileApiController(
 private fun mapToProfileDto(currentUser: PlatformUser): ProfileDto =
     ProfileDto(
         userName = currentUser.userName,
-        documentsStorage = currentUser.documentsStorage
+        documentsStorage = currentUser.documentsStorage,
+        i18n = I18nSettingsDto(
+            locale = currentUser.i18nSettings.locale,
+            language = currentUser.i18nSettings.language
+        )
     )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ProfileDto(
     val userName: String,
-    val documentsStorage: String?
+    val documentsStorage: String?,
+    val i18n: I18nSettingsDto
+)
+
+data class I18nSettingsDto(
+    val locale: String,
+    val language: String
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

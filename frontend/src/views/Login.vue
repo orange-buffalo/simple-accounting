@@ -14,6 +14,8 @@
   import { api } from '@/services/api';
   import LoginForm from '@/components/LoginForm';
   import { initWorkspace } from '@/services/workspaces-service';
+  import { userApi } from '@/services/user-api';
+  import { app } from '@/services/app-services';
 
   export default {
     name: 'Login',
@@ -27,7 +29,11 @@
         if (api.isAdmin()) {
           await this.$router.push({ name: 'users-overview' });
         } else {
+          const profile = await userApi.getProfile();
+          await app.i18n.setLocaleFromProfile(profile.i18n);
+
           await initWorkspace();
+
           if (!this.$store.state.workspaces.currentWorkspace) {
             await this.$router.push('/workspace-setup');
           } else if (this.$store.state.app.lastView) {

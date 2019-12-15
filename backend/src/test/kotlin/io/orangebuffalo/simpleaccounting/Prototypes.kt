@@ -46,12 +46,14 @@ class Prototypes {
             userName: String = "Farnsworth",
             passwordHash: String = "nopassword",
             isAdmin: Boolean = false,
-            documentsStorage: String? = null
+            documentsStorage: String? = null,
+            i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en")
         ) = PlatformUser(
             userName = userName,
             passwordHash = passwordHash,
             isAdmin = isAdmin,
-            documentsStorage = documentsStorage
+            documentsStorage = documentsStorage,
+            i18nSettings = i18nSettings
         )
 
         fun workspace(
@@ -151,7 +153,7 @@ class Prototypes {
             generalTax: GeneralTax? = null,
             generalTaxRateInBps: Int? = null,
             generalTaxAmount: Long? = null,
-            status: IncomeStatus= IncomeStatus.FINALIZED
+            status: IncomeStatus = IncomeStatus.FINALIZED
         ) = Income(
             category = category,
             workspace = workspace,
