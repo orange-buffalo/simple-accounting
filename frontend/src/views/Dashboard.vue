@@ -1,7 +1,7 @@
 <template>
   <div class="home-page">
     <div class="sa-page-header">
-      <h1>Dashboard</h1>
+      <h1>{{ $t('dashboard.header') }}</h1>
 
       <div class="sa-header-options">
         <span>&nbsp;</span>
@@ -204,7 +204,7 @@
 
           <div class="home-page__row__hero__details__item">
             <span>Issue Date</span>
-            <span>{{ invoiceDateIssued(invoice) }}</span>
+            <span>{{ $t('common.date.medium', [invoice.dateIssued]) }}</span>
           </div>
 
           <div class="home-page__row__hero__details__item">

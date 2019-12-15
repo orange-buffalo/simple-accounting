@@ -35,7 +35,7 @@ export const i18nStore = {
       // todo #6: based on current locale
       const cldrjs = await import('cldrjs');
       const globalizejs = await import('globalize');
-      const module = await import('./i18n/en-AU.cldr-data');
+      const module = await import('@/i18n/l10n/en-AU.cldr-data');
 
       cldrjs.default.load(module.default);
       globalizejs.default.load(module.default);

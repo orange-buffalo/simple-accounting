@@ -49,7 +49,9 @@ async function initApp() {
   } else {
     const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
     await app.i18n.setLocaleFromBrowser();
-    await app.router.push({ name: 'login' });
+    if (app.router.currentRoute.path !== '/login') {
+      await app.router.push({ name: 'login' });
+    }
     mountApp();
   }
 

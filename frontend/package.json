@@ -27,6 +27,7 @@
     "lockr": "^0.8.5",
     "lodash": "^4.17.15",
     "marked": "^0.7.0",
+    "messageformat": "^2.3.0",
     "qs": "^6.9.1",
     "text-mask-addons": "^3.8.0",
     "vue": "^2.6.11",

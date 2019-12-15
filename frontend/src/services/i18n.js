@@ -1,41 +1,93 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
+import Cldr from 'cldrjs';
+import Globalize from 'globalize';
+import deepmerge from 'deepmerge';
+import ICUFormatter from './i18n/icu-formatter';
 
 Vue.use(VueI18n);
 
 const i18n = new VueI18n({});
 
-const loadedLanguages = [];
+let currentLocale;
+let currentLanguage;
+let currenciesInfo;
+let numbersInfo;
 
-function setLocale(locale) {
-  i18n.locale = locale;
-  document.querySelector('html')
-    .setAttribute('lang', locale);
-  return locale;
+async function loadLanguage(language) {
+  const { default: messages } = await import(/* webpackChunkName: "lang-[request]" */ `@/i18n/t9n/${language}`);
+  i18n.setLocaleMessage(language, messages);
+  i18n.locale = language;
+  currentLanguage = language;
 }
 
-async function loadLanguage(locale) {
-  if (i18n.locale === locale) {
-    return setLocale(locale);
+async function loadLocale(locale) {
+  const { default: cldrData } = await
+    import(/* webpackChunkName: "locale-[request]" */ `@/i18n/l10n/${locale}.cldr-data`);
+
+  Cldr.load(cldrData);
+  const cldr = new Cldr(locale);
+  currenciesInfo = deepmerge(
+    cldr.get('/main/{bundle}/numbers/currencies'),
+    cldr.get('/supplemental/currencyData/fractions'),
+  );
+  numbersInfo = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
+
+  Globalize.load(cldrData);
+  const globalize = Globalize(locale);
+
+  i18n.formatter = new ICUFormatter({
+    locale,
+    globalize,
+    i18n,
+  });
+
+  currentLocale = locale;
+}
+
+async function setupI18n(locale, language) {
+  let loadLocaleDeferred;
+  if (currentLocale !== locale) {
+    loadLocaleDeferred = loadLocale(locale);
   }
 
-  if (loadedLanguages.includes(locale)) {
-    return Promise.resolve(setLocale(locale));
+  let loadLanguageDeferred;
+  if (currentLanguage !== language) {
+    loadLanguageDeferred = loadLanguage(language);
   }
 
-  // If the language hasn't been loaded yet
-  const { default: messages } = await import(/* webpackChunkName: "locale-[request]" */ `@/i18n/t9n/${locale}.js`);
-  i18n.setLocaleMessage(locale, messages);
-  loadedLanguages.push(locale);
-  return setLocale(locale);
+  await Promise.all([loadLocaleDeferred, loadLanguageDeferred]);
 }
 
 i18n.setLocaleFromBrowser = function setLocaleFromBrowser() {
-  return loadLanguage('en');
+  return setupI18n('en', 'en');
 };
 
+function localeIdToLanguageTag(localeId) {
+  return localeId.replace(/_/g, '-');
+}
+
 i18n.setLocaleFromProfile = function setLocaleFromProfile({ locale, language }) {
-  return loadLanguage(language);
+  return setupI18n(localeIdToLanguageTag(locale), localeIdToLanguageTag(language));
+};
+
+i18n.getCurrencyInfo = function getCurrencyInfo(currency) {
+  const currencyInfo = currenciesInfo[currency];
+  if (!currencyInfo) {
+    console.warn(`${currency} is not supported`);
+    return {};
+  }
+  return currencyInfo;
+};
+
+i18n.getCurrencyDigits = function getCurrencyDigits(currency) {
+  const currencyInfo = this.getCurrencyInfo(currency);
+  // eslint-disable-next-line no-underscore-dangle
+  return currencyInfo._digits ? currencyInfo._digits : 2;
+};
+
+i18n.getNumbersInfo = function getNumbersInfo() {
+  return numbersInfo;
 };
 
 export default i18n;
