@@ -21,7 +21,6 @@
   import MaskedInput from 'vue-text-mask';
   import createNumberMask from 'text-mask-addons/dist/createNumberMask';
   import i18n from '@/services/i18n';
-  import { withNumberFormatter } from '@/components/mixins/with-number-formatter';
 
   export default {
     name: 'MoneyInput',
@@ -29,8 +28,6 @@
     components: {
       MaskedInput,
     },
-
-    mixins: [withNumberFormatter],
 
     props: {
       value: Number,
@@ -60,7 +57,7 @@
 
     watch: {
       value(val) {
-        this.inputValue = !val ? null : this.formatNumberDefault(this.value / this.digitsMultiplier);
+        this.setInputValue(val);
       },
 
       inputValue(val) {
@@ -72,7 +69,13 @@
     },
 
     created() {
-      this.inputValue = this.value ? this.formatNumberDefault(this.value / this.digitsMultiplier) : null;
+      this.setInputValue(this.value);
+    },
+
+    methods: {
+      setInputValue(val) {
+        this.inputValue = !val ? null : this.$i18n.n(this.value / this.digitsMultiplier);
+      },
     },
   };
 </script>

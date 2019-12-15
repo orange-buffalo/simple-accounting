@@ -1,5 +1,4 @@
 let globalize;
-let cldr;
 
 function emptyFormatter() {
   return '';
@@ -33,8 +32,6 @@ export const i18nStore = {
 
       cldrjs.default.load(module.default);
       globalizejs.default.load(module.default);
-      // eslint-disable-next-line new-cap
-      cldr = new cldrjs.default('en-AU');
       globalize = globalizejs.default('en-AU');
 
       // todo #6: no need in lazy initialization for these formatters
@@ -45,8 +42,6 @@ export const i18nStore = {
       if (state.mediumDateTimeFormatter) {
         dispatch('ensureMediumDateTimeFormatter');
       }
-
-      state.defaultNumberFormatter = globalize.numberFormatter();
     },
 
     ensureMediumDateFormatter({ state }) {
