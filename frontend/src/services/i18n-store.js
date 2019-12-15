@@ -18,7 +18,6 @@ export const i18nStore = {
   state: {
     mediumDateFormatter: null,
     mediumDateTimeFormatter: null,
-    numbersInfo: null,
     defaultNumberParser: null,
   },
 
@@ -47,8 +46,6 @@ export const i18nStore = {
       if (state.mediumDateTimeFormatter) {
         dispatch('ensureMediumDateTimeFormatter');
       }
-
-      state.numbersInfo = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
 
       state.defaultNumberParser = globalize.numberParser();
       state.defaultNumberFormatter = globalize.numberFormatter();

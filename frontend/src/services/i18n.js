@@ -100,4 +100,12 @@ i18n.getNumbersInfo = function getNumbersInfo() {
   return numbersInfo;
 };
 
+i18n.getDecimalSeparator = function getDecimalSeparator() {
+  return this.getNumbersInfo().decimal;
+};
+
+i18n.getThousandSeparator = function getThousandSeparator() {
+  return this.getNumbersInfo().group;
+};
+
 export default i18n;

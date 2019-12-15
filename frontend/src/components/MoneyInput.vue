@@ -47,9 +47,9 @@
       inputMask() {
         return createNumberMask({
           prefix: '',
-          thousandsSeparatorSymbol: this.thousandSeparator,
+          thousandsSeparatorSymbol: i18n.getThousandSeparator(),
           allowDecimal: i18n.getCurrencyDigits(this.currency) > 0,
-          decimalSymbol: this.decimalSeparator,
+          decimalSymbol: i18n.getDecimalSeparator(),
         });
       },
 
