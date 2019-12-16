@@ -16,7 +16,6 @@ export const i18nStore = {
 
   state: {
     mediumDateFormatter: null,
-    mediumDateTimeFormatter: null,
   },
 
   // todo #6: perhaps use mutation instead of direct manipulation with state to have tooling support
@@ -38,23 +37,12 @@ export const i18nStore = {
       if (state.mediumDateFormatter) {
         dispatch('ensureMediumDateFormatter');
       }
-
-      if (state.mediumDateTimeFormatter) {
-        dispatch('ensureMediumDateTimeFormatter');
-      }
     },
 
     ensureMediumDateFormatter({ state }) {
       state.mediumDateFormatter = ensureFormatter(
         state.mediumDateFormatter,
         () => globalize.dateFormatter({ date: 'medium' }),
-      );
-    },
-
-    ensureMediumDateTimeFormatter({ state }) {
-      state.mediumDateTimeFormatter = ensureFormatter(
-        state.mediumDateTimeFormatter,
-        () => globalize.dateFormatter({ skeleton: 'yMMMdhm' }),
       );
     },
   },

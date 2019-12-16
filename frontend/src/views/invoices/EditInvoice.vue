@@ -8,7 +8,7 @@
         class="sa-header-options"
       >
         <div>
-          <span v-if="!invoice.dateCancelled">Recorded on {{ timeRecorded }}</span>
+          <span v-if="!invoice.dateCancelled">{{ $t('editInvoice.recordedOn', [invoice.timeRecorded]) }}</span>
           <span v-if="invoice.dateCancelled">Cancelled on {{ dateCancelled }}</span>
         </div>
 
@@ -216,7 +216,6 @@
   import withCustomers from '@/components/mixins/with-customers';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
-  import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
   import withWorkspaces from '@/components/mixins/with-workspaces';
@@ -232,7 +231,7 @@
       MoneyInput,
     },
 
-    mixins: [withMediumDateFormatter, withMediumDateTimeFormatter, withCustomers, withGeneralTaxes, withWorkspaces],
+    mixins: [withMediumDateFormatter, withCustomers, withGeneralTaxes, withWorkspaces],
 
     data() {
       return {
@@ -295,10 +294,6 @@
 
       isEditing() {
         return this.$route.params.id != null;
-      },
-
-      timeRecorded() {
-        return this.invoice.timeRecorded ? this.mediumDateTimeFormatter(new Date(this.invoice.timeRecorded)) : '';
       },
 
       dateCancelled() {

@@ -1,5 +1,6 @@
 import MessageFormat from 'messageformat';
 import amountFormatter from '@/services/i18n/amount-formatter';
+import dateTimeFormatter from '@/services/i18n/date-time-formatter';
 
 export default class ICUFormatter {
   constructor({
@@ -10,12 +11,13 @@ export default class ICUFormatter {
     this.locale = locale;
     this.formatter = new MessageFormat(this.locale);
     this.cache = {};
-
     this.formatter.addFormatters({
       amount: amountFormatter({
         globalize,
         i18n,
       }),
+      // todo #6: rename when https://github.com/messageformat/messageformat/issues/274 is resolved
+      saDateTime: dateTimeFormatter({ globalize }),
     });
   }
 

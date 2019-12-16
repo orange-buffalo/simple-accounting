@@ -18,12 +18,9 @@
 <script>
   import pushNotifications from '@/services/push-notifications';
   import { api } from '@/services/api';
-  import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
 
   export default {
     name: 'GoogleDrive',
-
-    mixins: [withMediumDateTimeFormatter],
 
     data() {
       return {

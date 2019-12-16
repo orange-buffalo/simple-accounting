@@ -1,7 +1,5 @@
-let currencyFormatters;
-
 export default function amountFormatter({ globalize, i18n }) {
-  currencyFormatters = [];
+  const currencyFormatters = [];
 
   return function amountFormatterImpl({ currency, amount }, locale, arg) {
     if (arg !== 'withCurrency') {
