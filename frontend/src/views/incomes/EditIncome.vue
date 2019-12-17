@@ -172,7 +172,6 @@
   import { api } from '@/services/api';
   import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
@@ -191,7 +190,7 @@
       MoneyInput,
     },
 
-    mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories, withWorkspaces],
+    mixins: [withGeneralTaxes, withCategories, withWorkspaces],
 
     data() {
       return {

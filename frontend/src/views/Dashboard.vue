@@ -209,12 +209,12 @@
 
           <div class="home-page__row__hero__details__item">
             <span>Date Sent</span>
-            <span>{{ invoiceDateSent(invoice) }}</span>
+            <span>{{ $t('common.date.medium', [invoice.dateSent]) }}</span>
           </div>
 
           <div class="home-page__row__hero__details__item">
             <span>Due Date</span>
-            <span>{{ invoiceDueDate(invoice) }}</span>
+            <span>{{ $t('common.date.medium', [invoice.dueDate]) }}</span>
           </div>
         </div>
       </div>
@@ -228,7 +228,6 @@
   import withCategories from '@/components/mixins/with-categories';
   import MoneyOutput from '@/components/MoneyOutput';
   import { lockr } from '@/services/app-services';
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withCustomers from '@/components/mixins/with-customers';
   import SaIcon from '@/components/SaIcon';
 
@@ -242,7 +241,7 @@
       MoneyOutput,
     },
 
-    mixins: [withWorkspaces, withCategories, withMediumDateFormatter, withCustomers],
+    mixins: [withWorkspaces, withCategories, withCustomers],
 
     data() {
       return {
@@ -294,18 +293,6 @@
           }
           return 'Pending';
         };
-      },
-
-      invoiceDateIssued() {
-        return invoice => this.mediumDateFormatter(new Date(invoice.dateIssued));
-      },
-
-      invoiceDueDate() {
-        return invoice => this.mediumDateFormatter(new Date(invoice.dueDate));
-      },
-
-      invoiceDateSent() {
-        return invoice => this.mediumDateFormatter(new Date(invoice.dateSent));
       },
 
       invoiceCustomerName() {

@@ -2,11 +2,11 @@
   <OverviewItem :title="taxPayment.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
-        v-if="datePaid"
+        v-if="taxPayment.datePaid"
         tooltip="Date paid"
         icon="calendar"
       >
-        {{ datePaid }}
+        {{ $t('common.date.medium', [taxPayment.datePaid]) }}
       </OverviewItemPrimaryAttribute>
     </template>
 
@@ -48,14 +48,14 @@
             label="Date Paid"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ datePaid }}
+            {{ $t('common.date.medium', [taxPayment.datePaid]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
             label="Reporting Date"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ reportingDate }}
+            {{ $t('common.date.medium', [taxPayment.reportingDate]) }}
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
@@ -86,7 +86,6 @@
 </template>
 
 <script>
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -115,22 +114,12 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withMediumDateFormatter, withWorkspaces],
+    mixins: [withWorkspaces],
 
     props: {
       taxPayment: {
         type: Object,
         required: true,
-      },
-    },
-
-    computed: {
-      datePaid() {
-        return this.mediumDateFormatter(new Date(this.taxPayment.datePaid));
-      },
-
-      reportingDate() {
-        return this.mediumDateFormatter(new Date(this.taxPayment.reportingDate));
       },
     },
 

@@ -1,6 +1,6 @@
 import MessageFormat from 'messageformat';
 import amountFormatter from '@/services/i18n/amount-formatter';
-import dateTimeFormatter from '@/services/i18n/date-time-formatter';
+import { dateTimeFormatter, dateFormatter } from '@/services/i18n/date-formatters';
 
 export default class ICUFormatter {
   constructor({
@@ -16,6 +16,7 @@ export default class ICUFormatter {
         globalize,
         i18n,
       }),
+      date: dateFormatter({ globalize }),
       // todo #6: rename when https://github.com/messageformat/messageformat/issues/274 is resolved
       saDateTime: dateTimeFormatter({ globalize }),
     });

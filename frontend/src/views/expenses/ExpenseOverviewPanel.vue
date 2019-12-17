@@ -2,11 +2,11 @@
   <OverviewItem :title="expense.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
-        v-if="datePaid"
+        v-if="expense.datePaid"
         tooltip="Date paid"
         icon="calendar"
       >
-        {{ datePaid }}
+        {{ $t('common.date.medium', [expense.datePaid]) }}
       </OverviewItemPrimaryAttribute>
     </template>
 
@@ -104,7 +104,7 @@
             label="Date Paid"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ datePaid }}
+            {{ $t('common.date.medium', [expense.datePaid]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
@@ -253,7 +253,6 @@
 </template>
 
 <script>
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
@@ -288,7 +287,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withMediumDateFormatter, withCategories, withWorkspaces, withGeneralTaxes],
+    mixins: [withCategories, withWorkspaces, withGeneralTaxes],
 
     props: {
       expense: {
@@ -337,10 +336,6 @@
 
       isForeignCurrency() {
         return this.expense.currency !== this.defaultCurrency;
-      },
-
-      datePaid() {
-        return this.mediumDateFormatter(new Date(this.expense.datePaid));
       },
 
       isGeneralTaxApplicable() {

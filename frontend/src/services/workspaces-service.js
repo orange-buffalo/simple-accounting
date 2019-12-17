@@ -5,6 +5,4 @@ export async function initWorkspace() {
   // todo #97: remove these stores
   await app.store.dispatch('app/loadCurrencies');
   await app.store.dispatch('workspaces/loadWorkspaces');
-  // todo #6 remove
-  await app.store.dispatch('i18n/loadLocaleData');
 }

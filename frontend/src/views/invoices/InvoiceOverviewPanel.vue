@@ -10,11 +10,11 @@
       </OverviewItemPrimaryAttribute>
 
       <OverviewItemPrimaryAttribute
-        v-if="datePaid"
+        v-if="invoice.datePaid"
         tooltip="Date paid"
         icon="calendar"
       >
-        {{ datePaid }}
+        {{ $t('common.date.medium', [invoice.datePaid]) }}
       </OverviewItemPrimaryAttribute>
     </template>
 
@@ -140,43 +140,43 @@
             label="Date Issued"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dateIssued }}
+            {{ $t('common.date.medium', [invoice.dateIssued]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
             label="Due Date"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dueDate }}
+            {{ $t('common.date.medium', [invoice.dueDate]) }}
           </OverviewItemDetailsSectionAttribute>
         </div>
 
         <div
-          v-if="dateSent || dateCancelled || datePaid"
+          v-if="invoice.dateSent || invoice.dateCancelled || invoice.datePaid"
           class="row"
         >
           <OverviewItemDetailsSectionAttribute
-            v-if="dateSent"
+            v-if="invoice.dateSent"
             label="Date Sent"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dateSent }}
+            {{ $t('common.date.medium', [invoice.dateSent]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            v-if="dateCancelled"
+            v-if="invoice.dateCancelled"
             label="Date Cancelled"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dateCancelled }}
+            {{ $t('common.date.medium', [invoice.dateCancelled]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            v-if="datePaid"
+            v-if="invoice.datePaid"
             label="Date Paid"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ datePaid }}
+            {{ $t('common.date.medium', [invoice.datePaid]) }}
           </OverviewItemDetailsSectionAttribute>
         </div>
 
@@ -229,7 +229,6 @@
   import MoneyOutput from '@/components/MoneyOutput';
   import withCategories from '@/components/mixins/with-categories';
   import withCustomers from '@/components/mixins/with-customers';
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
@@ -263,7 +262,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
+    mixins: [withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
 
     props: {
       invoice: {
@@ -351,32 +350,6 @@
 
       generalTaxTitle() {
         return this.generalTaxById(this.invoice.generalTax).title;
-      },
-
-      dateIssued() {
-        return this.mediumDateFormatter(new Date(this.invoice.dateIssued));
-      },
-
-      dueDate() {
-        return this.mediumDateFormatter(new Date(this.invoice.dueDate));
-      },
-
-      dateSent() {
-        return this.invoice.dateSent
-          ? this.mediumDateFormatter(new Date(this.invoice.dateSent))
-          : null;
-      },
-
-      datePaid() {
-        return this.invoice.datePaid
-          ? this.mediumDateFormatter(new Date(this.invoice.datePaid))
-          : null;
-      },
-
-      dateCancelled() {
-        return this.invoice.dateCancelled
-          ? this.mediumDateFormatter(new Date(this.invoice.dateCancelled))
-          : null;
       },
 
       customer() {

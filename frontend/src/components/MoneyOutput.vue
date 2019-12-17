@@ -13,7 +13,7 @@
       },
       amount: {
         type: Number,
-        required: true,
+        default: null,
       },
     },
   };

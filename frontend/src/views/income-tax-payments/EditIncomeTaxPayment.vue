@@ -106,7 +106,6 @@
 <script>
   import { api } from '@/services/api';
   import MoneyInput from '@/components/MoneyInput';
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
@@ -122,7 +121,7 @@
       MoneyInput,
     },
 
-    mixins: [withMediumDateFormatter, withWorkspaces],
+    mixins: [withWorkspaces],
 
     data() {
       return {

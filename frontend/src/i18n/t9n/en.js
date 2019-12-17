@@ -23,5 +23,6 @@ export default {
 
   editInvoice: {
     recordedOn: 'Recorded on {0, saDateTime, medium}',
+    cancelledOn: 'Cancelled on {0, date, medium}',
   },
 };

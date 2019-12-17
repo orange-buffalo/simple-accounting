@@ -2,11 +2,11 @@
   <OverviewItem :title="income.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
-        v-if="dateReceived"
+        v-if="income.dateReceived"
         tooltip="Date received"
         icon="calendar"
       >
-        {{ dateReceived }}
+        {{ $t('common.date.medium', [income.dateReceived]) }}
       </OverviewItemPrimaryAttribute>
     </template>
 
@@ -97,7 +97,7 @@
             label="Date Received"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dateReceived }}
+            {{ $t('common.date.medium', [income.dateReceived]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
@@ -245,7 +245,6 @@
 </template>
 
 <script>
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
@@ -280,7 +279,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withGeneralTaxes],
+    mixins: [withWorkspaces, withCategories, withGeneralTaxes],
 
     props: {
       income: {
@@ -329,10 +328,6 @@
 
       isForeignCurrency() {
         return this.income.currency !== this.defaultCurrency;
-      },
-
-      dateReceived() {
-        return this.mediumDateFormatter(new Date(this.income.dateReceived));
       },
 
       isGeneralTaxApplicable() {
