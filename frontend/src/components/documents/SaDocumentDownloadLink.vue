@@ -3,7 +3,7 @@
     type="text"
     @click="startDownload"
   >
-    Download
+    {{ $t('saDocumentDownloadLink.label') }}
   </ElButton>
 </template>
 

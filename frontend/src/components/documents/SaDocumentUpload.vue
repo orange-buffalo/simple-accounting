@@ -5,11 +5,11 @@
         ref="dropPanel"
         class="sa-document-upload__file-selector"
       >
-        <span>Drop file here or click to upload</span>
+        <span>{{ $t('saDocumentUpload.fileSelector.message') }}</span>
         <span
           v-if="uploadingFailed"
           class="sa-document-upload__file-selector-error"
-        >Files up to 50MB are allowed</span>
+        > {{ $t('saDocumentUpload.fileSelector.hint', [maxFileSize]) }} </span>
       </div>
     </template>
 
@@ -90,6 +90,7 @@
         headers: {
           Authorization: `Bearer ${api.getToken()}`,
         },
+        maxFileSize: 50 * 1024 * 1024,
       };
     },
 
@@ -110,7 +111,7 @@
         if (this.uploadingFailed) {
           return {
             icon: 'error',
-            text: 'Upload failed, please try again',
+            text: this.$t('saDocumentUpload.uploadStatusMessage.error'),
             failure: true,
           };
         }
@@ -118,13 +119,13 @@
         if (this.uploading) {
           return {
             icon: 'upload',
-            text: 'Uploading...',
+            text: this.$t('saDocumentUpload.uploadStatusMessage.uploading'),
           };
         }
 
         return {
           icon: 'upload',
-          text: 'New document to be uploaded',
+          text: this.$t('saDocumentUpload.uploadStatusMessage.scheduled'),
         };
       },
     },
@@ -139,7 +140,7 @@
           previewTemplate: '<span>',
           accept: (file, done) => {
             this.uploadingFailed = false;
-            if (file.size > 50 * 1024 * 1024) {
+            if (file.size > this.maxFileSize) {
               this.uploadingFailed = true;
               done();
               this.dropzone.removeAllFiles();

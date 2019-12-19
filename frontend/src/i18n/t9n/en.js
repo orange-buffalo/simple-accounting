@@ -38,6 +38,28 @@ export default {
     },
   },
 
+  saDocumentDownloadLink: {
+    label: 'Download',
+  },
+
+  saDocumentUpload: {
+    fileSelector: {
+      message: 'Drop file here or click to upload',
+      hint: 'Files up to {0, fileSize, pretty} are allowed',
+    },
+    uploadStatusMessage: {
+      error: 'Upload failed, please try again',
+      uploading: 'Uploading...',
+      scheduled: 'New document to be uploaded',
+    },
+  },
+
+  saDocument: {
+    size: {
+      label: '({0, fileSize, pretty})',
+    },
+  },
+
   dashboard: {
     header: 'Dashboard',
   },
