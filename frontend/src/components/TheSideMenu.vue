@@ -12,78 +12,78 @@
     <template v-if="isUser">
       <TheSideMenuLink
         to="/"
-        title="Dashboard"
+        :title="$t('navigationMenu.dashboard')"
         icon="dashboard"
       />
       <TheSideMenuLink
         to="/expenses"
-        title="Expenses"
+        :title="$t('navigationMenu.expenses')"
         icon="expense"
       />
       <TheSideMenuLink
         to="/incomes"
-        title="Incomes"
+        :title="$t('navigationMenu.incomes')"
         icon="income"
       />
       <TheSideMenuLink
         to="/invoices"
-        title="Invoices"
+        :title="$t('navigationMenu.invoices')"
         icon="invoices-overview"
       />
       <TheSideMenuLink
         to="/income-tax-payments"
-        title="Income Tax Payments"
+        :title="$t('navigationMenu.taxPayments')"
         icon="taxes-overview"
       />
       <TheSideMenuLink
         to="/reporting"
-        title="Reporting"
+        :title="$t('navigationMenu.reporting')"
         icon="reporting"
       />
 
       <template v-if="isCurrentUserRegular">
-        <span class="the-side-menu__category">Settings</span>
+        <span class="the-side-menu__category">{{ $t('navigationMenu.settings.header') }}</span>
 
         <TheSideMenuLink
           v-if="currentWorkspace.editable"
           to="/settings/customers"
-          title="Customers"
+          :title="$t('navigationMenu.settings.customers')"
           icon="customer"
         />
 
         <TheSideMenuLink
           v-if="currentWorkspace.editable"
           to="/settings/categories"
-          title="Categories"
+          :title="$t('navigationMenu.settings.categories')"
           icon="category"
         />
 
         <TheSideMenuLink
           v-if="currentWorkspace.editable"
           to="/settings/general-taxes"
-          title="General Taxes"
+          :title="$t('navigationMenu.settings.generalTaxes')"
           icon="taxes-overview"
         />
 
         <TheSideMenuLink
           to="/settings/workspaces"
-          title="Workspaces"
+          :title="$t('navigationMenu.settings.workspaces')"
           icon="workspaces"
         />
       </template>
     </template>
 
-    <span class="the-side-menu__category">User</span>
+    <span class="the-side-menu__category">{{ $t('navigationMenu.user.header') }}</span>
 
     <TheSideMenuLink
       v-if="isCurrentUserRegular"
       to="/my-profile"
-      title="My Profile"
+      :title="$t('navigationMenu.user.profile')"
       icon="profile"
     />
     <TheSideMenuLink
       to="/logout"
-      title="Logout"
+      :title="$t('navigationMenu.user.logout')"
       icon="logout"
     />
   </ElAside>

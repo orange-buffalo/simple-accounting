@@ -17,6 +17,27 @@ export default {
     },
   },
 
+  navigationMenu: {
+    dashboard: 'Dashboard',
+    expenses: 'Expenses',
+    incomes: 'Incomes',
+    invoices: 'Invoices',
+    taxPayments: 'Income Tax Payments',
+    reporting: 'Reporting',
+    settings: {
+      header: 'Settings',
+      customers: 'Customers',
+      categories: 'Categories',
+      generalTaxes: 'General Taxes',
+      workspaces: 'Workspaces',
+    },
+    user: {
+      header: 'User',
+      profile: 'My Profile',
+      logout: 'Logout',
+    },
+  },
+
   dashboard: {
     header: 'Dashboard',
   },
