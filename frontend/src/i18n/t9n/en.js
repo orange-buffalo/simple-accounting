@@ -68,4 +68,70 @@ export default {
     recordedOn: 'Recorded on {0, saDateTime, medium}',
     cancelledOn: 'Cancelled on {0, date, medium}',
   },
+
+  editExpense: {
+    pageHeader: {
+      edit: 'Edit Expense',
+      create: 'Record New Expense',
+    },
+    generalInformation: {
+      header: 'General Information',
+      category: {
+        label: 'Category',
+        placeholder: 'Select a category',
+      },
+      title: {
+        label: 'Description / Title',
+        placeholder: 'Provide a short summary',
+      },
+      currency: {
+        label: 'Currency',
+      },
+      originalAmount: {
+        label: 'Original Amount',
+      },
+      datePaid: {
+        label: 'Date Paid',
+        placeholder: 'Date expense is paid',
+      },
+      convertedAmountInDefaultCurrency: {
+        label: 'Amount in {0}',
+      },
+      useDifferentExchangeRateForIncomeTaxPurposes: {
+        label: 'Using different exchange rate for taxation purposes',
+      },
+      incomeTaxableAmountInDefaultCurrency: {
+        label: 'Amount in {0} for taxation purposes',
+      },
+      generalTax: {
+        label: 'Included General Tax',
+        placeholder: 'Select a tax',
+      },
+      partialForBusiness: {
+        label: 'Partial Business Purpose',
+      },
+      percentOnBusiness: {
+        label: '% related to business activities',
+      },
+    },
+    additionalInformation: {
+      header: 'Additional Information',
+      notes: {
+        label: 'Notes',
+        placeholder: 'Any additional information to be stored for this expense record',
+      },
+    },
+    attachments: {
+      header: 'Attachments',
+    },
+    cancel: 'Cancel',
+    save: 'Save',
+    validations: {
+      currency: 'Please select a currency',
+      title: 'Please provide the title',
+      datePaid: 'Please provide the date when expense is paid',
+      originalAmount: 'Please provide expense amount',
+    },
+    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
+  },
 };
