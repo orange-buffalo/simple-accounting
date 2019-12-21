@@ -1,17 +1,17 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Expenses</h1>
+      <h1>{{ $t('expensesOverview.header') }}</h1>
 
       <div class="sa-header-options">
         <div>
-          <span>Filters coming soon</span>
+          <span>{{ $t('expensesOverview.filters.announcement') }}</span>
         </div>
 
         <div>
           <ElInput
             v-model="userFilters.freeSearchText"
-            placeholder="Search expenses"
+            :placeholder="$t('expensesOverview.filters.input.placeholder')"
             clearable
           >
             <i
@@ -27,7 +27,7 @@
           @click="navigateToCreateExpenseView"
         >
           <SaIcon icon="plus-thin" />
-          Add new
+          {{ $t('expensesOverview.create') }}
         </ElButton>
       </div>
     </div>

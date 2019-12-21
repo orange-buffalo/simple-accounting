@@ -224,4 +224,15 @@ export default {
       value: '{0, yesNo}',
     },
   },
+
+  expensesOverview: {
+    header: 'Expenses',
+    filters: {
+      announcement: 'Filters coming soon',
+      input: {
+        placeholder: 'Search expenses',
+      },
+    },
+    create: 'Add new',
+  },
 };
