@@ -3,7 +3,7 @@
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="expense.datePaid"
-        tooltip="Date paid"
+        :tooltip="$t('expensesOverviewPanel.datePaid.tooltip')"
         icon="calendar"
       >
         {{ $t('common.date.medium', [expense.datePaid]) }}
@@ -14,30 +14,30 @@
       <OverviewItemAttributePreviewIcon
         v-if="expense.notes"
         icon="notes"
-        tooltip="Additional notes provided"
+        :tooltip="$t('expensesOverviewPanel.notes.tooltip')"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="isGeneralTaxApplicable"
-        tooltip="General Tax applied"
+        :tooltip="$t('expensesOverviewPanel.generalTax.tooltip')"
         icon="tax"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="expense.attachments.length"
-        tooltip="Attachments provided"
+        :tooltip="$t('expensesOverviewPanel.attachments.tooltip')"
         icon="attachment"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="isForeignCurrency"
-        tooltip="In foreign currency"
+        :tooltip="$t('expensesOverviewPanel.foreignCurrency.tooltip')"
         icon="multi-currency"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="expense.percentOnBusiness < 100"
-        tooltip="Partial business purpose"
+        :tooltip="$t('expensesOverviewPanel.partialBusinessPurpose.tooltip')"
         icon="percent"
       />
     </template>
@@ -68,21 +68,21 @@
           icon="copy"
           @click="navigateToExpenseCreateWithPrototype"
         >
-          Copy
+          {{ $t('expensesOverviewPanel.copy') }}
         </SaActionLink>
         <SaActionLink
           v-if="currentWorkspace.editable"
           icon="pencil-solid"
           @click="navigateToExpenseEdit"
         >
-          Edit
+          {{ $t('expensesOverviewPanel.edit') }}
         </SaActionLink>
       </OverviewItemDetailsSectionActions>
 
-      <OverviewItemDetailsSection title="Summary">
+      <OverviewItemDetailsSection :title="$t('expensesOverviewPanel.summary.header')">
         <div class="row">
           <OverviewItemDetailsSectionAttribute
-            label="Status"
+            :label="$t('expensesOverviewPanel.status.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <SaStatusLabel
@@ -94,21 +94,21 @@
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Category"
+            :label="$t('expensesOverviewPanel.category.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ categoryById(expense.category).name }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Date Paid"
+            :label="$t('expensesOverviewPanel.datePaid.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [expense.datePaid]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Amount for Taxation Purposes"
+            :label="$t('expensesOverviewPanel.incomeTaxableAmounts.adjustedAmountInDefaultCurrency.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
@@ -117,29 +117,30 @@
               :amount="expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency"
             />
 
-            <span v-else>Not yet provided</span>
+            <span v-else>
+              {{ $t('expensesOverviewPanel.incomeTaxableAmounts.adjustedAmountInDefaultCurrency.notProvided') }}
+            </span>
           </OverviewItemDetailsSectionAttribute>
         </div>
 
         <template v-if="isGeneralTaxApplicable">
           <div class="row">
             <OverviewItemDetailsSectionAttribute
-              label="Applicable General Tax"
+              :label="$t('expensesOverviewPanel.generalTax.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               {{ generalTaxTitle }}
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable General Tax Rate"
+              :label="$t('expensesOverviewPanel.generalTaxRate.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <!-- todo #6 localize-->
-              {{ expense.generalTaxRateInBps / 100 }}%
+              {{ $t('expensesOverviewPanel.generalTaxRate.value', [expense.generalTaxRateInBps]) }}
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable General Tax Amount"
+              :label="$t('expensesOverviewPanel.generalTaxAmount.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <MoneyOutput
@@ -148,24 +149,24 @@
                 :amount="expense.generalTaxAmount"
               />
 
-              <span v-else>Not yet available</span>
+              <span v-else>{{ $t('expensesOverviewPanel.generalTaxAmount.notProvided') }}</span>
             </OverviewItemDetailsSectionAttribute>
           </div>
         </template>
       </OverviewItemDetailsSection>
 
-      <OverviewItemDetailsSection title="General Information">
+      <OverviewItemDetailsSection :title="$t('expensesOverviewPanel.generalInformation.header')">
         <div class="row">
           <OverviewItemDetailsSectionAttribute
             v-if="isForeignCurrency"
-            label="Original Currency"
+            :label="$t('expensesOverviewPanel.originalCurrency.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ expense.currency }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Original Amount"
+            :label="$t('expensesOverviewPanel.originalAmount.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
@@ -176,22 +177,22 @@
 
           <OverviewItemDetailsSectionAttribute
             v-if="expense.percentOnBusiness < 100"
-            label="Partial Business Purpose"
+            :label="$t('expensesOverviewPanel.partialBusinessPurpose.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <!-- todo #6 localize -->
-            {{ expense.percentOnBusiness }}% related to business activities
+            {{ $t('expensesOverviewPanel.partialBusinessPurpose.value', [expense.percentOnBusiness / 100]) }}
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
 
       <OverviewItemDetailsSection
         v-if="isForeignCurrency"
-        title="Currency Conversion"
+        :title="$t('expensesOverviewPanel.foreignCurrency.header')"
       >
         <div class="row">
+          <!-- eslint-disable max-len -->
           <OverviewItemDetailsSectionAttribute
-            :label="`Amount in ${defaultCurrency}`"
+            :label="$t('expensesOverviewPanel.convertedAmounts.originalAmountInDefaultCurrency.label', [defaultCurrency])"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
@@ -200,20 +201,20 @@
               :amount="expense.convertedAmounts.originalAmountInDefaultCurrency"
             />
 
-            <span v-else>Not yet available</span>
+            <span v-else>
+              {{ $t('expensesOverviewPanel.convertedAmounts.originalAmountInDefaultCurrency.notProvided') }}
+            </span>
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Using different exchange rate for taxation purposes?"
+            :label="$t('expensesOverviewPanel.differentExchangeRate.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            <!-- todo #6 localize -->
-            <span v-if="expense.useDifferentExchangeRateForIncomeTaxPurposes">Yes</span>
-            <span v-else>No</span>
+            {{ $t('expensesOverviewPanel.differentExchangeRate.value', [expense.useDifferentExchangeRateForIncomeTaxPurposes]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            :label="`Amount in ${defaultCurrency} for taxation purposes`"
+            :label="$t('expensesOverviewPanel.incomeTaxableAmounts.originalAmountInDefaultCurrency.label', [defaultCurrency])"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
@@ -222,14 +223,16 @@
               :amount="expense.incomeTaxableAmounts.originalAmountInDefaultCurrency"
             />
 
-            <span v-else>Not yet available</span>
+            <span v-else>
+              {{ $t('expensesOverviewPanel.incomeTaxableAmounts.originalAmountInDefaultCurrency.notProvided') }}
+            </span>
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
 
       <OverviewItemDetailsSection
         v-if="expense.attachments.length"
-        title="Attachments"
+        :title="$t('expensesOverviewPanel.attachments.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -240,7 +243,7 @@
 
       <OverviewItemDetailsSection
         v-if="expense.notes"
-        title="Additional Notes"
+        :title="$t('expensesOverviewPanel.notes.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -302,17 +305,19 @@
       },
 
       shortStatusText() {
-        return this.expense.status === 'FINALIZED' ? 'Finalized' : 'Pending';
+        return this.expense.status === 'FINALIZED'
+          ? this.$t('expensesOverviewPanel.status.short.finalized')
+          : this.$t('expensesOverviewPanel.status.short.pending');
       },
 
       fullStatusText() {
         if (this.expense.status === 'FINALIZED') {
-          return 'Finalized';
+          return this.$t('expensesOverviewPanel.status.full.finalized');
         }
         if (this.expense.status === 'PENDING_CONVERSION') {
-          return `Conversion to ${this.defaultCurrency} pending`;
+          return this.$t('expensesOverviewPanel.status.full.pendingConversion', [this.defaultCurrency]);
         }
-        return 'Waiting for exchange rate';
+        return this.$t('expensesOverviewPanel.status.full.waitingExchangeRate');
       },
 
       totalAmount() {

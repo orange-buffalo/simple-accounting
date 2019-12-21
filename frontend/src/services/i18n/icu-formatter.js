@@ -2,6 +2,8 @@ import MessageFormat from 'messageformat';
 import amountFormatter from '@/services/i18n/amount-formatter';
 import { dateTimeFormatter, dateFormatter } from '@/services/i18n/date-formatters';
 import fileSizeFormatter from '@/services/i18n/file-size-formatter';
+import yesNoFormatter from '@/services/i18n/yes-no-formatter';
+import bpsFormatter from '@/services/i18n/bps-formatter';
 
 export default class ICUFormatter {
   constructor({
@@ -19,6 +21,8 @@ export default class ICUFormatter {
       }),
       date: dateFormatter({ globalize }),
       fileSize: fileSizeFormatter(),
+      yesNo: yesNoFormatter({ i18n }),
+      bps: bpsFormatter({ i18n }),
       // todo #6: rename when https://github.com/messageformat/messageformat/issues/274 is resolved
       saDateTime: dateTimeFormatter({ globalize }),
     });
