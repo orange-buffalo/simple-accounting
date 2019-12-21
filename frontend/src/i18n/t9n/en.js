@@ -235,4 +235,49 @@ export default {
     },
     create: 'Add new',
   },
+
+  editIncomeTaxPayment: {
+    header: {
+      edit: 'Edit Income Tax Payment',
+      create: 'Record New Income Tax Payment',
+    },
+    generalInformation: {
+      header: 'General Information',
+
+      title: {
+        label: 'Description / Title',
+        placeholder: 'Provide a short summary',
+      },
+      amount: {
+        label: 'Amount',
+      },
+      datePaid: {
+        label: 'Date Paid',
+        placeholder: 'Date tax is paid',
+      },
+      reportingDate: {
+        label: 'Reporting Date',
+        placeholder: 'Date to include this payment into reporting by',
+      },
+    },
+    additionalInformation: {
+      header: 'Additional notes',
+      notes: {
+        label: 'Notes',
+        placeholder: 'Any additional information to be stored for this tax payment record',
+      },
+    },
+    attachments: {
+      header: 'Attachments',
+    },
+    cancel: 'Cancel',
+    save: 'Save',
+    validations: {
+      title: 'Please provide the title',
+      datePaid: 'Please provide the date when tax payment is done',
+      amount: 'Please provide tax payment amount',
+    },
+    uploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
+
+  }
 };
