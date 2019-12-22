@@ -13,6 +13,8 @@ if [ "$1" = "initialize" ]; then
   echo -e "Git status:"
   git status
 
+  npm set unsafe-perm true
+
   echo -e "\nInitialization completed"
 
 elif [ "$1" = "create-tag" ]; then

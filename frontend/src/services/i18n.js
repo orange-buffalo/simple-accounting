@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
-import Cldr from 'cldrjs';
 import Globalize from 'globalize';
 import deepmerge from 'deepmerge';
 import ICUFormatter from './i18n/icu-formatter';
+import baseCldrData from '@/i18n/l10n/base.json';
 
 Vue.use(VueI18n);
 
@@ -23,19 +23,26 @@ async function loadLanguage(language) {
 }
 
 async function loadLocale(locale) {
-  const { default: cldrData } = await
-    import(/* webpackChunkName: "locale-[request]" */ `@/i18n/l10n/${locale}.cldr-data`);
+  const { default: localeCldrData } = await import(
+    /* webpackChunkName: "locale-[request]" */
+    /* webpackExclude: /locales.json|base.json$/ */
+    // eslint-disable-next-line comma-dangle
+    `@/i18n/l10n/${locale}.json`
+    // eslint-disable-next-line
+    );
+  const cldrData = [...baseCldrData, ...localeCldrData];
+  Globalize.load(cldrData);
 
-  Cldr.load(cldrData);
-  const cldr = new Cldr(locale);
+  const globalize = Globalize(locale);
+  const { cldr } = globalize;
+
   currenciesInfo = deepmerge(
     cldr.get('/main/{bundle}/numbers/currencies'),
     cldr.get('/supplemental/currencyData/fractions'),
   );
+
   numbersInfo = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
 
-  Globalize.load(cldrData);
-  const globalize = Globalize(locale);
   numberParser = globalize.numberParser();
 
   i18n.formatter = new ICUFormatter({
@@ -62,6 +69,7 @@ async function setupI18n(locale, language) {
 }
 
 i18n.setLocaleFromBrowser = function setLocaleFromBrowser() {
+  // todo #6 calculate properly
   return setupI18n('en', 'en');
 };
 
@@ -70,6 +78,7 @@ function localeIdToLanguageTag(localeId) {
 }
 
 i18n.setLocaleFromProfile = function setLocaleFromProfile({ locale, language }) {
+  // todo #6 calculate properly
   return setupI18n(localeIdToLanguageTag(locale), localeIdToLanguageTag(language));
 };
 

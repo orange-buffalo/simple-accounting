@@ -15,15 +15,6 @@ module.exports = {
   },
 
   chainWebpack: (config) => {
-    // custom loader for CLDR data
-    config.module
-      .rule('cldr-data')
-      .test(/\.cldr-data$/)
-      .use('cldr-data')
-      .loader(require('path')
-        .resolve('src/loaders/cldr-data-loader'))
-      .end();
-
     // workaround for globalize with webpack
     config
       .resolve
