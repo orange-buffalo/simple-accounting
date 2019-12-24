@@ -45,6 +45,7 @@ fileList.forEach((locale) => {
       'timeZoneNames',
       'numbers',
       'currencies',
+      'languages',
     ],
     `${baseCodeGenDir}/${locale}.json`,
   );

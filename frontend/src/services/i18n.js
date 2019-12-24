@@ -4,6 +4,7 @@ import Globalize from 'globalize';
 import deepmerge from 'deepmerge';
 import ICUFormatter from './i18n/icu-formatter';
 import baseCldrData from '@/i18n/l10n/base.json';
+import supportedLocaleCodes from '@/i18n/l10n/locales.json';
 
 Vue.use(VueI18n);
 
@@ -14,12 +15,24 @@ let currentLanguage;
 let currenciesInfo;
 let numbersInfo;
 let numberParser;
+let supportedLocales;
+const supportedLanguages = [{
+  languageCode: 'en',
+  displayName: 'English',
+}];
 
 async function loadLanguage(language) {
   const { default: messages } = await import(/* webpackChunkName: "lang-[request]" */ `@/i18n/t9n/${language}`);
   i18n.setLocaleMessage(language, messages);
   i18n.locale = language;
   currentLanguage = language;
+}
+
+function loadSupportedLocales(cldr) {
+  supportedLocales = supportedLocaleCodes.map(localeCode => ({
+    locale: localeCode,
+    displayName: cldr.main(`localeDisplayNames/languages/${localeCode}`),
+  }));
 }
 
 async function loadLocale(locale) {
@@ -35,6 +48,8 @@ async function loadLocale(locale) {
 
   const globalize = Globalize(locale);
   const { cldr } = globalize;
+
+  loadSupportedLocales(cldr);
 
   currenciesInfo = deepmerge(
     cldr.get('/main/{bundle}/numbers/currencies'),
@@ -68,9 +83,44 @@ async function setupI18n(locale, language) {
   await Promise.all([loadLocaleDeferred, loadLanguageDeferred]);
 }
 
+// https://github.com/format-message/format-message/blob/master/packages/lookup-closest-locale/index.js
+function lookupClosestLocale(requestedLocale, availableLocales) {
+  if (availableLocales.includes(requestedLocale)) {
+    return requestedLocale;
+  }
+  const locales = [].concat(requestedLocale || []);
+  // eslint-disable-next-line
+  for (let l = 0, ll = locales.length; l < ll; ++l) {
+    const current = locales[l].split('-');
+    while (current.length) {
+      const candidate = current.join('-');
+      if (availableLocales.includes(candidate)) {
+        return candidate;
+      }
+      current.pop();
+    }
+  }
+  return null;
+}
+
+function getValidLocale(requestedLocales) {
+  return requestedLocales
+    .map(requestedLocale => lookupClosestLocale(requestedLocale, supportedLocaleCodes))
+    .find(closestSupportedLocale => closestSupportedLocale != null) || 'en';
+}
+
+function getValidLanguage(requestedLocales) {
+  const supportedLanguageCodes = supportedLanguages.map(it => it.languageCode);
+  return requestedLocales
+    .map(requestedLocale => lookupClosestLocale(requestedLocale, supportedLanguageCodes))
+    .find(closestSupportedLocale => closestSupportedLocale != null) || 'en';
+}
+
 i18n.setLocaleFromBrowser = function setLocaleFromBrowser() {
-  // todo #6 calculate properly
-  return setupI18n('en', 'en');
+  return setupI18n(
+    getValidLocale(navigator.languages),
+    getValidLanguage(navigator.languages),
+  );
 };
 
 function localeIdToLanguageTag(localeId) {
@@ -78,8 +128,10 @@ function localeIdToLanguageTag(localeId) {
 }
 
 i18n.setLocaleFromProfile = function setLocaleFromProfile({ locale, language }) {
-  // todo #6 calculate properly
-  return setupI18n(localeIdToLanguageTag(locale), localeIdToLanguageTag(language));
+  return setupI18n(
+    getValidLocale([localeIdToLanguageTag(locale)]),
+    getValidLanguage([localeIdToLanguageTag(language)]),
+  );
 };
 
 i18n.getCurrencyInfo = function getCurrencyInfo(currency) {
@@ -127,6 +179,10 @@ i18n.parserNumber = function parseNumber(input) {
     return numberParser(input);
   }
   return null;
+};
+
+i18n.getSupportedLocales = function getSupportedLocales() {
+  return supportedLocales;
 };
 
 export default i18n;
