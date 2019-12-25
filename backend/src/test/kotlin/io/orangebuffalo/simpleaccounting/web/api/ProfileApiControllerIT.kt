@@ -77,7 +77,10 @@ class ProfileApiControllerIT(
             .uri("/api/profile")
             .sendJson(
                 """{
-                    
+                    "i18n": {
+                        "locale": "en_AU",
+                        "language": "en"
+                    }
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -97,12 +100,16 @@ class ProfileApiControllerIT(
 
     @Test
     @WithMockZoidbergUser
-    fun `should update documents storage setting`(testData: ProfileApiTestData) {
+    fun `should update profile`(testData: ProfileApiTestData) {
         client.put()
             .uri("/api/profile")
             .sendJson(
                 """{
-                   "documentsStorage": "new-storage" 
+                   "documentsStorage": "new-storage",
+                    "i18n": {
+                                "locale": "el",
+                                "language": "uk"
+                            }
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -112,8 +119,8 @@ class ProfileApiControllerIT(
                             "userName": "Zoidberg",
                             "documentsStorage": "new-storage",
                             "i18n": {
-                                "locale": "en_US",
-                                "language": "en"
+                                "locale": "el",
+                                "language": "uk"
                             }
                         }"""
                     )

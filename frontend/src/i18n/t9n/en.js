@@ -278,6 +278,19 @@ export default {
       amount: 'Please provide tax payment amount',
     },
     uploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
+  },
 
-  }
+  myProfile: {
+    languagePreferences: {
+      header: 'Language Preferences',
+      language: {
+        label: 'Interface Language',
+        placeholder: 'Please select interface language',
+      },
+      locale: {
+        label: 'Language to display dates, amounts, etc',
+        placeholder: 'Please select formatting language',
+      },
+    },
+  },
 };

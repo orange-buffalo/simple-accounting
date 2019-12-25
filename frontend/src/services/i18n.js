@@ -19,6 +19,9 @@ let supportedLocales;
 const supportedLanguages = [{
   languageCode: 'en',
   displayName: 'English',
+}, {
+  languageCode: 'uk',
+  displayName: 'Ukrainian',
 }];
 
 async function loadLanguage(language) {
@@ -26,9 +29,11 @@ async function loadLanguage(language) {
   i18n.setLocaleMessage(language, messages);
   i18n.locale = language;
   currentLanguage = language;
+  // todo #6: load locale names in this language, check myprofile is updated
 }
 
 function loadSupportedLocales(cldr) {
+  // todo #6: many locale have no display name, check how to fix that
   supportedLocales = supportedLocaleCodes.map(localeCode => ({
     locale: localeCode,
     displayName: cldr.main(`localeDisplayNames/languages/${localeCode}`),
@@ -123,14 +128,18 @@ i18n.setLocaleFromBrowser = function setLocaleFromBrowser() {
   );
 };
 
-function localeIdToLanguageTag(localeId) {
+i18n.localeIdToLanguageTag = function localeIdToLanguageTag(localeId) {
   return localeId.replace(/_/g, '-');
-}
+};
+
+i18n.languageTagToLocaleId = function languageTagToLocaleId(localeId) {
+  return localeId.replace(/-/g, '_');
+};
 
 i18n.setLocaleFromProfile = function setLocaleFromProfile({ locale, language }) {
   return setupI18n(
-    getValidLocale([localeIdToLanguageTag(locale)]),
-    getValidLanguage([localeIdToLanguageTag(language)]),
+    getValidLocale([this.localeIdToLanguageTag(locale)]),
+    getValidLanguage([this.localeIdToLanguageTag(language)]),
   );
 };
 
@@ -183,6 +192,10 @@ i18n.parserNumber = function parseNumber(input) {
 
 i18n.getSupportedLocales = function getSupportedLocales() {
   return supportedLocales;
+};
+
+i18n.getSupportedLanguages = function getSupportedLanguages() {
+  return supportedLanguages;
 };
 
 export default i18n;

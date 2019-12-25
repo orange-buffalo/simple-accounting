@@ -28,6 +28,7 @@ async function resolveDeferredAndSetupApp(setupAppDeferred) {
 async function initApp() {
   const setupAppDeferred = import(/* webpackPreload: true, webpackChunkName: "setup-app" */ '@/setup/setup-app');
   const { api } = await import(/* webpackPreload: true, webpackChunkName: "api-services" */ '@/services/api');
+  // todo #88: seems like we broke link login functinality
   if (await api.tryAutoLogin()) {
     const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
 

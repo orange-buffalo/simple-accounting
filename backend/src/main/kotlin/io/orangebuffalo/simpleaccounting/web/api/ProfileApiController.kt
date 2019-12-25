@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
+import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @RestController
@@ -25,6 +26,8 @@ class ProfileApiController(
         .getCurrentUser()
         .apply {
             documentsStorage = request.documentsStorage
+            i18nSettings.language = request.i18n.language
+            i18nSettings.locale = request.i18n.locale
         }
         .let { platformUserService.save(it) }
         .let { mapToProfileDto(it) }
@@ -48,11 +51,12 @@ data class ProfileDto(
 )
 
 data class I18nSettingsDto(
-    val locale: String,
-    val language: String
+    @field:NotBlank val locale: String,
+    @field:NotBlank val language: String
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class UpdateProfileRequestDto(
-    @field:Size(max = 255) val documentsStorage: String?
+    @field:Size(max = 255) val documentsStorage: String?,
+    @field:Valid val i18n: I18nSettingsDto
 )
