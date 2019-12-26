@@ -102,6 +102,7 @@
           locale: this.locale,
           language: this.language,
         });
+        this.locales = [].concat(i18n.getSupportedLocales());
       },
 
       async updateLocale() {

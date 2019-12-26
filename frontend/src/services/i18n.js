@@ -3,8 +3,8 @@ import VueI18n from 'vue-i18n';
 import Globalize from 'globalize';
 import deepmerge from 'deepmerge';
 import ICUFormatter from './i18n/icu-formatter';
-import baseCldrData from '@/i18n/l10n/base.json';
-import supportedLocaleCodes from '@/i18n/l10n/locales.json';
+import supportedLocaleCodes from '@/i18n/l10n/supported-locales.json';
+import { loadCldrData, lookupClosestLocale } from '@/services/i18n/locale-utils';
 
 Vue.use(VueI18n);
 
@@ -21,7 +21,7 @@ const supportedLanguages = [{
   displayName: 'English',
 }, {
   languageCode: 'uk',
-  displayName: 'Ukrainian',
+  displayName: 'Українська',
 }];
 
 async function loadLanguage(language) {
@@ -29,32 +29,15 @@ async function loadLanguage(language) {
   i18n.setLocaleMessage(language, messages);
   i18n.locale = language;
   currentLanguage = language;
-  // todo #6: load locale names in this language, check myprofile is updated
-}
-
-function loadSupportedLocales(cldr) {
-  // todo #6: many locale have no display name, check how to fix that
-  supportedLocales = supportedLocaleCodes.map(localeCode => ({
-    locale: localeCode,
-    displayName: cldr.main(`localeDisplayNames/languages/${localeCode}`),
-  }));
+  supportedLocales = (await
+    import(/* webpackChunkName: "[request]" */ `@/i18n/l10n/locales-display-names-${language}.json`)).default;
 }
 
 async function loadLocale(locale) {
-  const { default: localeCldrData } = await import(
-    /* webpackChunkName: "locale-[request]" */
-    /* webpackExclude: /locales.json|base.json$/ */
-    // eslint-disable-next-line comma-dangle
-    `@/i18n/l10n/${locale}.json`
-    // eslint-disable-next-line
-    );
-  const cldrData = [...baseCldrData, ...localeCldrData];
-  Globalize.load(cldrData);
+  Globalize.load(await loadCldrData(locale));
 
   const globalize = Globalize(locale);
   const { cldr } = globalize;
-
-  loadSupportedLocales(cldr);
 
   currenciesInfo = deepmerge(
     cldr.get('/main/{bundle}/numbers/currencies'),
@@ -86,26 +69,6 @@ async function setupI18n(locale, language) {
   }
 
   await Promise.all([loadLocaleDeferred, loadLanguageDeferred]);
-}
-
-// https://github.com/format-message/format-message/blob/master/packages/lookup-closest-locale/index.js
-function lookupClosestLocale(requestedLocale, availableLocales) {
-  if (availableLocales.includes(requestedLocale)) {
-    return requestedLocale;
-  }
-  const locales = [].concat(requestedLocale || []);
-  // eslint-disable-next-line
-  for (let l = 0, ll = locales.length; l < ll; ++l) {
-    const current = locales[l].split('-');
-    while (current.length) {
-      const candidate = current.join('-');
-      if (availableLocales.includes(candidate)) {
-        return candidate;
-      }
-      current.pop();
-    }
-  }
-  return null;
 }
 
 function getValidLocale(requestedLocales) {
