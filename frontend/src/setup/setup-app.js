@@ -11,8 +11,6 @@ import { app } from '@/services/app-services';
 function setupApp() {
   Vue.config.productionTip = false;
 
-  Vue.use(ElementUI);
-
   const router = setupRouter();
   const store = setupStore();
   const i18n = setupI18n();
@@ -21,6 +19,10 @@ function setupApp() {
     store,
     i18n,
     render: h => h(Main),
+  });
+
+  Vue.use(ElementUI, {
+    i18n: (key, value) => i18n.t(key, value),
   });
 
   app.init({
