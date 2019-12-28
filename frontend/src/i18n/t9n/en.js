@@ -323,6 +323,69 @@ export default {
     },
   },
 
+  editIncome: {
+    pageHeader: {
+      edit: 'Edit Income',
+      create: 'Record New Income',
+    },
+    generalInformation: {
+      header: 'General Information',
+      category: {
+        label: 'Category',
+        placeholder: 'Select a category',
+      },
+      title: {
+        label: 'Description / Title',
+        placeholder: 'Provide a short summary',
+      },
+      currency: {
+        label: 'Currency',
+      },
+      originalAmount: {
+        label: 'Amount',
+      },
+      dateReceived: {
+        label: 'Date Received',
+        placeholder: 'Date income is received',
+      },
+      convertedAmountInDefaultCurrency: {
+        label: 'Amount in {0}',
+      },
+      useDifferentExchangeRateForIncomeTaxPurposes: {
+        label: 'Using different exchange rate for taxation purposes',
+      },
+      incomeTaxableAmountInDefaultCurrency: {
+        label: 'Amount in {0} for taxation purposes',
+      },
+      generalTax: {
+        label: 'Included General Tax',
+        placeholder: 'Select a tax',
+      },
+    },
+    additionalInformation: {
+      header: 'Additional Information',
+      linkedInvoice: {
+        label: 'Linked Invoice',
+      },
+      notes: {
+        label: 'Notes',
+        placeholder: 'Any additional information to be stored for this income record',
+      },
+    },
+    attachments: {
+      header: 'Attachments',
+    },
+    cancel: 'Cancel',
+    save: 'Save',
+    validations: {
+      currency: 'Please select a currency',
+      title: 'Please provide the title',
+      dateReceived: 'Please provide the date when income is received',
+      originalAmount: 'Please provide income amount',
+    },
+    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
+  },
+
   el: {
     datepicker: {
       now: 'Now',

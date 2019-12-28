@@ -12,15 +12,15 @@
       <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
-            <h2>General Information</h2>
+            <h2>{{ $t('editIncome.generalInformation.header') }}</h2>
 
             <ElFormItem
-              label="Category"
+              :label="$t('editIncome.generalInformation.category.label')"
               prop="category"
             >
               <ElSelect
                 v-model="income.category"
-                placeholder="Select a category"
+                :placeholder="$t('editIncome.generalInformation.category.placeholder')"
               >
                 <ElOption
                   v-for="category in categories"
@@ -32,24 +32,24 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Description / Title"
+              :label="$t('editIncome.generalInformation.title.label')"
               prop="title"
             >
               <ElInput
                 v-model="income.title"
-                placeholder="Provide a short summary"
+                :placeholder="$t('editIncome.generalInformation.title.placeholder')"
               />
             </ElFormItem>
 
             <ElFormItem
-              label="Currency"
+              :label="$t('editIncome.generalInformation.currency.label')"
               prop="currency"
             >
               <CurrencyInput v-model="income.currency" />
             </ElFormItem>
 
             <ElFormItem
-              label="Amount"
+              :label="$t('editIncome.generalInformation.originalAmount.label')"
               prop="originalAmount"
             >
               <MoneyInput
@@ -59,21 +59,21 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Date Received"
+              :label="$t('editIncome.generalInformation.dateReceived.label')"
               prop="dateReceived"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="income.dateReceived"
                 type="date"
-                placeholder="Date income is received"
+                :placeholder="$t('editIncome.generalInformation.dateReceived.placeholder')"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
 
             <ElFormItem
               v-if="isInForeignCurrency"
-              :label="`Amount in ${defaultCurrency}`"
+              :label="$t('editIncome.generalInformation.convertedAmountInDefaultCurrency.label', [defaultCurrency])"
               prop="convertedAmountInDefaultCurrency"
             >
               <MoneyInput
@@ -84,13 +84,13 @@
 
             <ElFormItem v-if="isInForeignCurrency">
               <ElCheckbox v-model="income.useDifferentExchangeRateForIncomeTaxPurposes">
-                Using different exchange rate for taxation purposes
+                {{ $t('editIncome.generalInformation.useDifferentExchangeRateForIncomeTaxPurposes.label') }}
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
               v-if="income.useDifferentExchangeRateForIncomeTaxPurposes"
-              :label="`Amount in ${defaultCurrency} for taxation purposes`"
+              :label="$t('editIncome.generalInformation.incomeTaxableAmountInDefaultCurrency.label', [defaultCurrency])"
               prop="incomeTaxableAmountInDefaultCurrency"
             >
               <MoneyInput
@@ -100,13 +100,13 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Included General Tax"
+              :label="$t('editIncome.generalInformation.generalTax.label')"
               prop="generalTax"
             >
               <ElSelect
                 v-model="income.generalTax"
                 clearable
-                placeholder="Select a tax"
+                :placeholder="$t('editIncome.generalInformation.generalTax.placeholder')"
               >
                 <ElOption
                   v-for="tax in generalTaxes"
@@ -119,27 +119,27 @@
           </div>
 
           <div class="col col-xs-12 col-lg-6">
-            <h2>Additional Information</h2>
+            <h2>{{ $t('editIncome.additionalInformation.header') }}</h2>
 
             <ElFormItem
               v-if="income.linkedInvoice"
-              label="Linked Invoice"
+              :label="$t('editIncome.additionalInformation.linkedInvoice.label')"
               prop="reportedAmountInDefaultCurrency"
             >
               <span>{{ income.linkedInvoice.title }}</span>
             </ElFormItem>
 
             <ElFormItem
-              label="Notes"
+              :label="$t('editIncome.additionalInformation.notes.label')"
               prop="notes"
             >
               <SaNotesInput
                 v-model="income.notes"
-                placeholder="Any additional information to be stored for this income record"
+                :placeholder="$t('editIncome.additionalInformation.notes.placeholder')"
               />
             </ElFormItem>
 
-            <h2>Attachments</h2>
+            <h2>{{ $t('editIncome.attachments.header') }}</h2>
 
             <ElFormItem>
               <SaDocumentsUpload
@@ -155,13 +155,13 @@
 
       <template #buttons-bar>
         <ElButton @click="navigateToIncomesOverview">
-          Cancel
+          {{ $t('editIncome.cancel') }}
         </ElButton>
         <ElButton
           type="primary"
           @click="save"
         >
-          Save
+          {{ $t('editIncome.save') }}
         </ElButton>
       </template>
     </SaForm>
@@ -210,19 +210,19 @@
         incomeValidationRules: {
           currency: {
             required: true,
-            message: 'Please select a currency',
+            message: this.$t('editIncome.validations.currency'),
           },
           title: {
             required: true,
-            message: 'Please provide the title',
+            message: this.$t('editIncome.validations.title'),
           },
           dateReceived: {
             required: true,
-            message: 'Please provide the date when income is received',
+            message: this.$t('editIncome.validations.dateReceived'),
           },
           originalAmount: {
             required: true,
-            message: 'Please provide income amount',
+            message: this.$t('editIncome.validations.originalAmount'),
           },
         },
       };
@@ -234,7 +234,8 @@
       },
 
       pageHeader() {
-        return this.$route.params.id ? 'Edit Income' : 'Record New Income';
+        return this.$route.params.id
+          ? this.$t('editIncome.pageHeader.edit') : this.$t('editIncome.pageHeader.create');
       },
     },
 
@@ -288,7 +289,7 @@
       async onDocumentsUploadFailure() {
         this.$message({
           showClose: true,
-          message: 'Some of the documents have not been uploaded. Please retry or remove them.',
+          message: this.$t('editIncome.documentsUploadFailure'),
           type: 'error',
         });
       },
