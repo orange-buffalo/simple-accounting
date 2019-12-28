@@ -3,14 +3,17 @@
 </template>
 
 <script>
-  import { setupApp } from '@/services/app-services';
-  import api from '@/services/api';
+  import { api } from '@/services/api';
+  import { initWorkspace } from '@/services/workspaces-service';
 
   export default {
     name: 'LoginByLink',
 
     props: {
-      token: String,
+      token: {
+        type: String,
+        required: true,
+      },
     },
 
     async created() {
@@ -18,7 +21,7 @@
         this.$route.push('/');
       } else {
         try {
-          if (await api.tryAutoLogin()) {
+          if (api.isLoggedIn()) {
             const sharedWorkspaceResponse = await api.post('/shared-workspaces', {
               token: this.token,
             });
@@ -27,13 +30,13 @@
             // todo #90: do not commit directly, use wrapper action
             this.$store.commit('workspaces/setCurrentWorkspace', workspace);
 
-            await setupApp(this.$store);
+            await initWorkspace();
             await this.$router.push('/');
           } else if (await api.loginBySharedToken(this.token)) {
-            await setupApp(this.$store);
+            await initWorkspace();
             await this.$router.push('/');
           } else {
-          // todo #117 set login error and update ui accordingly
+            // todo #117 set login error and update ui accordingly
           }
         } catch (e) {
           // todo #117: handle communication exception and update ui accordingly

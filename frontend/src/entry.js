@@ -28,8 +28,15 @@ async function resolveDeferredAndSetupApp(setupAppDeferred) {
 async function initApp() {
   const setupAppDeferred = import(/* webpackPreload: true, webpackChunkName: "setup-app" */ '@/setup/setup-app');
   const { api } = await import(/* webpackPreload: true, webpackChunkName: "api-services" */ '@/services/api');
-  // todo #88: seems like we broke link login functinality
-  if (await api.tryAutoLogin()) {
+  const targetRoute = window.location.pathname;
+  if (targetRoute.includes('login-by-link')) {
+    const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
+    await app.i18n.setLocaleFromBrowser();
+    if (app.router.currentRoute.path !== targetRoute) {
+      await app.router.push(targetRoute);
+    }
+    mountApp();
+  } else if (await api.tryAutoLogin()) {
     const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
 
     const { userApi } = await
@@ -37,7 +44,6 @@ async function initApp() {
     const profile = await userApi.getProfile();
     await app.i18n.setLocaleFromProfile(profile.i18n);
 
-    const targetRoute = window.location.pathname;
     if (app.router.currentRoute.path !== targetRoute) {
       await app.router.push(targetRoute);
     }
