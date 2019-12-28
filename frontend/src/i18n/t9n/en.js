@@ -280,6 +280,35 @@ export default {
     uploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
+  incomeTaxPaymentOverviewPanel: {
+    datePaid: {
+      label: 'Date paid',
+    },
+    notes: {
+      tooltip: 'Additional notes provided',
+      header: 'Additional Notes',
+    },
+    attachments: {
+      tooltip: 'Attachments provided',
+      header: 'Attachments',
+    },
+    edit: 'Edit',
+    summary: {
+      header: 'Summary',
+    },
+    reportingDate: {
+      label: 'Reporting Date',
+    },
+  },
+
+  incomeTaxPaymentsOverview: {
+    header: 'Income Tax Payments',
+    filters: {
+      announcement: 'Filters coming soon',
+    },
+    create: 'Add new',
+  },
+
   myProfile: {
     languagePreferences: {
       header: 'Language Preferences',

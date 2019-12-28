@@ -3,7 +3,7 @@
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="taxPayment.datePaid"
-        tooltip="Date paid"
+        :tooltip="$t('incomeTaxPaymentOverviewPanel.datePaid.label')"
         icon="calendar"
       >
         {{ $t('common.date.medium', [taxPayment.datePaid]) }}
@@ -14,12 +14,12 @@
       <OverviewItemAttributePreviewIcon
         v-if="taxPayment.notes"
         icon="notes"
-        tooltip="Additional notes provided"
+        :tooltip="$t('incomeTaxPaymentOverviewPanel.notes.tooltip')"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="taxPayment.attachments.length"
-        tooltip="Attachments provided"
+        :tooltip="$t('incomeTaxPaymentOverviewPanel.attachments.tooltip')"
         icon="attachment"
       />
     </template>
@@ -38,21 +38,23 @@
           icon="pencil-solid"
           @click="navigateToTaxPaymentEdit"
         >
-          Edit
+          {{ $t('incomeTaxPaymentOverviewPanel.edit') }}
         </SaActionLink>
       </OverviewItemDetailsSectionActions>
 
-      <OverviewItemDetailsSection title="Summary">
+      <OverviewItemDetailsSection
+        :title="$t('incomeTaxPaymentOverviewPanel.summary.header')"
+      >
         <div class="row">
           <OverviewItemDetailsSectionAttribute
-            label="Date Paid"
+            :label="$t('incomeTaxPaymentOverviewPanel.datePaid.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [taxPayment.datePaid]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Reporting Date"
+            :label="$t('incomeTaxPaymentOverviewPanel.reportingDate.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [taxPayment.reportingDate]) }}
@@ -62,7 +64,7 @@
 
       <OverviewItemDetailsSection
         v-if="taxPayment.attachments.length"
-        title="Attachments"
+        :title="$t('incomeTaxPaymentOverviewPanel.attachments.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -73,7 +75,7 @@
 
       <OverviewItemDetailsSection
         v-if="taxPayment.notes"
-        title="Additional Notes"
+        :title="$t('incomeTaxPaymentOverviewPanel.notes.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
