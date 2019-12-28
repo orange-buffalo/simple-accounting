@@ -46,6 +46,7 @@
     "@vue/eslint-config-airbnb": "^4.0.0",
     "@vue/test-utils": "^1.0.0-beta.30",
     "babel-eslint": "^10.0.3",
+    "babel-plugin-component": "^1.1.1",
     "chai": "^4.2.0",
     "cldr-data": "^36.0.0",
     "eslint": "^5.16.0",

@@ -87,7 +87,6 @@
       border-radius: 2px;
       position: relative;
       transition: all 250ms;
-      margin-bottom: $trigger-button-size;
 
       .col {
         padding: 0;

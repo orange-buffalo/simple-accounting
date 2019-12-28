@@ -9,19 +9,18 @@
       @current-change="onCurrentPageChange"
     />
 
-    <ElRow
-      :gutter="10"
-      v-bind="$props"
+    <div
+      class="row"
       :class="loading ? 'loading' : ''"
     >
-      <ElCol
+      <div
         v-for="dataItem in data"
         :key="dataItem.id"
-        v-bind="$props"
+        class="col col-xs-12"
       >
         <slot :item="dataItem" />
-      </ElCol>
-    </ElRow>
+      </div>
+    </div>
 
     <div
       v-if="totalElements === 0 && !loading"
