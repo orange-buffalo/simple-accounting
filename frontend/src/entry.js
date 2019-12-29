@@ -1,6 +1,6 @@
 import '@/styles/loader.scss';
 
-const appDiv = document.getElementById('app');
+const appDiv = document.getElementById('simple-accounting');
 appDiv.style.display = 'none';
 
 const loaderDiv = document.createElement('div');

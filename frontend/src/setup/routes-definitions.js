@@ -34,7 +34,7 @@ export default new Router({
 
     {
       path: '/',
-      component: () => import(/* webpackChunkName: "app-root-page" */ '@/views/App.vue'),
+      component: () => import(/* webpackChunkName: "authenticated-page" */ '@/components/TheAuthenticatedPage.vue'),
       children: [
         {
           path: '',

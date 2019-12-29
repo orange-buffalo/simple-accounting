@@ -29,8 +29,7 @@ import {
   MessageBox,
 } from 'element-ui';
 import ElementLocale from 'element-ui/lib/locale';
-import MainApp from '@/MainApp.vue';
-// todo #6 move to main.vue
+import SimpleAccounting from '@/SimpleAccounting.vue';
 import '@/styles/main.scss';
 import setupRouter from '@/setup/setup-router';
 import setupStore from '@/setup/setup-store';
@@ -80,7 +79,7 @@ function setupApp() {
     router,
     store,
     i18n,
-    render: h => h(MainApp),
+    render: h => h(SimpleAccounting),
   });
 
   setupElementUi({ i18n });
@@ -94,7 +93,7 @@ function setupApp() {
 }
 
 function mountApp() {
-  app.vue.$mount('#app');
+  app.vue.$mount('#simple-accounting');
 }
 
 export default {
