@@ -69,11 +69,6 @@ export default {
     header: 'Dashboard',
   },
 
-  editInvoice: {
-    recordedOn: 'Recorded on {0, saDateTime, medium}',
-    cancelledOn: 'Cancelled on {0, date, medium}',
-  },
-
   editExpense: {
     pageHeader: {
       edit: 'Edit Expense',
@@ -480,6 +475,89 @@ export default {
     create: 'Add new',
   },
 
+  editInvoice: {
+    recordedOn: 'Recorded on {0, saDateTime, medium}',
+    cancelledOn: 'Cancelled on {0, date, medium}',
+    cancelInvoice: {
+      button: 'Cancel Invoice',
+      confirm: {
+        message: 'This will permanently cancel this invoice. Continue?',
+        yes: 'Yes',
+        no: 'No',
+      },
+    },
+    pageHeader: {
+      edit: 'Edit Invoice',
+      create: 'Create New Invoice',
+    },
+    generalInformation: {
+      header: 'General Information',
+      customer: {
+        label: 'Customer',
+        placeholder: 'Select a customer',
+      },
+      title: {
+        label: 'Description / Title',
+        placeholder: 'Provide a short summary',
+      },
+      currency: {
+        label: 'Currency',
+      },
+      amount: {
+        label: 'Amount',
+      },
+      dateIssued: {
+        label: 'Date Issued',
+        placeholder: 'Date invoice is issued',
+      },
+      dueDate: {
+        label: 'Due Date',
+        placeholder: 'Date invoice is due',
+      },
+      alreadySent: {
+        label: 'Already Sent',
+      },
+      dateSent: {
+        label: 'Date Sent',
+        placeholder: 'Date invoice is sent',
+      },
+      alreadyPaid: {
+        label: 'Already Paid',
+      },
+      datePaid: {
+        label: 'Date Paid',
+        placeholder: 'Date invoice is paid',
+      },
+      generalTax: {
+        label: 'Included General Tax',
+        placeholder: 'Select a tax',
+      },
+    },
+    additionalNotes: {
+      header: 'Additional notes',
+      notes: {
+        label: 'Notes',
+        placeholder: 'Any additional information to be stored for this invoice record',
+      },
+    },
+    attachments: {
+      header: 'Attachments',
+    },
+    cancel: 'Cancel',
+    save: 'Save',
+    validations: {
+      customer: 'Please select a customer',
+      currency: 'Please select a currency',
+      title: 'Please provide the title',
+      amount: 'Please provide invoice amount',
+      dateIssued: 'Please provide the date when invoice is issued',
+      dueDate: 'Please provide the date when invoice is due',
+      dateSent: 'Please provide the date when invoice is sent',
+      datePaid: 'Please provide the date when invoice is paid',
+    },
+    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
+  },
+
   el: {
     datepicker: {
       now: 'Now',
@@ -553,6 +631,9 @@ export default {
       resetFilter: 'Reset',
       clearFilter: 'All',
       sumText: 'Sum',
+    },
+    messagebox: {
+      confirm: 'OK',
     },
   },
 };

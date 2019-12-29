@@ -26,6 +26,7 @@ import {
   Main,
   Footer,
   Message,
+  MessageBox,
 } from 'element-ui';
 import ElementLocale from 'element-ui/lib/locale';
 import MainApp from '@/MainApp.vue';
@@ -64,6 +65,7 @@ function setupElementUi({ i18n }) {
   Vue.use(Footer);
 
   Vue.prototype.$message = Message;
+  Vue.prototype.$confirm = MessageBox.confirm;
 
   ElementLocale.i18n((key, value) => i18n.t(key, value));
 }

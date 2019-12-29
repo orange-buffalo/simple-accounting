@@ -13,15 +13,12 @@
         </div>
 
         <div>
-          <ElButton type="danger">
-            Delete
-          </ElButton>
           <ElButton
             v-if="!invoice.dateCancelled"
             type="danger"
             @click="cancelInvoice"
           >
-            Cancel Invoice
+            {{ $t('editInvoice.cancelInvoice.button') }}
           </ElButton>
         </div>
       </div>
@@ -35,44 +32,44 @@
       <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
-            <h2>General Information</h2>
+            <h2>{{ $t('editInvoice.generalInformation.header') }}</h2>
 
             <ElFormItem
-              label="Customer"
+              ::label="$t('editInvoice.generalInformation.customer.label')"
               prop="customer"
             >
               <ElSelect
                 v-model="invoice.customer"
-                placeholder="Select a customer"
+                :placeholder="$t('editInvoice.generalInformation.customer.placeholder')"
               >
                 <ElOption
                   v-for="customer in customers"
                   :key="customer.id"
-                  :label="customer.name"
+                  ::label="customer.name"
                   :value="customer.id"
                 />
               </ElSelect>
             </ElFormItem>
 
             <ElFormItem
-              label="Description / Title"
+              :label="$t('editInvoice.generalInformation.title.label')"
               prop="title"
             >
               <ElInput
                 v-model="invoice.title"
-                placeholder="Provide a short summary"
+                :placeholder="$t('editInvoice.generalInformation.title.placeholder')"
               />
             </ElFormItem>
 
             <ElFormItem
-              label="Currency"
+              :label="$t('editInvoice.generalInformation.currency.label')"
               prop="currency"
             >
               <CurrencyInput v-model="invoice.currency" />
             </ElFormItem>
 
             <ElFormItem
-              label="Amount"
+              :label="$t('editInvoice.generalInformation.amount.label')"
               prop="amount"
             >
               <MoneyInput
@@ -82,44 +79,44 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Date Issued"
+              :label="$t('editInvoice.generalInformation.dateIssued.label')"
               prop="dateIssued"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="invoice.dateIssued"
                 type="date"
-                placeholder="Date invoice is issued"
+                :placeholder="$t('editInvoice.generalInformation.dateIssued.placeholder')"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
 
             <ElFormItem
-              label="Due Date"
+              :label="$t('editInvoice.generalInformation.dueDate.label')"
               prop="dueDate"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="invoice.dueDate"
                 type="date"
-                placeholder="Date invoice is due"
+                :placeholder="$t('editInvoice.generalInformation.dueDate.placeholder')"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
 
             <ElFormItem
-              label="Included General Tax"
+              :label="$t('editInvoice.generalInformation.generalTax.label')"
               prop="generalTax"
             >
               <ElSelect
                 v-model="invoice.generalTax"
                 clearable
-                placeholder="Select a tax"
+                :placeholder="$t('editInvoice.generalInformation.generalTax.placeholder')"
               >
                 <ElOption
                   v-for="tax in generalTaxes"
                   :key="tax.id"
-                  :label="tax.title"
+                  ::label="tax.title"
                   :value="tax.id"
                 />
               </ElSelect>
@@ -127,59 +124,59 @@
 
             <ElFormItem>
               <ElCheckbox v-model="alreadySent">
-                Already Sent
+                {{ $t('editInvoice.generalInformation.alreadySent.label') }}
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
               v-if="alreadySent"
-              label="Date Sent"
+              :label="$t('editInvoice.generalInformation.dateSent.label')"
               prop="dateSent"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="invoice.dateSent"
                 type="date"
-                placeholder="Date invoice is sent"
+                :placeholder="$t('editInvoice.generalInformation.dateSent.placeholder')"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
 
             <ElFormItem>
               <ElCheckbox v-model="alreadyPaid">
-                Already Paid
+                {{ $t('editInvoice.generalInformation.alreadyPaid.label') }}
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
               v-if="alreadyPaid"
-              label="Date Paid"
+              :label="$t('editInvoice.generalInformation.datePaid.label')"
               prop="datePaid"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="invoice.datePaid"
                 type="date"
-                placeholder="Date invoice is paid"
+                :placeholder="$t('editInvoice.generalInformation.datePaid.placeholder')"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
           </div>
 
           <div class="col col-xs-12 col-lg-6">
-            <h2>Additional notes</h2>
+            <h2>{{ $t('editInvoice.additionalNotes.header') }}</h2>
 
             <ElFormItem
-              label="Notes"
+              :label="$t('editInvoice.additionalNotes.notes.label')"
               prop="notes"
             >
               <SaNotesInput
                 v-model="invoice.notes"
-                placeholder="Any additional information to be stored for this invoice record"
+                :placeholder="$t('editInvoice.additionalNotes.notes.placeholder')"
               />
             </ElFormItem>
 
-            <h2>Attachments</h2>
+            <h2>{{ $t('editInvoice.attachments.header') }}</h2>
 
             <ElFormItem>
               <SaDocumentsUpload
@@ -195,13 +192,13 @@
 
       <template #buttons-bar>
         <ElButton @click="navigateToInvoicesOverview">
-          Cancel
+          {{ $t('editInvoice.cancel') }}
         </ElButton>
         <ElButton
           type="primary"
           @click="save"
         >
-          Save
+          {{ $t('editInvoice.save') }}
         </ElButton>
       </template>
     </SaForm>
@@ -250,35 +247,35 @@
         invoiceValidationRules: {
           customer: {
             required: true,
-            message: 'Please select a customer',
+            message: this.$t('editInvoice.validations.customer'),
           },
           currency: {
             required: true,
-            message: 'Please select a currency',
+            message: this.$t('editInvoice.validations.currency'),
           },
           title: {
             required: true,
-            message: 'Please provide the title',
+            message: this.$t('editInvoice.validations.title'),
           },
           amount: {
             required: true,
-            message: 'Please provide invoice amount',
+            message: this.$t('editInvoice.validations.amount'),
           },
           dateIssued: {
             required: true,
-            message: 'Please provide the date when invoice is issued',
+            message: this.$t('editInvoice.validations.dateIssued'),
           },
           dueDate: {
             required: true,
-            message: 'Please provide the date when invoice is due',
+            message: this.$t('editInvoice.validations.dueDate'),
           },
           dateSent: {
             required: true,
-            message: 'Please provide the date when invoice is sent',
+            message: this.$t('editInvoice.validations.dateSent'),
           },
           datePaid: {
             required: true,
-            message: 'Please provide the date when invoice is paid',
+            message: this.$t('editInvoice.validations.datePaid'),
           },
         },
         alreadySent: false,
@@ -288,7 +285,8 @@
 
     computed: {
       pageHeader() {
-        return this.isEditing ? 'Edit Invoice' : 'Create New Invoice';
+        return this.isEditing
+          ? this.$t('editInvoice.pageHeader.edit') : this.$t('editInvoice.pageHeader.create');
       },
 
       isEditing() {
@@ -318,7 +316,7 @@
       async onDocumentsUploadFailure() {
         this.$message({
           showClose: true,
-          message: 'Some of the documents have not been uploaded. Please retry or remove them.',
+          message: this.$t('editInvoice.documentsUploadFailure'),
           type: 'error',
         });
       },
@@ -335,11 +333,14 @@
 
       async cancelInvoice() {
         try {
-          await this.$confirm('This will permanently cancel this invoice. Continue?', 'Warning', {
-            confirmButtonText: 'Yes',
-            cancelButtonText: 'No',
-            type: 'warning',
-          });
+          await this.$confirm(
+            this.$t('editInvoice.cancelInvoice.confirm.message'),
+            'Warning', {
+              confirmButtonText: this.$t('editInvoice.cancelInvoice.confirm.yes'),
+              cancelButtonText: this.$t('editInvoice.cancelInvoice.confirm.no'),
+              type: 'warning',
+            },
+          );
         } catch (e) {
           return;
         }
