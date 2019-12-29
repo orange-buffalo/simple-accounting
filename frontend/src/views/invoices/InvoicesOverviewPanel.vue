@@ -3,7 +3,7 @@
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="customer"
-        tooltip="Customer"
+        :tooltip="$t('invoicesOverviewPanel.customer.tooltip')"
         icon="customer"
       >
         {{ customer.name }}
@@ -11,7 +11,7 @@
 
       <OverviewItemPrimaryAttribute
         v-if="invoice.datePaid"
-        tooltip="Date paid"
+        :tooltip="$t('invoicesOverviewPanel.datePaid.tooltip')"
         icon="calendar"
       >
         {{ $t('common.date.medium', [invoice.datePaid]) }}
@@ -22,24 +22,24 @@
       <OverviewItemAttributePreviewIcon
         v-if="invoice.notes"
         icon="notes"
-        tooltip="Additional notes provided"
+        :tooltip="$t('invoicesOverviewPanel.notes.tooltip')"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="invoice.attachments.length"
-        tooltip="Attachments provided"
+        :tooltip="$t('invoicesOverviewPanel.attachments.tooltip')"
         icon="attachment"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="isGeneralTaxApplicable"
-        tooltip="General Tax applied"
+        :tooltip="$t('invoicesOverviewPanel.generalTax.tooltip')"
         icon="tax"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="isForeignCurrency"
-        tooltip="In foreign currency"
+        :tooltip="$t('invoicesOverviewPanel.foreignCurrency.tooltip')"
         icon="multi-currency"
       />
     </template>
@@ -67,7 +67,7 @@
           icon="pencil-solid"
           @click="navigateToInvoiceEdit"
         >
-          Edit
+          {{ $t('invoicesOverviewPanel.edit') }}
         </SaActionLink>
 
         <SaActionLink
@@ -75,7 +75,7 @@
           icon="send-solid"
           @click="markSent"
         >
-          Sent today
+          {{ $t('invoicesOverviewPanel.markAsSent') }}
         </SaActionLink>
 
         <SaActionLink
@@ -83,14 +83,16 @@
           icon="income-solid"
           @click="markPaid"
         >
-          Paid today
+          {{ $t('invoicesOverviewPanel.markAsPaid') }}
         </SaActionLink>
       </OverviewItemDetailsSectionActions>
 
-      <OverviewItemDetailsSection title="General Information">
+      <OverviewItemDetailsSection
+        :title="$t('invoicesOverviewPanel.generalInformation.header')"
+      >
         <div class="row">
           <OverviewItemDetailsSectionAttribute
-            label="Status"
+            :label="$t('invoicesOverviewPanel.status.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <SaStatusLabel
@@ -103,14 +105,14 @@
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Customer"
+            :label="$t('invoicesOverviewPanel.customer.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ customer.name }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Category"
+            :label="$t('invoicesOverviewPanel.category.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ categoryById(invoice.category).name }}
@@ -118,14 +120,14 @@
 
           <OverviewItemDetailsSectionAttribute
             v-if="isForeignCurrency"
-            label="Invoice Currency"
+            :label="$t('invoicesOverviewPanel.currency.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ invoice.currency }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Invoice Amount"
+            :label="$t('invoicesOverviewPanel.amount.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
@@ -137,14 +139,14 @@
 
         <div class="row">
           <OverviewItemDetailsSectionAttribute
-            label="Date Issued"
+            :label="$t('invoicesOverviewPanel.dateIssued.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [invoice.dateIssued]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Due Date"
+            :label="$t('invoicesOverviewPanel.dueDate.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [invoice.dueDate]) }}
@@ -157,7 +159,7 @@
         >
           <OverviewItemDetailsSectionAttribute
             v-if="invoice.dateSent"
-            label="Date Sent"
+            :label="$t('invoicesOverviewPanel.dateSent.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [invoice.dateSent]) }}
@@ -165,7 +167,7 @@
 
           <OverviewItemDetailsSectionAttribute
             v-if="invoice.dateCancelled"
-            label="Date Cancelled"
+            :label="$t('invoicesOverviewPanel.dateCancelled.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [invoice.dateCancelled]) }}
@@ -173,7 +175,7 @@
 
           <OverviewItemDetailsSectionAttribute
             v-if="invoice.datePaid"
-            label="Date Paid"
+            :label="$t('invoicesOverviewPanel.datePaid.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [invoice.datePaid]) }}
@@ -183,18 +185,17 @@
         <template v-if="isGeneralTaxApplicable">
           <div class="row">
             <OverviewItemDetailsSectionAttribute
-              label="Applicable General Tax"
+              :label="$t('invoicesOverviewPanel.generalTax.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               {{ generalTaxTitle }}
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable General Tax Rate"
+              :label="$t('invoicesOverviewPanel.generalTaxRate.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <!-- todo #6 localize-->
-              {{ generalTaxById(invoice.generalTax).rateInBps / 100 }}%
+              {{ $t('invoicesOverviewPanel.generalTaxRate.value', [generalTaxById(invoice.generalTax).rateInBps]) }}
             </OverviewItemDetailsSectionAttribute>
           </div>
         </template>
@@ -202,7 +203,7 @@
 
       <OverviewItemDetailsSection
         v-if="invoice.attachments.length"
-        title="Attachments"
+        :title="$t('invoicesOverviewPanel.attachments.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -213,7 +214,7 @@
 
       <OverviewItemDetailsSection
         v-if="invoice.notes"
-        title="Additional Notes"
+        :title="$t('invoicesOverviewPanel.notes.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -245,7 +246,7 @@
   import SaStatusLabel from '@/components/SaStatusLabel';
 
   export default {
-    name: 'InvoiceOverviewPanel',
+    name: 'InvoicesOverviewPanel',
 
     components: {
       SaDocumentsList,
@@ -327,19 +328,19 @@
 
       statusText() {
         if (this.isPaid) {
-          return 'Finalized';
+          return this.$t('invoicesOverviewPanel.status.finalized');
         }
         if (this.isDraft) {
-          return 'Draft';
+          return this.$t('invoicesOverviewPanel.status.draft');
         }
         if (this.isCancelled) {
-          return 'Cancelled';
+          return this.$t('invoicesOverviewPanel.status.cancelled');
         }
         if (this.isSent) {
-          return 'Sent';
+          return this.$t('invoicesOverviewPanel.status.sent');
         }
         if (this.isOverdue) {
-          return 'Overdue';
+          return this.$t('invoicesOverviewPanel.status.overdue');
         }
         return null;
       },

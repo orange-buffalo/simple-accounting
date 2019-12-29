@@ -558,6 +558,82 @@ export default {
     documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
+  invoicesOverview: {
+    header: 'Invoices',
+    filters: {
+      announcement: 'Filters coming soon',
+      input: {
+        placeholder: 'Search invoices',
+      },
+    },
+    create: 'Add new',
+  },
+
+  invoicesOverviewPanel: {
+    customer: {
+      tooltip: 'Customer',
+      label: 'Customer',
+    },
+    category: {
+      label: 'Category',
+    },
+    datePaid: {
+      tooltip: 'Date paid',
+      label: 'Date Paid',
+    },
+    notes: {
+      tooltip: 'Additional notes provided',
+      header: 'Additional Notes',
+    },
+    attachments: {
+      tooltip: 'Attachments provided',
+      header: 'Attachments',
+    },
+    generalTax: {
+      tooltip: 'General Tax applied',
+      label: 'Applicable General Tax',
+    },
+    generalTaxRate: {
+      label: 'Applicable General Tax Rate',
+      value: '{0, bps, percent}',
+    },
+    foreignCurrency: {
+      tooltip: 'In foreign currency',
+    },
+    edit: 'Edit',
+    markAsSent: 'Sent today',
+    markAsPaid: 'Paid today',
+    generalInformation: {
+      header: 'General Information',
+    },
+    status: {
+      label: 'Status',
+      finalized: 'Finalized',
+      draft: 'Draft',
+      cancelled: 'Cancelled',
+      sent: 'Sent',
+      overdue: 'Overdue',
+    },
+    currency: {
+      label: 'Invoice Currency',
+    },
+    amount: {
+      label: 'Invoice Amount',
+    },
+    dateIssued: {
+      label: 'Date Issued',
+    },
+    dueDate: {
+      label: 'Due Date',
+    },
+    dateSent: {
+      label: 'Date Sent',
+    },
+    dateCancelled: {
+      label: 'Date Cancelled',
+    },
+  },
+
   el: {
     datepicker: {
       now: 'Now',

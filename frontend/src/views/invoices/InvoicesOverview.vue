@@ -1,17 +1,17 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Invoices</h1>
+      <h1>{{ $t('invoicesOverview.header') }}</h1>
 
       <div class="sa-header-options">
         <div>
-          <span>Filters coming soon</span>
+          <span>{{ $t('invoicesOverview.filters.announcement') }}</span>
         </div>
 
         <div>
           <ElInput
             v-model="userFilters.freeSearchText"
-            placeholder="Search invoices"
+            :placeholder="$t('invoicesOverview.filters.input.placeholder')"
             clearable
           >
             <i
@@ -27,7 +27,7 @@
           @click="navigateToCreateInvoiceView"
         >
           <SaIcon icon="plus-thin" />
-          Add new
+          {{ $t('invoicesOverview.create') }}
         </ElButton>
       </div>
     </div>
@@ -38,7 +38,7 @@
       :filters="invoicesApiFilters"
       #default="{item: invoice}"
     >
-      <InvoiceOverviewPanel
+      <InvoicesOverviewPanel
         :invoice="invoice"
         @invoice-update="onInvoiceUpdate"
       />
@@ -48,17 +48,17 @@
 
 <script>
   import DataItems from '@/components/DataItems';
-  import InvoiceOverviewPanel from './InvoiceOverviewPanel';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
+  import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
 
   export default {
     name: 'IncomesOverview',
 
     components: {
+      InvoicesOverviewPanel,
       SaIcon,
       DataItems,
-      InvoiceOverviewPanel,
     },
 
     mixins: [withWorkspaces],
