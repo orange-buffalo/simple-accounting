@@ -23,7 +23,7 @@
       :api-path="`/workspaces/${currentWorkspace.id}/income-tax-payments`"
       #default="{item: taxPayment}"
     >
-      <IncomeTaxPaymentOverviewPanel :tax-payment="taxPayment" />
+      <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />
     </DataItems>
   </div>
 </template>
@@ -32,13 +32,13 @@
   import DataItems from '@/components/DataItems';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
-  import IncomeTaxPaymentOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentOverviewPanel';
+  import IncomeTaxPaymentsOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentsOverviewPanel';
 
   export default {
     name: 'TaxPaymentsOverview',
 
     components: {
-      IncomeTaxPaymentOverviewPanel,
+      IncomeTaxPaymentsOverviewPanel,
       SaIcon,
       DataItems,
     },

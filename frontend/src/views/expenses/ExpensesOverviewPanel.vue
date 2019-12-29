@@ -273,7 +273,7 @@
   import SaStatusLabel from '@/components/SaStatusLabel';
 
   export default {
-    name: 'ExpenseOverviewPanel',
+    name: 'ExpensesOverviewPanel',
 
     components: {
       SaDocumentsList,

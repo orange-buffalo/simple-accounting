@@ -3,7 +3,7 @@
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="taxPayment.datePaid"
-        :tooltip="$t('incomeTaxPaymentOverviewPanel.datePaid.label')"
+        :tooltip="$t('incomeTaxPaymentsOverviewPanel.datePaid.label')"
         icon="calendar"
       >
         {{ $t('common.date.medium', [taxPayment.datePaid]) }}
@@ -14,12 +14,12 @@
       <OverviewItemAttributePreviewIcon
         v-if="taxPayment.notes"
         icon="notes"
-        :tooltip="$t('incomeTaxPaymentOverviewPanel.notes.tooltip')"
+        :tooltip="$t('incomeTaxPaymentsOverviewPanel.notes.tooltip')"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="taxPayment.attachments.length"
-        :tooltip="$t('incomeTaxPaymentOverviewPanel.attachments.tooltip')"
+        :tooltip="$t('incomeTaxPaymentsOverviewPanel.attachments.tooltip')"
         icon="attachment"
       />
     </template>
@@ -38,23 +38,23 @@
           icon="pencil-solid"
           @click="navigateToTaxPaymentEdit"
         >
-          {{ $t('incomeTaxPaymentOverviewPanel.edit') }}
+          {{ $t('incomeTaxPaymentsOverviewPanel.edit') }}
         </SaActionLink>
       </OverviewItemDetailsSectionActions>
 
       <OverviewItemDetailsSection
-        :title="$t('incomeTaxPaymentOverviewPanel.summary.header')"
+        :title="$t('incomeTaxPaymentsOverviewPanel.summary.header')"
       >
         <div class="row">
           <OverviewItemDetailsSectionAttribute
-            :label="$t('incomeTaxPaymentOverviewPanel.datePaid.label')"
+            :label="$t('incomeTaxPaymentsOverviewPanel.datePaid.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [taxPayment.datePaid]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            :label="$t('incomeTaxPaymentOverviewPanel.reportingDate.label')"
+            :label="$t('incomeTaxPaymentsOverviewPanel.reportingDate.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [taxPayment.reportingDate]) }}
@@ -64,7 +64,7 @@
 
       <OverviewItemDetailsSection
         v-if="taxPayment.attachments.length"
-        :title="$t('incomeTaxPaymentOverviewPanel.attachments.header')"
+        :title="$t('incomeTaxPaymentsOverviewPanel.attachments.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -75,7 +75,7 @@
 
       <OverviewItemDetailsSection
         v-if="taxPayment.notes"
-        :title="$t('incomeTaxPaymentOverviewPanel.notes.header')"
+        :title="$t('incomeTaxPaymentsOverviewPanel.notes.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -101,7 +101,7 @@
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
   export default {
-    name: 'IncomeTaxPaymentOverviewPanel',
+    name: 'IncomeTaxPaymentsOverviewPanel',
 
     components: {
       SaDocumentsList,

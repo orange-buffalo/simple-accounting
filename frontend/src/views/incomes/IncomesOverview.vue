@@ -37,24 +37,24 @@
       :filters="apiFilters"
       #default="{item: income}"
     >
-      <IncomeOverviewPanel :income="income" />
+      <IncomesOverviewPanel :income="income" />
     </DataItems>
   </div>
 </template>
 
 <script>
   import DataItems from '@/components/DataItems';
-  import IncomeOverviewPanel from './IncomeOverviewPanel';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
+  import IncomesOverviewPanel from '@/views/incomes/IncomesOverviewPanel';
 
   export default {
     name: 'IncomesOverview',
 
     components: {
+      IncomesOverviewPanel,
       SaIcon,
       DataItems,
-      IncomeOverviewPanel,
     },
 
     mixins: [withWorkspaces],

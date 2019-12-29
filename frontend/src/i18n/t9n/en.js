@@ -280,7 +280,7 @@ export default {
     uploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
-  incomeTaxPaymentOverviewPanel: {
+  incomeTaxPaymentsOverviewPanel: {
     datePaid: {
       label: 'Date paid',
     },
@@ -384,6 +384,89 @@ export default {
       originalAmount: 'Please provide income amount',
     },
     documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
+  },
+
+  incomesOverviewPanel: {
+    dateReceived: {
+      tooltip: 'Date received',
+      label: 'Date Received',
+    },
+    notes: {
+      tooltip: 'Additional notes provided',
+      header: 'Additional Notes',
+    },
+    generalTax: {
+      tooltip: 'General Tax applied',
+      label: 'Applicable General Tax',
+    },
+    generalTaxRate: {
+      label: 'Applicable General Tax Rate',
+      value: '{0, bps, percent}',
+    },
+    generalTaxAmount: {
+      label: 'Applicable General Tax Amount',
+      notProvided: 'Not yet available',
+    },
+    attachments: {
+      tooltip: 'Attachments provided',
+      header: 'Attachments',
+    },
+    foreignCurrency: {
+      tooltip: 'In foreign currency',
+      header: 'Currency Conversion',
+    },
+    linkedInvoice: {
+      label: 'Associated Invoice',
+      tooltip: 'Invoice associated',
+    },
+    edit: 'Edit',
+    summary: {
+      header: 'Summary',
+    },
+    status: {
+      label: 'Status',
+      short: {
+        finalized: 'Finalized',
+        pending: 'Pending',
+      },
+      full: {
+        finalized: 'Finalized',
+        pendingConversion: 'Conversion to {0} pending',
+        waitingExchangeRate: 'Waiting for exchange rate',
+      },
+    },
+    category: {
+      label: 'Category',
+    },
+    incomeTaxableAmounts: {
+      originalAmountInDefaultCurrency: {
+        label: 'Amount in {0} for taxation purposes',
+        notProvided: 'Not yet available',
+      },
+      adjustedAmountInDefaultCurrency: {
+        label: 'Amount for Taxation Purposes',
+        notProvided: 'Not yet provided',
+      },
+    },
+    convertedAmounts: {
+      originalAmountInDefaultCurrency: {
+        label: 'Amount in {0}',
+        notProvided: 'Not yet available',
+      },
+    },
+    generalInformation: {
+      header: 'General Information',
+    },
+    originalCurrency: {
+      label: 'Original Currency',
+    },
+    originalAmount: {
+      label: 'Original Amount',
+    },
+    differentExchangeRate: {
+      label: 'Using different exchange rate for taxation purposes?',
+      value: '{0, yesNo}',
+    },
   },
 
   el: {

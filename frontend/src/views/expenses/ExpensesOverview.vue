@@ -37,23 +37,23 @@
       :filters="apiFilters"
       #default="{item: expense}"
     >
-      <ExpenseOverviewPanel :expense="expense" />
+      <ExpensesOverviewPanel :expense="expense" />
     </DataItems>
   </div>
 </template>
 
 <script>
   import DataItems from '@/components/DataItems';
-  import ExpenseOverviewPanel from './ExpenseOverviewPanel';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
+  import ExpensesOverviewPanel from '@/views/expenses/ExpensesOverviewPanel';
 
   export default {
     name: 'ExpensesOverview',
 
     components: {
+      ExpensesOverviewPanel,
       DataItems,
-      ExpenseOverviewPanel,
       SaIcon,
     },
 
