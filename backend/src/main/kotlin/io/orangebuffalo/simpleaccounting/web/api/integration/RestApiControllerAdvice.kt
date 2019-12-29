@@ -64,9 +64,9 @@ class RestApiControllerAdvice {
     fun onException(exception: Throwable): Mono<ResponseEntity<GeneralErrorDto>> {
         logger.error(exception) { "Something bad happened" }
         return Mono.just(
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(GeneralErrorDto("UnauthorizedError"))
+                .body(GeneralErrorDto("We could not process your request"))
         )
     }
 
