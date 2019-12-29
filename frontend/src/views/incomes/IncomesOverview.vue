@@ -1,17 +1,17 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Incomes</h1>
+      <h1>{{ $t('incomesOverview.header') }}</h1>
 
       <div class="sa-header-options">
         <div>
-          <span>Filters coming soon</span>
+          <span>{{ $t('incomesOverview.filters.announcement') }}</span>
         </div>
 
         <div>
           <ElInput
             v-model="userFilters.freeSearchText"
-            placeholder="Search incomes"
+            :placeholder="$t('incomesOverview.filters.input.placeholder')"
             clearable
           >
             <i
@@ -27,7 +27,7 @@
           @click="navigateToCreateIncomeView"
         >
           <SaIcon icon="plus-thin" />
-          Add new
+          {{ $t('incomesOverview.create') }}
         </ElButton>
       </div>
     </div>

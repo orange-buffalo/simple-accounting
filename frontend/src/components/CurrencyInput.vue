@@ -59,6 +59,7 @@
     },
 
     async created() {
+      // todo #6: not all currencies appeared to be supported
       this.loadCurrencies();
       if (!this.inputValue) {
         this.inputValue = this.defaultCurrency;

@@ -469,6 +469,17 @@ export default {
     },
   },
 
+  incomesOverview: {
+    header: 'Incomes',
+    filters: {
+      announcement: 'Filters coming soon',
+      input: {
+        placeholder: 'Search incomes',
+      },
+    },
+    create: 'Add new',
+  },
+
   el: {
     datepicker: {
       now: 'Now',
