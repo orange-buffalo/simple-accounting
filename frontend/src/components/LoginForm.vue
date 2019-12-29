@@ -92,7 +92,7 @@
           if (data && data.error === 'AccountLocked') {
             this.$message({
               showClose: true,
-              // todo #6: localize and humanize
+              // todo #98: localize and humanize
               message: `Account is locked for ${data.lockExpiresInSec} seconds`,
               type: 'error',
             });

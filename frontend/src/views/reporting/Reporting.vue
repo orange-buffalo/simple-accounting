@@ -146,7 +146,7 @@
           return 'Please select reporting date range';
         }
         if (this.viewReportActive) {
-          // todo #6: localize
+          // todo #64: localize
           return `${api.dateToString(this.selectedDateRange[0])} to ${api.dateToString(this.selectedDateRange[1])}`;
         }
         return null;
