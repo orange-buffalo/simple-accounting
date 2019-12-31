@@ -45,7 +45,7 @@
               :label="$t('editExpense.generalInformation.currency.label')"
               prop="currency"
             >
-              <CurrencyInput v-model="expense.currency" />
+              <SaCurrencyInput v-model="expense.currency" />
             </ElFormItem>
 
             <ElFormItem
@@ -181,23 +181,23 @@
 
 <script>
   import { api } from '@/services/api';
-  import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
-  import withCategories from '@/components/mixins/with-categories';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
+  import withCategories from '@/components/mixins/with-categories';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'EditExpense',
 
     components: {
+      SaCurrencyInput,
       SaForm,
       SaNotesInput,
       SaDocumentsUpload,
-      CurrencyInput,
       MoneyInput,
     },
 

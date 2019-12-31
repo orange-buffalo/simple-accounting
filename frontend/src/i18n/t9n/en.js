@@ -634,6 +634,14 @@ export default {
     },
   },
 
+  saCurrencyInput: {
+    groups: {
+      recent: 'Recently Used Currencies',
+      all: 'All Currencies',
+    },
+    currencyLabel: '{code} - {displayName}',
+  },
+
   el: {
     datepicker: {
       now: 'Now',

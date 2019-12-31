@@ -12,6 +12,6 @@ export default function amountFormatter({ globalize, i18n }) {
       currencyFormatters[currency] = currencyFormatter;
     }
 
-    return currencyFormatter(amount / (10 ** i18n.getCurrencyDigits(currency)));
+    return currencyFormatter(amount / (10 ** i18n.getCurrencyInfo(currency).digits));
   };
 }

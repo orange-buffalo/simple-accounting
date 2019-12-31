@@ -44,14 +44,14 @@
       inputMask() {
         return createNumberMask({
           prefix: '',
-          thousandsSeparatorSymbol: i18n.getThousandSeparator(),
-          allowDecimal: i18n.getCurrencyDigits(this.currency) > 0,
-          decimalSymbol: i18n.getDecimalSeparator(),
+          thousandsSeparatorSymbol: i18n.getNumbersInfo().thousandsSeparator,
+          allowDecimal: i18n.getCurrencyInfo(this.currency).digits > 0,
+          decimalSymbol: i18n.getNumbersInfo().decimalSymbol,
         });
       },
 
       digitsMultiplier() {
-        return 10 ** i18n.getCurrencyDigits(this.currency);
+        return 10 ** i18n.getCurrencyInfo(this.currency).digits;
       },
     },
 

@@ -65,7 +65,7 @@
               :label="$t('editInvoice.generalInformation.currency.label')"
               prop="currency"
             >
-              <CurrencyInput v-model="invoice.currency" />
+              <SaCurrencyInput v-model="invoice.currency" />
             </ElFormItem>
 
             <ElFormItem
@@ -207,23 +207,23 @@
 
 <script>
   import { api } from '@/services/api';
-  import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
-  import withCustomers from '@/components/mixins/with-customers';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
+  import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
+  import withCustomers from '@/components/mixins/with-customers';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'EditInvoice',
 
     components: {
+      SaCurrencyInput,
       SaForm,
       SaNotesInput,
       SaDocumentsUpload,
-      CurrencyInput,
       MoneyInput,
     },
 

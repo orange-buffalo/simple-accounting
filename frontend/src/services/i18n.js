@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import Globalize from 'globalize';
-import deepmerge from 'deepmerge';
 import ICUFormatter from './i18n/icu-formatter';
 import supportedLocaleCodes from '@/i18n/l10n/supported-locales.json';
 import { loadCldrData, lookupClosestLocale } from '@/services/i18n/locale-utils';
@@ -13,6 +12,7 @@ const i18n = new VueI18n({});
 let currentLocale;
 let currentLanguage;
 let currenciesInfo;
+let defaultCurrencyDigits = 2;
 let numbersInfo;
 let numberParser;
 let supportedLocales;
@@ -33,19 +33,53 @@ async function loadLanguage(language) {
     import(/* webpackChunkName: "[request]" */ `@/i18n/l10n/locales-display-names-${language}.json`)).default;
 }
 
+function buildCurrenciesInfo(cldr) {
+  const cldrCurrencies = cldr.get('/main/{bundle}/numbers/currencies');
+  currenciesInfo = [];
+  Object.keys(cldrCurrencies)
+    .forEach((code) => {
+      const { displayName, symbol } = cldrCurrencies[code];
+      currenciesInfo[code] = {
+        code,
+        displayName,
+        symbol,
+        digits: 2,
+      };
+    });
+
+  const cldrCurrenciesFractions = cldr.get('/supplemental/currencyData/fractions');
+  Object.keys(cldrCurrenciesFractions)
+    .forEach((code) => {
+      const { _digits: digits } = cldrCurrenciesFractions[code];
+      if (code === 'DEFAULT') {
+        defaultCurrencyDigits = digits;
+      } else {
+        const currencyInfo = currenciesInfo[code];
+        if (currencyInfo == null) {
+          console.warn(`${code} is not consistent`);
+        } else if (digits != null) {
+          currencyInfo.digits = digits;
+        }
+      }
+    });
+}
+
+function buildNumberInfo(cldr) {
+  numbersInfo = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
+  numbersInfo = {
+    decimalSymbol: numbersInfo.decimal,
+    thousandsSeparator: numbersInfo.group,
+  };
+}
+
 async function loadLocale(locale) {
   Globalize.load(await loadCldrData(locale));
 
   const globalize = Globalize(locale);
   const { cldr } = globalize;
 
-  currenciesInfo = deepmerge(
-    cldr.get('/main/{bundle}/numbers/currencies'),
-    cldr.get('/supplemental/currencyData/fractions'),
-  );
-
-  numbersInfo = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
-
+  buildCurrenciesInfo(cldr);
+  buildNumberInfo(cldr);
   numberParser = globalize.numberParser();
 
   i18n.formatter = new ICUFormatter({
@@ -106,41 +140,33 @@ i18n.setLocaleFromProfile = function setLocaleFromProfile({ locale, language }) 
   );
 };
 
+function emptyCurrencyInfo(code) {
+  return {
+    code,
+    displayName: '',
+    digits: defaultCurrencyDigits,
+    symbol: '',
+  };
+}
+
+i18n.getCurrenciesInfo = function getCurrenciesInfo() {
+  return currenciesInfo;
+};
+
 i18n.getCurrencyInfo = function getCurrencyInfo(currency) {
+  if (currency == null) {
+    return emptyCurrencyInfo(currency);
+  }
   const currencyInfo = currenciesInfo[currency];
   if (!currencyInfo) {
     console.warn(`${currency} is not supported`);
-    return {};
+    return emptyCurrencyInfo(currency);
   }
   return currencyInfo;
 };
 
-i18n.getCurrencyDigits = function getCurrencyDigits(currency) {
-  const currencyInfo = this.getCurrencyInfo(currency);
-  // eslint-disable-next-line no-underscore-dangle
-  return currencyInfo._digits ? currencyInfo._digits : 2;
-};
-
-i18n.getCurrencySymbol = function getCurrencySymbol(currency) {
-  const currencyInfo = this.getCurrencyInfo(currency);
-  return currencyInfo.symbol ? currencyInfo.symbol : '';
-};
-
-i18n.getCurrencyDisplayName = function getCurrencyDisplayName(currency) {
-  const currencyInfo = this.getCurrencyInfo(currency);
-  return currencyInfo.displayName ? currencyInfo.displayName : '';
-};
-
 i18n.getNumbersInfo = function getNumbersInfo() {
   return numbersInfo;
-};
-
-i18n.getDecimalSeparator = function getDecimalSeparator() {
-  return this.getNumbersInfo().decimal;
-};
-
-i18n.getThousandSeparator = function getThousandSeparator() {
-  return this.getNumbersInfo().group;
 };
 
 i18n.parserNumber = function parseNumber(input) {
