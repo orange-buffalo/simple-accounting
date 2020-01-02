@@ -1,7 +1,7 @@
 import { app } from '@/services/app-services';
 
-// todo #6: move to default export?
+// eslint-disable-next-line import/prefer-default-export
 export async function initWorkspace() {
-  // todo #97: remove these stores
+  // todo #97: remove this store and method
   await app.store.dispatch('workspaces/loadWorkspaces');
 }

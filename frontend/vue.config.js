@@ -30,7 +30,6 @@ module.exports = {
       .entry('app')
       .add('./src/entry.js');
 
-    // todo #6: should we rollback?
     config.plugins.delete('prefetch');
   },
 

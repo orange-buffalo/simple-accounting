@@ -24,7 +24,8 @@ class InvoiceService(
                 invoice.income = incomeService.saveIncome(
                     Income(
                         workspace = invoice.customer.workspace,
-                        // todo #6: i18n
+                        // todo #14: this is just a convenience method not related to business logic
+                        // creation of income can safely be moved to UI side, including i18n
                         title = "Payment for ${invoice.title}",
                         timeRecorded = timeService.currentTime(),
                         dateReceived = invoice.datePaid!!,

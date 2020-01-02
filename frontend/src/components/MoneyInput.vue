@@ -1,6 +1,6 @@
 <template>
   <div class="el-input el-input-group el-input-group--append money-input">
-    <!-- todo #6: phone?   -->
+    <!-- todo #126: phone?   -->
     <MaskedInput
       v-model="inputValue"
       type="text"

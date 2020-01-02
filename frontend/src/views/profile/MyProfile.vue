@@ -10,7 +10,7 @@
     >
       <template #default>
         <div>
-          <!-- todo #6: space is not even -->
+          <!-- todo #204: space is not even -->
           <h2>Documents Storage</h2>
 
           <DocumentsStorageConfig

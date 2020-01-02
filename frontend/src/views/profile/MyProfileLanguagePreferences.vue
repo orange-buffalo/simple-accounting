@@ -96,7 +96,7 @@
       },
 
       async updateLanguage() {
-        // todo #6: loading indicator while locale/language is loaded and applied
+        // todo #204: loading indicator while locale/language is loaded and applied
         await this.$emit('update:language', i18n.languageTagToLocaleId(this.inputLanguage));
         await i18n.setLocaleFromProfile({
           locale: this.locale,
