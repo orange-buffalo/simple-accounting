@@ -23,7 +23,7 @@ export default class ICUFormatter {
       fileSize: fileSizeFormatter(),
       yesNo: yesNoFormatter({ i18n }),
       bps: bpsFormatter({ i18n }),
-      // todo #6: rename when https://github.com/messageformat/messageformat/issues/274 is resolved
+      // todo #206: rename when https://github.com/messageformat/messageformat/issues/274 is resolved
       saDateTime: dateTimeFormatter({ globalize }),
     });
   }
