@@ -52,14 +52,15 @@
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "jest": "^24.9.0",
+    "jest-date-mock": "^1.0.7",
     "jest-expect-message": "^1.0.2",
     "jest-extended": "^0.11.2",
     "node-sass": "^4.13.0",
     "sass-loader": "^7.3.1",
-    "sinon": "^6.3.5",
     "vue-cli-plugin-webpack-bundle-analyzer": "^2.0.0",
     "vue-svgicon": "^3.2.6",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "xhr-mock": "^2.5.1"
   },
   "postcss": {
     "plugins": {
