@@ -1,21 +1,17 @@
 import 'eventsource/lib/eventsource-polyfill';
 import { api } from '@/services/api';
 
-let $store;
-
-export const pushNotifications = {
+export default {
 
   eventSource: null,
   eventListeners: [],
 
   init() {
-    const { jwtToken } = $store.state.api;
-
     // eslint-disable-next-line no-undef
     this.eventSource = new EventSourcePolyfill(
       '/api/push-notifications', {
         headers: {
-          Authorization: `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${api.getToken()}`,
         },
       },
     );
@@ -58,8 +54,4 @@ export const pushNotifications = {
       this.eventSource = null;
     }
   },
-};
-
-export const initPushNotifications = function initPushNotifications(store) {
-  $store = store;
 };

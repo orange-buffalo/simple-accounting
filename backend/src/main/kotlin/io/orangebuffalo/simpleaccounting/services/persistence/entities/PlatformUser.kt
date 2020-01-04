@@ -12,7 +12,8 @@ class PlatformUser(
     @field:Column(nullable = false) var passwordHash: String,
     @field:Column(nullable = false) var isAdmin: Boolean,
     @field:Column var documentsStorage: String? = null,
-    @field:Embedded val loginStatistics: LoginStatistics = LoginStatistics(0, null)
+    @field:Embedded val loginStatistics: LoginStatistics = LoginStatistics(0, null),
+    @field:Embedded val i18nSettings: I18nSettings
 ) : AbstractEntity()
 
 @Embeddable
@@ -26,3 +27,9 @@ data class LoginStatistics(
         temporaryLockExpirationTime = null
     }
 }
+
+@Embeddable
+data class I18nSettings(
+    @field:Column(nullable = false, length = 36) var locale: String,
+    @field:Column(nullable = false, length = 36) var language: String
+)

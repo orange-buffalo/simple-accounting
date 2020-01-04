@@ -29,8 +29,7 @@
             class="sa-document__file-description__file-extras__download-link"
           />
         </slot>
-        <!--todo #76: pretty print size-->
-        <span v-if="documentSizeInBytes">({{ documentSizeInBytes }})</span>
+        <span v-if="documentSizeInBytes">{{ $t('saDocument.size.label', [documentSizeInBytes]) }}</span>
       </div>
 
       <ElProgress

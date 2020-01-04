@@ -16,7 +16,7 @@
   import TheSideMenu from '@/components/TheSideMenu';
 
   export default {
-    name: 'UserApp',
+    name: 'TheAuthenticatedPage',
 
     components: { TheSideMenu },
   };

@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QPlatformUser
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPageRequest
@@ -31,7 +32,8 @@ class UsersApiController(
             PlatformUser(
                 userName = user.userName!!,
                 passwordHash = passwordEncoder.encode(user.password!!),
-                isAdmin = user.admin!!
+                isAdmin = user.admin!!,
+                i18nSettings = I18nSettings(locale = "en_AU", language = "en")
             )
         )
         .let(::mapUserDto)

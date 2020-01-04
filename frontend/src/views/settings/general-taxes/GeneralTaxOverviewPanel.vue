@@ -2,7 +2,7 @@
   <div class="tax-panel">
     <div class="tax-info">
       <div class="sa-item-title-panel">
-        <!--todo #6: localize-->
+        <!--todo #163: localize-->
         <h3>{{ tax.title }} ({{ tax.rateInBps / 100 }}%)</h3>
         <span class="sa-item-edit-link">
           <SaIcon icon="pencil-solid" />

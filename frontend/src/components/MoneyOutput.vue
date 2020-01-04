@@ -1,24 +1,19 @@
 <template>
-  <span>{{ amountLabel }}</span>
+  <span>{{ $t('common.amount.withCurrency', [{ amount, currency }]) }}</span>
 </template>
 
 <script>
-  import withCurrencyFormatter from '@/components/mixins/with-currency-formatter';
-  import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
-
   export default {
     name: 'MoneyOutput',
 
-    mixins: [withCurrencyFormatter, withCurrencyInfo],
-
     props: {
-      currency: String,
-      amount: Number,
-    },
-
-    computed: {
-      amountLabel() {
-        return this.currencyFormatter(this.amount / Math.pow(10, this.currencyDigits(this.currency)));
+      currency: {
+        type: String,
+        required: true,
+      },
+      amount: {
+        type: Number,
+        default: null,
       },
     },
   };

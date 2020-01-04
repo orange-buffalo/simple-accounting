@@ -5,6 +5,23 @@ import jwtDecode from 'jwt-decode';
 
 const { CancelToken } = axios;
 
+const apiToken = {
+  jwtToken: null,
+  isAdmin: false,
+  isTransient: false,
+};
+
+function updateApiToken(jwtToken) {
+  apiToken.jwtToken = jwtToken;
+  apiToken.isAdmin = false;
+  apiToken.isTransient = false;
+  if (jwtToken) {
+    const decodedToken = jwtDecode(jwtToken);
+    apiToken.isAdmin = decodedToken.roles && decodedToken.roles.indexOf('ADMIN') >= 0;
+    apiToken.isTransient = decodedToken.transient;
+  }
+}
+
 export const LOGIN_REQUIRED_EVENT = 'login-required';
 
 export const api = axios.create({
@@ -14,8 +31,6 @@ export const api = axios.create({
     return qs.stringify(params, { arrayFormat: 'repeat' });
   },
 });
-
-let $store;
 
 let refreshTokenTimer;
 
@@ -28,7 +43,7 @@ function cancelTokenRefresh() {
 function scheduleTokenRefresh() {
   cancelTokenRefresh();
 
-  const token = jwtDecode($store.state.api.jwtToken);
+  const token = jwtDecode(apiToken.jwtToken);
   const timeout = token.exp * 1000 - Date.now() - 30000;
   refreshTokenTimer = setTimeout(refreshToken, timeout);
 }
@@ -48,21 +63,20 @@ api.createCancelToken = function createCancelToken() {
 api.login = async function login(request) {
   cancelTokenRefresh();
   const response = await api.post('/auth/login', request);
-  $store.commit('api/updateJwtToken', response.data.token);
+  updateApiToken(response.data.token);
   scheduleTokenRefresh();
 };
 
 api.logout = async function logout(request) {
   cancelTokenRefresh();
   await api.post('/auth/logout', request);
-  $store.commit('api/updateJwtToken', null);
+  updateApiToken(null);
 };
 
 function applyAuthorization(config) {
-  const { jwtToken } = $store.state.api;
   const { headers, ...otherConfig } = config;
-  if (jwtToken) {
-    headers.Authorization = `Bearer ${jwtToken}`;
+  if (apiToken.jwtToken) {
+    headers.Authorization = `Bearer ${apiToken.jwtToken}`;
   }
   return { headers, ...otherConfig };
 }
@@ -80,7 +94,7 @@ api.tryAutoLogin = async function tryAutoLogin() {
       withCredentials: true,
     });
 
-    $store.commit('api/updateJwtToken', response.data.token);
+    updateApiToken(response.data.token);
     scheduleTokenRefresh();
 
     return true;
@@ -98,7 +112,7 @@ api.loginBySharedToken = async function loginBySharedToken(sharedToken) {
   try {
     const tokenLoginResponse = await api.post(`/auth/login?sharedWorkspaceToken=${sharedToken}`);
 
-    $store.commit('api/updateJwtToken', tokenLoginResponse.data.token);
+    updateApiToken(tokenLoginResponse.data.token);
 
     return true;
   } catch (error) {
@@ -209,7 +223,24 @@ api.dateToString = function dateToString(date) {
     (`0${date.getDate()}`).slice(-2)}`;
 };
 
-export default api;
-export const initApi = function initApi(store) {
-  $store = store;
+api.isLoggedIn = function isLoggedIn() {
+  return apiToken.jwtToken != null;
 };
+
+api.getToken = function getToken() {
+  return apiToken.jwtToken;
+};
+
+api.isAdmin = function isAdmin() {
+  return apiToken.isAdmin;
+};
+
+api.isCurrentUserTransient = function isCurrentUserTransient() {
+  return apiToken.isTransient;
+};
+
+api.isCurrentUserRegular = function isCurrentUserRegular() {
+  return !api.isCurrentUserTransient();
+};
+
+export default api;

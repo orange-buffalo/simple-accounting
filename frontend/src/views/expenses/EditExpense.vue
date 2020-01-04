@@ -12,15 +12,15 @@
       <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
-            <h2>General Information</h2>
+            <h2>{{ $t('editExpense.generalInformation.header') }}</h2>
 
             <ElFormItem
-              label="Category"
+              :label="$t('editExpense.generalInformation.category.label')"
               prop="category"
             >
               <ElSelect
                 v-model="expense.category"
-                placeholder="Select a category"
+                :placeholder="$t('editExpense.generalInformation.category.placeholder')"
               >
                 <ElOption
                   v-for="category in categories"
@@ -32,24 +32,24 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Description / Title"
+              :label="$t('editExpense.generalInformation.title.label')"
               prop="title"
             >
               <ElInput
                 v-model="expense.title"
-                placeholder="Provide a short summary"
+                :placeholder="$t('editExpense.generalInformation.title.placeholder')"
               />
             </ElFormItem>
 
             <ElFormItem
-              label="Currency"
+              :label="$t('editExpense.generalInformation.currency.label')"
               prop="currency"
             >
-              <CurrencyInput v-model="expense.currency" />
+              <SaCurrencyInput v-model="expense.currency" />
             </ElFormItem>
 
             <ElFormItem
-              label="Original Amount"
+              :label="$t('editExpense.generalInformation.originalAmount.label')"
               prop="originalAmount"
             >
               <MoneyInput
@@ -59,21 +59,21 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Date Paid"
+              :label="$t('editExpense.generalInformation.datePaid.label')"
               prop="datePaid"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="expense.datePaid"
                 type="date"
-                placeholder="Date expense is paid"
+                :placeholder="$t('editExpense.generalInformation.datePaid.placeholder')"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
 
             <ElFormItem
               v-if="isInForeignCurrency"
-              :label="`Amount in ${defaultCurrency}`"
+              :label="$t('editExpense.generalInformation.convertedAmountInDefaultCurrency.label', [defaultCurrency])"
               prop="convertedAmountInDefaultCurrency"
             >
               <MoneyInput
@@ -84,13 +84,14 @@
 
             <ElFormItem v-if="isInForeignCurrency">
               <ElCheckbox v-model="expense.useDifferentExchangeRateForIncomeTaxPurposes">
-                Using different exchange rate for taxation purposes
+                {{ $t('editExpense.generalInformation.useDifferentExchangeRateForIncomeTaxPurposes.label') }}
               </ElCheckbox>
             </ElFormItem>
 
+            <!-- eslint-disable max-len-->
             <ElFormItem
               v-if="expense.useDifferentExchangeRateForIncomeTaxPurposes"
-              :label="`Amount in ${defaultCurrency} for taxation purposes`"
+              :label="$t('editExpense.generalInformation.incomeTaxableAmountInDefaultCurrency.label', [defaultCurrency])"
               prop="incomeTaxableAmountInDefaultCurrency"
             >
               <MoneyInput
@@ -100,13 +101,13 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Included General Tax"
+              :label="$t('editExpense.generalInformation.generalTax.label')"
               prop="generalTax"
             >
               <ElSelect
                 v-model="expense.generalTax"
                 clearable
-                placeholder="Select a tax"
+                :placeholder="$t('editExpense.generalInformation.generalTax.placeholder')"
               >
                 <ElOption
                   v-for="tax in generalTaxes"
@@ -119,13 +120,13 @@
 
             <ElFormItem>
               <ElCheckbox v-model="partialForBusiness">
-                Partial Business Purpose
+                {{ $t('editExpense.generalInformation.partialForBusiness.label') }}
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
               v-if="partialForBusiness"
-              label="% related to business activities"
+              :label="$t('editExpense.generalInformation.percentOnBusiness.label')"
               prop="percentOnBusiness"
             >
               <ElInputNumber
@@ -137,19 +138,19 @@
           </div>
 
           <div class="col col-xs-12 col-lg-6">
-            <h2>Additional notes</h2>
+            <h2>{{ $t('editExpense.additionalInformation.header') }}</h2>
 
             <ElFormItem
-              label="Notes"
+              :label="$t('editExpense.additionalInformation.notes.label')"
               prop="notes"
             >
               <SaNotesInput
                 v-model="expense.notes"
-                placeholder="Any additional information to be stored for this expense record"
+                :placeholder="$t('editExpense.additionalInformation.notes.placeholder')"
               />
             </ElFormItem>
 
-            <h2>Attachments</h2>
+            <h2>{{ $t('editExpense.attachments.header') }}</h2>
 
             <ElFormItem>
               <SaDocumentsUpload
@@ -165,13 +166,13 @@
 
       <template #buttons-bar>
         <ElButton @click="navigateToExpensesOverview">
-          Cancel
+          {{ $t('editExpense.cancel') }}
         </ElButton>
         <ElButton
           type="primary"
           @click="save"
         >
-          Save
+          {{ $t('editExpense.save') }}
         </ElButton>
       </template>
     </SaForm>
@@ -180,28 +181,27 @@
 
 <script>
   import { api } from '@/services/api';
-  import CurrencyInput from '@/components/CurrencyInput';
   import MoneyInput from '@/components/MoneyInput';
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
-  import withCategories from '@/components/mixins/with-categories';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
+  import withCategories from '@/components/mixins/with-categories';
+  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'EditExpense',
 
     components: {
+      SaCurrencyInput,
       SaForm,
       SaNotesInput,
       SaDocumentsUpload,
-      CurrencyInput,
       MoneyInput,
     },
 
-    mixins: [withMediumDateFormatter, withGeneralTaxes, withCategories, withWorkspaces],
+    mixins: [withGeneralTaxes, withCategories, withWorkspaces],
 
     props: {
       id: {
@@ -234,19 +234,19 @@
         expenseValidationRules: {
           currency: {
             required: true,
-            message: 'Please select a currency',
+            message: this.$t('editExpense.validations.currency'),
           },
           title: {
             required: true,
-            message: 'Please provide the title',
+            message: this.$t('editExpense.validations.title'),
           },
           datePaid: {
             required: true,
-            message: 'Please provide the date when expense is paid',
+            message: this.$t('editExpense.validations.datePaid'),
           },
           originalAmount: {
             required: true,
-            message: 'Please provide expense amount',
+            message: this.$t('editExpense.validations.originalAmount'),
           },
         },
         partialForBusiness: false,
@@ -259,7 +259,7 @@
       },
 
       pageHeader() {
-        return this.expense.id ? 'Edit Expense' : 'Record New Expense';
+        return this.expense.id ? this.$t('editExpense.pageHeader.edit') : this.$t('editExpense.pageHeader.create');
       },
     },
 
@@ -333,7 +333,7 @@
       async onDocumentsUploadFailure() {
         this.$message({
           showClose: true,
-          message: 'Some of the documents have not been uploaded. Please retry or remove them.',
+          message: this.$t('editExpense.documentsUploadFailure'),
           type: 'error',
         });
       },

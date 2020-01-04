@@ -2,11 +2,11 @@
   <OverviewItem :title="taxPayment.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
-        v-if="datePaid"
-        tooltip="Date paid"
+        v-if="taxPayment.datePaid"
+        :tooltip="$t('incomeTaxPaymentsOverviewPanel.datePaid.label')"
         icon="calendar"
       >
-        {{ datePaid }}
+        {{ $t('common.date.medium', [taxPayment.datePaid]) }}
       </OverviewItemPrimaryAttribute>
     </template>
 
@@ -14,12 +14,12 @@
       <OverviewItemAttributePreviewIcon
         v-if="taxPayment.notes"
         icon="notes"
-        tooltip="Additional notes provided"
+        :tooltip="$t('incomeTaxPaymentsOverviewPanel.notes.tooltip')"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="taxPayment.attachments.length"
-        tooltip="Attachments provided"
+        :tooltip="$t('incomeTaxPaymentsOverviewPanel.attachments.tooltip')"
         icon="attachment"
       />
     </template>
@@ -38,31 +38,33 @@
           icon="pencil-solid"
           @click="navigateToTaxPaymentEdit"
         >
-          Edit
+          {{ $t('incomeTaxPaymentsOverviewPanel.edit') }}
         </SaActionLink>
       </OverviewItemDetailsSectionActions>
 
-      <OverviewItemDetailsSection title="Summary">
+      <OverviewItemDetailsSection
+        :title="$t('incomeTaxPaymentsOverviewPanel.summary.header')"
+      >
         <div class="row">
           <OverviewItemDetailsSectionAttribute
-            label="Date Paid"
+            :label="$t('incomeTaxPaymentsOverviewPanel.datePaid.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ datePaid }}
+            {{ $t('common.date.medium', [taxPayment.datePaid]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Reporting Date"
+            :label="$t('incomeTaxPaymentsOverviewPanel.reportingDate.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ reportingDate }}
+            {{ $t('common.date.medium', [taxPayment.reportingDate]) }}
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
 
       <OverviewItemDetailsSection
         v-if="taxPayment.attachments.length"
-        title="Attachments"
+        :title="$t('incomeTaxPaymentsOverviewPanel.attachments.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -73,7 +75,7 @@
 
       <OverviewItemDetailsSection
         v-if="taxPayment.notes"
-        title="Additional Notes"
+        :title="$t('incomeTaxPaymentsOverviewPanel.notes.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -86,7 +88,6 @@
 </template>
 
 <script>
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -100,7 +101,7 @@
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
 
   export default {
-    name: 'IncomeTaxPaymentOverviewPanel',
+    name: 'IncomeTaxPaymentsOverviewPanel',
 
     components: {
       SaDocumentsList,
@@ -115,22 +116,12 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withMediumDateFormatter, withWorkspaces],
+    mixins: [withWorkspaces],
 
     props: {
       taxPayment: {
         type: Object,
         required: true,
-      },
-    },
-
-    computed: {
-      datePaid() {
-        return this.mediumDateFormatter(new Date(this.taxPayment.datePaid));
-      },
-
-      reportingDate() {
-        return this.mediumDateFormatter(new Date(this.taxPayment.reportingDate));
       },
     },
 

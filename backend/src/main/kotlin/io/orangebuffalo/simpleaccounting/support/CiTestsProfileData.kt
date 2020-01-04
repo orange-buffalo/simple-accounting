@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.support
 
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.ContextRefreshedEvent
@@ -21,7 +22,8 @@ class CiTestsProfileData(private val entityManager: EntityManager) {
        entityManager.persist(PlatformUser(
            userName = "Fry",
            passwordHash = "{noop}password",
-           isAdmin = false
+           isAdmin = false,
+           i18nSettings = I18nSettings(locale = "en_AU", language = "en")
        ))
     }
 }

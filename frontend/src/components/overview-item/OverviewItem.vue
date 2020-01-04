@@ -77,8 +77,6 @@
   /*todo #73: common component refers to app styles - redesign dependencies  */
   @import "~@/styles/vars.scss";
 
-  $trigger-button-size: 30px;
-
   .overview-item {
     &__panel {
       padding: 20px;
@@ -87,7 +85,6 @@
       border-radius: 2px;
       position: relative;
       transition: all 250ms;
-      margin-bottom: $trigger-button-size;
 
       .col {
         padding: 0;
@@ -141,8 +138,7 @@
     &__details {
       border: 1px solid $secondary-grey;
       background-color: $white;
-      padding: 20px 20px 0 20px;
-      margin-top: -$trigger-button-size;
+      padding: 10px 20px 0 20px;
     }
   }
 </style>

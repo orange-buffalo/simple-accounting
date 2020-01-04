@@ -3,18 +3,18 @@
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="customer"
-        tooltip="Customer"
+        :tooltip="$t('invoicesOverviewPanel.customer.tooltip')"
         icon="customer"
       >
         {{ customer.name }}
       </OverviewItemPrimaryAttribute>
 
       <OverviewItemPrimaryAttribute
-        v-if="datePaid"
-        tooltip="Date paid"
+        v-if="invoice.datePaid"
+        :tooltip="$t('invoicesOverviewPanel.datePaid.tooltip')"
         icon="calendar"
       >
-        {{ datePaid }}
+        {{ $t('common.date.medium', [invoice.datePaid]) }}
       </OverviewItemPrimaryAttribute>
     </template>
 
@@ -22,24 +22,24 @@
       <OverviewItemAttributePreviewIcon
         v-if="invoice.notes"
         icon="notes"
-        tooltip="Additional notes provided"
+        :tooltip="$t('invoicesOverviewPanel.notes.tooltip')"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="invoice.attachments.length"
-        tooltip="Attachments provided"
+        :tooltip="$t('invoicesOverviewPanel.attachments.tooltip')"
         icon="attachment"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="isGeneralTaxApplicable"
-        tooltip="General Tax applied"
+        :tooltip="$t('invoicesOverviewPanel.generalTax.tooltip')"
         icon="tax"
       />
 
       <OverviewItemAttributePreviewIcon
         v-if="isForeignCurrency"
-        tooltip="In foreign currency"
+        :tooltip="$t('invoicesOverviewPanel.foreignCurrency.tooltip')"
         icon="multi-currency"
       />
     </template>
@@ -67,7 +67,7 @@
           icon="pencil-solid"
           @click="navigateToInvoiceEdit"
         >
-          Edit
+          {{ $t('invoicesOverviewPanel.edit') }}
         </SaActionLink>
 
         <SaActionLink
@@ -75,7 +75,7 @@
           icon="send-solid"
           @click="markSent"
         >
-          Sent today
+          {{ $t('invoicesOverviewPanel.markAsSent') }}
         </SaActionLink>
 
         <SaActionLink
@@ -83,14 +83,16 @@
           icon="income-solid"
           @click="markPaid"
         >
-          Paid today
+          {{ $t('invoicesOverviewPanel.markAsPaid') }}
         </SaActionLink>
       </OverviewItemDetailsSectionActions>
 
-      <OverviewItemDetailsSection title="General Information">
+      <OverviewItemDetailsSection
+        :title="$t('invoicesOverviewPanel.generalInformation.header')"
+      >
         <div class="row">
           <OverviewItemDetailsSectionAttribute
-            label="Status"
+            :label="$t('invoicesOverviewPanel.status.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <SaStatusLabel
@@ -103,14 +105,14 @@
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Customer"
+            :label="$t('invoicesOverviewPanel.customer.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ customer.name }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Category"
+            :label="$t('invoicesOverviewPanel.category.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ categoryById(invoice.category).name }}
@@ -118,14 +120,14 @@
 
           <OverviewItemDetailsSectionAttribute
             v-if="isForeignCurrency"
-            label="Invoice Currency"
+            :label="$t('invoicesOverviewPanel.currency.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ invoice.currency }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Invoice Amount"
+            :label="$t('invoicesOverviewPanel.amount.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
@@ -137,64 +139,63 @@
 
         <div class="row">
           <OverviewItemDetailsSectionAttribute
-            label="Date Issued"
+            :label="$t('invoicesOverviewPanel.dateIssued.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dateIssued }}
+            {{ $t('common.date.medium', [invoice.dateIssued]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            label="Due Date"
+            :label="$t('invoicesOverviewPanel.dueDate.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dueDate }}
+            {{ $t('common.date.medium', [invoice.dueDate]) }}
           </OverviewItemDetailsSectionAttribute>
         </div>
 
         <div
-          v-if="dateSent || dateCancelled || datePaid"
+          v-if="invoice.dateSent || invoice.dateCancelled || invoice.datePaid"
           class="row"
         >
           <OverviewItemDetailsSectionAttribute
-            v-if="dateSent"
-            label="Date Sent"
+            v-if="invoice.dateSent"
+            :label="$t('invoicesOverviewPanel.dateSent.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dateSent }}
+            {{ $t('common.date.medium', [invoice.dateSent]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            v-if="dateCancelled"
-            label="Date Cancelled"
+            v-if="invoice.dateCancelled"
+            :label="$t('invoicesOverviewPanel.dateCancelled.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ dateCancelled }}
+            {{ $t('common.date.medium', [invoice.dateCancelled]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            v-if="datePaid"
-            label="Date Paid"
+            v-if="invoice.datePaid"
+            :label="$t('invoicesOverviewPanel.datePaid.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ datePaid }}
+            {{ $t('common.date.medium', [invoice.datePaid]) }}
           </OverviewItemDetailsSectionAttribute>
         </div>
 
         <template v-if="isGeneralTaxApplicable">
           <div class="row">
             <OverviewItemDetailsSectionAttribute
-              label="Applicable General Tax"
+              :label="$t('invoicesOverviewPanel.generalTax.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               {{ generalTaxTitle }}
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
-              label="Applicable General Tax Rate"
+              :label="$t('invoicesOverviewPanel.generalTaxRate.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <!-- todo #6 localize-->
-              {{ generalTaxById(invoice.generalTax).rateInBps / 100 }}%
+              {{ $t('invoicesOverviewPanel.generalTaxRate.value', [generalTaxById(invoice.generalTax).rateInBps]) }}
             </OverviewItemDetailsSectionAttribute>
           </div>
         </template>
@@ -202,7 +203,7 @@
 
       <OverviewItemDetailsSection
         v-if="invoice.attachments.length"
-        title="Attachments"
+        :title="$t('invoicesOverviewPanel.attachments.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -213,7 +214,7 @@
 
       <OverviewItemDetailsSection
         v-if="invoice.notes"
-        title="Additional Notes"
+        :title="$t('invoicesOverviewPanel.notes.header')"
       >
         <div class="row">
           <div class="col col-xs-12">
@@ -229,7 +230,6 @@
   import MoneyOutput from '@/components/MoneyOutput';
   import withCategories from '@/components/mixins/with-categories';
   import withCustomers from '@/components/mixins/with-customers';
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
@@ -246,7 +246,7 @@
   import SaStatusLabel from '@/components/SaStatusLabel';
 
   export default {
-    name: 'InvoiceOverviewPanel',
+    name: 'InvoicesOverviewPanel',
 
     components: {
       SaDocumentsList,
@@ -263,7 +263,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withMediumDateFormatter, withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
+    mixins: [withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
 
     props: {
       invoice: {
@@ -328,19 +328,19 @@
 
       statusText() {
         if (this.isPaid) {
-          return 'Finalized';
+          return this.$t('invoicesOverviewPanel.status.finalized');
         }
         if (this.isDraft) {
-          return 'Draft';
+          return this.$t('invoicesOverviewPanel.status.draft');
         }
         if (this.isCancelled) {
-          return 'Cancelled';
+          return this.$t('invoicesOverviewPanel.status.cancelled');
         }
         if (this.isSent) {
-          return 'Sent';
+          return this.$t('invoicesOverviewPanel.status.sent');
         }
         if (this.isOverdue) {
-          return 'Overdue';
+          return this.$t('invoicesOverviewPanel.status.overdue');
         }
         return null;
       },
@@ -351,32 +351,6 @@
 
       generalTaxTitle() {
         return this.generalTaxById(this.invoice.generalTax).title;
-      },
-
-      dateIssued() {
-        return this.mediumDateFormatter(new Date(this.invoice.dateIssued));
-      },
-
-      dueDate() {
-        return this.mediumDateFormatter(new Date(this.invoice.dueDate));
-      },
-
-      dateSent() {
-        return this.invoice.dateSent
-          ? this.mediumDateFormatter(new Date(this.invoice.dateSent))
-          : null;
-      },
-
-      datePaid() {
-        return this.invoice.datePaid
-          ? this.mediumDateFormatter(new Date(this.invoice.datePaid))
-          : null;
-      },
-
-      dateCancelled() {
-        return this.invoice.dateCancelled
-          ? this.mediumDateFormatter(new Date(this.invoice.dateCancelled))
-          : null;
       },
 
       customer() {

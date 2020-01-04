@@ -8,7 +8,7 @@
     <ElFormItem prop="userName">
       <ElInput
         v-model="form.userName"
-        placeholder="Login"
+        :placeholder="$t('loginPage.userName.placeholder')"
       >
         <SaIcon
           slot="prefix"
@@ -74,7 +74,7 @@
     },
 
     async created() {
-      if (await api.tryAutoLogin()) {
+      if (api.isLoggedIn()) {
         this.$emit('login');
       }
     },
@@ -92,7 +92,7 @@
           if (data && data.error === 'AccountLocked') {
             this.$message({
               showClose: true,
-              // todo #6: localize and humanize
+              // todo #98: localize and humanize
               message: `Account is locked for ${data.lockExpiresInSec} seconds`,
               type: 'error',
             });

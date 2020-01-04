@@ -1,5 +1,6 @@
 <template>
   <div class="el-input el-input-group el-input-group--append money-input">
+    <!-- todo #126: phone?   -->
     <MaskedInput
       v-model="inputValue"
       type="text"
@@ -19,9 +20,7 @@
 <script>
   import MaskedInput from 'vue-text-mask';
   import createNumberMask from 'text-mask-addons/dist/createNumberMask';
-  import withCurrencyFormatter from '@/components/mixins/with-currency-formatter';
-  import { withCurrencyInfo } from '@/components/mixins/with-currency-info';
-  import { withNumberFormatter } from '@/components/mixins/with-number-formatter';
+  import i18n from '@/services/i18n';
 
   export default {
     name: 'MoneyInput',
@@ -29,8 +28,6 @@
     components: {
       MaskedInput,
     },
-
-    mixins: [withCurrencyFormatter, withCurrencyInfo, withNumberFormatter],
 
     props: {
       value: Number,
@@ -47,29 +44,38 @@
       inputMask() {
         return createNumberMask({
           prefix: '',
-          thousandsSeparatorSymbol: this.thousandSeparator,
-          allowDecimal: this.currencyDigits(this.currency) > 0,
-          decimalSymbol: this.decimalSeparator,
+          thousandsSeparatorSymbol: i18n.getNumbersInfo().thousandsSeparator,
+          allowDecimal: i18n.getCurrencyInfo(this.currency).digits > 0,
+          decimalSymbol: i18n.getNumbersInfo().decimalSymbol,
         });
       },
 
       digitsMultiplier() {
-        return Math.pow(10, this.currencyDigits(this.currency));
+        return 10 ** i18n.getCurrencyInfo(this.currency).digits;
       },
     },
 
     watch: {
       value(val) {
-        this.inputValue = !val ? null : this.formatNumberDefault(this.value / this.digitsMultiplier);
+        this.setInputValue(val);
       },
 
       inputValue(val) {
-        this.$emit('input', !val ? null : Math.round(this.parserNumberDefault(this.inputValue) * this.digitsMultiplier));
+        this.$emit(
+          'input',
+          !val ? null : Math.round(i18n.parserNumber(this.inputValue) * this.digitsMultiplier),
+        );
       },
     },
 
     created() {
-      this.inputValue = this.value ? this.formatNumberDefault(this.value / this.digitsMultiplier) : null;
+      this.setInputValue(this.value);
+    },
+
+    methods: {
+      setInputValue(val) {
+        this.inputValue = !val ? null : this.$i18n.n(this.value / this.digitsMultiplier);
+      },
     },
   };
 </script>

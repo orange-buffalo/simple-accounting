@@ -6,6 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "locale-bundles-builder": "node buildSrc/l10n/locale-bundles-builder.js",
+    "postinstall": "node buildSrc/post-install.js",
     "reformat": "vue-cli-service lint --fix",
     "svg-icons": "vsvg -s ./src/icons/svg -t ./src/components/icons",
     "test:unit": "vue-cli-service test:unit"
@@ -27,9 +29,11 @@
     "lockr": "^0.8.5",
     "lodash": "^4.17.15",
     "marked": "^0.7.0",
+    "messageformat": "^2.3.0",
     "qs": "^6.9.1",
     "text-mask-addons": "^3.8.0",
-    "vue": "^2.6.10",
+    "vue": "^2.6.11",
+    "vue-i18n": "^8.15.1",
     "vue-router": "^3.1.3",
     "vue-text-mask": "^6.1.2",
     "vuex": "^3.1.2"
@@ -37,22 +41,26 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.12.1",
     "@vue/cli-plugin-eslint": "^4.1.1",
-    "@vue/cli-plugin-unit-mocha": "^3.12.1",
+    "@vue/cli-plugin-unit-jest": "^4.1.2",
     "@vue/cli-service": "^3.12.1",
     "@vue/eslint-config-airbnb": "^4.0.0",
     "@vue/test-utils": "^1.0.0-beta.30",
     "babel-eslint": "^10.0.3",
-    "chai": "^4.2.0",
-    "cldr-data": "^34.0.0",
+    "babel-plugin-component": "^1.1.1",
+    "cldr-data": "^36.0.0",
+    "deep-keys": "^0.5.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "mocha": "^5.2.0",
+    "jest": "^24.9.0",
+    "jest-date-mock": "^1.0.7",
+    "jest-expect-message": "^1.0.2",
+    "jest-extended": "^0.11.2",
     "node-sass": "^4.13.0",
     "sass-loader": "^7.3.1",
-    "sinon": "^6.3.5",
     "vue-cli-plugin-webpack-bundle-analyzer": "^2.0.0",
     "vue-svgicon": "^3.2.6",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.11",
+    "xhr-mock": "^2.5.1"
   },
   "postcss": {
     "plugins": {
@@ -63,6 +71,5 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ],
-  "cldr-data-coverage": "full"
+  ]
 }

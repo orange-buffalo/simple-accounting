@@ -35,7 +35,7 @@
               label="Valid Till"
             >
               <template slot-scope="scope">
-                {{ mediumDateTimeFormatterFromString(scope.row.validTill) }}
+                {{ $t('common.dateTime.medium', [scope.row.validTill]) }}
               </template>
             </ElTableColumn>
             <ElTableColumn align="right">
@@ -79,7 +79,6 @@
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaAttributeValue from '@/components/SaAttributeValue';
   import { api } from '@/services/api';
-  import { withMediumDateTimeFormatter } from '@/components/mixins/with-medium-datetime-formatter';
   import SaIcon from '@/components/SaIcon';
 
   export default {
@@ -90,7 +89,7 @@
       SaAttributeValue,
     },
 
-    mixins: [withWorkspaces, withMediumDateTimeFormatter],
+    mixins: [withWorkspaces],
 
     props: {
       workspace: {

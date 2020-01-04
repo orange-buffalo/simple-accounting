@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>Income Tax Payments</h1>
+      <h1>{{ $t('incomeTaxPaymentsOverview.header') }}</h1>
 
       <div class="sa-header-options">
         <div>
-          <span>Filters coming soon</span>
+          <span>{{ $t('incomeTaxPaymentsOverview.filters.announcement') }}</span>
         </div>
 
         <ElButton
@@ -14,7 +14,7 @@
           @click="navigateToCreateTaxPaymentView"
         >
           <SaIcon icon="plus-thin" />
-          Add new
+          {{ $t('incomeTaxPaymentsOverview.create') }}
         </ElButton>
       </div>
     </div>
@@ -23,7 +23,7 @@
       :api-path="`/workspaces/${currentWorkspace.id}/income-tax-payments`"
       #default="{item: taxPayment}"
     >
-      <IncomeTaxPaymentOverviewPanel :tax-payment="taxPayment" />
+      <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />
     </DataItems>
   </div>
 </template>
@@ -32,13 +32,13 @@
   import DataItems from '@/components/DataItems';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
-  import IncomeTaxPaymentOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentOverviewPanel';
+  import IncomeTaxPaymentsOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentsOverviewPanel';
 
   export default {
     name: 'TaxPaymentsOverview',
 
     components: {
-      IncomeTaxPaymentOverviewPanel,
+      IncomeTaxPaymentsOverviewPanel,
       SaIcon,
       DataItems,
     },

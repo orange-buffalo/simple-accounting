@@ -12,20 +12,20 @@
       <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
-            <h2>General Information</h2>
+            <h2>{{ $t('editIncomeTaxPayment.generalInformation.header') }}</h2>
 
             <ElFormItem
-              label="Description / Title"
+              :label="$t('editIncomeTaxPayment.generalInformation.title.label')"
               prop="title"
             >
               <ElInput
                 v-model="taxPayment.title"
-                placeholder="Provide a short summary"
+                :placeholder="$t('editIncomeTaxPayment.generalInformation.title.placeholder')"
               />
             </ElFormItem>
 
             <ElFormItem
-              label="Amount"
+              :label="$t('editIncomeTaxPayment.generalInformation.amount.label')"
               prop="amount"
             >
               <MoneyInput
@@ -35,46 +35,46 @@
             </ElFormItem>
 
             <ElFormItem
-              label="Date Paid"
+              :label="$t('editIncomeTaxPayment.generalInformation.datePaid.label')"
               prop="datePaid"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="taxPayment.datePaid"
                 type="date"
-                placeholder="Date tax is paid"
+                :placeholder="$t('editIncomeTaxPayment.generalInformation.datePaid.placeholder')"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
 
             <ElFormItem
-              label="Reporting Date"
+              :label="$t('editIncomeTaxPayment.generalInformation.reportingDate.label')"
               prop="reportingDate"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="taxPayment.reportingDate"
                 type="date"
-                placeholder="Date to include this payment into reporting by"
+                :placeholder="$t('editIncomeTaxPayment.generalInformation.reportingDate.placeholder')"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
           </div>
 
           <div class="col col-xs-12 col-lg-6">
-            <h2>Additional notes</h2>
+            <h2>{{ $t('editIncomeTaxPayment.additionalInformation.header') }}</h2>
 
             <ElFormItem
-              label="Notes"
+              :label="$t('editIncomeTaxPayment.additionalInformation.notes.label')"
               prop="notes"
             >
               <SaNotesInput
                 v-model="taxPayment.notes"
-                placeholder="Any additional information to be stored for this tax payment record"
+                :placeholder="$t('editIncomeTaxPayment.additionalInformation.notes.placeholder')"
               />
             </ElFormItem>
 
-            <h2>Attachments</h2>
+            <h2>{{ $t('editIncomeTaxPayment.attachments.header') }}</h2>
 
             <ElFormItem>
               <SaDocumentsUpload
@@ -90,13 +90,13 @@
 
       <template #buttons-bar>
         <ElButton @click="navigateToTaxPaymentsOverview">
-          Cancel
+          {{ $t('editIncomeTaxPayment.cancel') }}
         </ElButton>
         <ElButton
           type="primary"
           @click="save"
         >
-          Save
+          {{ $t('editIncomeTaxPayment.save') }}
         </ElButton>
       </template>
     </SaForm>
@@ -106,7 +106,6 @@
 <script>
   import { api } from '@/services/api';
   import MoneyInput from '@/components/MoneyInput';
-  import withMediumDateFormatter from '@/components/mixins/with-medium-date-formatter';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
@@ -122,7 +121,7 @@
       MoneyInput,
     },
 
-    mixins: [withMediumDateFormatter, withWorkspaces],
+    mixins: [withWorkspaces],
 
     data() {
       return {
@@ -137,15 +136,15 @@
         taxPaymentValidationRules: {
           title: {
             required: true,
-            message: 'Please provide the title',
+            message: this.$t('editIncomeTaxPayment.validations.title'),
           },
           datePaid: {
             required: true,
-            message: 'Please provide the date when tax payment is done',
+            message: this.$t('editIncomeTaxPayment.validations.datePaid'),
           },
           amount: {
             required: true,
-            message: 'Please provide tax payment amount',
+            message: this.$t('editIncomeTaxPayment.validations.amount'),
           },
         },
       };
@@ -153,7 +152,9 @@
 
     computed: {
       pageHeader() {
-        return this.$route.params.id ? 'Edit Income Tax Payment' : 'Record New Income Tax Payment';
+        return this.$route.params.id
+          ? this.$t('editIncomeTaxPayment.header.edit')
+          : this.$t('editIncomeTaxPayment.header.create');
       },
     },
 
@@ -194,7 +195,7 @@
       async onDocumentsUploadFailure() {
         this.$message({
           showClose: true,
-          message: 'Some of the documents have not been uploaded. Please retry or remove them.',
+          message: this.$t('editIncomeTaxPayment.uploadFailure'),
           type: 'error',
         });
       },

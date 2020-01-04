@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.web.api
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -38,7 +39,11 @@ class ProfileApiControllerIT(
                     json(
                         """{
                             "userName": "Fry",
-                            "documentsStorage": "google-drive"
+                            "documentsStorage": "google-drive",
+                            "i18n": {
+                                "locale": "en_AU",
+                                "language": "en"
+                            }
                         }"""
                     )
                 )
@@ -54,7 +59,11 @@ class ProfileApiControllerIT(
                 inPath("$").isEqualTo(
                     json(
                         """{
-                            "userName": "Zoidberg"
+                            "userName": "Zoidberg",
+                            "i18n": {
+                                "locale": "en_US",
+                                "language": "en"
+                            }
                         }"""
                     )
                 )
@@ -68,14 +77,21 @@ class ProfileApiControllerIT(
             .uri("/api/profile")
             .sendJson(
                 """{
-                    
+                    "i18n": {
+                        "locale": "en_AU",
+                        "language": "en"
+                    }
                 }"""
             )
             .verifyOkAndJsonBody {
                 inPath("$").isEqualTo(
                     json(
                         """{
-                            "userName": "Fry"
+                            "userName": "Fry",
+                            "i18n": {
+                                "locale": "en_AU",
+                                "language": "en"
+                            }
                         }"""
                     )
                 )
@@ -84,12 +100,16 @@ class ProfileApiControllerIT(
 
     @Test
     @WithMockZoidbergUser
-    fun `should update documents storage setting`(testData: ProfileApiTestData) {
+    fun `should update profile`(testData: ProfileApiTestData) {
         client.put()
             .uri("/api/profile")
             .sendJson(
                 """{
-                   "documentsStorage": "new-storage" 
+                   "documentsStorage": "new-storage",
+                    "i18n": {
+                                "locale": "el",
+                                "language": "uk"
+                            }
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -97,7 +117,11 @@ class ProfileApiControllerIT(
                     json(
                         """{
                             "userName": "Zoidberg",
-                            "documentsStorage": "new-storage"
+                            "documentsStorage": "new-storage",
+                            "i18n": {
+                                "locale": "el",
+                                "language": "uk"
+                            }
                         }"""
                     )
                 )
@@ -107,7 +131,14 @@ class ProfileApiControllerIT(
 
 class ProfileApiTestData : TestData {
     override fun generateData() = listOf(
-        Prototypes.platformUser(userName = "Fry", documentsStorage = "google-drive"),
-        Prototypes.platformUser(userName = "Zoidberg")
+        Prototypes.platformUser(
+            userName = "Fry",
+            documentsStorage = "google-drive",
+            i18nSettings = I18nSettings(locale = "en_AU", language = "en")
+        ),
+        Prototypes.platformUser(
+            userName = "Zoidberg",
+            i18nSettings = I18nSettings(locale = "en_US", language = "en")
+        )
     )
 }

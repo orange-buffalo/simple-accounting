@@ -11,8 +11,11 @@
 </template>
 
 <script>
-  import { setupApp } from '@/services/app-services';
+  import { api } from '@/services/api';
   import LoginForm from '@/components/LoginForm';
+  import { initWorkspace } from '@/services/workspaces-service';
+  import { userApi } from '@/services/user-api';
+  import { app } from '@/services/app-services';
 
   export default {
     name: 'Login',
@@ -23,16 +26,20 @@
 
     methods: {
       async onLogin() {
-        if (this.$store.state.api.isAdmin) {
-          this.$router.push({ name: 'users-overview' });
+        if (api.isAdmin()) {
+          await this.$router.push({ name: 'users-overview' });
         } else {
-          await setupApp(this.$store, this.$router);
+          const profile = await userApi.getProfile();
+          await app.i18n.setLocaleFromProfile(profile.i18n);
+
+          await initWorkspace();
+
           if (!this.$store.state.workspaces.currentWorkspace) {
-            this.$router.push('/workspace-setup');
+            await this.$router.push('/workspace-setup');
           } else if (this.$store.state.app.lastView) {
-            this.$router.push({ name: this.$store.state.app.lastView });
+            await this.$router.push({ name: this.$store.state.app.lastView });
           } else {
-            this.$router.push('/');
+            await this.$router.push('/');
           }
         }
       },

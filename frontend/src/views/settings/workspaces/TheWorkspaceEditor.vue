@@ -24,7 +24,7 @@
               label="Default Currency"
               prop="defaultCurrency"
             >
-              <CurrencyInput
+              <SaCurrencyInput
                 v-model="workspaceForm.defaultCurrency"
                 :disabled="isEditing"
               />
@@ -50,16 +50,16 @@
 
 <script>
   import { api } from '@/services/api';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
-  import CurrencyInput from '@/components/CurrencyInput';
+  import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaForm from '@/components/SaForm';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
 
   export default {
     name: 'TheWorkspaceEditor',
 
     components: {
+      SaCurrencyInput,
       SaForm,
-      CurrencyInput,
     },
 
     mixins: [withWorkspaces],

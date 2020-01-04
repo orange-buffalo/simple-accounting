@@ -9,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QInvoice
 import io.orangebuffalo.simpleaccounting.services.persistence.toSort
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.web.api.integration.*
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.domain.Page
@@ -91,10 +90,10 @@ class InvoicesApiController(
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
-        val income = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
+        val invoice = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
 
-        return income
+        return invoice
             .apply {
                 title = request.title
                 customer = extensions.getValidCustomer(workspace, request.customer)

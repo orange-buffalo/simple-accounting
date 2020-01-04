@@ -28,6 +28,13 @@ class SaFrontendPlugin : Plugin<Project> {
         project.tasks.register("npmClean", Delete::class.java) {
             delete(project.files(NPM_DIST_DIR))
         }
+
+        project.tasks.register("npmTest", SaNpmTask::class.java) {
+            args.set("run-script test:unit")
+            inputFiles.from(project.file("src"), project.file("tests"))
+
+            dependsOn(npmInstall)
+        }
     }
 
 }

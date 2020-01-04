@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.services.business
 import com.querydsl.core.types.Predicate
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeRepository
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.InvoiceRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class InvoiceService(
     private val invoiceRepository: InvoiceRepository,
-    private val incomeRepository: IncomeRepository,
+    private val incomeService: IncomeService,
     private val timeService: TimeService
 ) {
 
@@ -22,10 +21,11 @@ class InvoiceService(
     suspend fun saveInvoice(invoice: Invoice): Invoice {
         return withDbContext {
             if (invoice.datePaid != null && invoice.income == null) {
-                invoice.income = incomeRepository.save(
+                invoice.income = incomeService.saveIncome(
                     Income(
                         workspace = invoice.customer.workspace,
-                        // todo #6: i18n
+                        // todo #14: this is just a convenience method not related to business logic
+                        // creation of income can safely be moved to UI side, including i18n
                         title = "Payment for ${invoice.title}",
                         timeRecorded = timeService.currentTime(),
                         dateReceived = invoice.datePaid!!,
