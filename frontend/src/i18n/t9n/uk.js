@@ -1,297 +1,722 @@
-// todo #6: a test that bundles contain the same keys
 export default {
   common: {
     date: {
-      medium: '{0, date, medium}[UK] ',
+      medium: '{0, date, medium}',
     },
     dateTime: {
-      medium: '{0, saDateTime, medium}[UK] ',
+      medium: '{0, saDateTime, medium}',
     },
     amount: {
-      withCurrency: '{0, amount, withCurrency}[UK] ',
+      withCurrency: '{0, amount, withCurrency}',
     },
     yesNo: {
-      yes: 'Yes[UK] ',
-      no: 'No[UK] ',
+      yes: 'Так',
+      no: 'Ні',
     },
-    percent: '{0, number, percent}[UK] ',
+    percent: '{0, number, percent}',
   },
 
   loginPage: {
     userName: {
-      placeholder: 'Login[UK] ',
+      placeholder: 'Логін',
     },
   },
 
   navigationMenu: {
-    dashboard: 'Dashboard[UK] ',
-    expenses: 'Expenses[UK] ',
-    incomes: 'Incomes[UK] ',
-    invoices: 'Invoices[UK] ',
-    taxPayments: 'Income Tax Payments[UK] ',
-    reporting: 'Reporting[UK] ',
+    dashboard: 'Кокпіт',
+    expenses: 'Витрати',
+    incomes: 'Доходи',
+    invoices: 'Рахунки-фактури',
+    taxPayments: 'Податок на прибуток',
+    reporting: 'Репорти',
     settings: {
-      header: 'Settings[UK] ',
-      customers: 'Customers[UK] ',
-      categories: 'Categories[UK] ',
-      generalTaxes: 'General Taxes[UK] ',
-      workspaces: 'Workspaces[UK] ',
+      header: 'Параметри',
+      customers: 'Клієнти',
+      categories: 'Категорії',
+      generalTaxes: 'Загальні податки',
+      workspaces: 'Проекти',
     },
     user: {
-      header: 'User[UK] ',
-      profile: 'My Profile[UK] ',
-      logout: 'Logout[UK] ',
+      header: 'Користувач',
+      profile: 'Мій Профіль',
+      logout: 'Вихід',
     },
   },
 
   saDocumentDownloadLink: {
-    label: 'Download[UK] ',
+    label: 'Завантажити',
   },
 
   saDocumentUpload: {
     fileSelector: {
-      message: 'Drop file here or click to upload[UK] ',
-      hint: 'Files up to {0, fileSize, pretty} are allowed[UK] ',
+      message: 'Перетягніть сюди файл або натисніть, щоб завантажити',
+      hint: 'Підтримуються файли до {0, fileSize, pretty}',
     },
     uploadStatusMessage: {
-      error: 'Upload failed, please try again[UK] ',
-      uploading: 'Uploading...[UK] ',
-      scheduled: 'New document to be uploaded[UK] ',
+      error: 'Завантаження не вдалося, будь ласка спробуйте знову',
+      uploading: 'Завантаження...',
+      scheduled: 'Новий документ буде завантажено',
     },
   },
 
   saDocument: {
     size: {
-      label: '({0, fileSize, pretty})[UK] ',
+      label: '({0, fileSize, pretty})',
     },
   },
 
   dashboard: {
-    header: 'Dashboard[UK] ',
-  },
-
-  editInvoice: {
-    recordedOn: 'Recorded on {0, saDateTime, medium}[UK] ',
-    cancelledOn: 'Cancelled on {0, date, medium}[UK] ',
+    header: 'Кокпіт',
   },
 
   editExpense: {
     pageHeader: {
-      edit: 'Edit Expense[UK] ',
-      create: 'Record New Expense[UK] ',
+      edit: 'Редагувати Рахунок',
+      create: 'Запис Новий Рахунок',
     },
     generalInformation: {
-      header: 'General Information[UK] ',
+      header: 'Загальна Інформація',
       category: {
-        label: 'Category[UK] ',
-        placeholder: 'Select a category[UK] ',
+        label: 'Категорія',
+        placeholder: 'Виберіть категорію',
       },
       title: {
-        label: 'Description / Title[UK] ',
-        placeholder: 'Provide a short summary[UK] ',
+        label: 'Опис / Назва',
+        placeholder: 'Дайте коротке резюме',
       },
       currency: {
-        label: 'Currency[UK] ',
+        label: 'Валюта',
       },
       originalAmount: {
-        label: 'Original Amount[UK] ',
+        label: 'Оригінальна Сума',
       },
       datePaid: {
-        label: 'Date Paid[UK] ',
-        placeholder: 'Date expense is paid[UK] ',
+        label: 'Дата Оплати',
+        placeholder: 'Дата, коли рахунок оплачений',
       },
       convertedAmountInDefaultCurrency: {
-        label: 'Amount in {0}[UK] ',
+        label: 'Сума в {0}',
       },
       useDifferentExchangeRateForIncomeTaxPurposes: {
-        label: 'Using different exchange rate for taxation purposes[UK] ',
+        label: 'Використовати інший обмінний курс для цілей оподаткування',
       },
       incomeTaxableAmountInDefaultCurrency: {
-        label: 'Amount in {0} for taxation purposes[UK] ',
+        label: 'Сума в {0} для цілей оподаткування',
       },
       generalTax: {
-        label: 'Included General Tax[UK] ',
-        placeholder: 'Select a tax[UK] ',
+        label: 'Включений Загальний Податок',
+        placeholder: 'Виберіть податок',
       },
       partialForBusiness: {
-        label: 'Partial Business Purpose[UK] ',
+        label: 'Часткова витрати для бізнесу',
       },
       percentOnBusiness: {
-        label: '% related to business activities[UK] ',
+        label: '% суми, пов\'язаний із здійсненням підприємницької діяльності',
       },
     },
     additionalInformation: {
-      header: 'Additional Information[UK] ',
+      header: 'Додаткова Інформація',
       notes: {
-        label: 'Notes[UK] ',
-        placeholder: 'Any additional information to be stored for this expense record[UK] ',
+        label: 'Примітки',
+        placeholder: 'Будь-яка надайте додаткову інформацію, що буде збережена для цього рахунку',
       },
     },
     attachments: {
-      header: 'Attachments[UK] ',
+      header: 'Вкладення',
     },
-    cancel: 'Cancel[UK] ',
-    save: 'Save[UK] ',
+    cancel: 'Скасувати',
+    save: 'Зберегти',
     validations: {
-      currency: 'Please select a currency[UK] ',
-      title: 'Please provide the title[UK] ',
-      datePaid: 'Please provide the date when expense is paid[UK] ',
-      originalAmount: 'Please provide expense amount[UK] ',
+      currency: 'Будь ласка, виберіть валюту',
+      title: 'Будь ласка, вкажіть назву',
+      datePaid: 'Прошу повідомити дату, коли рахунок оплачується',
+      originalAmount: 'Будь ласка, надайте сума витрат',
     },
-    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.[UK] ',
+    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
   expensesOverviewPanel: {
     datePaid: {
-      tooltip: 'Date Paid[UK] ',
-      label: 'Date Paid[UK] ',
+      tooltip: 'Дата Заплатили',
+      label: 'Дата Заплатили',
     },
     notes: {
-      tooltip: 'Additional notes provided[UK] ',
-      header: 'Additional Notes[UK] ',
+      tooltip: 'Додатково надаються',
+      header: 'Додаткові Примітки',
     },
     generalTax: {
-      tooltip: 'General Tax applied[UK] ',
-      label: 'Applicable General Tax[UK] ',
+      tooltip: 'Загальний податок',
+      label: 'Застосовні Загальні Податкові',
     },
     generalTaxRate: {
-      label: 'Applicable General Tax Rate[UK] ',
-      value: '{0, bps, percent}[UK] ',
+      label: 'Застосовується Загальна Податкова Ставка',
+      value: '{0, bps, percent}',
     },
     generalTaxAmount: {
-      label: 'Applicable General Tax Amount[UK] ',
-      notProvided: 'Not yet available[UK] ',
+      label: 'Застосовні Загальні Сума Податку ',
+      notProvided: 'Поки не доступний',
     },
     attachments: {
-      tooltip: 'Attachments provided[UK] ',
-      header: 'Attachments[UK] ',
+      tooltip: 'Вкладень',
+      header: 'Вкладення',
     },
     foreignCurrency: {
-      tooltip: 'In foreign currency[UK] ',
-      header: 'Currency Conversion[UK] ',
+      tooltip: 'В іноземній валюті',
+      header: 'Конвертація Валюти ',
     },
     partialBusinessPurpose: {
-      tooltip: 'Partial business purpose[UK] ',
-      label: 'Partial Business Purpose[UK] ',
-      value: '{0, number, percent} related to business activities[UK] ',
+      tooltip: 'Часткове ділової мети',
+      label: 'Часткове Ділової Мети',
+      value: '{0, number, percent}, пов\'язаних з підприємницькою діяльністю',
     },
-    copy: 'Copy[UK] ',
-    edit: 'Edit[UK] ',
+    copy: 'Копія',
+    edit: 'Редагувати',
     summary: {
-      header: 'Summary[UK] ',
+      header: 'Резюме',
     },
     status: {
-      label: 'Status[UK] ',
+      label: 'Статус',
       short: {
-        finalized: 'Finalized[UK] ',
-        pending: 'Pending[UK] ',
+        finalized: 'Завершено',
+        pending: 'В очікуванні',
       },
       full: {
-        finalized: 'Finalized[UK] ',
-        pendingConversion: 'Conversion to {0} pending[UK] ',
-        waitingExchangeRate: 'Waiting for exchange rate[UK] ',
+        finalized: 'Завершено',
+        pendingConversion: 'Перетворення {0} до',
+        waitingExchangeRate: 'Чекаючи курсом',
       },
     },
     category: {
-      label: 'Category[UK] ',
+      label: 'Категорія',
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {
-        label: 'Amount in {0} for taxation purposes[UK] ',
-        notProvided: 'Not yet available[UK] ',
+        label: 'Сума {0} для цілей оподаткування ',
+        notProvided: 'Поки не доступний',
       },
       adjustedAmountInDefaultCurrency: {
-        label: 'Amount for Taxation Purposes[UK] ',
-        notProvided: 'Not yet provided[UK] ',
+        label: 'Сума для цілей оподаткування ',
+        notProvided: 'Поки не передбачено',
       },
     },
     convertedAmounts: {
       originalAmountInDefaultCurrency: {
-        label: 'Amount in {0}[UK] ',
-        notProvided: 'Not yet available[UK] ',
+        label: 'Сума {0}',
+        notProvided: 'Поки не доступний',
       },
     },
     generalInformation: {
-      header: 'General Information[UK] ',
+      header: 'Загальна Інформація',
     },
     originalCurrency: {
-      label: 'Original Currency[UK] ',
+      label: 'Вихідною Валюті',
     },
     originalAmount: {
-      label: 'Original Amount[UK] ',
+      label: 'Оригінальна Сума',
     },
     differentExchangeRate: {
-      label: 'Using different exchange rate for taxation purposes?[UK] ',
-      value: '{0, yesNo}[UK] ',
+      label: 'Використовуючи різні обмінного курсу для цілей оподаткування?',
+      value: '{0, yesNo}',
     },
   },
 
   expensesOverview: {
-    header: 'Expenses[UK] ',
+    header: 'Витрати',
     filters: {
-      announcement: 'Filters coming soon[UK] ',
+      announcement: 'Фільтри найближчим часом ',
       input: {
-        placeholder: 'Search expenses[UK] ',
+        placeholder: 'Витрати на пошук ',
       },
     },
-    create: 'Add new[UK] ',
+    create: 'Додати новий',
   },
 
   editIncomeTaxPayment: {
     header: {
-      edit: 'Edit Income Tax Payment[UK] ',
-      create: 'Record New Income Tax Payment[UK] ',
+      edit: 'Редагувати Сплату Податку На Доходи ',
+      create: 'Запис Новий Розрахунок Податку На Прибуток',
     },
     generalInformation: {
-      header: 'General Information[UK] ',
-
+      header: 'Загальна Інформація',
       title: {
-        label: 'Description / Title[UK] ',
-        placeholder: 'Provide a short summary[UK] ',
+        label: 'Опис / Назва',
+        placeholder: 'Дайте коротке резюме',
       },
       amount: {
-        label: 'Amount[UK] ',
+        label: 'Сума',
       },
       datePaid: {
-        label: 'Date Paid[UK] ',
-        placeholder: 'Date tax is paid[UK] ',
+        label: 'Дата Заплатили',
+        placeholder: 'Дата сплати податку',
       },
       reportingDate: {
-        label: 'Reporting Date[UK] ',
-        placeholder: 'Date to include this payment into reporting by[UK] ',
+        label: 'Звітну Дату',
+        placeholder: 'Дата включити цей платіж звітності',
       },
     },
     additionalInformation: {
-      header: 'Additional notes[UK] ',
+      header: 'Додаткові примітки',
       notes: {
-        label: 'Notes[UK] ',
-        placeholder: 'Any additional information to be stored for this tax payment record[UK] ',
+        label: 'Примітки',
+        placeholder: 'Будь-яка додаткова інформація буде зберігатися протягом даного податкового платежу ',
       },
     },
     attachments: {
-      header: 'Attachments[UK] ',
+      header: 'Вкладення',
     },
-    cancel: 'Cancel[UK] ',
-    save: 'Save[UK] ',
+    cancel: 'Скасувати',
+    save: 'Зберегти',
     validations: {
-      title: 'Please provide the title[UK] ',
-      datePaid: 'Please provide the date when tax payment is done[UK] ',
-      amount: 'Please provide tax payment amount[UK] ',
+      title: 'Будь ласка, вкажіть назву',
+      datePaid: 'Прошу повідомити дату, коли сплата податку здійснюється',
+      amount: 'Будь ласка, вкажіть суму податкового платежу ',
     },
-    uploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.[UK] ',
+    uploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
+  },
+
+  incomeTaxPaymentsOverviewPanel: {
+    datePaid: {
+      label: 'Дата заплатили',
+    },
+    notes: {
+      tooltip: 'Додатково надаються',
+      header: 'Додаткові Примітки',
+    },
+    attachments: {
+      tooltip: 'Вкладень',
+      header: 'Вкладення',
+    },
+    edit: 'Редагувати',
+    summary: {
+      header: 'Резюме',
+    },
+    reportingDate: {
+      label: 'Звітну Дату',
+    },
+  },
+
+  incomeTaxPaymentsOverview: {
+    header: 'Прибутковий Податок ',
+    filters: {
+      announcement: 'Фільтри найближчим часом ',
+    },
+    create: 'Додати новий',
   },
 
   myProfile: {
     languagePreferences: {
-      header: 'Language Preferences[UK] ',
+      header: 'Мовні Уподобання',
       language: {
-        label: 'Interface Language[UK] ',
-        placeholder: 'Please select interface language[UK] ',
+        label: 'Мова Інтерфейсу ',
+        placeholder: 'Будь ласка, оберіть мову інтерфейсу ',
       },
       locale: {
-        label: 'Language to display dates, amounts, etc[UK] ',
-        placeholder: 'Please select formatting language[UK] ',
+        label: 'Мову для відображення дати, Сума і т. д.',
+        placeholder: 'Будь ласка, виберіть мову форматування ',
       },
+    },
+  },
+
+  editIncome: {
+    pageHeader: {
+      edit: 'Зміна Доходу',
+      create: 'Новий Запис Дохід',
+    },
+    generalInformation: {
+      header: 'Загальна Інформація',
+      category: {
+        label: 'Категорія',
+        placeholder: 'Виберіть категорію',
+      },
+      title: {
+        label: 'Опис / Назва',
+        placeholder: 'Дайте коротке резюме',
+      },
+      currency: {
+        label: 'Валюта',
+      },
+      originalAmount: {
+        label: 'Сума',
+      },
+      dateReceived: {
+        label: 'Дата Одержання',
+        placeholder: 'Дата отримання доходу',
+      },
+      convertedAmountInDefaultCurrency: {
+        label: 'Сума {0}',
+      },
+      useDifferentExchangeRateForIncomeTaxPurposes: {
+        label: 'Використовуючи різні обмінного курсу для цілей оподаткування ',
+      },
+      incomeTaxableAmountInDefaultCurrency: {
+        label: 'Сума {0} для цілей оподаткування ',
+      },
+      generalTax: {
+        label: 'Включений Загальний Податок',
+        placeholder: 'Виберіть податкову',
+      },
+    },
+    additionalInformation: {
+      header: 'Додаткова Інформація',
+      linkedInvoice: {
+        label: 'Пов\'язано Накладної',
+      },
+      notes: {
+        label: 'Примітки',
+        placeholder: 'Будь-яка додаткова інформація бути збережені для запису доходів ',
+      },
+    },
+    attachments: {
+      header: 'Вкладення',
+    },
+    cancel: 'Скасувати',
+    save: 'Зберегти',
+    validations: {
+      currency: 'Будь ласка, виберіть валюту',
+      title: 'Будь ласка, вкажіть назву',
+      dateReceived: 'Прошу повідомити дату, коли дохід отриманий',
+      originalAmount: 'Будь ласка, вкажіть суму доходу ',
+    },
+    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
+  },
+
+  incomesOverviewPanel: {
+    dateReceived: {
+      tooltip: 'Дата одержання',
+      label: 'Дата Одержання',
+    },
+    notes: {
+      tooltip: 'Додатково надаються',
+      header: 'Додаткові Примітки',
+    },
+    generalTax: {
+      tooltip: 'Загальний податок',
+      label: 'Застосовні Загальні Податкові',
+    },
+    generalTaxRate: {
+      label: 'Застосовується Загальна Податкова Ставка',
+      value: '{0, БПС, відсотків}',
+    },
+    generalTaxAmount: {
+      label: 'Застосовні Загальні Сума Податку ',
+      notProvided: 'Поки не доступний',
+    },
+    attachments: {
+      tooltip: 'Вкладень',
+      header: 'Вкладення',
+    },
+    foreignCurrency: {
+      tooltip: 'В іноземній валюті',
+      header: 'Конвертація Валюти ',
+    },
+    linkedInvoice: {
+      label: 'Пов\'язані Рахунку-Фактури',
+      tooltip: 'Рахунки-фактури, пов\'язані',
+    },
+    edit: 'Редагувати',
+    summary: {
+      header: 'Резюме',
+    },
+    status: {
+      label: 'Статус',
+      short: {
+        finalized: 'Завершено',
+        pending: 'В очікуванні',
+      },
+      full: {
+        finalized: 'Завершено',
+        pendingConversion: 'Перетворення {0} до',
+        waitingExchangeRate: 'Чекаючи курсом',
+      },
+    },
+    category: {
+      label: 'Категорія',
+    },
+    incomeTaxableAmounts: {
+      originalAmountInDefaultCurrency: {
+        label: 'Сума {0} для цілей оподаткування ',
+        notProvided: 'Поки не доступний',
+      },
+      adjustedAmountInDefaultCurrency: {
+        label: 'Сума для цілей оподаткування ',
+        notProvided: 'Поки не передбачено',
+      },
+    },
+    convertedAmounts: {
+      originalAmountInDefaultCurrency: {
+        label: 'Сума {0}',
+        notProvided: 'Поки не доступний',
+      },
+    },
+    generalInformation: {
+      header: 'Загальна Інформація',
+    },
+    originalCurrency: {
+      label: 'Вихідною Валюті',
+    },
+    originalAmount: {
+      label: 'Оригінальна Сума',
+    },
+    differentExchangeRate: {
+      label: 'Використовуючи різні обмінного курсу для цілей оподаткування?',
+      value: '{0, yesNo}',
+    },
+  },
+
+  incomesOverview: {
+    header: 'Доходи',
+    filters: {
+      announcement: 'Фільтри найближчим часом ',
+      input: {
+        placeholder: 'Пошук доходи ',
+      },
+    },
+    create: 'Додати новий',
+  },
+
+  editInvoice: {
+    recordedOn: 'Записаних на {0, saDateTime, medium}',
+    cancelledOn: 'Скасовано на {0, date, medium}',
+    cancelInvoice: {
+      button: 'Скасувати Рахунок',
+      confirm: {
+        message: 'Це дозволить назавжди скасувати цей рахунок. Продовжувати?',
+        yes: 'Так',
+        no: 'Немає',
+      },
+    },
+    pageHeader: {
+      edit: 'Редагування Накладної',
+      create: 'Створити Новий Рахунок',
+    },
+    generalInformation: {
+      header: 'Загальна Інформація',
+      customer: {
+        label: 'Клієнт',
+        placeholder: 'Виберіть клієнта',
+      },
+      title: {
+        label: 'Опис / Назва',
+        placeholder: 'Дайте коротке резюме',
+      },
+      currency: {
+        label: 'Валюта',
+      },
+      amount: {
+        label: 'Сума',
+      },
+      dateIssued: {
+        label: 'Дата Випуску',
+        placeholder: 'Дата виставлення рахунків-фактур',
+      },
+      dueDate: {
+        label: 'Дата',
+        placeholder: 'Дата накладної',
+      },
+      alreadySent: {
+        label: 'Вже Відправила',
+      },
+      dateSent: {
+        label: 'Дата Відправки',
+        placeholder: 'Дата рахунку направляються',
+      },
+      alreadyPaid: {
+        label: 'Вже Заплатили',
+      },
+      datePaid: {
+        label: 'Дата Заплатили',
+        placeholder: 'Дату оплати.',
+      },
+      generalTax: {
+        label: 'Включений Загальний Податок',
+        placeholder: 'Виберіть податкову',
+      },
+    },
+    additionalNotes: {
+      header: 'Додаткові примітки',
+      notes: {
+        label: 'Примітки',
+        placeholder: 'Будь-яка додаткова інформація бути збережені для запису рахунку ',
+      },
+    },
+    attachments: {
+      header: 'Вкладення',
+    },
+    cancel: 'Скасувати',
+    save: 'Зберегти',
+    validations: {
+      customer: 'Будь ласка, виберіть замовника',
+      currency: 'Будь ласка, виберіть валюту',
+      title: 'Будь ласка, вкажіть назву',
+      amount: 'Прохання представити суму рахунку ',
+      dateIssued: 'Прошу повідомити дату, коли рахунок-фактура видається',
+      dueDate: 'Прошу повідомити дату, коли рахунок-фактура у зв\'язку',
+      dateSent: 'Прошу повідомити дату, коли рахунок-фактура відправляється',
+      datePaid: 'Прошу повідомити дату, коли рахунок-фактура сплачений',
+    },
+    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
+  },
+
+  invoicesOverview: {
+    header: 'Рахунки-фактури',
+    filters: {
+      announcement: 'Фільтри найближчим часом ',
+      input: {
+        placeholder: 'Пошук рахунків-фактур',
+      },
+    },
+    create: 'Додати новий',
+  },
+
+  invoicesOverviewPanel: {
+    customer: {
+      tooltip: 'Клієнт',
+      label: 'Клієнт',
+    },
+    category: {
+      label: 'Категорія',
+    },
+    datePaid: {
+      tooltip: 'Дата заплатили',
+      label: 'Дата Заплатили',
+    },
+    notes: {
+      tooltip: 'Додатково надаються',
+      header: 'Додаткові Примітки',
+    },
+    attachments: {
+      tooltip: 'Вкладень',
+      header: 'Вкладення',
+    },
+    generalTax: {
+      tooltip: 'Загальний податок',
+      label: 'Застосовні Загальні Податкові',
+    },
+    generalTaxRate: {
+      label: 'Застосовується Загальна Податкова Ставка',
+      value: '{0, bps, percent}',
+    },
+    foreignCurrency: {
+      tooltip: 'В іноземній валюті',
+    },
+    edit: 'Редагувати',
+    markAsSent: 'Відправила сьогодні',
+    markAsPaid: 'Сьогодні',
+    generalInformation: {
+      header: 'Загальна Інформація',
+    },
+    status: {
+      label: 'Статус',
+      finalized: 'Завершено',
+      draft: 'Проект',
+      cancelled: 'Скасовано',
+      sent: 'Відправив',
+      overdue: 'Прострочені',
+    },
+    currency: {
+      label: 'Валюти Рахунку ',
+    },
+    amount: {
+      label: 'Сума Рахунку ',
+    },
+    dateIssued: {
+      label: 'Дата Випуску',
+    },
+    dueDate: {
+      label: 'Дата',
+    },
+    dateSent: {
+      label: 'Дата Відправки',
+    },
+    dateCancelled: {
+      label: 'Дата Скасування',
+    },
+  },
+
+  saCurrencyInput: {
+    groups: {
+      recent: 'Нещодавно Використовуваних Валют',
+      all: 'Всі Валюти',
+    },
+    currencyLabel: '{code} - {displayName}',
+  },
+
+  el: {
+    datepicker: {
+      now: 'Зараз',
+      today: 'Сьогодні',
+      cancel: 'Скасувати',
+      clear: 'Зрозуміло',
+      confirm: 'ОК',
+      selectDate: 'Виберіть дату',
+      selectTime: 'Виберіть час',
+      startDate: 'Дата Початку',
+      startTime: 'Час Початку',
+      endDate: 'Дата Закінчення',
+      endTime: 'Час Закінчення',
+      prevYear: 'Попередній Рік',
+      nextYear: 'В Наступному Році',
+      prevMonth: 'Попередній Місяць',
+      nextMonth: 'В Наступному Місяці',
+      year: '',
+      month1: 'Січня',
+      month2: 'Лютий',
+      month3: 'Березня',
+      month4: 'Квітня',
+      month5: 'Може',
+      month6: 'Червня',
+      month7: 'Липня',
+      month8: 'Серпня',
+      month9: 'Вересня',
+      month10: 'Жовтня',
+      month11: 'Листопада',
+      month12: 'Грудня',
+      week: 'тиждень',
+      weeks: {
+        sun: 'Сонце',
+        mon: 'Пн',
+        tue: 'Вт',
+        wed: 'СР',
+        thu: 'Тьху',
+        fri: 'Пт',
+        sat: 'Сидів',
+      },
+      months: {
+        jan: 'Січня',
+        feb: 'Лютого',
+        mar: 'Березня',
+        apr: 'Квітня',
+        may: 'Може',
+        jun: 'Червня',
+        jul: 'Липня',
+        aug: 'Серпня',
+        sep: 'Вересня',
+        oct: 'Жовтня',
+        nov: 'Листопада',
+        dec: 'Грудня',
+      },
+    },
+    select: {
+      loading: 'Завантаження',
+      noMatch: 'Без відповідних даних',
+      noData: 'Немає даних',
+      placeholder: 'Виберіть',
+    },
+    pagination: {
+      goto: 'Перейти до',
+      pagesize: '/стор.',
+      total: 'Загального {total}',
+      pageClassifier: '',
+    },
+    table: {
+      emptyText: 'Немає Даних',
+      confirmFilter: 'Підтвердити',
+      resetFilter: 'Скидання',
+      clearFilter: 'Всі',
+      sumText: 'Сума',
+    },
+    messagebox: {
+      confirm: 'ОК',
     },
   },
 };

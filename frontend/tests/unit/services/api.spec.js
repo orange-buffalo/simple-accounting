@@ -1,17 +1,12 @@
-import { assert } from 'chai';
 import * as eventBus from 'eventbusjs';
+import sinon from 'sinon';
 import { api, LOGIN_REQUIRED_EVENT } from '@/services/api';
-
-require('jsdom-global')(null, {
-  url: 'http://localhost/',
-});
 
 describe('api service', () => {
   let server;
   let dispatchStub;
 
   beforeEach(() => {
-    const sinon = require('sinon');
     server = sinon.useFakeServer();
     global.XMLHttpRequest = global.window.XMLHttpRequest;
     dispatchStub = sinon.stub(eventBus, 'dispatch');

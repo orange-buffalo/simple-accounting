@@ -20,11 +20,22 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.vue'],
+      files: [
+        '*.vue'
+      ],
       rules: {
-        indent: 'off',
-      },
+        indent: 'off'
+      }
     },
+    {
+      files: [
+        '**/__tests__/*.{j,t}s?(x)',
+        '**/tests/unit/**/*.spec.{j,t}s?(x)'
+      ],
+      env: {
+        jest: true
+      }
+    }
   ],
   parserOptions: { parser: 'babel-eslint' },
 };
