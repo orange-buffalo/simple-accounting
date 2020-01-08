@@ -20,7 +20,7 @@ export default class ICUFormatter {
         i18n,
       }),
       date: dateFormatter({ globalize }),
-      fileSize: fileSizeFormatter(),
+      fileSize: fileSizeFormatter({ globalize }),
       yesNo: yesNoFormatter({ i18n }),
       bps: bpsFormatter({ i18n }),
       // todo #206: rename when https://github.com/messageformat/messageformat/issues/274 is resolved

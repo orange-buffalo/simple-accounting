@@ -20,13 +20,11 @@ describe('api service', () => {
       dispatch: jest.fn(),
     }));
 
-    // eslint-disable-next-line global-require
     ({ dispatch: eventBusDispatchMock } = require('eventbusjs'));
 
     ({
       api,
       LOGIN_REQUIRED_EVENT,
-      // eslint-disable-next-line global-require
     } = require('@/services/api'));
   });
 

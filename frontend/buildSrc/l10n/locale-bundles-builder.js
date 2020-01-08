@@ -36,6 +36,7 @@ function generateBaseLocalBundleJson() {
       'numberingSystems',
       'currencyData',
       'likelySubtags',
+      'plurals',
     ],
     `${baseCodeGenDir}/base.json`,
   );
@@ -60,6 +61,7 @@ function generateLocalesBundlesJsons() {
         'timeZoneNames',
         'numbers',
         'currencies',
+        'units',
       ],
       `${baseCodeGenDir}/locale-${locale}.json`,
     );
