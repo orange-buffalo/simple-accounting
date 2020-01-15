@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import EventBus from 'eventbusjs';
 import Router from 'vue-router';
 import router from './routes-definitions';
 import { api } from '@/services/api';
@@ -15,7 +14,7 @@ export default function setupRouter() {
       && to.name !== 'login-by-link'
       && !api.isLoggedIn()) {
       if (await api.tryAutoLogin()) {
-        EventBus.dispatch(SUCCESSFUL_LOGIN_EVENT);
+        SUCCESSFUL_LOGIN_EVENT.emit();
         next();
       } else {
         app.store.commit('app/setLastView', to.name);
@@ -26,7 +25,7 @@ export default function setupRouter() {
     }
   });
 
-  EventBus.addEventListener(LOGIN_REQUIRED_EVENT, () => router.push('/login'));
+  LOGIN_REQUIRED_EVENT.subscribe(() => router.push('/login'));
 
   return router;
 }

@@ -24,7 +24,6 @@ export function dateTimeFormatter({ globalize }) {
   return createFormatter({ mediumFormatter });
 }
 
-
 export function dateFormatter({ globalize }) {
   const mediumFormatter = globalize.dateFormatter({ date: 'medium' });
   return createFormatter({ mediumFormatter });

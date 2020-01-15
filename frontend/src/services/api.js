@@ -1,7 +1,7 @@
 import axios from 'axios';
-import EventBus from 'eventbusjs';
 import qs from 'qs';
 import jwtDecode from 'jwt-decode';
+import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 
 const { CancelToken } = axios;
 
@@ -21,8 +21,6 @@ function updateApiToken(jwtToken) {
     apiToken.isTransient = decodedToken.transient;
   }
 }
-
-export const LOGIN_REQUIRED_EVENT = 'login-required';
 
 export const api = axios.create({
   baseURL: '/api',
@@ -52,7 +50,7 @@ async function refreshToken() {
   if (await api.tryAutoLogin()) {
     scheduleTokenRefresh();
   } else {
-    EventBus.dispatch(LOGIN_REQUIRED_EVENT);
+    LOGIN_REQUIRED_EVENT.emit();
   }
 }
 
@@ -134,7 +132,7 @@ api.interceptors.response.use(
         config.baseURL = null;
         return axios.request(config);
       }
-      EventBus.dispatch(LOGIN_REQUIRED_EVENT);
+      LOGIN_REQUIRED_EVENT.emit();
     }
     return Promise.reject(error);
   },

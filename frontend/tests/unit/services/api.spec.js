@@ -6,9 +6,8 @@ const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFu
 const API_TIME = new Date('2020-01-04T00:00:00');
 
 describe('api service', () => {
+  let loginRequiredEventMock;
   let api;
-  let LOGIN_REQUIRED_EVENT;
-  let eventBusDispatchMock;
 
   beforeEach(() => {
     httpMock.setup();
@@ -16,16 +15,14 @@ describe('api service', () => {
 
     advanceTo(API_TIME);
 
-    jest.mock('eventbusjs', () => ({
-      dispatch: jest.fn(),
+    jest.mock('@/services/events', () => ({
+      LOGIN_REQUIRED_EVENT: {
+        emit: jest.fn(),
+      },
     }));
 
-    ({ dispatch: eventBusDispatchMock } = require('eventbusjs'));
-
-    ({
-      api,
-      LOGIN_REQUIRED_EVENT,
-    } = require('@/services/api'));
+    loginRequiredEventMock = require('@/services/events').LOGIN_REQUIRED_EVENT.emit;
+    ({ api } = require('@/services/api'));
   });
 
   afterEach(() => {
@@ -82,10 +79,8 @@ describe('api service', () => {
         done(Error('should not call success callback'));
       })
       .catch(() => {
-        expect(eventBusDispatchMock.mock.calls.length)
+        expect(loginRequiredEventMock.mock.calls.length)
           .toBe(1);
-        expect(eventBusDispatchMock.mock.calls[0][0])
-          .toBe(LOGIN_REQUIRED_EVENT);
         done();
       });
   });
@@ -96,7 +91,7 @@ describe('api service', () => {
 
     await api.get('/api-call');
 
-    expect(eventBusDispatchMock.mock.calls.length)
+    expect(loginRequiredEventMock.mock.calls.length)
       .toBe(0);
   });
 });
