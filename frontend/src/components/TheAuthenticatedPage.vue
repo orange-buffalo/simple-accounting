@@ -3,6 +3,7 @@
     <TheSideMenu />
 
     <ElContainer>
+      <SaLoadingProgress />
       <ElMain>
         <div class="content-panel">
           <RouterView />
@@ -14,11 +15,15 @@
 
 <script>
   import TheSideMenu from '@/components/TheSideMenu';
+  import SaLoadingProgress from '@/components/SaLoadingProgress';
 
   export default {
     name: 'TheAuthenticatedPage',
 
-    components: { TheSideMenu },
+    components: {
+      TheSideMenu,
+      SaLoadingProgress,
+    },
   };
 </script>
 
@@ -28,6 +33,7 @@
 
   .el-container {
     height: 100vh;
+    position: relative;
   }
 
   .el-main {

@@ -18,3 +18,9 @@ class Event {
 
 export const LOGIN_REQUIRED_EVENT = new Event();
 export const SUCCESSFUL_LOGIN_EVENT = new Event();
+
+export const LOADING_STARTED_EVENT = new Event();
+export const LOADING_FINISHED_EVENT = new Event();
+
+export const NAVIGATION_STARTED_EVENT = new Event();
+export const NAVIGATION_FINISHED_EVENT = new Event();

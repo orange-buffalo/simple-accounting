@@ -29,6 +29,7 @@ import {
   MessageBox,
 } from 'element-ui';
 import ElementLocale from 'element-ui/lib/locale';
+import VueCompositionApi from '@vue/composition-api';
 import SimpleAccounting from '@/SimpleAccounting.vue';
 import '@/styles/main.scss';
 import setupRouter from '@/setup/setup-router';
@@ -72,6 +73,7 @@ function setupElementUi({ i18n }) {
 function setupApp() {
   Vue.config.productionTip = false;
 
+  Vue.use(VueCompositionApi);
   const router = setupRouter();
   const store = setupStore();
   const i18n = setupI18n();
