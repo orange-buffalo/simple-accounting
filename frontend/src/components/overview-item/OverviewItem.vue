@@ -33,12 +33,14 @@
       />
     </div>
 
-    <div
-      v-if="detailsVisible"
-      class="overview-item__details"
-    >
-      <slot name="details" />
-    </div>
+    <Transition name="overview-item__details-transition">
+      <div
+        v-if="detailsVisible"
+        class="overview-item__details"
+      >
+        <slot name="details" />
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -127,7 +129,7 @@
       left: 50%;
       transform: translateX(-50%) translateY(50%);
       background: $white;
-      transition: all 250ms;
+      transition: all 250ms cubic-bezier(.1, .82, .47, .94);
 
       &_open {
         transform: translateX(-50%) translateY(50%) rotate(180deg);
@@ -139,6 +141,22 @@
       border: 1px solid $secondary-grey;
       background-color: $white;
       padding: 10px 20px 0 20px;
+      max-height: 1000px;
+      overflow: hidden;
+    }
+
+    &__details-transition {
+      &-enter, &-leave-to {
+        max-height: 0;
+      }
+
+      &-leave-active {
+        transition: max-height .25s cubic-bezier(.1, .82, .47, .94);
+      }
+
+      &-enter-active {
+        transition: max-height .25s cubic-bezier(.55, .09, .68, .53)
+      }
     }
   }
 </style>
