@@ -1,19 +1,17 @@
 <template>
-  <div class="sa-loading-progress">
+  <div class="the-loading-progress">
     <div
       v-if="loading"
-      class="sa-loading-progress__container"
+      class="the-loading-progress__container"
     >
-      <div
-        class="sa-loading-progress__bar"
-      />
+      <div class="the-loading-progress__bar" />
     </div>
   </div>
 </template>
 
 <script>
   import { onMounted, onUnmounted, ref } from '@vue/composition-api';
-  import { NAVIGATION_FINISHED_EVENT, NAVIGATION_STARTED_EVENT } from '@/services/events';
+  import { LOADING_STARTED_EVENT, LOADING_FINISHED_EVENT } from '@/services/events';
 
   export default {
     setup() {
@@ -28,13 +26,13 @@
       };
 
       onMounted(() => {
-        NAVIGATION_STARTED_EVENT.subscribe(onLoadingStart);
-        NAVIGATION_FINISHED_EVENT.subscribe(onLoadingFinished);
+        LOADING_STARTED_EVENT.subscribe(onLoadingStart);
+        LOADING_FINISHED_EVENT.subscribe(onLoadingFinished);
       });
 
       onUnmounted(() => {
-        NAVIGATION_STARTED_EVENT.unsubscribe(onLoadingStart);
-        NAVIGATION_FINISHED_EVENT.unsubscribe(onLoadingFinished);
+        LOADING_STARTED_EVENT.unsubscribe(onLoadingStart);
+        LOADING_FINISHED_EVENT.unsubscribe(onLoadingFinished);
       });
 
       return {
@@ -47,7 +45,7 @@
 <style lang="scss">
   @import "~@/styles/vars.scss";
 
-  .sa-loading-progress {
+  .the-loading-progress {
     position: absolute;
     left: 0;
     right: 0;
@@ -72,7 +70,7 @@
         left: 0;
         bottom: 0;
         will-change: left, right;
-        animation: sa-loading-progress-bar 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+        animation: the-loading-progress-bar 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
       }
 
       &:after {
@@ -83,13 +81,13 @@
         left: 0;
         bottom: 0;
         will-change: left, right;
-        animation: sa-loading-progress-bar-short 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+        animation: the-loading-progress-bar-short 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
         animation-delay: 1.15s;
       }
     }
   }
 
-  @keyframes sa-loading-progress-bar {
+  @keyframes the-loading-progress-bar {
     0% {
       left: -35%;
       right: 100%;
@@ -104,7 +102,7 @@
     }
   }
 
-  @keyframes sa-loading-progress-bar-short {
+  @keyframes the-loading-progress-bar-short {
     0% {
       left: -200%;
       right: 100%;

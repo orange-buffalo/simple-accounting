@@ -3,7 +3,7 @@
     <TheSideMenu />
 
     <ElContainer>
-      <SaLoadingProgress />
+      <TheLoadingProgress />
       <ElMain>
         <div class="content-panel">
           <Transition name="authenticated-page-transition">
@@ -17,14 +17,14 @@
 
 <script>
   import TheSideMenu from '@/components/TheSideMenu';
-  import SaLoadingProgress from '@/components/SaLoadingProgress';
+  import TheLoadingProgress from '@/components/loaders/TheLoadingProgress';
 
   export default {
     name: 'TheAuthenticatedPage',
 
     components: {
       TheSideMenu,
-      SaLoadingProgress,
+      TheLoadingProgress,
     },
   };
 </script>

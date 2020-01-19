@@ -1,5 +1,30 @@
 import Router from 'vue-router';
 import { api } from '@/services/api';
+import Login from '@/views/Login';
+import LoginByLink from '@/views/LoginByLink';
+import WorkspaceSetup from '@/views/WorkspaceSetup';
+import TheAuthenticatedPage from '@/components/TheAuthenticatedPage';
+import Dashboard from '@/views/Dashboard';
+import Categories from '@/views/settings/categories/Categories';
+import CreateCategory from '@/views/settings/categories/CreateCategory';
+import ExpensesOverview from '@/views/expenses/ExpensesOverview';
+import EditExpense from '@/views/expenses/EditExpense';
+import IncomesOverview from '@/views/incomes/IncomesOverview';
+import EditIncome from '@/views/incomes/EditIncome';
+import InvoicesOverview from '@/views/invoices/InvoicesOverview';
+import EditInvoice from '@/views/invoices/EditInvoice';
+import IncomeTaxPaymentsOverview from '@/views/income-tax-payments/IncomeTaxPaymentsOverview';
+import EditIncomeTaxPayment from '@/views/income-tax-payments/EditIncomeTaxPayment';
+import CustomersOverview from '@/views/settings/customers/CustomersOverview';
+import EditCustomer from '@/views/settings/customers/EditCustomer';
+import GeneralTaxesOverview from '@/views/settings/general-taxes/GeneralTaxesOverview';
+import EditGeneralTax from '@/views/settings/general-taxes/EditGeneralTax';
+import TheWorkspacesOverview from '@/views/settings/workspaces/TheWorkspacesOverview';
+import TheWorkspaceEditor from '@/views/settings/workspaces/TheWorkspaceEditor';
+import MyProfile from '@/views/profile/MyProfile';
+import Reporting from '@/views/reporting/Reporting';
+import UsersOverview from '@/views/admin/users/UsersOverview';
+import CreateUser from '@/views/admin/users/CreateUser';
 
 export default new Router({
   mode: 'history',
@@ -7,20 +32,20 @@ export default new Router({
     {
       path: '/login',
       name: 'login',
-      component: () => import(/* webpackChunkName: "login" */ '@/views/Login.vue'),
+      component: Login,
     },
 
     {
       path: '/login-by-link/:token',
       name: 'login-by-link',
-      component: () => import(/* webpackChunkName: "login-by-link" */ '@/views/LoginByLink.vue'),
+      component: LoginByLink,
       props: true,
     },
 
     {
       path: '/workspace-setup',
       name: 'workspace-setup',
-      component: () => import(/* webpackChunkName: "workspace-setup" */ '@/views/WorkspaceSetup.vue'),
+      component: WorkspaceSetup,
     },
 
     {
@@ -34,149 +59,149 @@ export default new Router({
 
     {
       path: '/',
-      component: () => import(/* webpackChunkName: "authenticated-page" */ '@/components/TheAuthenticatedPage.vue'),
+      component: TheAuthenticatedPage,
       children: [
         {
           path: '',
-          component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard.vue'),
+          component: Dashboard,
         },
         {
           path: 'settings/categories',
           name: 'settings-categories',
-          component: () => import(/* webpackChunkName: "settings-categories" */ '@/views/settings/categories/Categories.vue'),
+          component: Categories,
         },
         {
           path: 'settings/categories/create',
           name: 'create-new-category',
-          component: () => import(/* webpackChunkName: "create-new-category" */ '@/views/settings/categories/CreateCategory.vue'),
+          component: CreateCategory,
         },
         {
           path: 'expenses',
           name: 'expenses-overview',
-          component: () => import(/* webpackChunkName: "expenses-overview" */ '@/views/expenses/ExpensesOverview.vue'),
+          component: ExpensesOverview,
         },
         {
           path: 'expenses/create',
           name: 'create-new-expense',
           props: true,
-          component: () => import(/* webpackChunkName: "create-new-expense" */ '@/views/expenses/EditExpense.vue'),
+          component: EditExpense,
         },
         {
           path: 'expenses/:id/edit',
           name: 'edit-expense',
           props: true,
-          component: () => import(/* webpackChunkName: "edit-expense" */ '@/views/expenses/EditExpense.vue'),
+          component: EditExpense,
         },
         {
           path: 'incomes',
           name: 'incomes-overview',
-          component: () => import(/* webpackChunkName: "incomes-overview" */ '@/views/incomes/IncomesOverview.vue'),
+          component: IncomesOverview,
         },
         {
           path: 'incomes/create',
           name: 'create-new-income',
-          component: () => import(/* webpackChunkName: "create-new-income" */ '@/views/incomes/EditIncome.vue'),
+          component: EditIncome,
         },
         {
           path: 'incomes/:id/edit',
           name: 'edit-income',
-          component: () => import(/* webpackChunkName: "edit-income" */ '@/views/incomes/EditIncome.vue'),
+          component: EditIncome,
         },
         {
           path: 'invoices',
           name: 'invoices-overview',
-          component: () => import(/* webpackChunkName: "invoices-overview" */ '@/views/invoices/InvoicesOverview.vue'),
+          component: InvoicesOverview,
         },
         {
           path: 'invoices/create',
           name: 'create-new-invoice',
-          component: () => import(/* webpackChunkName: "create-new-invoice" */ '@/views/invoices/EditInvoice.vue'),
+          component: EditInvoice,
         },
         {
           path: 'invoices/:id/edit',
           name: 'edit-invoice',
-          component: () => import(/* webpackChunkName: "edit-invoice" */ '@/views/invoices/EditInvoice.vue'),
+          component: EditInvoice,
         },
         {
           path: 'income-tax-payments',
           name: 'income-tax-payments-overview',
-          component: () => import(/* webpackChunkName: "income-tax-payments-overview" */ '@/views/income-tax-payments/IncomeTaxPaymentsOverview.vue'),
+          component: IncomeTaxPaymentsOverview,
         },
         {
           path: 'income-tax-payments/create',
           name: 'create-new-income-tax-payment',
-          component: () => import(/* webpackChunkName: "create-new-income-tax-payment" */ '@/views/income-tax-payments/EditIncomeTaxPayment.vue'),
+          component: EditIncomeTaxPayment,
         },
         {
           path: 'income-tax-payments/:id/edit',
           name: 'edit-income-tax-payment',
           // todo #88: should we use the same chunk name for edit and create as view is the same?
-          component: () => import(/* webpackChunkName: "edit-income-tax-payment" */ '@/views/income-tax-payments/EditIncomeTaxPayment.vue'),
+          component: EditIncomeTaxPayment,
         },
         {
           path: 'settings/customers',
           name: 'customers-overview',
-          component: () => import(/* webpackChunkName: "customers-overview" */ '@/views/settings/customers/CustomersOverview.vue'),
+          component: CustomersOverview,
         },
         {
           path: 'settings/customers/create',
           name: 'create-new-customer',
-          component: () => import(/* webpackChunkName: "create-new-customer" */ '@/views/settings/customers/EditCustomer.vue'),
+          component: EditCustomer,
         },
         {
           path: 'setting/customers/:id/edit',
           name: 'edit-customer',
-          component: () => import(/* webpackChunkName: "edit-customer" */ '@/views/settings/customers/EditCustomer.vue'),
+          component: EditCustomer,
         },
         {
           path: 'settings/general-taxes',
           name: 'general-taxes-overview',
-          component: () => import(/* webpackChunkName: "taxes-overview" */ '@/views/settings/general-taxes/GeneralTaxesOverview.vue'),
+          component: GeneralTaxesOverview,
         },
         {
           path: 'settings/general-taxes/create',
           name: 'create-new-general-tax',
-          component: () => import(/* webpackChunkName: "create-new-tax" */ '@/views/settings/general-taxes/EditGeneralTax.vue'),
+          component: EditGeneralTax,
         },
         {
           path: 'setting/general-taxes/:id/edit',
           name: 'edit-general-tax',
-          component: () => import(/* webpackChunkName: "edit-tax" */ '@/views/settings/general-taxes/EditGeneralTax.vue'),
+          component: EditGeneralTax,
         },
         {
           path: 'settings/workspaces',
           name: 'workspaces-overview',
-          component: () => import(/* webpackChunkName: "workspaces-overview" */ '@/views/settings/workspaces/TheWorkspacesOverview.vue'),
+          component: TheWorkspacesOverview,
         },
         {
           path: 'settings/workspaces/create',
           name: 'create-new-workspace',
-          component: () => import(/* webpackChunkName: "create-new-workspace" */ '@/views/settings/workspaces/TheWorkspaceEditor.vue'),
+          component: TheWorkspaceEditor,
         },
         {
           path: 'settings/workspaces/:id/edit',
           name: 'edit-workspace',
-          component: () => import(/* webpackChunkName: "edit-workspace" */ '@/views/settings/workspaces/TheWorkspaceEditor.vue'),
+          component: TheWorkspaceEditor,
         },
         {
           path: 'my-profile',
           name: 'my-profile',
-          component: () => import(/* webpackChunkName: "my-profile" */ '@/views/profile/MyProfile.vue'),
+          component: MyProfile,
         },
         {
           path: 'reporting',
           name: 'reporting',
-          component: () => import(/* webpackChunkName: "reporting" */ '@/views/reporting/Reporting.vue'),
+          component: Reporting,
         },
         {
           path: 'admin/users',
           name: 'users-overview',
-          component: () => import(/* webpackChunkName: "users-overview" */ '@/views/admin/users/UsersOverview.vue'),
+          component: UsersOverview,
         },
         {
           path: 'admin/users/create',
           name: 'create-new-user',
-          component: () => import(/* webpackChunkName: "create-new-user" */ '@/views/admin/users/CreateUser.vue'),
+          component: CreateUser,
         },
         {
           path: '*',
