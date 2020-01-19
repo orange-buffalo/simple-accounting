@@ -6,7 +6,9 @@
       <SaLoadingProgress />
       <ElMain>
         <div class="content-panel">
-          <RouterView />
+          <Transition name="authenticated-page-transition">
+            <RouterView />
+          </Transition>
         </div>
       </ElMain>
     </ElContainer>
@@ -42,6 +44,16 @@
     .content-panel {
       max-width: 1500px;
       margin: auto;
+    }
+  }
+
+  .authenticated-page-transition {
+    &-enter, &-leave-to {
+      opacity: 0;
+    }
+
+    &-enter-active, &-leave-active {
+      transition: opacity 0.2s;
     }
   }
 </style>
