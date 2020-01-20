@@ -19,6 +19,12 @@ describe('api service', () => {
       LOGIN_REQUIRED_EVENT: {
         emit: jest.fn(),
       },
+      LOADING_STARTED_EVENT: {
+        emit: jest.fn(),
+      },
+      LOADING_FINISHED_EVENT: {
+        emit: jest.fn(),
+      },
     }));
 
     loginRequiredEventMock = require('@/services/events').LOGIN_REQUIRED_EVENT.emit;

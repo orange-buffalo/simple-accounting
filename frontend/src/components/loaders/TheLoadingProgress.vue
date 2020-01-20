@@ -10,19 +10,33 @@
 </template>
 
 <script>
+  import throttle from 'lodash/throttle';
   import { onMounted, onUnmounted, ref } from '@vue/composition-api';
   import { LOADING_STARTED_EVENT, LOADING_FINISHED_EVENT } from '@/services/events';
 
   export default {
     setup() {
       const loading = ref(false);
+      let loadingRequestsCount = 0;
+
+      const toggleProgress = throttle(
+        () => {
+          loading.value = loadingRequestsCount > 0;
+        },
+        400,
+        {
+          trailing: true,
+        },
+      );
 
       const onLoadingStart = () => {
-        loading.value = true;
+        loadingRequestsCount += 1;
+        toggleProgress();
       };
 
       const onLoadingFinished = () => {
-        loading.value = false;
+        loadingRequestsCount = Math.max(loadingRequestsCount - 1, 0);
+        toggleProgress();
       };
 
       onMounted(() => {
