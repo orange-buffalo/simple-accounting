@@ -18,17 +18,10 @@
               :label="$t('editIncome.generalInformation.category.label')"
               prop="category"
             >
-              <ElSelect
+              <SaCategoryInput
                 v-model="income.category"
                 :placeholder="$t('editIncome.generalInformation.category.placeholder')"
-              >
-                <ElOption
-                  v-for="category in categories"
-                  :key="category.id"
-                  :label="category.name"
-                  :value="category.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
 
             <ElFormItem
@@ -175,14 +168,15 @@
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withCategories from '@/components/mixins/with-categories';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaCategoryInput from '@/components/category/SaCategoryInput';
 
   export default {
     name: 'EditIncome',
 
     components: {
+      SaCategoryInput,
       SaCurrencyInput,
       SaForm,
       SaNotesInput,
@@ -190,7 +184,7 @@
       MoneyInput,
     },
 
-    mixins: [withGeneralTaxes, withCategories, withWorkspaces],
+    mixins: [withGeneralTaxes, withWorkspaces],
 
     data() {
       return {
