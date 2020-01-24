@@ -71,9 +71,9 @@ function setupElementUi({ i18n }) {
 }
 
 function setupApp() {
-  Vue.config.productionTip = false;
-
   Vue.use(VueCompositionApi);
+
+  Vue.config.productionTip = false;
   const router = setupRouter();
   const store = setupStore();
   const i18n = setupI18n();
