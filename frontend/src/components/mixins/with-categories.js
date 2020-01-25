@@ -1,4 +1,5 @@
 import useCategories from '@/components/category/useCategories';
+import { findByIdOrEmpty } from '@/components/utils/utils';
 
 export default {
   data() {
@@ -14,11 +15,7 @@ export default {
 
   computed: {
     categoryById() {
-      return (categoryId) => {
-        const category = this.categories
-          .find(it => (it.id === categoryId) || (it.id == null && categoryId == null));
-        return category || {};
-      };
+      return categoryId => findByIdOrEmpty(this.categories, categoryId);
     },
   },
 };

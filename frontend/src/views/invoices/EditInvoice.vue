@@ -35,20 +35,13 @@
             <h2>{{ $t('editInvoice.generalInformation.header') }}</h2>
 
             <ElFormItem
-              ::label="$t('editInvoice.generalInformation.customer.label')"
+              :label="$t('editInvoice.generalInformation.customer.label')"
               prop="customer"
             >
-              <ElSelect
+              <SaCustomerInput
                 v-model="invoice.customer"
                 :placeholder="$t('editInvoice.generalInformation.customer.placeholder')"
-              >
-                <ElOption
-                  v-for="customer in customers"
-                  :key="customer.id"
-                  ::label="customer.name"
-                  :value="customer.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
 
             <ElFormItem
@@ -212,14 +205,15 @@
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withCustomers from '@/components/mixins/with-customers';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaCustomerInput from '@/components/customer/SaCustomerInput';
 
   export default {
     name: 'EditInvoice',
 
     components: {
+      SaCustomerInput,
       SaCurrencyInput,
       SaForm,
       SaNotesInput,
@@ -227,7 +221,7 @@
       MoneyInput,
     },
 
-    mixins: [withCustomers, withGeneralTaxes, withWorkspaces],
+    mixins: [withGeneralTaxes, withWorkspaces],
 
     data() {
       return {

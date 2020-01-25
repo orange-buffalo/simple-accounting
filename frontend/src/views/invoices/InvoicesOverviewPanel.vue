@@ -2,7 +2,7 @@
   <OverviewItem :title="invoice.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
-        v-if="customer"
+        v-if="customer.name"
         :tooltip="$t('invoicesOverviewPanel.customer.tooltip')"
         icon="customer"
       >

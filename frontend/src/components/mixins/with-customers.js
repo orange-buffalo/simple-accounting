@@ -1,5 +1,5 @@
-import { mapState } from 'vuex';
-import { api } from '@/services/api';
+import useCustomers from '@/components/customer/useCustomers';
+import { findByIdOrEmpty } from '@/components/utils/utils';
 
 export default {
   data() {
@@ -9,21 +9,13 @@ export default {
   },
 
   async created() {
-    this.customers = await api.pageRequest(`/workspaces/${this.$_withCustomers_currentWorkspace.id}/customers`)
-      .eager()
-      .getPageData();
+    const { customers } = useCustomers();
+    this.customers = customers;
   },
 
   computed: {
-    ...mapState({
-      $_withCustomers_currentWorkspace: state => state.workspaces.currentWorkspace,
-    }),
-
     customerById() {
-      return (customerId) => {
-        const customer = this.customers.find(it => it.id === customerId);
-        return customer == null ? {} : customer;
-      };
+      return customerId => findByIdOrEmpty(this.customers, customerId);
     },
   },
 };

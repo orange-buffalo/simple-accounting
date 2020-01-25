@@ -1,5 +1,6 @@
 import { mapState } from 'vuex';
 import { api } from '@/services/api';
+import { findByIdOrEmpty } from '@/components/utils/utils';
 
 export default {
   data() {
@@ -21,10 +22,7 @@ export default {
     }),
 
     generalTaxById() {
-      return (taxId) => {
-        const tax = this.generalTaxes.find(it => it.id === taxId);
-        return tax == null ? {} : tax;
-      };
+      return taxId => findByIdOrEmpty(this.generalTaxes, taxId);
     },
   },
 };
