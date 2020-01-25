@@ -96,18 +96,11 @@
               :label="$t('editIncome.generalInformation.generalTax.label')"
               prop="generalTax"
             >
-              <ElSelect
+              <SaGeneralTaxInput
                 v-model="income.generalTax"
                 clearable
                 :placeholder="$t('editIncome.generalInformation.generalTax.placeholder')"
-              >
-                <ElOption
-                  v-for="tax in generalTaxes"
-                  :key="tax.id"
-                  :label="tax.title"
-                  :value="tax.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
           </div>
 
@@ -168,14 +161,15 @@
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaCategoryInput from '@/components/category/SaCategoryInput';
+  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
 
   export default {
     name: 'EditIncome',
 
     components: {
+      SaGeneralTaxInput,
       SaCategoryInput,
       SaCurrencyInput,
       SaForm,
@@ -184,7 +178,7 @@
       MoneyInput,
     },
 
-    mixins: [withGeneralTaxes, withWorkspaces],
+    mixins: [withWorkspaces],
 
     data() {
       return {

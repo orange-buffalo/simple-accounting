@@ -1,6 +1,5 @@
-import { mapState } from 'vuex';
-import { api } from '@/services/api';
 import { findByIdOrEmpty } from '@/components/utils/utils';
+import useGeneralTaxes from '@/components/general-tax/useGeneralTaxes';
 
 export default {
   data() {
@@ -10,17 +9,11 @@ export default {
   },
 
   async created() {
-    this.generalTaxes = await api
-      .pageRequest(`/workspaces/${this.$_withGeneralTaxes_currentWorkspace.id}/general-taxes`)
-      .eager()
-      .getPageData();
+    const { generalTaxes } = useGeneralTaxes();
+    this.generalTaxes = generalTaxes;
   },
 
   computed: {
-    ...mapState({
-      $_withGeneralTaxes_currentWorkspace: state => state.workspaces.currentWorkspace,
-    }),
-
     generalTaxById() {
       return taxId => findByIdOrEmpty(this.generalTaxes, taxId);
     },
