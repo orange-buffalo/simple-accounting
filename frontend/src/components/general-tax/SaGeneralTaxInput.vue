@@ -26,8 +26,7 @@
 
     props: {
       value: {
-        // eslint-disable-next-line no-bitwise,vue/require-prop-type-constructor
-        type: Number | String,
+        type: Number,
         default: null,
       },
       placeholder: {

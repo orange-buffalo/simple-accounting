@@ -2,6 +2,7 @@
   <div class="sa-form">
     <ElForm
       ref="elForm"
+      v-loading="loading"
       label-position="top"
       v-bind="formProps"
       v-on="$listeners"
@@ -20,6 +21,13 @@
 <script>
   export default {
     name: 'SaForm',
+
+    props: {
+      loading: {
+        type: Boolean,
+        default: false,
+      },
+    },
 
     computed: {
       formProps() {

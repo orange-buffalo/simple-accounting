@@ -25,6 +25,7 @@ import MyProfile from '@/views/profile/MyProfile';
 import Reporting from '@/views/reporting/Reporting';
 import UsersOverview from '@/views/admin/users/UsersOverview';
 import CreateUser from '@/views/admin/users/CreateUser';
+import { ID_ROUTER_PARAM_PROCESSOR } from '@/components/utils/utils';
 
 export default new Router({
   mode: 'history',
@@ -135,7 +136,6 @@ export default new Router({
         {
           path: 'income-tax-payments/:id/edit',
           name: 'edit-income-tax-payment',
-          // todo #88: should we use the same chunk name for edit and create as view is the same?
           component: EditIncomeTaxPayment,
         },
         {
@@ -152,6 +152,7 @@ export default new Router({
           path: 'setting/customers/:id/edit',
           name: 'edit-customer',
           component: EditCustomer,
+          props: ID_ROUTER_PARAM_PROCESSOR,
         },
         {
           path: 'settings/general-taxes',

@@ -1,17 +1,18 @@
 import { computed, reactive, ref } from '@vue/composition-api';
 import { api } from '@/services/api';
-import { app } from '@/services/app-services';
 import { findByIdOrEmpty } from '@/components/utils/utils';
+import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
 
 export default function useCategories() {
   const categories = reactive([]);
   const categoriesLoaded = ref(false);
 
   const categoryById = computed(() => categoryId => findByIdOrEmpty(categories, categoryId));
+  const { currentWorkspaceApiUrl } = useCurrentWorkspace();
 
   const loadCategories = async function loadCategories() {
     const categoriesResponse = await api
-      .pageRequest(`/workspaces/${app.store.state.workspaces.currentWorkspace.id}/categories`)
+      .pageRequest(currentWorkspaceApiUrl('categories'))
       .eager()
       .getPageData();
     const emptyCategory = {

@@ -1,17 +1,18 @@
 import { computed, reactive, ref } from '@vue/composition-api';
 import { api } from '@/services/api';
-import { app } from '@/services/app-services';
 import { findByIdOrEmpty } from '@/components/utils/utils';
+import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
 
 export default function useCustomers() {
   const customers = reactive([]);
   const customersLoaded = ref(false);
 
   const customerById = computed(() => customerId => findByIdOrEmpty(customers, customerId));
+  const { currentWorkspaceApiUrl } = useCurrentWorkspace();
 
   const loadCustomers = async function loadCustomers() {
     const customersResponse = await api
-      .pageRequest(`/workspaces/${app.store.state.workspaces.currentWorkspace.id}/customers`)
+      .pageRequest(currentWorkspaceApiUrl('customers'))
       .eager()
       .getPageData();
     // Array.prototype.push.apply is not reactive

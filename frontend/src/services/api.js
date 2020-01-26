@@ -2,6 +2,7 @@ import axios from 'axios';
 import qs from 'qs';
 import jwtDecode from 'jwt-decode';
 import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
+import { safeAssign } from '@/components/utils/utils';
 
 const { CancelToken } = axios;
 
@@ -231,6 +232,11 @@ api.pageRequest = function pageRequest(uri) {
         .then(pageResponse => pageResponse.data);
     },
   };
+};
+
+api.getAndSafeAssign = async function getAndSafeAssign(url, target) {
+  const response = await api.get(url);
+  safeAssign(target, response.data);
 };
 
 api.dateToString = function dateToString(date) {
