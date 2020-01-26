@@ -6,7 +6,10 @@
       <TheLoadingProgress />
       <ElMain>
         <div class="content-panel">
-          <Transition name="authenticated-page-transition">
+          <Transition
+            name="authenticated-page-transition"
+            mode="out-in"
+          >
             <RouterView />
           </Transition>
         </div>
@@ -53,7 +56,7 @@
     }
 
     &-enter-active, &-leave-active {
-      transition: opacity 0.2s;
+      transition: opacity 0.1s;
     }
   }
 </style>
