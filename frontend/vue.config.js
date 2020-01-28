@@ -11,6 +11,7 @@ module.exports = {
     config.performance = {
       hints: false,
     };
+    config.devtool = 'source-map';
   },
 
   chainWebpack: (config) => {
