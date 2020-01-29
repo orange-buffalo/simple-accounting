@@ -89,6 +89,11 @@
     };
   }
 
+  function navigateToCustomersOverview() {
+    const { navigateByViewName } = useNavigation();
+    navigateByViewName('customers-overview');
+  }
+
   export default {
     components: {
       SaForm,
@@ -109,9 +114,6 @@
       const { form, customerValidationRules, submitForm } = useCustomerForm(saveCustomer);
 
       const pageHeader = id ? 'Edit Customer' : 'Create New Customer';
-
-      const { navigateByViewName } = useNavigation();
-      const navigateToCustomersOverview = () => navigateByViewName('customers-overview');
 
       return {
         loading,

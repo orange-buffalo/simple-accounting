@@ -90,7 +90,7 @@ export default new Router({
         {
           path: 'expenses/:id/edit',
           name: 'edit-expense',
-          props: true,
+          props: ID_ROUTER_PARAM_PROCESSOR,
           component: EditExpense,
         },
         {

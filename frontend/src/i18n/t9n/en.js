@@ -132,7 +132,6 @@ export default {
       datePaid: 'Please provide the date when expense is paid',
       originalAmount: 'Please provide expense amount',
     },
-    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
   expensesOverviewPanel: {
@@ -719,5 +718,9 @@ export default {
     messagebox: {
       confirm: 'OK',
     },
+  },
+
+  useDocumentsUpload: {
+    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 };

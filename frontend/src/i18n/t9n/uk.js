@@ -132,7 +132,6 @@ export default {
       datePaid: 'Прошу повідомити дату, коли рахунок оплачується',
       originalAmount: 'Будь ласка, надайте сума витрат',
     },
-    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
   expensesOverviewPanel: {
@@ -718,5 +717,9 @@ export default {
     messagebox: {
       confirm: 'ОК',
     },
+  },
+
+  useDocumentsUpload: {
+    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 };
