@@ -209,7 +209,7 @@
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            :label="$t('incomesOverviewPanel.convertedAmounts.originalAmountInDefaultCurrency.label', [defaultCurrency])"
+            :label="$t('incomesOverviewPanel.incomeTaxableAmounts.originalAmountInDefaultCurrency.label', [defaultCurrency])"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
