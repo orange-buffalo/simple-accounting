@@ -122,6 +122,7 @@ export default new Router({
         {
           path: 'invoices/:id/edit',
           name: 'edit-invoice',
+          props: ID_ROUTER_PARAM_PROCESSOR,
           component: EditInvoice,
         },
         {

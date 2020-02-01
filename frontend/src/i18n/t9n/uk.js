@@ -552,7 +552,6 @@ export default {
       dateSent: 'Прошу повідомити дату, коли рахунок-фактура відправляється',
       datePaid: 'Прошу повідомити дату, коли рахунок-фактура сплачений',
     },
-    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
   invoicesOverview: {
@@ -570,9 +569,6 @@ export default {
     customer: {
       tooltip: 'Клієнт',
       label: 'Клієнт',
-    },
-    category: {
-      label: 'Категорія',
     },
     datePaid: {
       tooltip: 'Дата заплатили',

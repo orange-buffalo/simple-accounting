@@ -1,3 +1,4 @@
+import { MessageBox } from 'element-ui';
 import { ref } from '@vue/composition-api';
 import Vue from 'vue';
 
@@ -49,6 +50,21 @@ export function useForm(submitAction) {
   return {
     form,
     submitForm,
+  };
+}
+
+export function useConfirmation() {
+  const executeAfterConfirmation = async (message, options, closure) => {
+    try {
+      await MessageBox.confirm(message, options);
+    } catch (e) {
+      return;
+    }
+    await closure();
+  };
+
+  return {
+    executeAfterConfirmation,
   };
 }
 

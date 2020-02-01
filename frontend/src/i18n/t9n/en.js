@@ -553,7 +553,6 @@ export default {
       dateSent: 'Please provide the date when invoice is sent',
       datePaid: 'Please provide the date when invoice is paid',
     },
-    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
   invoicesOverview: {
@@ -571,9 +570,6 @@ export default {
     customer: {
       tooltip: 'Customer',
       label: 'Customer',
-    },
-    category: {
-      label: 'Category',
     },
     datePaid: {
       tooltip: 'Date paid',

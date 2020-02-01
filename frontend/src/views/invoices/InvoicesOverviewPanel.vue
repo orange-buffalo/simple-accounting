@@ -112,13 +112,6 @@
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            :label="$t('invoicesOverviewPanel.category.label')"
-            class="col col-xs-12 col-md-6 col-lg-4"
-          >
-            {{ categoryById(invoice.category).name }}
-          </OverviewItemDetailsSectionAttribute>
-
-          <OverviewItemDetailsSectionAttribute
             v-if="isForeignCurrency"
             :label="$t('invoicesOverviewPanel.currency.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
@@ -228,7 +221,6 @@
 
 <script>
   import MoneyOutput from '@/components/MoneyOutput';
-  import withCategories from '@/components/mixins/with-categories';
   import withCustomers from '@/components/mixins/with-customers';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
@@ -263,7 +255,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
+    mixins: [withWorkspaces, withCustomers, withGeneralTaxes],
 
     props: {
       invoice: {
