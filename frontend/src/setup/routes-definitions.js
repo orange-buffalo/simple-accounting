@@ -106,6 +106,7 @@ export default new Router({
         {
           path: 'incomes/:id/edit',
           name: 'edit-income',
+          props: ID_ROUTER_PARAM_PROCESSOR,
           component: EditIncome,
         },
         {

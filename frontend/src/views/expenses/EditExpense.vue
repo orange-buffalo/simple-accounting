@@ -215,14 +215,8 @@
     });
   }
 
-  function useExpenseApi(expense, uiState) {
-    const { loading, withLoading } = useLoading();
-
-    if (expense.id) {
-      loadExpense(expense, uiState, withLoading);
-    }
-
-    const saveExpense = documentsIds => withLoading(async () => {
+  function submitExpense(withLoading, expense, uiState, documentsIds) {
+    return withLoading(async () => {
       const {
         id,
         ...expensePropertiesToPush
@@ -243,6 +237,16 @@
 
       await navigateToExpensesOverview();
     });
+  }
+
+  function useExpenseApi(expense, uiState) {
+    const { loading, withLoading } = useLoading();
+
+    if (expense.id) {
+      loadExpense(expense, uiState, withLoading);
+    }
+
+    const saveExpense = documentsIds => submitExpense(withLoading, expense, uiState, documentsIds);
 
     return {
       saveExpense,

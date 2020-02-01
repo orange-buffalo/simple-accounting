@@ -5,7 +5,8 @@
     </div>
 
     <SaForm
-      ref="incomeForm"
+      ref="form"
+      :loading="loading"
       :model="income"
       :rules="incomeValidationRules"
     >
@@ -131,7 +132,7 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="income.attachments"
-                @uploads-completed="onDocumentsUploadSuccess"
+                @uploads-completed="saveIncome"
                 @uploads-failed="onDocumentsUploadFailure"
               />
             </ElFormItem>
@@ -145,7 +146,7 @@
         </ElButton>
         <ElButton
           type="primary"
-          @click="save"
+          @click="submitForm"
         >
           {{ $t('editIncome.save') }}
         </ElButton>
@@ -155,19 +156,111 @@
 </template>
 
 <script>
+  import { computed, reactive } from '@vue/composition-api';
   import { api } from '@/services/api';
   import MoneyInput from '@/components/MoneyInput';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaCategoryInput from '@/components/category/SaCategoryInput';
   import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import i18n from '@/services/i18n';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
+  import { safeAssign, useLoading } from '@/components/utils/utils';
+
+  async function navigateToIncomesOverview() {
+    const { navigateByViewName } = useNavigation();
+    await navigateByViewName('incomes-overview');
+  }
+
+  function loadIncome(withLoading, currentWorkspaceApiUrl, income) {
+    withLoading(async () => {
+      const incomeResponse = await api.get(currentWorkspaceApiUrl(`incomes/${income.id}`));
+
+      const {
+        convertedAmounts,
+        incomeTaxableAmounts,
+        generalTaxRateInBps,
+        generalTaxAmount,
+        status,
+        version,
+        timeRecorded,
+        ...incomeEditProperties
+      } = incomeResponse.data;
+      safeAssign(income, {
+        ...incomeEditProperties,
+        convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
+        incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
+      });
+    });
+  }
+
+  function submitIncome(withLoading, income, documentsIds, currentWorkspaceApiUrl) {
+    return withLoading(async () => {
+      const {
+        id,
+        ...incomePropertiesToPush
+      } = income;
+
+      const incomeToPush = {
+        ...incomePropertiesToPush,
+        attachments: documentsIds,
+      };
+
+      if (income.id) {
+        await api.put(currentWorkspaceApiUrl(`incomes/${income.id}`), incomeToPush);
+      } else {
+        await api.post(currentWorkspaceApiUrl('incomes'), incomeToPush);
+      }
+      await navigateToIncomesOverview();
+    });
+  }
+
+  function useIncomeApi(income) {
+    const { loading, withLoading } = useLoading();
+    const { currentWorkspaceApiUrl } = useCurrentWorkspace();
+
+    if (income.id) {
+      loadIncome(withLoading, currentWorkspaceApiUrl, income);
+    }
+
+    const saveIncome = documentsIds => submitIncome(withLoading, income, documentsIds, currentWorkspaceApiUrl);
+
+    return {
+      loading,
+      saveIncome,
+    };
+  }
+
+  function useIncomeForm() {
+    const incomeValidationRules = {
+      currency: {
+        required: true,
+        message: i18n.t('editIncome.validations.currency'),
+      },
+      title: {
+        required: true,
+        message: i18n.t('editIncome.validations.title'),
+      },
+      dateReceived: {
+        required: true,
+        message: i18n.t('editIncome.validations.dateReceived'),
+      },
+      originalAmount: {
+        required: true,
+        message: i18n.t('editIncome.validations.originalAmount'),
+      },
+    };
+    return {
+      incomeValidationRules,
+      ...useDocumentsUpload(),
+    };
+  }
 
   export default {
-    name: 'EditIncome',
-
     components: {
       SaGeneralTaxInput,
       SaCategoryInput,
@@ -178,119 +271,37 @@
       MoneyInput,
     },
 
-    mixins: [withWorkspaces],
+    props: {
+      id: {
+        type: Number,
+        default: null,
+      },
+    },
 
-    data() {
+    setup({ id }) {
+      const { defaultCurrency } = useCurrentWorkspace();
+
+      const income = reactive({
+        id,
+        currency: defaultCurrency,
+        useDifferentExchangeRateForIncomeTaxPurposes: false,
+        attachments: [],
+        dateReceived: new Date(),
+      });
+
+      const isInForeignCurrency = computed(() => income.currency !== defaultCurrency);
+
+      const pageHeader = id ? i18n.t('editIncome.pageHeader.edit') : i18n.t('editIncome.pageHeader.create');
+
       return {
-        income: {
-          category: null,
-          title: null,
-          currency: null,
-          originalAmount: null,
-          convertedAmountInDefaultCurrency: null,
-          incomeTaxableAmountInDefaultCurrency: null,
-          useDifferentExchangeRateForIncomeTaxPurposes: false,
-          attachments: [],
-          notes: null,
-          dateReceived: new Date(),
-          generalTax: null,
-        },
-        incomeValidationRules: {
-          currency: {
-            required: true,
-            message: this.$t('editIncome.validations.currency'),
-          },
-          title: {
-            required: true,
-            message: this.$t('editIncome.validations.title'),
-          },
-          dateReceived: {
-            required: true,
-            message: this.$t('editIncome.validations.dateReceived'),
-          },
-          originalAmount: {
-            required: true,
-            message: this.$t('editIncome.validations.originalAmount'),
-          },
-        },
+        income,
+        isInForeignCurrency,
+        defaultCurrency,
+        ...useIncomeApi(income),
+        navigateToIncomesOverview,
+        pageHeader,
+        ...useIncomeForm(),
       };
-    },
-
-    computed: {
-      isInForeignCurrency() {
-        return this.income.currency !== this.defaultCurrency;
-      },
-
-      pageHeader() {
-        return this.$route.params.id
-          ? this.$t('editIncome.pageHeader.edit') : this.$t('editIncome.pageHeader.create');
-      },
-    },
-
-    async created() {
-      if (this.$route.params.id) {
-        const incomeResponse = await api
-          .get(`/workspaces/${this.currentWorkspace.id}/incomes/${this.$route.params.id}`);
-
-        const {
-          convertedAmounts,
-          incomeTaxableAmounts,
-          generalTaxRateInBps,
-          generalTaxAmount,
-          status,
-          version,
-          timeRecorded,
-          ...incomeEditProperties
-        } = incomeResponse.data;
-        this.income = {
-          ...incomeEditProperties,
-          convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
-          incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
-        };
-      }
-    },
-
-    methods: {
-      navigateToIncomesOverview() {
-        this.$router.push({ name: 'incomes-overview' });
-      },
-
-      async onDocumentsUploadSuccess(documentsIds) {
-        const {
-          id,
-          ...incomePropertiesToPush
-        } = this.income;
-
-        const incomeToPush = {
-          ...incomePropertiesToPush,
-          attachments: documentsIds,
-        };
-
-        if (this.income.id) {
-          await api.put(`/workspaces/${this.currentWorkspace.id}/incomes/${this.income.id}`, incomeToPush);
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/incomes`, incomeToPush);
-        }
-        await this.$router.push({ name: 'incomes-overview' });
-      },
-
-      async onDocumentsUploadFailure() {
-        this.$message({
-          showClose: true,
-          message: this.$t('editIncome.documentsUploadFailure'),
-          type: 'error',
-        });
-      },
-
-      async save() {
-        try {
-          await this.$refs.incomeForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        await this.$refs.documentsUpload.submitUploads();
-      },
     },
   };
 </script>

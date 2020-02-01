@@ -377,7 +377,6 @@ export default {
       dateReceived: 'Please provide the date when income is received',
       originalAmount: 'Please provide income amount',
     },
-    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
   incomesOverviewPanel: {

@@ -376,7 +376,6 @@ export default {
       dateReceived: 'Прошу повідомити дату, коли дохід отриманий',
       originalAmount: 'Будь ласка, вкажіть суму доходу ',
     },
-    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
   incomesOverviewPanel: {
