@@ -154,8 +154,8 @@ export default new Router({
         {
           path: 'setting/customers/:id/edit',
           name: 'edit-customer',
-          component: EditCustomer,
           props: ID_ROUTER_PARAM_PROCESSOR,
+          component: EditCustomer,
         },
         {
           path: 'settings/general-taxes',
@@ -170,6 +170,7 @@ export default new Router({
         {
           path: 'setting/general-taxes/:id/edit',
           name: 'edit-general-tax',
+          props: ID_ROUTER_PARAM_PROCESSOR,
           component: EditGeneralTax,
         },
         {
