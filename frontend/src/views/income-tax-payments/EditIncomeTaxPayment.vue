@@ -6,6 +6,7 @@
 
     <SaForm
       ref="form"
+      :loading="loading"
       :model="taxPayment"
       :rules="taxPaymentValidationRules"
     >
@@ -105,7 +106,6 @@
 
 <script>
   import { reactive } from '@vue/composition-api';
-  import { api } from '@/services/api';
   import i18n from '@/services/i18n';
   import MoneyInput from '@/components/MoneyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
@@ -116,7 +116,7 @@
   import { safeAssign, useLoading } from '@/components/utils/utils';
   import useNavigation from '@/components/navigation/useNavigation';
 
-  function useTaxPaymentForm() {
+  function useTaxPaymentForm(loading) {
     const taxPaymentValidationRules = {
       title: {
         required: true,
@@ -134,7 +134,7 @@
 
     return {
       taxPaymentValidationRules,
-      ...useDocumentsUpload(),
+      ...useDocumentsUpload(loading),
     };
   }
 
@@ -220,13 +220,16 @@
         ? i18n.t('editIncomeTaxPayment.header.edit')
         : i18n.t('editIncomeTaxPayment.header.create');
 
+      const { loading, saveTaxPayment } = useTaxPaymentApi(taxPayment);
+
       return {
         taxPayment,
         defaultCurrency,
-        ...useTaxPaymentForm(),
+        ...useTaxPaymentForm(loading),
         pageHeader,
+        loading,
+        saveTaxPayment,
         navigateToTaxPaymentsOverview,
-        ...useTaxPaymentApi(taxPayment),
       };
     },
   };

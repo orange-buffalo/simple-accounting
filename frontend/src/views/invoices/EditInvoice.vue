@@ -281,7 +281,7 @@
     };
   }
 
-  function useInvoiceForm() {
+  function useInvoiceForm(loading) {
     const invoiceValidationRules = {
       customer: {
         required: true,
@@ -317,7 +317,7 @@
       },
     };
     return {
-      ...useDocumentsUpload(),
+      ...useDocumentsUpload(loading),
       invoiceValidationRules,
     };
   }
@@ -380,7 +380,7 @@
         invoice,
         defaultCurrency,
         ...toRefs(uiState),
-        ...useInvoiceForm(),
+        ...useInvoiceForm(loading),
         pageHeader,
         navigateToInvoicesOverview,
         loading,

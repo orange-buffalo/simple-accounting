@@ -3,8 +3,10 @@ import { ref } from '@vue/composition-api';
 import i18n from '@/services/i18n';
 import { useForm } from '@/components/utils/utils';
 
-export default function useDocumentsUpload() {
+export default function useDocumentsUpload(loading) {
   const onDocumentsUploadFailure = () => {
+    // eslint-disable-next-line no-param-reassign
+    loading.value = false;
     Message({
       showClose: true,
       message: i18n.t('useDocumentsUpload.documentsUploadFailure'),
@@ -13,7 +15,12 @@ export default function useDocumentsUpload() {
   };
 
   const documentsUpload = ref(null);
-  const { form, submitForm } = useForm(() => documentsUpload.value.submitUploads());
+
+  const { form, submitForm } = useForm(() => {
+    // eslint-disable-next-line no-param-reassign
+    loading.value = true;
+    documentsUpload.value.submitUploads();
+  });
 
   return {
     onDocumentsUploadFailure,

@@ -254,7 +254,7 @@
     };
   }
 
-  function useExpenseForm() {
+  function useExpenseForm(loading) {
     const expenseValidationRules = {
       currency: {
         required: true,
@@ -276,7 +276,7 @@
 
     return {
       expenseValidationRules,
-      ...useDocumentsUpload(),
+      ...useDocumentsUpload(loading),
     };
   }
 
@@ -334,6 +334,8 @@
         setupUiState(expense, uiState);
       }
 
+      const { loading, saveExpense } = useExpenseApi(expense, uiState);
+
       return {
         expense,
         defaultCurrency,
@@ -341,8 +343,9 @@
         ...toRefs(uiState),
         pageHeader,
         navigateToExpensesOverview,
-        ...useExpenseForm(),
-        ...useExpenseApi(expense, uiState),
+        ...useExpenseForm(loading),
+        loading,
+        saveExpense,
       };
     },
   };

@@ -235,7 +235,7 @@
     };
   }
 
-  function useIncomeForm() {
+  function useIncomeForm(loading) {
     const incomeValidationRules = {
       currency: {
         required: true,
@@ -256,7 +256,7 @@
     };
     return {
       incomeValidationRules,
-      ...useDocumentsUpload(),
+      ...useDocumentsUpload(loading),
     };
   }
 
@@ -293,14 +293,17 @@
 
       const pageHeader = id ? i18n.t('editIncome.pageHeader.edit') : i18n.t('editIncome.pageHeader.create');
 
+      const { loading, saveIncome } = useIncomeApi(income);
+
       return {
         income,
         isInForeignCurrency,
         defaultCurrency,
-        ...useIncomeApi(income),
         navigateToIncomesOverview,
         pageHeader,
-        ...useIncomeForm(),
+        ...useIncomeForm(loading),
+        loading,
+        saveIncome,
       };
     },
   };
