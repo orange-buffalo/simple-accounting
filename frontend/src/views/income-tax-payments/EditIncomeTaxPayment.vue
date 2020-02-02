@@ -5,7 +5,7 @@
     </div>
 
     <SaForm
-      ref="taxPaymentForm"
+      ref="form"
       :model="taxPayment"
       :rules="taxPaymentValidationRules"
     >
@@ -80,7 +80,7 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="taxPayment.attachments"
-                @uploads-completed="onDocumentsUploadSuccess"
+                @uploads-completed="saveTaxPayment"
                 @uploads-failed="onDocumentsUploadFailure"
               />
             </ElFormItem>
@@ -94,7 +94,7 @@
         </ElButton>
         <ElButton
           type="primary"
-          @click="save"
+          @click="submitForm"
         >
           {{ $t('editIncomeTaxPayment.save') }}
         </ElButton>
@@ -104,16 +104,95 @@
 </template>
 
 <script>
+  import { reactive } from '@vue/composition-api';
   import { api } from '@/services/api';
+  import i18n from '@/services/i18n';
   import MoneyInput from '@/components/MoneyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
+  import { safeAssign, useLoading } from '@/components/utils/utils';
+  import useNavigation from '@/components/navigation/useNavigation';
+
+  function useTaxPaymentForm() {
+    const taxPaymentValidationRules = {
+      title: {
+        required: true,
+        message: i18n.t('editIncomeTaxPayment.validations.title'),
+      },
+      datePaid: {
+        required: true,
+        message: i18n.t('editIncomeTaxPayment.validations.datePaid'),
+      },
+      amount: {
+        required: true,
+        message: i18n.t('editIncomeTaxPayment.validations.amount'),
+      },
+    };
+
+    return {
+      taxPaymentValidationRules,
+      ...useDocumentsUpload(),
+    };
+  }
+
+  function loadTaxPayment(withLoading, currentWorkspaceApiUrl, taxPayment) {
+    withLoading(async () => {
+      const taxPaymentResponse = await api
+        .get(currentWorkspaceApiUrl(`income-tax-payments/${taxPayment.id}`));
+      safeAssign(taxPayment, taxPaymentResponse.data);
+    });
+  }
+
+  function submitTaxPayment(withLoading, taxPayment, documentsIds, currentWorkspaceApiUrl) {
+    return withLoading(async () => {
+      const taxPaymentToPush = {
+        datePaid: taxPayment.datePaid,
+        title: taxPayment.title,
+        amount: taxPayment.amount,
+        attachments: documentsIds,
+        notes: taxPayment.notes,
+        reportingDate: taxPayment.reportingDate,
+      };
+
+      if (taxPayment.id) {
+        await api.put(currentWorkspaceApiUrl(`/income-tax-payments/${taxPayment.id}`), taxPaymentToPush);
+      } else {
+        await api.post(currentWorkspaceApiUrl('income-tax-payments'), taxPaymentToPush);
+      }
+      await navigateToTaxPaymentsOverview();
+    });
+  }
+
+  function useTaxPaymentApi(taxPayment) {
+    const { loading, withLoading } = useLoading();
+    const { currentWorkspaceApiUrl } = useCurrentWorkspace();
+
+    if (taxPayment.id) {
+      loadTaxPayment(withLoading, currentWorkspaceApiUrl, taxPayment);
+    }
+
+    const saveTaxPayment = documentsIds => submitTaxPayment(
+      withLoading,
+      taxPayment,
+      documentsIds,
+      currentWorkspaceApiUrl,
+    );
+
+    return {
+      loading,
+      saveTaxPayment,
+    };
+  }
+
+  function navigateToTaxPaymentsOverview() {
+    const { navigateByViewName } = useNavigation();
+    navigateByViewName('income-tax-payments-overview');
+  }
 
   export default {
-    name: 'EditIncomeTaxPayment',
-
     components: {
       SaForm,
       SaNotesInput,
@@ -121,94 +200,34 @@
       MoneyInput,
     },
 
-    mixins: [withWorkspaces],
+    props: {
+      id: {
+        type: Number,
+        default: null,
+      },
+    },
 
-    data() {
+    setup({ id }) {
+      const { defaultCurrency } = useCurrentWorkspace();
+
+      const taxPayment = reactive({
+        id,
+        attachments: [],
+        datePaid: new Date(),
+      });
+
+      const pageHeader = id
+        ? i18n.t('editIncomeTaxPayment.header.edit')
+        : i18n.t('editIncomeTaxPayment.header.create');
+
       return {
-        taxPayment: {
-          title: null,
-          amount: null,
-          attachments: [],
-          notes: null,
-          datePaid: new Date(),
-          reportingDate: null,
-        },
-        taxPaymentValidationRules: {
-          title: {
-            required: true,
-            message: this.$t('editIncomeTaxPayment.validations.title'),
-          },
-          datePaid: {
-            required: true,
-            message: this.$t('editIncomeTaxPayment.validations.datePaid'),
-          },
-          amount: {
-            required: true,
-            message: this.$t('editIncomeTaxPayment.validations.amount'),
-          },
-        },
+        taxPayment,
+        defaultCurrency,
+        ...useTaxPaymentForm(),
+        pageHeader,
+        navigateToTaxPaymentsOverview,
+        ...useTaxPaymentApi(taxPayment),
       };
-    },
-
-    computed: {
-      pageHeader() {
-        return this.$route.params.id
-          ? this.$t('editIncomeTaxPayment.header.edit')
-          : this.$t('editIncomeTaxPayment.header.create');
-      },
-    },
-
-    async created() {
-      if (this.$route.params.id) {
-        const taxPaymentResponse = await api
-          .get(`/workspaces/${this.currentWorkspace.id}/income-tax-payments/${this.$route.params.id}`);
-        this.taxPayment = { ...this.taxPayment, ...taxPaymentResponse.data };
-      }
-    },
-
-    methods: {
-      navigateToTaxPaymentsOverview() {
-        this.$router.push({ name: 'income-tax-payments-overview' });
-      },
-
-      async onDocumentsUploadSuccess(documentsIds) {
-        const taxPaymentToPush = {
-          datePaid: this.taxPayment.datePaid,
-          title: this.taxPayment.title,
-          amount: this.taxPayment.amount,
-          attachments: documentsIds,
-          notes: this.taxPayment.notes,
-          reportingDate: this.taxPayment.reportingDate,
-        };
-
-        if (this.taxPayment.id) {
-          await api.put(
-            `/workspaces/${this.currentWorkspace.id}/income-tax-payments/${this.taxPayment.id}`,
-            taxPaymentToPush,
-          );
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/income-tax-payments`, taxPaymentToPush);
-        }
-        await this.$router.push({ name: 'income-tax-payments-overview' });
-      },
-
-      async onDocumentsUploadFailure() {
-        this.$message({
-          showClose: true,
-          message: this.$t('editIncomeTaxPayment.uploadFailure'),
-          type: 'error',
-        });
-      },
-
-      async save() {
-        try {
-          await this.$refs.taxPaymentForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        await this.$refs.documentsUpload.submitUploads();
-      },
     },
   };
 </script>

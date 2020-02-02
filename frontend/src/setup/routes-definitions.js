@@ -138,6 +138,7 @@ export default new Router({
         {
           path: 'income-tax-payments/:id/edit',
           name: 'edit-income-tax-payment',
+          props: ID_ROUTER_PARAM_PROCESSOR,
           component: EditIncomeTaxPayment,
         },
         {

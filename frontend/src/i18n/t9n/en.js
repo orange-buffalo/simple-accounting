@@ -271,7 +271,6 @@ export default {
       datePaid: 'Please provide the date when tax payment is done',
       amount: 'Please provide tax payment amount',
     },
-    uploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
   incomeTaxPaymentsOverviewPanel: {
