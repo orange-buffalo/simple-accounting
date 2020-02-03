@@ -157,7 +157,6 @@
 
 <script>
   import { computed, reactive } from '@vue/composition-api';
-  import { api } from '@/services/api';
   import MoneyInput from '@/components/MoneyInput';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
@@ -170,16 +169,29 @@
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
   import { safeAssign, useLoading } from '@/components/utils/utils';
+  import { useApiCrud } from '@/components/utils/api-utils';
 
   async function navigateToIncomesOverview() {
     const { navigateByViewName } = useNavigation();
     await navigateByViewName('incomes-overview');
   }
 
-  function loadIncome(withLoading, currentWorkspaceApiUrl, income) {
-    withLoading(async () => {
-      const incomeResponse = await api.get(currentWorkspaceApiUrl(`incomes/${income.id}`));
+  function useIncomeApi(income) {
+    const { loading, saveEntity, loadEntity } = useApiCrud({
+      apiEntityPath: 'incomes',
+      entity: income,
+      ...useLoading(),
+    });
 
+    const saveIncome = async (attachments) => {
+      await saveEntity({
+        ...income,
+        attachments,
+      });
+      await navigateToIncomesOverview();
+    };
+
+    loadEntity((incomeResponse) => {
       const {
         convertedAmounts,
         incomeTaxableAmounts,
@@ -189,45 +201,13 @@
         version,
         timeRecorded,
         ...incomeEditProperties
-      } = incomeResponse.data;
+      } = incomeResponse;
       safeAssign(income, {
         ...incomeEditProperties,
         convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
         incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
       });
     });
-  }
-
-  function submitIncome(withLoading, income, documentsIds, currentWorkspaceApiUrl) {
-    return withLoading(async () => {
-      const {
-        id,
-        ...incomePropertiesToPush
-      } = income;
-
-      const incomeToPush = {
-        ...incomePropertiesToPush,
-        attachments: documentsIds,
-      };
-
-      if (income.id) {
-        await api.put(currentWorkspaceApiUrl(`incomes/${income.id}`), incomeToPush);
-      } else {
-        await api.post(currentWorkspaceApiUrl('incomes'), incomeToPush);
-      }
-      await navigateToIncomesOverview();
-    });
-  }
-
-  function useIncomeApi(income) {
-    const { loading, withLoading } = useLoading();
-    const { currentWorkspaceApiUrl } = useCurrentWorkspace();
-
-    if (income.id) {
-      loadIncome(withLoading, currentWorkspaceApiUrl, income);
-    }
-
-    const saveIncome = documentsIds => submitIncome(withLoading, income, documentsIds, currentWorkspaceApiUrl);
 
     return {
       loading,

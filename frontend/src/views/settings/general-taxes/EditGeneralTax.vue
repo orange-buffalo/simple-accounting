@@ -62,11 +62,10 @@
 
 <script>
   import { reactive } from '@vue/composition-api';
-  import { api } from '@/services/api';
   import SaForm from '@/components/SaForm';
   import useNavigation from '@/components/navigation/useNavigation';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import { useForm, useLoading } from '@/components/utils/utils';
+  import { useApiCrud } from '@/components/utils/api-utils';
 
   function navigateToTaxesOverview() {
     const { navigateByViewName } = useNavigation();
@@ -74,27 +73,18 @@
   }
 
   function useTaxApi(tax) {
-    const { currentWorkspaceApiUrl } = useCurrentWorkspace();
-    const { loading, withLoading, withLoadingProducer } = useLoading();
-
-    const saveTax = withLoadingProducer(async () => {
-      const taxToPush = {
-        title: tax.title,
-        description: tax.description,
-        rateInBps: tax.rateInBps,
-      };
-
-      if (tax.id) {
-        await api.put(currentWorkspaceApiUrl(`general-taxes/${tax.id}`), taxToPush);
-      } else {
-        await api.post(currentWorkspaceApiUrl('general-taxes'), taxToPush);
-      }
-      await navigateToTaxesOverview();
+    const { loadEntity, loading, saveEntity } = useApiCrud({
+      apiEntityPath: 'general-taxes',
+      entity: tax,
+      ...useLoading(),
     });
 
-    if (tax.id) {
-      withLoading(() => api.getAndSafeAssign(currentWorkspaceApiUrl(`general-taxes/${tax.id}`), tax));
-    }
+    const saveTax = async () => {
+      await saveEntity(tax);
+      await navigateToTaxesOverview();
+    };
+
+    loadEntity();
 
     return {
       saveTax,

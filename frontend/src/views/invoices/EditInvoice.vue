@@ -207,27 +207,22 @@
   import { safeAssign, useConfirmation, useLoading } from '@/components/utils/utils';
   import useNavigation from '@/components/navigation/useNavigation';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
+  import { useApiCrud } from '@/components/utils/api-utils';
 
-  function loadInvoice(withLoading, currentWorkspaceApiUrl, invoice, uiState) {
-    withLoading(async () => {
-      const invoiceResponse = await api.get(currentWorkspaceApiUrl(`invoices/${invoice.id}`));
-      safeAssign(invoice, invoiceResponse.data);
-      safeAssign(uiState, {
-        alreadyPaid: invoice.datePaid != null,
-        alreadySent: invoice.dateSent != null,
-      });
+  function useInvoiceApi(invoice, uiState) {
+    const {
+      loadEntity,
+      loading,
+      saveEntity,
+      withLoadingProducer,
+    } = useApiCrud({
+      apiEntityPath: 'invoices',
+      entity: invoice,
+      ...useLoading(),
     });
-  }
 
-  function submitInvoice({
-    withLoading,
-    invoice,
-    uiState,
-    attachments,
-    currentWorkspaceApiUrl,
-  }) {
-    return withLoading(async () => {
-      const invoiceToPush = {
+    const saveInvoice = async (attachments) => {
+      await saveEntity({
         customer: invoice.customer,
         dateIssued: invoice.dateIssued,
         datePaid: uiState.alreadyPaid ? invoice.datePaid : null,
@@ -240,38 +235,23 @@
         attachments,
         notes: invoice.notes,
         generalTax: invoice.generalTax,
-      };
-
-      if (invoice.id) {
-        await api.put(currentWorkspaceApiUrl(`invoices/${invoice.id}`), invoiceToPush);
-      } else {
-        await api.post(currentWorkspaceApiUrl('invoices'), invoiceToPush);
-      }
+      });
       await navigateToInvoicesOverview();
-    });
-  }
-
-  function useInvoiceApi(invoice, uiState) {
-    const { loading, withLoading, withLoadingProducer } = useLoading();
-    const { currentWorkspaceApiUrl } = useCurrentWorkspace();
-
-    if (invoice.id) {
-      loadInvoice(withLoading, currentWorkspaceApiUrl, invoice, uiState);
-    }
-
-    const saveInvoice = attachments => submitInvoice({
-      withLoading,
-      invoice,
-      uiState,
-      attachments,
-      currentWorkspaceApiUrl,
-    });
+    };
 
     const cancelInvoice = withLoadingProducer(async () => {
       safeAssign(invoice, {
         dateCancelled: api.dateToString(new Date()),
       });
       await saveInvoice(invoice.attachments);
+    });
+
+    loadEntity((invoiceResponse) => {
+      safeAssign(invoice, invoiceResponse);
+      safeAssign(uiState, {
+        alreadyPaid: invoice.datePaid != null,
+        alreadySent: invoice.dateSent != null,
+      });
     });
 
     return {

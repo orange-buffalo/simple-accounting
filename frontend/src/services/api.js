@@ -234,11 +234,6 @@ api.pageRequest = function pageRequest(uri) {
   };
 };
 
-api.getAndSafeAssign = async function getAndSafeAssign(url, target) {
-  const response = await api.get(url);
-  safeAssign(target, response.data);
-};
-
 api.dateToString = function dateToString(date) {
   return `${date.getFullYear()}-${
     (`0${date.getMonth() + 1}`).slice(-2)}-${

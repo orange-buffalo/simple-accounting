@@ -113,8 +113,9 @@
   import SaForm from '@/components/SaForm';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
-  import { safeAssign, useLoading } from '@/components/utils/utils';
+  import { useLoading } from '@/components/utils/utils';
   import useNavigation from '@/components/navigation/useNavigation';
+  import { useApiCrud } from '@/components/utils/api-utils';
 
   function useTaxPaymentForm(loading) {
     const taxPaymentValidationRules = {
@@ -138,48 +139,22 @@
     };
   }
 
-  function loadTaxPayment(withLoading, currentWorkspaceApiUrl, taxPayment) {
-    withLoading(async () => {
-      const taxPaymentResponse = await api
-        .get(currentWorkspaceApiUrl(`income-tax-payments/${taxPayment.id}`));
-      safeAssign(taxPayment, taxPaymentResponse.data);
-    });
-  }
-
-  function submitTaxPayment(withLoading, taxPayment, documentsIds, currentWorkspaceApiUrl) {
-    return withLoading(async () => {
-      const taxPaymentToPush = {
-        datePaid: taxPayment.datePaid,
-        title: taxPayment.title,
-        amount: taxPayment.amount,
-        attachments: documentsIds,
-        notes: taxPayment.notes,
-        reportingDate: taxPayment.reportingDate,
-      };
-
-      if (taxPayment.id) {
-        await api.put(currentWorkspaceApiUrl(`/income-tax-payments/${taxPayment.id}`), taxPaymentToPush);
-      } else {
-        await api.post(currentWorkspaceApiUrl('income-tax-payments'), taxPaymentToPush);
-      }
-      await navigateToTaxPaymentsOverview();
-    });
-  }
-
   function useTaxPaymentApi(taxPayment) {
-    const { loading, withLoading } = useLoading();
-    const { currentWorkspaceApiUrl } = useCurrentWorkspace();
+    const { loading, saveEntity, loadEntity } = useApiCrud({
+      apiEntityPath: 'income-tax-payments',
+      entity: taxPayment,
+      ...useLoading(),
+    });
 
-    if (taxPayment.id) {
-      loadTaxPayment(withLoading, currentWorkspaceApiUrl, taxPayment);
-    }
+    const saveTaxPayment = async (attachments) => {
+      await saveEntity({
+        ...taxPayment,
+        attachments,
+      });
+      await navigateToTaxPaymentsOverview();
+    };
 
-    const saveTaxPayment = documentsIds => submitTaxPayment(
-      withLoading,
-      taxPayment,
-      documentsIds,
-      currentWorkspaceApiUrl,
-    );
+    loadEntity();
 
     return {
       loading,

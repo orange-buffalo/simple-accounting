@@ -168,7 +168,6 @@
 
 <script>
   import { computed, reactive, toRefs } from '@vue/composition-api';
-  import { api } from '@/services/api';
   import MoneyInput from '@/components/MoneyInput';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
@@ -181,6 +180,7 @@
   import { safeAssign, useLoading } from '@/components/utils/utils';
   import useNavigation from '@/components/navigation/useNavigation';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
+  import { useApiCrud } from '@/components/utils/api-utils';
 
   function copyExpenseProperties(targetExpense, sourceExpense, overrides) {
     const {
@@ -206,47 +206,26 @@
     uiState.partialForBusiness = expense.percentOnBusiness !== 100;
   }
 
-  async function loadExpense(expense, uiState, withLoading) {
-    withLoading(async () => {
-      const { currentWorkspaceApiUrl } = useCurrentWorkspace();
-      const expenseResponse = await api.get(currentWorkspaceApiUrl(`expenses/${expense.id}`));
-      copyExpenseProperties(expense, expenseResponse.data);
-      setupUiState(expense, uiState);
+  function useExpenseApi(expense, uiState) {
+    const { loading, saveEntity, loadEntity } = useApiCrud({
+      apiEntityPath: 'expenses',
+      entity: expense,
+      ...useLoading(),
     });
-  }
 
-  function submitExpense(withLoading, expense, uiState, documentsIds) {
-    return withLoading(async () => {
-      const {
-        id,
-        ...expensePropertiesToPush
-      } = expense;
-
-      const expenseToPush = {
-        ...expensePropertiesToPush,
+    const saveExpense = async (documentsIds) => {
+      await saveEntity({
+        ...expense,
         percentOnBusiness: uiState.partialForBusiness ? expense.percentOnBusiness : null,
         attachments: documentsIds,
-      };
-
-      const { currentWorkspaceApiUrl } = useCurrentWorkspace();
-      if (expense.id) {
-        await api.put(currentWorkspaceApiUrl(`/expenses/${expense.id}`), expenseToPush);
-      } else {
-        await api.post(currentWorkspaceApiUrl('expenses'), expenseToPush);
-      }
-
+      });
       await navigateToExpensesOverview();
+    };
+
+    loadEntity((expenseResponse) => {
+      copyExpenseProperties(expense, expenseResponse);
+      setupUiState(expense, uiState);
     });
-  }
-
-  function useExpenseApi(expense, uiState) {
-    const { loading, withLoading } = useLoading();
-
-    if (expense.id) {
-      loadExpense(expense, uiState, withLoading);
-    }
-
-    const saveExpense = documentsIds => submitExpense(withLoading, expense, uiState, documentsIds);
 
     return {
       saveExpense,

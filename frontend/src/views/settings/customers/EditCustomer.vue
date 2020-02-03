@@ -41,33 +41,24 @@
 
 <script>
   import { reactive } from '@vue/composition-api';
-  import { api } from '@/services/api';
   import SaForm from '@/components/SaForm';
   import { useForm, useLoading } from '@/components/utils/utils';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useNavigation from '@/components/navigation/useNavigation';
+  import { useApiCrud } from '@/components/utils/api-utils';
 
   function useCustomerApi(customer) {
-    const { currentWorkspaceApiUrl } = useCurrentWorkspace();
-    const { loading, withLoading, withLoadingProducer } = useLoading();
-    const { navigateByViewName } = useNavigation();
-
-    const saveCustomer = withLoadingProducer(async () => {
-      const customerToPush = {
-        name: customer.name,
-      };
-
-      if (customer.id) {
-        await api.put(currentWorkspaceApiUrl(`customers/${customer.id}`), customerToPush);
-      } else {
-        await api.post(currentWorkspaceApiUrl('customers'), customerToPush);
-      }
-      await navigateByViewName('customers-overview');
+    const { loadEntity, loading, saveEntity } = useApiCrud({
+      apiEntityPath: 'customers',
+      entity: customer,
+      ...useLoading(),
     });
 
-    if (customer.id) {
-      withLoading(() => api.getAndSafeAssign(currentWorkspaceApiUrl(`customers/${customer.id}`), customer));
-    }
+    const saveCustomer = async () => {
+      await saveEntity(customer);
+      await navigateToCustomersOverview();
+    };
+
+    loadEntity();
 
     return {
       saveCustomer,
