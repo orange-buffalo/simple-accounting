@@ -84,7 +84,7 @@
 
             <!-- eslint-disable max-len-->
             <ElFormItem
-              v-if="expense.useDifferentExchangeRateForIncomeTaxPurposes"
+              v-if="isInForeignCurrency && expense.useDifferentExchangeRateForIncomeTaxPurposes"
               :label="$t('editExpense.generalInformation.incomeTaxableAmountInDefaultCurrency.label', [defaultCurrency])"
               prop="incomeTaxableAmountInDefaultCurrency"
             >
