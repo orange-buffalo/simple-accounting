@@ -2,11 +2,10 @@
   <OverviewItem :title="invoice.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
-        v-if="customer.name"
         :tooltip="$t('invoicesOverviewPanel.customer.tooltip')"
         icon="customer"
       >
-        {{ customer.name }}
+        <SaCustomerOutput :customer-id="invoice.customer" />
       </OverviewItemPrimaryAttribute>
 
       <OverviewItemPrimaryAttribute
@@ -108,7 +107,7 @@
             :label="$t('invoicesOverviewPanel.customer.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ customer.name }}
+            <SaCustomerOutput :customer-id="invoice.customer" />
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
@@ -221,7 +220,6 @@
 
 <script>
   import MoneyOutput from '@/components/MoneyOutput';
-  import withCustomers from '@/components/mixins/with-customers';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
@@ -236,11 +234,13 @@
   import SaDocumentsList from '@/components/documents/SaDocumentsList';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
+  import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
 
   export default {
     name: 'InvoicesOverviewPanel',
 
     components: {
+      SaCustomerOutput,
       SaDocumentsList,
       MoneyOutput,
       OverviewItem,
@@ -255,7 +255,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces, withCustomers, withGeneralTaxes],
+    mixins: [withWorkspaces, withGeneralTaxes],
 
     props: {
       invoice: {
@@ -343,10 +343,6 @@
 
       generalTaxTitle() {
         return this.generalTaxById(this.invoice.generalTax).title;
-      },
-
-      customer() {
-        return this.customerById(this.invoice.customer);
       },
     },
 
