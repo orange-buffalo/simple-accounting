@@ -129,7 +129,7 @@
               :label="$t('expensesOverviewPanel.generalTax.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ generalTaxTitle }}
+              <SaGeneralTaxOutput :general-tax-id="expense.generalTax" />
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
@@ -257,7 +257,6 @@
 
 <script>
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -271,11 +270,13 @@
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput';
+  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
 
   export default {
     name: 'ExpensesOverviewPanel',
 
     components: {
+      SaGeneralTaxOutput,
       SaCategoryOutput,
       SaDocumentsList,
       MoneyOutput,
@@ -291,7 +292,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces, withGeneralTaxes],
+    mixins: [withWorkspaces],
 
     props: {
       expense: {
@@ -345,11 +346,7 @@
       },
 
       isGeneralTaxApplicable() {
-        return this.expense.generalTax && this.generalTaxTitle;
-      },
-
-      generalTaxTitle() {
-        return this.generalTaxById(this.expense.generalTax).title;
+        return this.expense.generalTax != null;
       },
     },
 

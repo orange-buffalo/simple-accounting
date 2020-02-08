@@ -53,7 +53,7 @@
     data() {
       return {
         documentsAggregates: [],
-        loading: true,
+        loading: false,
       };
     },
 

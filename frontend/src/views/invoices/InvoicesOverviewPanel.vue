@@ -180,14 +180,15 @@
               :label="$t('invoicesOverviewPanel.generalTax.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ generalTaxTitle }}
+              <SaGeneralTaxOutput :general-tax-id="invoice.generalTax" />
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
               :label="$t('invoicesOverviewPanel.generalTaxRate.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ $t('invoicesOverviewPanel.generalTaxRate.value', [generalTaxById(invoice.generalTax).rateInBps]) }}
+              <!-- todo #209: use persisted rate -->
+              {{ $t('invoicesOverviewPanel.generalTaxRate.value', [0]) }}
             </OverviewItemDetailsSectionAttribute>
           </div>
         </template>
@@ -220,7 +221,6 @@
 
 <script>
   import MoneyOutput from '@/components/MoneyOutput';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
   import OverviewItem from '@/components/overview-item/OverviewItem';
@@ -235,11 +235,13 @@
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
+  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
 
   export default {
     name: 'InvoicesOverviewPanel',
 
     components: {
+      SaGeneralTaxOutput,
       SaCustomerOutput,
       SaDocumentsList,
       MoneyOutput,
@@ -255,7 +257,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces, withGeneralTaxes],
+    mixins: [withWorkspaces],
 
     props: {
       invoice: {
@@ -338,11 +340,7 @@
       },
 
       isGeneralTaxApplicable() {
-        return this.invoice.generalTax && this.generalTaxTitle;
-      },
-
-      generalTaxTitle() {
-        return this.generalTaxById(this.invoice.generalTax).title;
+        return this.invoice.generalTax;
       },
     },
 

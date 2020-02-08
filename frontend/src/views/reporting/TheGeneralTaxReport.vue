@@ -35,7 +35,6 @@
 
 <script>
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import MoneyOutput from '@/components/MoneyOutput';
   import { reportGenerator } from '@/views/reporting/report-generator';
   import TheGeneralTaxReportTable from '@/views/reporting/TheGeneralTaxReportTable';
@@ -48,7 +47,7 @@
       MoneyOutput,
     },
 
-    mixins: [withWorkspaces, withGeneralTaxes, reportGenerator],
+    mixins: [withWorkspaces, reportGenerator],
 
     computed: {
       collectedTaxes() {
@@ -84,13 +83,13 @@
         let taxes = finalizedTaxes.map(tax => ({
           ...tax,
           finalized: true,
-          tax: this.generalTaxById(tax.tax),
+          taxId: tax.tax,
         }));
 
         taxes = taxes.concat(pendingTaxes.map(tax => ({
           ...tax,
           finalized: false,
-          tax: this.generalTaxById(tax.tax),
+          taxId: tax.tax,
         })));
 
         return taxes;
