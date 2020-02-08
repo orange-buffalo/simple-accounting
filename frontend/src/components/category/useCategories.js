@@ -1,13 +1,13 @@
-import { computed, reactive, ref } from '@vue/composition-api';
+import { computed, ref } from '@vue/composition-api';
 import { api } from '@/services/api';
 import { findByIdOrEmpty } from '@/components/utils/utils';
 import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
 
 export default function useCategories() {
-  const categories = reactive([]);
+  const categories = ref([]);
   const categoriesLoaded = ref(false);
 
-  const categoryById = computed(() => categoryId => findByIdOrEmpty(categories, categoryId));
+  const categoryById = computed(() => categoryId => findByIdOrEmpty(categories.value, categoryId));
   const { currentWorkspaceApiUrl } = useCurrentWorkspace();
 
   const loadCategories = async function loadCategories() {
@@ -21,9 +21,10 @@ export default function useCategories() {
       expense: true,
       id: null,
     };
-    categories.push(emptyCategory);
-    // Array.prototype.push.apply is not reactive
-    categoriesResponse.forEach(it => categories.push(it));
+
+    categories.value = [emptyCategory];
+    Array.prototype.push.apply(categories.value, categoriesResponse);
+
     categoriesLoaded.value = true;
   };
 

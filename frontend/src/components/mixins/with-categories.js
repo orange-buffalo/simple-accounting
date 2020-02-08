@@ -15,7 +15,7 @@ export default {
 
   computed: {
     categoryById() {
-      return categoryId => findByIdOrEmpty(this.categories, categoryId);
+      return categoryId => findByIdOrEmpty(this.categories.value, categoryId);
     },
   },
 };

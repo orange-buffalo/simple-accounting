@@ -97,7 +97,7 @@
             :label="$t('expensesOverviewPanel.category.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ categoryById(expense.category).name }}
+            <SaCategoryOutput :category-id="expense.category" />
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
@@ -256,7 +256,6 @@
 </template>
 
 <script>
-  import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import MoneyOutput from '@/components/MoneyOutput';
@@ -271,11 +270,13 @@
   import SaDocumentsList from '@/components/documents/SaDocumentsList';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
+  import SaCategoryOutput from '@/components/category/SaCategoryOutput';
 
   export default {
     name: 'ExpensesOverviewPanel',
 
     components: {
+      SaCategoryOutput,
       SaDocumentsList,
       MoneyOutput,
       OverviewItem,
@@ -290,7 +291,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withCategories, withWorkspaces, withGeneralTaxes],
+    mixins: [withWorkspaces, withGeneralTaxes],
 
     props: {
       expense: {
