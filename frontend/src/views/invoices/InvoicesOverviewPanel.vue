@@ -187,8 +187,7 @@
               :label="$t('invoicesOverviewPanel.generalTaxRate.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              <!-- todo #209: use persisted rate -->
-              {{ $t('invoicesOverviewPanel.generalTaxRate.value', [0]) }}
+              {{ $t('invoicesOverviewPanel.generalTaxRate.value', [generalTaxRate]) }}
             </OverviewItemDetailsSectionAttribute>
           </div>
         </template>
@@ -236,6 +235,7 @@
   import SaStatusLabel from '@/components/SaStatusLabel';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
+  import useGeneralTaxes from '@/components/general-tax/useGeneralTaxes';
 
   export default {
     name: 'InvoicesOverviewPanel',
@@ -342,6 +342,15 @@
       isGeneralTaxApplicable() {
         return this.invoice.generalTax;
       },
+
+      generalTaxRate() {
+        return this.generalTaxById.value(this.invoice.generalTax).rateInBps;
+      },
+    },
+
+    created() {
+      const { generalTaxById } = useGeneralTaxes();
+      this.generalTaxById = generalTaxById;
     },
 
     methods: {
