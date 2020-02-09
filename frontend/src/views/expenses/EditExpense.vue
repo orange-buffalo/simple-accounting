@@ -5,7 +5,8 @@
     </div>
 
     <SaForm
-      ref="expenseForm"
+      ref="form"
+      :loading="loading"
       :model="expense"
       :rules="expenseValidationRules"
     >
@@ -18,17 +19,10 @@
               :label="$t('editExpense.generalInformation.category.label')"
               prop="category"
             >
-              <ElSelect
+              <SaCategoryInput
                 v-model="expense.category"
                 :placeholder="$t('editExpense.generalInformation.category.placeholder')"
-              >
-                <ElOption
-                  v-for="category in categories"
-                  :key="category.id"
-                  :label="category.name"
-                  :value="category.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
 
             <ElFormItem
@@ -90,7 +84,7 @@
 
             <!-- eslint-disable max-len-->
             <ElFormItem
-              v-if="expense.useDifferentExchangeRateForIncomeTaxPurposes"
+              v-if="isInForeignCurrency && expense.useDifferentExchangeRateForIncomeTaxPurposes"
               :label="$t('editExpense.generalInformation.incomeTaxableAmountInDefaultCurrency.label', [defaultCurrency])"
               prop="incomeTaxableAmountInDefaultCurrency"
             >
@@ -104,18 +98,11 @@
               :label="$t('editExpense.generalInformation.generalTax.label')"
               prop="generalTax"
             >
-              <ElSelect
+              <SaGeneralTaxInput
                 v-model="expense.generalTax"
                 clearable
                 :placeholder="$t('editExpense.generalInformation.generalTax.placeholder')"
-              >
-                <ElOption
-                  v-for="tax in generalTaxes"
-                  :key="tax.id"
-                  :label="tax.title"
-                  :value="tax.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
 
             <ElFormItem>
@@ -156,7 +143,8 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="expense.attachments"
-                @uploads-completed="onDocumentsUploadSuccess"
+                :loading-on-create="expense.id != null"
+                @uploads-completed="saveExpense"
                 @uploads-failed="onDocumentsUploadFailure"
               />
             </ElFormItem>
@@ -170,7 +158,7 @@
         </ElButton>
         <ElButton
           type="primary"
-          @click="save"
+          @click="submitForm"
         >
           {{ $t('editExpense.save') }}
         </ElButton>
@@ -180,32 +168,117 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { computed, reactive, toRefs } from '@vue/composition-api';
   import MoneyInput from '@/components/MoneyInput';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withCategories from '@/components/mixins/with-categories';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaCategoryInput from '@/components/category/SaCategoryInput';
+  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
+  import i18n from '@/services/i18n';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import { safeAssign, useLoading } from '@/components/utils/utils';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
+  import { useApiCrud } from '@/components/utils/api-utils';
+
+  function copyExpenseProperties(targetExpense, sourceExpense, overrides) {
+    const {
+      convertedAmounts,
+      incomeTaxableAmounts,
+      generalTaxRateInBps,
+      generalTaxAmount,
+      status,
+      version,
+      timeRecorded,
+      ...expenseEditProperties
+    } = sourceExpense;
+    safeAssign(targetExpense, {
+      ...expenseEditProperties,
+      convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
+      incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
+      ...overrides,
+    });
+  }
+
+  function setupUiState(expense, uiState) {
+    // eslint-disable-next-line no-param-reassign
+    uiState.partialForBusiness = expense.percentOnBusiness !== 100;
+  }
+
+  function useExpenseApi(expense, uiState) {
+    const { loading, saveEntity, loadEntity } = useApiCrud({
+      apiEntityPath: 'expenses',
+      entity: expense,
+      ...useLoading(),
+    });
+
+    const saveExpense = async (documentsIds) => {
+      await saveEntity({
+        ...expense,
+        percentOnBusiness: uiState.partialForBusiness ? expense.percentOnBusiness : null,
+        attachments: documentsIds,
+      });
+      await navigateToExpensesOverview();
+    };
+
+    loadEntity((expenseResponse) => {
+      copyExpenseProperties(expense, expenseResponse);
+      setupUiState(expense, uiState);
+    });
+
+    return {
+      saveExpense,
+      loading,
+    };
+  }
+
+  function useExpenseForm(loading) {
+    const expenseValidationRules = {
+      currency: {
+        required: true,
+        message: i18n.t('editExpense.validations.currency'),
+      },
+      title: {
+        required: true,
+        message: i18n.t('editExpense.validations.title'),
+      },
+      datePaid: {
+        required: true,
+        message: i18n.t('editExpense.validations.datePaid'),
+      },
+      originalAmount: {
+        required: true,
+        message: i18n.t('editExpense.validations.originalAmount'),
+      },
+    };
+
+    return {
+      expenseValidationRules,
+      ...useDocumentsUpload(loading),
+    };
+  }
+
+  async function navigateToExpensesOverview() {
+    const { navigateByViewName } = useNavigation();
+    await navigateByViewName('expenses-overview');
+  }
 
   export default {
-    name: 'EditExpense',
-
     components: {
+      SaGeneralTaxInput,
       SaCurrencyInput,
       SaForm,
       SaNotesInput,
       SaDocumentsUpload,
       MoneyInput,
+      SaCategoryInput,
     },
-
-    mixins: [withGeneralTaxes, withCategories, withWorkspaces],
 
     props: {
       id: {
-        type: String,
+        type: Number,
         default: null,
       },
       prototype: {
@@ -214,139 +287,46 @@
       },
     },
 
-    data() {
-      return {
-        expense: {
-          category: null,
-          title: null,
-          currency: null,
-          originalAmount: null,
-          convertedAmountInDefaultCurrency: null,
-          incomeTaxableAmountInDefaultCurrency: null,
-          useDifferentExchangeRateForIncomeTaxPurposes: false,
-          attachments: [],
-          percentOnBusiness: 100,
-          notes: null,
-          datePaid: new Date(),
-          generalTax: null,
-          id: this.id,
-        },
-        expenseValidationRules: {
-          currency: {
-            required: true,
-            message: this.$t('editExpense.validations.currency'),
-          },
-          title: {
-            required: true,
-            message: this.$t('editExpense.validations.title'),
-          },
-          datePaid: {
-            required: true,
-            message: this.$t('editExpense.validations.datePaid'),
-          },
-          originalAmount: {
-            required: true,
-            message: this.$t('editExpense.validations.originalAmount'),
-          },
-        },
+    setup({ id, prototype }) {
+      const { defaultCurrency } = useCurrentWorkspace();
+
+      const expense = reactive({
+        attachments: [],
+        percentOnBusiness: 100,
+        datePaid: new Date(),
+        currency: defaultCurrency,
+        id,
+      });
+
+      const isInForeignCurrency = computed(() => expense.currency !== defaultCurrency);
+
+      const uiState = reactive({
         partialForBusiness: false,
-      };
-    },
+      });
 
-    computed: {
-      isInForeignCurrency() {
-        return this.expense.currency !== this.defaultCurrency;
-      },
+      const pageHeader = id ? i18n.t('editExpense.pageHeader.edit') : i18n.t('editExpense.pageHeader.create');
 
-      pageHeader() {
-        return this.expense.id ? this.$t('editExpense.pageHeader.edit') : this.$t('editExpense.pageHeader.create');
-      },
-    },
-
-    async created() {
-      if (this.id) {
-        await this.loadExpense();
-      } else if (this.prototype) {
-        this.copyExpenseProperties(this.prototype, {
+      if (prototype) {
+        copyExpenseProperties(expense, prototype, {
           datePaid: null,
           id: null,
         });
-        await this.setupComponentState();
+        setupUiState(expense, uiState);
       }
-    },
 
-    methods: {
-      async loadExpense() {
-        const expenseResponse = await api.get(`/workspaces/${this.currentWorkspace.id}/expenses/${this.id}`);
-        this.copyExpenseProperties(expenseResponse.data);
-        await this.setupComponentState();
-      },
+      const { loading, saveExpense } = useExpenseApi(expense, uiState);
 
-      copyExpenseProperties(sourceExpense, overrides) {
-        const {
-          convertedAmounts,
-          incomeTaxableAmounts,
-          generalTaxRateInBps,
-          generalTaxAmount,
-          status,
-          version,
-          timeRecorded,
-          ...expenseEditProperties
-        } = sourceExpense;
-        this.expense = {
-          ...expenseEditProperties,
-          convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
-          incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
-          ...overrides,
-        };
-      },
-
-      async setupComponentState() {
-        this.partialForBusiness = this.expense.percentOnBusiness !== 100;
-      },
-
-      navigateToExpensesOverview() {
-        this.$router.push({ name: 'expenses-overview' });
-      },
-
-      async onDocumentsUploadSuccess(documentsIds) {
-        const {
-          id,
-          ...expensePropertiesToPush
-        } = this.expense;
-
-        const expenseToPush = {
-          ...expensePropertiesToPush,
-          percentOnBusiness: this.partialForBusiness ? this.expense.percentOnBusiness : null,
-          attachments: documentsIds,
-        };
-
-        if (this.expense.id) {
-          await api.put(`/workspaces/${this.currentWorkspace.id}/expenses/${this.expense.id}`, expenseToPush);
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/expenses`, expenseToPush);
-        }
-
-        await this.$router.push({ name: 'expenses-overview' });
-      },
-
-      async onDocumentsUploadFailure() {
-        this.$message({
-          showClose: true,
-          message: this.$t('editExpense.documentsUploadFailure'),
-          type: 'error',
-        });
-      },
-
-      async save() {
-        try {
-          await this.$refs.expenseForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        this.$refs.documentsUpload.submitUploads();
-      },
+      return {
+        expense,
+        defaultCurrency,
+        isInForeignCurrency,
+        ...toRefs(uiState),
+        pageHeader,
+        navigateToExpensesOverview,
+        ...useExpenseForm(loading),
+        loading,
+        saveExpense,
+      };
     },
   };
 </script>

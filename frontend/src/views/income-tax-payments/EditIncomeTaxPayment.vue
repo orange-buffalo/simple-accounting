@@ -5,7 +5,8 @@
     </div>
 
     <SaForm
-      ref="taxPaymentForm"
+      ref="form"
+      :loading="loading"
       :model="taxPayment"
       :rules="taxPaymentValidationRules"
     >
@@ -80,7 +81,8 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="taxPayment.attachments"
-                @uploads-completed="onDocumentsUploadSuccess"
+                :loading-on-create="taxPayment.id != null"
+                @uploads-completed="saveTaxPayment"
                 @uploads-failed="onDocumentsUploadFailure"
               />
             </ElFormItem>
@@ -94,7 +96,7 @@
         </ElButton>
         <ElButton
           type="primary"
-          @click="save"
+          @click="submitForm"
         >
           {{ $t('editIncomeTaxPayment.save') }}
         </ElButton>
@@ -104,16 +106,69 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { reactive } from '@vue/composition-api';
+  import i18n from '@/services/i18n';
   import MoneyInput from '@/components/MoneyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
+  import { useLoading } from '@/components/utils/utils';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { useApiCrud } from '@/components/utils/api-utils';
+
+  function useTaxPaymentForm(loading) {
+    const taxPaymentValidationRules = {
+      title: {
+        required: true,
+        message: i18n.t('editIncomeTaxPayment.validations.title'),
+      },
+      datePaid: {
+        required: true,
+        message: i18n.t('editIncomeTaxPayment.validations.datePaid'),
+      },
+      amount: {
+        required: true,
+        message: i18n.t('editIncomeTaxPayment.validations.amount'),
+      },
+    };
+
+    return {
+      taxPaymentValidationRules,
+      ...useDocumentsUpload(loading),
+    };
+  }
+
+  function useTaxPaymentApi(taxPayment) {
+    const { loading, saveEntity, loadEntity } = useApiCrud({
+      apiEntityPath: 'income-tax-payments',
+      entity: taxPayment,
+      ...useLoading(),
+    });
+
+    const saveTaxPayment = async (attachments) => {
+      await saveEntity({
+        ...taxPayment,
+        attachments,
+      });
+      await navigateToTaxPaymentsOverview();
+    };
+
+    loadEntity();
+
+    return {
+      loading,
+      saveTaxPayment,
+    };
+  }
+
+  function navigateToTaxPaymentsOverview() {
+    const { navigateByViewName } = useNavigation();
+    navigateByViewName('income-tax-payments-overview');
+  }
 
   export default {
-    name: 'EditIncomeTaxPayment',
-
     components: {
       SaForm,
       SaNotesInput,
@@ -121,94 +176,37 @@
       MoneyInput,
     },
 
-    mixins: [withWorkspaces],
+    props: {
+      id: {
+        type: Number,
+        default: null,
+      },
+    },
 
-    data() {
+    setup({ id }) {
+      const { defaultCurrency } = useCurrentWorkspace();
+
+      const taxPayment = reactive({
+        id,
+        attachments: [],
+        datePaid: new Date(),
+      });
+
+      const pageHeader = id
+        ? i18n.t('editIncomeTaxPayment.header.edit')
+        : i18n.t('editIncomeTaxPayment.header.create');
+
+      const { loading, saveTaxPayment } = useTaxPaymentApi(taxPayment);
+
       return {
-        taxPayment: {
-          title: null,
-          amount: null,
-          attachments: [],
-          notes: null,
-          datePaid: new Date(),
-          reportingDate: null,
-        },
-        taxPaymentValidationRules: {
-          title: {
-            required: true,
-            message: this.$t('editIncomeTaxPayment.validations.title'),
-          },
-          datePaid: {
-            required: true,
-            message: this.$t('editIncomeTaxPayment.validations.datePaid'),
-          },
-          amount: {
-            required: true,
-            message: this.$t('editIncomeTaxPayment.validations.amount'),
-          },
-        },
+        taxPayment,
+        defaultCurrency,
+        ...useTaxPaymentForm(loading),
+        pageHeader,
+        loading,
+        saveTaxPayment,
+        navigateToTaxPaymentsOverview,
       };
-    },
-
-    computed: {
-      pageHeader() {
-        return this.$route.params.id
-          ? this.$t('editIncomeTaxPayment.header.edit')
-          : this.$t('editIncomeTaxPayment.header.create');
-      },
-    },
-
-    async created() {
-      if (this.$route.params.id) {
-        const taxPaymentResponse = await api
-          .get(`/workspaces/${this.currentWorkspace.id}/income-tax-payments/${this.$route.params.id}`);
-        this.taxPayment = { ...this.taxPayment, ...taxPaymentResponse.data };
-      }
-    },
-
-    methods: {
-      navigateToTaxPaymentsOverview() {
-        this.$router.push({ name: 'income-tax-payments-overview' });
-      },
-
-      async onDocumentsUploadSuccess(documentsIds) {
-        const taxPaymentToPush = {
-          datePaid: this.taxPayment.datePaid,
-          title: this.taxPayment.title,
-          amount: this.taxPayment.amount,
-          attachments: documentsIds,
-          notes: this.taxPayment.notes,
-          reportingDate: this.taxPayment.reportingDate,
-        };
-
-        if (this.taxPayment.id) {
-          await api.put(
-            `/workspaces/${this.currentWorkspace.id}/income-tax-payments/${this.taxPayment.id}`,
-            taxPaymentToPush,
-          );
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/income-tax-payments`, taxPaymentToPush);
-        }
-        await this.$router.push({ name: 'income-tax-payments-overview' });
-      },
-
-      async onDocumentsUploadFailure() {
-        this.$message({
-          showClose: true,
-          message: this.$t('editIncomeTaxPayment.uploadFailure'),
-          type: 'error',
-        });
-      },
-
-      async save() {
-        try {
-          await this.$refs.taxPaymentForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        await this.$refs.documentsUpload.submitUploads();
-      },
     },
   };
 </script>

@@ -2,11 +2,10 @@
   <OverviewItem :title="invoice.title">
     <template v-slot:primary-attributes>
       <OverviewItemPrimaryAttribute
-        v-if="customer"
         :tooltip="$t('invoicesOverviewPanel.customer.tooltip')"
         icon="customer"
       >
-        {{ customer.name }}
+        <SaCustomerOutput :customer-id="invoice.customer" />
       </OverviewItemPrimaryAttribute>
 
       <OverviewItemPrimaryAttribute
@@ -108,14 +107,7 @@
             :label="$t('invoicesOverviewPanel.customer.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ customer.name }}
-          </OverviewItemDetailsSectionAttribute>
-
-          <OverviewItemDetailsSectionAttribute
-            :label="$t('invoicesOverviewPanel.category.label')"
-            class="col col-xs-12 col-md-6 col-lg-4"
-          >
-            {{ categoryById(invoice.category).name }}
+            <SaCustomerOutput :customer-id="invoice.customer" />
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
@@ -188,14 +180,15 @@
               :label="$t('invoicesOverviewPanel.generalTax.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ generalTaxTitle }}
+              <SaGeneralTaxOutput :general-tax-id="invoice.generalTax" />
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
               :label="$t('invoicesOverviewPanel.generalTaxRate.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ $t('invoicesOverviewPanel.generalTaxRate.value', [generalTaxById(invoice.generalTax).rateInBps]) }}
+              <!-- todo #209: use persisted rate -->
+              {{ $t('invoicesOverviewPanel.generalTaxRate.value', [0]) }}
             </OverviewItemDetailsSectionAttribute>
           </div>
         </template>
@@ -228,9 +221,6 @@
 
 <script>
   import MoneyOutput from '@/components/MoneyOutput';
-  import withCategories from '@/components/mixins/with-categories';
-  import withCustomers from '@/components/mixins/with-customers';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
   import OverviewItem from '@/components/overview-item/OverviewItem';
@@ -244,11 +234,15 @@
   import SaDocumentsList from '@/components/documents/SaDocumentsList';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
+  import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
+  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
 
   export default {
     name: 'InvoicesOverviewPanel',
 
     components: {
+      SaGeneralTaxOutput,
+      SaCustomerOutput,
       SaDocumentsList,
       MoneyOutput,
       OverviewItem,
@@ -263,7 +257,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces, withCategories, withCustomers, withGeneralTaxes],
+    mixins: [withWorkspaces],
 
     props: {
       invoice: {
@@ -346,15 +340,7 @@
       },
 
       isGeneralTaxApplicable() {
-        return this.invoice.generalTax && this.generalTaxTitle;
-      },
-
-      generalTaxTitle() {
-        return this.generalTaxById(this.invoice.generalTax).title;
-      },
-
-      customer() {
-        return this.customerById(this.invoice.customer);
+        return this.invoice.generalTax;
       },
     },
 

@@ -42,3 +42,19 @@ $breakpoints: (
   }
 }
 
+@mixin loading-placeholder() {
+  border-radius: 5px;
+  background: $primary-grey;
+  background: linear-gradient(238deg, $primary-grey 8%, $white 18%, $primary-grey 33%);
+  background-size: 200% 200%;
+  animation: loading-placeholder-animation 1.2s linear infinite;
+}
+
+@keyframes loading-placeholder-animation {
+  0% {
+    background-position: 100% 0
+  }
+  100% {
+    background-position: -100% 0
+  }
+}

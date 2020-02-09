@@ -58,7 +58,7 @@
             v-for="item in expensesItems"
             class="home-page__row__hero__details__item"
           >
-            <span>{{ categoryById(item.categoryId).name }}</span>
+            <span><SaCategoryOutput :category-id="item.categoryId" /></span>
             <MoneyOutput
               :currency="defaultCurrency"
               :amount="item.totalAmount"
@@ -106,7 +106,7 @@
             v-for="item in incomesItems"
             class="home-page__row__hero__details__item"
           >
-            <span>{{ categoryById(item.categoryId).name }}</span>
+            <span><SaCategoryOutput :category-id="item.categoryId" /></span>
             <MoneyOutput
               :currency="defaultCurrency"
               :amount="item.totalAmount"
@@ -199,7 +199,7 @@
         <div class="home-page__row__hero__details">
           <div class="home-page__row__hero__details__item">
             <span>To</span>
-            <span>{{ invoiceCustomerName(invoice) }}</span>
+            <span><SaCustomerOutput :customer-id="invoice.customer" /></span>
           </div>
 
           <div class="home-page__row__hero__details__item">
@@ -225,11 +225,11 @@
 <script>
   import { api } from '@/services/api';
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import withCategories from '@/components/mixins/with-categories';
   import MoneyOutput from '@/components/MoneyOutput';
   import { lockr } from '@/services/app-services';
-  import withCustomers from '@/components/mixins/with-customers';
   import SaIcon from '@/components/SaIcon';
+  import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
+  import SaCategoryOutput from '@/components/category/SaCategoryOutput';
 
   const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range';
 
@@ -237,11 +237,13 @@
     name: 'Dashboard',
 
     components: {
+      SaCategoryOutput,
+      SaCustomerOutput,
       SaIcon,
       MoneyOutput,
     },
 
-    mixins: [withWorkspaces, withCategories, withCustomers],
+    mixins: [withWorkspaces],
 
     data() {
       return {
@@ -293,10 +295,6 @@
           }
           return 'Pending';
         };
-      },
-
-      invoiceCustomerName() {
-        return invoice => this.customerById(invoice.customer).name;
       },
 
       currencyExchangeDifference() {

@@ -47,7 +47,8 @@ dependencies {
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")
-    runtimeOnly("com.h2database:h2")
+    // todo remove specific version once resolved https://github.com/h2database/h2database/issues/2204
+    runtimeOnly("com.h2database:h2:1.4.199")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:${Versions.jjwt}")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:${Versions.jjwt}")
     runtimeOnly("org.glassfish:javax.el:${Versions.javaxEl}")

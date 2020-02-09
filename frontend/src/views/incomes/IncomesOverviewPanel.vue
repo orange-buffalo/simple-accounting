@@ -92,7 +92,7 @@
             :label="$t('incomesOverviewPanel.category.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ categoryById(income.category).name }}
+            <SaCategoryOutput :category-id="income.category" />
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
@@ -122,7 +122,7 @@
               :label="$t('incomesOverviewPanel.generalTax.label')"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ generalTaxTitle }}
+              <SaGeneralTaxOutput :general-tax-id="income.generalTax" />
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
@@ -209,7 +209,7 @@
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            :label="$t('incomesOverviewPanel.convertedAmounts.originalAmountInDefaultCurrency.label', [defaultCurrency])"
+            :label="$t('incomesOverviewPanel.incomeTaxableAmounts.originalAmountInDefaultCurrency.label', [defaultCurrency])"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
@@ -251,9 +251,7 @@
 </template>
 
 <script>
-  import withCategories from '@/components/mixins/with-categories';
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -266,11 +264,15 @@
   import SaDocumentsList from '@/components/documents/SaDocumentsList';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
   import SaStatusLabel from '@/components/SaStatusLabel';
+  import SaCategoryOutput from '@/components/category/SaCategoryOutput';
+  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
 
   export default {
     name: 'IncomesOverviewPanel',
 
     components: {
+      SaGeneralTaxOutput,
+      SaCategoryOutput,
       SaDocumentsList,
       MoneyOutput,
       OverviewItem,
@@ -285,7 +287,7 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces, withCategories, withGeneralTaxes],
+    mixins: [withWorkspaces],
 
     props: {
       income: {
@@ -339,11 +341,7 @@
       },
 
       isGeneralTaxApplicable() {
-        return this.income.generalTax && this.generalTaxTitle;
-      },
-
-      generalTaxTitle() {
-        return this.generalTaxById(this.income.generalTax).title;
+        return this.income.generalTax;
       },
     },
 

@@ -5,7 +5,8 @@
     </div>
 
     <SaForm
-      ref="customerForm"
+      ref="form"
+      :loading="loading"
       :model="customer"
       :rules="customerValidationRules"
     >
@@ -29,7 +30,7 @@
         </ElButton>
         <ElButton
           type="primary"
-          @click="save"
+          @click="submitForm"
         >
           Save
         </ElButton>
@@ -39,70 +40,81 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { reactive } from '@vue/composition-api';
   import SaForm from '@/components/SaForm';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { useForm, useLoading } from '@/components/utils/utils';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { useApiCrud } from '@/components/utils/api-utils';
+
+  function useCustomerApi(customer) {
+    const { loadEntity, loading, saveEntity } = useApiCrud({
+      apiEntityPath: 'customers',
+      entity: customer,
+      ...useLoading(),
+    });
+
+    const saveCustomer = async () => {
+      await saveEntity(customer);
+      await navigateToCustomersOverview();
+    };
+
+    loadEntity();
+
+    return {
+      saveCustomer,
+      loading,
+    };
+  }
+
+  function useCustomerForm(saveCustomer) {
+    const customerValidationRules = {
+      name: {
+        required: true,
+        message: 'Please select a name',
+      },
+    };
+
+    return {
+      ...useForm(saveCustomer),
+      customerValidationRules,
+    };
+  }
+
+  function navigateToCustomersOverview() {
+    const { navigateByViewName } = useNavigation();
+    navigateByViewName('customers-overview');
+  }
 
   export default {
-    name: 'EditCustomer',
-
     components: {
       SaForm,
     },
 
-    mixins: [withWorkspaces],
+    props: {
+      id: {
+        type: Number,
+        default: null,
+      },
+    },
 
-    data() {
+    setup({ id }) {
+      const customer = reactive({ id });
+
+      const { loading, saveCustomer } = useCustomerApi(customer);
+
+      const { form, customerValidationRules, submitForm } = useCustomerForm(saveCustomer);
+
+      const pageHeader = id ? 'Edit Customer' : 'Create New Customer';
+
       return {
-        customer: {
-          name: null,
-        },
-        customerValidationRules: {
-          name: {
-            required: true,
-            message: 'Please select a name',
-          },
-        },
+        loading,
+        submitForm,
+        customer,
+        customerValidationRules,
+        form,
+        pageHeader,
+        navigateToCustomersOverview,
       };
-    },
-
-    computed: {
-      pageHeader() {
-        return this.$route.params.id ? 'Edit Customer' : 'Create New Customer';
-      },
-    },
-
-    async created() {
-      if (this.$route.params.id) {
-        const incomeResponse = await api
-          .get(`/workspaces/${this.currentWorkspace.id}/customers/${this.$route.params.id}`);
-        this.customer = { ...incomeResponse.data };
-      }
-    },
-
-    methods: {
-      navigateToCustomersOverview() {
-        this.$router.push({ name: 'customers-overview' });
-      },
-
-      async save() {
-        try {
-          await this.$refs.customerForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        const customerToPush = {
-          name: this.customer.name,
-        };
-
-        if (this.customer.id) {
-          await api.put(`/workspaces/${this.currentWorkspace.id}/customers/${this.customer.id}`, customerToPush);
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/customers`, customerToPush);
-        }
-        await this.$router.push({ name: 'customers-overview' });
-      },
     },
   };
 </script>

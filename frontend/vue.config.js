@@ -9,9 +9,9 @@ module.exports = {
 
   configureWebpack: (config) => {
     config.performance = {
-      // todo #88: enable back when we properly split into chunks
       hints: false,
     };
+    config.devtool = 'source-map';
   },
 
   chainWebpack: (config) => {

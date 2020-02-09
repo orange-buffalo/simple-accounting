@@ -1,7 +1,8 @@
 import axios from 'axios';
-import EventBus from 'eventbusjs';
 import qs from 'qs';
 import jwtDecode from 'jwt-decode';
+import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
+import { safeAssign } from '@/components/utils/utils';
 
 const { CancelToken } = axios;
 
@@ -21,8 +22,6 @@ function updateApiToken(jwtToken) {
     apiToken.isTransient = decodedToken.transient;
   }
 }
-
-export const LOGIN_REQUIRED_EVENT = 'login-required';
 
 export const api = axios.create({
   baseURL: '/api',
@@ -52,7 +51,7 @@ async function refreshToken() {
   if (await api.tryAutoLogin()) {
     scheduleTokenRefresh();
   } else {
-    EventBus.dispatch(LOGIN_REQUIRED_EVENT);
+    LOGIN_REQUIRED_EVENT.emit();
   }
 }
 
@@ -81,9 +80,23 @@ function applyAuthorization(config) {
   return { headers, ...otherConfig };
 }
 
+function emitLoadingStartedEvent() {
+  LOADING_STARTED_EVENT.emit();
+}
+
+function emitLoadingFinishedEvent() {
+  LOADING_FINISHED_EVENT.emit();
+}
+
 api.interceptors.request.use(
-  config => applyAuthorization(config),
-  error => Promise.reject(error),
+  (config) => {
+    emitLoadingStartedEvent();
+    return applyAuthorization(config);
+  },
+  (error) => {
+    emitLoadingFinishedEvent();
+    return Promise.reject(error);
+  },
 );
 
 api.tryAutoLogin = async function tryAutoLogin() {
@@ -124,7 +137,10 @@ api.loginBySharedToken = async function loginBySharedToken(sharedToken) {
 };
 
 api.interceptors.response.use(
-  response => response,
+  (response) => {
+    emitLoadingFinishedEvent();
+    return response;
+  },
   async (error) => {
     if (error.response && error.response.status === 401
       && error.response.config.url !== '/api/auth/token'
@@ -134,8 +150,9 @@ api.interceptors.response.use(
         config.baseURL = null;
         return axios.request(config);
       }
-      EventBus.dispatch(LOGIN_REQUIRED_EVENT);
+      LOGIN_REQUIRED_EVENT.emit();
     }
+    emitLoadingFinishedEvent();
     return Promise.reject(error);
   },
 );

@@ -25,7 +25,8 @@
     </div>
 
     <SaForm
-      ref="invoiceForm"
+      ref="form"
+      :loading="loading"
       :model="invoice"
       :rules="invoiceValidationRules"
     >
@@ -35,20 +36,13 @@
             <h2>{{ $t('editInvoice.generalInformation.header') }}</h2>
 
             <ElFormItem
-              ::label="$t('editInvoice.generalInformation.customer.label')"
+              :label="$t('editInvoice.generalInformation.customer.label')"
               prop="customer"
             >
-              <ElSelect
+              <SaCustomerInput
                 v-model="invoice.customer"
                 :placeholder="$t('editInvoice.generalInformation.customer.placeholder')"
-              >
-                <ElOption
-                  v-for="customer in customers"
-                  :key="customer.id"
-                  ::label="customer.name"
-                  :value="customer.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
 
             <ElFormItem
@@ -108,18 +102,11 @@
               :label="$t('editInvoice.generalInformation.generalTax.label')"
               prop="generalTax"
             >
-              <ElSelect
+              <SaGeneralTaxInput
                 v-model="invoice.generalTax"
                 clearable
                 :placeholder="$t('editInvoice.generalInformation.generalTax.placeholder')"
-              >
-                <ElOption
-                  v-for="tax in generalTaxes"
-                  :key="tax.id"
-                  ::label="tax.title"
-                  :value="tax.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
 
             <ElFormItem>
@@ -182,7 +169,8 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="invoice.attachments"
-                @uploads-completed="onDocumentsUploadSuccess"
+                :loading-on-create="invoice.id != null"
+                @uploads-completed="saveInvoice"
                 @uploads-failed="onDocumentsUploadFailure"
               />
             </ElFormItem>
@@ -196,7 +184,7 @@
         </ElButton>
         <ElButton
           type="primary"
-          @click="save"
+          @click="submitForm"
         >
           {{ $t('editInvoice.save') }}
         </ElButton>
@@ -206,20 +194,124 @@
 </template>
 
 <script>
+  import { reactive, toRefs } from '@vue/composition-api';
   import { api } from '@/services/api';
+  import i18n from '@/services/i18n';
   import MoneyInput from '@/components/MoneyInput';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withCustomers from '@/components/mixins/with-customers';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaCustomerInput from '@/components/customer/SaCustomerInput';
+  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import { safeAssign, useConfirmation, useLoading } from '@/components/utils/utils';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
+  import { useApiCrud } from '@/components/utils/api-utils';
+
+  function useInvoiceApi(invoice, uiState) {
+    const {
+      loadEntity,
+      loading,
+      saveEntity,
+      withLoadingProducer,
+    } = useApiCrud({
+      apiEntityPath: 'invoices',
+      entity: invoice,
+      ...useLoading(),
+    });
+
+    const saveInvoice = async (attachments) => {
+      await saveEntity({
+        customer: invoice.customer,
+        dateIssued: invoice.dateIssued,
+        datePaid: uiState.alreadyPaid ? invoice.datePaid : null,
+        dateSent: uiState.alreadySent ? invoice.dateSent : null,
+        dateCancelled: invoice.dateCancelled,
+        dueDate: invoice.dueDate,
+        title: invoice.title,
+        currency: invoice.currency,
+        amount: invoice.amount,
+        attachments,
+        notes: invoice.notes,
+        generalTax: invoice.generalTax,
+      });
+      await navigateToInvoicesOverview();
+    };
+
+    const cancelInvoice = withLoadingProducer(async () => {
+      safeAssign(invoice, {
+        dateCancelled: api.dateToString(new Date()),
+      });
+      await saveInvoice(invoice.attachments);
+    });
+
+    loadEntity((invoiceResponse) => {
+      safeAssign(invoice, invoiceResponse);
+      safeAssign(uiState, {
+        alreadyPaid: invoice.datePaid != null,
+        alreadySent: invoice.dateSent != null,
+      });
+    });
+
+    return {
+      loading,
+      saveInvoice,
+      cancelInvoice,
+    };
+  }
+
+  function useInvoiceForm(loading) {
+    const invoiceValidationRules = {
+      customer: {
+        required: true,
+        message: i18n.t('editInvoice.validations.customer'),
+      },
+      currency: {
+        required: true,
+        message: i18n.t('editInvoice.validations.currency'),
+      },
+      title: {
+        required: true,
+        message: i18n.t('editInvoice.validations.title'),
+      },
+      amount: {
+        required: true,
+        message: i18n.t('editInvoice.validations.amount'),
+      },
+      dateIssued: {
+        required: true,
+        message: i18n.t('editInvoice.validations.dateIssued'),
+      },
+      dueDate: {
+        required: true,
+        message: i18n.t('editInvoice.validations.dueDate'),
+      },
+      dateSent: {
+        required: true,
+        message: i18n.t('editInvoice.validations.dateSent'),
+      },
+      datePaid: {
+        required: true,
+        message: i18n.t('editInvoice.validations.datePaid'),
+      },
+    };
+    return {
+      ...useDocumentsUpload(loading),
+      invoiceValidationRules,
+    };
+  }
+
+  async function navigateToInvoicesOverview() {
+    const { navigateByViewName } = useNavigation();
+    await navigateByViewName('invoices-overview');
+  }
 
   export default {
-    name: 'EditInvoice',
-
     components: {
+      SaGeneralTaxInput,
+      SaCustomerInput,
       SaCurrencyInput,
       SaForm,
       SaNotesInput,
@@ -227,152 +319,55 @@
       MoneyInput,
     },
 
-    mixins: [withCustomers, withGeneralTaxes, withWorkspaces],
+    props: {
+      id: {
+        type: Number,
+        default: null,
+      },
+    },
 
-    data() {
-      return {
-        invoice: {
-          customer: null,
-          title: null,
-          currency: null,
-          amount: null,
-          attachments: [],
-          notes: null,
-          dateIssued: new Date(),
-          dueDate: null,
-          datePaid: null,
-          dateSent: null,
-          generalTax: null,
-        },
-        invoiceValidationRules: {
-          customer: {
-            required: true,
-            message: this.$t('editInvoice.validations.customer'),
-          },
-          currency: {
-            required: true,
-            message: this.$t('editInvoice.validations.currency'),
-          },
-          title: {
-            required: true,
-            message: this.$t('editInvoice.validations.title'),
-          },
-          amount: {
-            required: true,
-            message: this.$t('editInvoice.validations.amount'),
-          },
-          dateIssued: {
-            required: true,
-            message: this.$t('editInvoice.validations.dateIssued'),
-          },
-          dueDate: {
-            required: true,
-            message: this.$t('editInvoice.validations.dueDate'),
-          },
-          dateSent: {
-            required: true,
-            message: this.$t('editInvoice.validations.dateSent'),
-          },
-          datePaid: {
-            required: true,
-            message: this.$t('editInvoice.validations.datePaid'),
-          },
-        },
+    setup({ id }) {
+      const { defaultCurrency } = useCurrentWorkspace();
+
+      const invoice = reactive({
+        id,
+        attachments: [],
+        dateIssued: new Date(),
+      });
+
+      const uiState = reactive({
         alreadySent: false,
         alreadyPaid: false,
+        isEditing: id != null,
+      });
+
+      const pageHeader = id ? i18n.t('editInvoice.pageHeader.edit') : i18n.t('editInvoice.pageHeader.create');
+
+      const { loading, saveInvoice, cancelInvoice } = useInvoiceApi(invoice, uiState);
+
+      const { executeAfterConfirmation } = useConfirmation();
+      const cancelInvoiceWithConfirmation = () => executeAfterConfirmation(
+        i18n.t('editInvoice.cancelInvoice.confirm.message'),
+        {
+          title: 'Warning',
+          confirmButtonText: i18n.t('editInvoice.cancelInvoice.confirm.yes'),
+          cancelButtonText: i18n.t('editInvoice.cancelInvoice.confirm.no'),
+          type: 'warning',
+        },
+        cancelInvoice,
+      );
+
+      return {
+        invoice,
+        defaultCurrency,
+        ...toRefs(uiState),
+        ...useInvoiceForm(loading),
+        pageHeader,
+        navigateToInvoicesOverview,
+        loading,
+        saveInvoice,
+        cancelInvoice: cancelInvoiceWithConfirmation,
       };
-    },
-
-    computed: {
-      pageHeader() {
-        return this.isEditing
-          ? this.$t('editInvoice.pageHeader.edit') : this.$t('editInvoice.pageHeader.create');
-      },
-
-      isEditing() {
-        return this.$route.params.id != null;
-      },
-    },
-
-    async created() {
-      if (this.isEditing) {
-        const invoiceResponse = await api
-          .get(`/workspaces/${this.currentWorkspace.id}/invoices/${this.$route.params.id}`);
-        this.invoice = { ...invoiceResponse.data };
-        this.alreadyPaid = this.invoice.datePaid != null;
-        this.alreadySent = this.invoice.dateSent != null;
-      }
-    },
-
-    methods: {
-      navigateToInvoicesOverview() {
-        this.$router.push({ name: 'invoices-overview' });
-      },
-
-      async onDocumentsUploadSuccess(documentsIds) {
-        this.pushInvoice(documentsIds);
-      },
-
-      async onDocumentsUploadFailure() {
-        this.$message({
-          showClose: true,
-          message: this.$t('editInvoice.documentsUploadFailure'),
-          type: 'error',
-        });
-      },
-
-      async save() {
-        try {
-          await this.$refs.invoiceForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        await this.$refs.documentsUpload.submitUploads();
-      },
-
-      async cancelInvoice() {
-        try {
-          await this.$confirm(
-            this.$t('editInvoice.cancelInvoice.confirm.message'),
-            'Warning', {
-              confirmButtonText: this.$t('editInvoice.cancelInvoice.confirm.yes'),
-              cancelButtonText: this.$t('editInvoice.cancelInvoice.confirm.no'),
-              type: 'warning',
-            },
-          );
-        } catch (e) {
-          return;
-        }
-
-        this.invoice.dateCancelled = api.dateToString(new Date());
-        this.pushInvoice(this.invoice.attachments);
-      },
-
-      async pushInvoice(attachments) {
-        const invoiceToPush = {
-          customer: this.invoice.customer,
-          dateIssued: this.invoice.dateIssued,
-          datePaid: this.alreadyPaid ? this.invoice.datePaid : null,
-          dateSent: this.alreadySent ? this.invoice.dateSent : null,
-          dateCancelled: this.invoice.dateCancelled,
-          dueDate: this.invoice.dueDate,
-          title: this.invoice.title,
-          currency: this.invoice.currency,
-          amount: this.invoice.amount,
-          attachments,
-          notes: this.invoice.notes,
-          generalTax: this.invoice.generalTax,
-        };
-
-        if (this.isEditing) {
-          await api.put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, invoiceToPush);
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/invoices`, invoiceToPush);
-        }
-
-        await this.$router.push({ name: 'invoices-overview' });
-      },
     },
   };
 </script>

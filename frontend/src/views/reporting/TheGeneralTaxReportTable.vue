@@ -7,9 +7,11 @@
       <ElTableColumn
         align="left"
         header-align="left"
-        prop="tax.title"
         label="Tax"
-      />
+        #default="{row: item}"
+      >
+        <SaGeneralTaxOutput :general-tax-id="item.taxId" />
+      </ElTableColumn>
 
       <ElTableColumn
         align="right"
@@ -56,18 +58,23 @@
 <script>
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import MoneyOutput from '@/components/MoneyOutput';
+  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
 
   export default {
     name: 'TheGeneralTaxReportTable',
 
     components: {
+      SaGeneralTaxOutput,
       MoneyOutput,
     },
 
     mixins: [withWorkspaces],
 
     props: {
-      data: {},
+      data: {
+        type: Array,
+        required: true,
+      },
     },
   };
 </script>

@@ -132,7 +132,6 @@ export default {
       datePaid: 'Прошу повідомити дату, коли рахунок оплачується',
       originalAmount: 'Будь ласка, надайте сума витрат',
     },
-    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
   expensesOverviewPanel: {
@@ -271,7 +270,6 @@ export default {
       datePaid: 'Прошу повідомити дату, коли сплата податку здійснюється',
       amount: 'Будь ласка, вкажіть суму податкового платежу ',
     },
-    uploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
   incomeTaxPaymentsOverviewPanel: {
@@ -377,7 +375,6 @@ export default {
       dateReceived: 'Прошу повідомити дату, коли дохід отриманий',
       originalAmount: 'Будь ласка, вкажіть суму доходу ',
     },
-    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
   incomesOverviewPanel: {
@@ -554,7 +551,6 @@ export default {
       dateSent: 'Прошу повідомити дату, коли рахунок-фактура відправляється',
       datePaid: 'Прошу повідомити дату, коли рахунок-фактура сплачений',
     },
-    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
   invoicesOverview: {
@@ -572,9 +568,6 @@ export default {
     customer: {
       tooltip: 'Клієнт',
       label: 'Клієнт',
-    },
-    category: {
-      label: 'Категорія',
     },
     datePaid: {
       tooltip: 'Дата заплатили',
@@ -718,5 +711,9 @@ export default {
     messagebox: {
       confirm: 'ОК',
     },
+  },
+
+  useDocumentsUpload: {
+    documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 };

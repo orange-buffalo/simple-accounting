@@ -5,7 +5,8 @@
     </div>
 
     <SaForm
-      ref="incomeForm"
+      ref="form"
+      :loading="loading"
       :model="income"
       :rules="incomeValidationRules"
     >
@@ -18,17 +19,10 @@
               :label="$t('editIncome.generalInformation.category.label')"
               prop="category"
             >
-              <ElSelect
+              <SaCategoryInput
                 v-model="income.category"
                 :placeholder="$t('editIncome.generalInformation.category.placeholder')"
-              >
-                <ElOption
-                  v-for="category in categories"
-                  :key="category.id"
-                  :label="category.name"
-                  :value="category.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
 
             <ElFormItem
@@ -103,18 +97,11 @@
               :label="$t('editIncome.generalInformation.generalTax.label')"
               prop="generalTax"
             >
-              <ElSelect
+              <SaGeneralTaxInput
                 v-model="income.generalTax"
                 clearable
                 :placeholder="$t('editIncome.generalInformation.generalTax.placeholder')"
-              >
-                <ElOption
-                  v-for="tax in generalTaxes"
-                  :key="tax.id"
-                  :label="tax.title"
-                  :value="tax.id"
-                />
-              </ElSelect>
+              />
             </ElFormItem>
           </div>
 
@@ -145,7 +132,8 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="income.attachments"
-                @uploads-completed="onDocumentsUploadSuccess"
+                :loading-on-create="income.id != null"
+                @uploads-completed="saveIncome"
                 @uploads-failed="onDocumentsUploadFailure"
               />
             </ElFormItem>
@@ -159,7 +147,7 @@
         </ElButton>
         <ElButton
           type="primary"
-          @click="save"
+          @click="submitForm"
         >
           {{ $t('editIncome.save') }}
         </ElButton>
@@ -169,20 +157,94 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { computed, reactive } from '@vue/composition-api';
   import MoneyInput from '@/components/MoneyInput';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import withCategories from '@/components/mixins/with-categories';
-  import withGeneralTaxes from '@/components/mixins/with-general-taxes';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaCategoryInput from '@/components/category/SaCategoryInput';
+  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import i18n from '@/services/i18n';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
+  import { safeAssign, useLoading } from '@/components/utils/utils';
+  import { useApiCrud } from '@/components/utils/api-utils';
+
+  async function navigateToIncomesOverview() {
+    const { navigateByViewName } = useNavigation();
+    await navigateByViewName('incomes-overview');
+  }
+
+  function useIncomeApi(income) {
+    const { loading, saveEntity, loadEntity } = useApiCrud({
+      apiEntityPath: 'incomes',
+      entity: income,
+      ...useLoading(),
+    });
+
+    const saveIncome = async (attachments) => {
+      await saveEntity({
+        ...income,
+        attachments,
+      });
+      await navigateToIncomesOverview();
+    };
+
+    loadEntity((incomeResponse) => {
+      const {
+        convertedAmounts,
+        incomeTaxableAmounts,
+        generalTaxRateInBps,
+        generalTaxAmount,
+        status,
+        version,
+        timeRecorded,
+        ...incomeEditProperties
+      } = incomeResponse;
+      safeAssign(income, {
+        ...incomeEditProperties,
+        convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
+        incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
+      });
+    });
+
+    return {
+      loading,
+      saveIncome,
+    };
+  }
+
+  function useIncomeForm(loading) {
+    const incomeValidationRules = {
+      currency: {
+        required: true,
+        message: i18n.t('editIncome.validations.currency'),
+      },
+      title: {
+        required: true,
+        message: i18n.t('editIncome.validations.title'),
+      },
+      dateReceived: {
+        required: true,
+        message: i18n.t('editIncome.validations.dateReceived'),
+      },
+      originalAmount: {
+        required: true,
+        message: i18n.t('editIncome.validations.originalAmount'),
+      },
+    };
+    return {
+      incomeValidationRules,
+      ...useDocumentsUpload(loading),
+    };
+  }
 
   export default {
-    name: 'EditIncome',
-
     components: {
+      SaGeneralTaxInput,
+      SaCategoryInput,
       SaCurrencyInput,
       SaForm,
       SaNotesInput,
@@ -190,119 +252,40 @@
       MoneyInput,
     },
 
-    mixins: [withGeneralTaxes, withCategories, withWorkspaces],
+    props: {
+      id: {
+        type: Number,
+        default: null,
+      },
+    },
 
-    data() {
+    setup({ id }) {
+      const { defaultCurrency } = useCurrentWorkspace();
+
+      const income = reactive({
+        id,
+        currency: defaultCurrency,
+        useDifferentExchangeRateForIncomeTaxPurposes: false,
+        attachments: [],
+        dateReceived: new Date(),
+      });
+
+      const isInForeignCurrency = computed(() => income.currency !== defaultCurrency);
+
+      const pageHeader = id ? i18n.t('editIncome.pageHeader.edit') : i18n.t('editIncome.pageHeader.create');
+
+      const { loading, saveIncome } = useIncomeApi(income);
+
       return {
-        income: {
-          category: null,
-          title: null,
-          currency: null,
-          originalAmount: null,
-          convertedAmountInDefaultCurrency: null,
-          incomeTaxableAmountInDefaultCurrency: null,
-          useDifferentExchangeRateForIncomeTaxPurposes: false,
-          attachments: [],
-          notes: null,
-          dateReceived: new Date(),
-          generalTax: null,
-        },
-        incomeValidationRules: {
-          currency: {
-            required: true,
-            message: this.$t('editIncome.validations.currency'),
-          },
-          title: {
-            required: true,
-            message: this.$t('editIncome.validations.title'),
-          },
-          dateReceived: {
-            required: true,
-            message: this.$t('editIncome.validations.dateReceived'),
-          },
-          originalAmount: {
-            required: true,
-            message: this.$t('editIncome.validations.originalAmount'),
-          },
-        },
+        income,
+        isInForeignCurrency,
+        defaultCurrency,
+        navigateToIncomesOverview,
+        pageHeader,
+        ...useIncomeForm(loading),
+        loading,
+        saveIncome,
       };
-    },
-
-    computed: {
-      isInForeignCurrency() {
-        return this.income.currency !== this.defaultCurrency;
-      },
-
-      pageHeader() {
-        return this.$route.params.id
-          ? this.$t('editIncome.pageHeader.edit') : this.$t('editIncome.pageHeader.create');
-      },
-    },
-
-    async created() {
-      if (this.$route.params.id) {
-        const incomeResponse = await api
-          .get(`/workspaces/${this.currentWorkspace.id}/incomes/${this.$route.params.id}`);
-
-        const {
-          convertedAmounts,
-          incomeTaxableAmounts,
-          generalTaxRateInBps,
-          generalTaxAmount,
-          status,
-          version,
-          timeRecorded,
-          ...incomeEditProperties
-        } = incomeResponse.data;
-        this.income = {
-          ...incomeEditProperties,
-          convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
-          incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
-        };
-      }
-    },
-
-    methods: {
-      navigateToIncomesOverview() {
-        this.$router.push({ name: 'incomes-overview' });
-      },
-
-      async onDocumentsUploadSuccess(documentsIds) {
-        const {
-          id,
-          ...incomePropertiesToPush
-        } = this.income;
-
-        const incomeToPush = {
-          ...incomePropertiesToPush,
-          attachments: documentsIds,
-        };
-
-        if (this.income.id) {
-          await api.put(`/workspaces/${this.currentWorkspace.id}/incomes/${this.income.id}`, incomeToPush);
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/incomes`, incomeToPush);
-        }
-        await this.$router.push({ name: 'incomes-overview' });
-      },
-
-      async onDocumentsUploadFailure() {
-        this.$message({
-          showClose: true,
-          message: this.$t('editIncome.documentsUploadFailure'),
-          type: 'error',
-        });
-      },
-
-      async save() {
-        try {
-          await this.$refs.incomeForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        await this.$refs.documentsUpload.submitUploads();
-      },
     },
   };
 </script>

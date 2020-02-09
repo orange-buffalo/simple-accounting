@@ -42,7 +42,7 @@
 
     methods: {
       async loadIcon() {
-        await import(`./icons/${this.icon}`);
+        await import(/* webpackPrefetch: true, webpackChunkName: "icon-[request]" */ `./icons/${this.icon}`);
         this.loadedIcon = this.icon;
       },
     },

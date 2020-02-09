@@ -132,7 +132,6 @@ export default {
       datePaid: 'Please provide the date when expense is paid',
       originalAmount: 'Please provide expense amount',
     },
-    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
   expensesOverviewPanel: {
@@ -272,7 +271,6 @@ export default {
       datePaid: 'Please provide the date when tax payment is done',
       amount: 'Please provide tax payment amount',
     },
-    uploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
   incomeTaxPaymentsOverviewPanel: {
@@ -378,7 +376,6 @@ export default {
       dateReceived: 'Please provide the date when income is received',
       originalAmount: 'Please provide income amount',
     },
-    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
   incomesOverviewPanel: {
@@ -555,7 +552,6 @@ export default {
       dateSent: 'Please provide the date when invoice is sent',
       datePaid: 'Please provide the date when invoice is paid',
     },
-    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
   invoicesOverview: {
@@ -573,9 +569,6 @@ export default {
     customer: {
       tooltip: 'Customer',
       label: 'Customer',
-    },
-    category: {
-      label: 'Category',
     },
     datePaid: {
       tooltip: 'Date paid',
@@ -719,5 +712,9 @@ export default {
     messagebox: {
       confirm: 'OK',
     },
+  },
+
+  useDocumentsUpload: {
+    documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 };

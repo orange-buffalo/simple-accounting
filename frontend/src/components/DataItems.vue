@@ -1,7 +1,7 @@
 <template>
   <div class="data-items">
     <ElPagination
-      v-if="paginator && totalElements > 0"
+      v-if="paginatorVisible"
       :current-page.sync="currentPage"
       :page-size="pageSize"
       layout="prev, pager, next"
@@ -10,8 +10,8 @@
     />
 
     <div
+      v-if="!loading"
       class="row"
-      :class="loading ? 'loading' : ''"
     >
       <div
         v-for="dataItem in data"
@@ -24,22 +24,28 @@
 
     <div
       v-if="totalElements === 0 && !loading"
-      class="empty-results"
+      class="data-items__empty-results"
     >
-      <SaIcon icon="empty-box" />
+      <SaIcon
+        icon="empty-box"
+        class="data-items__empty-results__icon"
+      />
       <span>No results here</span>
     </div>
 
     <div
-      v-if="totalElements === 0 && loading"
-      class="loading-bar"
+      v-if="loading"
+      class="col"
     >
-      <i class="el-icon-loading" />
-      <span>Loading..</span>
+      <div class="col col-xs-12 data-items__loader-item" />
+      <div class="col col-xs-12 data-items__loader-item" />
+      <div class="col col-xs-12 data-items__loader-item" />
+      <div class="col col-xs-12 data-items__loader-item" />
+      <div class="col col-xs-12 data-items__loader-item" />
     </div>
 
     <ElPagination
-      v-if="paginator && totalElements > 0"
+      v-if="paginatorVisible"
       :current-page.sync="currentPage"
       :page-size="pageSize"
       layout="prev, pager, next"
@@ -50,6 +56,7 @@
 </template>
 
 <script>
+  import throttle from 'lodash/throttle';
   import { api } from '@/services/api';
   import SaIcon from '@/components/SaIcon';
 
@@ -85,6 +92,12 @@
       };
     },
 
+    computed: {
+      paginatorVisible() {
+        return this.paginator && this.totalElements > 0 && !this.loading;
+      },
+    },
+
     watch: {
       apiPath() {
         this.reloadData();
@@ -92,23 +105,49 @@
 
       filters: {
         handler() {
-          this.reloadData();
+          this.onFilterChange();
         },
         deep: true,
       },
     },
 
     created() {
+      this.onFilterChange = throttle(this.reloadData, 500, {
+        trailing: true,
+        leading: false,
+      });
+      this.loadingRequestsCount = 0;
+      this.updateLoading = throttle(
+        () => {
+          this.loading = this.loadingRequestsCount > 0;
+        },
+        400,
+        {
+          leading: false,
+          trailing: true,
+        },
+      );
+
       this.reloadData();
     },
 
     methods: {
+      startLoading() {
+        this.loadingRequestsCount += 1;
+        this.updateLoading();
+      },
+
+      stopLoading() {
+        this.loadingRequestsCount = Math.max(0, this.loadingRequestsCount - 1);
+        this.updateLoading();
+      },
+
       onCurrentPageChange() {
         this.reloadData();
       },
 
       async reloadData() {
-        this.loading = true;
+        this.startLoading();
 
         if (this.cancelToken) {
           this.cancelToken.cancel();
@@ -133,10 +172,11 @@
           this.data = page.data;
           this.totalElements = page.totalElements;
           this.cancelToken = null;
-          this.loading = false;
+
+          this.stopLoading();
         } catch (e) {
+          this.stopLoading();
           if (!api.isCancel(e)) {
-            this.loading = false;
             // todo #72: proper error handling
             throw e;
           }
@@ -147,27 +187,10 @@
 </script>
 
 <style lang="scss">
-  /*todo #73: common component refers to app styles - redesign dependencies  */
   @import "~@/styles/vars.scss";
+  @import "~@/styles/mixins.scss";
 
-  /*todo #74: BEM notation*/
   .data-items {
-    .el-row {
-      transition: opacity 0.3s;
-
-      &.loading {
-        opacity: 0.5;
-      }
-    }
-
-    .el-col {
-      margin-bottom: 20px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-
     .el-pagination {
       text-align: right;
 
@@ -176,29 +199,39 @@
       }
     }
 
-    .empty-results {
+    &__empty-results {
       display: flex;
       flex-flow: column;
       align-items: center;
       color: $primary-color-lighter-iii;
 
-      .svg-icon {
+      &__icon {
         width: 48px;
         height: 48px;
         margin: 10px;
       }
     }
 
-    .loading-bar {
-      display: flex;
-      flex-flow: column;
-      align-items: center;
-      color: $primary-color-lighter-iii;
+    &__loader-item {
+      height: 90px;
+      box-sizing: content-box;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      border: $secondary-grey solid 1px;
+      animation: data-items-animation 1.4s linear infinite;
+      background: $white;
+    }
+  }
 
-      i {
-        font-size: 300%;
-        margin: 10px;
-      }
+  @keyframes data-items-animation {
+    0% {
+      opacity: 0.5
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0.5;
     }
   }
 </style>

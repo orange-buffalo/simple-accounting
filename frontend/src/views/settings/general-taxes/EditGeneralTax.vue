@@ -5,7 +5,8 @@
     </div>
 
     <SaForm
-      ref="taxForm"
+      ref="form"
+      :loading="loading"
       :model="tax"
       :rules="taxValidationRules"
     >
@@ -50,7 +51,7 @@
         </ElButton>
         <ElButton
           type="primary"
-          @click="save"
+          @click="submitForm"
         >
           Save
         </ElButton>
@@ -60,76 +61,85 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { reactive } from '@vue/composition-api';
   import SaForm from '@/components/SaForm';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { useForm, useLoading } from '@/components/utils/utils';
+  import { useApiCrud } from '@/components/utils/api-utils';
+
+  function navigateToTaxesOverview() {
+    const { navigateByViewName } = useNavigation();
+    navigateByViewName('general-taxes-overview');
+  }
+
+  function useTaxApi(tax) {
+    const { loadEntity, loading, saveEntity } = useApiCrud({
+      apiEntityPath: 'general-taxes',
+      entity: tax,
+      ...useLoading(),
+    });
+
+    const saveTax = async () => {
+      await saveEntity(tax);
+      await navigateToTaxesOverview();
+    };
+
+    loadEntity();
+
+    return {
+      saveTax,
+      loading,
+    };
+  }
+
+  function useTaxForm(saveTax) {
+    const taxValidationRules = {
+      title: {
+        required: true,
+        message: 'Please provide a title',
+      },
+      rateInBps: {
+        required: true,
+        message: 'Please provide the rate',
+      },
+    };
+
+    return {
+      ...useForm(saveTax),
+      taxValidationRules,
+    };
+  }
 
   export default {
-    name: 'EditGeneralTax',
-
     components: {
       SaForm,
     },
 
-    mixins: [withWorkspaces],
+    props: {
+      id: {
+        type: Number,
+        default: null,
+      },
+    },
 
-    data() {
+    setup({ id }) {
+      const tax = reactive({ id });
+
+      const { loading, saveTax } = useTaxApi(tax);
+
+      const { form, taxValidationRules, submitForm } = useTaxForm(saveTax);
+
+      const pageHeader = id ? 'Edit General Tax' : 'Create New General Tax';
+
       return {
-        tax: {
-          name: null,
-        },
-        taxValidationRules: {
-          title: {
-            required: true,
-            message: 'Please provide a title',
-          },
-          rateInBps: {
-            required: true,
-            message: 'Please provide the rate',
-          },
-        },
+        loading,
+        submitForm,
+        tax,
+        taxValidationRules,
+        form,
+        pageHeader,
+        navigateToTaxesOverview,
       };
-    },
-
-    computed: {
-      pageHeader() {
-        return this.$route.params.id ? 'Edit General Tax' : 'Create New General Tax';
-      },
-    },
-
-    async created() {
-      if (this.$route.params.id) {
-        const taxResponse = await api
-          .get(`/workspaces/${this.currentWorkspace.id}/general-taxes/${this.$route.params.id}`);
-        this.tax = { ...taxResponse.data };
-      }
-    },
-
-    methods: {
-      navigateToTaxesOverview() {
-        this.$router.push({ name: 'general-taxes-overview' });
-      },
-
-      async save() {
-        try {
-          await this.$refs.taxForm.validate();
-        } catch (e) {
-          return;
-        }
-
-        const taxToPush = {
-          title: this.tax.title,
-          description: this.tax.description,
-          rateInBps: this.tax.rateInBps,
-        };
-
-        if (this.tax.id) {
-          await api.put(`/workspaces/${this.currentWorkspace.id}/general-taxes/${this.tax.id}`, taxToPush);
-        } else {
-          await api.post(`/workspaces/${this.currentWorkspace.id}/general-taxes`, taxToPush);
-        }
-        await this.$router.push({ name: 'general-taxes-overview' });
-      },
     },
   };
 </script>

@@ -27,8 +27,10 @@ import {
   Footer,
   Message,
   MessageBox,
+  Loading,
 } from 'element-ui';
 import ElementLocale from 'element-ui/lib/locale';
+import VueCompositionApi from '@vue/composition-api';
 import SimpleAccounting from '@/SimpleAccounting.vue';
 import '@/styles/main.scss';
 import setupRouter from '@/setup/setup-router';
@@ -62,6 +64,7 @@ function setupElementUi({ i18n }) {
   Vue.use(Aside);
   Vue.use(Main);
   Vue.use(Footer);
+  Vue.use(Loading.directive);
 
   Vue.prototype.$message = Message;
   Vue.prototype.$confirm = MessageBox.confirm;
@@ -71,6 +74,7 @@ function setupElementUi({ i18n }) {
 
 function setupApp() {
   Vue.config.productionTip = false;
+  Vue.use(VueCompositionApi);
 
   const router = setupRouter();
   const store = setupStore();

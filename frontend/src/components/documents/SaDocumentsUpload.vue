@@ -1,13 +1,28 @@
 <template>
-  <div class="sa-documents_upload">
+  <div class="sa-documents-upload">
+    <div
+      v-if="loadingWithMinimumInfo"
+      class="sa-documents-upload__loading-placeholder"
+    />
+
+    <template v-if="loadingWithDocumentsInfo">
+      <SaDocument
+        v-for="documentId in documentsIds"
+        :key="documentId"
+        :loading="true"
+        class="sa-documents-upload__document"
+      />
+    </template>
+
     <SaDocumentUpload
       v-for="documentAggregate in documentsAggregates"
+      v-else
       :key="documentAggregate.key"
       ref="uploadControls"
       :document-id="documentAggregate.document.id"
       :document-name="documentAggregate.document.name"
       :document-size-in-bytes="documentAggregate.document.sizeInBytes"
-      class="sa-documents_upload__document"
+      class="sa-documents-upload__document"
       @upload-completed="onUploadComplete(documentAggregate.key, $event)"
       @upload-failed="onUploadFailure(documentAggregate.key)"
       @document-selected="onDocumentSelection(documentAggregate.key)"
@@ -20,6 +35,7 @@
   import SaDocumentUpload from '@/components/documents/SaDocumentUpload';
   import { api } from '@/services/api';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaDocument from '@/components/documents/SaDocument';
 
   const DOCUMENT_AGGREGATE_STATE = {
     EMPTY: 'empty',
@@ -32,6 +48,7 @@
     name: 'SaDocumentsUpload',
 
     components: {
+      SaDocument,
       SaDocumentUpload,
     },
 
@@ -42,29 +59,50 @@
         type: Array,
         required: true,
       },
+      loadingOnCreate: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     data() {
       return {
         documentsAggregates: [],
+        loading: this.loadingOnCreate,
       };
+    },
+
+    computed: {
+      loadingWithMinimumInfo() {
+        return this.loading && !this.documentsIds.length;
+      },
+
+      loadingWithDocumentsInfo() {
+        return this.loading && this.documentsIds.length;
+      },
     },
 
     watch: {
       async documentsIds() {
         if (!this.documentsIds.length) {
           this.documentsAggregates = [];
+          this.loading = false;
         } else {
-          const documents = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
-            .eager()
-            .eqFilter('id', this.documentsIds)
-            .getPageData();
+          this.loading = true;
+          try {
+            const documents = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
+              .eager()
+              .eqFilter('id', this.documentsIds)
+              .getPageData();
 
-          this.documentsAggregates = documents.map(it => ({
-            document: it,
-            key: it.id.toString(),
-            state: DOCUMENT_AGGREGATE_STATE.UPLOAD_COMPLETED,
-          }));
+            this.documentsAggregates = documents.map(it => ({
+              document: it,
+              key: it.id.toString(),
+              state: DOCUMENT_AGGREGATE_STATE.UPLOAD_COMPLETED,
+            }));
+          } finally {
+            this.loading = false;
+          }
         }
         this.addNewUploadControl();
       },
@@ -140,10 +178,17 @@
 </script>
 
 <style lang="scss">
-  .sa-documents_upload {
+  @import "~@/styles/mixins.scss";
+
+  .sa-documents-upload {
     &__document {
       margin-bottom: 15px;
       width: 100%;
+    }
+
+    &__loading-placeholder {
+      height: 80px;
+      @include loading-placeholder;
     }
   }
 </style>
