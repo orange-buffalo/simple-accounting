@@ -143,6 +143,7 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="expense.attachments"
+                :loading-on-create="expense.id != null"
                 @uploads-completed="saveExpense"
                 @uploads-failed="onDocumentsUploadFailure"
               />

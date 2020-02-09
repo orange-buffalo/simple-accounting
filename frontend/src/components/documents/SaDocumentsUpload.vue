@@ -48,12 +48,16 @@
         type: Array,
         required: true,
       },
+      loadingOnCreate: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     data() {
       return {
         documentsAggregates: [],
-        loading: false,
+        loading: this.loadingOnCreate,
       };
     },
 

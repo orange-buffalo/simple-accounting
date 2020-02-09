@@ -81,6 +81,7 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="taxPayment.attachments"
+                :loading-on-create="taxPayment.id != null"
                 @uploads-completed="saveTaxPayment"
                 @uploads-failed="onDocumentsUploadFailure"
               />

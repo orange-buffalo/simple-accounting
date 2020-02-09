@@ -132,6 +132,7 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="income.attachments"
+                :loading-on-create="income.id != null"
                 @uploads-completed="saveIncome"
                 @uploads-failed="onDocumentsUploadFailure"
               />

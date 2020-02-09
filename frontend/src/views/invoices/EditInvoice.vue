@@ -169,6 +169,7 @@
               <SaDocumentsUpload
                 ref="documentsUpload"
                 :documents-ids="invoice.attachments"
+                :loading-on-create="invoice.id != null"
                 @uploads-completed="saveInvoice"
                 @uploads-failed="onDocumentsUploadFailure"
               />
