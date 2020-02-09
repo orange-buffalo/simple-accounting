@@ -1,51 +1,79 @@
 <template>
   <div class="sa-document">
-    <SaIcon
-      :icon="documentTypeIcon"
-      class="sa-document__file-icon"
-    />
+    <template v-if="loading">
+      <div class="sa-document__loader__file-icon" />
+      <div class="sa-document__loader__file-description">
+        <div class="sa-document__loader__file-description__header" />
+        <div class="sa-document__loader__file-description__link" />
+        <div class="sa-document__loader__file-description__size" />
+      </div>
+    </template>
 
-    <div class="sa-document__file-description">
-      <div class="sa-document__file-description__header">
-        <span
-          :title="documentName"
-          class="sa-document__file-description__header__file-name"
-        >{{ documentName }}</span>
+    <template v-else>
+      <SaIcon
+        :icon="documentTypeIcon"
+        class="sa-document__file-icon"
+      />
 
-        <SaIcon
-          v-if="removable"
-          class="sa-document__file-description__header__remove-icon"
-          icon="delete"
-          @click="onRemove"
+      <div class="sa-document__file-description">
+        <div class="sa-document__file-description__header">
+          <span
+            :title="documentName"
+            class="sa-document__file-description__header__file-name"
+          >{{ documentName }}</span>
+
+          <SaIcon
+            v-if="removable"
+            class="sa-document__file-description__header__remove-icon"
+            icon="delete"
+            @click="onRemove"
+          />
+        </div>
+
+        <div class="sa-document__file-description__file-extras">
+          <slot name="extras">
+            <SaDocumentDownloadLink
+              v-if="documentId"
+              :document-name="documentName"
+              :document-id="documentId"
+              class="sa-document__file-description__file-extras__download-link"
+            />
+          </slot>
+          <span v-if="documentSizeInBytes">{{ $t('saDocument.size.label', [documentSizeInBytes]) }}</span>
+        </div>
+
+        <ElProgress
+          v-if="inProgress"
+          :percentage="progress"
         />
       </div>
-
-      <div class="sa-document__file-description__file-extras">
-        <slot name="extras">
-          <SaDocumentDownloadLink
-            v-if="documentId"
-            :document-name="documentName"
-            :document-id="documentId"
-            class="sa-document__file-description__file-extras__download-link"
-          />
-        </slot>
-        <span v-if="documentSizeInBytes">{{ $t('saDocument.size.label', [documentSizeInBytes]) }}</span>
-      </div>
-
-      <ElProgress
-        v-if="inProgress"
-        :percentage="progress"
-      />
-    </div>
+    </template>
   </div>
 </template>
 
 <script>
+  import { watch, ref } from '@vue/composition-api';
   import SaIcon from '@/components/SaIcon';
   import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink';
 
+  function getDocumentTypeIcon(documentName) {
+    const fileName = documentName.toLowerCase();
+    if (fileName.endsWith('.pdf')) {
+      return 'pdf';
+    }
+    if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+      return 'jpg';
+    }
+    if (fileName.endsWith('.zip') || fileName.endsWith('.gz') || fileName.endsWith('.rar')) {
+      return 'zip';
+    }
+    if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+      return 'doc';
+    }
+    return 'file';
+  }
+
   export default {
-    name: 'SaDocument',
     components: {
       SaDocumentDownloadLink,
       SaIcon,
@@ -54,7 +82,7 @@
     props: {
       documentName: {
         type: String,
-        default: null,
+        default: '',
       },
 
       documentId: {
@@ -81,37 +109,32 @@
         type: Number,
         default: null,
       },
-    },
 
-    computed: {
-      documentTypeIcon() {
-        const fileName = this.documentName.toLowerCase();
-        if (fileName.endsWith('.pdf')) {
-          return 'pdf';
-        }
-        if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
-          return 'jpg';
-        }
-        if (fileName.endsWith('.zip') || fileName.endsWith('.gz') || fileName.endsWith('.rar')) {
-          return 'zip';
-        }
-        if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
-          return 'doc';
-        }
-        return 'file';
+      loading: {
+        type: Boolean,
+        default: false,
       },
     },
 
-    methods: {
-      onRemove() {
-        this.$emit('removed');
-      },
+    setup(props, { emit }) {
+      const documentTypeIcon = ref('');
+      watch(() => props.documentName, (documentName) => {
+        documentTypeIcon.value = getDocumentTypeIcon(documentName);
+      });
+
+      const onRemove = () => emit('removed');
+
+      return {
+        documentTypeIcon,
+        onRemove,
+      };
     },
   };
 </script>
 
 <style lang="scss">
   @import "~@/styles/vars.scss";
+  @import "~@/styles/mixins.scss";
 
   .sa-document {
     display: flex;
@@ -166,6 +189,42 @@
 
         &__download-link {
           padding: 0 5px 0 0 !important;
+        }
+      }
+    }
+
+    &__loader {
+      &__file-icon {
+        margin-left: 10px;
+        margin-right: 5px;
+        width: 40px;
+        height: 50px;
+        flex-shrink: 0;
+        @include loading-placeholder;
+      }
+
+      &__file-description {
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+
+        div {
+          content: '&nbsp;';
+          @include loading-placeholder;
+          height: 1em;
+        }
+
+        &__header {
+          width: 80%;
+        }
+
+        &__link {
+          width: 30%;
+          margin-right: 5px;
+        }
+
+        &__size {
+          width: 10%;
         }
       }
     }

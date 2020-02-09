@@ -1,27 +1,35 @@
 <template>
   <div class="sa-documents-list">
-    <SaDocument
-      v-for="document in documents"
-      :key="document.id"
-      :document-name="document.name"
-      :document-id="document.id"
-      :document-size-in-bytes="document.sizeInBytes"
-      class="sa-documents-list__document"
-    />
+    <template v-if="loading">
+      <SaDocument
+        v-for="documentId in documentsIds"
+        :key="documentId"
+        :loading="true"
+        class="sa-documents-list__document"
+      />
+    </template>
+
+    <template v-else>
+      <SaDocument
+        v-for="document in documents"
+        :key="document.id"
+        :document-name="document.name"
+        :document-id="document.id"
+        :document-size-in-bytes="document.sizeInBytes"
+        class="sa-documents-list__document"
+      />
+    </template>
   </div>
 </template>
 
 <script>
+  import { ref, watch } from '@vue/composition-api';
   import { api } from '@/services/api';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaDocument from '@/components/documents/SaDocument';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
 
   export default {
-    name: 'SaDocumentsList',
-
     components: { SaDocument },
-
-    mixins: [withWorkspaces],
 
     props: {
       documentsIds: {
@@ -30,31 +38,37 @@
       },
     },
 
-    data() {
-      return {
-        documents: [],
-      };
-    },
+    setup(props) {
+      const documents = ref([]);
+      const loading = ref(false);
 
-    watch: {
-      documentsIds() {
-        this.loadDocuments();
-      },
-    },
+      watch(() => props.documentsIds, async (documentsIds, _, onCleanup) => {
+        if (documentsIds.length) {
+          loading.value = true;
 
-    async created() {
-      this.loadDocuments();
-    },
+          const cancelToken = api.createCancelToken();
+          onCleanup(() => cancelToken.cancel());
 
-    methods: {
-      async loadDocuments() {
-        if (this.documentsIds.length) {
-          this.documents = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
-            .eager()
-            .eqFilter('id', this.documentsIds)
-            .getPageData();
+          const { currentWorkspaceApiUrl } = useCurrentWorkspace();
+
+          try {
+            documents.value = await api.pageRequest(currentWorkspaceApiUrl('documents'))
+              .eager()
+              .eqFilter('id', documentsIds)
+              .config({
+                cancelToken: cancelToken.token,
+              })
+              .getPageData();
+          } finally {
+            loading.value = false;
+          }
         }
-      },
+      });
+
+      return {
+        documents,
+        loading,
+      };
     },
   };
 </script>

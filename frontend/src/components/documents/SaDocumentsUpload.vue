@@ -1,9 +1,18 @@
 <template>
   <div class="sa-documents-upload">
     <div
-      v-if="loading"
+      v-if="loadingWithMinimumInfo"
       class="sa-documents-upload__loading-placeholder"
     />
+
+    <template v-if="loadingWithDocumentsInfo">
+      <SaDocument
+        v-for="documentId in documentsIds"
+        :key="documentId"
+        :loading="true"
+        class="sa-documents-upload__document"
+      />
+    </template>
 
     <SaDocumentUpload
       v-for="documentAggregate in documentsAggregates"
@@ -26,6 +35,7 @@
   import SaDocumentUpload from '@/components/documents/SaDocumentUpload';
   import { api } from '@/services/api';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import SaDocument from '@/components/documents/SaDocument';
 
   const DOCUMENT_AGGREGATE_STATE = {
     EMPTY: 'empty',
@@ -38,6 +48,7 @@
     name: 'SaDocumentsUpload',
 
     components: {
+      SaDocument,
       SaDocumentUpload,
     },
 
@@ -59,6 +70,16 @@
         documentsAggregates: [],
         loading: this.loadingOnCreate,
       };
+    },
+
+    computed: {
+      loadingWithMinimumInfo() {
+        return this.loading && !this.documentsIds.length;
+      },
+
+      loadingWithDocumentsInfo() {
+        return this.loading && this.documentsIds.length;
+      },
     },
 
     watch: {
