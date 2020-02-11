@@ -27,7 +27,7 @@ fun WebTestClient.ResponseSpec.expectThatJsonBody(
             val responseJson = body.responseBody
             assertThat(responseJson).isNotBlank()
 
-            val jsonAssert = assertThatJson(responseJson)
+            val jsonAssert = assertThatJson(responseJson!!)
             jsonAssert.spec()
         }
 
@@ -76,7 +76,7 @@ fun <T> StepVerifier.Step<T>.assertNextJson(
 ): StepVerifier.Step<T> {
     return assertNext { data ->
         assertThat(data).isNotNull
-        assertThatJson(data).consumer()
+        assertThatJson(data!!).consumer()
     }
 }
 

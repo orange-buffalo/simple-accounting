@@ -37,8 +37,9 @@ class JwtService(
     fun validateTokenAndBuildUserDetails(token: String): UserDetails {
         val jws: Jws<Claims>
         try {
-            jws = Jwts.parser()
+            jws = Jwts.parserBuilder()
                 .setSigningKey(keyPair.public)
+                .build()
                 .parseClaimsJws(token)
 
         } catch (ex: JwtException) {
