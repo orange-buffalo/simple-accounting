@@ -10,8 +10,8 @@ describe('api service', () => {
   let api;
 
   beforeEach(() => {
-    httpMock.setup();
     jest.resetModules();
+    httpMock.setup();
 
     advanceTo(API_TIME);
 
@@ -75,6 +75,8 @@ describe('api service', () => {
   });
 
   it('fires login event when 401 is received', (done) => {
+    expect.assertions(1);
+
     httpMock.get('/api/api-call', (req, res) => res.status(401)
       .body(''));
     httpMock.post('/api/auth/token', (req, res) => res.status(401)

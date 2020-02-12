@@ -2,7 +2,6 @@ import axios from 'axios';
 import qs from 'qs';
 import jwtDecode from 'jwt-decode';
 import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
-import { safeAssign } from '@/components/utils/utils';
 
 const { CancelToken } = axios;
 
@@ -143,8 +142,8 @@ api.interceptors.response.use(
   },
   async (error) => {
     if (error.response && error.response.status === 401
-      && error.response.config.url !== '/api/auth/token'
-      && error.response.config.url !== '/api/auth/login') {
+      && error.response.config.url !== '/auth/token'
+      && error.response.config.url !== '/auth/login') {
       if (await api.tryAutoLogin()) {
         const config = applyAuthorization(error.config);
         config.baseURL = null;
@@ -224,12 +223,12 @@ api.pageRequest = function pageRequest(uri) {
 
     getPage() {
       return this.get()
-        .then(response => response.data);
+        .then((response) => response.data);
     },
 
     getPageData() {
       return this.getPage()
-        .then(pageResponse => pageResponse.data);
+        .then((pageResponse) => pageResponse.data);
     },
   };
 };
