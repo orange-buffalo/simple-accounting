@@ -1,6 +1,8 @@
 module.exports = {
   assetsDir: 'assets',
 
+  lintOnSave: false,
+
   devServer: {
     port: 9091,
     proxy: 'http://localhost:9393',
