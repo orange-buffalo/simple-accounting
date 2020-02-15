@@ -192,14 +192,14 @@
         margin: 0 10px;
       }
 
-      .svg-icon {
+      .sa-icon {
         margin-right: 3px;
         color: $components-color;
       }
     }
 
     &__share-link-panel {
-      .svg-icon {
+      .sa-icon {
         margin-right: 3px;
         color: $components-color;
       }

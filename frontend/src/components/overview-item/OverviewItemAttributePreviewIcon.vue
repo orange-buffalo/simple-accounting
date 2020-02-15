@@ -15,8 +15,6 @@
   import SaIcon from '@/components/SaIcon';
 
   export default {
-    name: 'OverviewItemAttributePreviewIcon',
-
     components: {
       SaIcon,
     },
@@ -28,6 +26,7 @@
       },
       tooltip: {
         type: String,
+        default: null,
       },
     },
   };

@@ -124,7 +124,7 @@
       font-weight: bold;
     }
 
-    .svg-icon {
+    .sa-icon {
       margin-left: 5px;
       margin-top: -3px;
     }
