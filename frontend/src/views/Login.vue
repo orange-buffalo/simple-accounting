@@ -4,7 +4,7 @@
       New here? We are launching public access soon.
     </div>
     <div class="login-page__login">
-      <div class="login-page__login__logo" />
+      <LogoLogin class="login-page__login__logo" />
       <LoginForm @login="onLogin" />
     </div>
   </div>
@@ -16,12 +16,14 @@
   import { initWorkspace } from '@/services/workspaces-service';
   import { userApi } from '@/services/user-api';
   import { app } from '@/services/app-services';
+  import LogoLogin from '@/assets/logo-login.svg';
 
   export default {
     name: 'Login',
 
     components: {
       LoginForm,
+      LogoLogin,
     },
 
     methods: {
@@ -122,10 +124,6 @@
       &__logo {
         height: 150px;
         width: 150px;
-        background: url("../assets/logo-login.svg");
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
         margin-bottom: 40px;
       }
     }

@@ -238,7 +238,7 @@
         cursor: pointer;
       }
 
-      .svg-icon {
+      .sa-icon {
         margin: 0 10px 0 0;
         width: 45px;
         height: 45px;

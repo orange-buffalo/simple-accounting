@@ -88,8 +88,7 @@
 
     .sa-status-label__icon {
       margin-right: 4px;
-      margin-top: 2px;
-      height: 14px;
+      height: 16px;
       width: 14px;
     }
 

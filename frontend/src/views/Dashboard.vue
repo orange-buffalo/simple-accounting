@@ -379,16 +379,24 @@
     text-align: center;
   }
 
+  $header-icon-container-size: 20%;
+  $header-icon-size: 60%;
+  $header-icon-position: (100% - $header-icon-size) / 2;
+
   .home-page__row__hero__header__icon {
     display: inline-block;
-    width: 15%;
+    width: $header-icon-container-size;
+    padding-top: $header-icon-container-size;
     border: 1px solid $secondary-grey;
     border-radius: 50%;
-    padding: 15px;
+    position: relative;
 
-    .svg-icon {
-      width: 100%;
-      height: auto;
+    .sa-icon {
+      position: absolute;
+      width: $header-icon-size;
+      height: $header-icon-size;
+      top: $header-icon-position;
+      left: $header-icon-position;
     }
   }
 

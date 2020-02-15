@@ -1,6 +1,6 @@
 <template>
   <ElAside class="the-side-menu">
-    <div class="the-side-menu__logo" />
+    <MenuLogo class="the-side-menu__logo" />
 
     <div
       v-if="isUser"
@@ -33,7 +33,7 @@
       <TheSideMenuLink
         to="/income-tax-payments"
         :title="$t('navigationMenu.taxPayments')"
-        icon="taxes-overview"
+        icon="income-tax-payments-overview"
       />
       <TheSideMenuLink
         to="/reporting"
@@ -48,7 +48,7 @@
           v-if="currentWorkspace.editable"
           to="/settings/customers"
           :title="$t('navigationMenu.settings.customers')"
-          icon="customer"
+          icon="customers-overview"
         />
 
         <TheSideMenuLink
@@ -93,12 +93,14 @@
   import { api } from '@/services/api';
   import TheSideMenuLink from '@/components/TheSideMenuLink';
   import withWorkspaces from '@/components/mixins/with-workspaces';
+  import MenuLogo from '@/assets/logo-menu.svg';
 
   export default {
     name: 'TheSideMenu',
 
     components: {
       TheSideMenuLink,
+      MenuLogo,
     },
 
     mixins: [withWorkspaces],
@@ -133,10 +135,8 @@
     &__logo {
       height: 70px;
       margin: 10px 0 10px 0;
-      background: url("../assets/logo-menu.svg");
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
+      display: inline-block;
+      width: 100%;
 
       @include respond-above($menu-breakpoint) {
         height: 120px;
@@ -182,7 +182,7 @@
         }
       }
 
-      .svg-icon {
+      .sa-icon {
         margin-right: 0;
         height: 30px;
         width: 30px;
@@ -191,8 +191,8 @@
         @include respond-above($menu-breakpoint) {
           margin-right: 10px;
           margin-left: 0;
-          height: 22px;
-          width: 22px;
+          height: 25px;
+          width: 25px;
         }
       }
     }

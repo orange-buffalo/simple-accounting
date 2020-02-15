@@ -1,21 +1,22 @@
 <template>
-  <SvgIcon
-    :name="loadedIcon"
-    @click="$emit('click')"
-  />
+  <span class="sa-icon">
+    <Component
+      :is="loadedIcon"
+      class="sa-icon__svg"
+      @click="$emit('click')"
+    />
+  </span>
 </template>
 
 <script>
-  // eslint-disable-next-line import/no-extraneous-dependencies
-  import SvgIcon from 'vue-svgicon';
+  import { ref, watch } from '@vue/composition-api';
+
+  async function loadIcon(iconName) {
+    const iconModule = await import(/* webpackMode: "eager" */ `@/icons/svg/${iconName}.svg`);
+    return iconModule.default;
+  }
 
   export default {
-    name: 'SaIcon',
-
-    components: {
-      SvgIcon,
-    },
-
     props: {
       icon: {
         type: String,
@@ -23,45 +24,32 @@
       },
     },
 
-    data() {
+    setup(props) {
+      const loadedIcon = ref(null);
+
+      watch(() => props.icon, async (icon) => {
+        loadedIcon.value = await loadIcon(icon);
+      });
+
       return {
-        // supports dynamic change of an icon with necessary data loading
-        loadedIcon: null,
+        loadedIcon,
       };
-    },
-
-    watch: {
-      icon() {
-        this.loadIcon();
-      },
-    },
-
-    created() {
-      this.loadIcon();
-    },
-
-    methods: {
-      async loadIcon() {
-        await import(/* webpackPrefetch: true, webpackChunkName: "icon-[request]" */ `./icons/${this.icon}`);
-        this.loadedIcon = this.icon;
-      },
     },
   };
 </script>
 
 <style lang="scss">
-  .svg-icon {
-    display: inline-block;
+  .sa-icon {
+    display: inline-flex;
     width: 16px;
     height: 16px;
-    color: inherit;
-    vertical-align: middle;
-    fill: none;
-    stroke: currentColor;
-  }
 
-  .svg-fill {
-    fill: currentColor;
-    stroke: none;
+    &__svg {
+      width: 100%;
+      height: 100%;
+      color: inherit;
+      fill: currentColor;
+      stroke: none;
+    }
   }
 </style>
