@@ -1,17 +1,15 @@
 <template>
-  <div class="el-input el-input-group el-input-group--append money-input">
-    <!-- todo #126: phone?   -->
+  <div class="sa-money-input">
     <MaskedInput
       v-model="inputValue"
       type="text"
-      name="phone"
-      class="el-input__inner "
+      class="el-input__inner sa-money-input__input"
       :mask="inputMask"
       :guide="false"
       :disabled="!currency"
     />
 
-    <div class="el-input-group__append">
+    <div class="sa-money-input__currency">
       {{ currency }}
     </div>
   </div>
@@ -23,15 +21,19 @@
   import i18n from '@/services/i18n';
 
   export default {
-    name: 'MoneyInput',
-
     components: {
       MaskedInput,
     },
 
     props: {
-      value: Number,
-      currency: String,
+      value: {
+        type: Number,
+        default: null,
+      },
+      currency: {
+        type: String,
+        required: true,
+      },
     },
 
     data() {
@@ -81,9 +83,39 @@
 </script>
 
 <style lang="scss">
+  @import "~@/styles/vars.scss";
+  @import "~@/styles/mixins.scss";
+
   .money-input {
     input {
       text-align: right;
+    }
+  }
+
+  .sa-money-input {
+    display: flex;
+    @include input-width;
+
+    &__input {
+      flex-grow: 1;
+      text-align: right;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+
+    &__currency {
+      background-color: #F5F7FA;
+      color: #909399;
+      vertical-align: middle;
+      display: table-cell;
+      position: relative;
+      border: 1px solid $components-border-color;
+      border-left: none;
+      border-radius: 0 $components-border-radius $components-border-radius 0;
+      padding: 0 20px;
+      white-space: nowrap;
+      height: $input-height;
+      box-sizing: border-box;
     }
   }
 </style>
