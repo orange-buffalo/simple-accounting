@@ -45,6 +45,7 @@
         <ElProgress
           v-if="inProgress"
           :percentage="progress"
+          :format="progressFormat"
         />
       </div>
     </template>
@@ -55,6 +56,7 @@
   import { watch, ref } from '@vue/composition-api';
   import SaIcon from '@/components/SaIcon';
   import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink';
+  import i18n from '@/services/i18n';
 
   function getDocumentTypeIcon(documentName) {
     const fileName = documentName.toLowerCase();
@@ -124,9 +126,12 @@
 
       const onRemove = () => emit('removed');
 
+      const progressFormat = (percent) => i18n.t('common.percent', [percent / 100]);
+
       return {
         documentTypeIcon,
         onRemove,
+        progressFormat,
       };
     },
   };
@@ -139,9 +144,19 @@
   .sa-document {
     display: flex;
 
+    .el-progress--line {
+      display: flex;
+      align-items: center;
+    }
+
     .el-progress__text {
       color: $secondary-text-color;
       font-size: 80% !important;
+    }
+
+    .el-progress-bar {
+      margin-right: 0;
+      padding-right: 0;
     }
 
     &__file-icon {
