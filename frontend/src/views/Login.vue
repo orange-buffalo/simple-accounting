@@ -5,28 +5,128 @@
     </div>
     <div class="login-page__login">
       <LogoLogin class="login-page__login__logo" />
-      <LoginForm @login="onLogin" />
+
+      <ElForm
+        ref="form"
+        class="login-form"
+        :model="form"
+        label-width="0px"
+      >
+        <ElFormItem prop="userName">
+          <ElInput
+            v-model="form.userName"
+            :placeholder="$t('loginPage.userName.placeholder')"
+          >
+            <SaIcon
+              slot="prefix"
+              icon="login"
+            />
+          </ElInput>
+        </ElFormItem>
+
+        <ElFormItem prop="password">
+          <ElInput
+            v-model="form.password"
+            type="password"
+            placeholder="Password"
+          >
+            <SaIcon
+              slot="prefix"
+              icon="password"
+            />
+          </ElInput>
+        </ElFormItem>
+
+        <ElFormItem
+          prop="rememberMe"
+          align="center"
+        >
+          <ElCheckbox v-model="form.rememberMe">
+            Remember me
+          </ElCheckbox>
+        </ElFormItem>
+
+        <ElButton
+          type="primary"
+          :disabled="!loginEnabled"
+          @click="login"
+        >
+          Login
+        </ElButton>
+      </ElForm>
     </div>
   </div>
 </template>
 
 <script>
   import { api } from '@/services/api';
-  import LoginForm from '@/components/LoginForm';
   import { initWorkspace } from '@/services/workspaces-service';
   import { userApi } from '@/services/user-api';
   import { app } from '@/services/app-services';
   import LogoLogin from '@/assets/logo-login.svg';
+  import SaIcon from '@/components/SaIcon';
 
   export default {
-    name: 'Login',
-
     components: {
-      LoginForm,
+      SaIcon,
       LogoLogin,
     },
 
+    data() {
+      return {
+        form: {
+          userName: '',
+          password: '',
+          rememberMe: true,
+        },
+      };
+    },
+
+    computed: {
+      loginEnabled() {
+        return this.form.userName && this.form.password;
+      },
+    },
+
+    async created() {
+      if (api.isLoggedIn()) {
+        this.$emit('login');
+      }
+    },
+
     methods: {
+      async login() {
+        try {
+          await api.login({
+            userName: this.form.userName,
+            password: this.form.password,
+            rememberMe: this.form.rememberMe,
+          });
+          await this.onLogin();
+        } catch ({ response: { data } }) {
+          if (data && data.error === 'AccountLocked') {
+            this.$message({
+              showClose: true,
+              // todo #115: localize and humanize
+              message: `Account is locked for ${data.lockExpiresInSec} seconds`,
+              type: 'error',
+            });
+          } else if (data && data.error === 'LoginNotAvailable') {
+            this.$message({
+              showClose: true,
+              message: 'Looks like your account is under attack!',
+              type: 'error',
+            });
+          } else {
+            this.$message({
+              showClose: true,
+              message: 'Login failed',
+              type: 'error',
+            });
+          }
+        }
+      },
+
       async onLogin() {
         if (api.isAdmin()) {
           await this.$router.push({ name: 'users-overview' });
@@ -126,6 +226,24 @@
         width: 150px;
         margin-bottom: 40px;
       }
+    }
+  }
+
+  .login-form {
+    .el-button {
+      width: 100%;
+      padding: 15px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .sa-icon {
+      margin-left: 5px;
+      margin-top: -3px;
+    }
+
+    .el-input--prefix .el-input__inner {
+      padding-left: 32px;
     }
   }
 
