@@ -13,7 +13,7 @@ module.exports = {
     config.performance = {
       hints: false,
     };
-    config.devtool = 'source-map';
+    config.devtool =  process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map';
   },
 
   chainWebpack: (config) => {

@@ -1,14 +1,14 @@
 <template>
   <div class="login-page">
     <div class="login-page__signup">
-      New here? We are launching public access soon.
+      {{ $t('loginPage.announcement') }}
     </div>
     <div class="login-page__login">
       <LogoLogin class="login-page__login__logo" />
 
       <ElForm
         ref="form"
-        class="login-form"
+        class="login-page__login-form"
         :model="form"
         label-width="0px"
       >
@@ -28,7 +28,7 @@
           <ElInput
             v-model="form.password"
             type="password"
-            placeholder="Password"
+            :placeholder="$t('loginPage.password.placeholder')"
           >
             <SaIcon
               slot="prefix"
@@ -42,29 +42,80 @@
           align="center"
         >
           <ElCheckbox v-model="form.rememberMe">
-            Remember me
+            {{ $t('loginPage.rememberMe.label') }}
           </ElCheckbox>
         </ElFormItem>
 
         <ElButton
           type="primary"
           :disabled="!loginEnabled"
-          @click="login"
+          @click="executeLogin"
         >
-          Login
+          <i
+            v-if="loginInProgress"
+            class="el-icon-loading"
+          />
+          <span v-else>{{ $t('loginPage.login') }}</span>
         </ElButton>
+
+        <div class="login-page__login-error">
+          {{ loginError }}
+        </div>
       </ElForm>
     </div>
   </div>
 </template>
 
 <script>
+  import {
+    computed,
+    reactive,
+    ref,
+    toRefs,
+    watch,
+  } from '@vue/composition-api';
   import { api } from '@/services/api';
   import { initWorkspace } from '@/services/workspaces-service';
   import { userApi } from '@/services/user-api';
   import { app } from '@/services/app-services';
+  import i18n from '@/services/i18n';
   import LogoLogin from '@/assets/logo-login.svg';
   import SaIcon from '@/components/SaIcon';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+
+  class AccountLockTimer {
+    constructor(onTimerUpdate) {
+      this.$remainingDurationInSec = ref(null);
+      this.$onTimerUpdate = onTimerUpdate;
+      this.$timerRef = null;
+    }
+
+    start(durationInSec) {
+      this.$onTimerUpdate(durationInSec);
+      this.$timerRef = setInterval(() => this.$handler(), 1000);
+      this.$remainingDurationInSec.value = durationInSec;
+    }
+
+    isActive() {
+      return this.$remainingDurationInSec.value != null;
+    }
+
+    cancel() {
+      if (this.$timerRef) {
+        clearInterval(this.$timerRef);
+        this.$remainingDurationInSec.value = null;
+      }
+    }
+
+    $handler() {
+      this.$remainingDurationInSec.value -= 1;
+      this.$onTimerUpdate(this.$remainingDurationInSec.value);
+      if (this.$remainingDurationInSec.value === 0) {
+        this.cancel();
+      }
+    }
+  }
 
   export default {
     components: {
@@ -72,79 +123,95 @@
       LogoLogin,
     },
 
-    data() {
-      return {
-        form: {
-          userName: '',
-          password: '',
-          rememberMe: true,
-        },
-      };
-    },
+    setup(props, { emit }) {
+      const form = reactive({
+        userName: '',
+        password: '',
+        rememberMe: true,
+      });
 
-    computed: {
-      loginEnabled() {
-        return this.form.userName && this.form.password;
-      },
-    },
+      const uiState = reactive({
+        loginError: '',
+        loginInProgress: false,
+      });
 
-    async created() {
-      if (api.isLoggedIn()) {
-        this.$emit('login');
-      }
-    },
-
-    methods: {
-      async login() {
-        try {
-          await api.login({
-            userName: this.form.userName,
-            password: this.form.password,
-            rememberMe: this.form.rememberMe,
-          });
-          await this.onLogin();
-        } catch ({ response: { data } }) {
-          if (data && data.error === 'AccountLocked') {
-            this.$message({
-              showClose: true,
-              // todo #115: localize and humanize
-              message: `Account is locked for ${data.lockExpiresInSec} seconds`,
-              type: 'error',
-            });
-          } else if (data && data.error === 'LoginNotAvailable') {
-            this.$message({
-              showClose: true,
-              message: 'Looks like your account is under attack!',
-              type: 'error',
-            });
-          } else {
-            this.$message({
-              showClose: true,
-              message: 'Login failed',
-              type: 'error',
-            });
-          }
-        }
-      },
-
-      async onLogin() {
-        if (api.isAdmin()) {
-          await this.$router.push({ name: 'users-overview' });
+      const accountLockTimer = new AccountLockTimer((lockDurationInSec) => {
+        if (lockDurationInSec === 0) {
+          uiState.loginError = null;
         } else {
+          uiState.loginError = i18n.t('loginPage.loginError.accountLocked', [lockDurationInSec]);
+        }
+      });
+
+      watch(() => [form.userName, form.password], () => {
+        if (form.password || form.userName) {
+          uiState.loginError = null;
+        }
+      });
+
+      const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
+
+      const onLoginError = (apiResponse) => {
+        if (apiResponse && apiResponse.error === 'AccountLocked') {
+          accountLockTimer.start(apiResponse.lockExpiresInSec);
+        } else if (apiResponse && apiResponse.error === 'LoginNotAvailable') {
+          uiState.loginError = i18n.t('loginPage.loginError.underAttack');
+        } else {
+          uiState.loginError = i18n.t('loginPage.loginError.generalFailure');
+        }
+      };
+
+      const { navigateByViewName } = useNavigation();
+
+      const onAdminLogin = async () => {
+        await navigateByViewName('users-overview');
+      };
+
+      const onUserLogin = async () => {
+        await initWorkspace();
+
+        const { currentWorkspace } = useCurrentWorkspace();
+
+        if (!currentWorkspace) {
+          await navigateByViewName('workspace-setup');
+        } else if (app.store.state.app.lastView) {
+          await navigateByViewName(app.store.state.app.lastView);
+        } else {
+          await navigateByViewName('root');
+        }
+      };
+
+      if (api.isLoggedIn()) {
+        emit('login');
+      }
+
+      const executeLogin = async () => {
+        uiState.loginError = null;
+        uiState.loginInProgress = true;
+        accountLockTimer.cancel();
+        try {
+          await api.login({ ...form });
           const profile = await userApi.getProfile();
           await app.i18n.setLocaleFromProfile(profile.i18n);
 
-          await initWorkspace();
-
-          if (!this.$store.state.workspaces.currentWorkspace) {
-            await this.$router.push('/workspace-setup');
-          } else if (this.$store.state.app.lastView) {
-            await this.$router.push({ name: this.$store.state.app.lastView });
+          if (api.isAdmin()) {
+            await onAdminLogin();
           } else {
-            await this.$router.push('/');
+            await onUserLogin();
           }
+        } catch ({ response: { data } }) {
+          onLoginError(data);
+        } finally {
+          uiState.loginInProgress = false;
         }
-      },
+      };
+
+      return {
+        form,
+        ...toRefs(uiState),
+        executeLogin,
+        loginEnabled,
+      };
     },
   };
 </script>
@@ -175,35 +242,48 @@
       align-items: center;
       justify-content: center;
 
-      .el-form {
-        min-width: 40%;
+      &__logo {
+        height: 150px;
+        width: 150px;
+        margin-bottom: 40px;
+      }
+    }
 
-        .el-button--primary {
-          background: $primary-color-lighter-iii;
-          border-color: $primary-color-lighter-iii;
-          transition: all 0.25s;
+    &__login-form {
+      width: 80%;
 
-          &:hover {
-            background: $primary-color-lighter-ii;
-            border-color: $primary-color-lighter-ii;
-          }
+      @include respond-above-starting-with(lg) {
+        width: 40%;
+      }
 
-          &.is-disabled {
-            background: white;
-            color: $primary-color-lighter-iii;
-            cursor: inherit;
+      .el-button--primary {
+        background: $primary-color-lighter-iii;
+        border-color: $primary-color-lighter-iii;
+        transition: all 0.25s;
+        width: 100%;
+        padding: 15px;
+        text-transform: uppercase;
+        font-weight: bold;
 
-            &:hover {
-              border-color: $primary-color-lighter-iii;
-            }
-          }
+        &:hover, &:focus {
+          background: $primary-color-lighter-ii;
+          border-color: $primary-color-lighter-ii;
         }
 
-        .el-checkbox__label {
+        &.is-disabled {
+          background: white !important;
+          color: $primary-color-lighter-iii !important;
+          border-color: $primary-color-lighter-iii !important;
+          cursor: inherit !important;
+        }
+      }
+
+      .el-checkbox {
+        &__label {
           color: $primary-color-lighter-ii !important;
         }
 
-        .el-checkbox__inner {
+        &__inner {
           background-color: white !important;
           border-color: $primary-color-lighter-ii !important;
 
@@ -211,40 +291,33 @@
             border-color: $primary-color-lighter-ii;
           }
         }
+      }
 
-        .el-input__inner {
+      .el-input {
+        &__inner {
           border-color: $primary-color-lighter-iii;
 
           &:focus {
             border-color: $primary-color-lighter-iii;
           }
         }
-      }
 
-      &__logo {
-        height: 150px;
-        width: 150px;
-        margin-bottom: 40px;
+        &__prefix {
+          display: inline-flex;
+          align-items: center;
+        }
+
+        .sa-icon {
+          margin-left: 5px;
+        }
       }
+    }
+
+    &__login-error {
+      height: 3pt;
+      color: $danger-color;
+      text-align: center;
+      margin-top: 20px;
     }
   }
-
-  .login-form {
-    .el-button {
-      width: 100%;
-      padding: 15px;
-      text-transform: uppercase;
-      font-weight: bold;
-    }
-
-    .sa-icon {
-      margin-left: 5px;
-      margin-top: -3px;
-    }
-
-    .el-input--prefix .el-input__inner {
-      padding-left: 32px;
-    }
-  }
-
 </style>

@@ -17,8 +17,21 @@ export default {
   },
 
   loginPage: {
+    announcement: 'Вперше тут? Ми запускаємо публічний доступ скоро.',
     userName: {
       placeholder: 'Логін',
+    },
+    password: {
+      placeholder: 'Пароль',
+    },
+    rememberMe: {
+      label: 'Запам\'ятати мене на 30 днів',
+    },
+    login: 'Ввійти',
+    loginError: {
+      underAttack: 'Схоже, що ваш акаунт знаходиться під атакою!',
+      generalFailure: 'Спроба входу не вдалася. Будь ласка, переконайтеся, що логін і пароль правильний',
+      accountLocked: 'Обліковий запис тимчасово заблоковано. Він буде розблокований через {0, duration}',
     },
   },
 
