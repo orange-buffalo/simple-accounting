@@ -17,8 +17,21 @@ export default {
   },
 
   loginPage: {
+    announcement: 'New here? We are launching public access soon.',
     userName: {
       placeholder: 'Login',
+    },
+    password: {
+      placeholder: 'Password',
+    },
+    rememberMe: {
+      label: 'Remember me for 30 days',
+    },
+    login: 'Login',
+    loginError: {
+      underAttack: 'Looks like your account is under attack!',
+      generalFailure: 'Login attempt failed. Please make sure login and password is correct',
+      accountLocked: 'Account is temporary locked. It will be unlocked in {0, duration}',
     },
   },
 

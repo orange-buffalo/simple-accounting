@@ -61,6 +61,7 @@ export default new Router({
     {
       path: '/',
       component: TheAuthenticatedPage,
+      name: 'root',
       children: [
         {
           path: '',
