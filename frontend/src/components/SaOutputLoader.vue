@@ -1,11 +1,9 @@
 <template>
-  <div>
+  <div class="sa-output-loader">
     <div
       v-if="loading"
-      class="sa-output-loader"
-    >
-      &nbsp;
-    </div>
+      class="sa-output-loader__placeholder"
+    />
 
     <slot v-else />
   </div>
@@ -30,8 +28,14 @@
   @import "~@/styles/mixins.scss";
 
   .sa-output-loader {
-    display: inline-block;
-    width: 70px;
-    @include loading-placeholder;
+    display: inline-flex;
+    align-items: center;
+
+    &__placeholder {
+      display: inline-block;
+      width: 70px;
+      height: 1em;
+      @include loading-placeholder;
+    }
   }
 </style>
