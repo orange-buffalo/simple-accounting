@@ -50,3 +50,5 @@ Category by Fahmi from the [Noun Project](https://thenounproject.com/)
 tax by supalerk laipawat from the [Noun Project](https://thenounproject.com/)
 
 management by Adrien Coquet from the [Noun Project](https://thenounproject.com/)
+
+customer by Tomas Knopp from the [Noun Project](https://thenounproject.com/)

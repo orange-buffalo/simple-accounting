@@ -31,9 +31,9 @@
 
 <script>
   import DataItems from '@/components/DataItems';
-  import CustomerOverviewPanel from './CustomerOverviewPanel';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
+  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import CustomerOverviewPanel from './CustomerOverviewPanel';
 
   export default {
     name: 'CustomersOverview',
