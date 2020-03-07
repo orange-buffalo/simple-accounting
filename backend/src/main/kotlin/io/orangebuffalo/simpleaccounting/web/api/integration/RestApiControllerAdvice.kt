@@ -6,6 +6,8 @@ import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.services.security.login.AccountIsTemporaryLockedException
 import io.orangebuffalo.simpleaccounting.services.security.login.LoginUnavailableException
 import mu.KotlinLogging
+import org.springframework.core.NestedRuntimeException
+import org.springframework.core.codec.CodecException
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -73,7 +75,16 @@ class RestApiControllerAdvice {
     @ExceptionHandler
     fun onException(exception: ServerWebInputException): Mono<ResponseEntity<String>> {
         logger.trace(exception) { "Bad request to ${exception.methodParameter}" }
+        return handleNestedRuntimeException(exception)
+    }
 
+    @ExceptionHandler
+    fun onException(exception: CodecException): Mono<ResponseEntity<String>> {
+        logger.trace(exception) { }
+        return handleNestedRuntimeException(exception)
+    }
+
+    private fun handleNestedRuntimeException(exception: NestedRuntimeException): Mono<ResponseEntity<String>> {
         val cause = exception.mostSpecificCause
         val message = if (cause is MissingKotlinParameterException) {
             "Property ${cause.parameter.name} is required"
