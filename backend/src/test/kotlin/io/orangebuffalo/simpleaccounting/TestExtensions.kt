@@ -46,6 +46,18 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
         .expectStatus().isOk
         .expectThatJsonBody(spec)
 
+fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
+    spec: (body: String) -> Unit
+): KotlinBodySpec<String> =
+    exchange()
+        .expectStatus().isOk
+        .expectBody<String>()
+        .consumeWith { response ->
+            val body = response.responseBody
+            assertThat(body).isNotBlank()
+            spec(body!!)
+        }
+
 fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
     contentType(MediaType.APPLICATION_JSON).bodyValue(json)
 

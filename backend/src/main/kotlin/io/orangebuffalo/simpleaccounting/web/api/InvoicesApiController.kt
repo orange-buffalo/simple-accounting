@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QInvoice
-import io.orangebuffalo.simpleaccounting.services.persistence.toSort
+import io.orangebuffalo.simpleaccounting.services.persistence.toOrder
 import io.orangebuffalo.simpleaccounting.web.api.integration.*
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.domain.Page
@@ -226,5 +226,8 @@ class InvoicePageableApiDescriptor(
         }
     }
 
-    override fun getDefaultSorting(): Sort = QInvoice.invoice.dateIssued.desc().toSort()
+    override fun getDefaultSorting() = Sort.by(
+        QInvoice.invoice.dateIssued.desc().toOrder(),
+        QInvoice.invoice.timeRecorded.asc().toOrder()
+    )
 }

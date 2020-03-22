@@ -369,7 +369,7 @@ internal class ApiPageRequestResolverTest {
         val resolvedPageRequest = invokeResolveArgumentAndGetPageRequest("apiPageMethodExtended")
 
         assertThat(resolvedPageRequest.predicate).isNotNull
-            .hasToString("(testEntity.entityField = 42 || testEntity.entityField = 44) && testEntity.entityField >= 20")
+            .hasToString("testEntity.entityField = 42 && testEntity.entityField = 44 && testEntity.entityField >= 20")
     }
 
     @Test

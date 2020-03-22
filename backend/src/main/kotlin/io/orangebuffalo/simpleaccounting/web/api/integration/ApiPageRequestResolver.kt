@@ -96,15 +96,12 @@ class ApiPageRequestResolver(
                     ?: return Either.left("'${rawFilterOperator}' is not a valid filter operator")
 
                 val rawFilterValues = queryParam.value
-                val currentOperatorPredicates = BooleanBuilder()
                 rawFilterValues.forEach { rawFilterValue ->
                     when (val maybePredicate = pageableApiFilter.forOperator(filterOperator, rawFilterValue)) {
                         is Either.Left -> return maybePredicate
-                        is Either.Right -> currentOperatorPredicates.or(maybePredicate.b)
+                        is Either.Right -> allOperatorsPredicates.and(maybePredicate.b)
                     }
                 }
-
-                allOperatorsPredicates.and(currentOperatorPredicates.value)
             }
 
         return Either.right(allOperatorsPredicates.value)

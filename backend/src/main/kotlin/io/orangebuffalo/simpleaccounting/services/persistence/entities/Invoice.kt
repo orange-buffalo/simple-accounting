@@ -19,7 +19,7 @@ class Invoice(
     var title: String,
 
     @field:Column(nullable = false)
-    val timeRecorded: Instant,
+    var timeRecorded: Instant,
 
     @field:Column(nullable = false)
     var dateIssued: LocalDate,

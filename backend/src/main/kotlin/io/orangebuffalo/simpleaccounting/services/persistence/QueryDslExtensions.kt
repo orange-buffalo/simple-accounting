@@ -4,6 +4,10 @@ import com.querydsl.core.types.*
 import org.springframework.data.domain.Sort
 
 fun <T : Comparable<*>> OrderSpecifier<T>.toSort(): Sort {
+    return Sort.by(this.toOrder())
+}
+
+fun <T : Comparable<*>> OrderSpecifier<T>.toOrder(): Sort.Order {
     val propertyName = this.target.accept(object : Visitor<String?, Void?> {
         override fun visit(expr: Path<*>?, context: Void?): String? {
             return expr?.metadata?.name
@@ -17,5 +21,5 @@ fun <T : Comparable<*>> OrderSpecifier<T>.toSort(): Sort {
         override fun visit(expr: Constant<*>?, context: Void?): String? = null
     }, null)!!
 
-    return Sort.by(Sort.Order.by(propertyName).with(Sort.Direction.fromString(this.order.name)))
+    return Sort.Order.by(propertyName).with(Sort.Direction.fromString(this.order.name))
 }
