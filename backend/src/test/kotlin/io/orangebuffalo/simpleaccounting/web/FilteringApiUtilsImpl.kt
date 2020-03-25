@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.support.kotlinEquals
 import io.orangebuffalo.simpleaccounting.support.kotlinHashCode
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.utils.combine
 import io.orangebuffalo.simpleaccounting.verifyOkAndBody
 import mu.KotlinLogging
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -80,73 +81,37 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
 
         filteringQueryParams.forEach { queryParam ->
             testCases.add(
-                FilteringTestCase().also { testCase -> testCase.addFilter(queryParam) }
+                FilteringTestCase().also { testCase -> testCase.addQueryParam(queryParam) }
             )
         }
 
         val filtersWithSorting: MutableList<List<String>> = mutableListOf()
         filtersWithSorting.add(filteringQueryParams)
+        filtersWithSorting.add(sortingBuilder.allSortingQueryParameters)
 
-        val sortingQueryParams = sortingBuilder.allSortingQueryParameters
-        if (sortingQueryParams.isNotEmpty()) {
-            filtersWithSorting.add(sortingQueryParams)
-        }
-
-        val fieldsIndexes = IntArray(filtersWithSorting.size)
-        combineFilters(fieldsIndexes, 0, filtersWithSorting, testCases)
+        combine(filtersWithSorting, testCases.toCombinatorConsumer())
     }
 
     private fun addFiltersCombinationsTestCases(
         testCases: MutableSet<FilteringApiTestCase>
     ) {
-        val filtersPerField = mutableListOf<List<String>>()
-        filteringBuilder.allFilters.asSequence()
-            .map { listOf(it) }
-            .forEach { filtersPerField.add(it) }
+        val filtersPerField = filteringBuilder.allFilters.asSequence()
+            .groupBy { it.substring(0, it.indexOf('[')) }
+            .values
+            .toMutableList()
 
         filtersPerField.add(sortingBuilder.allSortingQueryParameters)
 
-        val fieldsIndexes = IntArray(filtersPerField.size)
-        combineFilters(fieldsIndexes, 0, filtersPerField, testCases)
+        combine(filtersPerField, testCases.toCombinatorConsumer())
     }
 
-    private fun combineFilters(
-        fieldsIndexes: IntArray,
-        currentFieldIndex: Int,
-        filtersPerField: List<List<String>>,
-        testCases: MutableSet<FilteringApiTestCase>
-    ) {
-
-        if (currentFieldIndex == fieldsIndexes.size) {
-            testCases.add(createTestCase(filtersPerField, fieldsIndexes))
-        } else {
-            val maxCurrent = filtersPerField[currentFieldIndex].size
-
-            if (maxCurrent == 0) {
-                combineFilters(fieldsIndexes, currentFieldIndex + 1, filtersPerField, testCases)
-            }
-
-            for (j in 0 until maxCurrent) {
-                fieldsIndexes[currentFieldIndex] = j
-                combineFilters(fieldsIndexes, currentFieldIndex + 1, filtersPerField, testCases)
-            }
+    private fun MutableSet<FilteringApiTestCase>.toCombinatorConsumer(): (List<String>) -> Unit {
+        val testCases = this
+        return { queryParams ->
+            val testCase = FilteringTestCase()
+            queryParams.forEach { testCase.addQueryParam(it) }
+            testCases.add(testCase)
         }
-    }
-
-    private fun createTestCase(
-        filtersPerField: List<List<String>>,
-        fieldsIndexes: IntArray
-    ): FilteringTestCase {
-        val testCase = FilteringTestCase()
-        for (currentFieldIndex in fieldsIndexes.indices) {
-            val currentFieldOptionIndex = fieldsIndexes[currentFieldIndex]
-
-            if (filtersPerField[currentFieldIndex].isNotEmpty()) {
-                val filter = filtersPerField[currentFieldIndex][currentFieldOptionIndex]
-                testCase.addFilter(filter)
-            }
-        }
-        return testCase
     }
 
     private inner class EntityMatcherImpl : EntityMatcher<T> {
@@ -258,7 +223,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         private val equalsHashCodeProperties: Array<out (obj: FilteringTestCase) -> Any?>
             get() = arrayOf({ tc -> tc.filters })
 
-        fun addFilter(filter: String) {
+        fun addQueryParam(filter: String) {
             url += if (filters.isEmpty()) "?" else "&"
             url += filter
             filters.add(filter)

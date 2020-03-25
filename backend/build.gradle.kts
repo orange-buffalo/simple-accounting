@@ -62,6 +62,7 @@ dependencies {
     testImplementation("com.nhaarman:mockito-kotlin:${Versions.mockitoKotlin}")
     testImplementation("org.mockito:mockito-junit-jupiter:${Versions.mockito}")
     testImplementation("org.flywaydb:flyway-core")
+    testImplementation("com.google.guava:guava:${Versions.guava}")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
