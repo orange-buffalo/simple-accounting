@@ -7,7 +7,7 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QIncomeTaxPayment
-import io.orangebuffalo.simpleaccounting.services.persistence.toSort
+import io.orangebuffalo.simpleaccounting.services.persistence.toOrder
 import io.orangebuffalo.simpleaccounting.web.api.integration.*
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.domain.Page
@@ -144,5 +144,8 @@ class IncomeTaxPaymentPageableApiDescriptor : PageableApiDescriptor<IncomeTaxPay
     override suspend fun mapEntityToDto(entity: IncomeTaxPayment) =
         mapIncomeTaxPaymentDto(entity)
 
-    override fun getDefaultSorting(): Sort = QIncomeTaxPayment.incomeTaxPayment.datePaid.desc().toSort()
+    override fun getDefaultSorting() = Sort.by(
+        QIncomeTaxPayment.incomeTaxPayment.datePaid.desc().toOrder(),
+        QIncomeTaxPayment.incomeTaxPayment.timeRecorded.asc().toOrder()
+    )
 }

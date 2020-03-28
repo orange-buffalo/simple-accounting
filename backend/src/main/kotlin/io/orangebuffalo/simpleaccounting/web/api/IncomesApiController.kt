@@ -4,8 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.simpleaccounting.services.business.*
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
-import io.orangebuffalo.simpleaccounting.services.persistence.toSort
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.persistence.toOrder
 import io.orangebuffalo.simpleaccounting.web.api.integration.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
@@ -218,5 +217,8 @@ class IncomePageableApiDescriptor(
         }
     }
 
-    override fun getDefaultSorting(): Sort = QIncome.income.dateReceived.desc().toSort()
+    override fun getDefaultSorting() = Sort.by(
+        QIncome.income.dateReceived.desc().toOrder(),
+        QIncome.income.timeRecorded.asc().toOrder()
+    )
 }

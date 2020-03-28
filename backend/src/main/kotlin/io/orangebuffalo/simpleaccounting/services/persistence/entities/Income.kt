@@ -19,7 +19,7 @@ class Income(
     var title: String,
 
     @field:Column(nullable = false)
-    val timeRecorded: Instant,
+    var timeRecorded: Instant,
 
     @field:Column(nullable = false)
     var dateReceived: LocalDate,

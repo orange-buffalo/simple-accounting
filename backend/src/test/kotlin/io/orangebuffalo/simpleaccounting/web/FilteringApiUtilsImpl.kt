@@ -16,6 +16,7 @@ import io.orangebuffalo.simpleaccounting.utils.combine
 import io.orangebuffalo.simpleaccounting.verifyOkAndBody
 import mu.KotlinLogging
 import org.springframework.test.web.reactive.server.WebTestClient
+import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
@@ -52,11 +53,15 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
 
     fun buildTestCases(): Collection<FilteringApiTestCase> {
         val testCases: MutableSet<FilteringApiTestCase> = mutableSetOf()
-        testCases.add(FilteringTestCase())
+        if (filteringBuilder.entitiesSpecs.isNotEmpty()) {
+            testCases.add(FilteringTestCase())
+        }
         addStandaloneFiltersTestCases(testCases)
         addFiltersCombinationsTestCases(testCases)
 
-        testCases.add(SortingTestCase(sortingBuilder.defaultCase.entitiesInitiators))
+        if (sortingBuilder.defaultCase.entitiesInitiators.isNotEmpty()) {
+            testCases.add(SortingTestCase(sortingBuilder.defaultCase.entitiesInitiators))
+        }
         addSortingTestCases(testCases)
 
         logger.info { "Total generated test cases are: $testCases" }
@@ -154,6 +159,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
     private inner class FilteringEntityBuilderImpl : FilteringTestCaseBuilder.FilteringEntityBuilder<T> {
         val skippedOnFilters: MutableList<String> = mutableListOf()
         lateinit var entityConfigurer: EntitiesRegistry.(entity: T) -> Unit
+        val dynamicFilterReplacements: MutableList<DynamicFilterReplacement> = mutableListOf()
 
         override fun configure(init: EntitiesRegistry.(entity: T) -> Unit) {
             this.entityConfigurer = init
@@ -161,6 +167,12 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
 
         override fun skippedOn(filter: String) {
             skippedOnFilters.add(filter)
+        }
+
+        override fun dynamicFilterReplacement(placeholder: String, valueExtractor: (T) -> Any?) {
+            dynamicFilterReplacements.add(
+                this@FilteringApiTestCasesBuilderImpl.DynamicFilterReplacement(placeholder, valueExtractor)
+            )
         }
 
         fun createEntity(entitiesRegistry: EntitiesRegistry): T {
@@ -171,7 +183,22 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         }
 
         fun isSkippedForUrl(url: String): Boolean = skippedOnFilters.any { url.contains(it) }
+
+        fun createFilterReplacements(entity: T): List<(String) -> String> {
+            return dynamicFilterReplacements
+                .map { filterReplacementSpec ->
+                    { url: String ->
+                        val placeholderValue = filterReplacementSpec.valueExtractor(entity)?.toString() ?: ""
+                        url.replace(filterReplacementSpec.placeholder, placeholderValue, true)
+                    }
+                }
+        }
     }
+
+    private inner class DynamicFilterReplacement(
+        val placeholder: String,
+        val valueExtractor: (T) -> Any?
+    )
 
     private inner class SortingTestCaseBuilderImpl : SortingTestCaseBuilder<T> {
 
@@ -222,10 +249,15 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         private val filters: MutableList<String> = mutableListOf()
         private val equalsHashCodeProperties: Array<out (obj: FilteringTestCase) -> Any?>
             get() = arrayOf({ tc -> tc.filters })
+        private val filterReplacements = mutableListOf<(String) -> String>()
+
+        init {
+            val limit = max(1, filteringBuilder.entitiesSpecs.size)
+            url += "?limit=$limit"
+        }
 
         fun addQueryParam(filter: String) {
-            url += if (filters.isEmpty()) "?" else "&"
-            url += filter
+            url += "&$filter"
             filters.add(filter)
         }
 
@@ -235,11 +267,15 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
                 if (!entitySpec.isSkippedForUrl(url)) {
                     expectedEntitiesInResponse.add(entity)
                 }
+                filterReplacements.addAll(entitySpec.createFilterReplacements(entity))
             }
 
-            url += (if (filters.isEmpty()) "?" else "&") + "limit=${filteringBuilder.entitiesSpecs.size}"
-
             return super.generateData()
+        }
+
+        override fun execute(client: WebTestClient) {
+            filterReplacements.forEach { filterReplacemetSpec -> url = filterReplacemetSpec(url) }
+            super.execute(client)
         }
 
         override fun assertResults(responseEntitiesDesc: List<String>, expectedEntitiesDesc: List<String>) {

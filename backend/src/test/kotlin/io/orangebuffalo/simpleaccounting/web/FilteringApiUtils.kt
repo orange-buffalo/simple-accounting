@@ -58,6 +58,7 @@ interface FilteringTestCaseBuilder<T : Any> {
     interface FilteringEntityBuilder<T : Any> {
         fun configure(init: EntitiesRegistry.(entity: T) -> Unit)
         fun skippedOn(filter: String)
+        fun dynamicFilterReplacement(placeholder: String, valueExtractor: (T) -> Any?)
     }
 }
 

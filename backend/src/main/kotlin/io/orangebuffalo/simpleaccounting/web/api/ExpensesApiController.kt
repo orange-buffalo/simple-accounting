@@ -10,8 +10,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsIn
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QExpense
-import io.orangebuffalo.simpleaccounting.services.persistence.toSort
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.persistence.toOrder
 import io.orangebuffalo.simpleaccounting.web.api.integration.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
@@ -211,5 +210,8 @@ class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
         }
     }
 
-    override fun getDefaultSorting(): Sort = QExpense.expense.datePaid.desc().toSort()
+    override fun getDefaultSorting() = Sort.by(
+        QExpense.expense.datePaid.desc().toOrder(),
+        QExpense.expense.timeRecorded.asc().toOrder()
+    )
 }

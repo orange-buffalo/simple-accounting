@@ -12,7 +12,7 @@ class IncomeTaxPayment(
     var workspace: Workspace,
 
     @field:Column(nullable = false)
-    val timeRecorded: Instant,
+    var timeRecorded: Instant,
 
     @field:Column(nullable = false)
     var datePaid: LocalDate,
