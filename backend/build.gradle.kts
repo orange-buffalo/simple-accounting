@@ -19,6 +19,7 @@ plugins {
 }
 
 apply(plugin = "io.spring.dependency-management")
+apply<SaJooqCodeGenPlugin>()
 
 repositories {
     mavenCentral()
@@ -38,6 +39,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${Versions.kotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${Versions.kotlinCoroutines}")
+    implementation("org.jooq:jooq:${Versions.jooq}")
 
     implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
     implementation("com.querydsl:querydsl-jpa:${Versions.queryDsl}")

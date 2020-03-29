@@ -8,6 +8,7 @@ object Versions {
     const val queryDsl = "4.2.2"
     const val javaxEl = "3.0.1-b11"
     const val guava = "28.2-jre"
+    const val jooq = "3.13.1"
 
     const val assertk = "0.20"
     const val mockito = "3.3.1"
