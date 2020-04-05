@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.services.integration
 import kotlinx.coroutines.*
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-private val dbContext = newFixedThreadPoolContext(10, "db-context")
+private val dbContext = newFixedThreadPoolContext(20, "db-context")
 
 suspend fun <T> withDbContext(block: suspend CoroutineScope.() -> T): T = withContext(dbContext, block)
 
