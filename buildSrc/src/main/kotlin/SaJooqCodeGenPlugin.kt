@@ -5,9 +5,10 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.tasks.*
 import org.jooq.codegen.DefaultGeneratorStrategy
 import org.jooq.codegen.GenerationTool
-import org.jooq.meta.ColumnDefinition
-import org.jooq.meta.Definition
+import org.jooq.codegen.GeneratorStrategy
+import org.jooq.meta.*
 import org.jooq.meta.jaxb.*
+import org.jooq.meta.jaxb.Database
 import org.jooq.meta.jaxb.Target
 import org.jooq.tools.StringUtils
 
@@ -22,7 +23,7 @@ class SaJooqCodeGenPlugin : Plugin<Project> {
         val jooqCodeGenTask = project.tasks.register("jooqGenerateSources", SaJooqCodeGenTask::class.java) {
             flywayMigrations.from(project.file("src/main/resources/db/migration"))
             jooqModelDirectory.set(jooqModelDir.absoluteFile)
-            jooqModelPackage.set("io.orangebuffalo.simpleaccounting.services.persistence.impl.model")
+            jooqModelPackage.set("io.orangebuffalo.simpleaccounting.services.persistence.model")
         }
 
         val compileJava = project.tasks.findByName("compileJava")
@@ -78,11 +79,30 @@ open class SaJooqCodeGenTask : DefaultTask() {
 }
 
 class SaGeneratorStrategy : DefaultGeneratorStrategy() {
+    override fun getJavaPackageName(definition: Definition, mode: GeneratorStrategy.Mode): String =
+        if (definition is TableDefinition && mode == GeneratorStrategy.Mode.RECORD) targetPackage
+        else "${targetPackage}.db"
+
+    override fun getJavaClassName(definition: Definition, mode: GeneratorStrategy.Mode): String =
+        if (definition is CatalogDefinition && definition.isDefaultCatalog)
+            "DefaultCatalog"
+        else if (definition is SchemaDefinition && definition.isDefaultSchema)
+            "DefaultSchema"
+        else {
+            val validName = StringUtils.toCamelCase(
+                definition.outputName
+                    .replace(' ', '_')
+                    .replace('-', '_')
+                    .replace('.', '_')
+            )
+            if (definition is TableDefinition && mode != GeneratorStrategy.Mode.RECORD) "${validName}Table"
+            else validName
+        }
+
     override fun getJavaIdentifier(definition: Definition): String {
         if (definition is ColumnDefinition) {
             return StringUtils.toCamelCaseLC(definition.outputName)
         }
-
         return super.getJavaIdentifier(definition)
     }
 }
