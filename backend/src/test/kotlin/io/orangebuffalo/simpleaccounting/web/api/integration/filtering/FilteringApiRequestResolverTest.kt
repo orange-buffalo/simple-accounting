@@ -142,7 +142,7 @@ class FilteringApiRequestResolverTest {
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "42",
-                            operator = FilteringApiRequestPredicateOperator.EQ
+                            operator = FilteringApiPredicateOperator.EQ
                         )
                     )
                 ),
@@ -168,7 +168,7 @@ class FilteringApiRequestResolverTest {
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "42",
-                            operator = FilteringApiRequestPredicateOperator.EQ
+                            operator = FilteringApiPredicateOperator.EQ
                         )
                     )
                 ),
@@ -182,7 +182,7 @@ class FilteringApiRequestResolverTest {
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "42",
-                            operator = FilteringApiRequestPredicateOperator.GOE
+                            operator = FilteringApiPredicateOperator.GOE
                         )
                     )
                 ),
@@ -196,7 +196,7 @@ class FilteringApiRequestResolverTest {
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "42",
-                            operator = FilteringApiRequestPredicateOperator.LOE
+                            operator = FilteringApiPredicateOperator.LOE
                         )
                     )
                 ),
@@ -210,17 +210,17 @@ class FilteringApiRequestResolverTest {
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "42",
-                            operator = FilteringApiRequestPredicateOperator.GOE
+                            operator = FilteringApiPredicateOperator.GOE
                         ),
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "100",
-                            operator = FilteringApiRequestPredicateOperator.LOE
+                            operator = FilteringApiPredicateOperator.LOE
                         ),
                         FilteringApiRequestPredicate(
                             apiField = "anotherApiField",
                             value = "abc",
-                            operator = FilteringApiRequestPredicateOperator.GOE
+                            operator = FilteringApiPredicateOperator.GOE
                         )
                     )
                 ),
@@ -238,17 +238,17 @@ class FilteringApiRequestResolverTest {
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "42",
-                            operator = FilteringApiRequestPredicateOperator.EQ
+                            operator = FilteringApiPredicateOperator.EQ
                         ),
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "44",
-                            operator = FilteringApiRequestPredicateOperator.EQ
+                            operator = FilteringApiPredicateOperator.EQ
                         ),
                         FilteringApiRequestPredicate(
                             apiField = "apiField",
                             value = "20",
-                            operator = FilteringApiRequestPredicateOperator.GOE
+                            operator = FilteringApiPredicateOperator.GOE
                         )
                     )
                 ),
@@ -284,7 +284,7 @@ class FilteringApiRequestResolverTest {
                 assertThat(resolvedPageRequest.pageNumber).isEqualTo(expectedRequest.pageNumber)
                 assertThat(resolvedPageRequest.sortBy).isEqualTo(expectedRequest.sortBy)
                 assertThat(resolvedPageRequest.sortDirection).isEqualTo(expectedRequest.sortDirection)
-                assertThat(resolvedPageRequest.predicates).isNotNull()
+                assertThat(resolvedPageRequest.predicates).isNotNull
                 assertThat(resolvedPageRequest.predicates)
                     .containsExactlyInAnyOrder(*expectedRequest.predicates.toTypedArray())
             }

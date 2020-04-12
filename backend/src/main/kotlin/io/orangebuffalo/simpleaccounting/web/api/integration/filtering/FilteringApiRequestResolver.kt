@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
-import arrow.core.*
+import arrow.core.Option
+import arrow.core.getOrElse
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiValidationException
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
@@ -16,24 +17,46 @@ enum class FilteringApiRequestSortDirection {
     }
 }
 
-enum class FilteringApiRequestPredicateOperator {
-    EQ,
-    GOE,
-    LOE;
+@Suppress("LeakingThis", "We control initialization of all sealed class implementations")
+sealed class FilteringApiPredicateOperator(val requestValue: String) {
+    init {
+        knownOperators[requestValue] = this
+    }
+
+    override fun toString() = requestValue
+
+    sealed class SingleArgumentOperator(requestValue: String) : FilteringApiPredicateOperator(requestValue) {
+        object EQ : SingleArgumentOperator("eq")
+        object GOE : SingleArgumentOperator("goe")
+        object LOE : SingleArgumentOperator("loe")
+    }
+
+    sealed class MultiArgumentsOperator(requestValue: String) : FilteringApiPredicateOperator(requestValue) {
+        object IN : MultiArgumentsOperator("in")
+    }
 
     companion object {
-        internal fun fromRequestString(value: String): FilteringApiRequestPredicateOperator? =
-            values().firstOrNull { it.name.toLowerCase() == value }
+        private val knownOperators = mutableMapOf<String, FilteringApiPredicateOperator>()
+
+        val EQ = SingleArgumentOperator.EQ
+        val GOE = SingleArgumentOperator.GOE
+        val LOE = SingleArgumentOperator.LOE
+        val IN = MultiArgumentsOperator.IN
+
+        fun fromRequestString(requestValue: String): FilteringApiPredicateOperator? = knownOperators[requestValue]
     }
 }
 
 data class FilteringApiRequestPredicate(
     val apiField: String,
     val value: String,
-    val operator: FilteringApiRequestPredicateOperator
+    val operator: FilteringApiPredicateOperator
 )
 
 data class FilteringApiRequest(
+    /**
+     * Page number, 1-based.
+     */
     val pageNumber: Int,
     val pageSize: Int,
     val sortBy: String?,
@@ -73,7 +96,7 @@ class FilteringApiRequestResolver {
 
                 val rawPredicateOperator = queryParamKeyMatcher.groupValues[2]
 
-                val predicateOperator = FilteringApiRequestPredicateOperator.fromRequestString(rawPredicateOperator)
+                val predicateOperator = FilteringApiPredicateOperator.fromRequestString(rawPredicateOperator)
                     ?: throw ApiValidationException("'${rawPredicateOperator}' is not a valid filter operator")
 
                 val rawPredicateValues = queryParam.value
