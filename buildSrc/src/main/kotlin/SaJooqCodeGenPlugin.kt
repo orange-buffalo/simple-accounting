@@ -79,10 +79,6 @@ open class SaJooqCodeGenTask : DefaultTask() {
 }
 
 class SaGeneratorStrategy : DefaultGeneratorStrategy() {
-    override fun getJavaPackageName(definition: Definition, mode: GeneratorStrategy.Mode): String =
-        if (definition is TableDefinition && mode == GeneratorStrategy.Mode.RECORD) targetPackage
-        else "${targetPackage}.db"
-
     override fun getJavaClassName(definition: Definition, mode: GeneratorStrategy.Mode): String =
         if (definition is CatalogDefinition && definition.isDefaultCatalog)
             "DefaultCatalog"
@@ -96,6 +92,7 @@ class SaGeneratorStrategy : DefaultGeneratorStrategy() {
                     .replace('.', '_')
             )
             if (definition is TableDefinition && mode != GeneratorStrategy.Mode.RECORD) "${validName}Table"
+            else if (definition is TableDefinition && mode == GeneratorStrategy.Mode.RECORD) "${validName}Record"
             else validName
         }
 

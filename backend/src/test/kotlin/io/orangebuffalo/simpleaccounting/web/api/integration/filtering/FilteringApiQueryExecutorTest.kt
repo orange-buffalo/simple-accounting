@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.core.convert.ConversionService
+import org.springframework.data.relational.core.mapping.Table
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
@@ -27,7 +28,7 @@ internal class FilteringApiQueryExecutorTest(
     @Autowired val dslContext: DSLContext,
     @Autowired val conversionService: ConversionService
 ) {
-    lateinit var filteringApiQueryExecutor: FilteringApiQueryExecutor<TestDummyRecord, TestDummyTable>
+    lateinit var filteringApiQueryExecutor: FilteringApiQueryExecutor<TestDummyTable, TestDummy>
 
     companion object {
         private val defaultRequest = FilteringApiRequest(
@@ -37,10 +38,10 @@ internal class FilteringApiQueryExecutorTest(
             sortDirection = null,
             predicates = emptyList()
         )
-        private val zoidberg = TestDummyRecord(2, "Zoidberg")
-        private val fry = TestDummyRecord(4, "Fry")
-        private val leela = TestDummyRecord(10, "Leela")
-        private val bender = TestDummyRecord(19, "Bender")
+        private val zoidberg = TestDummy(2, "Zoidberg")
+        private val fry = TestDummy(4, "Fry")
+        private val leela = TestDummy(10, "Leela")
+        private val bender = TestDummy(19, "Bender")
 
         @Suppress("unused")
         @JvmStatic
@@ -194,6 +195,7 @@ internal class FilteringApiQueryExecutorTest(
             dslContext = dslContext,
             conversionService = conversionService,
             root = TestDummyTable.testDummy,
+            entityType = TestDummy::class,
             init = {
                 filterByField("search", String::class) {
                     onPredicate(FilteringApiPredicateOperator.EQ) { value ->
@@ -253,8 +255,14 @@ internal class FilteringApiQueryExecutorTest(
         override fun getRecordType(): Class<out TestDummyRecord> = TestDummyRecord::class.java
     }
 
+    @Table
+    data class TestDummy(
+        var id: Long,
+        var name: String
+    )
+
     @Suppress("UNCHECKED_CAST")
-    class TestDummyRecord() : UpdatableRecordImpl<TestDummyRecord>(TestDummyTable.testDummy), Record2<Long, String> {
+    class TestDummyRecord : UpdatableRecordImpl<TestDummyRecord>(TestDummyTable.testDummy), Record2<Long, String> {
         var id: Long
             get() = get(0) as Long
             set(value) = set(0, value)
@@ -262,11 +270,6 @@ internal class FilteringApiQueryExecutorTest(
         var name: String
             get() = get(1) as String
             set(value) = set(1, value)
-
-        constructor(id: Long, name: String) : this() {
-            this.id = id
-            this.name = name
-        }
 
         override fun fieldsRow(): Row2<Long, String> = super.fieldsRow() as Row2<Long, String>
         override fun valuesRow(): Row2<Long, String> = super.valuesRow() as Row2<Long, String>
@@ -299,7 +302,7 @@ internal class FilteringApiQueryExecutorTest(
     data class FilteringApiQueryExecutorUseCase(
         val description: String,
         val request: FilteringApiRequest,
-        val expectedRecords: List<TestDummyRecord>? = null,
+        val expectedRecords: List<TestDummy>? = null,
         val expectedTotalRecordsCount: Long? = null,
         val expectedError: String? = null
     ) {
