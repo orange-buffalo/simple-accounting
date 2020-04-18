@@ -10,8 +10,8 @@ import org.springframework.core.convert.ConversionService
 import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 
-class FilteringApiExecutor<T : Table<*>, E : Any, DTO : Any>(
-    private val queryExecutor: FilteringApiQueryExecutor<T, E>,
+class FilteringApiExecutor<E : Any, DTO : Any>(
+    private val queryExecutor: FilteringApiQueryExecutor<*, E>,
     private val apiRequestResolver: FilteringApiRequestResolver,
     private val workspaceService: WorkspaceService,
     private val mapper: suspend E.() -> DTO
@@ -36,28 +36,28 @@ class FilteringApiExecutorBuilder(
     private val apiRequestResolver: FilteringApiRequestResolver,
     private val workspaceService: WorkspaceService
 ) {
-    final inline fun <T : Table<*>, reified E : Any, DTO : Any> executor(
-        noinline spec: ExecutorConfig<T, E, DTO>.() -> Unit
-    ): FilteringApiExecutor<T, E, DTO> = executor(E::class, spec)
+    final inline fun <reified E : Any, DTO : Any> executor(
+        noinline spec: ExecutorConfig<E, DTO>.() -> Unit
+    ): FilteringApiExecutor<E, DTO> = executor(E::class, spec)
 
-    fun <T : Table<*>, E : Any, DTO : Any> executor(
+    fun <E : Any, DTO : Any> executor(
         entityType: KClass<E>,
-        spec: ExecutorConfig<T, E, DTO>.() -> Unit
-    ): FilteringApiExecutor<T, E, DTO> {
-        val config = ExecutorConfig<T, E, DTO>(entityType)
+        spec: ExecutorConfig<E, DTO>.() -> Unit
+    ): FilteringApiExecutor<E, DTO> {
+        val config = ExecutorConfig<E, DTO>(entityType)
         spec(config)
         return config.createExecutor()
     }
 
-    inner class ExecutorConfig<T : Table<*>, E : Any, DTO : Any>(private val entityType: KClass<E>) {
-        private lateinit var queryExecutor: FilteringApiQueryExecutor<T, E>
+    inner class ExecutorConfig<E : Any, DTO : Any>(private val entityType: KClass<E>) {
+        private lateinit var queryExecutor: FilteringApiQueryExecutor<*, E>
         private lateinit var mapper: suspend E.() -> DTO
 
         fun mapper(spec: suspend E.() -> DTO) {
             this.mapper = spec
         }
 
-        fun query(root: T, spec: FilteringApiQuerySpec<T>.() -> Unit) {
+        fun <T: Table<*>> query(root: T, spec: FilteringApiQuerySpec<T>.() -> Unit) {
             queryExecutor = FilteringApiQueryExecutor(
                 dslContext = dslContext,
                 conversionService = conversionService,
@@ -67,7 +67,7 @@ class FilteringApiExecutorBuilder(
             )
         }
 
-        internal fun createExecutor(): FilteringApiExecutor<T, E, DTO> {
+        internal fun createExecutor(): FilteringApiExecutor<E, DTO> {
             return FilteringApiExecutor(
                 queryExecutor = queryExecutor,
                 workspaceService = workspaceService,

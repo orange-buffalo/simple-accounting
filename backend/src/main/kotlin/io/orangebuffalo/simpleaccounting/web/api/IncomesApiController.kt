@@ -5,7 +5,6 @@ import io.orangebuffalo.simpleaccounting.services.business.*
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.services.persistence.model.tables.IncomeTable
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
@@ -102,7 +101,7 @@ class IncomesApiController(
             .mapToIncomeDto(invoiceService)
     }
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<IncomeTable, Income, IncomeDto> {
+    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Income, IncomeDto> {
         query(Tables.INCOME) {
             filterByField("freeSearchText", String::class) {
                 val category = Tables.CATEGORY
