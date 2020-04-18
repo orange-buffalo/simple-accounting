@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTa
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QGeneralTax
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.GeneralTaxRepository
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -32,5 +33,12 @@ class GeneralTaxService(
     suspend fun getTaxByIdAndWorkspace(id: Long, workspace: Workspace): GeneralTax? =
         withDbContext {
             repository.findByIdAndWorkspace(id, workspace)
+        }
+
+    suspend fun getValidGeneralTax(taxId: Long?, workspace: Workspace): GeneralTax? =
+        if (taxId == null) {
+            null
+        } else {
+            getTaxByIdAndWorkspace(taxId, workspace) ?: throw EntityNotFoundException("Tax $taxId is not found")
         }
 }

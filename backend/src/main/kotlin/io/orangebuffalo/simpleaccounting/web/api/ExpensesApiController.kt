@@ -6,7 +6,8 @@ import io.orangebuffalo.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QExpense
@@ -51,11 +52,11 @@ class ExpensesApiController(
                     datePaid = request.datePaid,
                     currency = request.currency,
                     originalAmount = request.originalAmount,
-                    convertedAmounts = AmountsInDefaultCurrency(
+                    convertedAmounts = LegacyAmountsInDefaultCurrency(
                         originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency,
                         adjustedAmountInDefaultCurrency = null
                     ),
-                    incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    incomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                         originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency,
                         adjustedAmountInDefaultCurrency = null
                     ),
@@ -188,7 +189,7 @@ private fun Expense.mapToExpenseDto() = ExpenseDto(
     generalTaxRateInBps = generalTaxRateInBps
 )
 
-private fun AmountsInDefaultCurrency.mapToAmountsDto() =
+private fun LegacyAmountsInDefaultCurrency.mapToAmountsDto() =
     ExpenseAmountsDto(
         originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
         adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency

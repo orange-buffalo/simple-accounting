@@ -4,6 +4,6 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTa
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import org.springframework.data.querydsl.QuerydslPredicateExecutor
 
-interface GeneralTaxRepository : AbstractEntityRepository<GeneralTax>, QuerydslPredicateExecutor<GeneralTax> {
+interface GeneralTaxRepository : LegacyAbstractEntityRepository<GeneralTax>, QuerydslPredicateExecutor<GeneralTax> {
     fun findByIdAndWorkspace(id: Long, workspace: Workspace): GeneralTax?
 }

@@ -116,8 +116,8 @@ internal class UsersApiControllerIT(
 }
 
 class UserApiTestData : TestData {
-    val fry = Prototypes.fry()
     val farnsworth = Prototypes.farnsworth()
+    val fry = Prototypes.fry()
 
     override fun generateData() = listOf(farnsworth, fry)
 }

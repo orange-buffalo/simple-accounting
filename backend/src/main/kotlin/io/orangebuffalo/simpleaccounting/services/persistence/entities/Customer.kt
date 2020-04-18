@@ -11,4 +11,4 @@ class Customer(
     @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "customer_workspace_fk"))
     val workspace: Workspace
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

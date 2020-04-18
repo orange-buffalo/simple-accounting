@@ -9,7 +9,7 @@ class Invoice(
 
     @field:ManyToOne
     @field:JoinColumn(foreignKey = ForeignKey(name = "invoice_income_fk"))
-    var income: Income? = null,
+    var income: LegacyIncome? = null,
 
     @field:ManyToOne(optional = false)
     @field:JoinColumn(nullable = true, foreignKey = ForeignKey(name = "invoice_customer_fk"))
@@ -58,7 +58,7 @@ class Invoice(
     @field:JoinColumn(foreignKey = ForeignKey(name = "invoice_general_tax_fk"))
     var generalTax: GeneralTax? = null
 
-) : AbstractEntity() {
+) : LegacyAbstractEntity() {
 
     init {
         require(generalTax == null || generalTax?.workspace == customer.workspace) {

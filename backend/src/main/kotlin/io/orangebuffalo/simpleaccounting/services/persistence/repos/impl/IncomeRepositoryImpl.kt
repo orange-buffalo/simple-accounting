@@ -1,74 +1,85 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
 
-import com.querydsl.core.types.dsl.CaseBuilder
-import com.querydsl.core.types.dsl.Expressions
-import com.querydsl.jpa.impl.JPAQuery
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QIncome
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.*
+import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
+import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeRepositoryExt
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomesStatistics
+import org.jooq.DSLContext
+import org.jooq.impl.DSL.*
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import javax.persistence.EntityManager
 
 @Component
 class IncomeRepositoryExtImpl(
-    private val entityManager: EntityManager
+    private val dslContext: DSLContext
 ) : IncomeRepositoryExt {
 
-    private val income = QIncome.income
+    private val income = Tables.INCOME
 
     override fun getCurrenciesUsageStatistics(
         workspace: Workspace
-    ): List<CurrenciesUsageStatistics> = JPAQuery<CurrenciesUsageStatistics>(entityManager)
+    ): List<CurrenciesUsageStatistics> = dslContext
+        .select(income.currency, count(income.id))
         .from(income)
         .groupBy(income.currency)
-        .select(
-            QCurrenciesUsageStatistics(
-                income.currency,
-                income.count()
-            )
+        .fetchListOf()
+
+    override fun findByIdAndWorkspaceId(incomeId: Long, workspaceId: Long): Income? = dslContext
+        .select().from(income)
+        .where(
+            income.id.eq(incomeId),
+            income.workspaceId.eq(workspaceId)
         )
-        .fetch()
+        .fetchOneOrNull()
 
     override fun getStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspace: Workspace
     ): List<IncomesStatistics> {
-        val incomeTaxableAmount = income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency
-        return JPAQuery<IncomesStatistics>(entityManager)
+        val incomeTaxableAmount = income.incomeTaxableAdjustedAmountInDefaultCurrency
+        return dslContext
+            .select(
+                income.categoryId.`as`("category_Id"),
+                //todo #222 extension for fluent sum
+                sum(
+                    case_()
+                        .`when`(incomeTaxableAmount.isNull, 0L)
+                        .otherwise(incomeTaxableAmount)
+                ).`as`("total_Amount"),
+                count(
+                    case_()
+                        //todo #222 configure jooq to map enum
+                        .`when`(income.status.eq(IncomeStatus.FINALIZED.name), 1L)
+                        .otherwise(inline<Long>(null))
+                //todo #222 cleaner way for pojo mapping
+                ).`as`("finalized_Count"),
+                count(
+                    case_()
+                        .`when`(income.status.ne(IncomeStatus.FINALIZED.name), 1L)
+                        .otherwise(inline<Long>(null))
+                ).`as`("pending_Count"),
+                sum(
+                    case_()
+                        .`when`(income.status.ne(IncomeStatus.FINALIZED.name), 0L)
+                        .otherwise(
+                            income.convertedAdjustedAmountInDefaultCurrency
+                                .sub(income.incomeTaxableAdjustedAmountInDefaultCurrency)
+                        )
+                ).`as`("currency_Exchange_Difference")
+            )
             .from(income)
             .where(
-                income.workspace.eq(workspace),
-                income.dateReceived.goe(fromDate),
-                income.dateReceived.loe(toDate)
+                income.workspaceId.eq(workspace.id),
+                income.dateReceived.greaterOrEqual(fromDate),
+                income.dateReceived.lessOrEqual(toDate)
             )
-            .groupBy(income.category.id)
-            .select(
-                QIncomesStatistics(
-                    income.category.id,
-                    CaseBuilder()
-                        .`when`(incomeTaxableAmount.isNull).then(0L)
-                        .otherwise(incomeTaxableAmount)
-                        .sum(),
-                    CaseBuilder()
-                        .`when`(income.status.eq(IncomeStatus.FINALIZED)).then(1)
-                        .otherwise(Expressions.nullExpression())
-                        .count(),
-                    CaseBuilder()
-                        .`when`(income.status.ne(IncomeStatus.FINALIZED)).then(1)
-                        .otherwise(Expressions.nullExpression())
-                        .count(),
-                    CaseBuilder()
-                        .`when`(income.status.ne(IncomeStatus.FINALIZED)).then(0L)
-                        .otherwise(
-                            income.convertedAmounts.adjustedAmountInDefaultCurrency
-                                .subtract(income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency)
-                        )
-                        .sum()
-                )
-            )
-            .fetch()
+            .groupBy(income.categoryId)
+            .fetchListOf()
     }
 }

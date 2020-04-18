@@ -24,4 +24,4 @@ class Workspace(
     @field:OneToMany(mappedBy = "workspace", fetch = FetchType.EAGER)
     val categories : MutableList<Category> = ArrayList()
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

@@ -20,4 +20,4 @@ class GeneralTax(
     @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "general_tax_workspace_fk"))
     val workspace: Workspace
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAbstractEntity
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import java.time.Instant
 import javax.persistence.*
@@ -25,4 +25,4 @@ class PersistentOAuth2AuthorizationRequest(
     @field:Column(nullable = false)
     val createWhen: Instant
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

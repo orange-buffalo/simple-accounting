@@ -38,4 +38,4 @@ class IncomeTaxPayment(
     @field:Column(length = 1024)
     var notes: String? = null
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

@@ -7,7 +7,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor
 import java.time.LocalDate
 
 interface IncomeTaxPaymentRepository :
-    AbstractEntityRepository<IncomeTaxPayment>, QuerydslPredicateExecutor<IncomeTaxPayment>,
+    LegacyAbstractEntityRepository<IncomeTaxPayment>, QuerydslPredicateExecutor<IncomeTaxPayment>,
     IncomeTaxPaymentRepositoryExt {
 
     fun findByIdAndWorkspace(id: Long, workspace: Workspace): IncomeTaxPayment?

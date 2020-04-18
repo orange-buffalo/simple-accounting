@@ -20,4 +20,4 @@ class Document(
 
     val sizeInBytes: Long?
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

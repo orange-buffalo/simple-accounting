@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.services.business.IncomeTaxPaymentServi
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QIncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.services.persistence.toOrder

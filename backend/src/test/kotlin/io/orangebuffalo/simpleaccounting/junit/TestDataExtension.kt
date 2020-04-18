@@ -1,8 +1,13 @@
 package io.orangebuffalo.simpleaccounting.junit
 
+import io.orangebuffalo.simpleaccounting.currentEntityId
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAbstractEntity
 import org.flywaydb.core.Flyway
+import org.hibernate.ReplicationMode
+import org.hibernate.Session
 import org.junit.jupiter.api.extension.*
 import org.junit.jupiter.params.ParameterizedTest
+import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.support.TransactionTemplate
 import java.lang.reflect.Method
@@ -52,8 +57,25 @@ class TestDataExtension : Extension, ParameterResolver, BeforeEachCallback, Invo
 
             val transactionTemplate = applicationContext.getBean(TransactionTemplate::class.java)
             val entityManager = applicationContext.getBean(EntityManager::class.java)
+            val jdbcAggregateTemplate = applicationContext.getBean(JdbcAggregateTemplate::class.java)
             transactionTemplate.execute {
-                testData.generateData().forEach(entityManager::persist)
+                val session = entityManager.unwrap(Session::class.java)
+                val hibernateMetaModel = session.sessionFactory.metamodel
+                testData.generateData().forEach { entity ->
+                    try {
+                        //todo #222: cleanup
+                        hibernateMetaModel.entity(entity::class.java)
+                        val abstractEntity = entity as LegacyAbstractEntity
+                        if (abstractEntity.id == null) {
+                            abstractEntity.id = currentEntityId++
+                            abstractEntity.version = 0
+                        }
+                        session.replicate(entity, ReplicationMode.EXCEPTION)
+                        entityManager.flush()
+                    } catch (e: IllegalArgumentException) {
+                        jdbcAggregateTemplate.insert(entity)
+                    }
+                }
             }
         }
 

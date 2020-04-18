@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.Instant
 
-interface SavedWorkspaceAccessTokenRepository : AbstractEntityRepository<SavedWorkspaceAccessToken> {
+interface SavedWorkspaceAccessTokenRepository : LegacyAbstractEntityRepository<SavedWorkspaceAccessToken> {
 
     fun findByWorkspaceAccessTokenAndOwner(
         workspaceAccessToken: WorkspaceAccessToken,

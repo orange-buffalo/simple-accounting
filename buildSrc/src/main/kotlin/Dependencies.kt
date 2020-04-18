@@ -5,7 +5,7 @@ object Versions {
     const val kotlinLogging = "1.7.8"
     const val arrow = "0.10.4"
     const val jjwt = "0.11.0"
-    const val queryDsl = "4.2.2"
+    const val queryDsl = "4.3.1"
     const val javaxEl = "3.0.1-b11"
     const val guava = "28.2-jre"
     const val jooq = "3.13.1"

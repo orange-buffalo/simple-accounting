@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QDocument
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.web.api.integration.*
 import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.core.io.buffer.DataBuffer

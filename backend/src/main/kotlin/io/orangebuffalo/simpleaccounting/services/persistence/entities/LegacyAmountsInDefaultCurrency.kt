@@ -1,11 +1,21 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities
 
-data class AmountsInDefaultCurrency(
+import java.io.Serializable
+import javax.persistence.Column
+import javax.persistence.Embeddable
+
+/**
+ * Aggregator over a set of same-purpose amounts (i.e. amounts for taxation purposes, bank transaction amounts, etc).
+ */
+@Embeddable
+@Deprecated("Use AmountsInDefaultCurrency")
+data class LegacyAmountsInDefaultCurrency(
 
     /**
      * The original amount after currency conversion to the default currency.
      * If entity is already in default currency, expected to be the same as its original amount.
      */
+    @field:Column
     var originalAmountInDefaultCurrency: Long?,
 
     /**
@@ -13,9 +23,10 @@ data class AmountsInDefaultCurrency(
      * are applied. Is expected to be used for reporting purposes as the final amount related to the
      * entity (for instance, to be reported for income tax purposes to the Tax Office).
      */
+    @field:Column
     var adjustedAmountInDefaultCurrency: Long?
 
-) {
+) : Serializable {
 
     val empty: Boolean
         get() = originalAmountInDefaultCurrency == null && adjustedAmountInDefaultCurrency == null

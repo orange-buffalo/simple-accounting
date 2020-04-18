@@ -17,4 +17,4 @@ class Category(
 
     @field:Column(nullable = false) var expense: Boolean
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

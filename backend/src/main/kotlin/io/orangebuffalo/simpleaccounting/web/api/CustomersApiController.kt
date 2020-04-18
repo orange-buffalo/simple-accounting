@@ -7,7 +7,7 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QCustomer
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPageRequest
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApiDescriptor
 import org.hibernate.validator.constraints.Length

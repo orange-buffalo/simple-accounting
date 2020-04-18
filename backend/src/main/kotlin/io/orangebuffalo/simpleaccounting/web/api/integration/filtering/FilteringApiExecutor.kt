@@ -14,18 +14,17 @@ class FilteringApiExecutor<T : Table<*>, E : Any, DTO : Any>(
     private val queryExecutor: FilteringApiQueryExecutor<T, E>,
     private val apiRequestResolver: FilteringApiRequestResolver,
     private val workspaceService: WorkspaceService,
-    private val mapper: E.() -> DTO
+    private val mapper: suspend E.() -> DTO
 ) {
     suspend fun executeFiltering(workspaceId: Long): ApiPage<DTO> {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        // todo workspace filtering
         val filteringApiRequest = apiRequestResolver.resolveRequest(getServerWebExchange())
-        val entityPage = queryExecutor.executeFilteringQuery(filteringApiRequest)
+        val entityPage = queryExecutor.executeFilteringQuery(filteringApiRequest, workspace.id)
         return ApiPage(
             pageNumber = entityPage.pageNumber,
             pageSize = entityPage.pageSize,
             totalElements = entityPage.totalElements,
-            data = entityPage.data.map(mapper)
+            data = entityPage.data.map { entity -> mapper(entity) }
         )
     }
 }
@@ -52,9 +51,9 @@ class FilteringApiExecutorBuilder(
 
     inner class ExecutorConfig<T : Table<*>, E : Any, DTO : Any>(private val entityType: KClass<E>) {
         private lateinit var queryExecutor: FilteringApiQueryExecutor<T, E>
-        private lateinit var mapper: E.() -> DTO
+        private lateinit var mapper: suspend E.() -> DTO
 
-        fun mapper(spec: E.() -> DTO) {
+        fun mapper(spec: suspend E.() -> DTO) {
             this.mapper = spec
         }
 

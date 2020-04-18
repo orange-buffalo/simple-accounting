@@ -7,12 +7,14 @@ import io.orangebuffalo.simpleaccounting.services.persistence.repos.InvoiceRepos
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import javax.persistence.EntityManager
 
 @Service
 class InvoiceService(
     private val invoiceRepository: InvoiceRepository,
     private val incomeService: IncomeService,
-    private val timeService: TimeService
+    private val timeService: TimeService,
+    private val entityManager: EntityManager
 ) {
 
     /**
@@ -21,9 +23,9 @@ class InvoiceService(
     suspend fun saveInvoice(invoice: Invoice): Invoice {
         return withDbContext {
             if (invoice.datePaid != null && invoice.income == null) {
-                invoice.income = incomeService.saveIncome(
+                val income = incomeService.saveIncome(
                     Income(
-                        workspace = invoice.customer.workspace,
+                        workspaceId = invoice.customer.workspace.id!!,
                         // todo #14: this is just a convenience method not related to business logic
                         // creation of income can safely be moved to UI side, including i18n
                         title = "Payment for ${invoice.title}",
@@ -40,11 +42,12 @@ class InvoiceService(
                             originalAmountInDefaultCurrency = null,
                             adjustedAmountInDefaultCurrency = null
                         ),
-                        category = null,
-                        generalTax = invoice.generalTax,
+                        categoryId = null,
+                        generalTaxId = invoice.generalTax?.id,
                         status = IncomeStatus.PENDING_CONVERSION
                     )
                 )
+                invoice.income = entityManager.find(LegacyIncome::class.java, income.id)
             }
 
             invoiceRepository.save(invoice)
@@ -66,7 +69,7 @@ class InvoiceService(
 
     suspend fun findByIncome(income: Income): Invoice? {
         return withDbContext {
-            invoiceRepository.findByIncome(income)
+            invoiceRepository.findByIncomeId(income.id!!)
         }
     }
 }

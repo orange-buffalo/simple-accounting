@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QCategory
@@ -26,6 +27,24 @@ class CategoryService(
         filter: Predicate
     ): Page<Category> = withDbContext {
         categoryRepository.findAll(QCategory.category.workspace.eq(workspace).and(filter), page)
+    }
+
+    //todo #222: reasess if needed
+    fun getValidCategory(
+        workspace: Workspace,
+        categoryId: Long?
+    ): Category? {
+        if (categoryId == null) {
+            return null
+        }
+
+        return workspace.categories.asSequence()
+            .firstOrNull { workspaceCategory -> workspaceCategory.id == categoryId }
+            ?: throw EntityNotFoundException("Category $categoryId is not found")
+    }
+
+    suspend fun isValidCategory(workspaceId: Long, categoryId: Long) = withDbContext {
+        categoryRepository.existsByWorkspaceIdAndId(workspaceId, categoryId)
     }
 
 }

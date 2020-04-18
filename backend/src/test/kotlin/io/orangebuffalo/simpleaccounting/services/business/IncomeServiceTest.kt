@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
 import com.nhaarman.mockito_kotlin.doAnswer
+import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
@@ -10,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeSta
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeRepository
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -18,7 +19,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import javax.persistence.EntityManagerFactory
 
 @ExtendWith(MockitoExtension::class)
 @DisplayName("IncomeService")
@@ -28,73 +28,34 @@ internal class IncomeServiceTest {
     private lateinit var incomeRepository: IncomeRepository
 
     @field:Mock
-    private lateinit var entityManagerFactory: EntityManagerFactory
+    private lateinit var workspaceService: WorkspaceService
+
+    @field:Mock
+    private lateinit var generalTaxService: GeneralTaxService
+
+    @field:Mock
+    private lateinit var categoryService: CategoryService
+
+    @field:Mock
+    private lateinit var documentsService: DocumentsService
 
     @field:InjectMocks
     private lateinit var incomeService: IncomeService
 
-    private val workspace = Prototypes.workspace()
-    private val generalTaxFromWorkspace = Prototypes.generalTax(workspace = workspace, rateInBps = 10_00)
+    private val workspace = Prototypes.workspace().apply { id = 42 }
+    private val generalTaxFromWorkspace =
+        Prototypes.generalTax(workspace = workspace, rateInBps = 10_00).apply { id = 42 }
 
-    @Test
-    fun `should fail on income validation if income is in default currency and converted amount differs`() {
-        val income = Prototypes.income(
-            currency = workspace.defaultCurrency,
-            originalAmount = 200,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(199)
-        )
-        assertThatThrownBy { incomeService.validateIncomeConsistency(income) }
-            .hasMessage("Inconsistent income: converted amount does not match original for default currency")
-    }
-
-    @Test
-    fun `should fail on income validation if income is in default currency and income taxable amount differs`() {
-        val income = Prototypes.income(
-            currency = workspace.defaultCurrency,
-            originalAmount = 200,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(200),
-            useDifferentExchangeRateForIncomeTaxPurposes = true,
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(199)
-        )
-        assertThatThrownBy { incomeService.validateIncomeConsistency(income) }
-            .hasMessage("Inconsistent income: income taxable amount does not match original for default currency")
-    }
-
-    @Test
-    fun `should fail on income validation if same conversion rate is used but amounts differ`() {
-        val income = Prototypes.income(
-            currency = "--${workspace.defaultCurrency}--",
-            originalAmount = 200,
-            useDifferentExchangeRateForIncomeTaxPurposes = false,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(200),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(199)
-        )
-        assertThatThrownBy { incomeService.validateIncomeConsistency(income) }
-            .hasMessage("Inconsistent income: amounts do not match but same exchange rate is used")
-    }
-
-    @Test
-    fun `should fail on income validation if income is finalized but amounts are missing`() {
-        val income = Prototypes.income(
-            status = IncomeStatus.FINALIZED,
-            currency = "--${workspace.defaultCurrency}--",
-            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency()
-        )
-        assertThatThrownBy { incomeService.validateIncomeConsistency(income) }
-            .hasMessage("Inconsistent income: amounts are not provided for finalized income")
-    }
-
-    @Test
-    fun `should successfully validate valid income`() {
-        val income = Prototypes.income(
-            status = IncomeStatus.FINALIZED,
-            currency = "--${workspace.defaultCurrency}--",
-            useDifferentExchangeRateForIncomeTaxPurposes = true,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(200)
-        )
-        incomeService.validateIncomeConsistency(income)
+    @BeforeEach
+    fun setup() {
+        runBlocking {
+            whenever(
+                workspaceService.getAccessibleWorkspace(
+                    workspace.id!!,
+                    WorkspaceAccessMode.READ_WRITE
+                )
+            ) doReturn workspace
+        }
     }
 
     @Test
@@ -123,7 +84,9 @@ internal class IncomeServiceTest {
         )
 
     @Test
-    fun `should calculate tax on default currency`() =
+    fun `should calculate tax on default currency`() {
+        mockGeneralTax()
+
         executeSaveIncomeAndAssert(
             income = Prototypes.income(
                 generalTax = generalTaxFromWorkspace,
@@ -152,6 +115,7 @@ internal class IncomeServiceTest {
             expectedStatus = IncomeStatus.FINALIZED,
             expectedUseDifferentExchangeRates = false
         )
+    }
 
     @Test
     fun `should keep amounts as null if not yet converted`() =
@@ -165,7 +129,8 @@ internal class IncomeServiceTest {
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
-                useDifferentExchangeRateForIncomeTaxPurposes = true
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                workspace = workspace
             ),
             expectedOriginalAmount = 45,
             expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
@@ -312,7 +277,9 @@ internal class IncomeServiceTest {
         )
 
     @Test
-    fun `should calculate tax based on income taxable amount if different rate is used`() =
+    fun `should calculate tax based on income taxable amount if different rate is used`() {
+        mockGeneralTax()
+
         executeSaveIncomeAndAssert(
             income = Prototypes.income(
                 generalTax = generalTaxFromWorkspace,
@@ -341,9 +308,12 @@ internal class IncomeServiceTest {
             expectedUseDifferentExchangeRates = true,
             expectedStatus = IncomeStatus.FINALIZED
         )
+    }
 
     @Test
-    fun `should calculate tax bases on converted amount if same rate is used`() =
+    fun `should calculate tax bases on converted amount if same rate is used`() {
+        mockGeneralTax()
+
         executeSaveIncomeAndAssert(
             income = Prototypes.income(
                 generalTax = generalTaxFromWorkspace,
@@ -372,6 +342,16 @@ internal class IncomeServiceTest {
             expectedUseDifferentExchangeRates = false,
             expectedStatus = IncomeStatus.FINALIZED
         )
+    }
+
+    private fun mockGeneralTax() = runBlocking {
+        whenever(
+            generalTaxService.getValidGeneralTax(
+                generalTaxFromWorkspace.id!!,
+                workspace
+            )
+        ) doReturn generalTaxFromWorkspace
+    }
 
     private fun executeSaveIncomeAndAssert(
         income: Income,
@@ -394,7 +374,7 @@ internal class IncomeServiceTest {
         assertThat(actualIncome.status).isEqualTo(expectedStatus)
         assertThat(actualIncome.convertedAmounts).isEqualTo(expectedConvertedAmounts)
         assertThat(actualIncome.incomeTaxableAmounts).isEqualTo(expectedIncomeTaxableAmounts)
-        assertThat(actualIncome.generalTax).isEqualTo(expectedGeneralTax)
+        assertThat(actualIncome.generalTaxId).isEqualTo(expectedGeneralTax?.id)
         assertThat(actualIncome.generalTaxAmount).isEqualTo(expectedGeneralTaxAmount)
         assertThat(actualIncome.generalTaxRateInBps).isEqualTo(expectedGeneralTaxRateInBps)
         assertThat(actualIncome.useDifferentExchangeRateForIncomeTaxPurposes)

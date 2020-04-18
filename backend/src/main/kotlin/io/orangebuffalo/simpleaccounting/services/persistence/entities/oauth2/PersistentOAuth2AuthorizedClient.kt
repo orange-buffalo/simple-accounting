@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAbstractEntity
 import java.time.Instant
 import javax.persistence.*
 
@@ -39,4 +39,4 @@ class PersistentOAuth2AuthorizedClient(
     @field:Column
     var refreshTokenIssuedAt: Instant?
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

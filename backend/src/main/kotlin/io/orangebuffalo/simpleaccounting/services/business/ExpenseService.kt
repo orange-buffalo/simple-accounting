@@ -60,8 +60,8 @@ class ExpenseService(
     suspend fun saveExpense(expense: Expense): Expense {
         val defaultCurrency = expense.workspace.defaultCurrency
         if (defaultCurrency == expense.currency) {
-            expense.convertedAmounts = AmountsInDefaultCurrency(expense.originalAmount, null)
-            expense.incomeTaxableAmounts = AmountsInDefaultCurrency(expense.originalAmount, null)
+            expense.convertedAmounts = LegacyAmountsInDefaultCurrency(expense.originalAmount, null)
+            expense.incomeTaxableAmounts = LegacyAmountsInDefaultCurrency(expense.originalAmount, null)
             expense.useDifferentExchangeRateForIncomeTaxPurposes = false
         }
 
@@ -91,7 +91,7 @@ class ExpenseService(
         }
     }
 
-    private fun calculateAdjustedAmounts(expense: Expense, targetAmounts: AmountsInDefaultCurrency): AdjustedAmounts {
+    private fun calculateAdjustedAmounts(expense: Expense, targetAmounts: LegacyAmountsInDefaultCurrency): AdjustedAmounts {
         val originalAmountInDefaultCurrency = targetAmounts.originalAmountInDefaultCurrency
             ?: return AdjustedAmounts(null, null)
 

@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration
 
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.verifyNotFound
 import org.junit.jupiter.api.DisplayName

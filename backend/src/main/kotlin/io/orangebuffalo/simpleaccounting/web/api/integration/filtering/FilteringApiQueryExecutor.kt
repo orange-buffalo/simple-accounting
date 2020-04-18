@@ -1,12 +1,13 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.intoListOf
+import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiValidationException
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator.MultiArgumentsOperator
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator.SingleArgumentOperator
 import org.jooq.*
+import org.jooq.impl.DSL
 import org.springframework.core.convert.ConversionException
 import org.springframework.core.convert.ConversionService
 import kotlin.reflect.KClass
@@ -22,7 +23,8 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
     private var querySpec: FilteringApiQuerySpecIml<T, E> =
         FilteringApiQuerySpecIml(dslContext, conversionService, root, entityType).apply(init)
 
-    suspend fun executeFilteringQuery(request: FilteringApiRequest): ApiPage<E> = querySpec.executeQuery(request)
+    suspend fun executeFilteringQuery(request: FilteringApiRequest, workspaceId: Long? = null): ApiPage<E> =
+        querySpec.executeQuery(request, workspaceId)
 
     private class FilteringApiQuerySpecIml<T : Table<*>, E : Any>(
         private val dslContext: DSLContext,
@@ -35,6 +37,7 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
             mutableMapOf()
         private val defaultSortingList: MutableList<FilteringApiQuerySpec.HasRoot<T>.() -> SortField<out Any>> =
             mutableListOf()
+        private var workspaceFilter: (FilteringApiQuerySpec.HasRoot<T>.(Long?) -> Condition)? = null
 
         override fun <V : Any> filterByField(
             apiFieldName: String,
@@ -57,17 +60,18 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
             defaultSortingList.add(init)
         }
 
-        suspend fun executeQuery(fileApiRequest: FilteringApiRequest): ApiPage<E> = withDbContext {
+        suspend fun executeQuery(fileApiRequest: FilteringApiRequest, workspaceId: Long?): ApiPage<E> = withDbContext {
             val countQuery = dslContext.selectCount().from(root)
-            val countConditions: Collection<Condition> = validateAndGetConditions(fileApiRequest, countQuery)
+            val countConditions: Collection<Condition> =
+                validateAndGetConditions(fileApiRequest, workspaceId, countQuery)
             val totalRecordsCount = countQuery.where(countConditions).fetchOneInto(Long::class.java)
 
             val dataQuery = dslContext.select().from(root)
-            val dataConditions: Collection<Condition> = validateAndGetConditions(fileApiRequest, dataQuery)
+            val dataConditions: Collection<Condition> = validateAndGetConditions(fileApiRequest, workspaceId, dataQuery)
             val data = dataQuery.where(dataConditions)
                 .orderBy(validateAndGetSorting())
                 .limit((fileApiRequest.pageNumber - 1) * fileApiRequest.pageSize, fileApiRequest.pageSize)
-                .intoListOf(entityType)
+                .fetchListOf(entityType)
 
             ApiPage(
                 pageNumber = fileApiRequest.pageNumber,
@@ -83,10 +87,21 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
 
         private fun validateAndGetConditions(
             fileApiRequest: FilteringApiRequest,
+            workspaceId: Long?,
             query: SelectJoinStep<out Record>
         ): Collection<Condition> = fileApiRequest.predicates
             .map { requestPredicate -> validatePredicateAndGetCondition(requestPredicate, query) }
+            .plus(getWorkspaceFilterCondition(workspaceId))
 
+        private fun getWorkspaceFilterCondition(workspaceId: Long?): Condition {
+            if (workspaceId == null) {
+                return DSL.trueCondition()
+            }
+
+            val filter = workspaceFilter
+            check(filter != null) { "Workspace filter is required when workspace is provided" }
+            return filter(workspaceId)
+        }
 
         private fun validatePredicateAndGetCondition(
             requestPredicate: FilteringApiRequestPredicate,
@@ -142,6 +157,10 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
                 )
             }
         }
+
+        override fun workspaceFilter(spec: FilteringApiQuerySpec.HasRoot<T>.(Long?) -> Condition) {
+            workspaceFilter = spec
+        }
     }
 }
 
@@ -150,6 +169,8 @@ annotation class FilteringApiDsl
 
 @FilteringApiDsl
 interface FilteringApiQuerySpec<T : Table<*>> {
+
+    fun workspaceFilter(spec: HasRoot<T>.(Long?) -> Condition)
 
     fun <V : Any> filterByField(
         apiFieldName: String,

@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.web.api.integration
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import io.orangebuffalo.simpleaccounting.services.business.InvalidWorkspaceAccessTokenException
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.services.security.login.AccountIsTemporaryLockedException
 import io.orangebuffalo.simpleaccounting.services.security.login.LoginUnavailableException

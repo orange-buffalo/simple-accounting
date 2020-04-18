@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.services.business
 import com.nhaarman.mockito_kotlin.doAnswer
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.simpleaccounting.Prototypes
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
@@ -41,7 +41,7 @@ internal class ExpenseServiceTest {
         val expense = Prototypes.expense(
             currency = workspace.defaultCurrency,
             originalAmount = 200,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(199)
+            convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(199)
         )
         assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
             .hasMessage("Inconsistent expense: converted amount does not match original for default currency")
@@ -52,9 +52,9 @@ internal class ExpenseServiceTest {
         val expense = Prototypes.expense(
             currency = workspace.defaultCurrency,
             originalAmount = 200,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(200),
+            convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(200),
             useDifferentExchangeRateForIncomeTaxPurposes = true,
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(199)
+            incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(199)
         )
         assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
             .hasMessage("Inconsistent expense: income taxable amount does not match original for default currency")
@@ -66,8 +66,8 @@ internal class ExpenseServiceTest {
             currency = "--${workspace.defaultCurrency}--",
             originalAmount = 200,
             useDifferentExchangeRateForIncomeTaxPurposes = false,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(200),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(199)
+            convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(200),
+            incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(199)
         )
         assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
             .hasMessage("Inconsistent expense: amounts do not match but same exchange rate is used")
@@ -78,8 +78,8 @@ internal class ExpenseServiceTest {
         val expense = Prototypes.expense(
             status = ExpenseStatus.FINALIZED,
             currency = "--${workspace.defaultCurrency}--",
-            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency()
+            convertedAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency()
         )
         assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
             .hasMessage("Inconsistent expense: amounts are not provided for finalized expense")
@@ -91,8 +91,8 @@ internal class ExpenseServiceTest {
             status = ExpenseStatus.FINALIZED,
             currency = "--${workspace.defaultCurrency}--",
             useDifferentExchangeRateForIncomeTaxPurposes = true,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(200)
+            convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(100),
+            incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(200)
         )
         expenseService.validateExpenseConsistency(expense)
     }
@@ -103,8 +103,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
@@ -114,8 +114,8 @@ internal class ExpenseServiceTest {
                 useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(45),
-            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(45),
+            expectedConvertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(45),
+            expectedIncomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(45),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
@@ -129,8 +129,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
@@ -140,11 +140,11 @@ internal class ExpenseServiceTest {
                 useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = AmountsInDefaultCurrency(
+            expectedConvertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 45,
                 adjustedAmountInDefaultCurrency = 5
             ),
-            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+            expectedIncomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 45,
                 adjustedAmountInDefaultCurrency = 5
             ),
@@ -161,8 +161,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 4500,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
@@ -172,11 +172,11 @@ internal class ExpenseServiceTest {
                 useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 4500,
-            expectedConvertedAmounts = AmountsInDefaultCurrency(
+            expectedConvertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 4500,
                 adjustedAmountInDefaultCurrency = 4091 // base for 10% added tax
             ),
-            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+            expectedIncomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 4500,
                 adjustedAmountInDefaultCurrency = 4091
             ),
@@ -193,8 +193,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 450,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
@@ -204,11 +204,11 @@ internal class ExpenseServiceTest {
                 useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 450,
-            expectedConvertedAmounts = AmountsInDefaultCurrency(
+            expectedConvertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 450,
                 adjustedAmountInDefaultCurrency = 368 // 90% of 450 = 405, base for 10% added tax is 368
             ),
-            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+            expectedIncomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 450,
                 adjustedAmountInDefaultCurrency = 368
             ),
@@ -225,8 +225,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                convertedAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+                incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
@@ -235,8 +235,8 @@ internal class ExpenseServiceTest {
                 useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedConvertedAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+            expectedIncomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
@@ -250,11 +250,11 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = AmountsInDefaultCurrency(
+                convertedAmounts = LegacyAmountsInDefaultCurrency(
                     originalAmountInDefaultCurrency = null,
                     adjustedAmountInDefaultCurrency = 42
                 ),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(44),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -264,8 +264,8 @@ internal class ExpenseServiceTest {
                 useDifferentExchangeRateForIncomeTaxPurposes = false
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedConvertedAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+            expectedIncomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
@@ -279,11 +279,11 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = AmountsInDefaultCurrency(
+                convertedAmounts = LegacyAmountsInDefaultCurrency(
                     originalAmountInDefaultCurrency = null,
                     adjustedAmountInDefaultCurrency = 42
                 ),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(44),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -293,8 +293,8 @@ internal class ExpenseServiceTest {
                 useDifferentExchangeRateForIncomeTaxPurposes = true
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
+            expectedConvertedAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+            expectedIncomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(44),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
@@ -308,8 +308,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -319,8 +319,8 @@ internal class ExpenseServiceTest {
                 status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(30),
+            expectedConvertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
@@ -334,8 +334,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -345,8 +345,8 @@ internal class ExpenseServiceTest {
                 status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+            expectedConvertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(100),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
@@ -360,8 +360,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                     originalAmountInDefaultCurrency = null,
                     adjustedAmountInDefaultCurrency = 300
                 ),
@@ -374,8 +374,8 @@ internal class ExpenseServiceTest {
                 status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedConvertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
@@ -389,8 +389,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(41),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(41),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -400,11 +400,11 @@ internal class ExpenseServiceTest {
                 status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = AmountsInDefaultCurrency(
+            expectedConvertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 30,
                 adjustedAmountInDefaultCurrency = 27 // 90% of amount of 30
             ),
-            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+            expectedIncomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 41,
                 adjustedAmountInDefaultCurrency = 37 // 90% of actual amount 41
             ),
@@ -421,8 +421,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(41),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(41),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -432,11 +432,11 @@ internal class ExpenseServiceTest {
                 status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = AmountsInDefaultCurrency(
+            expectedConvertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 30,
                 adjustedAmountInDefaultCurrency = 27 // base for 10% added tax to get 30
             ),
-            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+            expectedIncomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 41,
                 adjustedAmountInDefaultCurrency = 37 // base for 10% added tax to get 41
             ),
@@ -453,8 +453,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(41),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(41),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -464,11 +464,11 @@ internal class ExpenseServiceTest {
                 status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = AmountsInDefaultCurrency(
+            expectedConvertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 41,
                 adjustedAmountInDefaultCurrency = 37 // base for 10% added tax to get 41
             ),
-            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+            expectedIncomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 41,
                 adjustedAmountInDefaultCurrency = 37
             ),
@@ -485,8 +485,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 4500,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(4000),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(4100),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(4000),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(4100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -496,11 +496,11 @@ internal class ExpenseServiceTest {
                 status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 4500,
-            expectedConvertedAmounts = AmountsInDefaultCurrency(
+            expectedConvertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 4000,
                 adjustedAmountInDefaultCurrency = 2909  // 80% of 4000 = 3200, base for 10% added tax for 3200 is 2909
             ),
-            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+            expectedIncomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 4100,
                 adjustedAmountInDefaultCurrency = 2982 // 80% of 4100 = 3280, base for 10% added tax for 3280 is 2982
             ),
@@ -517,8 +517,8 @@ internal class ExpenseServiceTest {
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
                 originalAmount = 4500,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(4000),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(4100),
+                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(4000),
+                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(4100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
@@ -528,11 +528,11 @@ internal class ExpenseServiceTest {
                 status = ExpenseStatus.PENDING_CONVERSION
             ),
             expectedOriginalAmount = 4500,
-            expectedConvertedAmounts = AmountsInDefaultCurrency(
+            expectedConvertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 4000,
                 adjustedAmountInDefaultCurrency = 2909  // 80% of 4000 = 3200, base for 10% added tax for 3200 is 2909
             ),
-            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(
+            expectedIncomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 4000,
                 adjustedAmountInDefaultCurrency = 2909
             ),
@@ -546,8 +546,8 @@ internal class ExpenseServiceTest {
     private fun executeSaveExpenseAndAssert(
         expense: Expense,
         expectedOriginalAmount: Long,
-        expectedConvertedAmounts: AmountsInDefaultCurrency,
-        expectedIncomeTaxableAmounts: AmountsInDefaultCurrency,
+        expectedConvertedAmounts: LegacyAmountsInDefaultCurrency,
+        expectedIncomeTaxableAmounts: LegacyAmountsInDefaultCurrency,
         expectedGeneralTax: GeneralTax?,
         expectedGeneralTaxRateInBps: Int?,
         expectedGeneralTaxAmount: Long?,

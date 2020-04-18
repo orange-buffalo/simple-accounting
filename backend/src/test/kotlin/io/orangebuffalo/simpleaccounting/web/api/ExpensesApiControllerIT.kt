@@ -4,8 +4,8 @@ import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAmountsInDefaultCurrency
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -672,8 +672,8 @@ internal class ExpensesApiControllerIT(
             category = coffeeCategory,
             currency = "THF",
             originalAmount = 50,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(50),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(50),
+            convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(50),
+            incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(50),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.FINALIZED,
             percentOnBusiness = 100
@@ -685,8 +685,8 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "THF",
             originalAmount = 5000,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(500),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(500),
+            convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(500),
+            incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(500),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.FINALIZED
         )
@@ -697,11 +697,11 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            convertedAmounts = AmountsInDefaultCurrency(
+            convertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 510,
                 adjustedAmountInDefaultCurrency = 505
             ),
-            incomeTaxableAmounts = AmountsInDefaultCurrency(
+            incomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 460,
                 adjustedAmountInDefaultCurrency = 455
             ),
@@ -719,11 +719,11 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            convertedAmounts = AmountsInDefaultCurrency(
+            convertedAmounts = LegacyAmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 510,
                 adjustedAmountInDefaultCurrency = 459
             ),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
             useDifferentExchangeRateForIncomeTaxPurposes = true,
             status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
             percentOnBusiness = 99,
@@ -738,8 +738,8 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            convertedAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.PENDING_CONVERSION,
             percentOnBusiness = 100

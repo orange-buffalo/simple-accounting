@@ -3,8 +3,6 @@ package io.orangebuffalo.simpleaccounting.web.api
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Category
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CategoryRepository
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
@@ -143,32 +141,17 @@ internal class CategoriesApiControllerIT(
     class CategoriesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
-
-        val fryWorkspace = Workspace(
-            name = "Property of Philip J. Fry",
-            owner = fry,
-            taxEnabled = false,
-            multiCurrencyEnabled = false,
-            defaultCurrency = "USD"
-        )
-
-        val slurmCategory = Category(
+        val fryWorkspace = Prototypes.workspace(owner = fry)
+        val farnsworthWorkspace = Prototypes.workspace(owner = farnsworth)
+        val slurmCategory = Prototypes.category(
             name = "Slurm", workspace = fryWorkspace, description = "..", income = false, expense = true
         )
-        val planetExpressCategory = Category(
+        val planetExpressCategory = Prototypes.category(
             name = "PlanetExpress",
             workspace = fryWorkspace,
             description = "...",
             income = true,
             expense = false
-        )
-
-        val farnsworthWorkspace = Workspace(
-            name = "Laboratory",
-            owner = farnsworth,
-            taxEnabled = false,
-            multiCurrencyEnabled = false,
-            defaultCurrency = "USD"
         )
 
         override fun generateData() = listOf(

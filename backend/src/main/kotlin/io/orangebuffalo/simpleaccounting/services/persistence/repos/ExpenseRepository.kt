@@ -7,7 +7,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor
 import java.time.LocalDate
 
 interface ExpenseRepository :
-    AbstractEntityRepository<Expense>, QuerydslPredicateExecutor<Expense>, ExpenseRepositoryExt {
+    LegacyAbstractEntityRepository<Expense>, QuerydslPredicateExecutor<Expense>, ExpenseRepositoryExt {
 
     fun findByIdAndWorkspace(id: Long, workspace: Workspace): Expense?
 }

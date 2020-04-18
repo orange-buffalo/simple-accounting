@@ -27,4 +27,4 @@ class WorkspaceAccessToken(
     @field:Column(nullable = false)
     val token: String
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

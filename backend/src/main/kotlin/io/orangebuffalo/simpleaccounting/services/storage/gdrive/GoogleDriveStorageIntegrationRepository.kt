@@ -1,9 +1,9 @@
 package io.orangebuffalo.simpleaccounting.services.storage.gdrive
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.LegacyAbstractEntityRepository
 
-interface GoogleDriveStorageIntegrationRepository : AbstractEntityRepository<GoogleDriveStorageIntegration> {
+interface GoogleDriveStorageIntegrationRepository : LegacyAbstractEntityRepository<GoogleDriveStorageIntegration> {
 
     fun findByUser(user: PlatformUser): GoogleDriveStorageIntegration?
 }

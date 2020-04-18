@@ -4,6 +4,8 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import java.time.Instant
 import java.time.LocalDate
 
+internal var currentEntityId: Long = Long.MIN_VALUE
+
 class Prototypes {
     companion object {
         fun fry() = platformUser(
@@ -54,7 +56,10 @@ class Prototypes {
             isAdmin = isAdmin,
             documentsStorage = documentsStorage,
             i18nSettings = i18nSettings
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun workspace(
             name: String = "Planet Express",
@@ -70,7 +75,10 @@ class Prototypes {
             multiCurrencyEnabled = multiCurrencyEnabled,
             defaultCurrency = defaultCurrency,
             categories = categories
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun generalTax(
             title: String = "Tax",
@@ -82,7 +90,10 @@ class Prototypes {
             workspace = workspace,
             rateInBps = rateInBps,
             description = description
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun category(
             name: String = "Delivery",
@@ -96,7 +107,10 @@ class Prototypes {
             income = income,
             expense = expense,
             description = description
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun expense(
             category: Category? = null,
@@ -107,8 +121,8 @@ class Prototypes {
             datePaid: LocalDate = MOCK_DATE,
             currency: String = "USD",
             originalAmount: Long = 100,
-            convertedAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
-            incomeTaxableAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+            convertedAmounts: LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(100, 100),
+            incomeTaxableAmounts: LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(100, 100),
             useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
             attachments: Set<Document> = setOf(),
             percentOnBusiness: Int = 100,
@@ -135,7 +149,50 @@ class Prototypes {
             generalTaxRateInBps = generalTaxRateInBps,
             notes = notes,
             status = status
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
+
+        @Deprecated("Use income")
+        fun legacyIncome(
+            category: Category? = null,
+            workspace: Workspace = workspace(),
+            title: String = "Income",
+            timeRecorded: Instant = MOCK_TIME,
+            dateReceived: LocalDate = MOCK_DATE,
+            currency: String = "USD",
+            originalAmount: Long = 100,
+            convertedAmounts: LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(100, 100),
+            incomeTaxableAmounts: LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(100, 100),
+            useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
+            attachments: Set<Document> = setOf(),
+            notes: String? = null,
+            generalTax: GeneralTax? = null,
+            generalTaxRateInBps: Int? = null,
+            generalTaxAmount: Long? = null,
+            status: IncomeStatus = IncomeStatus.FINALIZED
+        ) = LegacyIncome(
+            category = category,
+            workspace = workspace,
+            generalTaxAmount = generalTaxAmount,
+            convertedAmounts = convertedAmounts,
+            useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+            incomeTaxableAmounts = incomeTaxableAmounts,
+            status = status,
+            generalTax = generalTax,
+            notes = notes,
+            generalTaxRateInBps = generalTaxRateInBps,
+            attachments = attachments,
+            currency = currency,
+            dateReceived = dateReceived,
+            originalAmount = originalAmount,
+            timeRecorded = timeRecorded,
+            title = title
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun income(
             category: Category? = null,
@@ -155,23 +212,26 @@ class Prototypes {
             generalTaxAmount: Long? = null,
             status: IncomeStatus = IncomeStatus.FINALIZED
         ) = Income(
-            category = category,
-            workspace = workspace,
+            categoryId = category?.id,
+            workspaceId = workspace.id!!,
             generalTaxAmount = generalTaxAmount,
             convertedAmounts = convertedAmounts,
             useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
             incomeTaxableAmounts = incomeTaxableAmounts,
             status = status,
-            generalTax = generalTax,
+            generalTaxId = generalTax?.id,
             notes = notes,
             generalTaxRateInBps = generalTaxRateInBps,
-            attachments = attachments,
+            attachments = attachments.asSequence().map { document -> IncomeAttachment(document.id!!) }.toSet(),
             currency = currency,
             dateReceived = dateReceived,
             originalAmount = originalAmount,
             timeRecorded = timeRecorded,
             title = title
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun document(
             name: String = "Slurm Receipt",
@@ -187,7 +247,10 @@ class Prototypes {
             storageProviderLocation = storageProviderLocation,
             timeUploaded = timeUploaded,
             sizeInBytes = sizeInBytes
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun incomeTaxPayment(
             workspace: Workspace = workspace(),
@@ -207,7 +270,10 @@ class Prototypes {
             title = title,
             attachments = attachments,
             notes = notes
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun customer(
             name: String = "customer",
@@ -215,10 +281,13 @@ class Prototypes {
         ): Customer = Customer(
             name = name,
             workspace = workspace
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun invoice(
-            income: Income? = null,
+            income: LegacyIncome? = null,
             customer: Customer = customer(),
             title: String = "invoice",
             timeRecorded: Instant = MOCK_TIME,
@@ -247,7 +316,10 @@ class Prototypes {
             attachments = attachments,
             notes = notes,
             generalTax = generalTax
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun workspaceAccessToken(
             workspace: Workspace = workspace(),
@@ -261,11 +333,25 @@ class Prototypes {
             validTill = validTill,
             revoked = revoked,
             token = token
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
+
+        @Deprecated("Use amountsInDefaultCurrency")
+        fun legacyAmountsInDefaultCurrency(
+            amount: Long
+        ): LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(amount, amount)
 
         fun amountsInDefaultCurrency(
             amount: Long
         ): AmountsInDefaultCurrency = AmountsInDefaultCurrency(amount, amount)
+
+        @Deprecated("Use emptyAmountsInDefaultCurrency")
+        fun legacyEmptyAmountsInDefaultCurrency(): LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(
+            originalAmountInDefaultCurrency = null,
+            adjustedAmountInDefaultCurrency = null
+        )
 
         fun emptyAmountsInDefaultCurrency(): AmountsInDefaultCurrency = AmountsInDefaultCurrency(
             originalAmountInDefaultCurrency = null,

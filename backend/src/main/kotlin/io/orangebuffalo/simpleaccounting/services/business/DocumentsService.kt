@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
@@ -64,4 +65,24 @@ class DocumentsService(
 
     private fun getDocumentStorageById(providerId: String) = documentsStorages
         .first { it.getId() == providerId }
+
+    //todo #222: reasess if needed
+    suspend fun getValidDocuments(
+        workspace: Workspace,
+        documentIds: List<Long>?
+    ): Set<Document> {
+        val documents = documentIds?.let { documentRepository.findAllById(it) } ?: emptyList()
+        documents.forEach { document ->
+            if (document.workspace != workspace) {
+                throw EntityNotFoundException(
+                    "Document ${document.id} is not found"
+                )
+            }
+        }
+        return documents.toSet()
+    }
+
+    suspend fun getValidDocumentsIds(workspaceId: Long, documentsIds: Collection<Long>) : Collection<Long> = withDbContext {
+        documentRepository.findByWorkspaceIdAndIdIsIn(workspaceId, documentsIds).map { it.id }
+    }
 }

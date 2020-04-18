@@ -1,19 +1,20 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities
 
-import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Transient
-import org.springframework.data.annotation.Version
 import java.util.concurrent.atomic.AtomicLong
+import javax.persistence.*
 
 private val stickyHashRegistry: AtomicLong = AtomicLong()
 
-abstract class AbstractEntity {
+@MappedSuperclass
+@Deprecated("Use AbstractEntity")
+abstract class LegacyAbstractEntity {
 
     @Id
+    @GeneratedValue
     var id: Long? = null
 
     @Version
-    var version: Int? = null
+    var version: Int = -1
 
     @delegate:Transient
     private val stickyHash: Long by lazy(LazyThreadSafetyMode.NONE) { id ?: stickyHashRegistry.incrementAndGet() }
@@ -22,7 +23,7 @@ abstract class AbstractEntity {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as AbstractEntity
+        other as LegacyAbstractEntity
 
         if (stickyHash != other.stickyHash) return false
 

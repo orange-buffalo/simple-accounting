@@ -8,7 +8,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor
 import org.springframework.data.repository.query.Param
 import java.time.Instant
 
-interface WorkspaceAccessTokenRepository : AbstractEntityRepository<WorkspaceAccessToken>,
+interface WorkspaceAccessTokenRepository : LegacyAbstractEntityRepository<WorkspaceAccessToken>,
     QuerydslPredicateExecutor<WorkspaceAccessToken> {
 
     @Query(

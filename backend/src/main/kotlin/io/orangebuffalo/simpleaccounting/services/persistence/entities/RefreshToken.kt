@@ -16,4 +16,4 @@ class RefreshToken(
     @field:Column(nullable = false)
     var expirationTime: Instant
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

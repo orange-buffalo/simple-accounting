@@ -22,7 +22,7 @@ class IncomesFilteringApiIT : AbstractFilteringApiTest() {
                     entityFields(
                         { income -> income.title },
                         { income -> income.notes },
-                        { income -> income.category?.id },
+                        { income -> income.categoryId },
                         { income -> income.dateReceived },
                         { income -> income.timeRecorded }
                     )
@@ -41,10 +41,10 @@ class IncomesFilteringApiIT : AbstractFilteringApiTest() {
                 filtering {
                     entity {
                         configure { income ->
-                            income.category = Prototypes.category(
+                            income.categoryId = Prototypes.category(
                                 workspace = workspace,
                                 name = "name xxx"
-                            ).let { save(it) }
+                            ).let { save(it).id }
                             income.notes = "notes"
                             income.title = "title"
                         }
@@ -53,10 +53,10 @@ class IncomesFilteringApiIT : AbstractFilteringApiTest() {
 
                     entity {
                         configure { income ->
-                            income.category = Prototypes.category(
+                            income.categoryId = Prototypes.category(
                                 workspace = workspace,
                                 name = "name"
-                            ).let { save(it) }
+                            ).let { save(it).id }
                             income.notes = "notesYYy"
                             income.title = "title"
                         }
@@ -74,10 +74,10 @@ class IncomesFilteringApiIT : AbstractFilteringApiTest() {
 
                     entity {
                         configure { income ->
-                            income.category = Prototypes.category(
+                            income.categoryId = Prototypes.category(
                                 workspace = workspace,
                                 name = "name"
-                            ).let { save(it) }
+                            ).let { save(it).id }
                             income.notes = "notes"
                             income.title = "title"
                         }
@@ -97,10 +97,10 @@ class IncomesFilteringApiIT : AbstractFilteringApiTest() {
 
                     entity {
                         configure { income ->
-                            income.category = Prototypes.category(
+                            income.categoryId = Prototypes.category(
                                 workspace = workspace,
                                 name = "name"
-                            ).let { save(it) }
+                            ).let { save(it).id }
                             income.notes = "notes yyy notes"
                             income.title = "xXx title"
                         }

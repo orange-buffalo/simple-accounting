@@ -16,4 +16,4 @@ class SavedWorkspaceAccessToken(
     @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "saved_ws_access_token_owner_fk"))
     var owner: PlatformUser
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()

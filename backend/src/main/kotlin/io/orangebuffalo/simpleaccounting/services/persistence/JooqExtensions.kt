@@ -3,6 +3,8 @@ package io.orangebuffalo.simpleaccounting.services.persistence
 import org.jooq.Configuration
 import org.jooq.Result
 import org.jooq.ResultQuery
+import org.springframework.dao.DataAccessException
+import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.data.jdbc.core.convert.EntityRowMapper
 import org.springframework.data.jdbc.core.convert.JdbcConverter
 import org.springframework.data.jdbc.core.mapping.JdbcMappingContext
@@ -22,7 +24,7 @@ fun Configuration.set(jdbcMappingContext: JdbcMappingContext): Configuration {
     return this
 }
 
-fun <T : Any> Result<*>.intoListOf(targetEntityType: KClass<T>): List<T> {
+fun <T : Any> Result<*>.asListOf(targetEntityType: KClass<T>): List<T> {
     val jdbcConverter = this.configuration().data(jdbcConverterKey) as JdbcConverter
     val jdbcMappingContext = this.configuration().data(jdbcMappingContextKey) as JdbcMappingContext
     val persistentEntity = jdbcMappingContext.getPersistentEntity(targetEntityType.java)
@@ -41,8 +43,20 @@ fun <T : Any> Result<*>.intoListOf(targetEntityType: KClass<T>): List<T> {
     return result
 }
 
-inline fun <reified T : Any> Result<*>.intoListOf(): List<T> = intoListOf(T::class)
+inline fun <reified T : Any> Result<*>.asListOf(): List<T> = asListOf(T::class)
 
-inline fun <reified T : Any> ResultQuery<*>.intoListOf(): List<T> = fetch().intoListOf()
+inline fun <reified T : Any> ResultQuery<*>.fetchListOf(): List<T> = fetch().asListOf()
 
-fun <T : Any> ResultQuery<*>.intoListOf(targetEntityType: KClass<T>): List<T> = fetch().intoListOf(targetEntityType)
+fun <T : Any> ResultQuery<*>.fetchListOf(targetEntityType: KClass<T>): List<T> = fetch().asListOf(targetEntityType)
+
+inline fun <reified T : Any> ResultQuery<*>.fetchOneOrNull(): T? = fetchOneOrNull(T::class)
+
+fun <T : Any> ResultQuery<*>.fetchOneOrNull(targetEntityType: KClass<T>): T? {
+    val results = fetch().asListOf(targetEntityType)
+    return when {
+        results.size > 1 -> throw IncorrectResultSizeDataAccessException("Fetched more that one results", results.size)
+        results.isEmpty() -> null
+        else -> results[0]
+    }
+}
+

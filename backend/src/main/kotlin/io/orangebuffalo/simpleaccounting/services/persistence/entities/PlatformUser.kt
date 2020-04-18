@@ -14,7 +14,7 @@ class PlatformUser(
     @field:Column var documentsStorage: String? = null,
     @field:Embedded val loginStatistics: LoginStatistics = LoginStatistics(0, null),
     @field:Embedded val i18nSettings: I18nSettings
-) : AbstractEntity()
+) : LegacyAbstractEntity()
 
 @Embeddable
 data class LoginStatistics(

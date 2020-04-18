@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QGeneralTax
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApi
 import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApiDescriptor

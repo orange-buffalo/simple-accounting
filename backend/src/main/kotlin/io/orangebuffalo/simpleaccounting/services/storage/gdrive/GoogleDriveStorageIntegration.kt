@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.storage.gdrive
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAbstractEntity
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import javax.persistence.*
 
@@ -13,4 +13,4 @@ class GoogleDriveStorageIntegration(
 
     @field:Column var folderId: String? = null
 
-) : AbstractEntity()
+) : LegacyAbstractEntity()
