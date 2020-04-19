@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
 
+import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
@@ -45,25 +46,23 @@ class IncomeRepositoryExtImpl(
         val incomeTaxableAmount = income.incomeTaxableAdjustedAmountInDefaultCurrency
         return dslContext
             .select(
-                income.categoryId.`as`("category_Id"),
-                //todo #222 extension for fluent sum
+                income.categoryId.mapTo(IncomesStatistics::categoryId),
                 sum(
                     case_()
                         .`when`(incomeTaxableAmount.isNull, 0L)
                         .otherwise(incomeTaxableAmount)
-                ).`as`("total_Amount"),
+                ).mapTo(IncomesStatistics::totalAmount),
                 count(
                     case_()
                         //todo #222 configure jooq to map enum
                         .`when`(income.status.eq(IncomeStatus.FINALIZED.name), 1L)
                         .otherwise(inline<Long>(null))
-                //todo #222 cleaner way for pojo mapping
-                ).`as`("finalized_Count"),
+                ).mapTo(IncomesStatistics::finalizedCount),
                 count(
                     case_()
                         .`when`(income.status.ne(IncomeStatus.FINALIZED.name), 1L)
                         .otherwise(inline<Long>(null))
-                ).`as`("pending_Count"),
+                ).mapTo(IncomesStatistics::pendingCount),
                 sum(
                     case_()
                         .`when`(income.status.ne(IncomeStatus.FINALIZED.name), 0L)
@@ -71,7 +70,7 @@ class IncomeRepositoryExtImpl(
                             income.convertedAdjustedAmountInDefaultCurrency
                                 .sub(income.incomeTaxableAdjustedAmountInDefaultCurrency)
                         )
-                ).`as`("currency_Exchange_Difference")
+                ).mapTo(IncomesStatistics::currencyExchangeDifference)
             )
             .from(income)
             .where(

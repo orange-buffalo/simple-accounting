@@ -1,15 +1,17 @@
 package io.orangebuffalo.simpleaccounting.services.persistence
 
 import org.jooq.Configuration
+import org.jooq.Field
 import org.jooq.Result
 import org.jooq.ResultQuery
-import org.springframework.dao.DataAccessException
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.data.jdbc.core.convert.EntityRowMapper
 import org.springframework.data.jdbc.core.convert.JdbcConverter
 import org.springframework.data.jdbc.core.mapping.JdbcMappingContext
 import org.springframework.data.relational.core.mapping.RelationalPersistentEntity
+import org.springframework.data.util.ParsingUtils
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty1
 
 private val jdbcConverterKey: KClass<JdbcConverter> = JdbcConverter::class
 private val jdbcMappingContextKey: KClass<JdbcMappingContext> = JdbcMappingContext::class
@@ -60,3 +62,13 @@ fun <T : Any> ResultQuery<*>.fetchOneOrNull(targetEntityType: KClass<T>): T? {
     }
 }
 
+/**
+ * Converts the property name to an SQL alias to allow for Spring Data JDBC mapping from the result set to the POJO.
+ * Does not take types into account as type conversion is delegated to underlying Spring Data infrastructure
+ * and thus the filed and the target property can have different but convertable types.
+ */
+fun <T> Field<T>.mapTo(property: KProperty1<*, *>): Field<T> {
+    val propertyName = property.name
+    val snakeCasePropertyName = ParsingUtils.reconcatenateCamelCase(propertyName, "_")
+    return this.`as`(snakeCasePropertyName)
+}
