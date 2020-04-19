@@ -54,18 +54,17 @@ class IncomeRepositoryExtImpl(
                 ).mapTo(IncomesStatistics::totalAmount),
                 count(
                     case_()
-                        //todo #222 configure jooq to map enum
-                        .`when`(income.status.eq(IncomeStatus.FINALIZED.name), 1L)
+                        .`when`(income.status.eq(IncomeStatus.FINALIZED), 1L)
                         .otherwise(inline<Long>(null))
                 ).mapTo(IncomesStatistics::finalizedCount),
                 count(
                     case_()
-                        .`when`(income.status.ne(IncomeStatus.FINALIZED.name), 1L)
+                        .`when`(income.status.ne(IncomeStatus.FINALIZED), 1L)
                         .otherwise(inline<Long>(null))
                 ).mapTo(IncomesStatistics::pendingCount),
                 sum(
                     case_()
-                        .`when`(income.status.ne(IncomeStatus.FINALIZED.name), 0L)
+                        .`when`(income.status.ne(IncomeStatus.FINALIZED), 0L)
                         .otherwise(
                             income.convertedAdjustedAmountInDefaultCurrency
                                 .sub(income.incomeTaxableAdjustedAmountInDefaultCurrency)

@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,9 +14,6 @@ import org.jooq.meta.jaxb.Database
 import org.jooq.meta.jaxb.Target
 import org.jooq.tools.StringUtils
 
-/**
- * Workaround for https://github.com/etiennestuder/gradle-jooq-plugin/issues/120
- */
 class SaJooqCodeGenPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
@@ -64,11 +63,11 @@ open class SaJooqCodeGenTask : DefaultTask() {
                             .withKey("sort")
                             .withValue("flyway")
                     )
+                    .withForcedTypes(
+                        incomeStatusForcedType()
+                    )
             )
-            .withStrategy(
-                Strategy()
-                    .withName(SaGeneratorStrategy::class.java.canonicalName)
-            )
+            .withStrategy(Strategy().withName(SaGeneratorStrategy::class.java.canonicalName))
             .withTarget(
                 Target()
                     .withDirectory(outputDirectory.absolutePath)
@@ -76,6 +75,11 @@ open class SaJooqCodeGenTask : DefaultTask() {
             )
         GenerationTool.generate(jooqConfig)
     }
+
+    private fun incomeStatusForcedType() = ForcedType()
+        .withIncludeExpression("""INCOME\.STATUS""")
+        .withUserType("io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus")
+        .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.IncomeStatusConverter")
 }
 
 class SaGeneratorStrategy : DefaultGeneratorStrategy() {
