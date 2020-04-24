@@ -22,7 +22,7 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     entityFields(
                         { invoice -> invoice.title },
                         { invoice -> invoice.notes ?: "" },
-                        { invoice -> invoice.customer.id },
+                        { invoice -> invoice.customerId },
                         { invoice -> invoice.dateIssued },
                         { invoice -> invoice.timeRecorded }
                     )
@@ -53,10 +53,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                 filtering {
                     entity {
                         configure { invoice ->
-                            invoice.customer = Prototypes.customer(
+                            invoice.customerId = Prototypes.customer(
                                 workspace = workspace,
                                 name = "name xxx"
-                            ).let { save(it) }
+                            ).let { save(it).id!! }
                             invoice.notes = "notes"
                             invoice.title = "title"
                         }
@@ -69,10 +69,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
 
                     entity {
                         configure { invoice ->
-                            invoice.customer = Prototypes.customer(
+                            invoice.customerId = Prototypes.customer(
                                 workspace = workspace,
                                 name = "name"
-                            ).let { save(it) }
+                            ).let { save(it).id!! }
                             invoice.notes = "notesYYy"
                             invoice.title = "title"
                         }
@@ -85,10 +85,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
 
                     entity {
                         configure { invoice ->
-                            invoice.customer = Prototypes.customer(
+                            invoice.customerId = Prototypes.customer(
                                 workspace = workspace,
                                 name = "name"
-                            ).let { save(it) }
+                            ).let { save(it).id!! }
                             invoice.notes = "notes"
                             invoice.title = "title"
                         }
@@ -102,10 +102,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
 
                     entity {
                         configure { invoice ->
-                            invoice.customer = Prototypes.customer(
+                            invoice.customerId = Prototypes.customer(
                                 workspace = workspace,
                                 name = "name"
-                            ).let { save(it) }
+                            ).let { save(it).id!! }
                             invoice.notes = "notes yyy notes"
                             invoice.title = "xXx title"
                         }

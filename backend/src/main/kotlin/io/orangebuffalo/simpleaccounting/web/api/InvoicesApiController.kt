@@ -1,20 +1,18 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.simpleaccounting.services.business.InvoiceService
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Invoice
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QInvoice
-import io.orangebuffalo.simpleaccounting.services.persistence.toOrder
-import io.orangebuffalo.simpleaccounting.web.api.integration.*
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.InvoiceAttachment
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
 import org.hibernate.validator.constraints.Length
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Sort
-import org.springframework.stereotype.Component
+import org.jooq.impl.DSL.or
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -25,50 +23,42 @@ import javax.validation.constraints.Size
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/invoices")
 class InvoicesApiController(
-    private val extensions: ApiControllersExtensions,
     private val invoiceService: InvoiceService,
     private val timeService: TimeService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
     suspend fun createInvoice(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditInvoiceDto
-    ): InvoiceDto {
+    ): InvoiceDto = invoiceService
+        .saveInvoice(
+            Invoice(
+                title = request.title,
+                timeRecorded = timeService.currentTime(),
+                customerId = request.customer,
+                currency = request.currency,
+                notes = request.notes,
+                attachments = getInvoiceAttachments(request.attachments),
+                dateIssued = request.dateIssued,
+                dateSent = request.dateSent,
+                datePaid = request.datePaid,
+                dateCancelled = request.dateCancelled,
+                dueDate = request.dueDate,
+                amount = request.amount,
+                generalTaxId = request.generalTax
+            ),
+            workspaceId
+        )
+        .let { mapInvoiceDto(it, timeService) }
 
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
-
-        return invoiceService
-            .saveInvoice(
-                Invoice(
-                    title = request.title,
-                    timeRecorded = timeService.currentTime(),
-                    customer = extensions.getValidCustomer(workspace, request.customer),
-                    currency = request.currency,
-                    notes = request.notes,
-                    attachments = extensions.getValidDocuments(workspace, request.attachments),
-                    dateIssued = request.dateIssued,
-                    dateSent = request.dateSent,
-                    datePaid = request.datePaid,
-                    dateCancelled = request.dateCancelled,
-                    dueDate = request.dueDate,
-                    amount = request.amount,
-                    generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
-                )
-            )
-            .let { mapInvoiceDto(it, timeService) }
-    }
+    private fun getInvoiceAttachments(attachments: List<Long>?): Set<InvoiceAttachment> =
+        attachments?.asSequence()?.map { documentId -> InvoiceAttachment(documentId) }?.toSet() ?: emptySet()
 
     @GetMapping
-    @PageableApi(InvoicePageableApiDescriptor::class)
-    suspend fun getInvoices(
-        @PathVariable workspaceId: Long,
-        pageRequest: ApiPageRequest
-    ): Page<Invoice> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        return invoiceService.getInvoices(workspace, pageRequest.page, pageRequest.predicate)
-    }
+    suspend fun getInvoices(@PathVariable workspaceId: Long) = filteringApiExecutor.executeFiltering(workspaceId)
 
     @GetMapping("{invoiceId}")
     suspend fun getInvoice(
@@ -76,9 +66,10 @@ class InvoicesApiController(
         @PathVariable invoiceId: Long
     ): InvoiceDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val income = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
+        // todo #222: move access control into the business service
+        val invoice = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
-        return mapInvoiceDto(income, timeService)
+        return mapInvoiceDto(invoice, timeService)
     }
 
     @PutMapping("{invoiceId}")
@@ -91,30 +82,76 @@ class InvoicesApiController(
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
+        // todo #222: workspace id only
         val invoice = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
 
         return invoice
             .apply {
                 title = request.title
-                customer = extensions.getValidCustomer(workspace, request.customer)
+                customerId = request.customer
                 currency = request.currency
                 notes = request.notes
-                attachments = extensions.getValidDocuments(workspace, request.attachments)
+                attachments = getInvoiceAttachments(request.attachments)
                 dateIssued = request.dateIssued
                 dateSent = request.dateSent
                 datePaid = request.datePaid
                 dateCancelled = request.dateCancelled
                 dueDate = request.dueDate
                 amount = request.amount
-                generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
+                generalTaxId = request.generalTax
             }
             .let {
-                invoiceService.saveInvoice(it)
+                invoiceService.saveInvoice(it, workspaceId)
             }
             .let {
                 mapInvoiceDto(it, timeService)
             }
+    }
+
+    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Invoice, InvoiceDto> {
+        query(Tables.INVOICE) {
+            filterByField("freeSearchText", String::class) {
+                val customer = Tables.CUSTOMER.`as`("filterCustomer")
+                query.join(customer).on(customer.id.eq(root.customerId))
+
+                onPredicate(FilteringApiPredicateOperator.EQ) { filter ->
+                    or(
+                        root.notes.containsIgnoreCase(filter),
+                        root.title.containsIgnoreCase(filter),
+                        customer.name.containsIgnoreCase(filter)
+                    )
+                }
+            }
+            filterByField("status", InvoiceStatus::class) {
+                onPredicate(FilteringApiPredicateOperator.EQ) { filter ->
+                    when (filter) {
+                        InvoiceStatus.DRAFT -> root.datePaid.isNull
+                            .and(root.dateSent.isNull)
+                            .and(root.dateCancelled.isNull)
+                        InvoiceStatus.CANCELLED -> root.dateCancelled.isNotNull
+                        InvoiceStatus.PAID -> root.datePaid.isNotNull
+                            .and(root.dateCancelled.isNull)
+                        InvoiceStatus.SENT -> root.dateSent.isNotNull
+                            .and(root.datePaid.isNull)
+                            .and(root.dateCancelled.isNull)
+                            .and(root.dueDate.greaterOrEqual(timeService.currentDate()))
+                        InvoiceStatus.OVERDUE -> root.datePaid.isNull
+                            .and(root.dateCancelled.isNull)
+                            .and(root.dueDate.lt(timeService.currentDate()))
+                    }
+                }
+            }
+            addDefaultSorting { root.dateIssued.desc() }
+            addDefaultSorting { root.timeRecorded.asc() }
+            workspaceFilter { workspaceId ->
+                // todo #222: add api to join in the root of the builder to avoid redundant joins
+                val customer = Tables.CUSTOMER.`as`("customer")
+                query.join(customer).on(customer.id.eq(root.customerId))
+                customer.workspaceId.eq(workspaceId)
+            }
+        }
+        mapper { mapInvoiceDto(this, timeService) }
     }
 }
 
@@ -165,8 +202,8 @@ data class EditInvoiceDto(
 private fun mapInvoiceDto(source: Invoice, timeService: TimeService) =
     InvoiceDto(
         title = source.title,
-        income = source.income?.id,
-        customer = source.customer.id!!,
+        income = source.incomeId,
+        customer = source.customerId,
         timeRecorded = source.timeRecorded,
         dateIssued = source.dateIssued,
         dateCancelled = source.dateCancelled,
@@ -175,12 +212,12 @@ private fun mapInvoiceDto(source: Invoice, timeService: TimeService) =
         dueDate = source.dueDate,
         currency = source.currency,
         amount = source.amount,
-        attachments = source.attachments.map { it.id!! },
+        attachments = source.attachments.map { it.documentId },
         notes = source.notes,
         id = source.id!!,
-        version = source.version,
+        version = source.version!!,
         status = getInvoiceStatus(source, timeService),
-        generalTax = source.generalTax?.id
+        generalTax = source.generalTaxId
     )
 
 private fun getInvoiceStatus(invoice: Invoice, timeService: TimeService): InvoiceStatus {
@@ -191,44 +228,4 @@ private fun getInvoiceStatus(invoice: Invoice, timeService: TimeService): Invoic
         invoice.dateSent != null -> InvoiceStatus.SENT
         else -> InvoiceStatus.DRAFT
     }
-}
-
-@Component
-class InvoicePageableApiDescriptor(
-    private val timeService: TimeService
-) : PageableApiDescriptor<Invoice, QInvoice> {
-
-    override suspend fun mapEntityToDto(entity: Invoice) =
-        mapInvoiceDto(entity, timeService)
-
-    override fun getSupportedFilters() = apiFilters(QInvoice.invoice) {
-        byApiField("freeSearchText", String::class) {
-            onOperator(PageableApiFilterOperator.EQ) { value ->
-                Expressions.anyOf(
-                    notes.containsIgnoreCase(value),
-                    title.containsIgnoreCase(value),
-                    customer.name.containsIgnoreCase(value)
-                )
-            }
-        }
-
-        byApiField("status", InvoiceStatus::class) {
-            onOperator(PageableApiFilterOperator.EQ) { value ->
-                when (value) {
-                    InvoiceStatus.DRAFT -> datePaid.isNull.and(dateSent.isNull).and(dateCancelled.isNull)
-                    InvoiceStatus.CANCELLED -> dateCancelled.isNotNull
-                    InvoiceStatus.PAID -> datePaid.isNotNull.and(dateCancelled.isNull)
-                    InvoiceStatus.SENT -> dateSent.isNotNull.and(datePaid.isNull).and(dateCancelled.isNull)
-                        .and(dueDate.goe(timeService.currentDate()))
-                    InvoiceStatus.OVERDUE -> datePaid.isNull.and(dateCancelled.isNull)
-                        .and(dueDate.lt(timeService.currentDate()))
-                }
-            }
-        }
-    }
-
-    override fun getDefaultSorting() = Sort.by(
-        QInvoice.invoice.dateIssued.desc().toOrder(),
-        QInvoice.invoice.timeRecorded.asc().toOrder()
-    )
 }

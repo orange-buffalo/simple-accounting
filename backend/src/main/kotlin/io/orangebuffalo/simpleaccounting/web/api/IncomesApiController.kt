@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
 import org.jooq.impl.DSL
+import org.jooq.impl.DSL.*
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -109,10 +110,10 @@ class IncomesApiController(
 
                 onPredicate(FilteringApiPredicateOperator.EQ) { searchText ->
                     val token = searchText.toLowerCase()
-                    DSL.or(
-                        DSL.lower(category.name).contains(token),
-                        DSL.lower(root.notes).contains(token),
-                        DSL.lower(root.title).contains(token)
+                    or(
+                        category.name.containsIgnoreCase(token),
+                        root.notes.containsIgnoreCase(token),
+                        root.title.containsIgnoreCase(token)
                     )
                 }
             }

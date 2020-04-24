@@ -37,7 +37,7 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
             mutableMapOf()
         private val defaultSortingList: MutableList<FilteringApiQuerySpec.HasRoot<T>.() -> SortField<out Any>> =
             mutableListOf()
-        private var workspaceFilter: (FilteringApiQuerySpec.HasRoot<T>.(Long?) -> Condition)? = null
+        private var workspaceFilter: (FilteringApiQuerySpec.WorkspaceFilterConfig<T>.(Long?) -> Condition)? = null
 
         override fun <V : Any> filterByField(
             apiFieldName: String,
@@ -91,16 +91,20 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
             query: SelectJoinStep<out Record>
         ): Collection<Condition> = fileApiRequest.predicates
             .map { requestPredicate -> validatePredicateAndGetCondition(requestPredicate, query) }
-            .plus(getWorkspaceFilterCondition(workspaceId))
+            .plus(getWorkspaceFilterCondition(workspaceId, query))
 
-        private fun getWorkspaceFilterCondition(workspaceId: Long?): Condition {
+        private fun getWorkspaceFilterCondition(workspaceId: Long?, query: SelectJoinStep<out Record>): Condition {
             if (workspaceId == null) {
                 return DSL.trueCondition()
             }
 
             val filter = workspaceFilter
             check(filter != null) { "Workspace filter is required when workspace is provided" }
-            return filter(workspaceId)
+            val dataHolder = object : FilteringApiQuerySpec.WorkspaceFilterConfig<T> {
+                override val query = query
+                override val root = this@FilteringApiQuerySpecIml.root
+            }
+            return filter(dataHolder, workspaceId)
         }
 
         private fun validatePredicateAndGetCondition(
@@ -158,7 +162,7 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
             }
         }
 
-        override fun workspaceFilter(spec: FilteringApiQuerySpec.HasRoot<T>.(Long?) -> Condition) {
+        override fun workspaceFilter(spec: FilteringApiQuerySpec.WorkspaceFilterConfig<T>.(Long?) -> Condition) {
             workspaceFilter = spec
         }
     }
@@ -170,7 +174,7 @@ annotation class FilteringApiDsl
 @FilteringApiDsl
 interface FilteringApiQuerySpec<T : Table<*>> {
 
-    fun workspaceFilter(spec: HasRoot<T>.(Long?) -> Condition)
+    fun workspaceFilter(spec: WorkspaceFilterConfig<T>.(Long?) -> Condition)
 
     fun <V : Any> filterByField(
         apiFieldName: String,
@@ -202,5 +206,8 @@ interface FilteringApiQuerySpec<T : Table<*>> {
     interface HasRoot<T : Table<*>> {
         val root: T
     }
+
+    @FilteringApiDsl
+    interface WorkspaceFilterConfig<T : Table<*>> : HasRoot<T>, HasQuery
 }
 

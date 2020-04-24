@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
 import com.querydsl.core.types.Predicate
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.QCustomer
@@ -33,4 +34,8 @@ class CustomerService(
         withDbContext {
             customerRepository.findByIdAndWorkspace(id, workspace)
         }
+
+    suspend fun getValidCustomer(id: Long, workspace: Workspace): Customer =
+        getCustomerByIdAndWorkspace(id, workspace)
+            ?: throw EntityNotFoundException("Customer $id is not found")
 }

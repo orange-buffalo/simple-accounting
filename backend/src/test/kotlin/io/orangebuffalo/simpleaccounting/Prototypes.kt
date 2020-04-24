@@ -154,46 +154,6 @@ class Prototypes {
             version = 0
         }
 
-        @Deprecated("Use income")
-        fun legacyIncome(
-            category: Category? = null,
-            workspace: Workspace = workspace(),
-            title: String = "Income",
-            timeRecorded: Instant = MOCK_TIME,
-            dateReceived: LocalDate = MOCK_DATE,
-            currency: String = "USD",
-            originalAmount: Long = 100,
-            convertedAmounts: LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(100, 100),
-            incomeTaxableAmounts: LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(100, 100),
-            useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
-            attachments: Set<Document> = setOf(),
-            notes: String? = null,
-            generalTax: GeneralTax? = null,
-            generalTaxRateInBps: Int? = null,
-            generalTaxAmount: Long? = null,
-            status: IncomeStatus = IncomeStatus.FINALIZED
-        ) = LegacyIncome(
-            category = category,
-            workspace = workspace,
-            generalTaxAmount = generalTaxAmount,
-            convertedAmounts = convertedAmounts,
-            useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
-            incomeTaxableAmounts = incomeTaxableAmounts,
-            status = status,
-            generalTax = generalTax,
-            notes = notes,
-            generalTaxRateInBps = generalTaxRateInBps,
-            attachments = attachments,
-            currency = currency,
-            dateReceived = dateReceived,
-            originalAmount = originalAmount,
-            timeRecorded = timeRecorded,
-            title = title
-        ).apply {
-            id = currentEntityId++
-            version = 0
-        }
-
         fun income(
             category: Category? = null,
             workspace: Workspace = workspace(),
@@ -287,7 +247,7 @@ class Prototypes {
         }
 
         fun invoice(
-            income: LegacyIncome? = null,
+            income: Income? = null,
             customer: Customer = customer(),
             title: String = "invoice",
             timeRecorded: Instant = MOCK_TIME,
@@ -302,8 +262,8 @@ class Prototypes {
             notes: String? = null,
             generalTax: GeneralTax? = null
         ): Invoice = Invoice(
-            income = income,
-            customer = customer,
+            incomeId = income?.id,
+            customerId = customer.id!!,
             title = title,
             timeRecorded = timeRecorded,
             dateIssued = dateIssued,
@@ -313,9 +273,9 @@ class Prototypes {
             dueDate = dueDate,
             currency = currency,
             amount = amount,
-            attachments = attachments,
+            attachments = attachments.asSequence().map { document -> InvoiceAttachment(document.id!!) }.toSet(),
             notes = notes,
-            generalTax = generalTax
+            generalTaxId = generalTax?.id
         ).apply {
             id = currentEntityId++
             version = 0

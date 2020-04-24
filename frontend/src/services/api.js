@@ -166,6 +166,7 @@ api.pageRequest = function pageRequest(uri) {
   let customConfig = {};
   let filters = {};
 
+  // todo #222: support "in" operator instead of adding multiple "eq"
   const addFilter = (property, value, operator) => {
     if (value != null) {
       const filter = {};

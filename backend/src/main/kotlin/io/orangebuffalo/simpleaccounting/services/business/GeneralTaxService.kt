@@ -35,6 +35,7 @@ class GeneralTaxService(
             repository.findByIdAndWorkspace(id, workspace)
         }
 
+    // todo #222: should not take care of nulls
     suspend fun getValidGeneralTax(taxId: Long?, workspace: Workspace): GeneralTax? =
         if (taxId == null) {
             null

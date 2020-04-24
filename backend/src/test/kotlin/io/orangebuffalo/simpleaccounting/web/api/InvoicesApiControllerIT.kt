@@ -62,7 +62,7 @@ internal class InvoicesApiControllerIT(
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: ${testData.firstSpaceInvoice.id},
                             income: ${testData.spaceIncome.id},
-                            version: 0,
+                            version: 1,
                             dateCancelled: "3000-01-02",
                             dateIssued: "3000-01-01",
                             datePaid: "3000-01-04",
@@ -83,7 +83,7 @@ internal class InvoicesApiControllerIT(
                             amount: 70,
                             attachments: [],
                             id: ${testData.secondSpaceInvoice.id},
-                            version: 0,
+                            version: 1,
                             dateIssued: "3000-01-06",
                             dueDate: "3000-01-07",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -134,7 +134,7 @@ internal class InvoicesApiControllerIT(
                             amount: 70,
                             attachments: [],
                             id: ${testData.secondSpaceInvoice.id},
-                            version: 0,
+                            version: 1,
                             dateIssued: "3000-01-06",
                             dueDate: "3000-01-07",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -216,7 +216,7 @@ internal class InvoicesApiControllerIT(
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: "#{json-unit.any-number}",
                             income: "#{json-unit.any-number}",
-                            version: 0,
+                            version: 1,
                             dateCancelled: "3000-02-02",
                             dateIssued: "3000-02-01",
                             datePaid: "3000-02-04",
@@ -268,7 +268,7 @@ internal class InvoicesApiControllerIT(
                             amount: 30000,
                             attachments: [],
                             id: "#{json-unit.any-number}",
-                            version: 0,
+                            version: 1,
                             dateIssued: "3000-02-01",
                             dueDate: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -394,7 +394,7 @@ internal class InvoicesApiControllerIT(
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: ${testData.secondSpaceInvoice.id},
                             income: "#{json-unit.any-number}",
-                            version: 1,
+                            version: 2,
                             dateCancelled: "3000-02-02",
                             dateIssued: "3000-02-01",
                             datePaid: "3000-02-04",
@@ -437,7 +437,7 @@ internal class InvoicesApiControllerIT(
                             amount: 30000,
                             attachments: [],
                             id: ${testData.firstSpaceInvoice.id},
-                            version: 1,
+                            version: 2,
                             dateIssued: "3000-02-01",
                             dueDate: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -577,7 +577,7 @@ internal class InvoicesApiControllerIT(
             dueDate = LocalDate.of(1999, 12, 24)
         )
 
-        val spaceIncome = Prototypes.legacyIncome(
+        val spaceIncome = Prototypes.income(
             category = spaceDeliveryCategory,
             workspace = planetExpressWorkspace
         )
