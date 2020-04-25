@@ -1,21 +1,20 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.querydsl.core.types.dsl.Expressions
 import io.orangebuffalo.simpleaccounting.services.business.ExpenseService
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseAttachment
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QExpense
-import io.orangebuffalo.simpleaccounting.services.persistence.toOrder
-import io.orangebuffalo.simpleaccounting.web.api.integration.*
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Sort
-import org.springframework.stereotype.Component
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPage
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
+import org.jooq.impl.DSL.or
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -26,10 +25,10 @@ import javax.validation.constraints.Size
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/expenses")
 class ExpensesApiController(
-    private val extensions: ApiControllersExtensions,
     private val expenseService: ExpenseService,
     private val timeService: TimeService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
@@ -37,49 +36,41 @@ class ExpensesApiController(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditExpenseDto
     ): ExpenseDto {
-
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
-
-        val generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
-
         return expenseService
             .saveExpense(
                 Expense(
-                    workspace = workspace,
-                    category = extensions.getValidCategory(workspace, request.category),
+                    workspaceId = workspaceId,
+                    categoryId = request.category,
                     title = request.title,
                     timeRecorded = timeService.currentTime(),
                     datePaid = request.datePaid,
                     currency = request.currency,
                     originalAmount = request.originalAmount,
-                    convertedAmounts = LegacyAmountsInDefaultCurrency(
+                    convertedAmounts = AmountsInDefaultCurrency(
                         originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency,
                         adjustedAmountInDefaultCurrency = null
                     ),
-                    incomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(
                         originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency,
                         adjustedAmountInDefaultCurrency = null
                     ),
                     useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes,
                     notes = request.notes,
                     percentOnBusiness = request.percentOnBusiness ?: 100,
-                    attachments = extensions.getValidDocuments(workspace, request.attachments),
-                    generalTax = generalTax,
+                    attachments = toExpenseAttachments(request.attachments),
+                    generalTaxId = request.generalTax,
                     status = ExpenseStatus.PENDING_CONVERSION
                 )
             )
             .let(Expense::mapToExpenseDto)
     }
 
+    private fun toExpenseAttachments(documentIds: Collection<Long>?) =
+        documentIds?.asSequence()?.map { ExpenseAttachment(it) }?.toSet() ?: emptySet()
+
     @GetMapping
-    @PageableApi(ExpensePageableApiDescriptor::class)
-    suspend fun getExpenses(
-        @PathVariable workspaceId: Long,
-        pageRequest: ApiPageRequest
-    ): Page<Expense> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        return expenseService.getExpenses(workspace, pageRequest.page, pageRequest.predicate)
-    }
+    suspend fun getExpenses(@PathVariable workspaceId: Long): ApiPage<ExpenseDto> =
+        filteringApiExecutor.executeFiltering(workspaceId)
 
     @GetMapping("{expenseId}")
     suspend fun getExpense(
@@ -107,7 +98,7 @@ class ExpensesApiController(
 
         return expense
             .apply {
-                category = extensions.getValidCategory(workspace, request.category)
+                categoryId = request.category
                 title = request.title
                 datePaid = request.datePaid
                 currency = request.currency
@@ -117,11 +108,32 @@ class ExpensesApiController(
                 useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes
                 notes = request.notes
                 percentOnBusiness = request.percentOnBusiness ?: 100
-                attachments = extensions.getValidDocuments(workspace, request.attachments)
-                generalTax = extensions.getValidGeneralTax(request.generalTax, workspace)
+                attachments = toExpenseAttachments(request.attachments)
+                generalTaxId = request.generalTax
             }
             .let { expenseService.saveExpense(it) }
             .mapToExpenseDto()
+    }
+
+    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Expense, ExpenseDto> {
+        query(Tables.EXPENSE) {
+            filterByField("freeSearchText", String::class) {
+                val category = Tables.CATEGORY
+                query.leftJoin(category).on(category.id.eq(root.categoryId))
+
+                onPredicate(FilteringApiPredicateOperator.EQ) { searchString ->
+                    or(
+                        root.notes.containsIgnoreCase(searchString),
+                        root.title.containsIgnoreCase(searchString),
+                        category.name.containsIgnoreCase(searchString)
+                    )
+                }
+            }
+            addDefaultSorting { root.datePaid.desc() }
+            addDefaultSorting { root.timeRecorded.asc() }
+            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+        }
+        mapper { mapToExpenseDto() }
     }
 }
 
@@ -169,7 +181,7 @@ data class EditExpenseDto(
 )
 
 private fun Expense.mapToExpenseDto() = ExpenseDto(
-    category = category?.id,
+    category = categoryId,
     title = title,
     datePaid = datePaid,
     timeRecorded = timeRecorded,
@@ -178,41 +190,19 @@ private fun Expense.mapToExpenseDto() = ExpenseDto(
     convertedAmounts = convertedAmounts.mapToAmountsDto(),
     useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
     incomeTaxableAmounts = incomeTaxableAmounts.mapToAmountsDto(),
-    attachments = attachments.map { it.id!! },
+    attachments = attachments.map { it.documentId },
     percentOnBusiness = percentOnBusiness,
     notes = notes,
     id = id!!,
-    version = version,
+    version = version!!,
     status = status,
-    generalTax = generalTax?.id,
+    generalTax = generalTaxId,
     generalTaxAmount = generalTaxAmount,
     generalTaxRateInBps = generalTaxRateInBps
 )
 
-private fun LegacyAmountsInDefaultCurrency.mapToAmountsDto() =
+private fun AmountsInDefaultCurrency.mapToAmountsDto() =
     ExpenseAmountsDto(
         originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
         adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency
     )
-
-@Component
-class ExpensePageableApiDescriptor : PageableApiDescriptor<Expense, QExpense> {
-    override suspend fun mapEntityToDto(entity: Expense) = entity.mapToExpenseDto()
-
-    override fun getSupportedFilters() = apiFilters(QExpense.expense) {
-        byApiField("freeSearchText", String::class) {
-            onOperator(PageableApiFilterOperator.EQ) { value ->
-                Expressions.anyOf(
-                    notes.containsIgnoreCase(value),
-                    title.containsIgnoreCase(value),
-                    category.name.containsIgnoreCase(value)
-                )
-            }
-        }
-    }
-
-    override fun getDefaultSorting() = Sort.by(
-        QExpense.expense.datePaid.desc().toOrder(),
-        QExpense.expense.timeRecorded.asc().toOrder()
-    )
-}

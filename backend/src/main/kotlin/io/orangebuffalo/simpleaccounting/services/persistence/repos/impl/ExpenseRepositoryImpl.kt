@@ -1,74 +1,86 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
 
-import com.querydsl.core.types.dsl.CaseBuilder
-import com.querydsl.core.types.dsl.Expressions
-import com.querydsl.jpa.impl.JPAQuery
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QExpense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.*
+import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
+import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
+import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpenseRepositoryExt
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpensesStatistics
+import org.jooq.DSLContext
+import org.jooq.impl.DSL.*
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import javax.persistence.EntityManager
 
 @Component
 class ExpenseRepositoryExtImpl(
-    private val entityManager: EntityManager
+    private val dslContext: DSLContext
 ) : ExpenseRepositoryExt {
 
-    private val expense = QExpense.expense
+    private val expense = Tables.EXPENSE
 
     override fun getCurrenciesUsageStatistics(
         workspace: Workspace
-    ): List<CurrenciesUsageStatistics> = JPAQuery<CurrenciesUsageStatistics>(entityManager)
-        .from(expense)
-        .groupBy(expense.currency)
+    ): List<CurrenciesUsageStatistics> = dslContext
         .select(
-            QCurrenciesUsageStatistics(
-                expense.currency,
-                expense.count()
-            )
+            expense.currency.mapTo(CurrenciesUsageStatistics::currency),
+            count(expense.id).mapTo(CurrenciesUsageStatistics::count)
         )
-        .fetch()
+        .from(expense)
+        .where(expense.workspaceId.eq(workspace.id))
+        .groupBy(expense.currency)
+        .fetchListOf()
+
+    override fun findByIdAndWorkspace(id: Long, workspace: Workspace): Expense? = dslContext
+        .select()
+        .from(expense)
+        .where(
+            expense.id.eq(id),
+            expense.workspaceId.eq(workspace.id)
+        )
+        .fetchOneOrNull()
 
     override fun getStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspace: Workspace
     ): List<ExpensesStatistics> {
-        val incomeTaxableAmount = expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency
-        return JPAQuery<ExpensesStatistics>(entityManager)
+        val incomeTaxableAmount = expense.incomeTaxableAdjustedAmountInDefaultCurrency
+        return dslContext
+            .select(
+                expense.categoryId.mapTo(ExpensesStatistics::categoryId),
+                sum(
+                    case_()
+                        .`when`(incomeTaxableAmount.isNull,0L)
+                        .otherwise(incomeTaxableAmount)
+                ) .mapTo(ExpensesStatistics::totalAmount),
+                count(
+                    case_()
+                        .`when`(expense.status.eq(ExpenseStatus.FINALIZED), 1L)
+                        .otherwise(inline<Long>(null))
+                ) .mapTo(ExpensesStatistics::finalizedCount),
+                 count(
+                    case_()
+                        .`when`(expense.status.ne(ExpenseStatus.FINALIZED), 1L)
+                        .otherwise(inline<Long>(null))
+                ) .mapTo(ExpensesStatistics::pendingCount),
+                sum(
+                    case_()
+                        .`when`(expense.status.ne(ExpenseStatus.FINALIZED),0L)
+                        .otherwise(expense.convertedAdjustedAmountInDefaultCurrency
+                                .subtract(expense.incomeTaxableAdjustedAmountInDefaultCurrency))
+                ) .mapTo(ExpensesStatistics::currencyExchangeDifference)
+            )
             .from(expense)
             .where(
-                expense.workspace.eq(workspace),
-                expense.datePaid.goe(fromDate),
-                expense.datePaid.loe(toDate)
+                expense.workspaceId.eq(workspace.id),
+                expense.datePaid.greaterOrEqual(fromDate),
+                expense.datePaid.lessOrEqual(toDate)
             )
-            .groupBy(expense.category.id)
-            .select(
-                QExpensesStatistics(
-                    expense.category.id,
-                    CaseBuilder()
-                        .`when`(incomeTaxableAmount.isNull).then(0L)
-                        .otherwise(incomeTaxableAmount)
-                        .sum(),
-                    CaseBuilder()
-                        .`when`(expense.status.eq(ExpenseStatus.FINALIZED)).then(1)
-                        .otherwise(Expressions.nullExpression())
-                        .count(),
-                    CaseBuilder()
-                        .`when`(expense.status.ne(ExpenseStatus.FINALIZED)).then(1)
-                        .otherwise(Expressions.nullExpression())
-                        .count(),
-                    CaseBuilder()
-                        .`when`(expense.status.ne(ExpenseStatus.FINALIZED)).then(0L)
-                        .otherwise(
-                            expense.convertedAmounts.adjustedAmountInDefaultCurrency
-                                .subtract(expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency)
-                        )
-                        .sum()
-                )
-            )
-            .fetch()
+            .groupBy(expense.categoryId)
+            .fetchListOf()
     }
 }

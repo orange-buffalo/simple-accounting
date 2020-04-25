@@ -4,8 +4,8 @@ import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAmountsInDefaultCurrency
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -70,7 +70,7 @@ internal class ExpensesApiControllerIT(
                             attachments: [],
                             percentOnBusiness: 100,
                             id: ${testData.firstSlurm.id},
-                            version: 0,
+                            version: 1,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED"
@@ -96,7 +96,7 @@ internal class ExpensesApiControllerIT(
                             notes: "nice!",
                             percentOnBusiness: 99,
                             id: ${testData.secondSlurm.id},
-                            version: 0,
+                            version: 1,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED"
@@ -119,7 +119,7 @@ internal class ExpensesApiControllerIT(
                             attachments: [],
                             percentOnBusiness: 99,
                             id: ${testData.thirdSlurm.id},
-                            version: 0,
+                            version: 1,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "PENDING_CONVERSION_FOR_TAXATION_PURPOSES",
@@ -143,7 +143,7 @@ internal class ExpensesApiControllerIT(
                             attachments: [],
                             percentOnBusiness: 100,
                             id: ${testData.fourthSlurm.id},
-                            version: 0,
+                            version: 1,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "PENDING_CONVERSION"
@@ -201,7 +201,7 @@ internal class ExpensesApiControllerIT(
                             attachments: [],
                             percentOnBusiness: 100,
                             id: ${testData.firstSlurm.id},
-                            version: 0,
+                            version: 1,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED"
@@ -290,7 +290,7 @@ internal class ExpensesApiControllerIT(
                             notes: "coffee",
                             percentOnBusiness: 100,
                             id: "#{json-unit.any-number}",
-                            version: 0,
+                            version: 1,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED",
@@ -346,7 +346,7 @@ internal class ExpensesApiControllerIT(
                             useDifferentExchangeRateForIncomeTaxPurposes: false,
                             percentOnBusiness: 100,
                             id: "#{json-unit.any-number}",
-                            version: 0,
+                            version: 1,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             attachments: [],
@@ -480,7 +480,7 @@ internal class ExpensesApiControllerIT(
                             notes: "beer",
                             percentOnBusiness: 90,
                             id: ${testData.firstSlurm.id},
-                            version: 1,
+                            version: 2,
                             datePaid: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED",
@@ -516,7 +516,7 @@ internal class ExpensesApiControllerIT(
                             originalAmount: 20000,
                             attachments: [],
                             id: ${testData.firstSlurm.id},
-                            version: 1,
+                            version: 2,
                             datePaid: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "PENDING_CONVERSION",
@@ -672,8 +672,8 @@ internal class ExpensesApiControllerIT(
             category = coffeeCategory,
             currency = "THF",
             originalAmount = 50,
-            convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(50),
-            incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(50),
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(50),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(50),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.FINALIZED,
             percentOnBusiness = 100
@@ -685,8 +685,8 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "THF",
             originalAmount = 5000,
-            convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(500),
-            incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(500),
+            convertedAmounts = Prototypes.amountsInDefaultCurrency(500),
+            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(500),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.FINALIZED
         )
@@ -697,11 +697,11 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            convertedAmounts = LegacyAmountsInDefaultCurrency(
+            convertedAmounts = AmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 510,
                 adjustedAmountInDefaultCurrency = 505
             ),
-            incomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
+            incomeTaxableAmounts = AmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 460,
                 adjustedAmountInDefaultCurrency = 455
             ),
@@ -719,11 +719,11 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            convertedAmounts = LegacyAmountsInDefaultCurrency(
+            convertedAmounts = AmountsInDefaultCurrency(
                 originalAmountInDefaultCurrency = 510,
                 adjustedAmountInDefaultCurrency = 459
             ),
-            incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
             useDifferentExchangeRateForIncomeTaxPurposes = true,
             status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
             percentOnBusiness = 99,
@@ -738,8 +738,8 @@ internal class ExpensesApiControllerIT(
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            convertedAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
-            incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.PENDING_CONVERSION,
             percentOnBusiness = 100

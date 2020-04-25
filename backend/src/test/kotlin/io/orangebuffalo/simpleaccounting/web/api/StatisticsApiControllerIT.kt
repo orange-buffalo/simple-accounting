@@ -6,7 +6,6 @@ import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAmountsInDefaultCurrency
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -239,8 +238,8 @@ internal class StatisticsApiControllerIT(
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 4, 10),
                 originalAmount = 100,
-                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(100),
-                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(100),
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED
             ),
@@ -249,8 +248,8 @@ internal class StatisticsApiControllerIT(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 4, 9),
-                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(555),
-                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(555),
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(555),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(555),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 555
@@ -261,12 +260,12 @@ internal class StatisticsApiControllerIT(
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 10, 1),
                 currency = "ZZH",
-                convertedAmounts = LegacyAmountsInDefaultCurrency(
+                convertedAmounts = AmountsInDefaultCurrency(
                     originalAmountInDefaultCurrency = 77,
                     // must consider only adjusted amounts
                     adjustedAmountInDefaultCurrency = 1000
                 ),
-                incomeTaxableAmounts = LegacyAmountsInDefaultCurrency(
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
                     originalAmountInDefaultCurrency = 77,
                     // must consider only adjusted amounts
                     adjustedAmountInDefaultCurrency = 2000
@@ -280,8 +279,8 @@ internal class StatisticsApiControllerIT(
                 workspace = firstCategory.workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 10, 2),
-                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(113),
-                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(113),
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(113),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(113),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 113
@@ -291,8 +290,8 @@ internal class StatisticsApiControllerIT(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(10),
-                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(10),
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(10),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(10),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 10
@@ -302,8 +301,8 @@ internal class StatisticsApiControllerIT(
                 workspace = secondCategory.workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 7),
-                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(10000),
-                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(10000),
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(10000),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(10000),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 10000
@@ -314,8 +313,8 @@ internal class StatisticsApiControllerIT(
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
-                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(210),
-                incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(210),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 originalAmount = 210
@@ -326,8 +325,8 @@ internal class StatisticsApiControllerIT(
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
-                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(210),
-                incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(210),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 originalAmount = 210
@@ -338,8 +337,8 @@ internal class StatisticsApiControllerIT(
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
-                convertedAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
-                incomeTaxableAmounts = Prototypes.legacyEmptyAmountsInDefaultCurrency(),
+                convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.PENDING_CONVERSION,
                 originalAmount = 210
@@ -349,8 +348,8 @@ internal class StatisticsApiControllerIT(
                 workspace = irrelevantCategory.workspace,
                 category = irrelevantCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                convertedAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.legacyAmountsInDefaultCurrency(33),
+                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
+                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 33

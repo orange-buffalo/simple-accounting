@@ -64,7 +64,8 @@ open class SaJooqCodeGenTask : DefaultTask() {
                             .withValue("flyway")
                     )
                     .withForcedTypes(
-                        incomeStatusForcedType()
+                        incomeStatusForcedType(),
+                        expenseStatusForcedType()
                     )
             )
             .withStrategy(Strategy().withName(SaGeneratorStrategy::class.java.canonicalName))
@@ -80,6 +81,11 @@ open class SaJooqCodeGenTask : DefaultTask() {
         .withIncludeExpression("""INCOME\.STATUS""")
         .withUserType("io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus")
         .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.IncomeStatusConverter")
+
+    private fun expenseStatusForcedType() = ForcedType()
+        .withIncludeExpression("""EXPENSE\.STATUS""")
+        .withUserType("io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus")
+        .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.ExpenseStatusConverter")
 }
 
 class SaGeneratorStrategy : DefaultGeneratorStrategy() {

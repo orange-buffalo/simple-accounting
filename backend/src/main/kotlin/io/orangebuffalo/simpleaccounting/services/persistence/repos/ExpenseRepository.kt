@@ -1,16 +1,10 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos
 
-import com.querydsl.core.annotations.QueryProjection
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import org.springframework.data.querydsl.QuerydslPredicateExecutor
 import java.time.LocalDate
 
-interface ExpenseRepository :
-    LegacyAbstractEntityRepository<Expense>, QuerydslPredicateExecutor<Expense>, ExpenseRepositoryExt {
-
-    fun findByIdAndWorkspace(id: Long, workspace: Workspace): Expense?
-}
+interface ExpenseRepository : AbstractEntityRepository<Expense>, ExpenseRepositoryExt
 
 interface ExpenseRepositoryExt {
     fun getStatistics(
@@ -20,9 +14,11 @@ interface ExpenseRepositoryExt {
     ): List<ExpensesStatistics>
 
     fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics>
+
+    fun findByIdAndWorkspace(id: Long, workspace: Workspace): Expense?
 }
 
-data class ExpensesStatistics @QueryProjection constructor(
+data class ExpensesStatistics(
     val categoryId: Long?,
     val totalAmount: Long,
     val finalizedCount: Long,
