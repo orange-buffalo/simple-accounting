@@ -36,6 +36,9 @@ internal class ExpenseServiceTest {
     @field:Mock
     private lateinit var categoryService: CategoryService
 
+    @field:Mock
+    private lateinit var documentsService: DocumentsService
+
     @field:InjectMocks
     private lateinit var expenseService: ExpenseService
 

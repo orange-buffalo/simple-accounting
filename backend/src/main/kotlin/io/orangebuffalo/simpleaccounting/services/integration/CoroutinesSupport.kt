@@ -26,6 +26,11 @@ suspend fun getServerWebExchange(): ServerWebExchange =
     getReactorContext().getOrEmpty<ServerWebExchange>(ServerWebExchange::class.java)
         .orElseThrow { IllegalStateException("ServerWebExchange is not found") }
 
+/**
+ * Executes all the steps in parallel and waits for the completion. Always waits for all
+ * steps to complete. Fails on the first exceptionally completed step in the order as the steps
+ * were configured (unlike [awaitAll]).
+ */
 suspend fun executeInParallel(spec: ParallelExecutionSpec.() -> Unit) = coroutineScope {
     val steps = mutableListOf<suspend () -> Unit>()
     val parallelRunSpec = object : ParallelExecutionSpec {
@@ -33,8 +38,12 @@ suspend fun executeInParallel(spec: ParallelExecutionSpec.() -> Unit) = coroutin
             steps.add(stepSpec)
         }
     }
+
     spec(parallelRunSpec)
-    awaitAll(*steps.map { step -> async { step() } }.toTypedArray())
+
+    steps.asSequence()
+        .map { step -> async { step() } }
+        .forEach { stepDeferred -> stepDeferred.await() }
 }
 
 interface ParallelExecutionSpec {

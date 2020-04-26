@@ -410,6 +410,46 @@ internal class IncomesApiControllerIT(
     }
 
     @Test
+    @WithMockFryUser
+    fun `should return 404 when attachment of new income is not found`(testData: IncomesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
+            .sendJson(
+                """{
+                    "title": "new space income",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "convertedAmountInDefaultCurrency": 150,
+                    "incomeTaxableAmountInDefaultCurrency": 150,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
+                    "dateReceived": "$MOCK_DATE_VALUE",
+                    "attachments": [4455]
+                }"""
+            )
+            .verifyNotFound("Documents [4455] are not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should return 404 when attachment of new income belongs to another workspace`(testData: IncomesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
+            .sendJson(
+                """{
+                    "title": "new space income",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "convertedAmountInDefaultCurrency": 150,
+                    "incomeTaxableAmountInDefaultCurrency": 150,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
+                    "dateReceived": "$MOCK_DATE_VALUE",
+                    "attachments": [${testData.pizzaDeliveryPayslip.id}]
+                }"""
+            )
+            .verifyNotFound("Documents [${testData.pizzaDeliveryPayslip.id}] are not found")
+    }
+
+    @Test
     fun `should allow PUT access only for logged in users`(testData: IncomesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
@@ -630,6 +670,42 @@ internal class IncomesApiControllerIT(
             .verifyNotFound("Tax ${testData.pizzaDeliveryTax.id} is not found")
     }
 
+     @Test
+    @WithMockFryUser
+    fun `should fail with 404 on PUT when attachment is not found`(testData: IncomesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
+            .sendJson(
+                """{
+                    "attachments": [5566],
+                    "title": "income updated",
+                    "currency": "HHD",
+                    "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
+                    "dateReceived": "3000-02-02"
+                }"""
+            )
+            .verifyNotFound("Documents [5566] are not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should fail with 404 on PUT when attachment belongs to another workspace`(testData: IncomesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
+            .sendJson(
+                """{
+                    "attachments": [${testData.pizzaDeliveryPayslip.id}],
+                    "title": "income updated",
+                    "currency": "HHD",
+                    "originalAmount": 20000,
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false,
+                    "dateReceived": "3000-02-02"
+                }"""
+            )
+            .verifyNotFound("Documents [${testData.pizzaDeliveryPayslip.id}] are not found")
+    }
+
     class IncomesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
@@ -641,6 +717,7 @@ internal class IncomesApiControllerIT(
         val pizzaDeliveryTax = Prototypes.generalTax(workspace = pizzaDeliveryWorkspace)
         val planetExpressTax = Prototypes.generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
         val spaceDeliveryPayslip = Prototypes.document(workspace = planetExpressWorkspace)
+        val pizzaDeliveryPayslip = Prototypes.document(workspace = pizzaDeliveryWorkspace)
         val spaceTax = Prototypes.generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
 
         val pizzaWageIncome = Prototypes.income(
@@ -704,7 +781,7 @@ internal class IncomesApiControllerIT(
             farnsworth, fry, planetExpressWorkspace, spaceDeliveryCategory, spaceDeliveryPayslip,
             spaceTax, firstSpaceIncome, secondSpaceIncome, thirdSpaceIncome,
             pizzaDeliveryWorkspace, pizzaCategory, pizzaWageIncome,
-            pizzaDeliveryTax, planetExpressTax, pensionCategory
+            pizzaDeliveryTax, planetExpressTax, pensionCategory, pizzaDeliveryPayslip
         )
 
         fun defaultNewIncome(): String = """{

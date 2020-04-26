@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
+import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
@@ -13,7 +14,8 @@ class ExpenseService(
     private val expenseRepository: ExpenseRepository,
     private val workspaceService: WorkspaceService,
     private val generalTaxService: GeneralTaxService,
-    private val categoryService: CategoryService
+    private val categoryService: CategoryService,
+    private val documentsService: DocumentsService
 ) {
 
     /**
@@ -21,9 +23,9 @@ class ExpenseService(
      */
     suspend fun saveExpense(expense: Expense): Expense {
         val workspace = workspaceService.getAccessibleWorkspace(expense.workspaceId, WorkspaceAccessMode.READ_WRITE)
+        validateCategoryAndAttachments(expense, workspace.id!!)
+
         val defaultCurrency = workspace.defaultCurrency
-        categoryService.getValidCategory(workspace, expense.categoryId)
-        // todo #222: validate attachments
         if (defaultCurrency == expense.currency) {
             expense.convertedAmounts = AmountsInDefaultCurrency(expense.originalAmount, null)
             expense.incomeTaxableAmounts = AmountsInDefaultCurrency(expense.originalAmount, null)
@@ -34,10 +36,7 @@ class ExpenseService(
             expense.incomeTaxableAmounts = expense.convertedAmounts
         }
 
-        val generalTax = if (expense.generalTaxId == null) null else generalTaxService.getValidGeneralTax(
-            expense.generalTaxId!!,
-            expense.workspaceId
-        )
+        val generalTax = getGeneralTax(expense)
         expense.generalTaxRateInBps = generalTax?.rateInBps
 
         val convertedAdjustedAmounts = calculateAdjustedAmounts(expense, expense.convertedAmounts, generalTax)
@@ -54,9 +53,35 @@ class ExpenseService(
             else -> ExpenseStatus.FINALIZED
         }
 
-        return withDbContext {
-            expenseRepository.save(expense)
+        return withDbContext { expenseRepository.save(expense) }
+    }
+
+    private suspend fun getGeneralTax(expense: Expense): GeneralTax? =
+        if (expense.generalTaxId == null) null else generalTaxService.getValidGeneralTax(
+            expense.generalTaxId!!,
+            expense.workspaceId
+        )
+
+    private suspend fun validateCategoryAndAttachments(
+        expense: Expense,
+        workspaceId: Long
+    ) = executeInParallel {
+        step { validateCategory(expense, workspaceId) }
+        step { validateAttachments(expense, workspaceId) }
+    }
+
+    private suspend fun validateAttachments(expense: Expense, workspaceId: Long) {
+        if (expense.attachments.isNotEmpty()) {
+            val attachmentsIds = expense.attachments.map { it.documentId }
+            documentsService.validateDocuments(workspaceId, attachmentsIds)
         }
+    }
+
+    private suspend fun validateCategory(
+        expense: Expense,
+        workspaceId: Long
+    ) {
+        if (expense.categoryId != null) categoryService.validateCategory(expense.categoryId!!, workspaceId)
     }
 
     private fun calculateAdjustedAmounts(
@@ -83,19 +108,17 @@ class ExpenseService(
         )
     }
 
-    suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? =
-        withDbContext {
-            expenseRepository.findByIdAndWorkspace(id, workspace)
-        }
+    suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? = withDbContext {
+        expenseRepository.findByIdAndWorkspace(id, workspace)
+    }
 
     suspend fun getExpensesStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
         workspace: Workspace
-    ): List<ExpensesStatistics> =
-        withDbContext {
-            expenseRepository.getStatistics(fromDate, toDate, workspace)
-        }
+    ): List<ExpensesStatistics> = withDbContext {
+        expenseRepository.getStatistics(fromDate, toDate, workspace)
+    }
 
     suspend fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> = withDbContext {
         expenseRepository.getCurrenciesUsageStatistics(workspace)

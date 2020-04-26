@@ -82,8 +82,13 @@ class DocumentsService(
         return documents.toSet()
     }
 
-    suspend fun getValidDocumentsIds(workspaceId: Long, documentsIds: Collection<Long>): Collection<Long> =
-        withDbContext {
+    suspend fun validateDocuments(workspaceId: Long, documentsIds: Collection<Long>) {
+        val validDocumentsIds = withDbContext {
             documentRepository.findByWorkspaceIdAndIdIsIn(workspaceId, documentsIds).map { it.id }
         }
+        val notValidDocumentsIds = documentsIds.minus(validDocumentsIds)
+        if (notValidDocumentsIds.isNotEmpty()) {
+            throw EntityNotFoundException("Documents $notValidDocumentsIds are not found")
+        }
+    }
 }

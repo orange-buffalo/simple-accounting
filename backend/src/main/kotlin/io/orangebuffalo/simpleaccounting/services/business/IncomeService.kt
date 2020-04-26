@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
@@ -19,8 +19,7 @@ class IncomeService(
 ) {
     suspend fun saveIncome(income: Income): Income {
         val workspace = workspaceService.getAccessibleWorkspace(income.workspaceId, WorkspaceAccessMode.READ_WRITE)
-        validateIncomeCategory(income)
-        validateIncomeAttachments(income)
+        validateCategoryAndAttachments(income)
 
         val defaultCurrency = workspace.defaultCurrency
         if (defaultCurrency == income.currency) {
@@ -33,10 +32,7 @@ class IncomeService(
             income.incomeTaxableAmounts = income.convertedAmounts
         }
 
-        val generalTax = if (income.generalTaxId == null) null else generalTaxService.getValidGeneralTax(
-            income.generalTaxId!!,
-            income.workspaceId
-        )
+        val generalTax = getGeneralTax(income)
         income.generalTaxRateInBps = generalTax?.rateInBps
 
         val convertedAdjustedAmounts = calculateAdjustedAmount(income.convertedAmounts, generalTax)
@@ -53,27 +49,29 @@ class IncomeService(
             else -> IncomeStatus.FINALIZED
         }
 
-        return withDbContext {
-            incomeRepository.save(income)
-        }
+        return withDbContext { incomeRepository.save(income) }
+    }
+
+    private suspend fun getGeneralTax(income: Income): GeneralTax? =
+        if (income.generalTaxId == null) null else generalTaxService.getValidGeneralTax(
+            income.generalTaxId!!,
+            income.workspaceId
+        )
+
+    private suspend fun validateCategoryAndAttachments(income: Income) = executeInParallel {
+        step { validateIncomeCategory(income) }
+        step { validateIncomeAttachments(income) }
     }
 
     private suspend fun validateIncomeAttachments(income: Income) {
-        if (income.attachments.isEmpty()) {
-            return
-        }
-        val attachmentsIds = income.attachments.map { it.documentId }
-        val validAttachmentsIds = documentsService.getValidDocumentsIds(income.workspaceId, attachmentsIds)
-        val notValidAttachmentsIds = attachmentsIds.minus(validAttachmentsIds)
-        if (notValidAttachmentsIds.isNotEmpty()) {
-            throw EntityNotFoundException("Documents $notValidAttachmentsIds are not found")
+        if (income.attachments.isNotEmpty()) {
+            val attachmentsIds = income.attachments.map { it.documentId }
+            documentsService.validateDocuments(income.workspaceId, attachmentsIds)
         }
     }
 
     private suspend fun validateIncomeCategory(income: Income) {
-        if (income.categoryId != null && !categoryService.isValidCategory(income.workspaceId, income.categoryId!!)) {
-            throw EntityNotFoundException("Category ${income.categoryId} is not found")
-        }
+        if (income.categoryId != null) categoryService.validateCategory(income.categoryId!!, income.workspaceId)
     }
 
     private fun calculateAdjustedAmount(

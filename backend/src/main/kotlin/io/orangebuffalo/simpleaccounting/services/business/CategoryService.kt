@@ -16,10 +16,9 @@ class CategoryService(
     private val categoryRepository: CategoryRepository
 ) {
 
-    suspend fun createCategory(category: Category): Category =
-        withDbContext {
-            categoryRepository.save(category)
-        }
+    suspend fun createCategory(category: Category): Category = withDbContext {
+        categoryRepository.save(category)
+    }
 
     suspend fun getCategories(
         workspace: Workspace,
@@ -29,22 +28,9 @@ class CategoryService(
         categoryRepository.findAll(QCategory.category.workspace.eq(workspace).and(filter), page)
     }
 
-    //todo #222: reasess if needed
-    fun getValidCategory(
-        workspace: Workspace,
-        categoryId: Long?
-    ): Category? {
-        if (categoryId == null) {
-            return null
+    suspend fun validateCategory(categoryId: Long, workspaceId: Long) = withDbContext {
+        if (!categoryRepository.existsByWorkspaceIdAndId(workspaceId, categoryId)) {
+            throw EntityNotFoundException("Category $categoryId is not found")
         }
-
-        return workspace.categories.asSequence()
-            .firstOrNull { workspaceCategory -> workspaceCategory.id == categoryId }
-            ?: throw EntityNotFoundException("Category $categoryId is not found")
     }
-
-    suspend fun isValidCategory(workspaceId: Long, categoryId: Long) = withDbContext {
-        categoryRepository.existsByWorkspaceIdAndId(workspaceId, categoryId)
-    }
-
 }

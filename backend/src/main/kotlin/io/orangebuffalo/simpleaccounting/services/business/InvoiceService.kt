@@ -13,7 +13,8 @@ class InvoiceService(
     private val timeService: TimeService,
     private val customerService: CustomerService,
     private val generalTaxService: GeneralTaxService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    private val documentsService: DocumentsService
 ) {
 
     /**
@@ -21,6 +22,14 @@ class InvoiceService(
      */
     suspend fun saveInvoice(invoice: Invoice, workspaceId: Long): Invoice {
         validateInvoice(invoice, workspaceId)
+        createIncomeIfNecessary(invoice, workspaceId)
+        return withDbContext { invoiceRepository.save(invoice) }
+    }
+
+    private suspend fun createIncomeIfNecessary(
+        invoice: Invoice,
+        workspaceId: Long
+    ) {
         if (invoice.datePaid != null && invoice.incomeId == null) {
             val income = incomeService.saveIncome(
                 Income(
@@ -48,7 +57,6 @@ class InvoiceService(
             )
             invoice.incomeId = income.id
         }
-        return withDbContext { invoiceRepository.save(invoice) }
     }
 
     private suspend fun validateInvoice(
@@ -56,13 +64,25 @@ class InvoiceService(
         workspaceId: Long
     ) = executeInParallel {
         step { workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE) }
-        step {
-            if (invoice.generalTaxId != null) {
-                generalTaxService.validateGeneralTax(invoice.generalTaxId!!, workspaceId)
-            }
-        }
+        step { validateGeneralTax(invoice, workspaceId) }
         step { customerService.validateCustomer(invoice.customerId, workspaceId) }
-        // todo #222: validate documents
+        step { validateAttachments(invoice, workspaceId) }
+    }
+
+    private suspend fun validateGeneralTax(
+        invoice: Invoice,
+        workspaceId: Long
+    ) {
+        if (invoice.generalTaxId != null) {
+            generalTaxService.validateGeneralTax(invoice.generalTaxId!!, workspaceId)
+        }
+    }
+
+    private suspend fun validateAttachments(invoice: Invoice, workspaceId: Long) {
+        if (invoice.attachments.isNotEmpty()) {
+            val attachmentsIds = invoice.attachments.map { it.documentId }
+            documentsService.validateDocuments(workspaceId, attachmentsIds)
+        }
     }
 
     suspend fun getInvoiceByIdAndWorkspace(id: Long, workspace: Workspace): Invoice? = withDbContext {

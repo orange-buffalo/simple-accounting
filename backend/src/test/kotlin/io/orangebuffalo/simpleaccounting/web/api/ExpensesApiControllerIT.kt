@@ -432,6 +432,42 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
+    @WithMockFryUser
+    fun `should return 404 when attachment of new expense is not found`(testData: ExpensesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .sendJson(
+                """{
+                    "attachments": [537453],
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
+                }"""
+            )
+            .verifyNotFound("Documents [537453] are not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should return 404 when attachment of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .sendJson(
+                """{
+                    "attachments": [${testData.coffeeReceipt.id}],
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
+                }"""
+            )
+            .verifyNotFound("Documents [${testData.coffeeReceipt.id}] are not found")
+    }
+
+    @Test
     fun `should allow PUT access only for logged in users`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -655,6 +691,42 @@ internal class ExpensesApiControllerIT(
             .verifyNotFound("Tax ${testData.coffeeTax.id} is not found")
     }
 
+     @Test
+    @WithMockFryUser
+    fun `should fail with 404 on PUT when attachment is not found`(testData: ExpensesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .sendJson(
+                """{
+                    "attachments": [5566],
+                    "title": "slurm updated",
+                    "currency": "HHD",
+                    "originalAmount": 20000,
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
+                }"""
+            )
+            .verifyNotFound("Documents [5566] are not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should fail with 404 on PUT when attachment belongs to another workspace`(testData: ExpensesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .sendJson(
+                """{
+                    "attachments": [${testData.coffeeReceipt.id}],
+                    "title": "slurm updated",
+                    "currency": "HHD",
+                    "originalAmount": 20000,
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
+                }"""
+            )
+            .verifyNotFound("Documents [${testData.coffeeReceipt.id}] are not found")
+    }
+
     class ExpensesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
@@ -666,6 +738,7 @@ internal class ExpensesApiControllerIT(
         val coffeeTax = Prototypes.generalTax(workspace = fryCoffeeWorkspace)
         val slurmTax = Prototypes.generalTax(workspace = fryWorkspace)
         val slurmReceipt = Prototypes.document(workspace = fryWorkspace)
+        val coffeeReceipt = Prototypes.document(workspace = fryCoffeeWorkspace)
 
         val coffeeExpense = Prototypes.expense(
             workspace = coffeeCategory.workspace,
@@ -749,7 +822,7 @@ internal class ExpensesApiControllerIT(
             farnsworth, fry, fryWorkspace, slurmCategory, slurmReceipt,
             slurmTax, firstSlurm, secondSlurm, thirdSlurm, fourthSlurm,
             fryCoffeeWorkspace, coffeeCategory, coffeeExpense, coffeeTax,
-            beerCategory
+            beerCategory, coffeeReceipt
         )
 
         fun defaultNewExpense(): String = """{
