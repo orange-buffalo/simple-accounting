@@ -348,7 +348,7 @@ internal class IncomeServiceTest {
         whenever(
             generalTaxService.getValidGeneralTax(
                 generalTaxFromWorkspace.id!!,
-                workspace
+                workspace.id!!
             )
         ) doReturn generalTaxFromWorkspace
     }

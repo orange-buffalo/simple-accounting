@@ -34,7 +34,10 @@ class ExpenseService(
             expense.incomeTaxableAmounts = expense.convertedAmounts
         }
 
-        val generalTax = generalTaxService.getValidGeneralTax(expense.generalTaxId, workspace)
+        val generalTax = if (expense.generalTaxId == null) null else generalTaxService.getValidGeneralTax(
+            expense.generalTaxId!!,
+            expense.workspaceId
+        )
         expense.generalTaxRateInBps = generalTax?.rateInBps
 
         val convertedAdjustedAmounts = calculateAdjustedAmounts(expense, expense.convertedAmounts, generalTax)

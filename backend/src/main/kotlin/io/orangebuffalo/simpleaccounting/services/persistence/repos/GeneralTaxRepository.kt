@@ -6,5 +6,6 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor
 
 interface GeneralTaxRepository : LegacyAbstractEntityRepository<GeneralTax>, QuerydslPredicateExecutor<GeneralTax> {
     fun findByIdAndWorkspace(id: Long, workspace: Workspace): GeneralTax?
+    fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): GeneralTax?
     fun existsByIdAndWorkspaceId(id: Long, workspaceId: Long): Boolean
 }

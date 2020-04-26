@@ -82,7 +82,8 @@ class DocumentsService(
         return documents.toSet()
     }
 
-    suspend fun getValidDocumentsIds(workspaceId: Long, documentsIds: Collection<Long>) : Collection<Long> = withDbContext {
-        documentRepository.findByWorkspaceIdAndIdIsIn(workspaceId, documentsIds).map { it.id }
-    }
+    suspend fun getValidDocumentsIds(workspaceId: Long, documentsIds: Collection<Long>): Collection<Long> =
+        withDbContext {
+            documentRepository.findByWorkspaceIdAndIdIsIn(workspaceId, documentsIds).map { it.id }
+        }
 }

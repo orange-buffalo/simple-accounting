@@ -35,13 +35,10 @@ class GeneralTaxService(
             repository.findByIdAndWorkspace(id, workspace)
         }
 
-    // todo #222: should not take care of nulls
-    suspend fun getValidGeneralTax(taxId: Long?, workspace: Workspace): GeneralTax? =
-        if (taxId == null) {
-            null
-        } else {
-            getTaxByIdAndWorkspace(taxId, workspace) ?: throw EntityNotFoundException("Tax $taxId is not found")
-        }
+    suspend fun getValidGeneralTax(taxId: Long, workspaceId: Long): GeneralTax? = withDbContext {
+        repository.findByIdAndWorkspaceId(taxId, workspaceId)
+            ?: throw EntityNotFoundException("Tax $taxId is not found")
+    }
 
     suspend fun validateGeneralTax(taxId: Long, workspaceId: Long) {
         withDbContext {

@@ -57,8 +57,8 @@ internal class ExpenseServiceTest {
     private fun setupTaxMock() = runBlocking {
         whenever(
             generalTaxService.getValidGeneralTax(
-                generalTaxFromWorkspace.id,
-                workspace
+                generalTaxFromWorkspace.id!!,
+                workspace.id!!
             )
         ) doReturn generalTaxFromWorkspace
     }
