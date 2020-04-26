@@ -42,4 +42,12 @@ class GeneralTaxService(
         } else {
             getTaxByIdAndWorkspace(taxId, workspace) ?: throw EntityNotFoundException("Tax $taxId is not found")
         }
+
+    suspend fun validateGeneralTax(taxId: Long, workspaceId: Long) {
+        withDbContext {
+            if (!repository.existsByIdAndWorkspaceId(taxId, workspaceId)) {
+                throw EntityNotFoundException("Tax $taxId is not found")
+            }
+        }
+    }
 }

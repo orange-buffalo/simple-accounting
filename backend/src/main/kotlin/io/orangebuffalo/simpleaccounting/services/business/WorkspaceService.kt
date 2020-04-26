@@ -74,6 +74,14 @@ class WorkspaceService(
                 .map { it.workspaceAccessToken.workspace }
         }
 
+    suspend fun validateWorkspaceAccess(
+        workspaceId: Long,
+        accessMode: WorkspaceAccessMode
+    ) {
+        // todo #222: when migrated to jooq, verify if we can avoid fetching unnecessary data and just check existence
+        getAccessibleWorkspace(workspaceId, accessMode)
+    }
+
     suspend fun getAccessibleWorkspace(
         workspaceId: Long,
         accessMode: WorkspaceAccessMode

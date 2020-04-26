@@ -35,7 +35,11 @@ class CustomerService(
             customerRepository.findByIdAndWorkspace(id, workspace)
         }
 
-    suspend fun getValidCustomer(id: Long, workspace: Workspace): Customer =
-        getCustomerByIdAndWorkspace(id, workspace)
-            ?: throw EntityNotFoundException("Customer $id is not found")
+    suspend fun validateCustomer(customerId: Long, workspaceId: Long) {
+        withDbContext {
+            if (!customerRepository.existsByIdAndWorkspaceId(customerId, workspaceId)) {
+                throw EntityNotFoundException("Customer $customerId is not found")
+            }
+        }
+    }
 }

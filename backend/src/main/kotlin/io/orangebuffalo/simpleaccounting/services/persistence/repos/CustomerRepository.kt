@@ -6,4 +6,5 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor
 
 interface CustomerRepository : LegacyAbstractEntityRepository<Customer>, QuerydslPredicateExecutor<Customer> {
     fun findByIdAndWorkspace(id: Long, workspace: Workspace) : Customer?
+    fun existsByIdAndWorkspaceId(customerId: Long, workspaceId: Long): Boolean
 }
