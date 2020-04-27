@@ -221,13 +221,13 @@ class Prototypes {
             attachments: Set<Document> = setOf(),
             notes: String? = null
         ): IncomeTaxPayment = IncomeTaxPayment(
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             timeRecorded = timeRecorded,
             datePaid = datePaid,
             reportingDate = reportingDate,
             amount = amount,
             title = title,
-            attachments = attachments,
+            attachments = attachments.asSequence().map { IncomeTaxPaymentAttachment(it.id!!) }.toSet(),
             notes = notes
         ).apply {
             id = currentEntityId++
@@ -297,20 +297,9 @@ class Prototypes {
             version = 0
         }
 
-        @Deprecated("Use amountsInDefaultCurrency")
-        fun legacyAmountsInDefaultCurrency(
-            amount: Long
-        ): LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(amount, amount)
-
         fun amountsInDefaultCurrency(
             amount: Long
         ): AmountsInDefaultCurrency = AmountsInDefaultCurrency(amount, amount)
-
-        @Deprecated("Use emptyAmountsInDefaultCurrency")
-        fun legacyEmptyAmountsInDefaultCurrency(): LegacyAmountsInDefaultCurrency = LegacyAmountsInDefaultCurrency(
-            originalAmountInDefaultCurrency = null,
-            adjustedAmountInDefaultCurrency = null
-        )
 
         fun emptyAmountsInDefaultCurrency(): AmountsInDefaultCurrency = AmountsInDefaultCurrency(
             originalAmountInDefaultCurrency = null,

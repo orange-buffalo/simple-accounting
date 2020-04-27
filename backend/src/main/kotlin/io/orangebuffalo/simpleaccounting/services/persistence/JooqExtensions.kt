@@ -62,6 +62,16 @@ fun <T : Any> ResultQuery<*>.fetchOneOrNull(targetEntityType: KClass<T>): T? {
     }
 }
 
+inline fun <reified T : Any> ResultQuery<*>.fetchExactlyOne(): T = fetchExactlyOne(T::class)
+
+fun <T : Any> ResultQuery<*>.fetchExactlyOne(targetEntityType: KClass<T>): T {
+    val results = fetch().asListOf(targetEntityType)
+    return when {
+        results.size != 1 -> throw IncorrectResultSizeDataAccessException("Expected single result", results.size)
+        else -> results[0]
+    }
+}
+
 /**
  * Converts the property name to an SQL alias to allow for Spring Data JDBC mapping from the result set to the POJO.
  * Does not take types into account as type conversion is delegated to underlying Spring Data infrastructure

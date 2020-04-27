@@ -1,37 +1,45 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
 
-import com.querydsl.jpa.impl.JPAQuery
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QIncomeTaxPayment
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeTaxPayment
+import io.orangebuffalo.simpleaccounting.services.persistence.fetchExactlyOne
+import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
+import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeTaxPaymentRepositoryExt
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeTaxPaymentsStatistics
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.QIncomeTaxPaymentsStatistics
+import org.jooq.DSLContext
+import org.jooq.impl.DSL.coalesce
+import org.jooq.impl.DSL.sum
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import javax.persistence.EntityManager
 
 @Component
 class IncomeTaxPaymentRepositoryExtImpl(
-    private val entityManager: EntityManager
+    private val dslContext: DSLContext
 ) : IncomeTaxPaymentRepositoryExt {
+
+    private val taxPayment = Tables.INCOME_TAX_PAYMENT
+
     override fun getTaxPaymentsStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspace: Workspace
-    ): IncomeTaxPaymentsStatistics {
-        val taxPayment = QIncomeTaxPayment.incomeTaxPayment
-        return JPAQuery<IncomeTaxPaymentsStatistics>(entityManager)
-            .from(taxPayment)
-            .where(
-                taxPayment.workspace.eq(workspace),
-                taxPayment.reportingDate.goe(fromDate),
-                taxPayment.reportingDate.loe(toDate)
-            )
-            .select(
-                QIncomeTaxPaymentsStatistics(
-                    taxPayment.amount.sum().coalesce(0)
-                )
-            )
-            .fetchFirst()
-    }
+        workspaceId: Long
+    ): IncomeTaxPaymentsStatistics = dslContext
+        .select(coalesce(sum(taxPayment.amount), 0L).mapTo(IncomeTaxPaymentsStatistics::totalTaxPayments))
+        .from(taxPayment)
+        .where(
+            taxPayment.workspaceId.eq(workspaceId),
+            taxPayment.reportingDate.greaterOrEqual(fromDate),
+            taxPayment.reportingDate.lessOrEqual(toDate)
+        )
+        .fetchExactlyOne()
+
+    override fun findByIdAndWorkspace(id: Long, workspaceId: Long): IncomeTaxPayment? = dslContext
+        .select()
+        .from(taxPayment)
+        .where(
+            taxPayment.id.eq(id),
+            taxPayment.workspaceId.eq(workspaceId)
+        )
+        .fetchOneOrNull()
 }
