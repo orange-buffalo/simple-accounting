@@ -66,15 +66,13 @@ class Prototypes {
             owner: PlatformUser = platformUser(),
             taxEnabled: Boolean = true,
             multiCurrencyEnabled: Boolean = true,
-            defaultCurrency: String = "USD",
-            categories: MutableList<Category> = ArrayList()
+            defaultCurrency: String = "USD"
         ) = Workspace(
             name = name,
             owner = owner,
             taxEnabled = taxEnabled,
             multiCurrencyEnabled = multiCurrencyEnabled,
-            defaultCurrency = defaultCurrency,
-            categories = categories
+            defaultCurrency = defaultCurrency
         ).apply {
             id = currentEntityId++
             version = 0

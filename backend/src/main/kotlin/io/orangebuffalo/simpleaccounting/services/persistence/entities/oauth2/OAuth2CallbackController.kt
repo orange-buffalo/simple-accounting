@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono
 
 const val AUTH_CALLBACK_PATH = "/api/auth/oauth2/callback"
 
+// todo #222: move to proper package
 @RestController
 class OAuth2CallbackController(
     private val oauth2Service: OAuth2Service

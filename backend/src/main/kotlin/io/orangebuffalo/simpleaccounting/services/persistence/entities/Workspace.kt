@@ -19,9 +19,6 @@ class Workspace(
     var multiCurrencyEnabled: Boolean,
 
     @field:Column(nullable = false, length = 3)
-    val defaultCurrency: String,
-
-    @field:OneToMany(mappedBy = "workspace", fetch = FetchType.EAGER)
-    val categories : MutableList<Category> = ArrayList()
+    val defaultCurrency: String
 
 ) : LegacyAbstractEntity()

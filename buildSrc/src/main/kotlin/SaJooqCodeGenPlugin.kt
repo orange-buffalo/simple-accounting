@@ -29,6 +29,10 @@ class SaJooqCodeGenPlugin : Plugin<Project> {
             ?: throw IllegalStateException("Java compile task is not found")
         compileJava.dependsOn(jooqCodeGenTask)
 
+        val compileKotlin = project.tasks.findByName("compileKotlin")
+            ?: throw IllegalStateException("Kotlin compile task is not found")
+        compileKotlin.dependsOn(jooqCodeGenTask)
+
         val sourceSets = project.property("sourceSets") as SourceSetContainer
         sourceSets.getByName("main").java.srcDir(jooqModelDir)
     }
