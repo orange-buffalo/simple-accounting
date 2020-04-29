@@ -136,6 +136,11 @@ class WorkspaceService(
                 ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
         }
     }
+
+    suspend fun getWorkspace(workspaceId: Long): Workspace = withDbContext {
+        workspaceRepository.findById(workspaceId)
+            .orElseThrow { EntityNotFoundException("Workspace $workspaceId is not found") }
+    }
 }
 
 enum class WorkspaceAccessMode {

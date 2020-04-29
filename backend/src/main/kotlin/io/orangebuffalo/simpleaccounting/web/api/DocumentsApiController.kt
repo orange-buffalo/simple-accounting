@@ -3,19 +3,19 @@ package io.orangebuffalo.simpleaccounting.web.api
 import io.orangebuffalo.simpleaccounting.services.business.DocumentsService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QDocument
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.web.api.integration.*
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPage
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
 import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.data.domain.Page
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.http.codec.multipart.Part
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -25,7 +25,8 @@ import java.time.Instant
 @RequestMapping("/api/workspaces/{workspaceId}/documents")
 class DocumentsApiController(
     private val documentsService: DocumentsService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -39,13 +40,10 @@ class DocumentsApiController(
     }
 
     @GetMapping
-    @PageableApi(DocumentPageableApiDescriptor::class)
-    suspend fun getDocuments(
-        @PathVariable workspaceId: Long,
-        pageRequest: ApiPageRequest
-    ): Page<Document> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        return documentsService.getDocuments(workspace, pageRequest.page, pageRequest.predicate)
+    suspend fun getDocuments(@PathVariable workspaceId: Long): ApiPage<DocumentDto> {
+        // todo #222: validate for all apis
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        return filteringApiExecutor.executeFiltering(workspaceId)
     }
 
     @GetMapping("{documentId}/content")
@@ -53,8 +51,8 @@ class DocumentsApiController(
         @PathVariable workspaceId: Long,
         @PathVariable documentId: Long
     ): ResponseEntity<Flux<DataBuffer>> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val document = documentsService.getDocumentByIdAndWorkspace(documentId, workspace)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val document = documentsService.getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
 
         return documentsService.getDocumentContent(document)
@@ -64,6 +62,22 @@ class DocumentsApiController(
                     .contentLength(document.sizeInBytes ?: -1)
                     .body(fileContent)
             }
+    }
+
+    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Document, DocumentDto> {
+        query(Tables.DOCUMENT) {
+            filterByField("id", Long::class) {
+                onPredicate(FilteringApiPredicateOperator.EQ) { documentId ->
+                    root.id.eq(documentId)
+                }
+                onPredicate(FilteringApiPredicateOperator.IN) { documentIds ->
+                    root.id.`in`(documentIds)
+                }
+            }
+            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+            addDefaultSorting { root.id.desc() }
+        }
+        mapper { mapDocumentDto(this) }
     }
 }
 
@@ -75,22 +89,10 @@ data class DocumentDto(
     var sizeInBytes: Long?
 )
 
-@Component
-class DocumentPageableApiDescriptor : PageableApiDescriptor<Document, QDocument> {
-    override suspend fun mapEntityToDto(entity: Document) =
-        mapDocumentDto(entity)
-
-    override fun getSupportedFilters(): List<PageableApiFilter<Document, QDocument>> = apiFilters(QDocument.document) {
-        byApiField("id", Long::class) {
-            onOperator(PageableApiFilterOperator.EQ) { value -> id.eq(value) }
-        }
-    }
-}
-
 private fun mapDocumentDto(source: Document) = DocumentDto(
     name = source.name,
     timeUploaded = source.timeUploaded,
     id = source.id,
-    version = source.version,
+    version = source.version!!,
     sizeInBytes = source.sizeInBytes
 )

@@ -1,21 +1,21 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
 
-import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
+import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeRepositoryExt
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomesStatistics
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.*
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
-@Component
+@Repository
 class IncomeRepositoryExtImpl(
     private val dslContext: DSLContext
 ) : IncomeRepositoryExt {

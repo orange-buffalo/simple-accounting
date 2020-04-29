@@ -12,10 +12,10 @@ import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpenseRepos
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpensesStatistics
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.*
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
-@Component
+@Repository
 class ExpenseRepositoryExtImpl(
     private val dslContext: DSLContext
 ) : ExpenseRepositoryExt {

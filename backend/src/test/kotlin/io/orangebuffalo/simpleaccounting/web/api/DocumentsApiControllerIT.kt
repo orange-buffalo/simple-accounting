@@ -76,7 +76,7 @@ class DocumentsApiControllerIT(
                         """{
                         "name": "unknown",
                         "id": ${testData.cheesePizzaAndALargeSodaReceipt.id},
-                        "version": 0,
+                        "version": 1,
                         "timeUploaded": "$MOCK_TIME_VALUE",
                         "sizeInBytes": null
                     }"""
@@ -86,7 +86,7 @@ class DocumentsApiControllerIT(
                         """{
                         "name": "100_cups.pdf",
                         "id": ${testData.coffeeReceipt.id},
-                        "version": 0,
+                        "version": 1,
                         "timeUploaded": "$MOCK_TIME_VALUE",
                         "sizeInBytes": 42
                     }"""
@@ -206,7 +206,7 @@ class DocumentsApiControllerIT(
             .verifyOkAndJsonBody {
                 node("name").isString.isEqualTo("test-file.txt")
                 node("id").isNumber.isNotNull
-                node("version").isNumber.isEqualTo(BigDecimal.ZERO)
+                node("version").isNumber.isEqualTo(BigDecimal.ONE)
                 node("timeUploaded").isString.isEqualTo(MOCK_TIME_VALUE)
                 node("sizeInBytes").isNumber.isEqualTo(42.toBigDecimal())
             }
@@ -243,7 +243,7 @@ class DocumentsApiControllerIT(
                         """{
                         "name": "unknown",
                         "id": ${testData.cheesePizzaAndALargeSodaReceipt.id},
-                        "version": 0,
+                        "version": 1,
                         "timeUploaded": "$MOCK_TIME_VALUE",
                         "sizeInBytes": null
                     }"""

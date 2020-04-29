@@ -204,6 +204,20 @@ class FilteringApiRequestResolverTest {
             ),
 
             FilteringApiRequestResolverUseCase(
+                description = "should support 'in' operator",
+                expectedRequest = defaultRequest.copy(
+                    predicates = listOf(
+                        FilteringApiRequestPredicate(
+                            apiField = "apiField",
+                            value = "42,54",
+                            operator = FilteringApiPredicateOperator.IN
+                        )
+                    )
+                ),
+                queryParams = queryParams("apiField[in]" to "42,54")
+            ),
+
+            FilteringApiRequestResolverUseCase(
                 description = "should support multiple filters",
                 expectedRequest = defaultRequest.copy(
                     predicates = listOf(

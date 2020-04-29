@@ -10,10 +10,10 @@ import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeTaxPay
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.coalesce
 import org.jooq.impl.DSL.sum
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
-@Component
+@Repository
 class IncomeTaxPaymentRepositoryExtImpl(
     private val dslContext: DSLContext
 ) : IncomeTaxPaymentRepositoryExt {

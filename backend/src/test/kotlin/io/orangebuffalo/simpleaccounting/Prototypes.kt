@@ -201,7 +201,7 @@ class Prototypes {
             sizeInBytes: Long? = null
         ): Document = Document(
             name = name,
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             storageProviderId = storageProviderId,
             storageProviderLocation = storageProviderLocation,
             timeUploaded = timeUploaded,

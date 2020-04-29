@@ -5,9 +5,9 @@ import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.InvoiceRepositoryExt
 import org.jooq.DSLContext
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
+@Repository
 class InvoiceRepositoryExtImpl(
     private val dslContext: DSLContext
 ) : InvoiceRepositoryExt {
