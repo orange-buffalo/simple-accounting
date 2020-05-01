@@ -57,7 +57,7 @@ internal class IncomeTaxPaymentsApiControllerIT(
                             attachments: [${testData.spaceDeliveryPayslip.id}],
                             id: ${testData.firstSpaceIncomeTaxPayment.id},
                             notes: "tax? hah?",
-                            version: 1,
+                            version: 0,
                             reportingDate: "1999-04-07",
                             datePaid: "1999-03-30",
                             timeRecorded: "$MOCK_TIME_VALUE"
@@ -71,7 +71,7 @@ internal class IncomeTaxPaymentsApiControllerIT(
                             datePaid: "$MOCK_DATE_VALUE",
                             reportingDate: "$MOCK_DATE_VALUE",
                             id: ${testData.secondSpaceIncome.id},
-                            version: 1,
+                            version: 0,
                             timeRecorded: "$MOCK_TIME_VALUE",
                             attachments: []
                     }"""
@@ -117,7 +117,7 @@ internal class IncomeTaxPaymentsApiControllerIT(
                             attachments: [${testData.spaceDeliveryPayslip.id}],
                             id: ${testData.firstSpaceIncomeTaxPayment.id},
                             notes: "tax? hah?",
-                            version: 1,
+                            version: 0,
                             reportingDate: "1999-04-07",
                             datePaid: "1999-03-30",
                             timeRecorded: "$MOCK_TIME_VALUE"
@@ -190,7 +190,7 @@ internal class IncomeTaxPaymentsApiControllerIT(
                             datePaid: "$MOCK_DATE_VALUE",
                             reportingDate: "$MOCK_DATE_VALUE",
                             id: "#{json-unit.any-number}",
-                            version: 1,
+                            version: 0,
                             timeRecorded: "$MOCK_TIME_VALUE"
                     }"""
                     )
@@ -230,7 +230,7 @@ internal class IncomeTaxPaymentsApiControllerIT(
                             datePaid: "$MOCK_DATE_VALUE",
                             reportingDate: "$MOCK_DATE_VALUE",
                             id: "#{json-unit.any-number}",
-                            version: 1,
+                            version: 0,
                             timeRecorded: "$MOCK_TIME_VALUE"
                         }"""
                     )
@@ -302,7 +302,7 @@ internal class IncomeTaxPaymentsApiControllerIT(
                             datePaid: "$MOCK_DATE_VALUE",
                             reportingDate: "$MOCK_DATE_VALUE",
                             id: ${testData.firstSpaceIncomeTaxPayment.id},
-                            version: 2,
+                            version: 1,
                             timeRecorded: "$MOCK_TIME_VALUE"
                         }"""
                     )

@@ -16,9 +16,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlin
     id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlin
     id("org.springframework.boot") version Versions.springBoot
+    id("io.spring.dependency-management") version Versions.springDependencyManagement
 }
 
-apply(plugin = "io.spring.dependency-management")
 apply<SaJooqCodeGenPlugin>()
 
 repositories {

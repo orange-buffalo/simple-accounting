@@ -41,7 +41,7 @@ internal class CategoriesApiControllerIT(
                         """{
                         name: "PlanetExpress",
                         id: ${testData.planetExpressCategory.id},
-                        version: 1,
+                        version: 0,
                         description: "...",
                         income: true,
                         expense: false
@@ -50,7 +50,7 @@ internal class CategoriesApiControllerIT(
                         """{
                         name: "Slurm",
                         id: ${testData.slurmCategory.id},
-                        version: 1,
+                        version: 0,
                         description: "..",
                         income: false,
                         expense: true
@@ -98,7 +98,7 @@ internal class CategoriesApiControllerIT(
                         """{
                         name: "1990s stuff",
                         id: "#{json-unit.any-number}",
-                        version: 1,
+                        version: 0,
                         description: "Stuff from the best time",
                         income: false,
                         expense: true
