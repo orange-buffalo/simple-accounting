@@ -1,20 +1,12 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities
 
-import javax.persistence.*
+import org.springframework.data.relational.core.mapping.Table
 
-@Entity
+@Table
 class Category(
-
-    @field:Column(nullable = false) var name: String,
-
-    @field:Column(length = 1024) var description: String? = null,
-
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "category_workspace_fk"))
-    val workspace: Workspace,
-
-    @field:Column(nullable = false) var income: Boolean,
-
-    @field:Column(nullable = false) var expense: Boolean
-
-) : LegacyAbstractEntity()
+    var name: String,
+    var description: String? = null,
+    val workspaceId: Long,
+    var income: Boolean,
+    var expense: Boolean
+) : AbstractEntity()

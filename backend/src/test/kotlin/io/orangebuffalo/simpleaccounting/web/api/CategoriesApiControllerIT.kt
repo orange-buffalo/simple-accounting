@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.web.api
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.CategoryRepository
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -21,9 +20,7 @@ import org.springframework.test.web.reactive.server.expectBody
 @AutoConfigureWebTestClient
 @DisplayName("Categories API ")
 internal class CategoriesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val categoryRepository: CategoryRepository,
-    @Autowired val dbHelper: DbHelper
+    @Autowired val client: WebTestClient
 ) {
 
     @Test
@@ -44,7 +41,7 @@ internal class CategoriesApiControllerIT(
                         """{
                         name: "PlanetExpress",
                         id: ${testData.planetExpressCategory.id},
-                        version: 0,
+                        version: 1,
                         description: "...",
                         income: true,
                         expense: false
@@ -53,7 +50,7 @@ internal class CategoriesApiControllerIT(
                         """{
                         name: "Slurm",
                         id: ${testData.slurmCategory.id},
-                        version: 0,
+                        version: 1,
                         description: "..",
                         income: false,
                         expense: true
@@ -85,8 +82,6 @@ internal class CategoriesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should add a new category to the workspace`(testData: CategoriesApiTestData) {
-        val categoryId = dbHelper.getNextId()
-
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
             .sendJson(
@@ -102,8 +97,8 @@ internal class CategoriesApiControllerIT(
                     json(
                         """{
                         name: "1990s stuff",
-                        id: $categoryId,
-                        version: 0,
+                        id: "#{json-unit.any-number}",
+                        version: 1,
                         description: "Stuff from the best time",
                         income: false,
                         expense: true
@@ -111,11 +106,6 @@ internal class CategoriesApiControllerIT(
                     )
                 )
             }
-
-        val newCategory = categoryRepository.findById(categoryId)
-        assertThat(newCategory).isPresent.hasValueSatisfying {
-            assertThat(it.workspace).isEqualTo(testData.fryWorkspace)
-        }
     }
 
     @Test

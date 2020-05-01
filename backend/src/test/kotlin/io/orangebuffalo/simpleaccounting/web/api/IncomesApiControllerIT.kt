@@ -721,7 +721,7 @@ internal class IncomesApiControllerIT(
         val spaceTax = Prototypes.generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
 
         val pizzaWageIncome = Prototypes.income(
-            workspace = pizzaCategory.workspace,
+            workspace = pizzaDeliveryWorkspace,
             category = pizzaCategory,
             currency = "THF",
             originalAmount = 50,
@@ -731,7 +731,7 @@ internal class IncomesApiControllerIT(
 
         val firstSpaceIncome = Prototypes.income(
             title = "first space delivery",
-            workspace = spaceDeliveryCategory.workspace,
+            workspace = planetExpressWorkspace,
             category = spaceDeliveryCategory,
             currency = "THF",
             originalAmount = 5000,
@@ -752,7 +752,7 @@ internal class IncomesApiControllerIT(
 
         val secondSpaceIncome = Prototypes.income(
             title = "second space delivery",
-            workspace = spaceDeliveryCategory.workspace,
+            workspace = planetExpressWorkspace,
             category = spaceDeliveryCategory,
             currency = "ZZB",
             originalAmount = 5100,
@@ -767,7 +767,7 @@ internal class IncomesApiControllerIT(
 
         val thirdSpaceIncome = Prototypes.income(
             title = "third space delivery",
-            workspace = spaceDeliveryCategory.workspace,
+            workspace = planetExpressWorkspace,
             currency = "ZZA",
             originalAmount = 200,
             convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),

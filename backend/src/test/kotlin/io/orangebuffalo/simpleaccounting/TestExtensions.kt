@@ -61,6 +61,7 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
 fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
     contentType(MediaType.APPLICATION_JSON).bodyValue(json)
 
+// todo #222 remove
 @Component
 class DbHelper(private val jdbcTemplate: JdbcTemplate) {
 

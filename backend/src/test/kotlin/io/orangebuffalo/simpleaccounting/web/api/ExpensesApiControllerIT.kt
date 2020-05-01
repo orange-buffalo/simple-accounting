@@ -741,7 +741,7 @@ internal class ExpensesApiControllerIT(
         val coffeeReceipt = Prototypes.document(workspace = fryCoffeeWorkspace)
 
         val coffeeExpense = Prototypes.expense(
-            workspace = coffeeCategory.workspace,
+            workspace = fryCoffeeWorkspace,
             category = coffeeCategory,
             currency = "THF",
             originalAmount = 50,
@@ -754,7 +754,7 @@ internal class ExpensesApiControllerIT(
 
         val firstSlurm = Prototypes.expense(
             title = "best ever slurm",
-            workspace = slurmCategory.workspace,
+            workspace = fryWorkspace,
             category = slurmCategory,
             currency = "THF",
             originalAmount = 5000,
@@ -766,7 +766,7 @@ internal class ExpensesApiControllerIT(
 
         val secondSlurm = Prototypes.expense(
             title = "another great slurm",
-            workspace = slurmCategory.workspace,
+            workspace = fryWorkspace,
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
@@ -788,7 +788,7 @@ internal class ExpensesApiControllerIT(
 
         val thirdSlurm = Prototypes.expense(
             title = "slurm is never enough",
-            workspace = slurmCategory.workspace,
+            workspace = fryWorkspace,
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
@@ -807,7 +807,7 @@ internal class ExpensesApiControllerIT(
 
         val fourthSlurm = Prototypes.expense(
             title = "need more slurm",
-            workspace = slurmCategory.workspace,
+            workspace = fryWorkspace,
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,

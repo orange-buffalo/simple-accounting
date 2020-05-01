@@ -101,7 +101,7 @@ class Prototypes {
             expense: Boolean = true
         ) = Category(
             name = name,
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             income = income,
             expense = expense,
             description = description
