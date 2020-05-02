@@ -237,7 +237,7 @@ class Prototypes {
             workspace: Workspace = workspace()
         ): Customer = Customer(
             name = name,
-            workspace = workspace
+            workspaceId = workspace.id!!
         ).apply {
             id = currentEntityId++
             version = 0

@@ -1,14 +1,9 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities
 
-import javax.persistence.*
+import org.springframework.data.relational.core.mapping.Table
 
-@Entity
+@Table
 class Customer(
-
-    @field:Column(nullable = false) var name: String,
-
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "customer_workspace_fk"))
-    val workspace: Workspace
-
-) : LegacyAbstractEntity()
+    var name: String,
+    val workspaceId: Long
+) : AbstractEntity()

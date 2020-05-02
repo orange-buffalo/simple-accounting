@@ -5,14 +5,11 @@ import io.orangebuffalo.simpleaccounting.services.business.CustomerService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Customer
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QCustomer
-import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPageRequest
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApi
-import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApiDescriptor
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPage
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import org.hibernate.validator.constraints.Length
-import org.springframework.data.domain.Page
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -21,46 +18,36 @@ import javax.validation.constraints.NotBlank
 @RequestMapping("/api/workspaces/{workspaceId}/customers")
 class CustomersApiController(
     private val customerService: CustomerService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
     suspend fun createCustomer(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditCustomerDto
-    ): CustomerDto {
-
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
-
-        return customerService
-            .saveCustomer(
-                Customer(
-                    name = request.name,
-                    workspace = workspace
-                )
+    ): CustomerDto = customerService
+        .saveCustomer(
+            Customer(
+                name = request.name,
+                workspaceId = workspaceId
             )
-            .let(::mapCustomerDto)
-    }
+        )
+        .let(::mapCustomerDto)
 
     @GetMapping
-    @PageableApi(CustomerPageableApiDescriptor::class)
-    suspend fun getCustomers(
-        @PathVariable workspaceId: Long,
-        pageRequest: ApiPageRequest
-    ): Page<Customer> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        return customerService.getCustomers(workspace, pageRequest.page, pageRequest.predicate)
-    }
+    suspend fun getCustomers(@PathVariable workspaceId: Long): ApiPage<CustomerDto> =
+        filteringApiExecutor.executeFiltering(workspaceId)
 
     @GetMapping("{customerId}")
     suspend fun getCustomer(
         @PathVariable workspaceId: Long,
         @PathVariable customerId: Long
     ): CustomerDto {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val expense = customerService.getCustomerByIdAndWorkspace(customerId, workspace)
+        workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val customer = customerService.getCustomerByIdAndWorkspace(customerId, workspaceId)
             ?: throw EntityNotFoundException("Customer $customerId is not found")
-        return mapCustomerDto(expense)
+        return mapCustomerDto(customer)
     }
 
     @PutMapping("{customerId}")
@@ -70,22 +57,22 @@ class CustomersApiController(
         @RequestBody @Valid request: EditCustomerDto
     ): CustomerDto {
 
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
-
         // todo #71: optimistic locking. etag?
-        val customer = customerService.getCustomerByIdAndWorkspace(customerId, workspace)
+        val customer = customerService.getCustomerByIdAndWorkspace(customerId, workspaceId)
             ?: throw EntityNotFoundException("Customer $customerId is not found")
 
         return customer
-            .apply {
-                name = request.name
-            }
-            .let {
-                customerService.saveCustomer(it)
-            }
-            .let {
-                mapCustomerDto(it)
-            }
+            .apply { name = request.name }
+            .let { customerService.saveCustomer(it) }
+            .let { mapCustomerDto(it) }
+    }
+
+    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Customer, CustomerDto> {
+        query(Tables.CUSTOMER) {
+            addDefaultSorting { root.id.desc() }
+            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+        }
+        mapper { mapCustomerDto(this) }
     }
 }
 
@@ -103,11 +90,5 @@ data class EditCustomerDto(
 private fun mapCustomerDto(source: Customer) = CustomerDto(
     name = source.name,
     id = source.id!!,
-    version = source.version
+    version = source.version!!
 )
-
-@Component
-class CustomerPageableApiDescriptor : PageableApiDescriptor<Customer, QCustomer> {
-    override suspend fun mapEntityToDto(entity: Customer) =
-        mapCustomerDto(entity)
-}
