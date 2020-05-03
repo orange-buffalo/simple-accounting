@@ -1,50 +1,34 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
-import com.querydsl.core.types.Predicate
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QGeneralTax
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.GeneralTaxRepository
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
 class GeneralTaxService(
-    private val repository: GeneralTaxRepository
+    private val repository: GeneralTaxRepository,
+    private val workspaceService: WorkspaceService
 ) {
 
     suspend fun saveTax(tax: GeneralTax): GeneralTax {
-        return withDbContext {
-            repository.save(tax)
-        }
+        workspaceService.getAccessibleWorkspace(tax.workspaceId, WorkspaceAccessMode.READ_WRITE)
+        return withDbContext { repository.save(tax) }
     }
 
-    suspend fun getTaxes(
-        workspace: Workspace,
-        page: Pageable,
-        filter: Predicate
-    ): Page<GeneralTax> = withDbContext {
-        repository.findAll(QGeneralTax.generalTax.workspace.eq(workspace).and(filter), page)
+    suspend fun getTaxByIdAndWorkspace(id: Long, workspaceId: Long): GeneralTax? = withDbContext {
+        repository.findByIdAndWorkspaceId(id, workspaceId)
     }
-
-    suspend fun getTaxByIdAndWorkspace(id: Long, workspace: Workspace): GeneralTax? =
-        withDbContext {
-            repository.findByIdAndWorkspace(id, workspace)
-        }
 
     suspend fun getValidGeneralTax(taxId: Long, workspaceId: Long): GeneralTax? = withDbContext {
         repository.findByIdAndWorkspaceId(taxId, workspaceId)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
     }
 
-    suspend fun validateGeneralTax(taxId: Long, workspaceId: Long) {
-        withDbContext {
-            if (!repository.existsByIdAndWorkspaceId(taxId, workspaceId)) {
-                throw EntityNotFoundException("Tax $taxId is not found")
-            }
+    suspend fun validateGeneralTax(taxId: Long, workspaceId: Long) = withDbContext {
+        if (!repository.existsByIdAndWorkspaceId(taxId, workspaceId)) {
+            throw EntityNotFoundException("Tax $taxId is not found")
         }
     }
 }

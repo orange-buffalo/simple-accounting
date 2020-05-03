@@ -85,7 +85,7 @@ class Prototypes {
             workspace: Workspace = workspace()
         ) = GeneralTax(
             title = title,
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             rateInBps = rateInBps,
             description = description
         ).apply {

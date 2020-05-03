@@ -4,11 +4,12 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import org.springframework.jdbc.core.BeanPropertyRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementSetter
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.sql.Date
 import java.time.LocalDate
 
-@Component
+// todo #222: rewrite the query to jooq
+@Repository
 class GeneralTaxReportingRepository(private val jdbcTemplate: JdbcTemplate) {
 
     fun getGeneralTaxReport(fromDate: LocalDate, toDate: LocalDate, workspace: Workspace): GeneralTaxReport {
