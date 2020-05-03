@@ -33,7 +33,7 @@ class RefreshTokenService(
         val tokenString = "${user.id}:${String(Base64.getEncoder().encode(tokenBytes))}"
 
         val token = RefreshToken(
-            user,
+            user.id!!,
             tokenString,
             timeService.currentTime().plus(TOKEN_LIFETIME_IN_DAYS, ChronoUnit.DAYS)
         )
@@ -55,7 +55,9 @@ class RefreshTokenService(
             throw BadCredentialsException("Token expired")
         }
 
-        return token.user.toSecurityPrincipal()
+        val tokenOwner = userService.getUserByUserId(token.userId)
+
+        return tokenOwner.toSecurityPrincipal()
     }
 
     suspend fun prolongToken(refreshTokenString: String): String =

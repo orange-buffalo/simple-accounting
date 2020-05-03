@@ -1,19 +1,11 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities
 
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
-import javax.persistence.*
 
-@Entity
+@Table
 class RefreshToken(
-
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "refresh_token_user_fk"))
-    val user: PlatformUser,
-
-    @field:Column(nullable = false, length = 2048)
+    val userId: Long,
     val token: String,
-
-    @field:Column(nullable = false)
     var expirationTime: Instant
-
-) : LegacyAbstractEntity()
+) : AbstractEntity()

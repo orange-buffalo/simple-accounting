@@ -49,7 +49,7 @@ class RefreshTokenServiceIT(
 
         val refreshToken = refreshTokenRepository.findByToken(token)
         assertThat(refreshToken).isNotNull.satisfies {
-            assertThat(it!!.user).isEqualTo(testData.fry)
+            assertThat(it!!.userId).isEqualTo(testData.fry.id)
             assertThat(it.expirationTime).isEqualTo(expirationTime)
         }
     }
@@ -103,7 +103,7 @@ class RefreshTokenServiceIT(
     class RefreshTokenServiceTestData : TestData {
         val fry = Prototypes.fry()
         val refreshToken = RefreshToken(
-            user = fry,
+            userId = fry.id!!,
             token = "42:34jFbT3h2=",
             expirationTime = MOCK_TIME
         )
