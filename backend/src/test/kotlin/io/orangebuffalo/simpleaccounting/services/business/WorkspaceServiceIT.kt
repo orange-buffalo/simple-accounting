@@ -6,9 +6,9 @@ import assertk.assertions.isEqualTo
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.AbstractThrowableAssert
 import org.assertj.core.api.Assertions.assertThatCode
@@ -320,11 +320,20 @@ internal class WorkspaceServiceIT(
             fryWorkspace, farnsworthWorkspace,
             validTokenForFarnsworthWorkspace,
             validTokenForFryWorkspace,
-            SavedWorkspaceAccessToken(owner = farnsworth, workspaceAccessToken = validTokenForFryWorkspace),
+            SavedWorkspaceAccessToken(
+                ownerId = farnsworth.id!!,
+                workspaceAccessTokenId = validTokenForFryWorkspace.id!!
+            ),
             expiredTokenForFryWorkspace,
-            SavedWorkspaceAccessToken(owner = roberto, workspaceAccessToken = expiredTokenForFryWorkspace),
+            SavedWorkspaceAccessToken(
+                ownerId = roberto.id!!,
+                workspaceAccessTokenId = expiredTokenForFryWorkspace.id!!
+            ),
             revokedTokenForFryWorkspace,
-            SavedWorkspaceAccessToken(owner = mafiaBot, workspaceAccessToken = revokedTokenForFryWorkspace)
+            SavedWorkspaceAccessToken(
+                ownerId = mafiaBot.id!!,
+                workspaceAccessTokenId = revokedTokenForFryWorkspace.id!!
+            )
         )
     }
 }

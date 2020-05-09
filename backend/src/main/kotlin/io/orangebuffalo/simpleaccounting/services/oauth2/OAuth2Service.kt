@@ -186,6 +186,7 @@ class OAuth2Service(
         )
     }
 
+    // todo #222: evaluate usage of user id to avoid extra db roundtrips
     suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String, userName: String): OAuth2AuthorizedClient? {
         return clientService
             .loadAuthorizedClient<OAuth2AuthorizedClient>(clientRegistrationId, userName)

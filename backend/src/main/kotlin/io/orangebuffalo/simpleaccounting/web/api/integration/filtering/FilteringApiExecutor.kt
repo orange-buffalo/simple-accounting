@@ -17,6 +17,7 @@ class FilteringApiExecutor<E : Any, DTO : Any>(
     private val mapper: suspend E.() -> DTO
 ) {
     suspend fun executeFiltering(workspaceId: Long): ApiPage<DTO> {
+        // todo #222: does not cover all cases, sometimes we need admin access
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val filteringApiRequest = apiRequestResolver.resolveRequest(getServerWebExchange())
         val entityPage = queryExecutor.executeFilteringQuery(filteringApiRequest, workspace.id)

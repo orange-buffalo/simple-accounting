@@ -69,7 +69,10 @@ open class SaJooqCodeGenTask : DefaultTask() {
                     )
                     .withForcedTypes(
                         incomeStatusForcedType(),
-                        expenseStatusForcedType()
+                        expenseStatusForcedType(),
+                        // see below withJavaTimeTypes configuration
+                        timestampForcedType(),
+                        dateForcedType()
                     )
             )
             .withStrategy(Strategy().withName(SaGeneratorStrategy::class.java.canonicalName))
@@ -78,18 +81,37 @@ open class SaJooqCodeGenTask : DefaultTask() {
                     .withDirectory(outputDirectory.absolutePath)
                     .withPackageName(jooqModelPackage.get())
             )
+            // JOOQ has issues with timezones in timestamps
+            // to circumvent it, we need to manually map Timestamp to Instant
+            // and Timestamp is hardcoded to LocalDateTime, see
+            // https://github.com/jOOQ/jOOQ/issues/5713
+            // the only way around is to disable Java 8 Time support
+            .withGenerate(
+                Generate()
+                    .withJavaTimeTypes(false)
+            )
         GenerationTool.generate(jooqConfig)
     }
 
     private fun incomeStatusForcedType() = ForcedType()
         .withIncludeExpression("""INCOME\.STATUS""")
         .withUserType("io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus")
-        .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.IncomeStatusConverter")
+        .withEnumConverter(true)
 
     private fun expenseStatusForcedType() = ForcedType()
         .withIncludeExpression("""EXPENSE\.STATUS""")
         .withUserType("io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus")
-        .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.ExpenseStatusConverter")
+        .withEnumConverter(true)
+
+    private fun timestampForcedType() = ForcedType()
+        .withIncludeTypes("TIMESTAMP")
+        .withUserType("java.time.Instant")
+        .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.InstantConverter")
+
+    private fun dateForcedType() = ForcedType()
+        .withIncludeTypes("DATE")
+        .withUserType("java.time.LocalDate")
+        .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.LocalDateConverter")
 }
 
 class SaGeneratorStrategy : DefaultGeneratorStrategy() {
@@ -117,5 +139,3 @@ class SaGeneratorStrategy : DefaultGeneratorStrategy() {
         return super.getJavaIdentifier(definition)
     }
 }
-
-

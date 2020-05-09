@@ -69,7 +69,7 @@ class Prototypes {
             defaultCurrency: String = "USD"
         ) = Workspace(
             name = name,
-            owner = owner,
+            ownerId = owner.id!!,
             taxEnabled = taxEnabled,
             multiCurrencyEnabled = multiCurrencyEnabled,
             defaultCurrency = defaultCurrency
@@ -285,7 +285,7 @@ class Prototypes {
             revoked: Boolean = false,
             token: String = "token"
         ): WorkspaceAccessToken = WorkspaceAccessToken(
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             timeCreated = timeCreated,
             validTill = validTill,
             revoked = revoked,

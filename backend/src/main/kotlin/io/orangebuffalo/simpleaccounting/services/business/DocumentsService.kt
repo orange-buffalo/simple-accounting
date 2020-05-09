@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.services.business
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
@@ -17,11 +16,12 @@ class DocumentsService(
     private val documentsStorages: List<DocumentsStorage>,
     private val documentRepository: DocumentRepository,
     private val timeService: TimeService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    private val platformUserService: PlatformUserService
 ) {
 
     suspend fun uploadDocument(filePart: FilePart, workspace: Workspace): Document {
-        val documentStorage = getDocumentStorageByUser(workspace.owner)
+        val documentStorage = getDocumentStorageByUser(workspace.ownerId)
         val storageProviderResponse = documentStorage.saveDocument(filePart, workspace)
         return withDbContext {
             documentRepository.save(
@@ -37,8 +37,10 @@ class DocumentsService(
         }
     }
 
-    fun getDocumentStorageByUser(user: PlatformUser) = documentsStorages
-        .first { it.getId() == user.documentsStorage }
+    private suspend fun getDocumentStorageByUser(userId: Long): DocumentsStorage {
+        val user = platformUserService.getUserByUserId(userId)
+        return documentsStorages.first { it.getId() == user.documentsStorage }
+    }
 
     suspend fun getDocumentByIdAndWorkspaceId(
         documentId: Long,

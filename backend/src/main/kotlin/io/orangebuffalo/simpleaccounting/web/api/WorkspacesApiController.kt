@@ -22,8 +22,7 @@ class WorkspacesApiController(
         val currentPrincipal = getCurrentPrincipal()
         return if (currentPrincipal.isTransient) {
             workspaceService
-                .getValidWorkspaceAccessToken(currentPrincipal.userName)
-                .workspace
+                .getWorkspaceByValidAccessToken(currentPrincipal.userName)
                 .let { listOf(mapWorkspaceDto(it, false)) }
         } else {
             workspaceService
@@ -42,7 +41,7 @@ class WorkspacesApiController(
                 taxEnabled = false,
                 multiCurrencyEnabled = true,
                 defaultCurrency = createWorkspaceRequest.defaultCurrency,
-                owner = platformUserService.getCurrentUser()
+                ownerId = platformUserService.getCurrentUser().id!!
             )
         )
         .let { mapWorkspaceDto(it, true) }
@@ -98,7 +97,7 @@ private fun mapWorkspaceDto(source: Workspace, editable: Boolean): WorkspaceDto 
     WorkspaceDto(
         name = source.name,
         id = source.id,
-        version = source.version,
+        version = source.version!!,
         taxEnabled = source.taxEnabled,
         multiCurrencyEnabled = source.multiCurrencyEnabled,
         defaultCurrency = source.defaultCurrency,

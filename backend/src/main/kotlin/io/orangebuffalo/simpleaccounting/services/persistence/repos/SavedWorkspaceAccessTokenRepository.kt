@@ -1,49 +1,32 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
-import org.springframework.data.jpa.repository.EntityGraph
-import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.FETCH
-import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import java.time.Instant
 
-interface SavedWorkspaceAccessTokenRepository : LegacyAbstractEntityRepository<SavedWorkspaceAccessToken> {
+interface SavedWorkspaceAccessTokenRepository
+    : AbstractEntityRepository<SavedWorkspaceAccessToken>, SavedWorkspaceAccessTokenRepositoryExt
+
+interface SavedWorkspaceAccessTokenRepositoryExt {
 
     fun findByWorkspaceAccessTokenAndOwner(
-        workspaceAccessToken: WorkspaceAccessToken,
-        owner: PlatformUser
+        workspaceAccessTokenId: Long,
+        ownerId: Long
     ): SavedWorkspaceAccessToken?
 
-    @Query(
-        """
-            from SavedWorkspaceAccessToken savedToken 
-            where 
-                savedToken.owner.userName = :owner 
-                and savedToken.workspaceAccessToken.validTill > :currentTime
-                and savedToken.workspaceAccessToken.revoked = false
-        """
-    )
     fun findAllValidByOwner(
-        @Param("owner") owner: String,
-        @Param("currentTime") currentTime: Instant
+        owner: String,
+        currentTime: Instant
     ): List<SavedWorkspaceAccessToken>
 
-    @Query(
-        """
-            from SavedWorkspaceAccessToken savedToken 
-            where 
-                savedToken.owner.userName = :owner 
-                and savedToken.workspaceAccessToken.validTill > :currentTime
-                and savedToken.workspaceAccessToken.revoked = false 
-                and savedToken.workspaceAccessToken.workspace.id = :workspace
-        """
-    )
-    @EntityGraph(attributePaths = ["workspaceAccessToken.workspace"], type = FETCH)
-    fun findValidByOwnerAndWorkspaceWithFetchedWorkspace(
-        @Param("owner") owner: String,
-        @Param("workspace") workspace: Long,
-        @Param("currentTime") currentTime: Instant
-    ): SavedWorkspaceAccessToken?
+    fun findWorkspaceByValidTokenOwnerAndId(
+        owner: String,
+        workspaceId: Long,
+        currentTime: Instant
+    ): Workspace?
+
+    fun findWorkspacesByValidTokenOwner(
+        owner: String,
+        currentTime: Instant
+    ): List<Workspace>
 }

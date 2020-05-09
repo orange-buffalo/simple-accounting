@@ -1,44 +1,16 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos
 
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
-import org.springframework.data.jpa.repository.EntityGraph
-import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.FETCH
-import org.springframework.data.jpa.repository.Query
-import org.springframework.data.querydsl.QuerydslPredicateExecutor
-import org.springframework.data.repository.query.Param
 import java.time.Instant
 
-interface WorkspaceAccessTokenRepository : LegacyAbstractEntityRepository<WorkspaceAccessToken>,
-    QuerydslPredicateExecutor<WorkspaceAccessToken> {
+interface WorkspaceAccessTokenRepository
+    : AbstractEntityRepository<WorkspaceAccessToken>, WorkspaceAccessTokenRepositoryExt
 
-    @Query(
-        """
-            from WorkspaceAccessToken t 
-            where 
-                t.token = :token 
-                and t.validTill > :currentTime
-                and t.revoked = false 
-        """
-    )
-    fun findValidByToken(
-        @Param("token") token: String,
-        @Param("currentTime") currentTime: Instant
-    ): WorkspaceAccessToken?
+interface WorkspaceAccessTokenRepositoryExt {
 
-    @Query(
-        """
-            from WorkspaceAccessToken t 
-            where 
-                t.token = :token 
-                and t.validTill > :currentTime
-                and t.revoked = false 
-                and t.workspace.id = :workspace
-        """
-    )
-    @EntityGraph(attributePaths = ["workspace"], type = FETCH)
-    fun findValidByTokenAndWorkspaceWithFetchedWorkspace(
-        @Param("token") token: String,
-        @Param("currentTime") currentTime: Instant,
-        @Param("workspace") workspace: Long
-    ): WorkspaceAccessToken?
+    // todo #222: here an in saved token repo move time from params to impl as injection
+    fun findValidByToken(token: String, currentTime: Instant): WorkspaceAccessToken?
+
+    fun findWorkspaceByValidToken(token: String, currentTime: Instant, workspaceId: Long? = null): Workspace?
 }

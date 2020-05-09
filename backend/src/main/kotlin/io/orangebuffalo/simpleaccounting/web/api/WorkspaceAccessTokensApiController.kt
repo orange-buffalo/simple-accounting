@@ -4,13 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessTokenService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QWorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPageRequest
-import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApi
-import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApiDescriptor
-import org.springframework.data.domain.Page
-import org.springframework.stereotype.Component
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPage
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import javax.validation.Valid
@@ -19,17 +16,14 @@ import javax.validation.Valid
 @RequestMapping("/api/workspaces/{workspaceId}/workspace-access-tokens")
 class WorkspaceAccessTokensApiController(
     private val accessTokenService: WorkspaceAccessTokenService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @GetMapping
-    @PageableApi(WorkspaceAccessTokenPageableApiDescriptor::class)
-    suspend fun getAccessTokens(
-        @PathVariable workspaceId: Long,
-        pageRequest: ApiPageRequest
-    ): Page<WorkspaceAccessToken> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
-        return accessTokenService.getAccessTokens(workspace, pageRequest.page, pageRequest.predicate)
+    suspend fun getAccessTokens(@PathVariable workspaceId: Long): ApiPage<WorkspaceAccessTokenDto> {
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
+        return filteringApiExecutor.executeFiltering(workspaceId)
     }
 
     @PostMapping
@@ -45,6 +39,15 @@ class WorkspaceAccessTokensApiController(
             )
         )
     }
+
+    private val filteringApiExecutor = filteringApiExecutorBuilder
+        .executor<WorkspaceAccessToken, WorkspaceAccessTokenDto> {
+            query(Tables.WORKSPACE_ACCESS_TOKEN) {
+                addDefaultSorting { root.id.desc() }
+                workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+            }
+            mapper { mapToDto(this) }
+        }
 }
 
 private fun mapToDto(token: WorkspaceAccessToken) =
@@ -53,7 +56,7 @@ private fun mapToDto(token: WorkspaceAccessToken) =
         revoked = token.revoked,
         token = token.token,
         id = token.id!!,
-        version = token.version
+        version = token.version!!
     )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -69,11 +72,3 @@ data class WorkspaceAccessTokenDto(
 data class CreateWorkspaceAccessTokenDto(
     val validTill: Instant
 )
-
-@Component
-class WorkspaceAccessTokenPageableApiDescriptor : PageableApiDescriptor<WorkspaceAccessToken, QWorkspaceAccessToken> {
-
-    override suspend fun mapEntityToDto(entity: WorkspaceAccessToken) =
-        mapToDto(entity)
-
-}

@@ -30,7 +30,7 @@ const val ANOTHER_MOCK_TIME_VALUE = "1999-06-28T22:01:02.053Z"
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureWebTestClient
 @DisplayName("Workspace Access Tokens API ")
-internal class WorkspaceAccessTokensApiControllerIT(
+class WorkspaceAccessTokensApiControllerIT(
     @Autowired val client: WebTestClient
 ) {
 

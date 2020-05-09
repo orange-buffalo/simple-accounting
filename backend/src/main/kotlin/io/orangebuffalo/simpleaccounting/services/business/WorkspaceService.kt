@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.repos.WorkspaceRep
 import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -23,56 +24,55 @@ class WorkspaceService(
     private val timeService: TimeService
 ) {
 
-    suspend fun getUserWorkspaces(userName: String): List<Workspace> =
-        withDbContext {
-            workspaceRepository.findAllByOwnerUserName(userName)
-        }
+    suspend fun getUserWorkspaces(userName: String): List<Workspace> = withDbContext {
+        workspaceRepository.findAllByOwnerUserName(userName)
+    }
 
-    suspend fun createWorkspace(workspace: Workspace): Workspace =
-        withDbContext {
-            workspaceRepository.save(workspace)
-        }
+    suspend fun createWorkspace(workspace: Workspace): Workspace = withDbContext {
+        workspaceRepository.save(workspace)
+    }
 
-    suspend fun save(workspace: Workspace) =
-        withDbContext {
-            workspaceRepository.save(workspace)
-        }
+    suspend fun save(workspace: Workspace) = withDbContext {
+        workspaceRepository.save(workspace)
+    }
 
-    suspend fun saveSharedWorkspace(token: String): Workspace =
-        withDbContext {
-            val accessToken = getValidWorkspaceAccessToken(token)
-            val currentUser = platformUserService.getCurrentUser()
-            val savedWorkspaceAccessToken = savedWorkspaceAccessTokenRepository.findByWorkspaceAccessTokenAndOwner(
-                accessToken, currentUser
+    suspend fun saveSharedWorkspace(token: String): Workspace = withDbContext {
+        val accessToken = getValidWorkspaceAccessToken(token)
+        val currentUser = platformUserService.getCurrentUser()
+        val savedWorkspaceAccessToken = savedWorkspaceAccessTokenRepository.findByWorkspaceAccessTokenAndOwner(
+            accessToken.id!!, currentUser.id!!
+        )
+
+        if (savedWorkspaceAccessToken == null) {
+            savedWorkspaceAccessTokenRepository.save(
+                SavedWorkspaceAccessToken(
+                    workspaceAccessTokenId = accessToken.id!!,
+                    ownerId = currentUser.id!!
+                )
             )
-
-            if (savedWorkspaceAccessToken == null) {
-                savedWorkspaceAccessTokenRepository.save(
-                    SavedWorkspaceAccessToken(
-                        workspaceAccessToken = accessToken,
-                        owner = currentUser
-                    )
-                )
-            }
-
-            accessToken.workspace
         }
 
-    suspend fun getValidWorkspaceAccessToken(token: String): WorkspaceAccessToken =
-        withDbContext {
-            workspaceAccessTokenRepository.findValidByToken(token, timeService.currentTime())
-                ?: throw InvalidWorkspaceAccessTokenException(token)
-        }
+        workspaceRepository.findByIdOrNull(accessToken.workspaceId)
+            ?: throw EntityNotFoundException("Workspace is not found for $token")
+    }
 
-    suspend fun getSharedWorkspaces(): List<Workspace> =
-        withDbContext {
-            savedWorkspaceAccessTokenRepository
-                .findAllValidByOwner(
-                    ensureRegularUserPrincipal().userName,
-                    timeService.currentTime()
-                )
-                .map { it.workspaceAccessToken.workspace }
-        }
+    suspend fun getValidWorkspaceAccessToken(token: String): WorkspaceAccessToken = withDbContext {
+        workspaceAccessTokenRepository.findValidByToken(token, timeService.currentTime())
+            ?: throw InvalidWorkspaceAccessTokenException(token)
+    }
+
+    suspend fun getWorkspaceByValidAccessToken(token: String): Workspace = withDbContext {
+        workspaceAccessTokenRepository.findWorkspaceByValidToken(token, timeService.currentTime())
+            ?: throw InvalidWorkspaceAccessTokenException(token)
+    }
+
+    suspend fun getSharedWorkspaces(): List<Workspace> = withDbContext {
+        savedWorkspaceAccessTokenRepository
+            .findWorkspacesByValidTokenOwner(
+                ensureRegularUserPrincipal().userName,
+                timeService.currentTime()
+            )
+    }
 
     suspend fun validateWorkspaceAccess(
         workspaceId: Long,
@@ -105,12 +105,13 @@ class WorkspaceService(
             workspaceRepository.findByIdAndOwnerUserName(workspaceId, currentPrincipal.userName)
         }
 
+        // todo #222 rewrite to more readable code
         val sharedWorkspace = if (accessMode == WorkspaceAccessMode.READ_ONLY) {
             withDbContext {
-                savedWorkspaceAccessTokenRepository.findValidByOwnerAndWorkspaceWithFetchedWorkspace(
+                savedWorkspaceAccessTokenRepository.findWorkspaceByValidTokenOwnerAndId(
                     currentPrincipal.userName, workspaceId, timeService.currentTime()
                 )
-            }?.workspaceAccessToken?.workspace
+            }
         } else null
 
         return ownWorkspaceAsync.await()
@@ -129,10 +130,9 @@ class WorkspaceService(
 
         return withDbContext {
             workspaceAccessTokenRepository
-                .findValidByTokenAndWorkspaceWithFetchedWorkspace(
+                .findWorkspaceByValidToken(
                     currentPrincipal.userName, timeService.currentTime(), workspaceId
                 )
-                ?.workspace
                 ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
         }
     }
