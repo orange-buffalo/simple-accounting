@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseAttachment
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPage
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
 import org.jooq.impl.DSL.or

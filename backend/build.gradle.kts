@@ -14,7 +14,6 @@ plugins {
     kotlin("jvm") version Versions.kotlin
     kotlin("kapt") version Versions.kotlin
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlin
-    id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlin
     id("org.springframework.boot") version Versions.springBoot
     id("io.spring.dependency-management") version Versions.springDependencyManagement
 }
@@ -29,7 +28,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -46,10 +44,8 @@ dependencies {
     implementation("org.jooq:jooq:${Versions.jooq}")
 
     implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
-    implementation("com.querydsl:querydsl-jpa:${Versions.queryDsl}")
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
 
-    kapt("com.querydsl:querydsl-apt:${Versions.queryDsl}:jpa")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")

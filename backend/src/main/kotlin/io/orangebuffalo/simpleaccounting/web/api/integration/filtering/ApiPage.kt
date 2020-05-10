@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration
+package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
 data class ApiPage<out T>(
     val pageNumber: Int,

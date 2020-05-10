@@ -10,14 +10,12 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.jdbc.core.convert.JdbcConverter
 import org.springframework.data.jdbc.core.mapping.JdbcMappingContext
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import javax.sql.DataSource
 
 @Configuration
-@EnableJpaRepositories
-@EnableJdbcRepositories("io.orangebuffalo.simpleaccounting")
+@EnableJdbcRepositories
 @EnableTransactionManagement
 class PersistenceConfig {
 
@@ -37,5 +35,4 @@ class PersistenceConfig {
             .set(jdbcConverter)
             .set(jdbcMappingContext)
     )
-
 }
