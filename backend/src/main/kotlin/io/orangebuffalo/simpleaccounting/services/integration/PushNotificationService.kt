@@ -3,7 +3,6 @@
 package io.orangebuffalo.simpleaccounting.services.integration
 
 import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
@@ -51,10 +50,10 @@ class PushNotificationService(
 
     suspend fun sendPushNotification(
         eventName: String,
-        user: PlatformUser? = null,
+        userId: Long? = null,
         data: Any? = null
     ) {
-        pushNotificationsBus.send(BroadcastNotificationCommand(PushNotificationMessage(eventName, user?.id, data)))
+        pushNotificationsBus.send(BroadcastNotificationCommand(PushNotificationMessage(eventName, userId, data)))
     }
 
     /**

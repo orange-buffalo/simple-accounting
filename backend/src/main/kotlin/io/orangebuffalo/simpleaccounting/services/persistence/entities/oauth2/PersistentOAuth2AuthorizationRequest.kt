@@ -1,28 +1,13 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAbstractEntity
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
-import javax.persistence.*
 
-@Entity
-@Table(name = "persistent_oauth2_authorization_request")
+@Table("PERSISTENT_OAUTH2_AUTHORIZATION_REQUEST")
 class PersistentOAuth2AuthorizationRequest(
-
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(
-        nullable = false,
-        foreignKey = ForeignKey(name = "persistent_oauth2_authorization_request_owner_fk")
-    )
-    val owner: PlatformUser,
-
-    @field:Column(nullable = false, length = 512)
+    val ownerId: Long,
     val state: String,
-
-    @field:Column(nullable = false)
     val clientRegistrationId: String,
-
-    @field:Column(nullable = false)
     val createWhen: Instant
-
-) : LegacyAbstractEntity()
+) : AbstractEntity()

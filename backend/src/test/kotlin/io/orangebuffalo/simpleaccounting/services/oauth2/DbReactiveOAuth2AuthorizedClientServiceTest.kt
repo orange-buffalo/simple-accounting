@@ -10,6 +10,7 @@ import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepository
 import org.junit.jupiter.api.BeforeEach
@@ -135,7 +136,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
             prop(PersistentOAuth2AuthorizedClient::accessToken).isEqualTo("accessToken")
             prop(PersistentOAuth2AuthorizedClient::accessTokenExpiresAt).isEqualTo(accessTokenExpireTime)
             prop(PersistentOAuth2AuthorizedClient::accessTokenIssuedAt).isEqualTo(accessTokenIssueTime)
-            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf("newScope"))
+            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf(ClientTokenScope("newScope")))
             prop(PersistentOAuth2AuthorizedClient::refreshToken).isEqualTo("refreshToken")
             prop(PersistentOAuth2AuthorizedClient::refreshTokenIssuedAt).isEqualTo(refreshTokenIssueTime)
             prop(PersistentOAuth2AuthorizedClient::userName).isEqualTo("userName")
@@ -172,7 +173,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
             prop(PersistentOAuth2AuthorizedClient::accessToken).isEqualTo("accessToken")
             prop(PersistentOAuth2AuthorizedClient::accessTokenExpiresAt).isEqualTo(accessTokenExpireTime)
             prop(PersistentOAuth2AuthorizedClient::accessTokenIssuedAt).isEqualTo(accessTokenIssueTime)
-            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf("newScope"))
+            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf(ClientTokenScope("newScope")))
             prop(PersistentOAuth2AuthorizedClient::refreshToken).isNull()
             prop(PersistentOAuth2AuthorizedClient::refreshTokenIssuedAt).isNull()
             prop(PersistentOAuth2AuthorizedClient::userName).isEqualTo("userName")
@@ -214,7 +215,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
             prop(PersistentOAuth2AuthorizedClient::accessToken).isEqualTo("newAccessToken")
             prop(PersistentOAuth2AuthorizedClient::accessTokenExpiresAt).isEqualTo(accessTokenExpireTime)
             prop(PersistentOAuth2AuthorizedClient::accessTokenIssuedAt).isEqualTo(accessTokenIssueTime)
-            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf("newScope"))
+            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf(ClientTokenScope("newScope")))
             prop(PersistentOAuth2AuthorizedClient::refreshToken).isEqualTo("newRefreshToken")
             prop(PersistentOAuth2AuthorizedClient::refreshTokenIssuedAt).isEqualTo(refreshTokenIssueTime)
             prop(PersistentOAuth2AuthorizedClient::userName).isEqualTo("fullClient")
@@ -256,7 +257,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
             prop(PersistentOAuth2AuthorizedClient::accessToken).isEqualTo("newAccessToken")
             prop(PersistentOAuth2AuthorizedClient::accessTokenExpiresAt).isEqualTo(accessTokenExpireTime)
             prop(PersistentOAuth2AuthorizedClient::accessTokenIssuedAt).isEqualTo(accessTokenIssueTime)
-            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf("newScope"))
+            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf(ClientTokenScope("newScope")))
             prop(PersistentOAuth2AuthorizedClient::refreshToken).isEqualTo("newRefreshToken")
             prop(PersistentOAuth2AuthorizedClient::refreshTokenIssuedAt).isEqualTo(refreshTokenIssueTime)
             prop(PersistentOAuth2AuthorizedClient::userName).isEqualTo("noRefreshTokenClient")
@@ -293,7 +294,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
             prop(PersistentOAuth2AuthorizedClient::accessToken).isEqualTo("newAccessToken")
             prop(PersistentOAuth2AuthorizedClient::accessTokenExpiresAt).isEqualTo(accessTokenExpireTime)
             prop(PersistentOAuth2AuthorizedClient::accessTokenIssuedAt).isEqualTo(accessTokenIssueTime)
-            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf("newScope"))
+            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf(ClientTokenScope("newScope")))
             prop(PersistentOAuth2AuthorizedClient::refreshToken).isNull()
             prop(PersistentOAuth2AuthorizedClient::refreshTokenIssuedAt).isNull()
             prop(PersistentOAuth2AuthorizedClient::userName).isEqualTo("noRefreshTokenClient")
@@ -330,7 +331,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
             prop(PersistentOAuth2AuthorizedClient::accessToken).isEqualTo("newAccessToken")
             prop(PersistentOAuth2AuthorizedClient::accessTokenExpiresAt).isEqualTo(accessTokenExpireTime)
             prop(PersistentOAuth2AuthorizedClient::accessTokenIssuedAt).isEqualTo(accessTokenIssueTime)
-            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf("newScope"))
+            prop(PersistentOAuth2AuthorizedClient::accessTokenScopes).isEqualTo(setOf(ClientTokenScope("newScope")))
             prop(PersistentOAuth2AuthorizedClient::refreshToken).isEqualTo("refreshToken")
             prop(PersistentOAuth2AuthorizedClient::refreshTokenIssuedAt).isEqualTo(data.refreshTokenIssueTime)
             prop(PersistentOAuth2AuthorizedClient::userName).isEqualTo("fullClient")
@@ -352,7 +353,7 @@ class AuthorizedClientData : TestData {
         accessTokenIssuedAt = accessTokenIssueTime,
         accessTokenExpiresAt = accessTokenExpireTime,
         userName = "fullClient",
-        accessTokenScopes = setOf("scope")
+        accessTokenScopes = setOf(ClientTokenScope("scope"))
     )
 
     private val noRefreshTokenClient = PersistentOAuth2AuthorizedClient(
@@ -363,7 +364,7 @@ class AuthorizedClientData : TestData {
         accessTokenIssuedAt = accessTokenIssueTime,
         accessTokenExpiresAt = accessTokenExpireTime,
         userName = "noRefreshTokenClient",
-        accessTokenScopes = setOf("scope")
+        accessTokenScopes = setOf(ClientTokenScope("scope"))
     )
 
     override fun generateData() = listOf(fullClient, noRefreshTokenClient)

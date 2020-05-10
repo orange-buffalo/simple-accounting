@@ -1,42 +1,29 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAbstractEntity
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import org.springframework.data.relational.core.mapping.Column
+import org.springframework.data.relational.core.mapping.MappedCollection
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
-import javax.persistence.*
 
-@Entity
-@Table(name = "persistent_oauth2_authorized_client")
+@Table("PERSISTENT_OAUTH2_AUTHORIZED_CLIENT")
 class PersistentOAuth2AuthorizedClient(
-
-    @field:Column(nullable = false)
     val clientRegistrationId: String,
-
-    @field:Column(nullable = false)
     val userName: String,
-
-    @field:Column(nullable = false)
     var accessToken: String,
-
-    @field:Column
     var accessTokenIssuedAt: Instant?,
-
-    @field:Column
     var accessTokenExpiresAt: Instant?,
 
-    @field:ElementCollection(fetch = FetchType.EAGER)
-    @field:CollectionTable(
-        name = "persistent_oauth2_authorized_client_access_token_scopes",
-        joinColumns = [JoinColumn(
-            name = "client_id",
-            foreignKey = ForeignKey(name = "pauth2ac_access_token_scopes_scopes_client_fk")
-        )]
-    )
-    var accessTokenScopes: Set<String>,
+    @field:MappedCollection(idColumn = "CLIENT_ID")
+    var accessTokenScopes: Set<ClientTokenScope>,
 
-    @field:Column
     var refreshToken: String?,
-
-    @field:Column
     var refreshTokenIssuedAt: Instant?
 
-) : LegacyAbstractEntity()
+) : AbstractEntity()
+
+@Table("PERSISTENT_OAUTH2_AUTHORIZED_CLIENT_ACCESS_TOKEN_SCOPES")
+data class ClientTokenScope(
+    @field:Column("ACCESS_TOKEN_SCOPES")
+    val scope: String
+)

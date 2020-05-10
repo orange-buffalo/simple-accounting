@@ -125,11 +125,11 @@ class PushNotificationsApiControllerIT(
             )
 
             pushNotificationService.sendPushNotification(
-                user = testData.fry, eventName = "watch-tv"
+                userId = testData.fry.id!!, eventName = "watch-tv"
             )
 
             pushNotificationService.sendPushNotification(
-                user = testData.bender, eventName = "kill-all-humans"
+                userId = testData.bender.id!!, eventName = "kill-all-humans"
             )
 
             pushNotificationService.sendPushNotification(

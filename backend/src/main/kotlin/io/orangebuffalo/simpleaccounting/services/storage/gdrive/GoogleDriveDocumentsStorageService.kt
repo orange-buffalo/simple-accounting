@@ -211,7 +211,7 @@ class GoogleDriveDocumentsStorageService(
 
             pushNotificationService.sendPushNotification(
                 eventName = AUTH_EVENT_NAME,
-                user = integration.user,
+                userId = integration.user.id!!,
                 data = GoogleDriveStorageIntegrationStatus(
                     folderId = rootFolder.id,
                     folderName = rootFolder.name
@@ -222,10 +222,10 @@ class GoogleDriveDocumentsStorageService(
     @EventListener
     fun onAuthFailure(authFailedEvent: AuthFailedEvent) = authFailedEvent
         .launchIfClientMatches(OAUTH2_CLIENT_REGISTRATION_ID) {
-            val user = authFailedEvent.user
+            val userId = authFailedEvent.userId
             pushNotificationService.sendPushNotification(
                 eventName = AUTH_EVENT_NAME,
-                user = user,
+                userId = userId,
                 data = GoogleDriveStorageIntegrationStatus()
             )
         }
