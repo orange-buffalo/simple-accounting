@@ -1,16 +1,10 @@
 package io.orangebuffalo.simpleaccounting.services.storage.gdrive
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.LegacyAbstractEntity
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
-import javax.persistence.*
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import org.springframework.data.relational.core.mapping.Table
 
-@Entity
+@Table
 class GoogleDriveStorageIntegration(
-
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "gdrive_storage_integration_user_fk"))
-    val user: PlatformUser,
-
-    @field:Column var folderId: String? = null
-
-) : LegacyAbstractEntity()
+    val userId: Long,
+    var folderId: String? = null
+) : AbstractEntity()

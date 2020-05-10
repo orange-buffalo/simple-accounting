@@ -17,7 +17,7 @@ import javax.sql.DataSource
 
 @Configuration
 @EnableJpaRepositories
-@EnableJdbcRepositories
+@EnableJdbcRepositories("io.orangebuffalo.simpleaccounting")
 @EnableTransactionManagement
 class PersistenceConfig {
 

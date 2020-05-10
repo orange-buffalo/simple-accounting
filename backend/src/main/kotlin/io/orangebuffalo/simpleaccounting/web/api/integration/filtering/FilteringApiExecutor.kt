@@ -28,6 +28,17 @@ class FilteringApiExecutor<E : Any, DTO : Any>(
             data = entityPage.data.map { entity -> mapper(entity) }
         )
     }
+
+    suspend fun executeFiltering(): ApiPage<DTO> {
+        val filteringApiRequest = apiRequestResolver.resolveRequest(getServerWebExchange())
+        val entityPage = queryExecutor.executeFilteringQuery(filteringApiRequest)
+        return ApiPage(
+            pageNumber = entityPage.pageNumber,
+            pageSize = entityPage.pageSize,
+            totalElements = entityPage.totalElements,
+            data = entityPage.data.map { entity -> mapper(entity) }
+        )
+    }
 }
 
 @Component
@@ -58,7 +69,7 @@ class FilteringApiExecutorBuilder(
             this.mapper = spec
         }
 
-        fun <T: Table<*>> query(root: T, spec: FilteringApiQuerySpec<T>.() -> Unit) {
+        fun <T : Table<*>> query(root: T, spec: FilteringApiQuerySpec<T>.() -> Unit) {
             queryExecutor = FilteringApiQueryExecutor(
                 dslContext = dslContext,
                 conversionService = conversionService,

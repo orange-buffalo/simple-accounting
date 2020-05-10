@@ -64,7 +64,7 @@ class BruteForceDefenseIT(
         client.executeLoginForFry()
             .expectStatus().isOk
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isZero()
             assertThat(temporaryLockExpirationTime).isNull()
         }
@@ -82,7 +82,7 @@ class BruteForceDefenseIT(
                 }"""
             )
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(1)
             assertThat(temporaryLockExpirationTime).isNull()
         }
@@ -92,8 +92,7 @@ class BruteForceDefenseIT(
     fun `should successfully login if account is temporary locked but lock has expired`(
         testData: BruteForceDefenseTestData
     ) {
-
-        withFryLoginStatistics {
+        setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = CURRENT_TIME.minusMillis(1)
         }
@@ -103,7 +102,7 @@ class BruteForceDefenseIT(
         client.executeLoginForFry()
             .expectStatus().isOk
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isZero()
             assertThat(temporaryLockExpirationTime).isNull()
         }
@@ -113,8 +112,7 @@ class BruteForceDefenseIT(
     fun `should forbid login if account is temporary locked (boundary case of the last millis)`(
         testData: BruteForceDefenseTestData
     ) {
-
-        withFryLoginStatistics {
+        setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = CURRENT_TIME
         }
@@ -128,7 +126,7 @@ class BruteForceDefenseIT(
                 }"""
             )
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
             assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME)
         }
@@ -136,7 +134,7 @@ class BruteForceDefenseIT(
 
     @Test
     fun `should forbid login if account is temporary locked`(testData: BruteForceDefenseTestData) {
-        withFryLoginStatistics {
+        setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = CURRENT_TIME.plusMillis(4500)
         }
@@ -150,7 +148,7 @@ class BruteForceDefenseIT(
                 }"""
             )
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
             assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME.plusMillis(4500))
         }
@@ -158,7 +156,7 @@ class BruteForceDefenseIT(
 
     @Test
     fun `should increase failed attempts without locking if below 5 attempts`(testData: BruteForceDefenseTestData) {
-        withFryLoginStatistics {
+        setupFryLoginStatistics {
             failedAttemptsCount = 4
             temporaryLockExpirationTime = null
         }
@@ -173,7 +171,7 @@ class BruteForceDefenseIT(
                 }"""
             )
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
             assertThat(temporaryLockExpirationTime).isNull()
         }
@@ -181,7 +179,7 @@ class BruteForceDefenseIT(
 
     @Test
     fun `should lock account after 5 failed attempts`(testData: BruteForceDefenseTestData) {
-        withFryLoginStatistics {
+        setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = null
         }
@@ -197,7 +195,7 @@ class BruteForceDefenseIT(
                 }"""
             )
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(6)
             assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME.plusSeconds(60))
         }
@@ -205,7 +203,7 @@ class BruteForceDefenseIT(
 
     @Test
     fun `should progressively increase locking time`(testData: BruteForceDefenseTestData) {
-        withFryLoginStatistics {
+        setupFryLoginStatistics {
             failedAttemptsCount = 7
             temporaryLockExpirationTime = CURRENT_TIME.minusMillis(1)
         }
@@ -221,7 +219,7 @@ class BruteForceDefenseIT(
                 }"""
             )
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(8)
             assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME.plusMillis(135_000))
         }
@@ -229,7 +227,7 @@ class BruteForceDefenseIT(
 
     @Test
     fun `should cap locking time at 1 day`(testData: BruteForceDefenseTestData) {
-        withFryLoginStatistics {
+        setupFryLoginStatistics {
             failedAttemptsCount = 100
             temporaryLockExpirationTime = CURRENT_TIME.minusMillis(1)
         }
@@ -245,7 +243,7 @@ class BruteForceDefenseIT(
                 }"""
             )
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(101)
             assertThat(temporaryLockExpirationTime).isEqualTo(CURRENT_TIME.plusMillis(86_400_000))
         }
@@ -289,7 +287,7 @@ class BruteForceDefenseIT(
         // at least one must go through and fail with Bad Credentials
         assertThat(badCredentialsCount).isGreaterThan(0)
 
-        withFryLoginStatistics {
+        assertFryLoginStatistics {
             // depending on how many requests we process to login, different number of failed attempts is possible
             // but the number of Bad Credentials responses should be equal to failed attempts number
             if (accountLockedCount > 0) {
@@ -300,11 +298,20 @@ class BruteForceDefenseIT(
         }
     }
 
-    private fun withFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
+    private fun assertFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
         transactionTemplate.execute {
             val loginStatistics = platformUserRepository.findByUserName("Fry")?.loginStatistics
                 ?: throw IllegalStateException("Fry is not found?!")
             loginStatistics.spec()
+        }
+    }
+
+    private fun setupFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
+        transactionTemplate.execute {
+            val fry = platformUserRepository.findByUserName("Fry")
+                ?: throw IllegalStateException("Fry is not found?!")
+            fry.loginStatistics.spec()
+            platformUserRepository.save(fry)
         }
     }
 
