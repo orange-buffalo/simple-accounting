@@ -2,8 +2,8 @@ package io.orangebuffalo.simpleaccounting.web.api.authentication
 
 import com.nhaarman.mockito_kotlin.*
 import io.orangebuffalo.simpleaccounting.*
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
@@ -11,16 +11,12 @@ import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshToke
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
@@ -28,9 +24,7 @@ import java.time.Duration
 private const val LOGIN_PATH = "/api/auth/login"
 private const val TOKEN_PATH = "/api/auth/token"
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 class AuthenticationApiControllerIT(
     @Autowired val client: WebTestClient
 ) {

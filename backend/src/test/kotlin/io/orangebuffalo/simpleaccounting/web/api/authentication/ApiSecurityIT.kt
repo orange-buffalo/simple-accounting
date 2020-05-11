@@ -3,31 +3,26 @@ package io.orangebuffalo.simpleaccounting.web.api.authentication
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.whenever
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.verifyUnauthorized
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.User
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
 private const val API_PATH = "/api"
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SimpleAccountingIntegrationTest
 @DisplayName("When requesting $API_PATH, ")
-@AutoConfigureWebTestClient
 class ApiAuthenticationIT(
     @Autowired val client: WebTestClient
 ) {

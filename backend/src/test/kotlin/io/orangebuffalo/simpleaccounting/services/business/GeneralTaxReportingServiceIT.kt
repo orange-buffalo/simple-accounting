@@ -3,8 +3,8 @@ package io.orangebuffalo.simpleaccounting.services.business
 import assertk.assertThat
 import assertk.assertions.containsOnly
 import io.orangebuffalo.simpleaccounting.Prototypes
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
@@ -12,14 +12,10 @@ import io.orangebuffalo.simpleaccounting.services.persistence.repos.FinalizedGen
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.PendingGeneralTaxSummaryItem
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SimpleAccountingIntegrationTest
 internal class GeneralTaxReportingServiceIT(
     @Autowired private val taxReportingService: GeneralTaxReportingService
 ) {

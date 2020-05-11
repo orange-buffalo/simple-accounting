@@ -1,27 +1,21 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.*
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 @DisplayName("Workspaces API ")
 internal class WorkspacesApiControllerIT(
     @Autowired val client: WebTestClient

@@ -12,8 +12,8 @@ import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.expectThatJsonBody
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.LoginStatistics
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.PlatformUserRepository
@@ -21,14 +21,10 @@ import kotlinx.coroutines.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.support.TransactionTemplate
@@ -37,9 +33,7 @@ import java.time.Instant
 private const val LOGIN_PATH = "/api/auth/login"
 private val CURRENT_TIME = Instant.ofEpochMilli(424242)
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 class BruteForceDefenseIT(
     @Autowired val client: WebTestClient,
     @Autowired val transactionTemplate: TransactionTemplate,

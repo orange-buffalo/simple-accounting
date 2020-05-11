@@ -1,24 +1,18 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.Prototypes
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.sendJson
 import io.orangebuffalo.simpleaccounting.verifyOkAndJsonBody
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.context.support.WithMockUser
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 @DisplayName("Admin User API ")
 internal class UsersApiControllerIT(
     @Autowired val client: WebTestClient

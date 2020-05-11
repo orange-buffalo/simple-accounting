@@ -4,8 +4,8 @@ import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.simpleaccounting.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.Prototypes
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.RefreshToken
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.RefreshTokenRepository
@@ -14,18 +14,14 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SimpleAccountingIntegrationTest
 class RefreshTokenServiceIT(
     @Autowired private val refreshTokenService: RefreshTokenService,
     @Autowired private val refreshTokenRepository: RefreshTokenRepository

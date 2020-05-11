@@ -8,6 +8,7 @@ import assertk.assertions.isNull
 import assertk.assertions.prop
 import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.ClientTokenScope
@@ -31,8 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import java.time.Instant
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SimpleAccountingIntegrationTest
 internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     @Autowired val clientService: DbReactiveOAuth2AuthorizedClientService,
     @Autowired val repository: PersistentOAuth2AuthorizedClientRepository

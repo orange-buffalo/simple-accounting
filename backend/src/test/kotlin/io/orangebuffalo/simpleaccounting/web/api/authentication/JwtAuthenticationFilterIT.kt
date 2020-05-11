@@ -2,21 +2,16 @@ package io.orangebuffalo.simpleaccounting.web.api.authentication
 
 import com.nhaarman.mockito_kotlin.doThrow
 import com.nhaarman.mockito_kotlin.whenever
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 class JwtAuthenticationFilterIT(
     @Autowired val client: WebTestClient
 ) {

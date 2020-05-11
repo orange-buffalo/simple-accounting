@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiValidationException
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -9,21 +10,17 @@ import org.jooq.impl.DSL
 import org.jooq.impl.TableImpl
 import org.jooq.impl.UpdatableRecordImpl
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.core.convert.ConversionService
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import java.util.stream.Stream
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-internal class FilteringApiQueryExecutorTest(
+@SimpleAccountingIntegrationTest
+internal class FilteringApiQueryExecutorIT(
     @Autowired val jdbcTemplate: JdbcTemplate,
     @Autowired val dslContext: DSLContext,
     @Autowired val conversionService: ConversionService
