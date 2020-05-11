@@ -21,10 +21,8 @@ class WorkspaceAccessTokensApiController(
 ) {
 
     @GetMapping
-    suspend fun getAccessTokens(@PathVariable workspaceId: Long): ApiPage<WorkspaceAccessTokenDto> {
-        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.ADMIN)
-        return filteringApiExecutor.executeFiltering(workspaceId)
-    }
+    suspend fun getAccessTokens(@PathVariable workspaceId: Long): ApiPage<WorkspaceAccessTokenDto> =
+        filteringApiExecutor.executeFiltering(workspaceId, WorkspaceAccessMode.ADMIN)
 
     @PostMapping
     suspend fun createToken(

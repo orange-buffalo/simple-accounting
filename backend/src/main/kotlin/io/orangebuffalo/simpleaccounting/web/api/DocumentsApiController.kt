@@ -40,11 +40,8 @@ class DocumentsApiController(
     }
 
     @GetMapping
-    suspend fun getDocuments(@PathVariable workspaceId: Long): ApiPage<DocumentDto> {
-        // todo #222: validate for all apis
-        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        return filteringApiExecutor.executeFiltering(workspaceId)
-    }
+    suspend fun getDocuments(@PathVariable workspaceId: Long): ApiPage<DocumentDto> =
+        filteringApiExecutor.executeFiltering(workspaceId)
 
     @GetMapping("{documentId}/content")
     suspend fun getDocumentContent(
