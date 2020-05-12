@@ -1,22 +1,35 @@
 package io.orangebuffalo.simpleaccounting.junit
 
-import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.extension.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.support.TransactionTemplate
 import java.lang.reflect.Method
 import kotlin.reflect.full.memberProperties
 
+private val tablesToTruncate = mutableSetOf<String>()
+
 class TestDataExtension : Extension, ParameterResolver, BeforeEachCallback, InvocationInterceptor {
 
     override fun beforeEach(extensionContext: ExtensionContext) {
         val applicationContext = SpringExtension.getApplicationContext(extensionContext)
+        val jdbcTemplate = applicationContext.getBean(JdbcTemplate::class.java)
 
-        val flyway = applicationContext.getBean(Flyway::class.java)
-        flyway.clean()
-        flyway.migrate()
+        if (tablesToTruncate.isEmpty()) {
+            tablesToTruncate.addAll(jdbcTemplate.queryForList("show tables")
+                .asSequence()
+                .map { it["TABLE_NAME"] as String }
+                .filter { it != "flyway_schema_history" }
+                .toList())
+        }
+
+        jdbcTemplate.execute("set referential_integrity false")
+
+        tablesToTruncate.forEach { jdbcTemplate.execute("""truncate table "$it"""") }
+
+        jdbcTemplate.execute("set referential_integrity true")
     }
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
