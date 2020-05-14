@@ -78,7 +78,6 @@ class WorkspaceService(
         workspaceId: Long,
         accessMode: WorkspaceAccessMode
     ) {
-        // todo #222: when migrated to jooq, verify if we can avoid fetching unnecessary data and just check existence
         getAccessibleWorkspace(workspaceId, accessMode)
     }
 
@@ -105,7 +104,6 @@ class WorkspaceService(
             workspaceRepository.findByIdAndOwnerUserName(workspaceId, currentPrincipal.userName)
         }
 
-        // todo #222 rewrite to more readable code
         val sharedWorkspace = if (accessMode == WorkspaceAccessMode.READ_ONLY) {
             withDbContext {
                 savedWorkspaceAccessTokenRepository.findWorkspaceByValidTokenOwnerAndId(

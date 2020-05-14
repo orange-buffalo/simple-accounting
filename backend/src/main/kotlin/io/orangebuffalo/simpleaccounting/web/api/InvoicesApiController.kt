@@ -65,9 +65,9 @@ class InvoicesApiController(
         @PathVariable workspaceId: Long,
         @PathVariable invoiceId: Long
     ): InvoiceDto {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        // todo #222: move access control into the business service
-        val invoice = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        // todo #71: when optimistic locking is addressed, move access control into the business service
+        val invoice = invoiceService.getInvoiceByIdAndWorkspaceId(invoiceId, workspaceId)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
         return mapInvoiceDto(invoice, timeService)
     }
@@ -79,11 +79,10 @@ class InvoicesApiController(
         @RequestBody @Valid request: EditInvoiceDto
     ): InvoiceDto {
 
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
-        // todo #222: workspace id only
-        val invoice = invoiceService.getInvoiceByIdAndWorkspace(invoiceId, workspace)
+        val invoice = invoiceService.getInvoiceByIdAndWorkspaceId(invoiceId, workspaceId)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
 
         return invoice
