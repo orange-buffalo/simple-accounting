@@ -187,7 +187,7 @@ class OAuth2Service(
         )
     }
 
-    // todo #222: evaluate usage of user id to avoid extra db roundtrips
+    // todo #225: evaluate usage of user id to avoid extra db roundtrips
     suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String, userName: String): OAuth2AuthorizedClient? {
         return clientService
             .loadAuthorizedClient<OAuth2AuthorizedClient>(clientRegistrationId, userName)
@@ -220,7 +220,7 @@ class OAuth2Service(
 }
 
 data class AuthFailedEvent(
-    // todo #222: address inconsistency with success event
+    // todo #225: address inconsistency with success event
     val userId: Long,
     val clientRegistrationId: String,
     val errorCode: String?
