@@ -23,8 +23,6 @@ apply<SaJooqCodeGenPlugin>()
 repositories {
     mavenCentral()
     jcenter()
-    // todo: remove once Spring Boot 2.3 is released
-    maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 dependencies {
