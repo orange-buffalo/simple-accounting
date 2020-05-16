@@ -110,10 +110,13 @@ class InvoicesApiController(
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Invoice, InvoiceDto> {
         query(Tables.INVOICE) {
-            filterByField("freeSearchText", String::class) {
-                val customer = Tables.CUSTOMER.`as`("filterCustomer")
-                query.join(customer).on(customer.id.eq(root.customerId))
+            val customer = Tables.CUSTOMER.`as`("filterCustomer")
 
+            configure {
+                query.join(customer).on(customer.id.eq(root.customerId))
+            }
+
+            filterByField("freeSearchText", String::class) {
                 onPredicate(FilteringApiPredicateOperator.EQ) { filter ->
                     or(
                         root.notes.containsIgnoreCase(filter),
@@ -143,12 +146,7 @@ class InvoicesApiController(
             }
             addDefaultSorting { root.dateIssued.desc() }
             addDefaultSorting { root.timeRecorded.asc() }
-            workspaceFilter { workspaceId ->
-                // todo #222: add api to join in the root of the builder to avoid redundant joins
-                val customer = Tables.CUSTOMER.`as`("customer")
-                query.join(customer).on(customer.id.eq(root.customerId))
-                customer.workspaceId.eq(workspaceId)
-            }
+            workspaceFilter { workspaceId -> customer.workspaceId.eq(workspaceId) }
         }
         mapper { mapInvoiceDto(this, timeService) }
     }

@@ -37,6 +37,7 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
         private val defaultSortingList: MutableList<FilteringApiQuerySpec.HasRoot<T>.() -> SortField<out Any>> =
             mutableListOf()
         private var workspaceFilter: (FilteringApiQuerySpec.WorkspaceFilterConfig<T>.(Long?) -> Condition)? = null
+        private var queryConfigurer: (FilteringApiQuerySpec.QueryConfigurer<T>.() -> Unit)? = null
 
         override fun <V : Any> filterByField(
             apiFieldName: String,
@@ -61,11 +62,13 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
 
         suspend fun executeQuery(fileApiRequest: FilteringApiRequest, workspaceId: Long?): ApiPage<E> = withDbContext {
             val countQuery = dslContext.selectCount().from(root)
+            configureQuery(countQuery)
             val countConditions: Collection<Condition> =
                 validateAndGetConditions(fileApiRequest, workspaceId, countQuery)
             val totalRecordsCount = countQuery.where(countConditions).fetchOneInto(Long::class.java)
 
             val dataQuery = dslContext.select().from(root)
+            configureQuery(dataQuery)
             val dataConditions: Collection<Condition> = validateAndGetConditions(fileApiRequest, workspaceId, dataQuery)
             val data = dataQuery.where(dataConditions)
                 .orderBy(validateAndGetSorting())
@@ -78,6 +81,14 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
                 totalElements = totalRecordsCount,
                 data = data
             )
+        }
+
+        private fun configureQuery(targetQuery: SelectJoinStep<out Record>) {
+            val dataHolder = object : FilteringApiQuerySpec.QueryConfigurer<T> {
+                override val query = targetQuery
+                override val root = this@FilteringApiQuerySpecIml.root
+            }
+            queryConfigurer?.invoke(dataHolder)
         }
 
         private fun validateAndGetSorting(): List<SortField<out Any>> {
@@ -164,6 +175,10 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
         override fun workspaceFilter(spec: FilteringApiQuerySpec.WorkspaceFilterConfig<T>.(Long?) -> Condition) {
             workspaceFilter = spec
         }
+
+        override fun configure(spec: FilteringApiQuerySpec.QueryConfigurer<T>.() -> Unit) {
+            queryConfigurer = spec
+        }
     }
 }
 
@@ -172,6 +187,8 @@ annotation class FilteringApiDsl
 
 @FilteringApiDsl
 interface FilteringApiQuerySpec<T : Table<*>> {
+
+    fun configure(spec: QueryConfigurer<T>.() -> Unit)
 
     fun workspaceFilter(spec: WorkspaceFilterConfig<T>.(Long?) -> Condition)
 
@@ -208,5 +225,8 @@ interface FilteringApiQuerySpec<T : Table<*>> {
 
     @FilteringApiDsl
     interface WorkspaceFilterConfig<T : Table<*>> : HasRoot<T>, HasQuery
+
+    @FilteringApiDsl
+    interface QueryConfigurer<T : Table<*>> : HasRoot<T>, HasQuery
 }
 
