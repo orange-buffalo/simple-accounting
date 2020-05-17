@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.services.persistence.repos
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import java.time.Instant
 
 interface SavedWorkspaceAccessTokenRepository
     : AbstractEntityRepository<SavedWorkspaceAccessToken>, SavedWorkspaceAccessTokenRepositoryExt
@@ -14,19 +13,9 @@ interface SavedWorkspaceAccessTokenRepositoryExt {
         ownerId: Long
     ): SavedWorkspaceAccessToken?
 
-    fun findAllValidByOwner(
-        owner: String,
-        currentTime: Instant
-    ): List<SavedWorkspaceAccessToken>
+    fun findAllValidByOwner(owner: String): List<SavedWorkspaceAccessToken>
 
-    fun findWorkspaceByValidTokenOwnerAndId(
-        owner: String,
-        workspaceId: Long,
-        currentTime: Instant
-    ): Workspace?
+    fun findWorkspaceByValidTokenOwnerAndId(owner: String, workspaceId: Long): Workspace?
 
-    fun findWorkspacesByValidTokenOwner(
-        owner: String,
-        currentTime: Instant
-    ): List<Workspace>
+    fun findWorkspacesByValidTokenOwner(owner: String): List<Workspace>
 }

@@ -20,8 +20,7 @@ class WorkspaceService(
     private val workspaceRepository: WorkspaceRepository,
     private val workspaceAccessTokenRepository: WorkspaceAccessTokenRepository,
     private val savedWorkspaceAccessTokenRepository: SavedWorkspaceAccessTokenRepository,
-    private val platformUserService: PlatformUserService,
-    private val timeService: TimeService
+    private val platformUserService: PlatformUserService
 ) {
 
     suspend fun getUserWorkspaces(userName: String): List<Workspace> = withDbContext {
@@ -57,20 +56,19 @@ class WorkspaceService(
     }
 
     suspend fun getValidWorkspaceAccessToken(token: String): WorkspaceAccessToken = withDbContext {
-        workspaceAccessTokenRepository.findValidByToken(token, timeService.currentTime())
+        workspaceAccessTokenRepository.findValidByToken(token)
             ?: throw InvalidWorkspaceAccessTokenException(token)
     }
 
     suspend fun getWorkspaceByValidAccessToken(token: String): Workspace = withDbContext {
-        workspaceAccessTokenRepository.findWorkspaceByValidToken(token, timeService.currentTime())
+        workspaceAccessTokenRepository.findWorkspaceByValidToken(token)
             ?: throw InvalidWorkspaceAccessTokenException(token)
     }
 
     suspend fun getSharedWorkspaces(): List<Workspace> = withDbContext {
         savedWorkspaceAccessTokenRepository
             .findWorkspacesByValidTokenOwner(
-                ensureRegularUserPrincipal().userName,
-                timeService.currentTime()
+                ensureRegularUserPrincipal().userName
             )
     }
 
@@ -107,7 +105,7 @@ class WorkspaceService(
         val sharedWorkspace = if (accessMode == WorkspaceAccessMode.READ_ONLY) {
             withDbContext {
                 savedWorkspaceAccessTokenRepository.findWorkspaceByValidTokenOwnerAndId(
-                    currentPrincipal.userName, workspaceId, timeService.currentTime()
+                    currentPrincipal.userName, workspaceId
                 )
             }
         } else null
@@ -129,7 +127,7 @@ class WorkspaceService(
         return withDbContext {
             workspaceAccessTokenRepository
                 .findWorkspaceByValidToken(
-                    currentPrincipal.userName, timeService.currentTime(), workspaceId
+                    currentPrincipal.userName, workspaceId
                 )
                 ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
         }
