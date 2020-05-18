@@ -126,22 +126,25 @@ class InvoicesApiController(
                 }
             }
             filterByField("status", InvoiceStatus::class) {
-                onPredicate(FilteringApiPredicateOperator.EQ) { filter ->
-                    when (filter) {
-                        InvoiceStatus.DRAFT -> root.datePaid.isNull
-                            .and(root.dateSent.isNull)
-                            .and(root.dateCancelled.isNull)
-                        InvoiceStatus.CANCELLED -> root.dateCancelled.isNotNull
-                        InvoiceStatus.PAID -> root.datePaid.isNotNull
-                            .and(root.dateCancelled.isNull)
-                        InvoiceStatus.SENT -> root.dateSent.isNotNull
-                            .and(root.datePaid.isNull)
-                            .and(root.dateCancelled.isNull)
-                            .and(root.dueDate.greaterOrEqual(timeService.currentDate()))
-                        InvoiceStatus.OVERDUE -> root.datePaid.isNull
-                            .and(root.dateCancelled.isNull)
-                            .and(root.dueDate.lt(timeService.currentDate()))
-                    }
+                // todo 103: migrate to denormalized presentation and cover with filtering tests
+                onPredicate(FilteringApiPredicateOperator.IN) { statuses ->
+                    or(statuses.map { status ->
+                        when (status) {
+                            InvoiceStatus.DRAFT -> root.datePaid.isNull
+                                .and(root.dateSent.isNull)
+                                .and(root.dateCancelled.isNull)
+                            InvoiceStatus.CANCELLED -> root.dateCancelled.isNotNull
+                            InvoiceStatus.PAID -> root.datePaid.isNotNull
+                                .and(root.dateCancelled.isNull)
+                            InvoiceStatus.SENT -> root.dateSent.isNotNull
+                                .and(root.datePaid.isNull)
+                                .and(root.dateCancelled.isNull)
+                                .and(root.dueDate.greaterOrEqual(timeService.currentDate()))
+                            InvoiceStatus.OVERDUE -> root.datePaid.isNull
+                                .and(root.dateCancelled.isNull)
+                                .and(root.dueDate.lt(timeService.currentDate()))
+                        }
+                    })
                 }
             }
             addDefaultSorting { root.dateIssued.desc() }

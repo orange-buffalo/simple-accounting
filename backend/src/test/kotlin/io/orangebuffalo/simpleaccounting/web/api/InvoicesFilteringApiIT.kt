@@ -44,11 +44,11 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                 val freeSearchTextEqYYY = "$freeSearchTextApiField[eq]=YYY"
 
                 val statusApiField = "status"
-                val statusEqDraft = "$statusApiField[eq]=DRAFT"
-                val statusEqCancelled = "$statusApiField[eq]=CANCELLED"
-                val statusEqPaid = "$statusApiField[eq]=PAID"
-                val statusEqSent = "$statusApiField[eq]=SENT"
-                val statusEqOverdue = "$statusApiField[eq]=OVERDUE"
+                val statusInDraft = "$statusApiField[in]=DRAFT"
+                val statusInCancelled = "$statusApiField[in]=CANCELLED"
+                val statusInPaid = "$statusApiField[in]=PAID"
+                val statusInSent = "$statusApiField[in]=SENT"
+                val statusInOverdue = "$statusApiField[in]=OVERDUE"
 
                 filtering {
                     entity {
@@ -61,10 +61,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                             invoice.title = "title"
                         }
                         skippedOn(freeSearchTextEqYYY)
-                        skippedOn(statusEqCancelled)
-                        skippedOn(statusEqPaid)
-                        skippedOn(statusEqSent)
-                        skippedOn(statusEqOverdue)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInOverdue)
                     }
 
                     entity {
@@ -77,10 +77,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                             invoice.title = "title"
                         }
                         skippedOn(freeSearchTextEqXXX)
-                        skippedOn(statusEqCancelled)
-                        skippedOn(statusEqPaid)
-                        skippedOn(statusEqSent)
-                        skippedOn(statusEqOverdue)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInOverdue)
                     }
 
                     entity {
@@ -94,10 +94,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
-                        skippedOn(statusEqCancelled)
-                        skippedOn(statusEqPaid)
-                        skippedOn(statusEqSent)
-                        skippedOn(statusEqOverdue)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInOverdue)
                     }
 
                     entity {
@@ -109,10 +109,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                             invoice.notes = "notes yyy notes"
                             invoice.title = "xXx title"
                         }
-                        skippedOn(statusEqCancelled)
-                        skippedOn(statusEqPaid)
-                        skippedOn(statusEqSent)
-                        skippedOn(statusEqOverdue)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInOverdue)
                     }
 
                     entity {
@@ -121,10 +121,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
-                        skippedOn(statusEqCancelled)
-                        skippedOn(statusEqPaid)
-                        skippedOn(statusEqSent)
-                        skippedOn(statusEqOverdue)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInOverdue)
                     }
 
                     entity {
@@ -137,10 +137,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
-                        skippedOn(statusEqSent)
-                        skippedOn(statusEqPaid)
-                        skippedOn(statusEqDraft)
-                        skippedOn(statusEqOverdue)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInDraft)
+                        skippedOn(statusInOverdue)
                     }
 
                     entity {
@@ -150,10 +150,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
-                        skippedOn(statusEqCancelled)
-                        skippedOn(statusEqSent)
-                        skippedOn(statusEqDraft)
-                        skippedOn(statusEqOverdue)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInDraft)
+                        skippedOn(statusInOverdue)
                     }
 
                     entity {
@@ -163,10 +163,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
-                        skippedOn(statusEqCancelled)
-                        skippedOn(statusEqPaid)
-                        skippedOn(statusEqDraft)
-                        skippedOn(statusEqOverdue)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInDraft)
+                        skippedOn(statusInOverdue)
                     }
 
                     entity {
@@ -177,10 +177,10 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
-                        skippedOn(statusEqCancelled)
-                        skippedOn(statusEqPaid)
-                        skippedOn(statusEqDraft)
-                        skippedOn(statusEqSent)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInDraft)
+                        skippedOn(statusInSent)
                     }
                 }
 
