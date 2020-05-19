@@ -106,9 +106,9 @@ class IncomeService(
     suspend fun getIncomesStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspace: Workspace
+        workspaceId: Long
     ): List<IncomesStatistics> = withDbContext {
-        incomeRepository.getStatistics(fromDate, toDate, workspace)
+        incomeRepository.getStatistics(fromDate, toDate, workspaceId)
     }
 
     suspend fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> = withDbContext {

@@ -41,7 +41,7 @@ class IncomeRepositoryExtImpl(
     override fun getStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspace: Workspace
+        workspaceId: Long
     ): List<IncomesStatistics> {
         val incomeTaxableAmount = income.incomeTaxableAdjustedAmountInDefaultCurrency
         return dslContext
@@ -73,7 +73,7 @@ class IncomeRepositoryExtImpl(
             )
             .from(income)
             .where(
-                income.workspaceId.eq(workspace.id),
+                income.workspaceId.eq(workspaceId),
                 income.dateReceived.greaterOrEqual(fromDate),
                 income.dateReceived.lessOrEqual(toDate)
             )

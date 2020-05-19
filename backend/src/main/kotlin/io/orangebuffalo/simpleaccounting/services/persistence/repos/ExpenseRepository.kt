@@ -10,7 +10,7 @@ interface ExpenseRepositoryExt {
     fun getStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspace: Workspace
+        workspaceId: Long
     ): List<ExpensesStatistics>
 
     fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics>

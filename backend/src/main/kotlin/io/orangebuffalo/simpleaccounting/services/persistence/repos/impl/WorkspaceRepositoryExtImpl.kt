@@ -18,7 +18,7 @@ class WorkspaceRepositoryExtImpl(
     override fun findAllByOwnerUserName(userName: String): List<Workspace> {
         val owner = Tables.PLATFORM_USER
         return dslContext
-            .select()
+            .select(*workspace.fields())
             .from(workspace)
             .join(owner).on(owner.id.eq(workspace.ownerId))
             .where(owner.userName.eq(userName))
@@ -28,7 +28,7 @@ class WorkspaceRepositoryExtImpl(
     override fun findByIdAndOwnerUserName(workspaceId: Long, userName: String): Workspace? {
         val owner = Tables.PLATFORM_USER
         return dslContext
-            .select()
+            .select(*workspace.fields())
             .from(workspace)
             .join(owner).on(owner.id.eq(workspace.ownerId))
             .where(
