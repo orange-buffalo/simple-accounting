@@ -4,14 +4,15 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWork
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 
 interface SavedWorkspaceAccessTokenRepository
-    : AbstractEntityRepository<SavedWorkspaceAccessToken>, SavedWorkspaceAccessTokenRepositoryExt
+    : AbstractEntityRepository<SavedWorkspaceAccessToken>, SavedWorkspaceAccessTokenRepositoryExt {
 
-interface SavedWorkspaceAccessTokenRepositoryExt {
-
-    fun findByWorkspaceAccessTokenAndOwner(
+    fun findByWorkspaceAccessTokenIdAndOwnerId(
         workspaceAccessTokenId: Long,
         ownerId: Long
     ): SavedWorkspaceAccessToken?
+}
+
+interface SavedWorkspaceAccessTokenRepositoryExt {
 
     fun findAllValidByOwner(owner: String): List<SavedWorkspaceAccessToken>
 

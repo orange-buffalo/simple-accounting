@@ -77,8 +77,8 @@ class ExpensesApiController(
         @PathVariable workspaceId: Long,
         @PathVariable expenseId: Long
     ): ExpenseDto {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspaceId)
             ?: throw EntityNotFoundException("Expense $expenseId is not found")
         return expense.mapToExpenseDto()
     }
@@ -90,10 +90,10 @@ class ExpensesApiController(
         @RequestBody @Valid request: EditExpenseDto
     ): ExpenseDto {
 
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
-        val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspace)
+        val expense = expenseService.getExpenseByIdAndWorkspace(expenseId, workspaceId)
             ?: throw EntityNotFoundException("Expense $expenseId is not found")
 
         return expense

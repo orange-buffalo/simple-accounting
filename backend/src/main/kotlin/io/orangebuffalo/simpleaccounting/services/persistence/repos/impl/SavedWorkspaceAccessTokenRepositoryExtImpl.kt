@@ -18,18 +18,6 @@ class SavedWorkspaceAccessTokenRepositoryExtImpl(
 
     private val savedWorkspaceAccessToken = Tables.SAVED_WORKSPACE_ACCESS_TOKEN
 
-    override fun findByWorkspaceAccessTokenAndOwner(
-        workspaceAccessTokenId: Long,
-        ownerId: Long
-    ): SavedWorkspaceAccessToken? = dslContext
-        .select()
-        .from(savedWorkspaceAccessToken)
-        .where(
-            savedWorkspaceAccessToken.workspaceAccessTokenId.eq(workspaceAccessTokenId),
-            savedWorkspaceAccessToken.ownerId.eq(ownerId)
-        )
-        .fetchOneOrNull()
-
     override fun findAllValidByOwner(owner: String): List<SavedWorkspaceAccessToken> {
         return dslContext
             .select()

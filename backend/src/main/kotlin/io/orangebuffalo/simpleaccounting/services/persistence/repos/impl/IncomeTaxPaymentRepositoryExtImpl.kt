@@ -1,8 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchExactlyOne
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeTaxPaymentRepositoryExt
@@ -33,13 +31,4 @@ class IncomeTaxPaymentRepositoryExtImpl(
             taxPayment.reportingDate.lessOrEqual(toDate)
         )
         .fetchExactlyOne()
-
-    override fun findByIdAndWorkspace(id: Long, workspaceId: Long): IncomeTaxPayment? = dslContext
-        .select()
-        .from(taxPayment)
-        .where(
-            taxPayment.id.eq(id),
-            taxPayment.workspaceId.eq(workspaceId)
-        )
-        .fetchOneOrNull()
 }

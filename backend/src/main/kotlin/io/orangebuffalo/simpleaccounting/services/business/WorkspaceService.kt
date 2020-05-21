@@ -38,7 +38,7 @@ class WorkspaceService(
     suspend fun saveSharedWorkspace(token: String): Workspace = withDbContext {
         val accessToken = getValidWorkspaceAccessToken(token)
         val currentUser = platformUserService.getCurrentUser()
-        val savedWorkspaceAccessToken = savedWorkspaceAccessTokenRepository.findByWorkspaceAccessTokenAndOwner(
+        val savedWorkspaceAccessToken = savedWorkspaceAccessTokenRepository.findByWorkspaceAccessTokenIdAndOwnerId(
             accessToken.id!!, currentUser.id!!
         )
 

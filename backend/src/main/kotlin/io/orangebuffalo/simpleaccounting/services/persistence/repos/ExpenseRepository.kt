@@ -4,7 +4,9 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import java.time.LocalDate
 
-interface ExpenseRepository : AbstractEntityRepository<Expense>, ExpenseRepositoryExt
+interface ExpenseRepository : AbstractEntityRepository<Expense>, ExpenseRepositoryExt {
+    fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): Expense?
+}
 
 interface ExpenseRepositoryExt {
     fun getStatistics(
@@ -14,8 +16,6 @@ interface ExpenseRepositoryExt {
     ): List<ExpensesStatistics>
 
     fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics>
-
-    fun findByIdAndWorkspace(id: Long, workspace: Workspace): Expense?
 }
 
 data class ExpensesStatistics(

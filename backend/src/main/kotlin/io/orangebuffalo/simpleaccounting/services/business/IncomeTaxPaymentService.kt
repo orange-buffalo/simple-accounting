@@ -33,7 +33,7 @@ class IncomeTaxPaymentService(
     }
 
     suspend fun getTaxPaymentByIdAndWorkspace(id: Long, workspaceId: Long): IncomeTaxPayment? = withDbContext {
-        taxPaymentRepository.findByIdAndWorkspace(id, workspaceId)
+        taxPaymentRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 
     suspend fun getTaxPaymentStatistics(

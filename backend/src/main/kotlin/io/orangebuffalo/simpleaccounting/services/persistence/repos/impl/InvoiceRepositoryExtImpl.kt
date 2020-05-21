@@ -14,18 +14,13 @@ class InvoiceRepositoryExtImpl(
     private val invoice = Tables.INVOICE
     private val customer = Tables.CUSTOMER
 
-    override fun findByIdAndWorkspace(id: Long, workspace: Long): Invoice? = dslContext
+    override fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): Invoice? = dslContext
         .select(*invoice.fields())
         .from(invoice)
         .join(customer).on(invoice.customerId.eq(customer.id))
         .where(
             invoice.id.eq(id),
-            customer.workspaceId.eq(workspace)
+            customer.workspaceId.eq(workspaceId)
         )
-        .fetchOneOrNull()
-
-    override fun findByIncome(income: Long): Invoice? = dslContext
-        .select().from(invoice)
-        .where(invoice.incomeId.eq(income))
         .fetchOneOrNull()
 }

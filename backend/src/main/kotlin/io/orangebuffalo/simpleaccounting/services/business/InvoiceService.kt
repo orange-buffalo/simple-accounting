@@ -86,10 +86,10 @@ class InvoiceService(
     }
 
     suspend fun getInvoiceByIdAndWorkspaceId(id: Long, workspaceId: Long): Invoice? = withDbContext {
-        invoiceRepository.findByIdAndWorkspace(id, workspaceId)
+        invoiceRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 
     suspend fun findByIncome(income: Income): Invoice? = withDbContext {
-        invoiceRepository.findByIncome(income.id!!)
+        invoiceRepository.findByIncomeId(income.id!!)
     }
 }

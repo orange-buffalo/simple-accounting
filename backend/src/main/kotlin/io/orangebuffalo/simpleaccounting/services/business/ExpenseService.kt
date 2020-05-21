@@ -108,8 +108,8 @@ class ExpenseService(
         )
     }
 
-    suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? = withDbContext {
-        expenseRepository.findByIdAndWorkspace(id, workspace)
+    suspend fun getExpenseByIdAndWorkspace(id: Long, workspaceId: Long): Expense? = withDbContext {
+        expenseRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 
     suspend fun getExpensesStatistics(

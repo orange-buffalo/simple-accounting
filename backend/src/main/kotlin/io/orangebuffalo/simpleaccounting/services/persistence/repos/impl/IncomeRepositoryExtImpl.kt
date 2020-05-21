@@ -1,10 +1,8 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
@@ -29,14 +27,6 @@ class IncomeRepositoryExtImpl(
         .from(income)
         .groupBy(income.currency)
         .fetchListOf()
-
-    override fun findByIdAndWorkspaceId(incomeId: Long, workspaceId: Long): Income? = dslContext
-        .select().from(income)
-        .where(
-            income.id.eq(incomeId),
-            income.workspaceId.eq(workspaceId)
-        )
-        .fetchOneOrNull()
 
     override fun getStatistics(
         fromDate: LocalDate,

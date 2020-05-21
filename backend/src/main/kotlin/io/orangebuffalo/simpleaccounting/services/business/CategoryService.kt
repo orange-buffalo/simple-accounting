@@ -18,7 +18,7 @@ class CategoryService(
     }
 
     suspend fun validateCategory(categoryId: Long, workspaceId: Long) = withDbContext {
-        if (!categoryRepository.existsByWorkspaceIdAndId(categoryId, workspaceId)) {
+        if (!categoryRepository.existsByIdAndWorkspaceId(categoryId, workspaceId)) {
             throw EntityNotFoundException("Category $categoryId is not found")
         }
     }
