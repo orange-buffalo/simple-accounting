@@ -280,7 +280,7 @@ class GoogleDriveDocumentsStorageService(
 
         val rootFolder = try {
             ensureRootFolder(integration, authorizedClient)
-        } catch (e: StorageAuthorizationRequiredException) {
+        } catch (_: StorageAuthorizationRequiredException) {
             return GoogleDriveStorageIntegrationStatus(authorizationUrl = buildAuthorizationUrl())
         }
 

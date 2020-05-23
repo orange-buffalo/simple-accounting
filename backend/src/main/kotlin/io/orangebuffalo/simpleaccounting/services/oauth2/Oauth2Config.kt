@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 class Oauth2Config {
 
     @Bean
-    fun reactiveOAuth2AuthorizedClientService(
+    fun authorizedClientService(
         repository: PersistentOAuth2AuthorizedClientRepository,
         clientRegistrationRepository: ReactiveClientRegistrationRepository
     ): ReactiveOAuth2AuthorizedClientService =

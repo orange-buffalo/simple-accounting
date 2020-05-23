@@ -4,8 +4,6 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.Pe
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
 
 interface Oauth2AuthorizationRequestRepository
-    : AbstractEntityRepository<PersistentOAuth2AuthorizationRequest>, Oauth2AuthorizationRequestRepositoryExt
-
-interface Oauth2AuthorizationRequestRepositoryExt {
+    : AbstractEntityRepository<PersistentOAuth2AuthorizationRequest> {
     fun findByState(state: String): PersistentOAuth2AuthorizationRequest?
 }

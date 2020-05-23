@@ -1,7 +1,5 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos.oauth2.impl
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepositoryExt
 import org.jooq.DSLContext
@@ -22,16 +20,4 @@ class PersistentOAuth2AuthorizedClientRepositoryExtImpl(
             )
             .execute()
     }
-
-    override fun findByClientRegistrationIdAndUserName(
-        clientRegistrationId: String,
-        userName: String
-    ): PersistentOAuth2AuthorizedClient? = dslContext
-        .select()
-        .from(client)
-        .where(
-            client.userName.eq(userName),
-            client.clientRegistrationId.eq(clientRegistrationId)
-        )
-        .fetchOneOrNull()
 }

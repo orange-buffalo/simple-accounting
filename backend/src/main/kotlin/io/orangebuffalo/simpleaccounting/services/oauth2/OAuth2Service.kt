@@ -33,6 +33,8 @@ import java.security.SecureRandom
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 private const val TOKEN_LENGTH = 20
 
@@ -51,8 +53,7 @@ class OAuth2Service(
 
     private val random = SecureRandom()
 
-    suspend fun buildAuthorizationUrl(clientRegistrationId: String): String = GlobalScope.run {
-
+    suspend fun buildAuthorizationUrl(clientRegistrationId: String): String {
         val clientRegistration = getClientRegistration(clientRegistrationId)
 
         val authStateTokenBytes = ByteArray(TOKEN_LENGTH)
@@ -75,7 +76,7 @@ class OAuth2Service(
 
         val authorizationRequest = buildAuthorizationRequest(clientRegistration, state)
 
-        UriComponentsBuilder
+        return UriComponentsBuilder
             .fromUriString(authorizationRequest.authorizationRequestUri)
             .build(true)
             .toUriString()
@@ -130,7 +131,8 @@ class OAuth2Service(
                 AuthFailedEvent(
                     userId = persistentAuthorizationRequest.ownerId,
                     clientRegistrationId = persistentAuthorizationRequest.clientRegistrationId,
-                    errorCode = error
+                    errorCode = error,
+                    context = coroutineContext
                 )
             )
         } else {
@@ -182,7 +184,8 @@ class OAuth2Service(
         eventPublisher.publishEvent(
             AuthSucceededEvent(
                 user = authorizedUser,
-                clientRegistrationId = persistentAuthorizationRequest.clientRegistrationId
+                clientRegistrationId = persistentAuthorizationRequest.clientRegistrationId,
+                context = coroutineContext
             )
         )
     }
@@ -204,6 +207,8 @@ class OAuth2Service(
 
     fun createWebClient(baseUrl: String): WebClient = WebClient.builder()
         .filter(
+            // todo #225: with new version of security library, this can delete the client. we should remove related custom code
+            // io/orangebuffalo/simpleaccounting/services/storage/gdrive/GoogleDriveDocumentsStorageService.kt:305
             ServerOAuth2AuthorizedClientExchangeFilterFunction(
                 clientRegistrationRepository,
                 authorizedClientRepository
@@ -223,24 +228,28 @@ data class AuthFailedEvent(
     // todo #225: address inconsistency with success event
     val userId: Long,
     val clientRegistrationId: String,
-    val errorCode: String?
+    val errorCode: String?,
+    // required to preserve the caller's context, like WebExchange
+    val context: CoroutineContext
 ) {
 
     fun launchIfClientMatches(clientRegistrationId: String, block: suspend () -> Unit) {
         if (this.clientRegistrationId == clientRegistrationId) {
-            GlobalScope.launch { block() }
+            GlobalScope.launch(context) { block() }
         }
     }
 }
 
 data class AuthSucceededEvent(
     val user: PlatformUser,
-    val clientRegistrationId: String
+    val clientRegistrationId: String,
+    // required to preserve the caller's context, like WebExchange
+    val context: CoroutineContext
 ) {
 
     fun launchIfClientMatches(clientRegistrationId: String, block: suspend () -> Unit) {
         if (this.clientRegistrationId == clientRegistrationId) {
-            GlobalScope.launch { block() }
+            GlobalScope.launch(context) { block() }
         }
     }
 }
