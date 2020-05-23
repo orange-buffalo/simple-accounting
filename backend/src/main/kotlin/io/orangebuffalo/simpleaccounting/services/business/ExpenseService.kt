@@ -1,64 +1,31 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
-import com.querydsl.core.types.Predicate
+import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
-import io.orangebuffalo.simpleaccounting.services.persistence.registerEntitySaveListener
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpenseRepository
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpensesStatistics
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import javax.annotation.PostConstruct
-import javax.persistence.EntityManagerFactory
 
 @Service
 class ExpenseService(
     private val expenseRepository: ExpenseRepository,
-    private val entityManagerFactory: EntityManagerFactory
+    private val workspaceService: WorkspaceService,
+    private val generalTaxService: GeneralTaxService,
+    private val categoryService: CategoryService,
+    private val documentsService: DocumentsService
 ) {
-
-    @PostConstruct
-    private fun initPersistenceListeners() {
-        entityManagerFactory.registerEntitySaveListener(::validateExpenseConsistency)
-    }
-
-    /**
-     * Sanity check that an [Expense] is consistent (i.e. all the denormalized fields
-     * are compatible and plausible). Only most critical verifications are provided.
-     */
-    fun validateExpenseConsistency(expense: Expense) {
-        val isDefaultCurrency = expense.currency == expense.workspace.defaultCurrency
-        if (isDefaultCurrency) {
-            require(expense.originalAmount == expense.convertedAmounts.originalAmountInDefaultCurrency) {
-                "Inconsistent expense: converted amount does not match original for default currency"
-            }
-
-            require(expense.originalAmount == expense.incomeTaxableAmounts.originalAmountInDefaultCurrency) {
-                "Inconsistent expense: income taxable amount does not match original for default currency"
-            }
-        }
-
-        if (!expense.useDifferentExchangeRateForIncomeTaxPurposes) {
-            require(expense.convertedAmounts == expense.incomeTaxableAmounts) {
-                "Inconsistent expense: amounts do not match but same exchange rate is used"
-            }
-        }
-
-        if (expense.status == ExpenseStatus.FINALIZED) {
-            require(expense.convertedAmounts.notEmpty && expense.incomeTaxableAmounts.notEmpty) {
-                "Inconsistent expense: amounts are not provided for finalized expense"
-            }
-        }
-    }
 
     /**
      * Re-calculates the expense state (denormalized presentation).
      */
     suspend fun saveExpense(expense: Expense): Expense {
-        val defaultCurrency = expense.workspace.defaultCurrency
+        val workspace = workspaceService.getAccessibleWorkspace(expense.workspaceId, WorkspaceAccessMode.READ_WRITE)
+        validateCategoryAndAttachments(expense, workspace.id!!)
+
+        val defaultCurrency = workspace.defaultCurrency
         if (defaultCurrency == expense.currency) {
             expense.convertedAmounts = AmountsInDefaultCurrency(expense.originalAmount, null)
             expense.incomeTaxableAmounts = AmountsInDefaultCurrency(expense.originalAmount, null)
@@ -69,13 +36,13 @@ class ExpenseService(
             expense.incomeTaxableAmounts = expense.convertedAmounts
         }
 
-        val generalTax = expense.generalTax
+        val generalTax = getGeneralTax(expense)
         expense.generalTaxRateInBps = generalTax?.rateInBps
 
-        val convertedAdjustedAmounts = calculateAdjustedAmounts(expense, expense.convertedAmounts)
+        val convertedAdjustedAmounts = calculateAdjustedAmounts(expense, expense.convertedAmounts, generalTax)
         expense.convertedAmounts.adjustedAmountInDefaultCurrency = convertedAdjustedAmounts.adjustedAmount
 
-        val incomeTaxableAdjustedAmounts = calculateAdjustedAmounts(expense, expense.incomeTaxableAmounts)
+        val incomeTaxableAdjustedAmounts = calculateAdjustedAmounts(expense, expense.incomeTaxableAmounts, generalTax)
         expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency = incomeTaxableAdjustedAmounts.adjustedAmount
         expense.generalTaxAmount = incomeTaxableAdjustedAmounts.generalTaxAmount
 
@@ -86,22 +53,53 @@ class ExpenseService(
             else -> ExpenseStatus.FINALIZED
         }
 
-        return withDbContext {
-            expenseRepository.save(expense)
+        return withDbContext { expenseRepository.save(expense) }
+    }
+
+    private suspend fun getGeneralTax(expense: Expense): GeneralTax? =
+        if (expense.generalTaxId == null) null else generalTaxService.getValidGeneralTax(
+            expense.generalTaxId!!,
+            expense.workspaceId
+        )
+
+    private suspend fun validateCategoryAndAttachments(
+        expense: Expense,
+        workspaceId: Long
+    ) = executeInParallel {
+        step { validateCategory(expense, workspaceId) }
+        step { validateAttachments(expense, workspaceId) }
+    }
+
+    private suspend fun validateAttachments(expense: Expense, workspaceId: Long) {
+        if (expense.attachments.isNotEmpty()) {
+            val attachmentsIds = expense.attachments.map { it.documentId }
+            documentsService.validateDocuments(workspaceId, attachmentsIds)
         }
     }
 
-    private fun calculateAdjustedAmounts(expense: Expense, targetAmounts: AmountsInDefaultCurrency): AdjustedAmounts {
+    private suspend fun validateCategory(
+        expense: Expense,
+        workspaceId: Long
+    ) {
+        if (expense.categoryId != null) categoryService.validateCategory(expense.categoryId!!, workspaceId)
+    }
+
+    private fun calculateAdjustedAmounts(
+        expense: Expense,
+        targetAmounts: AmountsInDefaultCurrency,
+        generalTax: GeneralTax?
+    ): AdjustedAmounts {
         val originalAmountInDefaultCurrency = targetAmounts.originalAmountInDefaultCurrency
             ?: return AdjustedAmounts(null, null)
 
         val amountOnBusinessPurposes = originalAmountInDefaultCurrency.percentPart(expense.percentOnBusiness)
 
-        val generalTax = expense.generalTax
-            ?: return AdjustedAmounts(
+        if (generalTax == null) {
+            return AdjustedAmounts(
                 generalTaxAmount = null,
                 adjustedAmount = amountOnBusinessPurposes
             )
+        }
 
         val baseAmountForAddedGeneralTax = amountOnBusinessPurposes.bpsBasePart(generalTax.rateInBps)
         return AdjustedAmounts(
@@ -110,27 +108,17 @@ class ExpenseService(
         )
     }
 
-    suspend fun getExpenses(
-        workspace: Workspace,
-        page: Pageable,
-        filter: Predicate
-    ): Page<Expense> = withDbContext {
-        expenseRepository.findAll(QExpense.expense.workspace.eq(workspace).and(filter), page)
+    suspend fun getExpenseByIdAndWorkspace(id: Long, workspaceId: Long): Expense? = withDbContext {
+        expenseRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
-
-    suspend fun getExpenseByIdAndWorkspace(id: Long, workspace: Workspace): Expense? =
-        withDbContext {
-            expenseRepository.findByIdAndWorkspace(id, workspace)
-        }
 
     suspend fun getExpensesStatistics(
         fromDate: LocalDate,
         toDate: LocalDate,
-        workspace: Workspace
-    ): List<ExpensesStatistics> =
-        withDbContext {
-            expenseRepository.getStatistics(fromDate, toDate, workspace)
-        }
+        workspaceId: Long
+    ): List<ExpensesStatistics> = withDbContext {
+        expenseRepository.getStatistics(fromDate, toDate, workspaceId)
+    }
 
     suspend fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> = withDbContext {
         expenseRepository.getCurrenciesUsageStatistics(workspace)

@@ -4,15 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.services.business.GeneralTaxService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.QGeneralTax
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPageRequest
-import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApi
-import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApiDescriptor
+import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import org.hibernate.validator.constraints.Length
-import org.springframework.data.domain.Page
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 import javax.validation.constraints.Max
@@ -23,46 +20,36 @@ import javax.validation.constraints.NotBlank
 @RequestMapping("/api/workspaces/{workspaceId}/general-taxes")
 class GeneralTaxApiController(
     private val taxService: GeneralTaxService,
-    private val workspaceService: WorkspaceService
+    private val workspaceService: WorkspaceService,
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
     suspend fun createTax(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditGeneralTaxDto
-    ): GeneralTaxDto {
-
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
-
-        return taxService
-            .saveTax(
-                GeneralTax(
-                    title = request.title,
-                    description = request.description,
-                    rateInBps = request.rateInBps,
-                    workspace = workspace
-                )
+    ): GeneralTaxDto = taxService
+        .saveTax(
+            GeneralTax(
+                title = request.title,
+                description = request.description,
+                rateInBps = request.rateInBps,
+                workspaceId = workspaceId
             )
-            .let(::mapTaxDto)
-    }
+        )
+        .let(::mapTaxDto)
 
     @GetMapping
-    @PageableApi(GeneralTaxPageableApiDescriptor::class)
-    suspend fun getTaxes(
-        @PathVariable workspaceId: Long,
-        pageRequest: ApiPageRequest
-    ): Page<GeneralTax> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        return taxService.getTaxes(workspace, pageRequest.page, pageRequest.predicate)
-    }
+    suspend fun getTaxes(@PathVariable workspaceId: Long): ApiPage<GeneralTaxDto> =
+        filteringApiExecutor.executeFiltering(workspaceId)
 
     @GetMapping("{taxId}")
     suspend fun getTax(
         @PathVariable workspaceId: Long,
         @PathVariable taxId: Long
     ): GeneralTaxDto {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val expense = taxService.getTaxByIdAndWorkspace(taxId, workspace)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val expense = taxService.getTaxByIdAndWorkspace(taxId, workspaceId)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
         return mapTaxDto(expense)
     }
@@ -74,10 +61,8 @@ class GeneralTaxApiController(
         @RequestBody @Valid request: EditGeneralTaxDto
     ): GeneralTaxDto {
 
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
-
         // todo #71: optimistic locking. etag?
-        val tax = taxService.getTaxByIdAndWorkspace(taxId, workspace)
+        val tax = taxService.getTaxByIdAndWorkspace(taxId, workspaceId)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
 
         return tax
@@ -92,6 +77,14 @@ class GeneralTaxApiController(
             .let {
                 mapTaxDto(it)
             }
+    }
+
+    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<GeneralTax, GeneralTaxDto> {
+        query(Tables.GENERAL_TAX) {
+            addDefaultSorting { root.id.desc() }
+            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+        }
+        mapper { mapTaxDto(this) }
     }
 }
 
@@ -113,13 +106,7 @@ data class EditGeneralTaxDto(
 private fun mapTaxDto(source: GeneralTax) = GeneralTaxDto(
     title = source.title,
     id = source.id!!,
-    version = source.version,
+    version = source.version!!,
     description = source.description,
     rateInBps = source.rateInBps
 )
-
-@Component
-class GeneralTaxPageableApiDescriptor : PageableApiDescriptor<GeneralTax, QGeneralTax> {
-    override suspend fun mapEntityToDto(entity: GeneralTax) =
-        mapTaxDto(entity)
-}

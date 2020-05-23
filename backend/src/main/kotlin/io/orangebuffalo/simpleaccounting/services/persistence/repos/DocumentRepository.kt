@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import org.springframework.data.querydsl.QuerydslPredicateExecutor
 
-interface DocumentRepository : AbstractEntityRepository<Document>, QuerydslPredicateExecutor<Document> {
+interface DocumentRepository : AbstractEntityRepository<Document>, DocumentRepositoryExt {
+    fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): Document?
+}
 
-    fun findByIdAndWorkspace(id: Long, workspace: Workspace): Document?
-
+interface DocumentRepositoryExt {
+    fun findValidIds(ids: Collection<Long>, workspaceId: Long): Collection<Long>
 }

@@ -4,11 +4,11 @@ import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.orangebuffalo.simpleaccounting.*
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.AbstractThrowableAssert
 import org.assertj.core.api.Assertions.assertThatCode
@@ -16,15 +16,11 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.Duration
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SimpleAccountingIntegrationTest
 @DisplayName("WorkspaceService ")
 internal class WorkspaceServiceIT(
     @Autowired val workspaceService: WorkspaceService
@@ -320,11 +316,20 @@ internal class WorkspaceServiceIT(
             fryWorkspace, farnsworthWorkspace,
             validTokenForFarnsworthWorkspace,
             validTokenForFryWorkspace,
-            SavedWorkspaceAccessToken(owner = farnsworth, workspaceAccessToken = validTokenForFryWorkspace),
+            SavedWorkspaceAccessToken(
+                ownerId = farnsworth.id!!,
+                workspaceAccessTokenId = validTokenForFryWorkspace.id!!
+            ),
             expiredTokenForFryWorkspace,
-            SavedWorkspaceAccessToken(owner = roberto, workspaceAccessToken = expiredTokenForFryWorkspace),
+            SavedWorkspaceAccessToken(
+                ownerId = roberto.id!!,
+                workspaceAccessTokenId = expiredTokenForFryWorkspace.id!!
+            ),
             revokedTokenForFryWorkspace,
-            SavedWorkspaceAccessToken(owner = mafiaBot, workspaceAccessToken = revokedTokenForFryWorkspace)
+            SavedWorkspaceAccessToken(
+                ownerId = mafiaBot.id!!,
+                workspaceAccessTokenId = revokedTokenForFryWorkspace.id!!
+            )
         )
     }
 }

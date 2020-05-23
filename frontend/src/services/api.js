@@ -2,6 +2,7 @@ import axios from 'axios';
 import qs from 'qs';
 import jwtDecode from 'jwt-decode';
 import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
+import pageRequest from './api-filtering';
 
 const { CancelToken } = axios;
 
@@ -160,78 +161,7 @@ api.isCancel = function isCancel(e) {
   return axios.isCancel(e);
 };
 
-api.pageRequest = function pageRequest(uri) {
-  let limit = 10;
-  let page = 1;
-  let customConfig = {};
-  let filters = {};
-
-  const addFilter = (property, value, operator) => {
-    if (value != null) {
-      const filter = {};
-
-      if (value instanceof Array) {
-        filter[property] = value.map((item) => {
-          const itemFilter = {};
-          itemFilter[operator] = item;
-          return itemFilter;
-        });
-      } else {
-        filter[property] = {};
-        filter[property][operator] = value;
-      }
-
-      filters = { ...filters, ...filter };
-    }
-  };
-
-  return {
-    limit(value) {
-      limit = value;
-      return this;
-    },
-
-    eager() {
-      // we still want to limit the data amount with some reasonable number
-      return this.limit(100);
-    },
-
-    page(value) {
-      page = value;
-      return this;
-    },
-
-    config(value) {
-      customConfig = value;
-      return this;
-    },
-
-    eqFilter(property, value) {
-      addFilter(property, value, 'eq');
-      return this;
-    },
-
-    get() {
-      const params = {
-        limit,
-        page,
-        ...filters,
-      };
-      const config = { params, ...customConfig };
-      return api.get(uri, config);
-    },
-
-    getPage() {
-      return this.get()
-        .then((response) => response.data);
-    },
-
-    getPageData() {
-      return this.getPage()
-        .then((pageResponse) => pageResponse.data);
-    },
-  };
-};
+api.pageRequest = pageRequest.bind(api);
 
 api.dateToString = function dateToString(date) {
   return `${date.getFullYear()}-${

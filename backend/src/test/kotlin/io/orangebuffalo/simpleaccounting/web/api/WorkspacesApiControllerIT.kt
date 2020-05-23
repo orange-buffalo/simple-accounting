@@ -1,34 +1,24 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.*
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 @DisplayName("Workspaces API ")
 internal class WorkspacesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val workspaceRepo: WorkspaceRepository,
-    @Autowired val dbHelper: DbHelper
+    @Autowired val client: WebTestClient
 ) {
 
     @MockBean
@@ -107,8 +97,6 @@ internal class WorkspacesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should create a new workspace`(testData: WorkspacesApiTestData) {
-        val workspaceId = dbHelper.getNextId()
-
         client.post()
             .uri("/api/workspaces")
             .sendJson(
@@ -124,7 +112,7 @@ internal class WorkspacesApiControllerIT(
                     json(
                         """{
                         name: "wp",
-                        id: $workspaceId,
+                        id: "#{json-unit.any-number}",
                         version: 0,
                         taxEnabled: false,
                         multiCurrencyEnabled: true,
@@ -134,11 +122,6 @@ internal class WorkspacesApiControllerIT(
                     )
                 )
             }
-
-        val newWorkspace = workspaceRepo.findById(workspaceId)
-        assertThat(newWorkspace).isPresent.hasValueSatisfying {
-            assertThat(it.owner).isEqualTo(testData.fry)
-        }
     }
 
     @Test
@@ -297,7 +280,7 @@ internal class WorkspacesApiControllerIT(
         val farnsworth = Prototypes.farnsworth()
         val zoidberg = Prototypes.zoidberg()
 
-        val fryWorkspace = Workspace(
+        val fryWorkspace = Prototypes.workspace(
             name = "Property of Philip J. Fry",
             owner = fry,
             taxEnabled = false,
@@ -305,7 +288,7 @@ internal class WorkspacesApiControllerIT(
             defaultCurrency = "USD"
         )
 
-        val farnsworthWorkspace = Workspace(
+        val farnsworthWorkspace = Prototypes.workspace(
             name = "Laboratory",
             owner = farnsworth,
             taxEnabled = false,
@@ -332,8 +315,8 @@ internal class WorkspacesApiControllerIT(
         )
 
         val farnsworthWorkspaceSavedForFry = SavedWorkspaceAccessToken(
-            owner = fry,
-            workspaceAccessToken = farnsworthWorkspaceAccessToken
+            ownerId = fry.id!!,
+            workspaceAccessTokenId = farnsworthWorkspaceAccessToken.id!!
         )
 
         val farnsworthWorkspaceAccessTokenExpired = Prototypes.workspaceAccessToken(
@@ -343,8 +326,8 @@ internal class WorkspacesApiControllerIT(
         )
 
         val farnsworthWorkspaceSavedForFryExpired = SavedWorkspaceAccessToken(
-            owner = fry,
-            workspaceAccessToken = farnsworthWorkspaceAccessTokenExpired
+            ownerId = fry.id!!,
+            workspaceAccessTokenId = farnsworthWorkspaceAccessTokenExpired.id!!
         )
 
         override fun generateData() = listOf(

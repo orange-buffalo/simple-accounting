@@ -1,25 +1,19 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.*
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 @DisplayName("Statistics API ")
 internal class StatisticsApiControllerIT(
     @Autowired val client: WebTestClient
@@ -234,7 +228,7 @@ internal class StatisticsApiControllerIT(
 
             // in range, lower boundary
             Prototypes.expense(
-                workspace = firstCategory.workspace,
+                workspace = workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 4, 10),
                 originalAmount = 100,
@@ -245,7 +239,7 @@ internal class StatisticsApiControllerIT(
             ),
             // out of range: -1 day
             Prototypes.expense(
-                workspace = firstCategory.workspace,
+                workspace = workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 4, 9),
                 convertedAmounts = Prototypes.amountsInDefaultCurrency(555),
@@ -256,7 +250,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range, upper boundary
             Prototypes.expense(
-                workspace = firstCategory.workspace,
+                workspace = workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 10, 1),
                 currency = "ZZH",
@@ -276,7 +270,7 @@ internal class StatisticsApiControllerIT(
             ),
             // out of range: +1 day
             Prototypes.expense(
-                workspace = firstCategory.workspace,
+                workspace = workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 10, 2),
                 convertedAmounts = Prototypes.amountsInDefaultCurrency(113),
@@ -287,7 +281,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range
             Prototypes.expense(
-                workspace = secondCategory.workspace,
+                workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 convertedAmounts = Prototypes.amountsInDefaultCurrency(10),
@@ -298,7 +292,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range
             Prototypes.expense(
-                workspace = secondCategory.workspace,
+                workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 7),
                 convertedAmounts = Prototypes.amountsInDefaultCurrency(10000),
@@ -309,7 +303,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range: pending
             Prototypes.expense(
-                workspace = secondCategory.workspace,
+                workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
@@ -321,7 +315,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range: pending
             Prototypes.expense(
-                workspace = secondCategory.workspace,
+                workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
@@ -333,7 +327,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range: pending
             Prototypes.expense(
-                workspace = secondCategory.workspace,
+                workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
@@ -345,7 +339,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range, but out of scope: another workspace
             Prototypes.expense(
-                workspace = irrelevantCategory.workspace,
+                workspace = irrelevantWorkspace,
                 category = irrelevantCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
@@ -357,7 +351,7 @@ internal class StatisticsApiControllerIT(
 
             // in range, but out of scope: another workspace
             Prototypes.income(
-                workspace = irrelevantCategory.workspace,
+                workspace = irrelevantWorkspace,
                 category = irrelevantCategory,
                 dateReceived = LocalDate.of(3010, 5, 23),
                 originalAmount = 177,
@@ -367,17 +361,17 @@ internal class StatisticsApiControllerIT(
             ),
             // out of range: -1 day
             Prototypes.income(
-                workspace = firstCategory.workspace,
+                workspace = workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 4, 20),
                 originalAmount = 166,
-                currency = firstCategory.workspace.defaultCurrency,
+                currency = workspace.defaultCurrency,
                 convertedAmounts = Prototypes.amountsInDefaultCurrency(166),
                 incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(166)
             ),
             // in range: lower boundary
             Prototypes.income(
-                workspace = firstCategory.workspace,
+                workspace = workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 4, 21),
                 originalAmount = 167,
@@ -396,7 +390,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range: upper boundary
             Prototypes.income(
-                workspace = firstCategory.workspace,
+                workspace = workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 9, 15),
                 originalAmount = 168,
@@ -407,17 +401,17 @@ internal class StatisticsApiControllerIT(
             ),
             // out of rage: +1 day
             Prototypes.income(
-                workspace = firstCategory.workspace,
+                workspace = workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 9, 16),
                 originalAmount = 177,
-                currency = firstCategory.workspace.defaultCurrency,
+                currency = workspace.defaultCurrency,
                 convertedAmounts = Prototypes.amountsInDefaultCurrency(177),
                 incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(177)
             ),
             // in range, pending
             Prototypes.income(
-                workspace = secondCategory.workspace,
+                workspace = workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 233,
@@ -428,7 +422,7 @@ internal class StatisticsApiControllerIT(
             ),
             // in range: pending
             Prototypes.income(
-                workspace = secondCategory.workspace,
+                workspace = workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 233,
@@ -440,11 +434,11 @@ internal class StatisticsApiControllerIT(
             ),
             // in range
             Prototypes.income(
-                workspace = secondCategory.workspace,
+                workspace = workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 1000,
-                currency = secondCategory.workspace.defaultCurrency,
+                currency = workspace.defaultCurrency,
                 convertedAmounts = Prototypes.amountsInDefaultCurrency(1000),
                 incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(1000)
             ),

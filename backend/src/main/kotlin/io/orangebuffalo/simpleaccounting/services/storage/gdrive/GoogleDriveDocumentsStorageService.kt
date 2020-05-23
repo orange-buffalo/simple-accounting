@@ -41,10 +41,12 @@ class GoogleDriveDocumentsStorageService(
 ) : DocumentsStorage {
 
     override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse {
-        val integration = withDbContext { repository.findByUser(workspace.owner) }
+        val workspaceOwner = userService.getUserByUserId(workspace.ownerId)
+
+        val integration = withDbContext { repository.findByUserId(workspaceOwner.id!!) }
             ?: throw StorageAuthorizationRequiredException()
 
-        val authorizedClient = getOAuth2AuthorizedClient(workspace.owner.userName)
+        val authorizedClient = getOAuth2AuthorizedClient(workspaceOwner.userName)
             ?: throw StorageAuthorizationRequiredException()
 
         val workspaceFolder = getOrCreateWorkspaceFolder(integration, workspace, authorizedClient)
@@ -55,7 +57,7 @@ class GoogleDriveDocumentsStorageService(
             mimeType = ""
         )
 
-        val newFile = uploadFileToDrive(file, fileMetadata, authorizedClient, workspace.owner.userName)
+        val newFile = uploadFileToDrive(file, fileMetadata, authorizedClient, workspaceOwner.userName)
 
         return StorageProviderResponse(
             newFile.id!!,
@@ -101,6 +103,8 @@ class GoogleDriveDocumentsStorageService(
         authorizedClient: OAuth2AuthorizedClient
     ): GDriveFile {
 
+        val workspaceOwner = userService.getUserByUserId(workspace.ownerId)
+
         val workspaceFolders = createWebClient()
             .get()
             .uri { builder ->
@@ -112,7 +116,7 @@ class GoogleDriveDocumentsStorageService(
                     .build()
             }
             .accept(MediaType.APPLICATION_JSON)
-            .exchangeAuthorized(authorizedClient, workspace.owner.userName) { errorJson ->
+            .exchangeAuthorized(authorizedClient, workspaceOwner.userName) { errorJson ->
                 "Error while retrieving workspace folder for ${integration.id}: $errorJson"
             }
             .bodyToMono(GDriveFiles::class.java)
@@ -134,7 +138,7 @@ class GoogleDriveDocumentsStorageService(
                     )
                 )
                 .accept(MediaType.APPLICATION_JSON)
-                .exchangeAuthorized(authorizedClient, workspace.owner.userName) { errorJson ->
+                .exchangeAuthorized(authorizedClient, workspaceOwner.userName) { errorJson ->
                     "Error while creating workspace folder for ${workspace.id}: $errorJson"
                 }
                 .bodyToMono(GDriveFile::class.java)
@@ -147,6 +151,7 @@ class GoogleDriveDocumentsStorageService(
     override fun getId(): String = "google-drive"
 
     override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flux<DataBuffer> {
+        val workspaceOwner = userService.getUserByUserId(workspace.ownerId)
         return createWebClient()
             .get()
             .uri { builder ->
@@ -155,7 +160,7 @@ class GoogleDriveDocumentsStorageService(
                     .build()
             }
             .accept(MediaType.APPLICATION_OCTET_STREAM)
-            .exchangeAuthorized(userName = workspace.owner.userName) { errorJson ->
+            .exchangeAuthorized(userName = workspaceOwner.userName) { errorJson ->
                 "Error while downloading $storageLocation: $errorJson"
             }
             .body(BodyExtractors.toDataBuffers())
@@ -168,6 +173,7 @@ class GoogleDriveDocumentsStorageService(
         integration: GoogleDriveStorageIntegration,
         authorizedClient: OAuth2AuthorizedClient? = null
     ): GDriveFile? {
+        val user = userService.getUserByUserId(integration.userId)
         return integration.folderId?.let {
             createWebClient()
                 .get()
@@ -177,7 +183,7 @@ class GoogleDriveDocumentsStorageService(
                         .build()
                 }
                 .accept(MediaType.APPLICATION_JSON)
-                .exchangeAuthorized(authorizedClient, integration.user.userName) { errorJson ->
+                .exchangeAuthorized(authorizedClient, user.userName) { errorJson ->
                     "Error while retrieving root folder for ${integration.id}: $errorJson"
                 }
                 .bodyToMono(GDriveFile::class.java)
@@ -192,8 +198,8 @@ class GoogleDriveDocumentsStorageService(
 
             val user = authSucceededEvent.user
             val integration = withDbContext {
-                repository.findByUser(user)
-                    ?: GoogleDriveStorageIntegration(user = user)
+                repository.findByUserId(user.id!!)
+                    ?: GoogleDriveStorageIntegration(userId = user.id!!)
             }
 
             val authorizedClient = oauthService.getOAuth2AuthorizedClient(OAUTH2_CLIENT_REGISTRATION_ID, user.userName)
@@ -206,7 +212,7 @@ class GoogleDriveDocumentsStorageService(
 
             pushNotificationService.sendPushNotification(
                 eventName = AUTH_EVENT_NAME,
-                user = integration.user,
+                userId = integration.userId,
                 data = GoogleDriveStorageIntegrationStatus(
                     folderId = rootFolder.id,
                     folderName = rootFolder.name
@@ -217,10 +223,10 @@ class GoogleDriveDocumentsStorageService(
     @EventListener
     fun onAuthFailure(authFailedEvent: AuthFailedEvent) = authFailedEvent
         .launchIfClientMatches(OAUTH2_CLIENT_REGISTRATION_ID) {
-            val user = authFailedEvent.user
+            val userId = authFailedEvent.userId
             pushNotificationService.sendPushNotification(
                 eventName = AUTH_EVENT_NAME,
-                user = user,
+                userId = userId,
                 data = GoogleDriveStorageIntegrationStatus()
             )
         }
@@ -234,6 +240,8 @@ class GoogleDriveDocumentsStorageService(
         } catch (e: DriveFileNotFoundException) {
             null
         }
+
+        val user = userService.getUserByUserId(integration.userId)
 
         return rooFolder ?: createWebClient()
             .post()
@@ -249,7 +257,7 @@ class GoogleDriveDocumentsStorageService(
                     parents = emptyList()
                 )
             )
-            .attributes(setupDriveAuthorization(authorizedClient, integration.user.userName))
+            .attributes(setupDriveAuthorization(authorizedClient, user.userName))
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .flatMap { it.bodyToMono(GDriveFile::class.java) }
@@ -260,14 +268,14 @@ class GoogleDriveDocumentsStorageService(
             }
     }
 
-    suspend fun getCurrentUserIntegrationStatus(): GoogleDriveStorageIntegrationStatus  {
+    suspend fun getCurrentUserIntegrationStatus(): GoogleDriveStorageIntegrationStatus {
         val authorizedClient = getOAuth2AuthorizedClient(ensureRegularUserPrincipal().userName)
             ?: return GoogleDriveStorageIntegrationStatus(authorizationUrl = buildAuthorizationUrl())
 
         val currentUser = userService.getCurrentUser()
-        val integration = withDbContext { repository.findByUser(currentUser) }
+        val integration = withDbContext { repository.findByUserId(currentUser.id!!) }
             ?: withDbContext {
-                repository.save(GoogleDriveStorageIntegration(user = currentUser))
+                repository.save(GoogleDriveStorageIntegration(userId = currentUser.id!!))
             }
 
         val rootFolder = try {

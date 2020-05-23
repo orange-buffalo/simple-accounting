@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContextAsync
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
@@ -11,7 +12,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.repos.WorkspaceRep
 import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
-import io.orangebuffalo.simpleaccounting.web.api.integration.EntityNotFoundException
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,60 +20,64 @@ class WorkspaceService(
     private val workspaceRepository: WorkspaceRepository,
     private val workspaceAccessTokenRepository: WorkspaceAccessTokenRepository,
     private val savedWorkspaceAccessTokenRepository: SavedWorkspaceAccessTokenRepository,
-    private val platformUserService: PlatformUserService,
-    private val timeService: TimeService
+    private val platformUserService: PlatformUserService
 ) {
 
-    suspend fun getUserWorkspaces(userName: String): List<Workspace> =
-        withDbContext {
-            workspaceRepository.findAllByOwnerUserName(userName)
-        }
+    suspend fun getUserWorkspaces(userName: String): List<Workspace> = withDbContext {
+        workspaceRepository.findAllByOwnerUserName(userName)
+    }
 
-    suspend fun createWorkspace(workspace: Workspace): Workspace =
-        withDbContext {
-            workspaceRepository.save(workspace)
-        }
+    suspend fun createWorkspace(workspace: Workspace): Workspace = withDbContext {
+        workspaceRepository.save(workspace)
+    }
 
-    suspend fun save(workspace: Workspace) =
-        withDbContext {
-            workspaceRepository.save(workspace)
-        }
+    suspend fun save(workspace: Workspace) = withDbContext {
+        workspaceRepository.save(workspace)
+    }
 
-    suspend fun saveSharedWorkspace(token: String): Workspace =
-        withDbContext {
-            val accessToken = getValidWorkspaceAccessToken(token)
-            val currentUser = platformUserService.getCurrentUser()
-            val savedWorkspaceAccessToken = savedWorkspaceAccessTokenRepository.findByWorkspaceAccessTokenAndOwner(
-                accessToken, currentUser
+    suspend fun saveSharedWorkspace(token: String): Workspace = withDbContext {
+        val accessToken = getValidWorkspaceAccessToken(token)
+        val currentUser = platformUserService.getCurrentUser()
+        val savedWorkspaceAccessToken = savedWorkspaceAccessTokenRepository.findByWorkspaceAccessTokenIdAndOwnerId(
+            accessToken.id!!, currentUser.id!!
+        )
+
+        if (savedWorkspaceAccessToken == null) {
+            savedWorkspaceAccessTokenRepository.save(
+                SavedWorkspaceAccessToken(
+                    workspaceAccessTokenId = accessToken.id!!,
+                    ownerId = currentUser.id!!
+                )
             )
-
-            if (savedWorkspaceAccessToken == null) {
-                savedWorkspaceAccessTokenRepository.save(
-                    SavedWorkspaceAccessToken(
-                        workspaceAccessToken = accessToken,
-                        owner = currentUser
-                    )
-                )
-            }
-
-            accessToken.workspace
         }
 
-    suspend fun getValidWorkspaceAccessToken(token: String): WorkspaceAccessToken =
-        withDbContext {
-            workspaceAccessTokenRepository.findValidByToken(token, timeService.currentTime())
-                ?: throw InvalidWorkspaceAccessTokenException(token)
-        }
+        workspaceRepository.findByIdOrNull(accessToken.workspaceId)
+            ?: throw EntityNotFoundException("Workspace is not found for $token")
+    }
 
-    suspend fun getSharedWorkspaces(): List<Workspace> =
-        withDbContext {
-            savedWorkspaceAccessTokenRepository
-                .findAllValidByOwner(
-                    ensureRegularUserPrincipal().userName,
-                    timeService.currentTime()
-                )
-                .map { it.workspaceAccessToken.workspace }
-        }
+    suspend fun getValidWorkspaceAccessToken(token: String): WorkspaceAccessToken = withDbContext {
+        workspaceAccessTokenRepository.findValidByToken(token)
+            ?: throw InvalidWorkspaceAccessTokenException(token)
+    }
+
+    suspend fun getWorkspaceByValidAccessToken(token: String): Workspace = withDbContext {
+        workspaceAccessTokenRepository.findWorkspaceByValidToken(token)
+            ?: throw InvalidWorkspaceAccessTokenException(token)
+    }
+
+    suspend fun getSharedWorkspaces(): List<Workspace> = withDbContext {
+        savedWorkspaceAccessTokenRepository
+            .findWorkspacesByValidTokenOwner(
+                ensureRegularUserPrincipal().userName
+            )
+    }
+
+    suspend fun validateWorkspaceAccess(
+        workspaceId: Long,
+        accessMode: WorkspaceAccessMode
+    ) {
+        getAccessibleWorkspace(workspaceId, accessMode)
+    }
 
     suspend fun getAccessibleWorkspace(
         workspaceId: Long,
@@ -99,10 +104,10 @@ class WorkspaceService(
 
         val sharedWorkspace = if (accessMode == WorkspaceAccessMode.READ_ONLY) {
             withDbContext {
-                savedWorkspaceAccessTokenRepository.findValidByOwnerAndWorkspaceWithFetchedWorkspace(
-                    currentPrincipal.userName, workspaceId, timeService.currentTime()
+                savedWorkspaceAccessTokenRepository.findWorkspaceByValidTokenOwnerAndId(
+                    currentPrincipal.userName, workspaceId
                 )
-            }?.workspaceAccessToken?.workspace
+            }
         } else null
 
         return ownWorkspaceAsync.await()
@@ -121,12 +126,16 @@ class WorkspaceService(
 
         return withDbContext {
             workspaceAccessTokenRepository
-                .findValidByTokenAndWorkspaceWithFetchedWorkspace(
-                    currentPrincipal.userName, timeService.currentTime(), workspaceId
+                .findWorkspaceByValidToken(
+                    currentPrincipal.userName, workspaceId
                 )
-                ?.workspace
                 ?: throw EntityNotFoundException("Workspace $workspaceId is not found")
         }
+    }
+
+    suspend fun getWorkspace(workspaceId: Long): Workspace = withDbContext {
+        workspaceRepository.findById(workspaceId)
+            .orElseThrow { EntityNotFoundException("Workspace $workspaceId is not found") }
     }
 }
 

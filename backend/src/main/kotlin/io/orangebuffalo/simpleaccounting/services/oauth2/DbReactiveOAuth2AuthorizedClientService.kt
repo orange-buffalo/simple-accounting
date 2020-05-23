@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.services.oauth2
 
 import io.orangebuffalo.simpleaccounting.services.integration.voidMono
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepository
 import kotlinx.coroutines.reactive.awaitSingle
@@ -37,7 +38,7 @@ class DbReactiveOAuth2AuthorizedClientService(
                         persistentClient.accessToken,
                         persistentClient.accessTokenIssuedAt,
                         persistentClient.accessTokenExpiresAt,
-                        persistentClient.accessTokenScopes.toSet()
+                        persistentClient.accessTokenScopes.map { it.scope }.toSet()
                     ),
                     persistentClient.refreshToken?.let {
                         OAuth2RefreshToken(
@@ -73,14 +74,14 @@ class DbReactiveOAuth2AuthorizedClientService(
                         accessTokenIssuedAt = accessToken.issuedAt,
                         refreshToken = refreshToken?.tokenValue,
                         refreshTokenIssuedAt = refreshToken?.issuedAt,
-                        accessTokenScopes = accessToken.scopes
+                        accessTokenScopes = accessToken.scopes.map { ClientTokenScope(it) }.toSet()
                     )
                 )
             } else {
                 existingClient.accessToken = accessToken.tokenValue
                 existingClient.accessTokenExpiresAt = accessToken.expiresAt
                 existingClient.accessTokenIssuedAt = accessToken.issuedAt
-                existingClient.accessTokenScopes = accessToken.scopes
+                existingClient.accessTokenScopes = accessToken.scopes.map { ClientTokenScope(it) }.toSet()
                 if (refreshToken != null) {
                     existingClient.refreshToken = refreshToken.tokenValue
                     existingClient.refreshTokenIssuedAt = refreshToken.issuedAt

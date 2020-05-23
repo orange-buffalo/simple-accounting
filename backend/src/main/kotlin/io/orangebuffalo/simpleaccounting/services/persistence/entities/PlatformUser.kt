@@ -1,25 +1,26 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities
 
+import org.springframework.data.relational.core.mapping.Embedded
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
-import javax.persistence.Column
-import javax.persistence.Embeddable
-import javax.persistence.Embedded
-import javax.persistence.Entity
 
-@Entity
+@Table
 class PlatformUser(
-    @field:Column(nullable = false) var userName: String,
-    @field:Column(nullable = false) var passwordHash: String,
-    @field:Column(nullable = false) var isAdmin: Boolean,
-    @field:Column var documentsStorage: String? = null,
-    @field:Embedded val loginStatistics: LoginStatistics = LoginStatistics(0, null),
-    @field:Embedded val i18nSettings: I18nSettings
+    var userName: String,
+    var passwordHash: String,
+    var isAdmin: Boolean,
+    var documentsStorage: String? = null,
+
+    @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY)
+    val loginStatistics: LoginStatistics = LoginStatistics(0, null),
+
+    @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY)
+    val i18nSettings: I18nSettings
 ) : AbstractEntity()
 
-@Embeddable
 data class LoginStatistics(
-    @field:Column(nullable = false) var failedAttemptsCount: Int,
-    @field:Column var temporaryLockExpirationTime: Instant?
+    var failedAttemptsCount: Int,
+    var temporaryLockExpirationTime: Instant?
 ) {
 
     fun reset() {
@@ -28,8 +29,7 @@ data class LoginStatistics(
     }
 }
 
-@Embeddable
 data class I18nSettings(
-    @field:Column(nullable = false, length = 36) var locale: String,
-    @field:Column(nullable = false, length = 36) var language: String
+    var locale: String,
+    var language: String
 )

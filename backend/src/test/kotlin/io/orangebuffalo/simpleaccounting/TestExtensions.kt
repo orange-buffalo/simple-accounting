@@ -8,8 +8,6 @@ import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.http.MediaType
-import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.stereotype.Component
 import org.springframework.test.web.reactive.server.KotlinBodySpec
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -46,16 +44,20 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
         .expectStatus().isOk
         .expectThatJsonBody(spec)
 
+fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
+    spec: (body: String) -> Unit
+): KotlinBodySpec<String> =
+    exchange()
+        .expectStatus().isOk
+        .expectBody<String>()
+        .consumeWith { response ->
+            val body = response.responseBody
+            assertThat(body).isNotBlank()
+            spec(body!!)
+        }
+
 fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
     contentType(MediaType.APPLICATION_JSON).bodyValue(json)
-
-@Component
-class DbHelper(private val jdbcTemplate: JdbcTemplate) {
-
-    fun getNextId() = jdbcTemplate
-        .queryForObject("select nextval('hibernate_sequence')", Long::class.java)!! + 1
-
-}
 
 val MOCK_TIME: Instant = ZonedDateTime.of(1999, 3, 28, 18, 1, 2, 42000000, ZoneId.of("America/New_York")).toInstant()
 const val MOCK_TIME_VALUE = "1999-03-28T23:01:02.042Z"

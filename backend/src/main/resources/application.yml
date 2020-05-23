@@ -80,3 +80,20 @@ spring:
             client-id: "noop"
             client-secret: "noop"
             redirect-uri: "http://ci-tests/noop"
+
+---
+
+spring:
+  profiles: load-tests
+
+  datasource:
+    url: jdbc:h2:/tmp/sa-load-tests
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google-drive:
+            client-id: "noop"
+            client-secret: "noop"
+            redirect-uri: "http://ci-tests/noop"

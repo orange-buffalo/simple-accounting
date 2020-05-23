@@ -1,31 +1,20 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.*
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Category
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.CategoryRepository
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 @DisplayName("Categories API ")
 internal class CategoriesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val categoryRepository: CategoryRepository,
-    @Autowired val dbHelper: DbHelper
+    @Autowired val client: WebTestClient
 ) {
 
     @Test
@@ -87,8 +76,6 @@ internal class CategoriesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should add a new category to the workspace`(testData: CategoriesApiTestData) {
-        val categoryId = dbHelper.getNextId()
-
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
             .sendJson(
@@ -104,7 +91,7 @@ internal class CategoriesApiControllerIT(
                     json(
                         """{
                         name: "1990s stuff",
-                        id: $categoryId,
+                        id: "#{json-unit.any-number}",
                         version: 0,
                         description: "Stuff from the best time",
                         income: false,
@@ -113,11 +100,6 @@ internal class CategoriesApiControllerIT(
                     )
                 )
             }
-
-        val newCategory = categoryRepository.findById(categoryId)
-        assertThat(newCategory).isPresent.hasValueSatisfying {
-            assertThat(it.workspace).isEqualTo(testData.fryWorkspace)
-        }
     }
 
     @Test
@@ -143,32 +125,17 @@ internal class CategoriesApiControllerIT(
     class CategoriesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
-
-        val fryWorkspace = Workspace(
-            name = "Property of Philip J. Fry",
-            owner = fry,
-            taxEnabled = false,
-            multiCurrencyEnabled = false,
-            defaultCurrency = "USD"
-        )
-
-        val slurmCategory = Category(
+        val fryWorkspace = Prototypes.workspace(owner = fry)
+        val farnsworthWorkspace = Prototypes.workspace(owner = farnsworth)
+        val slurmCategory = Prototypes.category(
             name = "Slurm", workspace = fryWorkspace, description = "..", income = false, expense = true
         )
-        val planetExpressCategory = Category(
+        val planetExpressCategory = Prototypes.category(
             name = "PlanetExpress",
             workspace = fryWorkspace,
             description = "...",
             income = true,
             expense = false
-        )
-
-        val farnsworthWorkspace = Workspace(
-            name = "Laboratory",
-            owner = farnsworth,
-            taxEnabled = false,
-            multiCurrencyEnabled = false,
-            defaultCurrency = "USD"
         )
 
         override fun generateData() = listOf(

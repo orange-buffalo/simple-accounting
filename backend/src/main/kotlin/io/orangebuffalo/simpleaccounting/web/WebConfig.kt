@@ -4,14 +4,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import io.orangebuffalo.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
-import io.orangebuffalo.simpleaccounting.web.api.integration.ApiPageRequestResolver
-import io.orangebuffalo.simpleaccounting.web.api.integration.PageableApiDescriptorResolver
 import io.orangebuffalo.simpleaccounting.web.ui.SpaWebFilter
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.ReactiveAdapterRegistry
 import org.springframework.http.CacheControl
 import org.springframework.http.HttpStatus
 import org.springframework.http.codec.ServerCodecConfigurer
@@ -32,22 +28,12 @@ import org.springframework.security.web.server.util.matcher.NegatedServerWebExch
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
-import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer
 import reactor.core.publisher.Mono
 import java.util.concurrent.TimeUnit
 
 @Configuration
 @EnableWebFluxSecurity
-class WebConfig(
-    @Autowired(required = false) private val adapterRegistry: ReactiveAdapterRegistry = ReactiveAdapterRegistry()
-) : WebFluxConfigurer {
-
-    @field:Autowired
-    private lateinit var pageableApiDescriptorResolver: PageableApiDescriptorResolver
-
-    override fun configureArgumentResolvers(configurer: ArgumentResolverConfigurer) {
-        configurer.addCustomResolver(ApiPageRequestResolver(adapterRegistry, pageableApiDescriptorResolver))
-    }
+class WebConfig : WebFluxConfigurer {
 
     override fun configureHttpMessageCodecs(configurer: ServerCodecConfigurer) {
         val objectMapper = Jackson2ObjectMapperBuilder()

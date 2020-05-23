@@ -14,11 +14,11 @@ plugins {
     kotlin("jvm") version Versions.kotlin
     kotlin("kapt") version Versions.kotlin
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlin
-    id("org.jetbrains.kotlin.plugin.jpa") version Versions.kotlin
     id("org.springframework.boot") version Versions.springBoot
+    id("io.spring.dependency-management") version Versions.springDependencyManagement
 }
 
-apply(plugin = "io.spring.dependency-management")
+apply<SaJooqCodeGenPlugin>()
 
 repositories {
     mavenCentral()
@@ -26,8 +26,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.security:spring-security-oauth2-client")
 
@@ -38,12 +39,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${Versions.kotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${Versions.kotlinCoroutines}")
+    implementation("org.jooq:jooq:${Versions.jooq}")
 
     implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
-    implementation("com.querydsl:querydsl-jpa:${Versions.queryDsl}")
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
 
-    kapt("com.querydsl:querydsl-apt:${Versions.queryDsl}:jpa")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")
@@ -62,6 +62,7 @@ dependencies {
     testImplementation("com.nhaarman:mockito-kotlin:${Versions.mockitoKotlin}")
     testImplementation("org.mockito:mockito-junit-jupiter:${Versions.mockito}")
     testImplementation("org.flywaydb:flyway-core")
+    testImplementation("com.google.guava:guava:${Versions.guava}")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")

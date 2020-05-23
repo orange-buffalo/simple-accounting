@@ -4,6 +4,8 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import java.time.Instant
 import java.time.LocalDate
 
+internal var currentEntityId: Long = Long.MIN_VALUE
+
 class Prototypes {
     companion object {
         fun fry() = platformUser(
@@ -54,23 +56,27 @@ class Prototypes {
             isAdmin = isAdmin,
             documentsStorage = documentsStorage,
             i18nSettings = i18nSettings
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun workspace(
             name: String = "Planet Express",
             owner: PlatformUser = platformUser(),
             taxEnabled: Boolean = true,
             multiCurrencyEnabled: Boolean = true,
-            defaultCurrency: String = "USD",
-            categories: MutableList<Category> = ArrayList()
+            defaultCurrency: String = "USD"
         ) = Workspace(
             name = name,
-            owner = owner,
+            ownerId = owner.id!!,
             taxEnabled = taxEnabled,
             multiCurrencyEnabled = multiCurrencyEnabled,
-            defaultCurrency = defaultCurrency,
-            categories = categories
-        )
+            defaultCurrency = defaultCurrency
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun generalTax(
             title: String = "Tax",
@@ -79,10 +85,13 @@ class Prototypes {
             workspace: Workspace = workspace()
         ) = GeneralTax(
             title = title,
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             rateInBps = rateInBps,
             description = description
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun category(
             name: String = "Delivery",
@@ -92,17 +101,19 @@ class Prototypes {
             expense: Boolean = true
         ) = Category(
             name = name,
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             income = income,
             expense = expense,
             description = description
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun expense(
             category: Category? = null,
             workspace: Workspace = workspace(),
             title: String = "Expense",
-
             timeRecorded: Instant = MOCK_TIME,
             datePaid: LocalDate = MOCK_DATE,
             currency: String = "USD",
@@ -118,8 +129,8 @@ class Prototypes {
             notes: String? = null,
             status: ExpenseStatus = ExpenseStatus.FINALIZED
         ) = Expense(
-            workspace = workspace,
-            category = category,
+            workspaceId = workspace.id!!,
+            categoryId = category?.id,
             title = title,
             datePaid = datePaid,
             timeRecorded = timeRecorded,
@@ -129,13 +140,16 @@ class Prototypes {
             incomeTaxableAmounts = incomeTaxableAmounts,
             useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
             percentOnBusiness = percentOnBusiness,
-            generalTax = generalTax,
-            attachments = attachments,
+            generalTaxId = generalTax?.id,
+            attachments = attachments.asSequence().map { ExpenseAttachment(it.id!!) }.toSet(),
             generalTaxAmount = generalTaxAmount,
             generalTaxRateInBps = generalTaxRateInBps,
             notes = notes,
             status = status
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun income(
             category: Category? = null,
@@ -155,23 +169,26 @@ class Prototypes {
             generalTaxAmount: Long? = null,
             status: IncomeStatus = IncomeStatus.FINALIZED
         ) = Income(
-            category = category,
-            workspace = workspace,
+            categoryId = category?.id,
+            workspaceId = workspace.id!!,
             generalTaxAmount = generalTaxAmount,
             convertedAmounts = convertedAmounts,
             useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
             incomeTaxableAmounts = incomeTaxableAmounts,
             status = status,
-            generalTax = generalTax,
+            generalTaxId = generalTax?.id,
             notes = notes,
             generalTaxRateInBps = generalTaxRateInBps,
-            attachments = attachments,
+            attachments = attachments.asSequence().map { document -> IncomeAttachment(document.id!!) }.toSet(),
             currency = currency,
             dateReceived = dateReceived,
             originalAmount = originalAmount,
             timeRecorded = timeRecorded,
             title = title
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun document(
             name: String = "Slurm Receipt",
@@ -182,12 +199,15 @@ class Prototypes {
             sizeInBytes: Long? = null
         ): Document = Document(
             name = name,
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             storageProviderId = storageProviderId,
             storageProviderLocation = storageProviderLocation,
             timeUploaded = timeUploaded,
             sizeInBytes = sizeInBytes
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun incomeTaxPayment(
             workspace: Workspace = workspace(),
@@ -199,23 +219,29 @@ class Prototypes {
             attachments: Set<Document> = setOf(),
             notes: String? = null
         ): IncomeTaxPayment = IncomeTaxPayment(
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             timeRecorded = timeRecorded,
             datePaid = datePaid,
             reportingDate = reportingDate,
             amount = amount,
             title = title,
-            attachments = attachments,
+            attachments = attachments.asSequence().map { IncomeTaxPaymentAttachment(it.id!!) }.toSet(),
             notes = notes
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun customer(
             name: String = "customer",
             workspace: Workspace = workspace()
         ): Customer = Customer(
             name = name,
-            workspace = workspace
-        )
+            workspaceId = workspace.id!!
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun invoice(
             income: Income? = null,
@@ -233,8 +259,8 @@ class Prototypes {
             notes: String? = null,
             generalTax: GeneralTax? = null
         ): Invoice = Invoice(
-            income = income,
-            customer = customer,
+            incomeId = income?.id,
+            customerId = customer.id!!,
             title = title,
             timeRecorded = timeRecorded,
             dateIssued = dateIssued,
@@ -244,10 +270,13 @@ class Prototypes {
             dueDate = dueDate,
             currency = currency,
             amount = amount,
-            attachments = attachments,
+            attachments = attachments.asSequence().map { document -> InvoiceAttachment(document.id!!) }.toSet(),
             notes = notes,
-            generalTax = generalTax
-        )
+            generalTaxId = generalTax?.id
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun workspaceAccessToken(
             workspace: Workspace = workspace(),
@@ -256,12 +285,15 @@ class Prototypes {
             revoked: Boolean = false,
             token: String = "token"
         ): WorkspaceAccessToken = WorkspaceAccessToken(
-            workspace = workspace,
+            workspaceId = workspace.id!!,
             timeCreated = timeCreated,
             validTill = validTill,
             revoked = revoked,
             token = token
-        )
+        ).apply {
+            id = currentEntityId++
+            version = 0
+        }
 
         fun amountsInDefaultCurrency(
             amount: Long

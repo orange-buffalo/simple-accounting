@@ -3,8 +3,8 @@ package io.orangebuffalo.simpleaccounting.web.api
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.assertNextJsonIs
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -12,19 +12,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.test.StepVerifier
 import java.time.Duration
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 @DisplayName("Push Notifications API ")
 class PushNotificationsApiControllerIT(
     @Autowired val client: WebTestClient,
@@ -125,11 +119,11 @@ class PushNotificationsApiControllerIT(
             )
 
             pushNotificationService.sendPushNotification(
-                user = testData.fry, eventName = "watch-tv"
+                userId = testData.fry.id!!, eventName = "watch-tv"
             )
 
             pushNotificationService.sendPushNotification(
-                user = testData.bender, eventName = "kill-all-humans"
+                userId = testData.bender.id!!, eventName = "kill-all-humans"
             )
 
             pushNotificationService.sendPushNotification(

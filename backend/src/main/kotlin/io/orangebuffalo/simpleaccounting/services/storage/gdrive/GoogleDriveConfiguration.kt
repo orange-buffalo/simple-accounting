@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.services.storage.gdrive
 
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories
 
 @Configuration
-@EnableJpaRepositories
+@EnableJdbcRepositories
 class GoogleDriveConfiguration

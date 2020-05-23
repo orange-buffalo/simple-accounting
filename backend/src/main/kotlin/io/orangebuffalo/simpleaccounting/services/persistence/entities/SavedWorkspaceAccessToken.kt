@@ -1,19 +1,9 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities
 
-import javax.persistence.Entity
-import javax.persistence.ForeignKey
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
+import org.springframework.data.relational.core.mapping.Table
 
-@Entity
+@Table
 class SavedWorkspaceAccessToken(
-
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "saved_ws_access_token_ws_access_token_fk"))
-    var workspaceAccessToken: WorkspaceAccessToken,
-
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "saved_ws_access_token_owner_fk"))
-    var owner: PlatformUser
-
+    var workspaceAccessTokenId: Long,
+    var ownerId: Long
 ) : AbstractEntity()

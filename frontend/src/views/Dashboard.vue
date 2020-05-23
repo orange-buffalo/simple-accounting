@@ -348,7 +348,7 @@
 
         api.pageRequest(`/workspaces/${this.currentWorkspace.id}/invoices`)
           .eager()
-          .eqFilter('status', ['SENT', 'OVERDUE'])
+          .inFilter('status', ['SENT', 'OVERDUE'])
           .getPageData()
           .then(invoices => this.pendingInvoices = invoices);
       },

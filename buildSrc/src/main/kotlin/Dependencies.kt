@@ -1,12 +1,14 @@
 object Versions {
-    const val springBoot = "2.2.5.RELEASE"
+    const val springBoot = "2.3.0.RELEASE"
+    const val springDependencyManagement = "1.0.9.RELEASE"
     const val kotlin = "1.3.70"
     const val kotlinCoroutines = "1.3.4"
     const val kotlinLogging = "1.7.8"
     const val arrow = "0.10.4"
     const val jjwt = "0.11.0"
-    const val queryDsl = "4.2.2"
     const val javaxEl = "3.0.1-b11"
+    const val guava = "28.2-jre"
+    const val jooq = "3.13.1"
 
     const val assertk = "0.20"
     const val mockito = "3.3.1"

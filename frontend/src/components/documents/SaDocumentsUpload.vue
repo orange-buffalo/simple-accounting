@@ -92,7 +92,7 @@
           try {
             const documents = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
               .eager()
-              .eqFilter('id', this.documentsIds)
+              .inFilter('id', this.documentsIds)
               .getPageData();
 
             this.documentsAggregates = documents.map(it => ({

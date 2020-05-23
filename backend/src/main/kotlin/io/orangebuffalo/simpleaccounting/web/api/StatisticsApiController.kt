@@ -21,8 +21,8 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): IncomesExpensesStatisticsDto {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspace)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspaceId)
         return IncomesExpensesStatisticsDto(
             expensesStatistics.map {
                 IncomeExpensesStatisticsItemDto(
@@ -42,8 +42,8 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): IncomesExpensesStatisticsDto {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val incomesStatistics = incomeService.getIncomesStatistics(fromDate, toDate, workspace)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val incomesStatistics = incomeService.getIncomesStatistics(fromDate, toDate, workspaceId)
         return IncomesExpensesStatisticsDto(
             incomesStatistics.map {
                 IncomeExpensesStatisticsItemDto(
@@ -63,8 +63,8 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): IncomeTaxPaymentsStatisticsDto {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val incomeTaxPaymentsStatistics = incomeTaxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspace)
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val incomeTaxPaymentsStatistics = incomeTaxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspaceId)
         return IncomeTaxPaymentsStatisticsDto(
             incomeTaxPaymentsStatistics.totalTaxPayments
         )

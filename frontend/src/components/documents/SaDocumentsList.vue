@@ -54,7 +54,7 @@
           try {
             documents.value = await api.pageRequest(currentWorkspaceApiUrl('documents'))
               .eager()
-              .eqFilter('id', documentsIds)
+              .inFilter('id', documentsIds)
               .config({
                 cancelToken: cancelToken.token,
               })

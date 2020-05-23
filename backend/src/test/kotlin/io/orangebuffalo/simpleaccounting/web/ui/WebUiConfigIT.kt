@@ -1,23 +1,16 @@
 package io.orangebuffalo.simpleaccounting.web.ui
 
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.CacheControl
 import org.springframework.http.MediaType.TEXT_HTML
-import org.springframework.test.context.TestPropertySource
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
 
-@ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
-@TestPropertySource(properties = ["logging.level.web=TRACE"])
+@SimpleAccountingIntegrationTest
 internal class WebUiConfigIT(
     @Autowired val client: WebTestClient
 ) {

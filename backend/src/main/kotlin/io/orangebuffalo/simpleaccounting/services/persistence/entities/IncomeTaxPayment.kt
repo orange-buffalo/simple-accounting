@@ -1,41 +1,28 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.entities
 
+import org.springframework.data.relational.core.mapping.MappedCollection
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 import java.time.LocalDate
-import javax.persistence.*
 
-@Entity
+@Table
 class IncomeTaxPayment(
 
-    @field:ManyToOne(optional = false)
-    @field:JoinColumn(nullable = false, foreignKey = ForeignKey(name = "income_tax_payment_workspace_fk"))
-    var workspace: Workspace,
-
-    @field:Column(nullable = false)
-    val timeRecorded: Instant,
-
-    @field:Column(nullable = false)
+    var workspaceId: Long,
+    var timeRecorded: Instant,
     var datePaid: LocalDate,
-
-    @field:Column(nullable = false)
     var reportingDate: LocalDate,
-
-    @field:Column(nullable = false)
     var amount: Long,
-
-    @field:Column(nullable = false, length = 255)
     var title: String,
 
-    @field:ManyToMany(fetch = FetchType.EAGER)
-    @field:JoinTable(
-        name = "income_tax_payment_attachments",
-        foreignKey = ForeignKey(name = "income_tax_payment_attachments_tax_payment_fk"),
-        inverseForeignKey = ForeignKey(name = "income_tax_payment_attachments_document_fk"),
-        inverseJoinColumns = [JoinColumn(name = "document_id")]
-    )
-    var attachments: Set<Document> = setOf(),
+    @field:MappedCollection(idColumn = "INCOME_TAX_PAYMENT_ID")
+    var attachments: Set<IncomeTaxPaymentAttachment> = setOf(),
 
-    @field:Column(length = 1024)
     var notes: String? = null
 
 ) : AbstractEntity()
+
+@Table("INCOME_TAX_PAYMENT_ATTACHMENTS")
+data class IncomeTaxPaymentAttachment(
+    val documentId: Long
+)

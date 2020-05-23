@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
 import com.nhaarman.mockito_kotlin.doAnswer
+import com.nhaarman.mockito_kotlin.doReturn
 import com.nhaarman.mockito_kotlin.whenever
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
@@ -10,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTa
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpenseRepository
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -18,7 +19,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import javax.persistence.EntityManagerFactory
 
 @ExtendWith(MockitoExtension::class)
 @DisplayName("ExpenseService")
@@ -28,7 +28,16 @@ internal class ExpenseServiceTest {
     private lateinit var expenseRepository: ExpenseRepository
 
     @field:Mock
-    private lateinit var entityManagerFactory: EntityManagerFactory
+    private lateinit var workspaceService: WorkspaceService
+
+    @field:Mock
+    private lateinit var generalTaxService: GeneralTaxService
+
+    @field:Mock
+    private lateinit var categoryService: CategoryService
+
+    @field:Mock
+    private lateinit var documentsService: DocumentsService
 
     @field:InjectMocks
     private lateinit var expenseService: ExpenseService
@@ -36,65 +45,25 @@ internal class ExpenseServiceTest {
     private val workspace = Prototypes.workspace()
     private val generalTaxFromWorkspace = Prototypes.generalTax(workspace = workspace, rateInBps = 10_00)
 
-    @Test
-    fun `should fail on expense validation if expense is in default currency and converted amount differs`() {
-        val expense = Prototypes.expense(
-            currency = workspace.defaultCurrency,
-            originalAmount = 200,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(199)
-        )
-        assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
-            .hasMessage("Inconsistent expense: converted amount does not match original for default currency")
+    @BeforeEach
+    fun setup() {
+        runBlocking {
+            whenever(
+                workspaceService.getAccessibleWorkspace(
+                    workspace.id!!,
+                    WorkspaceAccessMode.READ_WRITE
+                )
+            ) doReturn workspace
+        }
     }
 
-    @Test
-    fun `should fail on expense validation if expense is in default currency and income taxable amount differs`() {
-        val expense = Prototypes.expense(
-            currency = workspace.defaultCurrency,
-            originalAmount = 200,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(200),
-            useDifferentExchangeRateForIncomeTaxPurposes = true,
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(199)
-        )
-        assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
-            .hasMessage("Inconsistent expense: income taxable amount does not match original for default currency")
-    }
-
-    @Test
-    fun `should fail on expense validation if same conversion rate is used but amounts differ`() {
-        val expense = Prototypes.expense(
-            currency = "--${workspace.defaultCurrency}--",
-            originalAmount = 200,
-            useDifferentExchangeRateForIncomeTaxPurposes = false,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(200),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(199)
-        )
-        assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
-            .hasMessage("Inconsistent expense: amounts do not match but same exchange rate is used")
-    }
-
-    @Test
-    fun `should fail on expense validation if expense is finalized but amounts are missing`() {
-        val expense = Prototypes.expense(
-            status = ExpenseStatus.FINALIZED,
-            currency = "--${workspace.defaultCurrency}--",
-            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency()
-        )
-        assertThatThrownBy { expenseService.validateExpenseConsistency(expense) }
-            .hasMessage("Inconsistent expense: amounts are not provided for finalized expense")
-    }
-
-    @Test
-    fun `should successfully validate valid expense`() {
-        val expense = Prototypes.expense(
-            status = ExpenseStatus.FINALIZED,
-            currency = "--${workspace.defaultCurrency}--",
-            useDifferentExchangeRateForIncomeTaxPurposes = true,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(200)
-        )
-        expenseService.validateExpenseConsistency(expense)
+    private fun setupTaxMock() = runBlocking {
+        whenever(
+            generalTaxService.getValidGeneralTax(
+                generalTaxFromWorkspace.id!!,
+                workspace.id!!
+            )
+        ) doReturn generalTaxFromWorkspace
     }
 
     @Test
@@ -156,7 +125,8 @@ internal class ExpenseServiceTest {
         )
 
     @Test
-    fun `should calculate tax on default currency`() =
+    fun `should calculate tax on default currency`() {
+        setupTaxMock()
         executeSaveExpenseAndAssert(
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
@@ -186,9 +156,11 @@ internal class ExpenseServiceTest {
             expectedStatus = ExpenseStatus.FINALIZED,
             expectedUseDifferentExchangeRates = false
         )
+    }
 
     @Test
-    fun `should calculate tax on default currency with percent on business`() =
+    fun `should calculate tax on default currency with percent on business`() {
+        setupTaxMock()
         executeSaveExpenseAndAssert(
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
@@ -218,6 +190,7 @@ internal class ExpenseServiceTest {
             expectedStatus = ExpenseStatus.FINALIZED,
             expectedUseDifferentExchangeRates = false
         )
+    }
 
     @Test
     fun `should keep amounts as null if not yet converted`() =
@@ -232,7 +205,8 @@ internal class ExpenseServiceTest {
                 generalTaxAmount = 33,
                 currency = "--${workspace.defaultCurrency}--",
                 percentOnBusiness = 100,
-                useDifferentExchangeRateForIncomeTaxPurposes = true
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                workspace = workspace
             ),
             expectedOriginalAmount = 45,
             expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
@@ -416,7 +390,8 @@ internal class ExpenseServiceTest {
         )
 
     @Test
-    fun `should calculate tax based on income taxable amount if different rate is used`() =
+    fun `should calculate tax based on income taxable amount if different rate is used`() {
+        setupTaxMock()
         executeSaveExpenseAndAssert(
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
@@ -446,9 +421,11 @@ internal class ExpenseServiceTest {
             expectedUseDifferentExchangeRates = true,
             expectedStatus = ExpenseStatus.FINALIZED
         )
+    }
 
     @Test
-    fun `should calculate tax bases on converted amount if same rate is used`() =
+    fun `should calculate tax bases on converted amount if same rate is used`() {
+        setupTaxMock()
         executeSaveExpenseAndAssert(
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
@@ -478,9 +455,11 @@ internal class ExpenseServiceTest {
             expectedUseDifferentExchangeRates = false,
             expectedStatus = ExpenseStatus.FINALIZED
         )
+    }
 
     @Test
-    fun `should calculate tax based on income taxable amount if percent on business provided and different rate used`() =
+    fun `should calculate tax based on income taxable amount if percent on business provided and different rate used`() {
+        setupTaxMock()
         executeSaveExpenseAndAssert(
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
@@ -510,9 +489,11 @@ internal class ExpenseServiceTest {
             expectedUseDifferentExchangeRates = true,
             expectedStatus = ExpenseStatus.FINALIZED
         )
+    }
 
     @Test
-    fun `should calculate tax based on converted amount if percent on business provided and same rate used`() =
+    fun `should calculate tax based on converted amount if percent on business provided and same rate used`() {
+        setupTaxMock()
         executeSaveExpenseAndAssert(
             expense = Prototypes.expense(
                 generalTax = generalTaxFromWorkspace,
@@ -542,6 +523,7 @@ internal class ExpenseServiceTest {
             expectedUseDifferentExchangeRates = false,
             expectedStatus = ExpenseStatus.FINALIZED
         )
+    }
 
     private fun executeSaveExpenseAndAssert(
         expense: Expense,
@@ -564,7 +546,7 @@ internal class ExpenseServiceTest {
         assertThat(actualExpense.status).isEqualTo(expectedStatus)
         assertThat(actualExpense.convertedAmounts).isEqualTo(expectedConvertedAmounts)
         assertThat(actualExpense.incomeTaxableAmounts).isEqualTo(expectedIncomeTaxableAmounts)
-        assertThat(actualExpense.generalTax).isEqualTo(expectedGeneralTax)
+        assertThat(actualExpense.generalTaxId).isEqualTo(expectedGeneralTax?.id)
         assertThat(actualExpense.generalTaxAmount).isEqualTo(expectedGeneralTaxAmount)
         assertThat(actualExpense.generalTaxRateInBps).isEqualTo(expectedGeneralTaxRateInBps)
         assertThat(actualExpense.useDifferentExchangeRateForIncomeTaxPurposes)

@@ -1,25 +1,19 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.*
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 @DisplayName("Invoices API ")
 internal class InvoicesApiControllerIT(
     @Autowired val client: WebTestClient
@@ -354,6 +348,44 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
+    @WithMockFryUser
+    fun `should return 404 when attachment of new invoice is not found`(testData: InvoicesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
+            .sendJson(
+                """{
+                    "title": "new invoice",
+                    "currency": "USD",
+                    "amount": 30000,
+                    "customer": ${testData.spaceCustomer.id},
+                    "dateIssued": "3000-02-01",
+                    "dueDate": "3000-02-02",
+                    "attachments": [4455]
+                }"""
+            )
+            .verifyNotFound("Documents [4455] are not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should return 404 when attachment of new invoice belongs to another workspace`(testData: InvoicesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
+            .sendJson(
+                """{
+                    "title": "new invoice",
+                    "currency": "USD",
+                    "amount": 30000,
+                    "customer": ${testData.spaceCustomer.id},
+                    "dateIssued": "3000-02-01",
+                    "dueDate": "3000-02-02",
+                    "attachments": [${testData.pizzaDeliveryInvoicePrint.id}]
+                }"""
+            )
+            .verifyNotFound("Documents [${testData.pizzaDeliveryInvoicePrint.id}] are not found")
+    }
+
+    @Test
     fun `should allow PUT access only for logged in users`(testData: InvoicesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
@@ -550,6 +582,44 @@ internal class InvoicesApiControllerIT(
             .verifyNotFound("Tax ${testData.pizzaDeliveryTax.id} is not found")
     }
 
+    @Test
+    @WithMockFryUser
+    fun `should fail with 404 on PUT when attachment is not found`(testData: InvoicesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
+            .sendJson(
+                """{
+                    "title": "new invoice",
+                    "currency": "USD",
+                    "amount": 30000,
+                    "customer": ${testData.spaceCustomer.id},
+                    "dateIssued": "3000-02-01",
+                    "dueDate": "3000-02-02",
+                    "attachments": [5566]
+                }"""
+            )
+            .verifyNotFound("Documents [5566] are not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should fail with 404 on PUT when attachment belongs to another workspace`(testData: InvoicesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
+            .sendJson(
+                """{
+                    "title": "new invoice",
+                    "currency": "USD",
+                    "amount": 30000,
+                    "customer": ${testData.spaceCustomer.id},
+                    "dateIssued": "3000-02-01",
+                    "dueDate": "3000-02-02",
+                    "attachments": [${testData.pizzaDeliveryInvoicePrint.id}]
+                }"""
+            )
+            .verifyNotFound("Documents [${testData.pizzaDeliveryInvoicePrint.id}] are not found")
+    }
+
     class InvoicesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
@@ -564,6 +634,7 @@ internal class InvoicesApiControllerIT(
         val pizzaDeliveryTax = Prototypes.generalTax(workspace = pizzaDeliveryWorkspace)
         val planetExpressTax = Prototypes.generalTax(workspace = planetExpressWorkspace)
         val spaceDeliveryInvoicePrint = Prototypes.document(workspace = planetExpressWorkspace)
+        val pizzaDeliveryInvoicePrint = Prototypes.document(workspace = pizzaDeliveryWorkspace)
 
         val pizzaInvoice = Prototypes.invoice(
             title = "pizza invoice",
@@ -610,7 +681,7 @@ internal class InvoicesApiControllerIT(
         override fun generateData() = listOf(
             farnsworth, fry, planetExpressWorkspace, pizzaDeliveryWorkspace,
             spaceDeliveryCategory, pensionCategory, pizzaCategory,
-            spaceDeliveryInvoicePrint,
+            spaceDeliveryInvoicePrint, pizzaDeliveryInvoicePrint,
             pizzaDeliveryTax, planetExpressTax,
             spaceCustomer, anotherSpaceCustomer, pizzaCustomer,
             spaceIncome,

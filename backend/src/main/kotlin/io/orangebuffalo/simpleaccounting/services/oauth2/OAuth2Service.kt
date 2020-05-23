@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizationRequest
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.oauth2.Oauth2AuthorizationRequestRepository
@@ -64,7 +65,7 @@ class OAuth2Service(
             //todo #84: job to clean outdated requests
             requestRepository.save(
                 PersistentOAuth2AuthorizationRequest(
-                    currentUser,
+                    currentUser.id!!,
                     state,
                     clientRegistrationId,
                     timeService.currentTime()
@@ -127,7 +128,7 @@ class OAuth2Service(
         if (error != null || code == null) {
             eventPublisher.publishEvent(
                 AuthFailedEvent(
-                    user = persistentAuthorizationRequest.owner,
+                    userId = persistentAuthorizationRequest.ownerId,
                     clientRegistrationId = persistentAuthorizationRequest.clientRegistrationId,
                     errorCode = error
                 )
@@ -157,9 +158,9 @@ class OAuth2Service(
         val tokenResponse = accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitFirstOrNull()
             ?: throw IllegalStateException("Cannot get token")
 
-        withDbContext {
-            val authorizedUser = persistentAuthorizationRequest.owner
+        val authorizedUser = platformUserService.getUserByUserId(persistentAuthorizationRequest.ownerId)
 
+        withDbContext {
             persistentAuthorizedClientRepository.deleteByClientRegistrationIdAndUserName(
                 clientRegistration.registrationId, authorizedUser.userName
             )
@@ -167,7 +168,7 @@ class OAuth2Service(
             persistentAuthorizedClientRepository.save(
                 PersistentOAuth2AuthorizedClient(
                     clientRegistrationId = clientRegistration.registrationId,
-                    accessTokenScopes = authorizationRequest.scopes,
+                    accessTokenScopes = authorizationRequest.scopes.map { ClientTokenScope(it) }.toSet(),
                     userName = authorizedUser.userName,
                     accessToken = tokenResponse.accessToken.tokenValue,
                     accessTokenIssuedAt = tokenResponse.accessToken.issuedAt,
@@ -180,12 +181,13 @@ class OAuth2Service(
 
         eventPublisher.publishEvent(
             AuthSucceededEvent(
-                user = persistentAuthorizationRequest.owner,
+                user = authorizedUser,
                 clientRegistrationId = persistentAuthorizationRequest.clientRegistrationId
             )
         )
     }
 
+    // todo #225: evaluate usage of user id to avoid extra db roundtrips
     suspend fun getOAuth2AuthorizedClient(clientRegistrationId: String, userName: String): OAuth2AuthorizedClient? {
         return clientService
             .loadAuthorizedClient<OAuth2AuthorizedClient>(clientRegistrationId, userName)
@@ -218,7 +220,8 @@ class OAuth2Service(
 }
 
 data class AuthFailedEvent(
-    val user: PlatformUser,
+    // todo #225: address inconsistency with success event
+    val userId: Long,
     val clientRegistrationId: String,
     val errorCode: String?
 ) {

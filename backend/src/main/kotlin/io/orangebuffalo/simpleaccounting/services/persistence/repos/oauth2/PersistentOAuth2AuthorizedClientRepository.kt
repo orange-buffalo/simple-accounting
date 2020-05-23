@@ -5,12 +5,12 @@ import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEnti
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
-interface PersistentOAuth2AuthorizedClientRepository :
-    AbstractEntityRepository<PersistentOAuth2AuthorizedClient> {
+interface PersistentOAuth2AuthorizedClientRepository
+    : AbstractEntityRepository<PersistentOAuth2AuthorizedClient>, PersistentOAuth2AuthorizedClientRepositoryExt
 
+interface PersistentOAuth2AuthorizedClientRepositoryExt {
     fun deleteByClientRegistrationIdAndUserName(clientRegistrationId: String, userName: String)
 
     fun findByClientRegistrationIdAndUserName(clientRegistrationId: String, userName: String):
             PersistentOAuth2AuthorizedClient?
-
 }

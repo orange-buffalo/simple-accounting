@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.*
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.junit.TestDataExtension
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
@@ -10,17 +10,11 @@ import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureWebTestClient
+@SimpleAccountingIntegrationTest
 @DisplayName("Expenses API ")
 internal class ExpensesApiControllerIT(
     @Autowired val client: WebTestClient
@@ -432,6 +426,42 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
+    @WithMockFryUser
+    fun `should return 404 when attachment of new expense is not found`(testData: ExpensesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .sendJson(
+                """{
+                    "attachments": [537453],
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
+                }"""
+            )
+            .verifyNotFound("Documents [537453] are not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should return 404 when attachment of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .sendJson(
+                """{
+                    "attachments": [${testData.coffeeReceipt.id}],
+                    "title": "ever best drink",
+                    "currency": "USD",
+                    "originalAmount": 150,
+                    "datePaid": "$MOCK_DATE_VALUE",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
+                }"""
+            )
+            .verifyNotFound("Documents [${testData.coffeeReceipt.id}] are not found")
+    }
+
+    @Test
     fun `should allow PUT access only for logged in users`(testData: ExpensesApiTestData) {
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
@@ -655,6 +685,42 @@ internal class ExpensesApiControllerIT(
             .verifyNotFound("Tax ${testData.coffeeTax.id} is not found")
     }
 
+     @Test
+    @WithMockFryUser
+    fun `should fail with 404 on PUT when attachment is not found`(testData: ExpensesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .sendJson(
+                """{
+                    "attachments": [5566],
+                    "title": "slurm updated",
+                    "currency": "HHD",
+                    "originalAmount": 20000,
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
+                }"""
+            )
+            .verifyNotFound("Documents [5566] are not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should fail with 404 on PUT when attachment belongs to another workspace`(testData: ExpensesApiTestData) {
+        client.put()
+            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .sendJson(
+                """{
+                    "attachments": [${testData.coffeeReceipt.id}],
+                    "title": "slurm updated",
+                    "currency": "HHD",
+                    "originalAmount": 20000,
+                    "datePaid": "3000-02-02",
+                    "useDifferentExchangeRateForIncomeTaxPurposes": false
+                }"""
+            )
+            .verifyNotFound("Documents [${testData.coffeeReceipt.id}] are not found")
+    }
+
     class ExpensesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
@@ -666,9 +732,10 @@ internal class ExpensesApiControllerIT(
         val coffeeTax = Prototypes.generalTax(workspace = fryCoffeeWorkspace)
         val slurmTax = Prototypes.generalTax(workspace = fryWorkspace)
         val slurmReceipt = Prototypes.document(workspace = fryWorkspace)
+        val coffeeReceipt = Prototypes.document(workspace = fryCoffeeWorkspace)
 
         val coffeeExpense = Prototypes.expense(
-            workspace = coffeeCategory.workspace,
+            workspace = fryCoffeeWorkspace,
             category = coffeeCategory,
             currency = "THF",
             originalAmount = 50,
@@ -681,7 +748,7 @@ internal class ExpensesApiControllerIT(
 
         val firstSlurm = Prototypes.expense(
             title = "best ever slurm",
-            workspace = slurmCategory.workspace,
+            workspace = fryWorkspace,
             category = slurmCategory,
             currency = "THF",
             originalAmount = 5000,
@@ -693,7 +760,7 @@ internal class ExpensesApiControllerIT(
 
         val secondSlurm = Prototypes.expense(
             title = "another great slurm",
-            workspace = slurmCategory.workspace,
+            workspace = fryWorkspace,
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
@@ -715,7 +782,7 @@ internal class ExpensesApiControllerIT(
 
         val thirdSlurm = Prototypes.expense(
             title = "slurm is never enough",
-            workspace = slurmCategory.workspace,
+            workspace = fryWorkspace,
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
@@ -734,7 +801,7 @@ internal class ExpensesApiControllerIT(
 
         val fourthSlurm = Prototypes.expense(
             title = "need more slurm",
-            workspace = slurmCategory.workspace,
+            workspace = fryWorkspace,
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
@@ -749,7 +816,7 @@ internal class ExpensesApiControllerIT(
             farnsworth, fry, fryWorkspace, slurmCategory, slurmReceipt,
             slurmTax, firstSlurm, secondSlurm, thirdSlurm, fourthSlurm,
             fryCoffeeWorkspace, coffeeCategory, coffeeExpense, coffeeTax,
-            beerCategory
+            beerCategory, coffeeReceipt
         )
 
         fun defaultNewExpense(): String = """{
