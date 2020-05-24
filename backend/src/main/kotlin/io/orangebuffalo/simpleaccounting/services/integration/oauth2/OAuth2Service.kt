@@ -7,8 +7,6 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformU
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
@@ -30,7 +28,6 @@ import java.security.SecureRandom
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.util.*
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
 private const val TOKEN_LENGTH = 20
@@ -121,8 +118,8 @@ class OAuth2Service(
 
         if (error != null || code == null) {
             eventPublisher.publishEvent(
-                AuthFailedEvent(
-                    userId = savedRequest.owner.id!!,
+                OAuth2FailedEvent(
+                    user = savedRequest.owner,
                     clientRegistrationId = savedRequest.clientRegistrationId,
                     errorCode = error,
                     context = coroutineContext
@@ -175,7 +172,7 @@ class OAuth2Service(
         }
 
         eventPublisher.publishEvent(
-            AuthSucceededEvent(
+            OAuth2SucceededEvent(
                 user = authorizedUser,
                 clientRegistrationId = savedRequest.clientRegistrationId,
                 context = coroutineContext
@@ -214,35 +211,5 @@ class OAuth2Service(
         persistentAuthorizedClientRepository.deleteByClientRegistrationIdAndUserName(
             clientRegistrationId, ensureRegularUserPrincipal().userName
         )
-    }
-}
-
-data class AuthFailedEvent(
-    // todo #225: address inconsistency with success event
-    val userId: Long,
-    val clientRegistrationId: String,
-    val errorCode: String?,
-    // required to preserve the caller's context, like WebExchange
-    val context: CoroutineContext
-) {
-
-    fun launchIfClientMatches(clientRegistrationId: String, block: suspend () -> Unit) {
-        if (this.clientRegistrationId == clientRegistrationId) {
-            GlobalScope.launch(context) { block() }
-        }
-    }
-}
-
-data class AuthSucceededEvent(
-    val user: PlatformUser,
-    val clientRegistrationId: String,
-    // required to preserve the caller's context, like WebExchange
-    val context: CoroutineContext
-) {
-
-    fun launchIfClientMatches(clientRegistrationId: String, block: suspend () -> Unit) {
-        if (this.clientRegistrationId == clientRegistrationId) {
-            GlobalScope.launch(context) { block() }
-        }
     }
 }

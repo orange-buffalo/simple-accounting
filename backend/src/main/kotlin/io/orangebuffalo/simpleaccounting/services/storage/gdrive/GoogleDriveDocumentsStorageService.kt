@@ -3,8 +3,8 @@ package io.orangebuffalo.simpleaccounting.services.storage.gdrive
 import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.AuthFailedEvent
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.AuthSucceededEvent
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2FailedEvent
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2SucceededEvent
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2Service
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
@@ -193,7 +193,7 @@ class GoogleDriveDocumentsStorageService(
     }
 
     @EventListener
-    fun onAuthSuccess(authSucceededEvent: AuthSucceededEvent) = authSucceededEvent
+    fun onAuthSuccess(authSucceededEvent: OAuth2SucceededEvent) = authSucceededEvent
         .launchIfClientMatches(OAUTH2_CLIENT_REGISTRATION_ID) {
 
             val user = authSucceededEvent.user
@@ -221,9 +221,9 @@ class GoogleDriveDocumentsStorageService(
         }
 
     @EventListener
-    fun onAuthFailure(authFailedEvent: AuthFailedEvent) = authFailedEvent
+    fun onAuthFailure(authFailedEvent: OAuth2FailedEvent) = authFailedEvent
         .launchIfClientMatches(OAUTH2_CLIENT_REGISTRATION_ID) {
-            val userId = authFailedEvent.userId
+            val userId = authFailedEvent.user.id!!
             pushNotificationService.sendPushNotification(
                 eventName = AUTH_EVENT_NAME,
                 userId = userId,
