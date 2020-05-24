@@ -89,15 +89,11 @@ class OAuth2Service(
         state: String? = null
     ): OAuth2AuthorizationRequest {
 
-        val builder = when {
-            AuthorizationGrantType.AUTHORIZATION_CODE == clientRegistration.authorizationGrantType ->
-                OAuth2AuthorizationRequest.authorizationCode()
-            AuthorizationGrantType.IMPLICIT == clientRegistration.authorizationGrantType ->
-                OAuth2AuthorizationRequest.implicit()
+        val builder = when (clientRegistration.authorizationGrantType) {
+            AuthorizationGrantType.AUTHORIZATION_CODE -> OAuth2AuthorizationRequest.authorizationCode()
             else -> throw IllegalArgumentException(
-                "Invalid Authorization Grant Type " +
-                        "(${clientRegistration.authorizationGrantType.value}) for Client Registration with Id: " +
-                        clientRegistration.registrationId
+                "Invalid Authorization Grant Type (${clientRegistration.authorizationGrantType.value}) " +
+                        "for Client Registration with Id: ${clientRegistration.registrationId}"
             )
         }
 
