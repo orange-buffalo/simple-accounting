@@ -40,7 +40,7 @@ private const val TOKEN_LENGTH = 20
  */
 @Service
 class OAuth2Service(
-    private val requestRepository: Oauth2AuthorizationRequestRepository,
+    private val savedRequestRepository: SavedAuthorizationRequestRepository,
     private val clientRegistrationRepository: ReactiveClientRegistrationRepository,
     private val userService: PlatformUserService,
     private val accessTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
@@ -53,29 +53,32 @@ class OAuth2Service(
 
     private val random = SecureRandom()
 
-    suspend fun buildAuthorizationUrl(clientRegistrationId: String): String {
+    suspend fun buildAuthorizationUrl(
+        clientRegistrationId: String,
+        additionalParameters: Map<String, String> = emptyMap()
+    ): String {
         val clientRegistration = getClientRegistration(clientRegistrationId)
-
-        val authStateTokenBytes = ByteArray(TOKEN_LENGTH)
-        random.nextBytes(authStateTokenBytes)
-
         val currentUser = userService.getCurrentUser()
-        val state = "${currentUser.id}:${String(Base64.getEncoder().encode(authStateTokenBytes))}"
-
-        requestRepository.save(
-            OAuth2AuthorizationRequest(
-                currentUser.id!!,
-                state,
-                clientRegistrationId
+        val state = createStateToken(currentUser)
+        val authorizationRequest = buildAuthorizationRequest(clientRegistration, state, additionalParameters)
+        savedRequestRepository.save(
+            SavedAuthorizationRequest(
+                owner = currentUser,
+                clientRegistrationId = clientRegistrationId,
+                state = state,
+                request = authorizationRequest
             )
         )
-
-        val authorizationRequest = buildAuthorizationRequest(clientRegistration, state)
-
         return UriComponentsBuilder
             .fromUriString(authorizationRequest.authorizationRequestUri)
             .build(true)
             .toUriString()
+    }
+
+    private fun createStateToken(currentUser: PlatformUser): String {
+        val authStateTokenBytes = ByteArray(TOKEN_LENGTH)
+        random.nextBytes(authStateTokenBytes)
+        return "${currentUser.id}:${String(Base64.getEncoder().encode(authStateTokenBytes))}"
     }
 
     private suspend fun getClientRegistration(clientRegistrationId: String): ClientRegistration {
@@ -86,7 +89,8 @@ class OAuth2Service(
 
     private fun buildAuthorizationRequest(
         clientRegistration: ClientRegistration,
-        state: String? = null
+        state: String,
+        additionalParameters: Map<String, String>
     ): OAuth2AuthorizationRequest {
 
         val builder = when (clientRegistration.authorizationGrantType) {
@@ -100,8 +104,7 @@ class OAuth2Service(
         return builder
             .clientId(clientRegistration.clientId)
             .authorizationUri(clientRegistration.providerDetails.authorizationUri)
-            // todo #85: this is google specific. should be a better way
-            .additionalParameters(mapOf("access_type" to "offline"))
+            .additionalParameters(additionalParameters)
             .redirectUri(clientRegistration.redirectUriTemplate)
             .scopes(clientRegistration.scopes)
             .state(state)
@@ -114,28 +117,28 @@ class OAuth2Service(
             throw IllegalStateException("Something bad happened, sorry :( Please try again")
         }
 
-        val persistentAuthorizationRequest = requestRepository.findByStateAndRemove(state)
+        val savedRequest = savedRequestRepository.findByStateAndRemove(state)
 
         if (error != null || code == null) {
             eventPublisher.publishEvent(
                 AuthFailedEvent(
-                    userId = persistentAuthorizationRequest.ownerId,
-                    clientRegistrationId = persistentAuthorizationRequest.clientRegistrationId,
+                    userId = savedRequest.owner.id!!,
+                    clientRegistrationId = savedRequest.clientRegistrationId,
                     errorCode = error,
                     context = coroutineContext
                 )
             )
         } else {
-            onSuccessfulAuth(persistentAuthorizationRequest, code)
+            onSuccessfulAuth(savedRequest, code)
         }
     }
 
     private suspend fun onSuccessfulAuth(
-        persistentAuthorizationRequest: io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2AuthorizationRequest,
-        code: String?
+        savedRequest: SavedAuthorizationRequest,
+        code: String
     ) {
-        val clientRegistration = getClientRegistration(persistentAuthorizationRequest.clientRegistrationId)
-        val authorizationRequest = buildAuthorizationRequest(clientRegistration)
+        val clientRegistration = getClientRegistration(savedRequest.clientRegistrationId)
+        val authorizationRequest = savedRequest.request
 
         val codeGrantRequest = OAuth2AuthorizationCodeGrantRequest(
             clientRegistration,
@@ -150,7 +153,7 @@ class OAuth2Service(
         val tokenResponse = accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitFirstOrNull()
             ?: throw IllegalStateException("Cannot get token")
 
-        val authorizedUser = userService.getUserByUserId(persistentAuthorizationRequest.ownerId)
+        val authorizedUser = savedRequest.owner
 
         withDbContext {
             persistentAuthorizedClientRepository.deleteByClientRegistrationIdAndUserName(
@@ -174,7 +177,7 @@ class OAuth2Service(
         eventPublisher.publishEvent(
             AuthSucceededEvent(
                 user = authorizedUser,
-                clientRegistrationId = persistentAuthorizationRequest.clientRegistrationId,
+                clientRegistrationId = savedRequest.clientRegistrationId,
                 context = coroutineContext
             )
         )

@@ -167,7 +167,7 @@ class GoogleDriveDocumentsStorageService(
     }
 
     private suspend fun buildAuthorizationUrl(): String =
-        oauthService.buildAuthorizationUrl(OAUTH2_CLIENT_REGISTRATION_ID)
+        oauthService.buildAuthorizationUrl(OAUTH2_CLIENT_REGISTRATION_ID, mapOf("access_type" to "offline"))
 
     private suspend fun getRootFolder(
         integration: GoogleDriveStorageIntegration,

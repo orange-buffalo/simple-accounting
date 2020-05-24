@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
 
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2AuthorizationRequest
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.Oauth2AuthorizationRequestRepository
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.SavedAuthorizationRequest
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.SavedAuthorizationRequestRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -11,17 +11,17 @@ import org.springframework.stereotype.Repository
 import java.time.Duration
 
 @Repository
-class InMemoryOauth2AuthorizationRequestRepository : Oauth2AuthorizationRequestRepository {
+class InMemorySavedAuthorizationRequestRepository : SavedAuthorizationRequestRepository {
 
-    private val requests = mutableMapOf<String, OAuth2AuthorizationRequest>()
+    private val requests = mutableMapOf<String, SavedAuthorizationRequest>()
     private val mutex = Mutex()
 
-    override suspend fun findByStateAndRemove(state: String): OAuth2AuthorizationRequest {
+    override suspend fun findByStateAndRemove(state: String): SavedAuthorizationRequest {
         val request = mutex.withLock { requests.remove(state) }
         return request ?: throw IllegalStateException("State $state is not known")
     }
 
-    override suspend fun save(authorizationRequest: OAuth2AuthorizationRequest) {
+    override suspend fun save(authorizationRequest: SavedAuthorizationRequest) {
         mutex.withLock {
             requests.put(authorizationRequest.state, authorizationRequest)
         }
