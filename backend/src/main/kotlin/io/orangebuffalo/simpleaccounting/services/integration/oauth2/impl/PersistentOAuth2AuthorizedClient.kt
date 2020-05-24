@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2
+package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
 import org.springframework.data.relational.core.mapping.Column

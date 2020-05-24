@@ -1,10 +1,8 @@
-package io.orangebuffalo.simpleaccounting.services.oauth2
+package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
 
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.PersistentOAuth2AuthorizedClientRepository
 import io.orangebuffalo.simpleaccounting.services.integration.voidMono
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.ClientTokenScope
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepository
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.mono
 import org.springframework.security.core.Authentication
@@ -15,8 +13,11 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken
 import org.springframework.security.oauth2.core.OAuth2RefreshToken
 import reactor.core.publisher.Mono
 
+/**
+ * Persists authorized clients in the database.
+ */
 class DbReactiveOAuth2AuthorizedClientService(
-    private val repository: PersistentOAuth2AuthorizedClientRepository,
+    private val authorizedClientRepository: PersistentOAuth2AuthorizedClientRepository,
     private val clientRegistrationRepository: ReactiveClientRegistrationRepository
 ) : ReactiveOAuth2AuthorizedClientService {
 
@@ -27,7 +28,8 @@ class DbReactiveOAuth2AuthorizedClientService(
         val clientRegistration = clientRegistrationRepository.findByRegistrationId(clientRegistrationId).awaitSingle()
 
         withDbContext {
-            val persistentClient = repository.findByClientRegistrationIdAndUserName(clientRegistrationId, principalName)
+            val persistentClient = authorizedClientRepository
+                .findByClientRegistrationIdAndUserName(clientRegistrationId, principalName)
             @Suppress("UNCHECKED_CAST")
             persistentClient?.let {
                 OAuth2AuthorizedClient(
@@ -51,7 +53,9 @@ class DbReactiveOAuth2AuthorizedClientService(
     }
 
     override fun removeAuthorizedClient(clientRegistrationId: String, principalName: String): Mono<Void> = voidMono {
-        withDbContext { repository.deleteByClientRegistrationIdAndUserName(clientRegistrationId, principalName) }
+        withDbContext {
+            authorizedClientRepository.deleteByClientRegistrationIdAndUserName(clientRegistrationId, principalName)
+        }
     }
 
     override fun saveAuthorizedClient(
@@ -63,9 +67,10 @@ class DbReactiveOAuth2AuthorizedClientService(
             val clientRegistrationId = authorizedClient.clientRegistration.registrationId
             val accessToken = authorizedClient.accessToken
             val refreshToken = authorizedClient.refreshToken
-            val existingClient = repository.findByClientRegistrationIdAndUserName(clientRegistrationId, userName)
+            val existingClient = authorizedClientRepository
+                .findByClientRegistrationIdAndUserName(clientRegistrationId, userName)
             if (existingClient == null) {
-                repository.save(
+                authorizedClientRepository.save(
                     PersistentOAuth2AuthorizedClient(
                         clientRegistrationId = clientRegistrationId,
                         userName = userName,
@@ -86,7 +91,7 @@ class DbReactiveOAuth2AuthorizedClientService(
                     existingClient.refreshToken = refreshToken.tokenValue
                     existingClient.refreshTokenIssuedAt = refreshToken.issuedAt
                 }
-                repository.save(existingClient)
+                authorizedClientRepository.save(existingClient)
             }
         }
     }

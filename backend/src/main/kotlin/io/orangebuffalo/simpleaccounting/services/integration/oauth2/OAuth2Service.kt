@@ -1,14 +1,11 @@
-package io.orangebuffalo.simpleaccounting.services.oauth2
+package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
 import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.ClientTokenScope
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizationRequest
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.oauth2.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.oauth2.Oauth2AuthorizationRequestRepository
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.oauth2.PersistentOAuth2AuthorizedClientRepository
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -38,11 +35,14 @@ import kotlin.coroutines.coroutineContext
 
 private const val TOKEN_LENGTH = 20
 
+/**
+ * Entry point for OAuth2 integration. Provides
+ */
 @Service
 class OAuth2Service(
     private val requestRepository: Oauth2AuthorizationRequestRepository,
     private val clientRegistrationRepository: ReactiveClientRegistrationRepository,
-    private val platformUserService: PlatformUserService,
+    private val userService: PlatformUserService,
     private val accessTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val persistentAuthorizedClientRepository: PersistentOAuth2AuthorizedClientRepository,
     private val timeService: TimeService,
@@ -59,20 +59,16 @@ class OAuth2Service(
         val authStateTokenBytes = ByteArray(TOKEN_LENGTH)
         random.nextBytes(authStateTokenBytes)
 
-        val currentUser = platformUserService.getCurrentUser()
+        val currentUser = userService.getCurrentUser()
         val state = "${currentUser.id}:${String(Base64.getEncoder().encode(authStateTokenBytes))}"
 
-        withDbContext {
-            //todo #84: job to clean outdated requests
-            requestRepository.save(
-                PersistentOAuth2AuthorizationRequest(
-                    currentUser.id!!,
-                    state,
-                    clientRegistrationId,
-                    timeService.currentTime()
-                )
+        requestRepository.save(
+            OAuth2AuthorizationRequest(
+                currentUser.id!!,
+                state,
+                clientRegistrationId
             )
-        }
+        )
 
         val authorizationRequest = buildAuthorizationRequest(clientRegistration, state)
 
@@ -122,9 +118,7 @@ class OAuth2Service(
             throw IllegalStateException("Something bad happened, sorry :( Please try again")
         }
 
-        val persistentAuthorizationRequest = withDbContext {
-            requestRepository.findByState(state) ?: throw IllegalStateException("$state is not known")
-        }
+        val persistentAuthorizationRequest = requestRepository.findByStateAndRemove(state)
 
         if (error != null || code == null) {
             eventPublisher.publishEvent(
@@ -141,7 +135,7 @@ class OAuth2Service(
     }
 
     private suspend fun onSuccessfulAuth(
-        persistentAuthorizationRequest: PersistentOAuth2AuthorizationRequest,
+        persistentAuthorizationRequest: io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2AuthorizationRequest,
         code: String?
     ) {
         val clientRegistration = getClientRegistration(persistentAuthorizationRequest.clientRegistrationId)
@@ -160,7 +154,7 @@ class OAuth2Service(
         val tokenResponse = accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitFirstOrNull()
             ?: throw IllegalStateException("Cannot get token")
 
-        val authorizedUser = platformUserService.getUserByUserId(persistentAuthorizationRequest.ownerId)
+        val authorizedUser = userService.getUserByUserId(persistentAuthorizationRequest.ownerId)
 
         withDbContext {
             persistentAuthorizedClientRepository.deleteByClientRegistrationIdAndUserName(

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.oauth2
+package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.RequestMapping
