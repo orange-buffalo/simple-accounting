@@ -9,7 +9,7 @@ const val AUTH_CALLBACK_PATH = "/api/auth/oauth2/callback"
 
 @RestController
 class OAuth2CallbackController(
-    private val oauth2Service: OAuth2Service
+    private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider
 ) {
 
     @RequestMapping(AUTH_CALLBACK_PATH, produces = [MediaType.TEXT_HTML_VALUE])
@@ -17,8 +17,8 @@ class OAuth2CallbackController(
         @RequestParam(required = false) code: String?,
         @RequestParam(required = false) error: String?,
         @RequestParam(required = false) state: String?
-    ): String  {
-        oauth2Service.onAuthCallback(code = code, error = error, state = state)
+    ): String {
+        clientAuthorizationProvider.handleAuthorizationResponse(code = code, error = error, state = state)
         //todo #83: render "nice" page
         return "Done.. hold on a second.."
     }

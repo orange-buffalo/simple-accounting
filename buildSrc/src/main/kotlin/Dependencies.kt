@@ -12,7 +12,7 @@ object Versions {
 
     const val assertk = "0.20"
     const val mockito = "3.3.1"
-    const val mockitoKotlin = "1.6.0"
+    const val mockitoKotlin = "2.2.0"
     const val jsonUnit = "2.13.0"
 
     const val dockerPlugin = "6.1.4"

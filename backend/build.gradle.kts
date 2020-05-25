@@ -59,7 +59,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("net.javacrumbs.json-unit:json-unit-assertj:${Versions.jsonUnit}")
-    testImplementation("com.nhaarman:mockito-kotlin:${Versions.mockitoKotlin}")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}")
     testImplementation("org.mockito:mockito-junit-jupiter:${Versions.mockito}")
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("com.google.guava:guava:${Versions.guava}")

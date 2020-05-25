@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.services.storage.gdrive
 
 import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2ClientAuthorizationProvider
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2FailedEvent
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2SucceededEvent
@@ -37,7 +38,8 @@ class GoogleDriveDocumentsStorageService(
     private val userService: PlatformUserService,
     private val repository: GoogleDriveStorageIntegrationRepository,
     private val pushNotificationService: PushNotificationService,
-    private val oauthService: OAuth2Service
+    private val oauthService: OAuth2Service,
+    private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider
 ) : DocumentsStorage {
 
     override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse {
@@ -166,8 +168,8 @@ class GoogleDriveDocumentsStorageService(
             .body(BodyExtractors.toDataBuffers())
     }
 
-    private suspend fun buildAuthorizationUrl(): String =
-        oauthService.buildAuthorizationUrl(OAUTH2_CLIENT_REGISTRATION_ID, mapOf("access_type" to "offline"))
+    private suspend fun buildAuthorizationUrl(): String = clientAuthorizationProvider
+        .buildAuthorizationUrl(OAUTH2_CLIENT_REGISTRATION_ID, mapOf("access_type" to "offline"))
 
     private suspend fun getRootFolder(
         integration: GoogleDriveStorageIntegration,

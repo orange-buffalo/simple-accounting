@@ -8,8 +8,8 @@ import assertk.assertions.isGreaterThan
 import assertk.assertions.isNull
 import assertk.assertions.isZero
 import assertk.fail
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
