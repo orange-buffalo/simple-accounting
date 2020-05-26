@@ -109,6 +109,10 @@ class OAuth2ClientAuthorizationProvider(
             .build()
     }
 
+    suspend fun handleAuthorizationResponse(callbackRequest: OAuth2AuthorizationCallbackRequest) {
+        // todo #225: implement by replacing the old method
+    }
+
     /**
      * Handles the authorization code grant response from the authorization server.
      *
@@ -185,3 +189,9 @@ class OAuth2ClientAuthorizationProvider(
         )
     }
 }
+
+data class OAuth2AuthorizationCallbackRequest(
+    val code: String?,
+    val error: String?,
+    val state: String
+)
