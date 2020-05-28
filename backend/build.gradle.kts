@@ -39,8 +39,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${Versions.kotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${Versions.kotlinCoroutines}")
-    implementation("org.jooq:jooq:${Versions.jooq}")
 
+    implementation("org.jooq:jooq:${Versions.jooq}")
     implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
 
@@ -64,6 +64,8 @@ dependencies {
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("com.google.guava:guava:${Versions.guava}")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
+    testImplementation("com.squareup.okhttp3:mockwebserver:${Versions.mockWebServer}")
+    testImplementation("com.squareup.okhttp3:okhttp:${Versions.mockWebServer}")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }

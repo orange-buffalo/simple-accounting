@@ -14,6 +14,7 @@ object Versions {
     const val mockito = "3.3.1"
     const val mockitoKotlin = "2.2.0"
     const val jsonUnit = "2.13.0"
+    const val mockWebServer = "4.7.2"
 
     const val dockerPlugin = "6.1.4"
     const val semverGitPlugin = "1.2.1"

@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.Client
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessT
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.core.AuthorizationGrantType
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse
@@ -109,37 +111,29 @@ class OAuth2ClientAuthorizationProvider(
             .build()
     }
 
-    suspend fun handleAuthorizationResponse(callbackRequest: OAuth2AuthorizationCallbackRequest) {
-        // todo #225: implement by replacing the old method
-    }
-
     /**
      * Handles the authorization code grant response from the authorization server.
      *
      * If authorization is successful, [OAuth2SucceededEvent] is emitted. If authorization is not granted,
      * [OAuth2FailedEvent] is emitted.
      */
-    suspend fun handleAuthorizationResponse(code: String?, error: String?, state: String?) {
-        if (state == null) {
-            //todo #86: meaningful error handling
-            throw IllegalStateException("Something bad happened, sorry :( Please try again")
-        }
+    suspend fun handleAuthorizationResponse(callbackRequest: OAuth2AuthorizationCallbackRequest) {
+        val savedRequest = savedRequestRepository.findByStateAndRemove(callbackRequest.state)
 
-        val savedRequest = savedRequestRepository.findByStateAndRemove(state)
-
-        if (error != null || code == null) {
-            eventPublisher.publishEvent(
-                OAuth2FailedEvent(
-                    user = savedRequest.owner,
-                    clientRegistrationId = savedRequest.clientRegistrationId,
-                    errorCode = error,
-                    context = coroutineContext
-                )
-            )
+        if (callbackRequest.error != null || callbackRequest.code == null) {
+            publishFailedAuthEvent(savedRequest)
         } else {
-            handleSuccessfulAuthorization(savedRequest, code)
+            handleSuccessfulAuthorization(savedRequest, callbackRequest.code)
         }
     }
+
+    private suspend fun publishFailedAuthEvent(savedRequest: SavedAuthorizationRequest) = eventPublisher.publishEvent(
+        OAuth2FailedEvent(
+            user = savedRequest.owner,
+            clientRegistrationId = savedRequest.clientRegistrationId,
+            context = coroutineContext
+        )
+    )
 
     private suspend fun handleSuccessfulAuthorization(
         savedRequest: SavedAuthorizationRequest,
@@ -158,8 +152,12 @@ class OAuth2ClientAuthorizationProvider(
             )
         )
 
-        val tokenResponse = accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitFirstOrNull()
-            ?: throw IllegalStateException("Cannot get token")
+        val tokenResponse = try {
+            accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitFirst()
+        } catch (e: OAuth2AuthorizationException) {
+            publishFailedAuthEvent(savedRequest)
+            return
+        }
 
         withDbContext {
             persistentAuthorizedClientRepository.deleteByClientRegistrationIdAndUserName(

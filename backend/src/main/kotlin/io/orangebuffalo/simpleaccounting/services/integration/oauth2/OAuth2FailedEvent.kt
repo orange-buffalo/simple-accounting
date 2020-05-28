@@ -11,7 +11,6 @@ import kotlin.coroutines.CoroutineContext
 data class OAuth2FailedEvent(
     val user: PlatformUser,
     val clientRegistrationId: String,
-    val errorCode: String?,
     // required to preserve the caller's context, like WebExchange
     val context: CoroutineContext
 ) {
