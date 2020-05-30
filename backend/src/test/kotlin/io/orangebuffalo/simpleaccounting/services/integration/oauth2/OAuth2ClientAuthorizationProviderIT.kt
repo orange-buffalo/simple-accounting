@@ -277,7 +277,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
 
     class AuthorizationProviderTestData : TestData {
         val fry = Prototypes.fry()
-        override fun generateData(): List<PlatformUser> = listOf(fry)
+        override fun generateData() = listOf(fry)
     }
 
     // workaround for https://github.com/spring-projects/spring-framework/issues/18907
