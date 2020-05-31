@@ -16,4 +16,6 @@ interface DocumentsStorage {
 
 data class StorageProviderResponse(val storageProviderLocation: String, val sizeInBytes: Long?)
 
-class StorageAuthorizationRequiredException : RuntimeException()
+open class DocumentStorageException(message: String? = null) : RuntimeException(message)
+
+class StorageAuthorizationRequiredException : DocumentStorageException()
