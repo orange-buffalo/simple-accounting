@@ -2,15 +2,15 @@ package io.orangebuffalo.simpleaccounting.services.storage.local
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.withContext
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
-import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
 import org.springframework.util.StreamUtils
 import reactor.core.publisher.Flux
@@ -36,12 +36,16 @@ class LocalFileSystemDocumentStorage(
         )
     }
 
-    override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse =
+    override suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse =
         withContext(localFsStorageContext) {
-            val documentDir = File(config.baseDirectory.toFile(), workspace.id.toString()).apply { mkdirs() }
-            val documentName = "${UUID.randomUUID()}.${File(file.filename()).extension}"
+            val documentDir = File(config.baseDirectory.toFile(), request.workspace.id.toString()).apply { mkdirs() }
+            val documentName = "${UUID.randomUUID()}.${File(request.fileName).extension}"
             val documentFile = File(documentDir, documentName)
-            file.transferTo(documentFile).awaitFirstOrNull()
+            documentFile.outputStream().use {
+                DataBufferUtils.write(request.content, it)
+                    .map { DataBufferUtils.release(it) }
+                    .awaitLast()
+            }
             val location = documentFile.relativeTo(config.baseDirectory.toFile()).toString()
             StorageProviderResponse(
                 location,

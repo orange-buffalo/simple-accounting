@@ -8,10 +8,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2Succe
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentStorageException
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
-import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
-import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
+import io.orangebuffalo.simpleaccounting.services.storage.*
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.beans.factory.annotation.Value
@@ -20,7 +17,6 @@ import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
-import org.springframework.http.codec.multipart.FilePart
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyExtractors
@@ -42,21 +38,19 @@ class GoogleDriveDocumentsStorageService(
     @Value("\${simpleaccounting.documents.storage.google-drive.base-api-url}") private val baseApiUrl: String
 ) : DocumentsStorage {
 
-    override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse {
-        val workspaceOwner = userService.getUserByUserId(workspace.ownerId)
-
-        val integration = withDbContext { repository.findByUserId(workspaceOwner.id!!) }
+    override suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse {
+        val integration = withDbContext { repository.findByUserId(request.workspace.ownerId) }
             ?: throw StorageAuthorizationRequiredException()
 
-        val workspaceFolder = getOrCreateWorkspaceFolder(integration, workspace)
+        val workspaceFolder = getOrCreateWorkspaceFolder(integration, request.workspace)
 
         val fileMetadata = GDriveCreateFileRequest(
-            name = file.filename(),
+            name = request.fileName,
             parents = listOf(workspaceFolder.id!!),
             mimeType = ""
         )
 
-        val newFile = uploadFileToDrive(file, fileMetadata)
+        val newFile = uploadFileToDrive(request, fileMetadata)
 
         return StorageProviderResponse(
             newFile.id!!,
@@ -65,13 +59,13 @@ class GoogleDriveDocumentsStorageService(
     }
 
     private suspend fun uploadFileToDrive(
-        file: FilePart,
+        request: SaveDocumentRequest,
         fileMetadata: GDriveCreateFileRequest
     ): GDriveFile = createWebClient()
         .post()
         .uri { builder ->
             builder.path("upload/drive/v3/files")
-                .queryParam("fields", "id,size")
+                .queryParam("fields", "id, size")
                 .queryParam("uploadType", "multipart")
                 .build()
         }
@@ -81,7 +75,7 @@ class GoogleDriveDocumentsStorageService(
                 MultipartBodyBuilder()
                     .apply {
                         part("metadata", fileMetadata, MediaType.APPLICATION_JSON)
-                        asyncPart("media", file.content(), DataBuffer::class.java)
+                        asyncPart("media", request.content, DataBuffer::class.java)
                     }
                     .build()
             )

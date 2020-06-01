@@ -13,7 +13,9 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2Clien
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.mockAccessToken
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.mockAuthorizationFailure
+import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
+import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
 import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.utils.assertNumberOfStubbedRequests
 import kotlinx.coroutines.runBlocking
@@ -25,12 +27,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
 import reactor.core.publisher.Flux
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+
+private val bufferFactory = DefaultDataBufferFactory()
 
 @SimpleAccountingIntegrationTest
 @NeedsWireMock
@@ -201,7 +207,7 @@ class GoogleDriveDocumentsStorageServiceIT(
 
     @Test
     @WithSaMockUser("Fry")
-    fun `should fail if OAuth2 client is not authorized`(testData: GoogleDriveTestData) {
+    fun `should fail on getting content if OAuth2 client is not authorized`(testData: GoogleDriveTestData) {
         webClientBuilderProvider.mockAuthorizationFailure()
 
         assertThatThrownBy {
@@ -230,6 +236,131 @@ class GoogleDriveDocumentsStorageServiceIT(
         assertThat(convertResponseToString(contentBuffers)).isEqualTo("Test Content")
     }
 
+    @Test
+    @WithSaMockUser("Fry")
+    fun `should fail on saving content if integration is not configured`(testData: GoogleDriveTestData) {
+        assertThatThrownBy {
+            whenSavingDocument(testData)
+        }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
+    }
+
+    @Test
+    @WithSaMockUser("Fry")
+    fun `should fail on saving content if OAuth2 client is not authorized`(testData: GoogleDriveTestData) {
+        givenExistingDriveIntegration(testData)
+        webClientBuilderProvider.mockAuthorizationFailure()
+
+        assertThatThrownBy {
+            whenSavingDocument(testData)
+        }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
+    }
+
+    @Test
+    @WithSaMockUser("Fry")
+    fun `should successfully upload a new document`(testData: GoogleDriveTestData) {
+        givenExistingDriveIntegration(testData)
+        webClientBuilderProvider.mockAccessToken("driveToken")
+        stubGetWorkspaceFolder(
+            testData,
+            """{
+                "files": [{
+                    "id": "fryWorkspaceFolderId",
+                    "name": "fryWorkspaceFolder"
+                }]
+            }"""
+        )
+        stubNewFileUpload("fryWorkspaceFolderId")
+
+        val documentResponse = whenSavingDocument(testData)
+
+        assertNumberOfStubbedRequests(2)
+        assertThat(documentResponse).isEqualTo(
+            StorageProviderResponse(
+                storageProviderLocation = "newFryFileId",
+                sizeInBytes = 42
+            )
+        )
+    }
+
+    @Test
+    @WithSaMockUser("Fry")
+    fun `should create a workspace folder if not exists during document upload`(testData: GoogleDriveTestData) {
+        givenExistingDriveIntegration(testData)
+        webClientBuilderProvider.mockAccessToken("driveToken")
+        stubGetWorkspaceFolder(testData, """{ "files": [] } """)
+        stubFor(
+            post(urlPathEqualTo("/drive/v3/files"))
+                .withQueryParam("fields", equalTo("id"))
+                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+                .withRequestBody(
+                    equalToJson(
+                        """{
+                                "name": "${testData.workspace.id}",
+                                "mimeType": "application/vnd.google-apps.folder",
+                                "parents": ["fryFolderId"]
+                            }"""
+                    )
+                )
+                .willReturn(okJson("""{ "id": "workspaceFolderId" }"""))
+        )
+        stubNewFileUpload("workspaceFolderId")
+
+        val documentResponse = whenSavingDocument(testData)
+
+        assertNumberOfStubbedRequests(3)
+        assertThat(documentResponse).isEqualTo(
+            StorageProviderResponse(
+                storageProviderLocation = "newFryFileId",
+                sizeInBytes = 42
+            )
+        )
+    }
+
+    private fun stubGetWorkspaceFolder(testData: GoogleDriveTestData, responseJson: String) {
+        stubFor(
+            get(urlPathEqualTo("/drive/v3/files"))
+                .withQueryParam(
+                    "q",
+                    equalTo("'fryFolderId' in parents and name = '${testData.workspace.id}' and trashed = false")
+                )
+                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+                .willReturn(okJson(responseJson))
+        )
+    }
+
+    private fun stubNewFileUpload(parent: String) {
+        stubFor(
+            post(urlPathEqualTo("/upload/drive/v3/files"))
+                .withQueryParam("fields", equalTo("id, size"))
+                .withQueryParam("uploadType", equalTo("multipart"))
+                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+                .withHeader(HttpHeaders.CONTENT_TYPE, matching("${MediaType.MULTIPART_FORM_DATA_VALUE}.*"))
+                .withMultipartRequestBody(
+                    aMultipart("metadata")
+                        .withBody(
+                            equalToJson(
+                                """{
+                                    "name": "testFileName",
+                                    "parents": ["$parent"],
+                                    "mimeType": ""     
+                                }"""
+                            )
+                        )
+                )
+                .withMultipartRequestBody(
+                    aMultipart("media").withBody(equalTo("Document Body"))
+                )
+                .willReturn(
+                    okJson(
+                        """{
+                                "id": "newFryFileId",
+                                "size": 42
+                            }"""
+                    )
+                )
+        )
+    }
+
     private fun convertResponseToString(contentBuffers: Flux<DataBuffer>): String {
         val os = ByteArrayOutputStream()
         DataBufferUtils.write(contentBuffers, os)
@@ -241,6 +372,19 @@ class GoogleDriveDocumentsStorageServiceIT(
     private fun whenDownloadingDocumentContent(testData: GoogleDriveTestData): Flux<DataBuffer> {
         return runBlocking {
             documentsStorageService.getDocumentContent(testData.workspace, "testLocation")
+        }
+    }
+
+    private fun whenSavingDocument(testData: GoogleDriveTestData): StorageProviderResponse {
+        val documentBody = ByteArrayInputStream("Document Body".toByteArray())
+        return runBlocking {
+            documentsStorageService.saveDocument(
+                SaveDocumentRequest(
+                    fileName = "testFileName",
+                    workspace = testData.workspace,
+                    content = DataBufferUtils.readInputStream({ documentBody }, bufferFactory, 4096)
+                )
+            )
         }
     }
 

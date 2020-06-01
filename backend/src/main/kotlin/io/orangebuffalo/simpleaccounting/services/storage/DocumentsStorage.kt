@@ -2,12 +2,11 @@ package io.orangebuffalo.simpleaccounting.services.storage
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.http.codec.multipart.FilePart
 import reactor.core.publisher.Flux
 
 interface DocumentsStorage {
 
-    suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse
+    suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse
 
     fun getId(): String
 
@@ -15,6 +14,12 @@ interface DocumentsStorage {
 }
 
 data class StorageProviderResponse(val storageProviderLocation: String, val sizeInBytes: Long?)
+
+data class SaveDocumentRequest(
+    val fileName: String,
+    val content: Flux<DataBuffer>,
+    val workspace: Workspace
+)
 
 open class DocumentStorageException(message: String? = null) : RuntimeException(message)
 

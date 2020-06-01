@@ -1,9 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
@@ -207,14 +204,13 @@ class DocumentsApiControllerIT(
     }
 
     private fun mockDocumentsStorage(testData: DocumentsApiTestData) {
-        runBlocking {
-            whenever(testDocumentsStorage.mock.saveDocument(any(), eq(testData.fryWorkspace)))
-                .doReturn(
-                    StorageProviderResponse(
-                        storageProviderLocation = "test-location",
-                        sizeInBytes = 42
-                    )
-                )
+        testDocumentsStorage.mock.stub {
+            onBlocking {
+                saveDocument(argThat { workspace == testData.fryWorkspace && fileName == "test-file.txt" })
+            } doReturn StorageProviderResponse(
+                storageProviderLocation = "test-location",
+                sizeInBytes = 42
+            )
         }
     }
 

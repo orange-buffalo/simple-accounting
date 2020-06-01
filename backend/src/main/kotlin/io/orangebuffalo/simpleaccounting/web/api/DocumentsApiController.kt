@@ -6,19 +6,17 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
-import kotlinx.coroutines.reactive.awaitFirst
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
-import org.springframework.http.codec.multipart.Part
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.Instant
 
 @RestController
@@ -32,11 +30,18 @@ class DocumentsApiController(
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     suspend fun uploadNewDocument(
         @PathVariable workspaceId: Long,
-        @RequestPart("file") file: Mono<Part>
+        @RequestPart("file") filePart: FilePart
     ): DocumentDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_WRITE)
-        val filePart = file.cast(FilePart::class.java).awaitFirst()
-        return documentsService.uploadDocument(filePart, workspace).let(::mapDocumentDto)
+        return documentsService
+            .saveDocument(
+                SaveDocumentRequest(
+                    fileName = filePart.filename(),
+                    workspace = workspace,
+                    content = filePart.content()
+                )
+            )
+            .let(::mapDocumentDto)
     }
 
     @GetMapping
