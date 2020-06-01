@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 
 const val OAUTH2_CLIENT_REGISTRATION_ID = "google-drive"
-private const val AUTH_EVENT_NAME = "storage.google-drive.auth"
+const val AUTH_EVENT_NAME = "storage.google-drive.auth"
 
 @Service
 class GoogleDriveDocumentsStorageService(
@@ -91,12 +91,13 @@ class GoogleDriveDocumentsStorageService(
     @EventListener
     fun onAuthFailure(authFailedEvent: OAuth2FailedEvent) = authFailedEvent
         .launchIfClientMatches(OAUTH2_CLIENT_REGISTRATION_ID) {
-            val userId = authFailedEvent.user.id!!
             pushNotificationService.sendPushNotification(
                 eventName = AUTH_EVENT_NAME,
-                userId = userId,
-                // todo #225: send authorization url
-                data = GoogleDriveStorageIntegrationStatus(authorizationRequired = true)
+                userId = authFailedEvent.user.id!!,
+                data = GoogleDriveStorageIntegrationStatus(
+                    authorizationRequired = true,
+                    authorizationUrl = buildAuthorizationUrl()
+                )
             )
         }
 

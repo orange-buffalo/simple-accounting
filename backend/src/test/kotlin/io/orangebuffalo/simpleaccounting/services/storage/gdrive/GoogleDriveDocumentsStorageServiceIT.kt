@@ -1,30 +1,28 @@
 package io.orangebuffalo.simpleaccounting.services.storage.gdrive
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.stub
+import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2ClientAuthorizationProvider
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.mockAccessToken
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.mockAuthorizationFailure
+import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.*
 import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
 import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.utils.assertNumberOfStubbedRequests
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
@@ -47,7 +45,8 @@ private val bufferFactory = DefaultDataBufferFactory()
 )
 class GoogleDriveDocumentsStorageServiceIT(
     @Autowired private val documentsStorageService: GoogleDriveDocumentsStorageService,
-    @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate
+    @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate  ,
+    @Autowired private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
     @MockBean
@@ -55,6 +54,9 @@ class GoogleDriveDocumentsStorageServiceIT(
 
     @MockBean
     lateinit var clientAuthorizationProvider: OAuth2ClientAuthorizationProvider
+
+    @MockBean
+    lateinit var pushNotificationService: PushNotificationService
 
     @AfterEach
     fun cleanup() {
@@ -112,20 +114,7 @@ class GoogleDriveDocumentsStorageServiceIT(
     fun `should return existing root folder`(testData: GoogleDriveTestData) {
         givenExistingDriveIntegration(testData)
         webClientBuilderProvider.mockAccessToken("driveToken")
-        stubFor(
-            get(urlPathEqualTo("/drive/v3/files/fryFolderId"))
-                .withQueryParam("fields", equalTo("name, trashed, id"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .willReturn(
-                    okJson(
-                        """{
-                            "id": "fryFolderId",
-                            "trashed": false,
-                            "name": "fryFolder"
-                        }"""
-                    )
-                )
-        )
+        stubExistingRootFolder()
 
         val status = whenCalculatingIntegrationStatus()
 
@@ -320,6 +309,88 @@ class GoogleDriveDocumentsStorageServiceIT(
                 storageProviderLocation = "newFryFileId",
                 sizeInBytes = 42
             )
+        )
+    }
+
+    @Test
+    fun `should send push notification with new auth URL on authorization failure`(testData: GoogleDriveTestData) {
+        clientAuthorizationProvider.stub {
+            onBlocking { buildAuthorizationUrl(eq("google-drive"), any()) } doReturn "authUrl"
+        }
+
+        GlobalScope.run {
+            applicationEventPublisher.publishEvent(
+                OAuth2FailedEvent(
+                    user = testData.fry,
+                    context = coroutineContext,
+                    clientRegistrationId = OAUTH2_CLIENT_REGISTRATION_ID
+                )
+            )
+        }
+
+        await().untilAsserted {
+            verifyBlocking(pushNotificationService) {
+                sendPushNotification(
+                    userId = testData.fry.id!!,
+                    eventName = AUTH_EVENT_NAME,
+                    data = GoogleDriveStorageIntegrationStatus(
+                        folderId = null,
+                        folderName = null,
+                        authorizationRequired = true,
+                        authorizationUrl = "authUrl"
+                    )
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should process success authorization event`(testData: GoogleDriveTestData) {
+        webClientBuilderProvider.mockAccessToken("driveToken")
+        stubNewRootFolderRequest()
+
+        GlobalScope.run {
+            applicationEventPublisher.publishEvent(
+                OAuth2SucceededEvent(
+                    user = testData.fry,
+                    context = coroutineContext,
+                    clientRegistrationId = OAUTH2_CLIENT_REGISTRATION_ID
+                )
+            )
+        }
+
+        await().untilAsserted {
+            verifyBlocking(pushNotificationService) {
+                sendPushNotification(
+                    userId = testData.fry.id!!,
+                    eventName = AUTH_EVENT_NAME,
+                    data = GoogleDriveStorageIntegrationStatus(
+                        folderId = "newFolderId",
+                        folderName = "newFolder",
+                        authorizationRequired = false,
+                        authorizationUrl = null
+                    )
+                )
+            }
+            assertNumberOfStubbedRequests(1)
+            assertNewIntegration(testData)
+        }
+    }
+
+    private fun stubExistingRootFolder() {
+        stubFor(
+            get(urlPathEqualTo("/drive/v3/files/fryFolderId"))
+                .withQueryParam("fields", equalTo("name, trashed, id"))
+                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+                .willReturn(
+                    okJson(
+                        """{
+                                "id": "fryFolderId",
+                                "trashed": false,
+                                "name": "fryFolder"
+                            }"""
+                    )
+                )
         )
     }
 
