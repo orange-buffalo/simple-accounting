@@ -290,7 +290,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         stubGetWorkspaceFolder(testData, """{ "files": [] } """)
         stubFor(
             post(urlPathEqualTo("/drive/v3/files"))
-                .withQueryParam("fields", equalTo("id"))
+                .withQueryParam("fields", equalTo("id, name"))
                 .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
                 .withRequestBody(
                     equalToJson(
@@ -301,7 +301,14 @@ class GoogleDriveDocumentsStorageServiceIT(
                             }"""
                     )
                 )
-                .willReturn(okJson("""{ "id": "workspaceFolderId" }"""))
+                .willReturn(
+                    okJson(
+                        """{ 
+                            "id": "workspaceFolderId", 
+                            "name": "${testData.workspace.id}"
+                        }"""
+                    )
+                )
         )
         stubNewFileUpload("workspaceFolderId")
 
