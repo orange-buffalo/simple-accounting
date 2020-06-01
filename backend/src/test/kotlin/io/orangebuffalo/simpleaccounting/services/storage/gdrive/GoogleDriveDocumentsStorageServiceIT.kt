@@ -13,17 +13,24 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2Clien
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.mockAccessToken
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.mockAuthorizationFailure
+import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.utils.assertNumberOfStubbedRequests
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
+import reactor.core.publisher.Flux
+import java.io.ByteArrayOutputStream
 
 @SimpleAccountingIntegrationTest
 @NeedsWireMock
@@ -192,6 +199,51 @@ class GoogleDriveDocumentsStorageServiceIT(
         assertNewIntegration(testData)
     }
 
+    @Test
+    @WithSaMockUser("Fry")
+    fun `should fail if OAuth2 client is not authorized`(testData: GoogleDriveTestData) {
+        webClientBuilderProvider.mockAuthorizationFailure()
+
+        assertThatThrownBy {
+            whenDownloadingDocumentContent(testData)
+        }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
+    }
+
+    @Test
+    @WithSaMockUser("Fry")
+    fun `should download file content`(testData: GoogleDriveTestData) {
+        webClientBuilderProvider.mockAccessToken("driveToken")
+        stubFor(
+            get(urlPathEqualTo("/drive/v3/files/testLocation"))
+                .withQueryParam("alt", equalTo("media"))
+                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+                .willReturn(
+                    aResponse()
+                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                        .withBody("Test Content".toByteArray())
+                )
+        )
+
+        val contentBuffers = whenDownloadingDocumentContent(testData)
+
+        assertNumberOfStubbedRequests(1)
+        assertThat(convertResponseToString(contentBuffers)).isEqualTo("Test Content")
+    }
+
+    private fun convertResponseToString(contentBuffers: Flux<DataBuffer>): String {
+        val os = ByteArrayOutputStream()
+        DataBufferUtils.write(contentBuffers, os)
+            .map { DataBufferUtils.release(it) }
+            .blockLast()
+        return String(os.toByteArray())
+    }
+
+    private fun whenDownloadingDocumentContent(testData: GoogleDriveTestData): Flux<DataBuffer> {
+        return runBlocking {
+            documentsStorageService.getDocumentContent(testData.workspace, "testLocation")
+        }
+    }
+
     private fun assertNewIntegrationStatus(status: GoogleDriveStorageIntegrationStatus) {
         assertThat(status).isEqualTo(
             GoogleDriveStorageIntegrationStatus(
@@ -250,7 +302,8 @@ class GoogleDriveDocumentsStorageServiceIT(
 
     class GoogleDriveTestData : TestData {
         val fry = Prototypes.fry()
-        override fun generateData() = listOf(fry)
+        val workspace = Prototypes.workspace(owner = fry)
+        override fun generateData() = listOf(fry, workspace)
     }
 
 }
