@@ -12,9 +12,18 @@ import org.springframework.test.context.ContextConfigurationAttributes
 import org.springframework.test.context.ContextCustomizer
 import org.springframework.test.context.ContextCustomizerFactory
 import org.springframework.test.context.MergedContextConfiguration
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 fun assertNumberOfStubbedRequests(requestsNumber: Int) {
     assertThat(getAllServeEvents()).hasSize(requestsNumber)
+}
+
+fun urlEncodeParameter(parameter: Pair<String, String>): String {
+    val charset = StandardCharsets.UTF_8.name()
+    val encodedKey = URLEncoder.encode(parameter.first, charset)
+    val encodedValue = URLEncoder.encode(parameter.second, charset)
+    return "$encodedKey=$encodedValue"
 }
 
 /**
@@ -25,26 +34,47 @@ fun assertNumberOfStubbedRequests(requestsNumber: Int) {
 @ExtendWith(WireMockExtension::class)
 annotation class NeedsWireMock
 
+/**
+ * Injects WireMock server port into a constructor, test or test lifecycle method.
+ */
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+@ExtendWith(WireMockExtension::class)
+annotation class WireMockPort
+
 private val wireMockServer: WireMockServer by lazy {
     WireMockServer(options().dynamicPort()).apply { start() }
+}
+
+private fun getWireMockPort(): Int {
+    if (!wireMockServer.isRunning) {
+        wireMockServer.start()
+    }
+    return wireMockServer.port()
 }
 
 /**
  * JUnit extensions to configure the [WireMockServer] and handle its lifecycle.
  */
-class WireMockExtension : Extension, BeforeAllCallback, AfterAllCallback, AfterEachCallback {
+class WireMockExtension : Extension, BeforeAllCallback, AfterAllCallback, AfterEachCallback, ParameterResolver {
     override fun afterAll(context: ExtensionContext?) {
         wireMockServer.stop()
     }
 
     override fun beforeAll(context: ExtensionContext?) {
-        configureFor(wireMockServer.port())
+        configureFor(getWireMockPort())
     }
 
     override fun afterEach(context: ExtensionContext?) {
         removeAllMappings()
         resetAllRequests()
     }
+
+    override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext?) =
+        parameterContext.isAnnotated(WireMockPort::class.java)
+
+    override fun resolveParameter(parameterContext: ParameterContext?, extensionContext: ExtensionContext?) =
+        getWireMockPort()
 }
 
 /**
@@ -64,6 +94,6 @@ class WireMockContextCustomizerFactory : ContextCustomizerFactory {
 private class WireMockContextCustomizer : ContextCustomizer {
     override fun customizeContext(context: ConfigurableApplicationContext, mergedConfig: MergedContextConfiguration) {
         val sources = context.environment.propertySources
-        sources.addLast(MapPropertySource("wireMockProperties", mapOf("wire-mock.port" to wireMockServer.port())))
+        sources.addLast(MapPropertySource("wireMockProperties", mapOf("wire-mock.port" to getWireMockPort())))
     }
 }
