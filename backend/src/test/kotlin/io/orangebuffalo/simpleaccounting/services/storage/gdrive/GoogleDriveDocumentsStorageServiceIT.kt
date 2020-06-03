@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.*
 import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
-import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
+import io.orangebuffalo.simpleaccounting.utils.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -44,7 +44,7 @@ private val bufferFactory = DefaultDataBufferFactory()
 )
 class GoogleDriveDocumentsStorageServiceIT(
     @Autowired private val documentsStorageService: GoogleDriveDocumentsStorageService,
-    @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate  ,
+    @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
@@ -84,12 +84,11 @@ class GoogleDriveDocumentsStorageServiceIT(
         clientAuthorizationProvider.stub {
             onBlocking { buildAuthorizationUrl(eq("google-drive"), any()) } doReturn "authUrl"
         }
-        stubFor(
-            get(urlPathEqualTo("/drive/v3/files/fryFolderId"))
-                .withQueryParam("fields", equalTo("name, trashed, id"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .willReturn(unauthorized())
-        )
+        stubGetRequestTo("/drive/v3/files/fryFolderId") {
+            withQueryParam("fields", equalTo("name, trashed, id"))
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            willReturn(unauthorized())
+        }
 
         val status = whenCalculatingIntegrationStatus()
 
@@ -147,20 +146,17 @@ class GoogleDriveDocumentsStorageServiceIT(
     fun `should create a new root folder if previously recorded is trashed`(testData: GoogleDriveTestData) {
         givenExistingDriveIntegration(testData)
         webClientBuilderProvider.mockAccessToken("driveToken")
-        stubFor(
-            get(urlPathEqualTo("/drive/v3/files/fryFolderId"))
-                .withQueryParam("fields", equalTo("name, trashed, id"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .willReturn(
-                    okJson(
-                        """{
-                            "id": "fryFolderId",
-                            "trashed": true,
-                            "name": "fryFolder"
-                        }"""
-                    )
-                )
-        )
+        stubGetRequestTo("/drive/v3/files/fryFolderId") {
+            withQueryParam("fields", equalTo("name, trashed, id"))
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            willReturnOkJson(
+                """{
+                    "id": "fryFolderId",
+                    "trashed": true,
+                    "name": "fryFolder"
+                }"""
+            )
+        }
         stubNewRootFolderRequest()
 
         val status = whenCalculatingIntegrationStatus()
@@ -174,12 +170,11 @@ class GoogleDriveDocumentsStorageServiceIT(
     fun `should create a new root folder if previously recorded is not found`(testData: GoogleDriveTestData) {
         givenExistingDriveIntegration(testData)
         webClientBuilderProvider.mockAccessToken("driveToken")
-        stubFor(
-            get(urlPathEqualTo("/drive/v3/files/fryFolderId"))
-                .withQueryParam("fields", equalTo("name, trashed, id"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .willReturn(notFound())
-        )
+        stubGetRequestTo("/drive/v3/files/fryFolderId") {
+            withQueryParam("fields", equalTo("name, trashed, id"))
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            willReturn(notFound())
+        }
         stubNewRootFolderRequest()
 
         val status = whenCalculatingIntegrationStatus()
@@ -202,16 +197,14 @@ class GoogleDriveDocumentsStorageServiceIT(
     @WithSaMockUser("Fry")
     fun `should download file content`(testData: GoogleDriveTestData) {
         webClientBuilderProvider.mockAccessToken("driveToken")
-        stubFor(
-            get(urlPathEqualTo("/drive/v3/files/testLocation"))
-                .withQueryParam("alt", equalTo("media"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .willReturn(
-                    aResponse()
-                        .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
-                        .withBody("Test Content".toByteArray())
-                )
-        )
+        stubGetRequestTo("/drive/v3/files/testLocation") {
+            withQueryParam("alt", equalTo("media"))
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            willReturnResponse {
+                withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                withBody("Test Content".toByteArray())
+            }
+        }
 
         val contentBuffers = whenDownloadingDocumentContent(testData)
 
@@ -269,28 +262,25 @@ class GoogleDriveDocumentsStorageServiceIT(
         givenExistingDriveIntegration(testData)
         webClientBuilderProvider.mockAccessToken("driveToken")
         stubGetWorkspaceFolder(testData, """{ "files": [] } """)
-        stubFor(
-            post(urlPathEqualTo("/drive/v3/files"))
-                .withQueryParam("fields", equalTo("id, name"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .withRequestBody(
-                    equalToJson(
-                        """{
-                                "name": "${testData.workspace.id}",
-                                "mimeType": "application/vnd.google-apps.folder",
-                                "parents": ["fryFolderId"]
-                            }"""
-                    )
+        stubPostRequestTo("/drive/v3/files") {
+            withQueryParam("fields", equalTo("id, name"))
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            withRequestBody(
+                equalToJson(
+                    """{
+                        "name": "${testData.workspace.id}",
+                        "mimeType": "application/vnd.google-apps.folder",
+                        "parents": ["fryFolderId"]
+                    }"""
                 )
-                .willReturn(
-                    okJson(
-                        """{ 
-                            "id": "workspaceFolderId", 
-                            "name": "${testData.workspace.id}"
-                        }"""
-                    )
-                )
-        )
+            )
+            willReturnOkJson(
+                """{ 
+                    "id": "workspaceFolderId", 
+                    "name": "${testData.workspace.id}"
+                }"""
+            )
+        }
         stubNewFileUpload("workspaceFolderId")
 
         val documentResponse = whenSavingDocument(testData)
@@ -368,65 +358,58 @@ class GoogleDriveDocumentsStorageServiceIT(
     }
 
     private fun stubExistingRootFolder() {
-        stubFor(
-            get(urlPathEqualTo("/drive/v3/files/fryFolderId"))
-                .withQueryParam("fields", equalTo("name, trashed, id"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .willReturn(
-                    okJson(
-                        """{
-                                "id": "fryFolderId",
-                                "trashed": false,
-                                "name": "fryFolder"
-                            }"""
-                    )
-                )
-        )
+        stubGetRequestTo("/drive/v3/files/fryFolderId") {
+            withQueryParam("fields", equalTo("name, trashed, id"))
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            willReturnOkJson(
+                """{
+                    "id": "fryFolderId",
+                    "trashed": false,
+                    "name": "fryFolder"
+                }"""
+            )
+        }
     }
 
     private fun stubGetWorkspaceFolder(testData: GoogleDriveTestData, responseJson: String) {
-        stubFor(
-            get(urlPathEqualTo("/drive/v3/files"))
-                .withQueryParam(
-                    "q",
-                    equalTo("'fryFolderId' in parents and name = '${testData.workspace.id}' and trashed = false")
-                )
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .willReturn(okJson(responseJson))
-        )
+        stubGetRequestTo("/drive/v3/files") {
+            withQueryParam(
+                "q",
+                equalTo("'fryFolderId' in parents and name = '${testData.workspace.id}' and trashed = false")
+            )
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            willReturn(okJson(responseJson))
+        }
     }
 
     private fun stubNewFileUpload(parent: String) {
-        stubFor(
-            post(urlPathEqualTo("/upload/drive/v3/files"))
-                .withQueryParam("fields", equalTo("id, size"))
-                .withQueryParam("uploadType", equalTo("multipart"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .withHeader(HttpHeaders.CONTENT_TYPE, matching("${MediaType.MULTIPART_FORM_DATA_VALUE}.*"))
-                .withMultipartRequestBody(
-                    aMultipart("metadata")
-                        .withBody(
-                            equalToJson(
-                                """{
-                                    "name": "testFileName",
-                                    "parents": ["$parent"],
-                                    "mimeType": ""     
-                                }"""
-                            )
-                        )
-                )
-                .withMultipartRequestBody(
-                    aMultipart("media").withBody(equalTo("Document Body"))
-                )
-                .willReturn(
-                    okJson(
-                        """{
-                                "id": "newFryFileId",
-                                "size": 42
+        stubPostRequestTo("/upload/drive/v3/files") {
+            withQueryParam("fields", equalTo("id, size"))
+            withQueryParam("uploadType", equalTo("multipart"))
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            withHeader(HttpHeaders.CONTENT_TYPE, matching("${MediaType.MULTIPART_FORM_DATA_VALUE}.*"))
+            withMultipartRequestBody(
+                aMultipart("metadata")
+                    .withBody(
+                        equalToJson(
+                            """{
+                                "name": "testFileName",
+                                "parents": ["$parent"],
+                                "mimeType": ""     
                             }"""
+                        )
                     )
-                )
-        )
+            )
+            withMultipartRequestBody(
+                aMultipart("media").withBody(equalTo("Document Body"))
+            )
+            willReturnOkJson(
+                """{
+                    "id": "newFryFileId",
+                    "size": 42
+                }"""
+            )
+        }
     }
 
     private fun convertResponseToString(contentBuffers: Flux<DataBuffer>): String {
@@ -468,28 +451,25 @@ class GoogleDriveDocumentsStorageServiceIT(
     }
 
     private fun stubNewRootFolderRequest() {
-        stubFor(
-            post(urlPathEqualTo("/drive/v3/files"))
-                .withQueryParam("fields", equalTo("id, name"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
-                .withRequestBody(
-                    equalToJson(
-                        """{
-                                "name": "simple-accounting",
-                                "mimeType": "application/vnd.google-apps.folder",
-                                "parents": []
-                            }"""
-                    )
+        stubPostRequestTo("/drive/v3/files") {
+            withQueryParam("fields", equalTo("id, name"))
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
+            withRequestBody(
+                equalToJson(
+                    """{
+                        "name": "simple-accounting",
+                        "mimeType": "application/vnd.google-apps.folder",
+                        "parents": []
+                    }"""
                 )
-                .willReturn(
-                    okJson(
-                        """{
-                                "id": "newFolderId",
-                                "name": "newFolder"
-                            }"""
-                    )
-                )
-        )
+            )
+            willReturnOkJson(
+                """{
+                    "id": "newFolderId",
+                    "name": "newFolder"
+                }"""
+            )
+        }
     }
 
     private fun whenCalculatingIntegrationStatus() =

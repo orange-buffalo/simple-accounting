@@ -10,7 +10,9 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.Client
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
+import io.orangebuffalo.simpleaccounting.utils.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.utils.urlEncodeParameter
+import io.orangebuffalo.simpleaccounting.utils.willReturnOkJson
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
@@ -133,10 +135,9 @@ internal class OAuth2ClientAuthorizationProviderIT(
     @Test
     fun `should emit OAuth2FailedEvent if token endpoint fails`(testData: AuthorizationProviderTestData) {
         mockSavedRequest(testData.fry)
-        stubFor(
-            post(urlPathEqualTo("/token"))
-                .willReturn(badRequest().withBody("""{ "error": "some bad request" }"""))
-        )
+        stubPostRequestTo("/token") {
+            willReturn(badRequest().withBody("""{ "error": "some bad request" }"""))
+        }
 
         handleAuthorizationResponse(callbackRequestProto())
 
@@ -147,13 +148,12 @@ internal class OAuth2ClientAuthorizationProviderIT(
     fun `should call token endpoint with proper parameters`(testData: AuthorizationProviderTestData) {
         mockSavedRequest(testData.fry)
 
-        stubFor(
-            post(urlPathEqualTo("/token"))
-                .withRequestBody(containing(urlEncodeParameter("grant_type" to "authorization_code")))
-                .withRequestBody(containing(urlEncodeParameter("code" to "testCode")))
-                .withRequestBody(containing(urlEncodeParameter("redirect_uri" to "http://test-host/auth-callback")))
-                .withBasicAuth("Client ID", "Client Secret")
-        )
+        stubPostRequestTo("/token") {
+            withRequestBody(containing(urlEncodeParameter("grant_type" to "authorization_code")))
+            withRequestBody(containing(urlEncodeParameter("code" to "testCode")))
+            withRequestBody(containing(urlEncodeParameter("redirect_uri" to "http://test-host/auth-callback")))
+            withBasicAuth("Client ID", "Client Secret")
+        }
 
         handleAuthorizationResponse(callbackRequestProto())
     }
@@ -162,20 +162,17 @@ internal class OAuth2ClientAuthorizationProviderIT(
     fun `should save persisted client and emit successful auth even on token response`(testData: AuthorizationProviderTestData) {
         mockSavedRequest(testData.fry)
 
-        stubFor(
-            post(urlPathEqualTo("/token"))
-                .willReturn(
-                    okJson(
-                        """{ 
-                            "access_token": "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
-                            "token_type": "bearer",
-                            "expires_in": 3600,
-                            "refresh_token": "IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk",
-                            "scope": "scope1 scope2"
-                        }"""
-                    )
-                )
-        )
+        stubPostRequestTo("/token") {
+            willReturnOkJson(
+                """{ 
+                    "access_token": "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
+                    "token_type": "bearer",
+                    "expires_in": 3600,
+                    "refresh_token": "IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk",
+                    "scope": "scope1 scope2"
+                }"""
+            )
+        }
 
         handleAuthorizationResponse(callbackRequestProto())
 

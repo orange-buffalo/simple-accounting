@@ -1,6 +1,8 @@
 package io.orangebuffalo.simpleaccounting.utils
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.MappingBuilder
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import org.assertj.core.api.Assertions.assertThat
@@ -24,6 +26,26 @@ fun urlEncodeParameter(parameter: Pair<String, String>): String {
     val encodedKey = URLEncoder.encode(parameter.first, charset)
     val encodedValue = URLEncoder.encode(parameter.second, charset)
     return "$encodedKey=$encodedValue"
+}
+
+fun stubGetRequestTo(path: String, spec: MappingBuilder.() -> Unit) {
+    val mappingBuilder = get(urlPathEqualTo(path))
+    spec(mappingBuilder)
+    stubFor(mappingBuilder)
+}
+
+fun stubPostRequestTo(path: String, spec: MappingBuilder.() -> Unit) {
+    val mappingBuilder = post(urlPathEqualTo(path))
+    spec(mappingBuilder)
+    stubFor(mappingBuilder)
+}
+
+fun MappingBuilder.willReturnOkJson(jsonBody: String): MappingBuilder = willReturn(okJson(jsonBody))
+
+fun MappingBuilder.willReturnResponse(spec: ResponseDefinitionBuilder.() -> Unit) {
+    val responseDefinitionBuilder = aResponse()
+    spec(responseDefinitionBuilder)
+    willReturn(responseDefinitionBuilder)
 }
 
 /**

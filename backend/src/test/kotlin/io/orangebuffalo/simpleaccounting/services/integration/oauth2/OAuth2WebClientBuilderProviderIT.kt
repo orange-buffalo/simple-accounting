@@ -6,10 +6,7 @@ import io.orangebuffalo.simpleaccounting.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
-import io.orangebuffalo.simpleaccounting.utils.WireMockPort
-import io.orangebuffalo.simpleaccounting.utils.assertNumberOfReceivedWireMockRequests
-import io.orangebuffalo.simpleaccounting.utils.urlEncodeParameter
+import io.orangebuffalo.simpleaccounting.utils.*
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -72,10 +69,9 @@ class OAuth2WebClientBuilderProviderIT(
                 )
             )
         }
-        stubFor(
-            get(urlPathEqualTo("/resource"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer accessToken"))
-        )
+        stubGetRequestTo("/resource") {
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer accessToken"))
+        }
 
         val response = executeResourceRequest()
 
@@ -102,11 +98,10 @@ class OAuth2WebClientBuilderProviderIT(
                 )
             )
         }
-        stubFor(
-            get(urlPathEqualTo("/resource"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer accessToken"))
-                .willReturn(unauthorized())
-        )
+        stubGetRequestTo("/resource") {
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer accessToken"))
+            willReturn(unauthorized())
+        }
 
         val response = executeResourceRequest()
 
@@ -132,26 +127,21 @@ class OAuth2WebClientBuilderProviderIT(
                 )
             )
         }
-        stubFor(
-            post(urlPathEqualTo("/token"))
-                .withRequestBody(containing(urlEncodeParameter("grant_type" to "refresh_token")))
-                .withRequestBody(containing(urlEncodeParameter("client_id" to "Client ID")))
-                .withRequestBody(containing(urlEncodeParameter("refresh_token" to "refreshToken")))
-                .willReturn(
-                    okJson(
-                        """{ 
-                            "access_token": "newAccessToken",
-                            "token_type": "bearer",
-                            "expires_in": 3600
-                        }"""
-                    )
-                )
-        )
-        stubFor(
-            get(urlPathEqualTo("/resource"))
-                .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer newAccessToken"))
-
-        )
+        stubPostRequestTo("/token") {
+            withRequestBody(containing(urlEncodeParameter("grant_type" to "refresh_token")))
+            withRequestBody(containing(urlEncodeParameter("client_id" to "Client ID")))
+            withRequestBody(containing(urlEncodeParameter("refresh_token" to "refreshToken")))
+            willReturnOkJson(
+                """{ 
+                    "access_token": "newAccessToken",
+                    "token_type": "bearer",
+                    "expires_in": 3600
+                }"""
+            )
+        }
+        stubGetRequestTo("/resource") {
+            withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer newAccessToken"))
+        }
 
         val response = executeResourceRequest()
 
