@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.utils.WireMockPort
-import io.orangebuffalo.simpleaccounting.utils.assertNumberOfStubbedRequests
+import io.orangebuffalo.simpleaccounting.utils.assertNumberOfReceivedWireMockRequests
 import io.orangebuffalo.simpleaccounting.utils.urlEncodeParameter
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -80,7 +80,7 @@ class OAuth2WebClientBuilderProviderIT(
         val response = executeResourceRequest()
 
         assertThat(response?.statusCode()).isEqualTo(HttpStatus.OK)
-        assertNumberOfStubbedRequests(1)
+        assertNumberOfReceivedWireMockRequests(1)
         // ensure client is not removed
         assertThat(getPersistedClientsCount()).isOne()
     }
@@ -111,7 +111,6 @@ class OAuth2WebClientBuilderProviderIT(
         val response = executeResourceRequest()
 
         assertThat(response?.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED)
-        assertNumberOfStubbedRequests(1)
         // should remove the persisted client
         assertThat(getPersistedClientsCount()).isZero()
     }
@@ -157,7 +156,7 @@ class OAuth2WebClientBuilderProviderIT(
         val response = executeResourceRequest()
 
         assertThat(response?.statusCode()).isEqualTo(HttpStatus.OK)
-        assertNumberOfStubbedRequests(2)
+        assertNumberOfReceivedWireMockRequests(2)
 
         val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java)
         assertThat(persistedClients).hasOnlyOneElementSatisfying { persistedClient ->

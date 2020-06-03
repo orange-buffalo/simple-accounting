@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.WithSaMockUser
@@ -8,14 +9,11 @@ import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
-import io.orangebuffalo.simpleaccounting.utils.getFormParameters
+import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
+import io.orangebuffalo.simpleaccounting.utils.urlEncodeParameter
 import kotlinx.coroutines.runBlocking
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
@@ -23,21 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.event.EventListener
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.TestPropertySource
-import org.springframework.util.SocketUtils
 import java.net.URI
-import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
-
-private val mockWebServerPort = SocketUtils.findAvailableTcpPort()
 
 @SimpleAccountingIntegrationTest
 @TestPropertySource(
@@ -48,9 +36,11 @@ private val mockWebServerPort = SocketUtils.findAvailableTcpPort()
         "spring.security.oauth2.client.registration.test-client.authorization-grant-type=authorization_code",
         "spring.security.oauth2.client.registration.test-client.redirect-uri=http://test-host/auth-callback",
         "spring.security.oauth2.client.registration.test-client.scope=scope2,scope1",
-        "spring.security.oauth2.client.provider.test-provider.authorization-uri=http://test-provider.com/auth"
+        "spring.security.oauth2.client.provider.test-provider.authorization-uri=http://test-provider.com/auth",
+        "spring.security.oauth2.client.provider.test-provider.token-uri=http://localhost:\${wire-mock.port}/token"
     ]
 )
+@NeedsWireMock
 internal class OAuth2ClientAuthorizationProviderIT(
     @Autowired private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate
@@ -70,29 +60,6 @@ internal class OAuth2ClientAuthorizationProviderIT(
 
     @Captor
     lateinit var authSucceededEventCaptor: ArgumentCaptor<OAuth2SucceededEvent>
-
-    private lateinit var mockWebServer: MockWebServer
-
-    companion object {
-        @JvmStatic
-        @DynamicPropertySource
-        fun setupContextProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.security.oauth2.client.provider.test-provider.token-uri") {
-                "http://localhost:${mockWebServerPort}/token"
-            }
-        }
-    }
-
-    @BeforeEach
-    fun initWebServer() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start(mockWebServerPort)
-    }
-
-    @AfterEach
-    fun shutdownWebServer() {
-        mockWebServer.shutdown()
-    }
 
     @Test
     @WithSaMockUser(userName = "Fry")
@@ -166,61 +133,47 @@ internal class OAuth2ClientAuthorizationProviderIT(
     @Test
     fun `should emit OAuth2FailedEvent if token endpoint fails`(testData: AuthorizationProviderTestData) {
         mockSavedRequest(testData.fry)
-
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpStatus.BAD_REQUEST.value())
-                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .setBody("""{ "error": "some bad request" }""")
+        stubFor(
+            post(urlPathEqualTo("/token"))
+                .willReturn(badRequest().withBody("""{ "error": "some bad request" }"""))
         )
 
         handleAuthorizationResponse(callbackRequestProto())
 
         verifyAuthFailedEvent(testData)
-
-        assertThat(mockWebServer.requestCount).isOne()
-        val tokenRequest = mockWebServer.takeRequest()
-        assertThat(tokenRequest.path).isEqualTo("/token")
     }
 
     @Test
     fun `should call token endpoint with proper parameters`(testData: AuthorizationProviderTestData) {
         mockSavedRequest(testData.fry)
 
-        mockWebServer.enqueue(MockResponse())
+        stubFor(
+            post(urlPathEqualTo("/token"))
+                .withRequestBody(containing(urlEncodeParameter("grant_type" to "authorization_code")))
+                .withRequestBody(containing(urlEncodeParameter("code" to "testCode")))
+                .withRequestBody(containing(urlEncodeParameter("redirect_uri" to "http://test-host/auth-callback")))
+                .withBasicAuth("Client ID", "Client Secret")
+        )
 
         handleAuthorizationResponse(callbackRequestProto())
-
-        assertThat(mockWebServer.requestCount).isOne()
-        val tokenRequest = mockWebServer.takeRequest()
-        assertThat(tokenRequest.method).isEqualTo(HttpMethod.POST.name)
-        assertThat(tokenRequest.path).isEqualTo("/token")
-        assertThat(getFormParameters(tokenRequest)).contains(
-            "grant_type" to "authorization_code",
-            "code" to "testCode",
-            "redirect_uri" to "http://test-host/auth-callback"
-        )
-        val auth = tokenRequest.headers[HttpHeaders.AUTHORIZATION]
-        assertThat(auth?.toLowerCase()).startsWith("basic ")
-        assertThat(auth?.removeRange(0, "basic ".length))
-            .isBase64().decodedAsBase64().isEqualTo("Client ID:Client Secret".toByteArray(StandardCharsets.UTF_8))
     }
 
     @Test
     fun `should save persisted client and emit successful auth even on token response`(testData: AuthorizationProviderTestData) {
         mockSavedRequest(testData.fry)
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .setBody(
-                    """{ 
-                    "access_token": "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
-                    "token_type": "bearer",
-                    "expires_in": 3600,
-                    "refresh_token": "IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk",
-                    "scope": "scope1 scope2"
-                }"""
+        stubFor(
+            post(urlPathEqualTo("/token"))
+                .willReturn(
+                    okJson(
+                        """{ 
+                            "access_token": "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
+                            "token_type": "bearer",
+                            "expires_in": 3600,
+                            "refresh_token": "IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk",
+                            "scope": "scope1 scope2"
+                        }"""
+                    )
                 )
         )
 

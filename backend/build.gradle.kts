@@ -64,8 +64,6 @@ dependencies {
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("com.google.guava:guava:${Versions.guava}")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
-    testImplementation("com.squareup.okhttp3:mockwebserver:${Versions.mockWebServer}")
-    testImplementation("com.squareup.okhttp3:okhttp:${Versions.mockWebServer}")
     testImplementation("com.github.tomakehurst:wiremock-jre8:${Versions.wireMock}")
     testImplementation("org.awaitility:awaitility:${Versions.awaitility}")
 

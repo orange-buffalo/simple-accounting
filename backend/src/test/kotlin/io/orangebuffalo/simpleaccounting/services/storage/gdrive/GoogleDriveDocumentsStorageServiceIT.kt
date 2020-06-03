@@ -12,7 +12,6 @@ import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
 import io.orangebuffalo.simpleaccounting.utils.NeedsWireMock
-import io.orangebuffalo.simpleaccounting.utils.assertNumberOfStubbedRequests
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -95,7 +94,6 @@ class GoogleDriveDocumentsStorageServiceIT(
         val status = whenCalculatingIntegrationStatus()
 
         assertUnauthorizedIntegrationStatus(status)
-        assertNumberOfStubbedRequests(1)
     }
 
     private fun assertUnauthorizedIntegrationStatus(status: GoogleDriveStorageIntegrationStatus) {
@@ -119,7 +117,6 @@ class GoogleDriveDocumentsStorageServiceIT(
         val status = whenCalculatingIntegrationStatus()
 
         assertExistingIntegrationStatus(status)
-        assertNumberOfStubbedRequests(1)
     }
 
     private fun assertExistingIntegrationStatus(status: GoogleDriveStorageIntegrationStatus) {
@@ -142,7 +139,6 @@ class GoogleDriveDocumentsStorageServiceIT(
         val status = whenCalculatingIntegrationStatus()
 
         assertNewIntegrationStatus(status)
-        assertNumberOfStubbedRequests(1)
         assertNewIntegration(testData)
     }
 
@@ -170,7 +166,6 @@ class GoogleDriveDocumentsStorageServiceIT(
         val status = whenCalculatingIntegrationStatus()
 
         assertNewIntegrationStatus(status)
-        assertNumberOfStubbedRequests(2)
         assertNewIntegration(testData)
     }
 
@@ -190,7 +185,6 @@ class GoogleDriveDocumentsStorageServiceIT(
         val status = whenCalculatingIntegrationStatus()
 
         assertNewIntegrationStatus(status)
-        assertNumberOfStubbedRequests(2)
         assertNewIntegration(testData)
     }
 
@@ -221,7 +215,6 @@ class GoogleDriveDocumentsStorageServiceIT(
 
         val contentBuffers = whenDownloadingDocumentContent(testData)
 
-        assertNumberOfStubbedRequests(1)
         assertThat(convertResponseToString(contentBuffers)).isEqualTo("Test Content")
     }
 
@@ -262,7 +255,6 @@ class GoogleDriveDocumentsStorageServiceIT(
 
         val documentResponse = whenSavingDocument(testData)
 
-        assertNumberOfStubbedRequests(2)
         assertThat(documentResponse).isEqualTo(
             StorageProviderResponse(
                 storageProviderLocation = "newFryFileId",
@@ -303,7 +295,6 @@ class GoogleDriveDocumentsStorageServiceIT(
 
         val documentResponse = whenSavingDocument(testData)
 
-        assertNumberOfStubbedRequests(3)
         assertThat(documentResponse).isEqualTo(
             StorageProviderResponse(
                 storageProviderLocation = "newFryFileId",
@@ -372,7 +363,6 @@ class GoogleDriveDocumentsStorageServiceIT(
                     )
                 )
             }
-            assertNumberOfStubbedRequests(1)
             assertNewIntegration(testData)
         }
     }

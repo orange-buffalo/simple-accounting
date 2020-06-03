@@ -15,7 +15,7 @@ import org.springframework.test.context.MergedContextConfiguration
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-fun assertNumberOfStubbedRequests(requestsNumber: Int) {
+fun assertNumberOfReceivedWireMockRequests(requestsNumber: Int) {
     assertThat(getAllServeEvents()).hasSize(requestsNumber)
 }
 
@@ -66,8 +66,12 @@ class WireMockExtension : Extension, BeforeAllCallback, AfterAllCallback, AfterE
     }
 
     override fun afterEach(context: ExtensionContext?) {
-        removeAllMappings()
-        resetAllRequests()
+        try {
+            assertThat(findUnmatchedRequests()).isEmpty()
+        } finally {
+            removeAllMappings()
+            resetAllRequests()
+        }
     }
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext?) =
