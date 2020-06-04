@@ -11,6 +11,6 @@ interface PersistentOAuth2AuthorizedClientRepository
 }
 
 interface PersistentOAuth2AuthorizedClientRepositoryExt {
-    // todo #225: this query should be derived
+    // deriving delete queries is not yet supported: https://jira.spring.io/browse/DATAJDBC-551
     fun deleteByClientRegistrationIdAndUserName(clientRegistrationId: String, userName: String)
 }
