@@ -14,6 +14,8 @@ import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderRespons
 import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.DriveFileNotFoundException
 import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.FolderResponse
 import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.GoogleDriveApiAdapter
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.springframework.context.event.EventListener
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
@@ -31,15 +33,13 @@ class GoogleDriveDocumentsStorageService(
     private val googleDriveApi: GoogleDriveApiAdapter
 ) : DocumentsStorage {
 
+    private val workspaceFolderMutex = Mutex()
+
     override suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse {
         val integration = withDbContext { repository.findByUserId(request.workspace.ownerId) }
             ?: throw StorageAuthorizationRequiredException()
 
-        //todo #81: it can happen that parallel file uploads of the same user create multiple workspace folders: need cleanup
-        val workspaceFolder = googleDriveApi.getOrCreateFolder(
-            folderName = request.workspace.id?.toString()!!,
-            parentFolderId = "${integration.folderId}"
-        )
+        val workspaceFolder = getOrCreateWorkspaceFolder(request, integration)
 
         val newFile = googleDriveApi.uploadFile(
             content = request.content,
@@ -51,6 +51,25 @@ class GoogleDriveDocumentsStorageService(
             storageProviderLocation = newFile.id,
             sizeInBytes = newFile.sizeInBytes
         )
+    }
+
+    private suspend fun getOrCreateWorkspaceFolder(
+        request: SaveDocumentRequest,
+        integration: GoogleDriveStorageIntegration
+    ): String {
+        val workspaceFolderName = request.workspace.id!!.toString()
+
+        val workspaceFolder = googleDriveApi.findFolderByNameAndParent(
+            folderName = workspaceFolderName,
+            parentFolderId = "${integration.folderId}"
+        )
+        if (workspaceFolder != null) return workspaceFolder
+
+        // we consider a global lock acceptable here as creation of new workspace folder is a rare operation
+        // the lock prevents multiple folders to be created for the same workspace in case of parallel upload requests
+        return workspaceFolderMutex.withLock {
+            googleDriveApi.createFolder(workspaceFolderName, integration.folderId).id
+        }
     }
 
     override fun getId(): String = "google-drive"

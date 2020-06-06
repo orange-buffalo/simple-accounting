@@ -79,10 +79,10 @@ class GoogleDriveApiAdapter(
             .body(BodyExtractors.toDataBuffers())
     }
 
-    suspend fun getOrCreateFolder(
+    suspend fun findFolderByNameAndParent(
         folderName: String,
         parentFolderId: String
-    ): String {
+    ): String? {
         val matchingFolders = createWebClient()
             .get()
             .uri { builder ->
@@ -100,11 +100,7 @@ class GoogleDriveApiAdapter(
             .bodyToMono(GDriveFiles::class.java)
             .awaitFirst()
 
-        return if (matchingFolders.files.isEmpty()) {
-            createFolder(folderName = folderName, parentFolderId = parentFolderId).id
-        } else {
-            matchingFolders.files[0].id!!
-        }
+        return if (matchingFolders.files.isEmpty()) null else matchingFolders.files[0].id
     }
 
     suspend fun createFolder(
