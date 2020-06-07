@@ -5,10 +5,10 @@ const { app } = mainConfig;
 app.store.commit('workspaces/setCurrentWorkspace', { id: 42 });
 
 export default {
-  title: 'Documents Upload',
+  title: 'Components/SaDocumentsUpload',
 };
 
-export const noExistingDocuments = () => ({
+export const NoExistingDocuments = () => ({
   components: { SaDocumentsUpload },
   template: '<SaDocumentsUpload :documents-ids="[]"/>',
 });
