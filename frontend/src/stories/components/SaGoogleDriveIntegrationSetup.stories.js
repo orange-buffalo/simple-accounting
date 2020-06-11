@@ -1,16 +1,16 @@
-import SaGoogleDriveIntegrationStatus from '@/components/documents/storage/SaGoogleDriveIntegrationStatus';
-import SaGoogleDriveIntegrationStatusStoriesAuthorizationCallback
-  from '@/stories/components/SaGoogleDriveIntegrationStatusStoriesAuthorizationCallback';
+import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup';
+import SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback
+  from '@/stories/components/SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback';
 import { onGet } from '@/stories/utils/stories-api-mocks';
 import pushNotifications from '@/services/push-notifications';
 
 export default {
-  title: 'Components/SaGoogleDriveIntegrationStatus',
+  title: 'Components/SaGoogleDriveIntegrationSetup',
 };
 
 export const InitialLoading = () => ({
-  components: { SaGoogleDriveIntegrationStatus },
-  template: '<SaGoogleDriveIntegrationStatus />',
+  components: { SaGoogleDriveIntegrationSetup },
+  template: '<SaGoogleDriveIntegrationSetup />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
       .neverEndingRequest();
@@ -18,8 +18,8 @@ export const InitialLoading = () => ({
 });
 
 export const ActiveIntegration = () => ({
-  components: { SaGoogleDriveIntegrationStatus },
-  template: '<SaGoogleDriveIntegrationStatus />',
+  components: { SaGoogleDriveIntegrationSetup },
+  template: '<SaGoogleDriveIntegrationSetup />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
       .reply(200, {
@@ -31,8 +31,8 @@ export const ActiveIntegration = () => ({
 });
 
 export const AuthorizationRequired = () => ({
-  components: { SaGoogleDriveIntegrationStatus },
-  template: '<SaGoogleDriveIntegrationStatus />',
+  components: { SaGoogleDriveIntegrationSetup },
+  template: '<SaGoogleDriveIntegrationSetup />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
       .reply(200, {
@@ -43,8 +43,8 @@ export const AuthorizationRequired = () => ({
 });
 
 export const AuthorizationFailed = () => ({
-  components: { SaGoogleDriveIntegrationStatus },
-  template: '<SaGoogleDriveIntegrationStatus />',
+  components: { SaGoogleDriveIntegrationSetup },
+  template: '<SaGoogleDriveIntegrationSetup />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
       .reply(200, {
@@ -63,8 +63,8 @@ export const AuthorizationFailed = () => ({
 });
 
 export const AuthorizationCallbacks = () => ({
-  components: { SaGoogleDriveIntegrationStatusStoriesAuthorizationCallback },
-  template: '<SaGoogleDriveIntegrationStatusStoriesAuthorizationCallback />',
+  components: { SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback },
+  template: '<SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
       .reply(200, {

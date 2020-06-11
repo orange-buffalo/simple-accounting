@@ -5,7 +5,7 @@
         v-model="enabled"
         @change="onEnabledChange"
       />
-      <h3>{{ storageName }}</h3>
+      <h4>{{ storageName }}</h4>
     </div>
     <slot v-if="enabled" />
   </div>
@@ -59,7 +59,7 @@
       align-items: center;
       margin-bottom: 10px;
 
-      h3 {
+      h4 {
         display: inline;
         margin: 0 0 0 10px;
       }

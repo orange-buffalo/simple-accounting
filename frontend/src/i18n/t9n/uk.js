@@ -730,7 +730,7 @@ export default {
     documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
 
-  saGoogleDriveIntegrationStatus: {
+  saGoogleDriveIntegrationSetup: {
     successful: {
       status: 'Інтеграція з Google Drive активна',
       details: 'Усі документи зберігаються до папки {folderLink}',

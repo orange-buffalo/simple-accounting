@@ -21,12 +21,12 @@
       </SaStatusLabel>
       <div class="sa-gdrive-integration__status__details">
         <div v-if="integrationStatus.unknown">
-          {{ $t('saGoogleDriveIntegrationStatus.unknown.details') }}
+          {{ $t('saGoogleDriveIntegrationSetup.unknown.details') }}
         </div>
         <div v-else-if="integrationStatus.successful">
           <I18n
             :tag="false"
-            path="saGoogleDriveIntegrationStatus.successful.details"
+            path="saGoogleDriveIntegrationSetup.successful.details"
           >
             <template #folderLink>
               <a
@@ -41,7 +41,7 @@
         <div v-else-if="integrationStatus.authorizationRequired">
           <I18n
             :tag="false"
-            path="saGoogleDriveIntegrationStatus.authorizationRequired.details.message"
+            path="saGoogleDriveIntegrationSetup.authorizationRequired.details.message"
           >
             <template #action>
               <br>
@@ -49,20 +49,20 @@
                 type="text"
                 @click="startAuthorization"
               >
-                {{ $t('saGoogleDriveIntegrationStatus.authorizationRequired.details.startAction') }}
+                {{ $t('saGoogleDriveIntegrationSetup.authorizationRequired.details.startAction') }}
               </ElButton>
             </template>
           </I18n>
         </div>
         <div v-else-if="integrationStatus.authorizationInProgress">
-          {{ $t('saGoogleDriveIntegrationStatus.authorizationInProgress.details.line1') }}
+          {{ $t('saGoogleDriveIntegrationSetup.authorizationInProgress.details.line1') }}
           <br>
-          {{ $t('saGoogleDriveIntegrationStatus.authorizationInProgress.details.line2') }}
+          {{ $t('saGoogleDriveIntegrationSetup.authorizationInProgress.details.line2') }}
         </div>
         <div v-else-if="integrationStatus.authorizationFailed">
           <I18n
             :tag="false"
-            path="saGoogleDriveIntegrationStatus.authorizationFailed.details.message"
+            path="saGoogleDriveIntegrationSetup.authorizationFailed.details.message"
           >
             <template #action>
               <br>
@@ -70,7 +70,7 @@
                 type="text"
                 @click="startAuthorization"
               >
-                {{ $t('saGoogleDriveIntegrationStatus.authorizationFailed.details.retryAction') }}
+                {{ $t('saGoogleDriveIntegrationSetup.authorizationFailed.details.retryAction') }}
               </ElButton>
             </template>
           </I18n>
@@ -164,20 +164,20 @@
       let iconName = null;
       if (integrationStatus.value.successful) {
         statusType = 'success';
-        statusText = 'saGoogleDriveIntegrationStatus.successful.status';
+        statusText = 'saGoogleDriveIntegrationSetup.successful.status';
         iconName = 'success';
       } else if (integrationStatus.value.unknown) {
-        statusText = 'saGoogleDriveIntegrationStatus.unknown.status';
+        statusText = 'saGoogleDriveIntegrationSetup.unknown.status';
         statusCustomIcon = 'google-drive-loading';
       } else if (integrationStatus.value.authorizationRequired) {
-        statusText = 'saGoogleDriveIntegrationStatus.authorizationRequired.status';
+        statusText = 'saGoogleDriveIntegrationSetup.authorizationRequired.status';
         statusType = 'pending';
         iconName = 'warning-circle';
       } else if (integrationStatus.value.authorizationInProgress) {
-        statusText = 'saGoogleDriveIntegrationStatus.authorizationInProgress.status';
+        statusText = 'saGoogleDriveIntegrationSetup.authorizationInProgress.status';
         statusCustomIcon = 'google-drive-loading';
       } else if (integrationStatus.value.authorizationFailed) {
-        statusText = 'saGoogleDriveIntegrationStatus.authorizationFailed.status';
+        statusText = 'saGoogleDriveIntegrationSetup.authorizationFailed.status';
         statusType = 'failure';
         iconName = 'warning-circle';
       }

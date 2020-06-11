@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SaGoogleDriveIntegrationStatus />
+    <SaGoogleDriveIntegrationSetup />
     <br>
     <br>
     <ElButton @click="sendSuccessEvent">
@@ -13,12 +13,12 @@
 </template>
 
 <script>
-  import SaGoogleDriveIntegrationStatus from '@/components/documents/storage/SaGoogleDriveIntegrationStatus';
+  import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup';
   import pushNotifications from '@/services/push-notifications';
 
   export default {
     components: {
-      SaGoogleDriveIntegrationStatus,
+      SaGoogleDriveIntegrationSetup,
     },
 
     setup() {

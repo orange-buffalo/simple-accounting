@@ -7,9 +7,12 @@ export const { i18n, store } = mainConfig.app;
 export const { app } = mainConfig;
 
 export function createStoriesAppDecorator() {
-  return () => ({
+  return (fn, { parameters }) => ({
     components: { StoriesApp },
-    template: '<StoriesApp><story /></StoriesApp>',
+    data() {
+      return { fullWidth: parameters.fullWidth };
+    },
+    template: '<StoriesApp :full-width="fullWidth"><story /></StoriesApp>',
     i18n,
     store,
   });

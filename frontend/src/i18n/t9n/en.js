@@ -731,7 +731,7 @@ export default {
     documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
 
-  saGoogleDriveIntegrationStatus: {
+  saGoogleDriveIntegrationSetup: {
     successful: {
       status: 'Google Drive integration is active',
       details: 'All documents are stored in {folderLink} folder',

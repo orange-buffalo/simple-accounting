@@ -1,15 +1,21 @@
 <template>
-  <div>
+  <div :class="classes">
     <slot v-if="loaded" />
   </div>
 </template>
 
 <script>
-  import { ref } from '@vue/composition-api';
+  import { ref, computed } from '@vue/composition-api';
   import mainConfig from '@/setup/setup-app';
 
   export default {
-    setup() {
+    props: {
+      fullWidth: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    setup(props) {
       const loaded = ref(false);
 
       async function loadI18n() {
@@ -22,9 +28,35 @@
 
       loadI18n();
 
+      const classes = computed(() => ({
+        'stories-app--full-width': props.fullWidth,
+        'stories-app--full-centered': !props.fullWidth,
+      }));
+
       return {
         loaded,
+        classes,
       };
     },
   };
 </script>
+
+<style lang="scss">
+  @import "~@/styles/vars.scss";
+
+  .stories-app--full-width {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    background: $primary-grey;
+  }
+
+  .stories-app--full-centered {
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
