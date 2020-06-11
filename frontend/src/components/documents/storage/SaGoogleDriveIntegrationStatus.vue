@@ -24,37 +24,56 @@
           {{ $t('saGoogleDriveIntegrationStatus.unknown.details') }}
         </div>
         <div v-else-if="integrationStatus.successful">
-          <i18n :tag="false" path="saGoogleDriveIntegrationStatus.successful.details">
+          <I18n
+            :tag="false"
+            path="saGoogleDriveIntegrationStatus.successful.details"
+          >
             <template #folderLink>
-              <a :href="`https://drive.google.com/drive/folders/${integrationStatus.folderId}`"
-                 target="_blank"
-              >{{ integrationStatus.folderName }}</a>
+              <a
+                :href="`https://drive.google.com/drive/folders/${integrationStatus.folderId}`"
+                target="_blank"
+              >
+                {{ integrationStatus.folderName }}
+              </a>
             </template>
-          </i18n>
+          </I18n>
         </div>
         <div v-else-if="integrationStatus.authorizationRequired">
-          <i18n :tag="false" path="saGoogleDriveIntegrationStatus.authorizationRequired.details.message">
+          <I18n
+            :tag="false"
+            path="saGoogleDriveIntegrationStatus.authorizationRequired.details.message"
+          >
             <template #action>
-              <br />
-              <ElButton type="text" @click="startAuthorization">
+              <br>
+              <ElButton
+                type="text"
+                @click="startAuthorization"
+              >
                 {{ $t('saGoogleDriveIntegrationStatus.authorizationRequired.details.startAction') }}
               </ElButton>
             </template>
-          </i18n>
+          </I18n>
         </div>
         <div v-else-if="integrationStatus.authorizationInProgress">
-          {{ $t('saGoogleDriveIntegrationStatus.authorizationInProgress.details.line1') }}<br />
+          {{ $t('saGoogleDriveIntegrationStatus.authorizationInProgress.details.line1') }}
+          <br>
           {{ $t('saGoogleDriveIntegrationStatus.authorizationInProgress.details.line2') }}
         </div>
         <div v-else-if="integrationStatus.authorizationFailed">
-          <i18n :tag="false" path="saGoogleDriveIntegrationStatus.authorizationFailed.details.message">
+          <I18n
+            :tag="false"
+            path="saGoogleDriveIntegrationStatus.authorizationFailed.details.message"
+          >
             <template #action>
-              <br />
-              <ElButton type="text" @click="startAuthorization">
+              <br>
+              <ElButton
+                type="text"
+                @click="startAuthorization"
+              >
                 {{ $t('saGoogleDriveIntegrationStatus.authorizationFailed.details.retryAction') }}
               </ElButton>
             </template>
-          </i18n>
+          </I18n>
         </div>
       </div>
     </div>
@@ -62,7 +81,11 @@
 </template>
 
 <script>
-  import { computed, onMounted, onUnmounted, ref } from '@vue/composition-api';
+  /* eslint-disable no-restricted-globals */
+
+  import {
+    computed, onMounted, onUnmounted, ref,
+  } from '@vue/composition-api';
   import { api } from '@/services/api';
   import SaStatusLabel from '@/components/SaStatusLabel';
   import SaIcon from '@/components/SaIcon';
@@ -74,6 +97,7 @@
       this.unknown = true;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     $reset() {
       this.unknown = false;
       this.authorizationInProgress = false;
@@ -116,7 +140,9 @@
 
   async function loadIntegrationStatus(integrationStatus) {
     const response = await api.get('/storage/google-drive/status');
-    const { folderId, folderName, authorizationRequired, authorizationUrl } = response.data;
+    const {
+      folderId, folderName, authorizationRequired, authorizationUrl,
+    } = response.data;
     if (authorizationRequired) {
       integrationStatus.value.onAuthorizationRequired(authorizationUrl);
     } else {
@@ -124,35 +150,79 @@
     }
   }
 
-  function calculateUiState(integrationStatus) {
-    let statusType = 'regular';
-    let statusText = null;
-    let statusCustomIcon = null;
-    let iconName = null;
-    if (integrationStatus.value.successful) {
-      statusType = 'success';
-      statusText = 'saGoogleDriveIntegrationStatus.successful.status';
-      iconName = 'success';
-    } else if (integrationStatus.value.unknown) {
-      statusText = 'saGoogleDriveIntegrationStatus.unknown.status';
-      statusCustomIcon = 'google-drive-loading';
-    } else if (integrationStatus.value.authorizationRequired) {
-      statusText = 'saGoogleDriveIntegrationStatus.authorizationRequired.status';
-      statusType = 'pending';
-      iconName = 'warning-circle';
-    } else if (integrationStatus.value.authorizationInProgress) {
-      statusText = 'saGoogleDriveIntegrationStatus.authorizationInProgress.status';
-      statusCustomIcon = 'google-drive-loading';
-    } else if (integrationStatus.value.authorizationFailed) {
-      statusText = 'saGoogleDriveIntegrationStatus.authorizationFailed.status';
-      statusType = 'failure';
-      iconName = 'warning-circle';
-    }
+  function useIntegrationStatus() {
+    const integrationStatus = ref(new IntegrationStatus());
+    loadIntegrationStatus(integrationStatus);
+    return integrationStatus;
+  }
+
+  function useUiState(integrationStatus) {
+    return computed(() => {
+      let statusType = 'regular';
+      let statusText = null;
+      let statusCustomIcon = null;
+      let iconName = null;
+      if (integrationStatus.value.successful) {
+        statusType = 'success';
+        statusText = 'saGoogleDriveIntegrationStatus.successful.status';
+        iconName = 'success';
+      } else if (integrationStatus.value.unknown) {
+        statusText = 'saGoogleDriveIntegrationStatus.unknown.status';
+        statusCustomIcon = 'google-drive-loading';
+      } else if (integrationStatus.value.authorizationRequired) {
+        statusText = 'saGoogleDriveIntegrationStatus.authorizationRequired.status';
+        statusType = 'pending';
+        iconName = 'warning-circle';
+      } else if (integrationStatus.value.authorizationInProgress) {
+        statusText = 'saGoogleDriveIntegrationStatus.authorizationInProgress.status';
+        statusCustomIcon = 'google-drive-loading';
+      } else if (integrationStatus.value.authorizationFailed) {
+        statusText = 'saGoogleDriveIntegrationStatus.authorizationFailed.status';
+        statusType = 'failure';
+        iconName = 'warning-circle';
+      }
+      return {
+        statusType,
+        statusText,
+        statusCustomIcon,
+        iconName,
+      };
+    });
+  }
+
+  function useDriveAuthorization(integrationStatus) {
+    let gdrivePopup;
+
+    const startAuthorization = () => {
+      const popupWidth = Math.max(screen.width / 2, 600);
+      const params = [
+        `height=${screen.height - 100}`,
+        `width=${popupWidth}`,
+      ].join(',');
+      gdrivePopup = window.open(integrationStatus.value.authorizationUrl, 'popup_window', params);
+      gdrivePopup.moveTo((screen.width - popupWidth) / 2, 50);
+
+      integrationStatus.value.onAuthorizationStarted();
+    };
+
+    const onGoogleDriveAuthorization = ({
+      folderId, folderName, authorizationRequired, authorizationUrl,
+    }) => {
+      if (authorizationRequired) {
+        integrationStatus.value.onAuthorizationFailed(authorizationUrl);
+      } else {
+        integrationStatus.value.onAuthorizationSuccess(folderId, folderName);
+        if (gdrivePopup) {
+          gdrivePopup.close();
+        }
+      }
+    };
+
+    onMounted(() => pushNotifications.subscribe('storage.google-drive.auth', onGoogleDriveAuthorization));
+    onUnmounted(() => pushNotifications.unsubscribe('storage.google-drive.auth', onGoogleDriveAuthorization));
+
     return {
-      statusType,
-      statusText,
-      statusCustomIcon,
-      iconName,
+      startAuthorization,
     };
   }
 
@@ -162,43 +232,10 @@
       SaStatusLabel,
     },
 
-    props: {},
-
     setup() {
-      const integrationStatus = ref(new IntegrationStatus());
-      const uiState = computed(() => calculateUiState(integrationStatus));
-
-      let gdrivePopup;
-
-      const startAuthorization = () => {
-        const popupWidth = Math.max(screen.width / 2, 600);
-        const params = [
-          `height=${screen.height - 100}`,
-          `width=${popupWidth}`,
-        ].join(',');
-        gdrivePopup = window.open(integrationStatus.value.authorizationUrl, 'popup_window', params);
-        gdrivePopup.moveTo((screen.width - popupWidth) / 2, 50);
-
-        integrationStatus.value.onAuthorizationStarted();
-      };
-
-      loadIntegrationStatus(integrationStatus);
-
-      const onGoogleDriveAuthorization = (data) => {
-        const { folderId, folderName, authorizationRequired, authorizationUrl } = data;
-        if (authorizationRequired) {
-          integrationStatus.value.onAuthorizationFailed(authorizationUrl);
-        } else {
-          integrationStatus.value.onAuthorizationSuccess(folderId, folderName);
-          if (gdrivePopup) {
-            gdrivePopup.close();
-          }
-        }
-      };
-
-      onMounted(() => pushNotifications.subscribe('storage.google-drive.auth', onGoogleDriveAuthorization));
-      onUnmounted(() => pushNotifications.unsubscribe('storage.google-drive.auth', onGoogleDriveAuthorization));
-
+      const integrationStatus = useIntegrationStatus();
+      const uiState = useUiState(integrationStatus);
+      const { startAuthorization } = useDriveAuthorization(integrationStatus);
       return {
         integrationStatus,
         uiState,
