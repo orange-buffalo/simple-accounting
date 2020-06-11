@@ -5,8 +5,22 @@ import { store } from '@/stories/utils/stories-app';
 
 let apiMock;
 
+function enrichRequestMock(requestMock) {
+  // eslint-disable-next-line no-param-reassign
+  requestMock.neverEndingRequest = function neverEndingRequest() {
+    return this.reply(() => new Promise(() => {
+    }));
+  };
+
+  return requestMock;
+}
+
 export function onGetToWorkspacePath(pathRegExp) {
-  return apiMock.onGet(new RegExp(`/api/workspaces/${store.state.workspaces.currentWorkspace.id}/${pathRegExp}`));
+  return onGet(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${pathRegExp}`);
+}
+
+export function onGet(pathRegExp) {
+  return enrichRequestMock(apiMock.onGet(new RegExp(pathRegExp)));
 }
 
 export function resetApiMock() {

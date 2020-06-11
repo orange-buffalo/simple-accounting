@@ -4,6 +4,7 @@
     :class="statusClass"
   >
     <SaIcon
+      v-if="!hideIcon"
       :icon="statusIcon"
       class="sa-status-label__icon"
     />
@@ -40,6 +41,11 @@
       },
       customIcon: {
         type: String,
+        default: null,
+      },
+      hideIcon: {
+        type: Boolean,
+        default: false,
       },
     },
 

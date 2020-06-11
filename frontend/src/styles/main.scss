@@ -130,7 +130,10 @@ textarea {
   }
 }
 
-
+a {
+  color: $components-color;
+  text-decoration: none;
+}
 
 .text-center {
   text-align: center;

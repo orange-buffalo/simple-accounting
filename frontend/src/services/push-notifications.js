@@ -1,14 +1,20 @@
 import 'eventsource/lib/eventsource-polyfill';
 import { api } from '@/services/api';
 
-export default {
+let eventSource = null;
+let eventListeners = [];
 
-  eventSource: null,
-  eventListeners: [],
+function notifyListeners(eventName, data) {
+  eventListeners
+    .filter(it => it.eventName === eventName)
+    .forEach(it => it.callback(data));
+}
+
+export default {
 
   init() {
     // eslint-disable-next-line no-undef
-    this.eventSource = new EventSourcePolyfill(
+    eventSource = new EventSourcePolyfill(
       '/api/push-notifications', {
         headers: {
           Authorization: `Bearer ${api.getToken()}`,
@@ -16,42 +22,44 @@ export default {
       },
     );
 
-    this.eventSource.onmessage = (event) => {
+    eventSource.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      this.eventListeners
-        .filter(it => it.eventName === message.eventName)
-        .forEach(it => it.callback(message.data));
+      notifyListeners(message.eventName, message.data);
     };
 
-    this.eventSource.onerror = async (event) => {
+    eventSource.onerror = async (event) => {
       if (event.status && event.status === 401) {
-        this.eventSource.close();
+        eventSource.close();
         if (await api.tryAutoLogin()) {
           this.init();
         }
-      } else if (this.eventSource.readyState === 2) {
-        this.eventSource = null;
+      } else if (eventSource.readyState === 2) {
+        eventSource = null;
       }
     };
   },
 
   subscribe(eventName, callback) {
-    if (this.eventSource == null) {
+    if (eventSource == null) {
       this.init();
     }
-    this.eventListeners.push({
+    eventListeners.push({
       eventName,
       callback,
     });
   },
 
   unsubscribe(eventName, callback) {
-    this.eventListeners = this.eventListeners
+    eventListeners = eventListeners
       .filter(it => it.eventName !== eventName && it.callback !== callback);
 
-    if (this.eventListeners.length === 0) {
-      this.eventSource.close();
-      this.eventSource = null;
+    if (eventListeners.length === 0) {
+      eventSource.close();
+      eventSource = null;
     }
+  },
+
+  pushEvent(eventName, data) {
+    notifyListeners(eventName, data);
   },
 };

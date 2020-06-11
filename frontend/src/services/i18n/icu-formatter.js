@@ -5,6 +5,20 @@ import fileSizeFormatter from '@/services/i18n/file-size-formatter';
 import yesNoFormatter from '@/services/i18n/yes-no-formatter';
 import bpsFormatter from '@/services/i18n/bps-formatter';
 
+function isVNode(node) {
+  return node !== null && typeof node === 'object' && Object.prototype.hasOwnProperty.call(node, 'componentOptions');
+}
+
+// messageformat does not (obviously) support vue component, so component interpolation does not work
+function shouldDelegateToDefaultFormatter(values) {
+  if (values != null) {
+    return Object.values(values)
+      .find((it) => isVNode(it) || Object.values(it)
+        .find((nested) => isVNode(nested)));
+  }
+  return false;
+}
+
 export default class ICUFormatter {
   constructor({
     locale,
@@ -29,6 +43,10 @@ export default class ICUFormatter {
   }
 
   interpolate(message, values) {
+    if (shouldDelegateToDefaultFormatter(values)) {
+      return null;
+    }
+
     let formatter = this.cache[message];
     if (!formatter) {
       formatter = this.formatter.compile(message, this.locale);
