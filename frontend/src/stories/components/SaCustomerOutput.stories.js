@@ -9,8 +9,8 @@ export const Basic = () => ({
   components: { SaCustomerOutput },
   template: '<SaCustomerOutput :customer-id="7"/>',
   beforeCreate() {
-    onGetToWorkspacePath('customers?.*')
-      .reply(200, apiPage([{
+    onGetToWorkspacePath('customers')
+      .successJson(apiPage([{
         id: 7,
         name: 'Customer Name',
       }]));

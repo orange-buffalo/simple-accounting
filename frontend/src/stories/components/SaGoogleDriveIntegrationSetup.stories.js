@@ -22,7 +22,7 @@ export const ActiveIntegration = () => ({
   template: '<SaGoogleDriveIntegrationSetup />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
-      .reply(200, {
+      .successJson({
         folderId: '42',
         folderName: 'simple-accounting',
         authorizationRequired: false,
@@ -35,7 +35,7 @@ export const AuthorizationRequired = () => ({
   template: '<SaGoogleDriveIntegrationSetup />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
-      .reply(200, {
+      .successJson({
         authorizationRequired: true,
         authorizationUrl: 'https://google.com',
       });
@@ -47,7 +47,7 @@ export const AuthorizationFailed = () => ({
   template: '<SaGoogleDriveIntegrationSetup />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
-      .reply(200, {
+      .successJson({
         authorizationRequired: true,
         authorizationUrl: 'https://google.com',
       });
@@ -67,7 +67,7 @@ export const AuthorizationCallbacks = () => ({
   template: '<SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback />',
   beforeCreate() {
     onGet('api/storage/google-drive/status')
-      .reply(200, {
+      .successJson({
         authorizationRequired: true,
         authorizationUrl: 'https://google.com',
       });

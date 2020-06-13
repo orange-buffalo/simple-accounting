@@ -1,34 +1,67 @@
-import { api } from '@/services/api';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import MockAdapter from 'axios-mock-adapter';
+/* eslint-disable import/no-extraneous-dependencies */
+import { Polly } from '@pollyjs/core';
+import XHRAdapter from '@pollyjs/adapter-xhr';
 import { store } from '@/stories/utils/stories-app';
 
-let apiMock;
+Polly.register(XHRAdapter);
+
+let polly;
+let server;
 
 function enrichRequestMock(requestMock) {
   // eslint-disable-next-line no-param-reassign
   requestMock.neverEndingRequest = function neverEndingRequest() {
-    return this.reply(() => new Promise(() => {
-    }));
+    return this.intercept(async () => server.timeout(99999999));
+  };
+
+  // eslint-disable-next-line no-param-reassign
+  requestMock.successJson = function successJson(json) {
+    return this.intercept((req, res) => res.status(200)
+      .json(json));
+  };
+
+  // eslint-disable-next-line no-param-reassign
+  requestMock.reply = function reply(statusCode, json) {
+    return this.intercept((req, res) => res.status(statusCode)
+      .json(json));
   };
 
   return requestMock;
 }
 
-export function onGetToWorkspacePath(pathRegExp) {
-  return onGet(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${pathRegExp}`);
+export async function responseDelay(timeout) {
+  await server.timeout(timeout);
 }
 
-export function onGet(pathRegExp) {
-  return enrichRequestMock(apiMock.onGet(new RegExp(pathRegExp)));
+export function onGetToWorkspacePath(subPath) {
+  return onGet(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
+}
+
+export function onPostToWorkspacePath(subPath) {
+  return onPost(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
+}
+
+export function onGet(path) {
+  return enrichRequestMock(server.get(path));
+}
+
+export function onPost(path) {
+  return enrichRequestMock(server.post(path));
 }
 
 export function resetApiMock() {
-  apiMock.reset();
+  if (polly) {
+    polly.disconnect();
+    polly.stop();
+  }
+  polly = new Polly('Stories API Mock', {
+    adapters: ['xhr'],
+    logging: true,
+  });
+  server = polly.server;
 }
 
 export function createApiMockDecorator() {
-  apiMock = new MockAdapter(api);
   return () => {
     resetApiMock();
     return ({
