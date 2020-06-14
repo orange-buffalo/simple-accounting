@@ -763,11 +763,9 @@ export default {
     },
   },
 
-  saDocumentsUpload: {
-    missingStorageConfig: {
-      title: 'Documents storage is not active',
-      message: 'Please navigate to your {0} and complete the configuration.',
-      profileLink: 'profile settings',
-    },
+  saFailedDocumentsStorageMessage: {
+    title: 'Documents storage is not active',
+    message: 'Please navigate to your {0} and complete the configuration.',
+    profileLink: 'profile settings',
   },
 };

@@ -5,30 +5,7 @@
       class="sa-documents-upload__loading-placeholder"
     />
 
-    <div v-else-if="!uiState.storageActive">
-      <ElAlert
-        type="error"
-        :closable="false"
-      >
-        <template #title>
-          <SaIcon icon="error" />
-          {{ $t('saDocumentsUpload.missingStorageConfig.title') }}
-        </template>
-        <template #default>
-          <I18n
-            path="saDocumentsUpload.missingStorageConfig.message"
-            :tag="false"
-          >
-            <ElButton
-              type="text"
-              @click="navigateToProfileSettings"
-            >
-              {{ $t('saDocumentsUpload.missingStorageConfig.profileLink') }}
-            </ElButton>
-          </I18n>
-        </template>
-      </ElAlert>
-    </div>
+    <SaFailedDocumentsStorageMessage v-else-if="!uiState.storageActive" />
 
     <template v-else-if="uiState.documentsLoading">
       <SaDocument
@@ -63,7 +40,7 @@
   import SaDocument from '@/components/documents/SaDocument';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
-  import SaIcon from '@/components/SaIcon';
+  import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage';
 
   const DOCUMENT_AGGREGATE_STATE = {
     EMPTY: 'empty',
@@ -229,7 +206,7 @@
 
   export default {
     components: {
-      SaIcon,
+      SaFailedDocumentsStorageMessage,
       SaDocument,
       SaDocumentUpload,
     },
@@ -245,7 +222,7 @@
       },
     },
 
-    setup(props, { emit, root }) {
+    setup(props, { emit }) {
       const { documents, documentsLoading } = useDocumentsApi(props);
 
       const {
@@ -258,10 +235,6 @@
 
       const { documentsStorageStatus } = useDocumentsStorageStatus();
 
-      const navigateToProfileSettings = function navigateToProfielSettings() {
-        root.$router.push('my-profile');
-      };
-
       return {
         documentsAggregates,
         onDocumentRemoval,
@@ -272,7 +245,6 @@
           documentsStorageStatus,
           props,
         }),
-        navigateToProfileSettings,
       };
     },
   };

@@ -762,11 +762,9 @@ export default {
     },
   },
 
-  saDocumentsUpload: {
-    missingStorageConfig: {
-      title: 'Налаштування збереження документів не активні',
-      message: 'Будь ласка, перейдіть до Ваших {0} та виправте конфігурацію.',
-      profileLink: 'налаштуваннь профілю',
-    },
+  saFailedDocumentsStorageMessage: {
+    title: 'Налаштування збереження документів не активні',
+    message: 'Будь ласка, перейдіть до Ваших {0} та виправте конфігурацію.',
+    profileLink: 'налаштуваннь профілю',
   },
 };

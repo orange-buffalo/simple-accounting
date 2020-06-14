@@ -1,6 +1,13 @@
 <template>
   <div class="sa-documents-list">
-    <template v-if="loading">
+    <div
+      v-if="documentsStorageStatus.loading"
+      class="sa-documents-list__loading-placeholder"
+    />
+
+    <SaFailedDocumentsStorageMessage v-else-if="!documentsStorageStatus.active" />
+
+    <template v-else-if="documentsLoading">
       <SaDocument
         v-for="documentId in documentsIds"
         :key="documentId"
@@ -27,9 +34,14 @@
   import { api } from '@/services/api';
   import SaDocument from '@/components/documents/SaDocument';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
+  import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage';
 
   export default {
-    components: { SaDocument },
+    components: {
+      SaFailedDocumentsStorageMessage,
+      SaDocument,
+    },
 
     props: {
       documentsIds: {
@@ -40,11 +52,12 @@
 
     setup(props) {
       const documents = ref([]);
-      const loading = ref(false);
+      const documentsLoading = ref(false);
+      const { documentsStorageStatus } = useDocumentsStorageStatus();
 
       watch(() => props.documentsIds, async (documentsIds, _, onCleanup) => {
         if (documentsIds.length) {
-          loading.value = true;
+          documentsLoading.value = true;
 
           const cancelToken = api.createCancelToken();
           onCleanup(() => cancelToken.cancel());
@@ -60,20 +73,23 @@
               })
               .getPageData();
           } finally {
-            loading.value = false;
+            documentsLoading.value = false;
           }
         }
       });
 
       return {
         documents,
-        loading,
+        documentsLoading,
+        documentsStorageStatus,
       };
     },
   };
 </script>
 
 <style lang="scss">
+  @import "~@/styles/mixins.scss";
+
   .sa-documents-list {
     &__document {
       margin-bottom: 15px;
@@ -81,6 +97,11 @@
       &:last-child {
         margin-bottom: 0;
       }
+    }
+
+    &__loading-placeholder {
+      height: 50px;
+      @include loading-placeholder;
     }
   }
 </style>
