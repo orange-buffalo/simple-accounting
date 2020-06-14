@@ -11,6 +11,8 @@ interface DocumentsStorage {
     fun getId(): String
 
     suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flux<DataBuffer>
+
+    suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus
 }
 
 data class StorageProviderResponse(val storageProviderLocation: String, val sizeInBytes: Long?)
@@ -24,3 +26,7 @@ data class SaveDocumentRequest(
 open class DocumentStorageException(message: String? = null) : RuntimeException(message)
 
 class StorageAuthorizationRequiredException : DocumentStorageException()
+
+data class DocumentsStorageStatus(
+    val active: Boolean
+)

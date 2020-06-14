@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
@@ -67,5 +68,10 @@ class DocumentsService(
         if (notValidDocumentsIds.isNotEmpty()) {
             throw EntityNotFoundException("Documents $notValidDocumentsIds are not found")
         }
+    }
+
+    suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
+        val userStorage = getDocumentStorageByUser(platformUserService.getCurrentUser().id!!)
+        return userStorage.getCurrentUserStorageStatus()
     }
 }

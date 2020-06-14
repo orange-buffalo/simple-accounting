@@ -7,10 +7,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2Faile
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2SucceededEvent
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
-import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
-import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
-import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
+import io.orangebuffalo.simpleaccounting.services.storage.*
 import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.DriveFileNotFoundException
 import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.FolderResponse
 import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.GoogleDriveApiAdapter
@@ -76,6 +73,13 @@ class GoogleDriveDocumentsStorageService(
 
     override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flux<DataBuffer> =
         googleDriveApi.downloadFile(storageLocation)
+
+    override suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
+        val integrationStatus = getCurrentUserIntegrationStatus()
+        return DocumentsStorageStatus(
+            active = !integrationStatus.authorizationRequired
+        )
+    }
 
     private suspend fun buildAuthorizationUrl(): String = clientAuthorizationProvider
         .buildAuthorizationUrl(OAUTH2_CLIENT_REGISTRATION_ID, mapOf("access_type" to "offline"))

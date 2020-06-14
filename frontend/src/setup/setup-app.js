@@ -28,6 +28,7 @@ import {
   Message,
   MessageBox,
   Loading,
+  Alert,
 } from 'element-ui';
 import ElementLocale from 'element-ui/lib/locale';
 import VueCompositionApi from '@vue/composition-api';
@@ -65,6 +66,7 @@ function setupElementUi({ i18n }) {
   Vue.use(Main);
   Vue.use(Footer);
   Vue.use(Loading.directive);
+  Vue.use(Alert);
 
   Vue.prototype.$message = Message;
   Vue.prototype.$confirm = MessageBox.confirm;

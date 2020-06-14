@@ -8,6 +8,8 @@ Polly.register(XHRAdapter);
 let polly;
 let server;
 
+resetApiMock();
+
 function enrichRequestMock(requestMock) {
   // eslint-disable-next-line no-param-reassign
   requestMock.neverEndingRequest = function neverEndingRequest() {
@@ -15,9 +17,15 @@ function enrichRequestMock(requestMock) {
   };
 
   // eslint-disable-next-line no-param-reassign
-  requestMock.successJson = function successJson(json) {
-    return this.intercept((req, res) => res.status(200)
-      .json(json));
+  requestMock.successJson = function successJson(jsonOrSupplier) {
+    return this.intercept((req, res) => {
+      let json = jsonOrSupplier;
+      if (typeof jsonOrSupplier === 'function') {
+        json = jsonOrSupplier();
+      }
+      res.status(200)
+        .json(json);
+    });
   };
 
   // eslint-disable-next-line no-param-reassign
@@ -59,6 +67,10 @@ export function resetApiMock() {
     logging: true,
   });
   server = polly.server;
+
+  // support for hot reload
+  server.get('/:id.hot-update.json')
+    .passthrough();
 }
 
 export function createApiMockDecorator() {

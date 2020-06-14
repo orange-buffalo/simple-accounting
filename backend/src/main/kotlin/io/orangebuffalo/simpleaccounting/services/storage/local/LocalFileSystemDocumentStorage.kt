@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.services.storage.local
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -35,6 +36,8 @@ class LocalFileSystemDocumentStorage(
             StreamUtils.BUFFER_SIZE
         )
     }
+
+    override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 
     override suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse =
         withContext(localFsStorageContext) {
