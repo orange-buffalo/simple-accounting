@@ -168,14 +168,14 @@
         iconName = 'success';
       } else if (integrationStatus.value.unknown) {
         statusText = 'saGoogleDriveIntegrationSetup.unknown.status';
-        statusCustomIcon = 'google-drive-loading';
+        statusCustomIcon = 'loading';
       } else if (integrationStatus.value.authorizationRequired) {
         statusText = 'saGoogleDriveIntegrationSetup.authorizationRequired.status';
         statusType = 'pending';
         iconName = 'warning-circle';
       } else if (integrationStatus.value.authorizationInProgress) {
         statusText = 'saGoogleDriveIntegrationSetup.authorizationInProgress.status';
-        statusCustomIcon = 'google-drive-loading';
+        statusCustomIcon = 'loading';
       } else if (integrationStatus.value.authorizationFailed) {
         statusText = 'saGoogleDriveIntegrationSetup.authorizationFailed.status';
         statusType = 'failure';

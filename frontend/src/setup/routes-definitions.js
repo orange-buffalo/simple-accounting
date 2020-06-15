@@ -26,6 +26,7 @@ import Reporting from '@/views/reporting/Reporting';
 import UsersOverview from '@/views/admin/users/UsersOverview';
 import CreateUser from '@/views/admin/users/CreateUser';
 import { ID_ROUTER_PARAM_PROCESSOR } from '@/components/utils/utils';
+import OAuthCallbackPage from '@/views/auth/OAuthCallbackPage';
 
 export default new Router({
   mode: 'history',
@@ -56,6 +57,12 @@ export default new Router({
         api.logout()
           .then(() => next('login'));
       },
+    },
+
+    {
+      path: '/oauth-callback',
+      name: 'oauth-callback',
+      component: OAuthCallbackPage,
     },
 
     {
