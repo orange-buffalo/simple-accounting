@@ -11,7 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
-class OAuth2CallbackControllerTest(
+class OAuth2CallbackControllerIT(
     @Autowired private val client: WebTestClient
 ) {
 

@@ -14,8 +14,7 @@ import io.orangebuffalo.simpleaccounting.utils.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.utils.urlEncodeParameter
 import io.orangebuffalo.simpleaccounting.utils.willReturnOkJson
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.within
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
@@ -105,41 +104,54 @@ internal class OAuth2ClientAuthorizationProviderIT(
     }
 
     @Test
-    fun `should emit OAuth2FailedEvent if error is provided in the response`(testData: AuthorizationProviderTestData) {
+    fun `should emit OAuth2FailedEvent and throw exception if error is provided in the response`(
+        testData: AuthorizationProviderTestData
+    ) {
+
         mockSavedRequest(testData.fry)
 
-        handleAuthorizationResponse(
-            callbackRequestProto().copy(
-                code = null,
-                error = "error"
+        assertThatThrownBy {
+            handleAuthorizationResponse(
+                callbackRequestProto().copy(
+                    code = null,
+                    error = "error"
+                )
             )
-        )
+        }
 
         verifyAuthFailedEvent(testData)
     }
 
     @Test
-    fun `should emit OAuth2FailedEvent if code is not provided in the response`(testData: AuthorizationProviderTestData) {
+    fun `should emit OAuth2FailedEvent and throw exception if code is not provided in the response`(
+        testData: AuthorizationProviderTestData
+    ) {
+
         mockSavedRequest(testData.fry)
 
-        handleAuthorizationResponse(
-            callbackRequestProto().copy(
-                code = null,
-                error = null
+        assertThatThrownBy {
+            handleAuthorizationResponse(
+                callbackRequestProto().copy(
+                    code = null,
+                    error = null
+                )
             )
-        )
+        }
 
         verifyAuthFailedEvent(testData)
     }
 
     @Test
-    fun `should emit OAuth2FailedEvent if token endpoint fails`(testData: AuthorizationProviderTestData) {
+    fun `should emit OAuth2FailedEvent and throw exception if token endpoint fails`(
+        testData: AuthorizationProviderTestData
+    ) {
+
         mockSavedRequest(testData.fry)
         stubPostRequestTo("/token") {
             willReturn(badRequest().withBody("""{ "error": "some bad request" }"""))
         }
 
-        handleAuthorizationResponse(callbackRequestProto())
+        assertThatThrownBy { handleAuthorizationResponse(callbackRequestProto()) }
 
         verifyAuthFailedEvent(testData)
     }
@@ -153,6 +165,15 @@ internal class OAuth2ClientAuthorizationProviderIT(
             withRequestBody(containing(urlEncodeParameter("code" to "testCode")))
             withRequestBody(containing(urlEncodeParameter("redirect_uri" to "http://test-host/auth-callback")))
             withBasicAuth("Client ID", "Client Secret")
+            willReturnOkJson(
+                """{ 
+                    "access_token": "access_token",
+                    "token_type": "bearer",
+                    "expires_in": 3600,
+                    "refresh_token": "refresh_token",
+                    "scope": "scope1 scope2"
+                }"""
+            )
         }
 
         handleAuthorizationResponse(callbackRequestProto())

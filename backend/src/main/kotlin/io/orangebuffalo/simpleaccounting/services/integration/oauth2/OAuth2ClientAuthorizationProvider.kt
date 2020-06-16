@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException
+import org.springframework.security.oauth2.core.OAuth2Error
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse
@@ -122,6 +123,9 @@ class OAuth2ClientAuthorizationProvider(
 
         if (callbackRequest.error != null || callbackRequest.code == null) {
             publishFailedAuthEvent(savedRequest)
+            throw OAuth2AuthorizationException(
+                OAuth2Error(callbackRequest.error), "Authorization failed with error ${callbackRequest.error}"
+            )
         } else {
             handleSuccessfulAuthorization(savedRequest, callbackRequest.code)
         }
@@ -156,7 +160,7 @@ class OAuth2ClientAuthorizationProvider(
             accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitFirst()
         } catch (e: OAuth2AuthorizationException) {
             publishFailedAuthEvent(savedRequest)
-            return
+            throw e
         }
 
         withDbContext {
