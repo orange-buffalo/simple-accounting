@@ -13,8 +13,8 @@ function isVNode(node) {
 function shouldDelegateToDefaultFormatter(values) {
   if (values != null) {
     return Object.values(values)
-      .find((it) => isVNode(it) || Object.values(it)
-        .find((nested) => isVNode(nested)));
+      .find((it) => it != null && (isVNode(it) || Object.values(it)
+        .find((nested) => isVNode(nested))));
   }
   return false;
 }

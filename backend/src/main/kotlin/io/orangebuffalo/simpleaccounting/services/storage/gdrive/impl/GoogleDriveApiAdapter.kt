@@ -14,7 +14,7 @@ import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyExtractors
-import org.springframework.web.reactive.function.BodyInserters.*
+import org.springframework.web.reactive.function.BodyInserters.fromMultipartData
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
@@ -128,21 +128,23 @@ class GoogleDriveApiAdapter(
         .map { driveFile -> driveFile.toFolderResponse() }
         .awaitFirst()
 
-    suspend fun getFolderById(folderId: String): FolderResponse? = createWebClient()
-        .get()
-        .uri { builder ->
-            builder.path("/drive/v3/files/$folderId")
-                .queryParam("fields", "name, trashed, id")
-                .build()
-        }
-        .accept(MediaType.APPLICATION_JSON)
-        .executeDriveRequest { errorJson ->
-            "Error while retrieving folder $folderId: $errorJson"
-        }
-        .bodyToMono(GDriveFile::class.java)
-        .filter { driveFile -> !driveFile.trashed!! }
-        .map { driveFile -> driveFile.toFolderResponse() }
-        .awaitFirstOrNull()
+    suspend fun getFolderById(folderId: String): FolderResponse? {
+        return createWebClient()
+            .get()
+            .uri { builder ->
+                builder.path("/drive/v3/files/$folderId")
+                    .queryParam("fields", "name, trashed, id")
+                    .build()
+            }
+            .accept(MediaType.APPLICATION_JSON)
+            .executeDriveRequest { errorJson ->
+                "Error while retrieving folder $folderId: $errorJson"
+            }
+            .bodyToMono(GDriveFile::class.java)
+            .filter { driveFile -> !driveFile.trashed!! }
+            .map { driveFile -> driveFile.toFolderResponse() }
+            .awaitFirstOrNull()
+    }
 
     private fun createWebClient() = webClientBuilderProvider
         .forClient(OAUTH2_CLIENT_REGISTRATION_ID)
@@ -155,12 +157,12 @@ class GoogleDriveApiAdapter(
         val clientResponse = try {
             this.exchange().awaitFirst()
         } catch (e: OAuth2AuthorizationException) {
-            throw StorageAuthorizationRequiredException()
+            throw StorageAuthorizationRequiredException(cause = e)
         }
 
         val statusCode = clientResponse.statusCode()
         if (statusCode == HttpStatus.UNAUTHORIZED || statusCode == HttpStatus.FORBIDDEN) {
-            throw StorageAuthorizationRequiredException()
+            throw StorageAuthorizationRequiredException(message = "Not authorized: $statusCode")
         } else if (statusCode != HttpStatus.OK) {
             val errorJson = clientResponse.bodyToMono(String::class.java).awaitFirstOrNull()
             if (statusCode == HttpStatus.NOT_FOUND) {

@@ -23,9 +23,10 @@ data class SaveDocumentRequest(
     val workspace: Workspace
 )
 
-open class DocumentStorageException(message: String? = null) : RuntimeException(message)
+open class DocumentStorageException(message: String? = null, cause: Throwable? = null) : RuntimeException(message, cause)
 
-class StorageAuthorizationRequiredException : DocumentStorageException()
+class StorageAuthorizationRequiredException(message: String? = null, cause: Throwable? = null)
+    : DocumentStorageException(message, cause)
 
 data class DocumentsStorageStatus(
     val active: Boolean

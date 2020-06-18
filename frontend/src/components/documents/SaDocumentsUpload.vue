@@ -140,7 +140,9 @@
   function useUploadControls(onDocumentAggregateChange) {
     const uploadControls = ref(null);
     const submitUploads = function submitUploads() {
-      uploadControls.value.forEach((upload) => upload.submitUpload());
+      if (uploadControls.value != null) {
+        uploadControls.value.forEach((upload) => upload.submitUpload());
+      }
       onDocumentAggregateChange();
     };
     return {

@@ -63,6 +63,8 @@ $--font-path: '~element-ui/lib/theme-chalk/fonts';
 }
 
 .el-alert {
+  line-height: 1em;
+
   &__title {
     display: flex;
     align-items: center;

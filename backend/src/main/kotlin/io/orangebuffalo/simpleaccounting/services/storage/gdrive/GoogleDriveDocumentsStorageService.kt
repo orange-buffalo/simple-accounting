@@ -141,10 +141,10 @@ class GoogleDriveDocumentsStorageService(
     suspend fun getCurrentUserIntegrationStatus(): GoogleDriveStorageIntegrationStatus {
         val currentUser = userService.getCurrentUser()
 
-        val integration = withDbContext { repository.findByUserId(currentUser.id!!) }
-            ?: withDbContext {
-                repository.save(GoogleDriveStorageIntegration(userId = currentUser.id!!))
-            }
+        val integration = withDbContext {
+            repository.findByUserId(currentUser.id!!)
+                ?: repository.save(GoogleDriveStorageIntegration(userId = currentUser.id!!))
+        }
 
         val integrationStatus = GoogleDriveStorageIntegrationStatus(
             folderId = integration.folderId,

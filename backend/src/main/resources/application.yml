@@ -54,7 +54,7 @@ spring:
       client:
         registration:
           google-drive:
-            redirect-uri: "http://localdev.orange-buffalo.io:9393/oauth-callback"
+            redirect-uri: "http://localhost:9393/oauth-callback"
 
 simpleaccounting:
   documents:
