@@ -181,6 +181,11 @@
   }
 
   function useUiState({ documentsStorageStatus, documentsLoading, props }) {
+    const documentsReassigned = ref(false);
+    watch(() => props.documentsIds, () => {
+      documentsReassigned.value = true;
+    }, { lazy: true });
+
     const uiState = computed(() => {
       const state = {
         initialLoading: false,
@@ -192,7 +197,7 @@
         state.initialLoading = true;
       } else if (!documentsStorageStatus.value.active) {
         state.storageActive = false;
-      } else if (props.loadingOnCreate && !props.documentsIds.length) {
+      } else if (props.loadingOnCreate && !props.documentsIds.length && !documentsReassigned.value) {
         state.initialLoading = true;
       } else if (documentsLoading.value) {
         state.documentsLoading = true;
