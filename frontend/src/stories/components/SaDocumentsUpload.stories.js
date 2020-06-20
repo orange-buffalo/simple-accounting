@@ -87,6 +87,23 @@ export const WithDefferedDocuments = () => ({
   },
 });
 
+export const InitialLoadingWithNoDocuments = () => ({
+  components: { SaDocumentsUploadStories },
+  data() {
+    return { documents: [] };
+  },
+  template: '<SaDocumentsUploadStories :documents-ids="documents" loading-on-create :submittable="false"/>',
+  beforeCreate() {
+    mockSuccessStorageStatus();
+  },
+  mounted() {
+    const that = this;
+    setTimeout(() => {
+      that.documents = [];
+    }, 1000);
+  },
+});
+
 export const NoExistingDocuments = () => ({
   components: { SaDocumentsUploadStories },
   template: '<SaDocumentsUploadStories :documents-ids="[]" :submittable="false" />',
