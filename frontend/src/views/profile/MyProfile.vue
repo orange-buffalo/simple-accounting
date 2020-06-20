@@ -20,7 +20,7 @@
             @storage-enabled="onStorageEnabled"
             @storage-disabled="onStorageDisabled"
           >
-            <GoogleDrive />
+            <SaGoogleDriveIntegrationSetup />
           </DocumentsStorageConfig>
         </div>
 
@@ -34,20 +34,20 @@
 </template>
 
 <script>
-  import GoogleDrive from '@/views/profile/documentsStorages/GoogleDrive';
-  import DocumentsStorageConfig from '@/views/profile/documentsStorages/DocumentsStorageConfig';
+  import DocumentsStorageConfig from '@/views/profile/DocumentsStorageConfig';
   import { api } from '@/services/api';
   import MyProfileLanguagePreferences from '@/views/profile/MyProfileLanguagePreferences';
   import SaForm from '@/components/SaForm';
+  import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup';
 
   export default {
     name: 'MyProfile',
 
     components: {
+      SaGoogleDriveIntegrationSetup,
       SaForm,
       MyProfileLanguagePreferences,
       DocumentsStorageConfig,
-      GoogleDrive,
     },
 
     data() {

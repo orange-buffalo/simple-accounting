@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api.authentication
 
-import com.nhaarman.mockito_kotlin.doThrow
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.doThrow
+import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
 import org.junit.jupiter.api.Test

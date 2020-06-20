@@ -730,4 +730,42 @@ export default {
   useDocumentsUpload: {
     documentsUploadFailure: 'Some of the documents have not been uploaded. Please retry or remove them.',
   },
+
+  saGoogleDriveIntegrationSetup: {
+    successful: {
+      status: 'Google Drive integration is active',
+      details: 'All documents are stored in {folderLink} folder',
+    },
+    unknown: {
+      status: 'Verifying integration status...',
+      details: 'Please hold on while we are checking the status',
+    },
+    authorizationRequired: {
+      status: 'Authorization required',
+      details: {
+        message: 'Please authorize the application to store documents in your Google Drive.{action}',
+        startAction: 'Start authorization now',
+      },
+    },
+    authorizationInProgress: {
+      status: 'Authorization in progress...',
+      details: {
+        line1: 'Please continue the authorization in the popup browser window.',
+        line2: 'Once finished, we will automatically update the status here.',
+      },
+    },
+    authorizationFailed: {
+      status: 'Application authorization failed',
+      details: {
+        message: 'We could not complete the authorization, sorry :( {action}',
+        retryAction: 'Try again',
+      },
+    },
+  },
+
+  saFailedDocumentsStorageMessage: {
+    title: 'Documents storage is not active',
+    message: 'Please navigate to your {0} and complete the configuration.',
+    profileLink: 'profile settings',
+  },
 };

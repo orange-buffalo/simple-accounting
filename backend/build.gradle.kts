@@ -39,8 +39,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${Versions.kotlinCoroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${Versions.kotlinCoroutines}")
-    implementation("org.jooq:jooq:${Versions.jooq}")
 
+    implementation("org.jooq:jooq:${Versions.jooq}")
     implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
 
@@ -59,11 +59,13 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("net.javacrumbs.json-unit:json-unit-assertj:${Versions.jsonUnit}")
-    testImplementation("com.nhaarman:mockito-kotlin:${Versions.mockitoKotlin}")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}")
     testImplementation("org.mockito:mockito-junit-jupiter:${Versions.mockito}")
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("com.google.guava:guava:${Versions.guava}")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:${Versions.wireMock}")
+    testImplementation("org.awaitility:awaitility:${Versions.awaitility}")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }

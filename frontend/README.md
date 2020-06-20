@@ -52,3 +52,7 @@ tax by supalerk laipawat from the [Noun Project](https://thenounproject.com/)
 management by Adrien Coquet from the [Noun Project](https://thenounproject.com/)
 
 customer by Tomas Knopp from the [Noun Project](https://thenounproject.com/)
+
+Google Drive by Jemis mali from the [Noun Project](https://thenounproject.com/)
+
+Warning by AliWijaya from the [Noun Project](https://thenounproject.com/)

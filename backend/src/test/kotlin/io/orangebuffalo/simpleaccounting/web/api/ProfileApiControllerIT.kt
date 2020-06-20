@@ -1,13 +1,18 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.stub
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
+import io.orangebuffalo.simpleaccounting.services.business.DocumentsService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
+import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
@@ -15,6 +20,9 @@ import org.springframework.test.web.reactive.server.WebTestClient
 class ProfileApiControllerIT(
     @Autowired val client: WebTestClient
 ) {
+
+    @MockBean
+    private lateinit var documentsService: DocumentsService
 
     @Test
     fun `should return 401 for unauthorized requests`(testData: ProfileApiTestData) {
@@ -121,6 +129,26 @@ class ProfileApiControllerIT(
                 )
             }
     }
+
+    @Test
+    @WithMockFarnsworthUser
+    fun `should delegate to Documents Service on storage request`(testData: ProfileApiTestData) {
+        documentsService.stub {
+            onBlocking { getCurrentUserStorageStatus() } doReturn DocumentsStorageStatus(true)
+        }
+
+        client.get()
+            .uri("/api/profile/documents-storage")
+            .verifyOkAndJsonBody {
+                inPath("$").isEqualTo(
+                    json(
+                        """{
+                            "active": true
+                        }"""
+                    )
+                )
+            }
+    }
 }
 
 class ProfileApiTestData : TestData {
@@ -133,6 +161,9 @@ class ProfileApiTestData : TestData {
         Prototypes.platformUser(
             userName = "Zoidberg",
             i18nSettings = I18nSettings(locale = "en_US", language = "en")
+        ),
+        Prototypes.platformUser(
+            userName = "Farnsworth"
         )
     )
 }

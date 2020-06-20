@@ -3,10 +3,12 @@ package io.orangebuffalo.simpleaccounting.web.api
 import io.orangebuffalo.simpleaccounting.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.Prototypes
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeTaxPayment
 import io.orangebuffalo.simpleaccounting.web.AbstractFilteringApiTest
 import io.orangebuffalo.simpleaccounting.web.generateFilteringApiTests
 
+@SimpleAccountingIntegrationTest
 class IncomeTaxPaymentsFilteringApiIT : AbstractFilteringApiTest() {
 
     companion object {

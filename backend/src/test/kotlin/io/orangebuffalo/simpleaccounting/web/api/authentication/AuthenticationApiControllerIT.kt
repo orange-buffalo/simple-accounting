@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api.authentication
 
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData

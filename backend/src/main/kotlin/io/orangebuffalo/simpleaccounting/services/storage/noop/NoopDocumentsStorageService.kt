@@ -2,11 +2,12 @@ package io.orangebuffalo.simpleaccounting.services.storage.noop
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
-import org.springframework.http.codec.multipart.FilePart
 import org.springframework.security.util.InMemoryResource
 import org.springframework.stereotype.Service
 import org.springframework.util.StreamUtils
@@ -17,8 +18,8 @@ import kotlin.random.Random
 class NoopDocumentsStorageService : DocumentsStorage {
     private val bufferFactory = DefaultDataBufferFactory()
 
-    override suspend fun saveDocument(file: FilePart, workspace: Workspace): StorageProviderResponse {
-        val filename = file.filename()
+    override suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse {
+        val filename = request.fileName
         if (filename.contains("fail")) {
             throw RuntimeException("Upload failed")
         }
@@ -35,4 +36,6 @@ class NoopDocumentsStorageService : DocumentsStorage {
             StreamUtils.BUFFER_SIZE
         )
     }
+
+    override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 }

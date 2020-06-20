@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.orangebuffalo.simpleaccounting.services.business.DocumentsService
 import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import org.springframework.web.bind.annotation.*
@@ -11,7 +12,8 @@ import javax.validation.constraints.Size
 @RestController
 @RequestMapping("/api/profile")
 class ProfileApiController(
-    private val platformUserService: PlatformUserService
+    private val platformUserService: PlatformUserService,
+    private val documentsService: DocumentsService
 ) {
     @GetMapping
     suspend fun getProfile(): ProfileDto {
@@ -31,6 +33,9 @@ class ProfileApiController(
         }
         .let { platformUserService.save(it) }
         .let { mapToProfileDto(it) }
+
+    @GetMapping("/documents-storage")
+    suspend fun getDocumentsStorageStatus() = documentsService.getCurrentUserStorageStatus()
 }
 
 private fun mapToProfileDto(currentUser: PlatformUser): ProfileDto =

@@ -81,6 +81,7 @@ abstract class FilteringApiTestCase : TestData {
     abstract fun execute(client: WebTestClient)
 }
 
+// todo #229: investigate why random port is not applied when specified only on a base class
 @SimpleAccountingIntegrationTest
 @MockitoSettings(strictness = Strictness.LENIENT)
 abstract class AbstractFilteringApiTest {

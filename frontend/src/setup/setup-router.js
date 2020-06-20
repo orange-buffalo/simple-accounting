@@ -10,6 +10,7 @@ function setupAuthenticationHooks() {
     if (to.name !== 'login'
       && to.name !== 'logout'
       && to.name !== 'login-by-link'
+      && to.name !== 'oauth-callback'
       && !api.isLoggedIn()) {
       if (await api.tryAutoLogin()) {
         SUCCESSFUL_LOGIN_EVENT.emit();

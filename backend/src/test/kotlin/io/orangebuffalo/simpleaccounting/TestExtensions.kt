@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting
 
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import net.javacrumbs.jsonunit.assertj.JsonAssert
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson

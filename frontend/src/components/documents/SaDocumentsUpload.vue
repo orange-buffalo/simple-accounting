@@ -1,11 +1,13 @@
 <template>
   <div class="sa-documents-upload">
     <div
-      v-if="loadingWithMinimumInfo"
+      v-if="uiState.initialLoading"
       class="sa-documents-upload__loading-placeholder"
     />
 
-    <template v-if="loadingWithDocumentsInfo">
+    <SaFailedDocumentsStorageMessage v-else-if="!uiState.storageActive" />
+
+    <template v-else-if="uiState.documentsLoading">
       <SaDocument
         v-for="documentId in documentsIds"
         :key="documentId"
@@ -23,19 +25,22 @@
       :document-name="documentAggregate.document.name"
       :document-size-in-bytes="documentAggregate.document.sizeInBytes"
       class="sa-documents-upload__document"
-      @upload-completed="onUploadComplete(documentAggregate.key, $event)"
-      @upload-failed="onUploadFailure(documentAggregate.key)"
-      @document-selected="onDocumentSelection(documentAggregate.key)"
+      @upload-completed="documentAggregate.onUploadComplete($event)"
+      @upload-failed="documentAggregate.onUploadFailure()"
+      @document-selected="documentAggregate.onFileSelection()"
       @document-removed="onDocumentRemoval(documentAggregate.key)"
     />
   </div>
 </template>
 
 <script>
+  import { computed, ref, watch } from '@vue/composition-api';
   import SaDocumentUpload from '@/components/documents/SaDocumentUpload';
   import { api } from '@/services/api';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaDocument from '@/components/documents/SaDocument';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
+  import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage';
 
   const DOCUMENT_AGGREGATE_STATE = {
     EMPTY: 'empty',
@@ -44,15 +49,169 @@
     UPLOAD_COMPLETED: 'upload-completed',
   };
 
-  export default {
-    name: 'SaDocumentsUpload',
+  class DocumentAggregate {
+    constructor({ document, onDocumentAggregateChange }) {
+      this.document = document || {};
+      this.key = document != null ? document.id.toString() : new Date().getMilliseconds()
+        .toString();
+      this.state = document != null ? DOCUMENT_AGGREGATE_STATE.UPLOAD_COMPLETED : DOCUMENT_AGGREGATE_STATE.EMPTY;
+      this.onDocumentAggregateChange = onDocumentAggregateChange;
+    }
 
+    onUploadComplete(document) {
+      this.document = document;
+      this.state = DOCUMENT_AGGREGATE_STATE.UPLOAD_COMPLETED;
+      this.onDocumentAggregateChange();
+    }
+
+    onUploadFailure() {
+      this.state = DOCUMENT_AGGREGATE_STATE.UPLOAD_FAILED;
+      this.onDocumentAggregateChange();
+    }
+
+    onFileSelection() {
+      this.state = DOCUMENT_AGGREGATE_STATE.PENDING;
+      this.onDocumentAggregateChange();
+    }
+  }
+
+  function useDocumentsAggregates({ emit, documents, props }) {
+    const documentsAggregates = ref([]);
+
+    function addEmptyDocumentAggregateIfNecessary() {
+      const emptyUpload = documentsAggregates.value
+        .find((it) => it.state === DOCUMENT_AGGREGATE_STATE.EMPTY);
+      if (!emptyUpload) {
+        documentsAggregates.value.push(new DocumentAggregate({ onDocumentAggregateChange }));
+      }
+    }
+
+    function onDocumentRemoval(documentAggregateKey) {
+      documentsAggregates.value = documentsAggregates.value.filter((it) => it.key !== documentAggregateKey);
+    }
+
+    function onDocumentAggregateChange() {
+      addEmptyDocumentAggregateIfNecessary();
+
+      const pendingUpload = documentsAggregates.value
+        .find((it) => it.state === DOCUMENT_AGGREGATE_STATE.PENDING);
+      if (pendingUpload) {
+        return;
+      }
+
+      const failedUpload = documentsAggregates.value
+        .find((it) => it.state === DOCUMENT_AGGREGATE_STATE.UPLOAD_FAILED);
+      if (failedUpload) {
+        emit('uploads-failed');
+        return;
+      }
+
+      const documentsIds = documentsAggregates.value
+        .filter((it) => it.state === DOCUMENT_AGGREGATE_STATE.UPLOAD_COMPLETED)
+        .map((it) => it.document.id);
+      emit('uploads-completed', documentsIds);
+    }
+
+    watch(documents, () => {
+      documentsAggregates.value = documents.value.map((document) => new DocumentAggregate({
+        document,
+        onDocumentAggregateChange,
+      }));
+
+      addEmptyDocumentAggregateIfNecessary();
+    }, { lazy: true });
+
+    watch(() => props.documentsIds, async () => {
+      if (!props.documentsIds.length) {
+        documentsAggregates.value = [];
+      }
+      addEmptyDocumentAggregateIfNecessary();
+    });
+
+    addEmptyDocumentAggregateIfNecessary();
+
+    return {
+      documentsAggregates,
+      onDocumentRemoval,
+      onDocumentAggregateChange,
+    };
+  }
+
+  function useUploadControls(onDocumentAggregateChange) {
+    const uploadControls = ref(null);
+    const submitUploads = function submitUploads() {
+      if (uploadControls.value != null) {
+        uploadControls.value.forEach((upload) => upload.submitUpload());
+      }
+      onDocumentAggregateChange();
+    };
+    return {
+      uploadControls,
+      submitUploads,
+    };
+  }
+
+  function useDocumentsApi(props) {
+    const documents = ref([]);
+    const documentsLoading = ref(false);
+
+    async function loadDocuments() {
+      documentsLoading.value = true;
+      try {
+        const { currentWorkspaceId } = useCurrentWorkspace();
+        documents.value = await api.pageRequest(`/workspaces/${currentWorkspaceId}/documents`)
+          .eager()
+          .inFilter('id', props.documentsIds)
+          .getPageData();
+      } finally {
+        documentsLoading.value = false;
+      }
+    }
+
+    watch(() => props.documentsIds, async () => {
+      if (props.documentsIds.length) {
+        await loadDocuments();
+      }
+    }, { lazy: false });
+
+    return {
+      documents,
+      documentsLoading,
+    };
+  }
+
+  function useUiState({ documentsStorageStatus, documentsLoading, props }) {
+    const uiState = computed(() => {
+      const state = {
+        initialLoading: false,
+        documentsLoading: false,
+        storageActive: true,
+      };
+
+      if (documentsStorageStatus.value.loading) {
+        state.initialLoading = true;
+      } else if (!documentsStorageStatus.value.active) {
+        state.storageActive = false;
+      } else if (props.loadingOnCreate && !props.documentsIds.length) {
+        state.initialLoading = true;
+      } else if (documentsLoading.value) {
+        state.documentsLoading = true;
+      }
+
+      return state;
+    });
+
+    return {
+      uiState,
+    };
+  }
+
+  export default {
     components: {
+      SaFailedDocumentsStorageMessage,
       SaDocument,
       SaDocumentUpload,
     },
-
-    mixins: [withWorkspaces],
 
     props: {
       documentsIds: {
@@ -65,114 +224,30 @@
       },
     },
 
-    data() {
+    setup(props, { emit }) {
+      const { documents, documentsLoading } = useDocumentsApi(props);
+
+      const {
+        documentsAggregates, onDocumentAggregateChange, onDocumentRemoval,
+      } = useDocumentsAggregates({
+        emit,
+        props,
+        documents,
+      });
+
+      const { documentsStorageStatus } = useDocumentsStorageStatus();
+
       return {
-        documentsAggregates: [],
-        loading: this.loadingOnCreate,
+        documentsAggregates,
+        onDocumentRemoval,
+        documentsStorageStatus,
+        ...useUploadControls(onDocumentAggregateChange),
+        ...useUiState({
+          documentsLoading,
+          documentsStorageStatus,
+          props,
+        }),
       };
-    },
-
-    computed: {
-      loadingWithMinimumInfo() {
-        return this.loading && !this.documentsIds.length;
-      },
-
-      loadingWithDocumentsInfo() {
-        return this.loading && this.documentsIds.length;
-      },
-    },
-
-    watch: {
-      async documentsIds() {
-        if (!this.documentsIds.length) {
-          this.documentsAggregates = [];
-          this.loading = false;
-        } else {
-          this.loading = true;
-          try {
-            const documents = await api.pageRequest(`/workspaces/${this.currentWorkspace.id}/documents`)
-              .eager()
-              .inFilter('id', this.documentsIds)
-              .getPageData();
-
-            this.documentsAggregates = documents.map(it => ({
-              document: it,
-              key: it.id.toString(),
-              state: DOCUMENT_AGGREGATE_STATE.UPLOAD_COMPLETED,
-            }));
-          } finally {
-            this.loading = false;
-          }
-        }
-        this.addNewUploadControl();
-      },
-    },
-
-    created() {
-      this.addNewUploadControl();
-    },
-
-    methods: {
-      addNewUploadControl() {
-        this.documentsAggregates.push({
-          document: {},
-          key: new Date().getMilliseconds()
-            .toString(),
-          state: DOCUMENT_AGGREGATE_STATE.EMPTY,
-        });
-      },
-
-      getDocumentAggregateByKey(key) {
-        return this.documentsAggregates.find(it => it.key === key);
-      },
-
-      onUploadComplete(documentAggregateKey, uploadedDocument) {
-        const documentAggregate = this.getDocumentAggregateByKey(documentAggregateKey);
-        documentAggregate.state = DOCUMENT_AGGREGATE_STATE.UPLOAD_COMPLETED;
-        documentAggregate.document = uploadedDocument;
-        this.onUploadEvent();
-      },
-
-      onUploadFailure(documentAggregateKey) {
-        const documentAggregate = this.getDocumentAggregateByKey(documentAggregateKey);
-        documentAggregate.state = DOCUMENT_AGGREGATE_STATE.UPLOAD_FAILED;
-        this.onUploadEvent();
-      },
-
-      onDocumentSelection(documentAggregateKey) {
-        const documentAggregate = this.getDocumentAggregateByKey(documentAggregateKey);
-        documentAggregate.state = DOCUMENT_AGGREGATE_STATE.PENDING;
-        this.addNewUploadControl();
-      },
-
-      onDocumentRemoval(documentAggregateKey) {
-        this.documentsAggregates = this.documentsAggregates.filter(it => it.key !== documentAggregateKey);
-      },
-
-      onUploadEvent() {
-        const pendingUploads = this.documentsAggregates
-          .filter(it => it.state === DOCUMENT_AGGREGATE_STATE.PENDING);
-        if (pendingUploads.length) {
-          return;
-        }
-
-        const failedUploads = this.documentsAggregates
-          .filter(it => it.state === DOCUMENT_AGGREGATE_STATE.UPLOAD_FAILED);
-        if (failedUploads.length) {
-          this.$emit('uploads-failed');
-          return;
-        }
-
-        const documentsIds = this.documentsAggregates
-          .filter(it => it.state === DOCUMENT_AGGREGATE_STATE.UPLOAD_COMPLETED)
-          .map(it => it.document.id);
-        this.$emit('uploads-completed', documentsIds);
-      },
-
-      submitUploads() {
-        this.$refs.uploadControls.forEach(upload => upload.submitUpload());
-        this.onUploadEvent();
-      },
     },
   };
 </script>

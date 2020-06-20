@@ -7,6 +7,10 @@ import { loadCldrData, lookupClosestLocale } from '@/services/i18n/locale-utils'
 
 Vue.use(VueI18n);
 
+// register component with a name compliant with our code conventions
+const i18nComponent = Vue.component('i18n')
+Vue.component('I18n', i18nComponent);
+
 const i18n = new VueI18n({});
 
 let currentLocale;

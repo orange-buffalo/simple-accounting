@@ -14,7 +14,7 @@ spring:
             provider: "google"
             scope:
               - "https://www.googleapis.com/auth/drive.file"
-            redirect-uri: "https://simple-accounting.orange-buffalo.io/api/auth/oauth2/callback"
+            redirect-uri: "https://simple-accounting.orange-buffalo.io/oauth-callback"
 
   resources:
     add-mappings: false
@@ -36,6 +36,8 @@ simpleaccounting:
     storage:
       local-fs:
         base-directory: /data/documents-storage/local
+      google-drive:
+        base-api-url: "https://www.googleapis.com"
 
 ---
 
@@ -52,17 +54,13 @@ spring:
       client:
         registration:
           google-drive:
-            redirect-uri: "http://localdev.orange-buffalo.io:9393/api/auth/oauth2/callback"
+            redirect-uri: "http://localhost:9393/oauth-callback"
 
 simpleaccounting:
   documents:
     storage:
       local-fs:
         base-directory: ./local-dev/documents
-      google-drive:
-        credentials-file: file:./local-dev/gdrive/client_secret.json
-        data-store-directory: ./local-dev/gdrive/data-store
-        redirect-url-base: http://localdev.orange-buffalo.io:9393
 
 ---
 

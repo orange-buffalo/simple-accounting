@@ -729,4 +729,42 @@ export default {
   useDocumentsUpload: {
     documentsUploadFailure: 'Деякі документи не були завантажені. Повторіть спробу або видалити їх.',
   },
+
+  saGoogleDriveIntegrationSetup: {
+    successful: {
+      status: 'Інтеграція з Google Drive активна',
+      details: 'Усі документи зберігаються до папки {folderLink}',
+    },
+    unknown: {
+      status: 'Перевіряємо стан інтеграції...',
+      details: 'Будь ласка, зачекайте доки ми перевіримо стан',
+    },
+    authorizationRequired: {
+      status: 'Потрібна авторизація',
+      details: {
+        message: 'Будь ласка, надайте доступ для збереження документів у Ваш Google Drive.{action}',
+        startAction: 'Дати доступ зараз',
+      },
+    },
+    authorizationInProgress: {
+      status: 'Авторизація в процесі...',
+      details: {
+        line1: 'Будь ласка, продовжіть авторизацію у вікні, що з\'явилося.',
+        line2: 'Коли авторизацію буде завершено, ми автоматично оновимо статус тут.',
+      },
+    },
+    authorizationFailed: {
+      status: 'Авторизація не вдалася',
+      details: {
+        message: 'На жаль, ми не змогли отримати потрібний доступ :( {action}',
+        retryAction: 'Спробувати ще раз',
+      },
+    },
+  },
+
+  saFailedDocumentsStorageMessage: {
+    title: 'Налаштування збереження документів не активні',
+    message: 'Будь ласка, перейдіть до Ваших {0} та виправте конфігурацію.',
+    profileLink: 'налаштуваннь профілю',
+  },
 };

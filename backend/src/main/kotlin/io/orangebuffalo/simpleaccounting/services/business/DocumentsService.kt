@@ -3,11 +3,11 @@ package io.orangebuffalo.simpleaccounting.services.business
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import org.springframework.core.io.buffer.DataBuffer
-import org.springframework.http.codec.multipart.FilePart
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 
@@ -20,15 +20,15 @@ class DocumentsService(
     private val platformUserService: PlatformUserService
 ) {
 
-    suspend fun uploadDocument(filePart: FilePart, workspace: Workspace): Document {
-        val documentStorage = getDocumentStorageByUser(workspace.ownerId)
-        val storageProviderResponse = documentStorage.saveDocument(filePart, workspace)
+    suspend fun saveDocument(request: SaveDocumentRequest): Document {
+        val documentStorage = getDocumentStorageByUser(request.workspace.ownerId)
+        val storageProviderResponse = documentStorage.saveDocument(request)
         return withDbContext {
             documentRepository.save(
                 Document(
-                    name = filePart.filename(),
+                    name = request.fileName,
                     timeUploaded = timeService.currentTime(),
-                    workspaceId = workspace.id!!,
+                    workspaceId = request.workspace.id!!,
                     storageProviderId = documentStorage.getId(),
                     storageProviderLocation = storageProviderResponse.storageProviderLocation,
                     sizeInBytes = storageProviderResponse.sizeInBytes
@@ -68,5 +68,10 @@ class DocumentsService(
         if (notValidDocumentsIds.isNotEmpty()) {
             throw EntityNotFoundException("Documents $notValidDocumentsIds are not found")
         }
+    }
+
+    suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
+        val userStorage = getDocumentStorageByUser(platformUserService.getCurrentUser().id!!)
+        return userStorage.getCurrentUserStorageStatus()
     }
 }

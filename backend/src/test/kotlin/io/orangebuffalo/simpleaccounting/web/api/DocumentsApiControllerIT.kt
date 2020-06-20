@@ -1,9 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
@@ -17,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -207,14 +205,13 @@ class DocumentsApiControllerIT(
     }
 
     private fun mockDocumentsStorage(testData: DocumentsApiTestData) {
-        runBlocking {
-            whenever(testDocumentsStorage.mock.saveDocument(any(), eq(testData.fryWorkspace)))
-                .doReturn(
-                    StorageProviderResponse(
-                        storageProviderLocation = "test-location",
-                        sizeInBytes = 42
-                    )
-                )
+        testDocumentsStorage.mock.stub {
+            onBlocking {
+                saveDocument(argThat { workspace == testData.fryWorkspace && fileName == "test-file.txt" })
+            } doReturn StorageProviderResponse(
+                storageProviderLocation = "test-location",
+                sizeInBytes = 42
+            )
         }
     }
 
@@ -291,7 +288,7 @@ class DocumentsApiControllerIT(
     }
 
     class TestDocumentsStorage(
-        val mock: DocumentsStorage = Mockito.mock(DocumentsStorage::class.java)
+        val mock: DocumentsStorage = mock(DocumentsStorage::class.java)
     ) : DocumentsStorage by mock
 
     @TestConfiguration

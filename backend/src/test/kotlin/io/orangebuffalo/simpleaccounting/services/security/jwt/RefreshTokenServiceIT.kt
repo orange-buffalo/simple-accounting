@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.security.jwt
 
-import com.nhaarman.mockito_kotlin.doReturn
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
