@@ -24,7 +24,6 @@
     "dropzone": "^5.7.0",
     "element-ui": "^2.13.2",
     "eventsource": "^1.0.7",
-    "file-saver": "^2.0.2",
     "globalize": "^1.5.0",
     "jwt-decode": "^2.2.0",
     "lockr": "^0.8.5",

@@ -1,11 +1,16 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.stub
+import io.orangebuffalo.simpleaccounting.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.utils.consumeToString
+import io.orangebuffalo.simpleaccounting.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -16,7 +21,8 @@ import org.springframework.context.annotation.Bean
 
 @SimpleAccountingIntegrationTest
 class DocumentsServiceIT(
-    @Autowired val documentsService: DocumentsService
+    @Autowired val documentsService: DocumentsService,
+    @Autowired val testDocumentsStorage: TestDocumentsStorage
 ) {
 
     @Test
@@ -28,6 +34,25 @@ class DocumentsServiceIT(
         assertThat(storageStatus.active).isTrue()
     }
 
+    @Test
+    @WithMockFryUser
+    fun `should return content for download`(testData: DocumentsServiceTestData) {
+        testDocumentsStorage.mock.stub {
+            onBlocking {
+                getDocumentContent(testData.fryWorkspace, testData.document.storageProviderLocation!!)
+            } doReturn "test-content".toDataBuffers()
+        }
+
+        val contentResponse = runBlocking {
+            documentsService.getContent(DocumentDownloadMetadata(testData.document.id!!))
+        }
+
+        assertThat(contentResponse.fileName).isEqualTo("document.pdf")
+        assertThat(contentResponse.sizeInBytes).isEqualTo(42)
+        assertThat(contentResponse.content.consumeToString()).isEqualTo("test-content")
+        // todo #108: verify content type
+    }
+
     @TestConfiguration
     class DocumentsServiceConfig {
         @Bean
@@ -35,7 +60,7 @@ class DocumentsServiceIT(
     }
 
     class TestDocumentsStorage(
-        private val mock: DocumentsStorage = mock(DocumentsStorage::class.java)
+        val mock: DocumentsStorage = mock(DocumentsStorage::class.java)
     ) : DocumentsStorage by mock {
         override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
         override fun getId() = "mock-storage"
@@ -43,10 +68,19 @@ class DocumentsServiceIT(
 }
 
 class DocumentsServiceTestData : TestData {
-    override fun generateData() = listOf(
-        Prototypes.platformUser(
-            userName = "Fry",
-            documentsStorage = "mock-storage"
-        )
+    val fry = Prototypes.platformUser(
+        userName = "Fry",
+        documentsStorage = "mock-storage"
     )
+    val fryWorkspace = Prototypes.workspace(owner = fry)
+    val document = Prototypes.document(
+        name = "document.pdf",
+        storageProviderLocation = "document-in-storage",
+        workspace = fryWorkspace,
+        storageProviderId = "mock-storage",
+        timeUploaded = MOCK_TIME,
+        sizeInBytes = 42
+    )
+
+    override fun generateData() = listOf(fry, fryWorkspace, document)
 }

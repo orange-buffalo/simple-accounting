@@ -72,6 +72,7 @@ class WebConfig : WebFluxConfigurer {
             .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
             .authorizeExchange()
             .pathMatchers("/api/auth/**").permitAll()
+            .pathMatchers("/api/downloads/**").permitAll()
             .pathMatchers("/api/users/**").hasRole("ADMIN")
             .pathMatchers("/api/**").authenticated()
             .pathMatchers("/**").permitAll()

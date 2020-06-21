@@ -1,6 +1,9 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadContentResponse
+import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadableContentProvider
+import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.DocumentRepository
@@ -8,6 +11,7 @@ import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
 import org.springframework.core.io.buffer.DataBuffer
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 
@@ -17,8 +21,9 @@ class DocumentsService(
     private val documentRepository: DocumentRepository,
     private val timeService: TimeService,
     private val workspaceService: WorkspaceService,
-    private val platformUserService: PlatformUserService
-) {
+    private val platformUserService: PlatformUserService,
+    private val downloadsService: DownloadsService
+) : DownloadableContentProvider<DocumentDownloadMetadata> {
 
     suspend fun saveDocument(request: SaveDocumentRequest): Document {
         val documentStorage = getDocumentStorageByUser(request.workspace.ownerId)
@@ -74,4 +79,31 @@ class DocumentsService(
         val userStorage = getDocumentStorageByUser(platformUserService.getCurrentUser().id!!)
         return userStorage.getCurrentUserStorageStatus()
     }
+
+    suspend fun getDownloadToken(workspaceId: Long, documentId: Long): String {
+        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        getDocumentByIdAndWorkspaceId(documentId, workspaceId)
+            ?: throw EntityNotFoundException("Document $documentId is not found")
+        return downloadsService.createDownloadToken(this, DocumentDownloadMetadata(documentId))
+    }
+
+    override fun getId(): String = DocumentsService::class.simpleName!!
+
+    override suspend fun getContent(metadata: DocumentDownloadMetadata): DownloadContentResponse {
+        val document = withDbContext {
+            documentRepository.findByIdOrNull(metadata.documentId)
+        } ?: throw EntityNotFoundException("Document ${metadata.documentId} is not found")
+
+        return DownloadContentResponse(
+            content = getDocumentContent(document),
+            fileName = document.name,
+            sizeInBytes = document.sizeInBytes,
+            // todo #108
+            contentType = null
+        )
+    }
 }
+
+data class DocumentDownloadMetadata(
+    val documentId: Long
+)

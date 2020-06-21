@@ -31,7 +31,6 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
 import reactor.core.publisher.Flux
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 
 private val bufferFactory = DefaultDataBufferFactory()
 
@@ -208,7 +207,7 @@ class GoogleDriveDocumentsStorageServiceIT(
 
         val contentBuffers = whenDownloadingDocumentContent(testData)
 
-        assertThat(convertResponseToString(contentBuffers)).isEqualTo("Test Content")
+        assertThat(contentBuffers.consumeToString()).isEqualTo("Test Content")
     }
 
     @Test
@@ -410,14 +409,6 @@ class GoogleDriveDocumentsStorageServiceIT(
                 }"""
             )
         }
-    }
-
-    private fun convertResponseToString(contentBuffers: Flux<DataBuffer>): String {
-        val os = ByteArrayOutputStream()
-        DataBufferUtils.write(contentBuffers, os)
-            .map { DataBufferUtils.release(it) }
-            .blockLast()
-        return String(os.toByteArray())
     }
 
     private fun whenDownloadingDocumentContent(testData: GoogleDriveTestData): Flux<DataBuffer> {

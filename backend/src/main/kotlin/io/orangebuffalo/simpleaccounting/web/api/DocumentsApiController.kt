@@ -66,6 +66,14 @@ class DocumentsApiController(
             }
     }
 
+    @GetMapping("{documentId}/download-token")
+    suspend fun getDownloadToken(
+        @PathVariable workspaceId: Long,
+        @PathVariable documentId: Long
+    ): GetDownloadTokenResponse = GetDownloadTokenResponse(
+        token = documentsService.getDownloadToken(workspaceId, documentId)
+    )
+
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Document, DocumentDto> {
         query(Tables.DOCUMENT) {
             filterByField("id", Long::class) {
@@ -98,3 +106,5 @@ private fun mapDocumentDto(source: Document) = DocumentDto(
     version = source.version!!,
     sizeInBytes = source.sizeInBytes
 )
+
+data class GetDownloadTokenResponse(val token: String)

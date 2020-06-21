@@ -58,6 +58,7 @@ export default {
 
   saDocumentDownloadLink: {
     label: 'Download',
+    creatingLinkMessage: 'Starting the download, please wait...',
   },
 
   saDocumentUpload: {

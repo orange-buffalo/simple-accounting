@@ -58,6 +58,7 @@ export default {
 
   saDocumentDownloadLink: {
     label: 'Завантажити',
+    creatingLinkMessage: 'Починаємо збереження файлу...',
   },
 
   saDocumentUpload: {

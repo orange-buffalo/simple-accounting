@@ -5,7 +5,11 @@ module.exports = {
 
   devServer: {
     port: 9091,
-    proxy: 'http://localhost:9393',
+    proxy: {
+      '^/api': {
+        target: 'http://localhost:9393',
+      },
+    },
     disableHostCheck: true,
   },
 
@@ -13,7 +17,7 @@ module.exports = {
     config.performance = {
       hints: false,
     };
-    config.devtool =  process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map';
+    config.devtool = process.env.NODE_ENV === 'production' ? 'source-map' : 'eval-source-map';
   },
 
   chainWebpack: (config) => {

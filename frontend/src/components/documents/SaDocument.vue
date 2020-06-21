@@ -203,8 +203,9 @@
         flex-wrap: wrap;
 
         &__download-link {
-          padding: 0 5px 0 0 !important;
-        }
+          .el-button {
+            padding: 0 5px 0 0 !important;
+          }
       }
     }
 
@@ -244,4 +245,5 @@
       }
     }
   }
+}
 </style>
