@@ -1,7 +1,10 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.services.security.runAs
+import io.orangebuffalo.simpleaccounting.services.security.toSecurityPrincipal
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -15,9 +18,10 @@ data class OAuth2SucceededEvent(
     val context: CoroutineContext
 ) {
 
-    fun launchIfClientMatches(clientRegistrationId: String, block: suspend () -> Unit) {
+    fun launchIfClientMatches(clientRegistrationId: String, block: suspend () -> Unit): Job? =
         if (this.clientRegistrationId == clientRegistrationId) {
-            GlobalScope.launch(context) { block() }
-        }
-    }
+            GlobalScope.launch(context) {
+                runAs(user.toSecurityPrincipal(), block)
+            }
+        } else null
 }
