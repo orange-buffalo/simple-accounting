@@ -16,7 +16,7 @@ internal class WebUiConfigIT(
 ) {
 
     @Test
-    fun `Should serve favicon`() {
+    fun `should serve favicon`() {
         client.get().uri("/favicon.ico")
             .exchange()
             .expectStatus().isOk
@@ -28,7 +28,7 @@ internal class WebUiConfigIT(
     }
 
     @Test
-    fun `Should serve static resource`() {
+    fun `should serve static resource`() {
         client.get().uri("/assets/css/test.css")
             .exchange()
             .expectStatus().isOk
@@ -41,7 +41,7 @@ internal class WebUiConfigIT(
     }
 
     @Test
-    fun `Should serve app page without authentication and caching`() {
+    fun `should serve app page without authentication and caching`() {
         client.get().uri("/")
             .accept(TEXT_HTML)
             .exchange()
@@ -54,7 +54,7 @@ internal class WebUiConfigIT(
     }
 
     @Test
-    fun `Should serve routed app page without authentication and caching`() {
+    fun `should serve routed app page without authentication and caching`() {
         client.get().uri("/workspaces")
             .accept(TEXT_HTML)
             .exchange()
@@ -67,7 +67,7 @@ internal class WebUiConfigIT(
     }
 
     @Test
-    fun `Should serve routed app page with nested path without authentication and caching`() {
+    fun `should serve routed app page with nested path without authentication and caching`() {
         client.get().uri("/workspaces/42/edit")
             .accept(TEXT_HTML)
             .exchange()
