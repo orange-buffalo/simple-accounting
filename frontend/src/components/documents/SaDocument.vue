@@ -206,6 +206,7 @@
           .el-button {
             padding: 0 5px 0 0 !important;
           }
+        }
       }
     }
 
@@ -245,5 +246,4 @@
       }
     }
   }
-}
 </style>

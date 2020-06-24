@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import {
   Pagination,
-  Dialog,
   Menu,
   Input,
   InputNumber,
@@ -25,8 +24,6 @@ import {
   Aside,
   Main,
   Footer,
-  Message,
-  MessageBox,
   Loading,
   Alert,
 } from 'element-ui';
@@ -41,7 +38,6 @@ import { app } from '@/services/app-services';
 
 function setupElementUi({ i18n }) {
   Vue.use(Pagination);
-  Vue.use(Dialog);
   Vue.use(Menu);
   Vue.use(Input);
   Vue.use(InputNumber);
@@ -67,9 +63,6 @@ function setupElementUi({ i18n }) {
   Vue.use(Footer);
   Vue.use(Loading.directive);
   Vue.use(Alert);
-
-  Vue.prototype.$message = Message;
-  Vue.prototype.$confirm = MessageBox.confirm;
 
   ElementLocale.i18n((key, value) => i18n.t(key, value));
 }
