@@ -1,0 +1,29 @@
+@import "vars";
+
+.sa-notification {
+  &__icon {
+    display: none;
+  }
+
+  &__content {
+    display: inline-flex;
+    align-items: center;
+    padding-right: 30px;
+
+    &__icon {
+      margin-right: 5px;
+      height: 18px;
+      width: 18px;
+    }
+
+    &__text {
+      margin-top: -2px;
+    }
+  }
+
+  &--error {
+    border-color: $danger-color-lighter-iii;
+    background-color: $danger-color-bg;
+    color: $danger-color;
+  }
+}
