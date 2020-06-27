@@ -769,4 +769,8 @@ export default {
     message: 'Please navigate to your {0} and complete the configuration.',
     profileLink: 'profile settings',
   },
+
+  errorHandler: {
+    fatalApiError: 'We encountered a server error. Please try again.',
+  },
 };

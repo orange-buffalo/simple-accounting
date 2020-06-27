@@ -1,7 +1,12 @@
 import axios from 'axios';
 import qs from 'qs';
 import jwtDecode from 'jwt-decode';
-import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
+import {
+  API_FATAL_ERROR_EVENT,
+  LOADING_FINISHED_EVENT,
+  LOADING_STARTED_EVENT,
+  LOGIN_REQUIRED_EVENT,
+} from '@/services/events';
 import pageRequest from './api-filtering';
 
 const { CancelToken } = axios;
@@ -151,6 +156,8 @@ api.interceptors.response.use(
         return axios.request(config);
       }
       LOGIN_REQUIRED_EVENT.emit();
+    } else if (error.response && error.response.status >= 400) {
+      API_FATAL_ERROR_EVENT.emit(error);
     }
     emitLoadingFinishedEvent();
     return Promise.reject(error);

@@ -34,6 +34,7 @@ import '@/styles/main.scss';
 import setupRouter from '@/setup/setup-router';
 import setupStore from '@/setup/setup-store';
 import setupI18n from '@/setup/setup-i18n';
+import setupErrorHandler from '@/setup/setup-error-handler';
 import { app } from '@/services/app-services';
 
 function setupElementUi({ i18n }) {
@@ -78,10 +79,11 @@ function setupApp() {
     router,
     store,
     i18n,
-    render: h => h(SimpleAccounting),
+    render: (h) => h(SimpleAccounting),
   });
 
   setupElementUi({ i18n });
+  setupErrorHandler();
 
   app.init({
     vue,
