@@ -4,7 +4,7 @@ class Event {
   }
 
   emit(data) {
-    this.listeners.forEach(listener => listener(data));
+    this.listeners.forEach((listener) => listener(data));
   }
 
   subscribe(listener) {
@@ -12,7 +12,7 @@ class Event {
   }
 
   unsubscribe(listener) {
-    this.listeners = this.listeners.filter(registeredListener => registeredListener !== listener);
+    this.listeners = this.listeners.filter((registeredListener) => registeredListener !== listener);
   }
 }
 
@@ -21,3 +21,5 @@ export const SUCCESSFUL_LOGIN_EVENT = new Event();
 
 export const LOADING_STARTED_EVENT = new Event();
 export const LOADING_FINISHED_EVENT = new Event();
+
+export const API_FATAL_ERROR_EVENT = new Event();

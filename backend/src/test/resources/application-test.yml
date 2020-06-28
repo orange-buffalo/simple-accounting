@@ -19,3 +19,4 @@ spring:
 logging:
   level:
     org.jooq.tools.LoggerListener: trace
+    io.orangebuffalo.simpleaccounting: trace

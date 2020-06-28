@@ -70,21 +70,18 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
-val frontendDistDir = "$buildDir/generated-resources/main"
-sourceSets {
-    main {
-        output.dir(frontendDistDir, "builtBy" to "copyFrontend")
-    }
+tasks.register<Copy>("copyFrontend") {
+    from(tasks.getByPath(":frontend:npmBuild"))
+    into("${sourceSets.getByName("main").output.resourcesDir}/META-INF/resources")
+}
+
+tasks.bootJar {
+    dependsOn("copyFrontend")
 }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict")
     kotlinOptions.jvmTarget = "1.8"
-}
-
-tasks.register<Copy>("copyFrontend") {
-    from(tasks.getByPath(":frontend:npmBuild"))
-    into("$frontendDistDir/META-INF/resources")
 }
 
 tasks {

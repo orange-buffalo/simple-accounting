@@ -7,6 +7,7 @@ const API_TIME = new Date('2020-01-04T00:00:00');
 
 describe('api service', () => {
   let loginRequiredEventMock;
+  let apiFatalErrorEventMock;
   let api;
 
   beforeEach(() => {
@@ -25,9 +26,14 @@ describe('api service', () => {
       LOADING_FINISHED_EVENT: {
         emit: jest.fn(),
       },
+      API_FATAL_ERROR_EVENT: {
+        emit: jest.fn(),
+      },
     }));
 
-    loginRequiredEventMock = require('@/services/events').LOGIN_REQUIRED_EVENT.emit;
+    const events = require('@/services/events');
+    loginRequiredEventMock = events.LOGIN_REQUIRED_EVENT.emit;
+    apiFatalErrorEventMock = events.API_FATAL_ERROR_EVENT.emit;
     ({ api } = require('@/services/api'));
   });
 
@@ -101,5 +107,22 @@ describe('api service', () => {
 
     expect(loginRequiredEventMock.mock.calls.length)
       .toBe(0);
+  });
+
+  it('fires api fatal error event when 4xx or 5xx is received', (done) => {
+    expect.assertions(1);
+
+    httpMock.get('/api/api-call', (req, res) => res.status(500)
+      .body(''));
+
+    api.get('/api-call')
+      .then(() => {
+        done(Error('should not call success callback'));
+      })
+      .catch(() => {
+        expect(apiFatalErrorEventMock.mock.calls.length)
+          .toBe(1);
+        done();
+      });
   });
 });

@@ -58,6 +58,7 @@ export default {
 
   saDocumentDownloadLink: {
     label: 'Завантажити',
+    creatingLinkMessage: 'Починаємо збереження файлу...',
   },
 
   saDocumentUpload: {
@@ -766,5 +767,9 @@ export default {
     title: 'Налаштування збереження документів не активні',
     message: 'Будь ласка, перейдіть до Ваших {0} та виправте конфігурацію.',
     profileLink: 'налаштуваннь профілю',
+  },
+
+  errorHandler: {
+    fatalApiError: 'Сталася помилка на сервері. Будь-ласка, спробуйте ще раз.',
   },
 };

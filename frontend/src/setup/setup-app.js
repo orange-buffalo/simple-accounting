@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import {
   Pagination,
-  Dialog,
   Menu,
   Input,
   InputNumber,
@@ -25,8 +24,6 @@ import {
   Aside,
   Main,
   Footer,
-  Message,
-  MessageBox,
   Loading,
   Alert,
 } from 'element-ui';
@@ -37,11 +34,11 @@ import '@/styles/main.scss';
 import setupRouter from '@/setup/setup-router';
 import setupStore from '@/setup/setup-store';
 import setupI18n from '@/setup/setup-i18n';
+import setupErrorHandler from '@/setup/setup-error-handler';
 import { app } from '@/services/app-services';
 
 function setupElementUi({ i18n }) {
   Vue.use(Pagination);
-  Vue.use(Dialog);
   Vue.use(Menu);
   Vue.use(Input);
   Vue.use(InputNumber);
@@ -68,9 +65,6 @@ function setupElementUi({ i18n }) {
   Vue.use(Loading.directive);
   Vue.use(Alert);
 
-  Vue.prototype.$message = Message;
-  Vue.prototype.$confirm = MessageBox.confirm;
-
   ElementLocale.i18n((key, value) => i18n.t(key, value));
 }
 
@@ -85,10 +79,11 @@ function setupApp() {
     router,
     store,
     i18n,
-    render: h => h(SimpleAccounting),
+    render: (h) => h(SimpleAccounting),
   });
 
   setupElementUi({ i18n });
+  setupErrorHandler();
 
   app.init({
     vue,

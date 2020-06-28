@@ -47,7 +47,8 @@
 <script>
 
   import { mapActions } from 'vuex';
-  import api from '@/services/api';
+  import { Message } from 'element-ui';
+  import { api } from '@/services/api';
 
   export default {
     name: 'WorkspaceSetup',
@@ -62,10 +63,18 @@
         },
         formValidationRules: {
           name: [
-            { required: true, message: 'Please input name', trigger: 'blur' },
+            {
+              required: true,
+              message: 'Please input name',
+              trigger: 'blur',
+            },
           ],
           defaultCurrency: [
-            { required: true, message: 'Please input currency', trigger: 'blur' },
+            {
+              required: true,
+              message: 'Please input currency',
+              trigger: 'blur',
+            },
           ],
         },
       };
@@ -83,7 +92,7 @@
               })
               .catch(() => {
                 this.$refs.form.clearValidate();
-                this.$message({
+                Message({
                   showClose: true,
                   message: 'Sorry, failed',
                   type: 'error',

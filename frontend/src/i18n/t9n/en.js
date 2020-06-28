@@ -58,6 +58,7 @@ export default {
 
   saDocumentDownloadLink: {
     label: 'Download',
+    creatingLinkMessage: 'Starting the download, please wait...',
   },
 
   saDocumentUpload: {
@@ -767,5 +768,9 @@ export default {
     title: 'Documents storage is not active',
     message: 'Please navigate to your {0} and complete the configuration.',
     profileLink: 'profile settings',
+  },
+
+  errorHandler: {
+    fatalApiError: 'We encountered a server error. Please try again.',
   },
 };

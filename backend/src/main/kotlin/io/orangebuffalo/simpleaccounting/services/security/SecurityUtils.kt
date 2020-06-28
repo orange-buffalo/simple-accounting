@@ -1,6 +1,9 @@
 package io.orangebuffalo.simpleaccounting.services.security
 
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.mono
+import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import reactor.core.publisher.Mono
@@ -35,4 +38,22 @@ inline fun <reified T : Authentication> Authentication.mono(
     } else {
         Mono.empty()
     }
+}
+
+suspend fun <T : Any?> runAs(principal: SpringSecurityPrincipal, block: suspend () -> T): T {
+    return mono {
+        block()
+    }.subscriberContext(
+        ReactiveSecurityContextHolder.withAuthentication(ProgrammaticAuthentication(principal))
+    ).awaitFirst()
+}
+
+class ProgrammaticAuthentication(val user: SpringSecurityPrincipal) : AbstractAuthenticationToken(user.authorities) {
+
+    init {
+        isAuthenticated = true
+    }
+
+    override fun getCredentials() = null
+    override fun getPrincipal() = user
 }
