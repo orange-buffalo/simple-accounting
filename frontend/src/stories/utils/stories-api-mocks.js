@@ -45,6 +45,10 @@ export function onGetToWorkspacePath(subPath) {
   return onGet(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
 }
 
+export function onPutToWorkspacePath(subPath) {
+  return onPut(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
+}
+
 export function onPostToWorkspacePath(subPath) {
   return onPost(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
 }
@@ -55,6 +59,10 @@ export function onGet(path) {
 
 export function onPost(path) {
   return enrichRequestMock(server.post(path));
+}
+
+export function onPut(path) {
+  return enrichRequestMock(server.put(path));
 }
 
 export function resetApiMock() {
@@ -71,6 +79,10 @@ export function resetApiMock() {
   // support for hot reload
   server.get('/:id.hot-update.json')
     .passthrough();
+
+  // block initial router validation
+  server.post('/api/auth/token')
+    .intercept(async () => server.timeout(99999999));
 }
 
 export function createApiMockDecorator() {

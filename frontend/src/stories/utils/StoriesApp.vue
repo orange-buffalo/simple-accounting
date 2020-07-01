@@ -20,7 +20,7 @@
 
       async function loadI18n() {
         await mainConfig.app.i18n.setLocaleFromProfile({
-          locale: 'en',
+          locale: 'en-AU',
           language: 'en',
         });
         loaded.value = true;

@@ -1,5 +1,6 @@
 import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
-import { apiPage, onGetToWorkspacePath } from '@/stories/utils/stories-api-mocks';
+import { apiPage, onGetToWorkspacePath, onPutToWorkspacePath } from '@/stories/utils/stories-api-mocks';
+import { action } from '@storybook/addon-actions';
 
 const customer = {
   id: 77,
@@ -32,7 +33,17 @@ function createStory({ invoice, componentConfig }) {
     data() {
       return { invoice };
     },
-    template: '<InvoicesOverviewPanel :invoice="invoice" />',
+    methods: {
+      onInvoiceUpdate() {
+        action('invoice-update')();
+        this.invoice = {
+          ...this.invoice,
+          title: 'Updated Invoice',
+          status: 'SENT',
+        };
+      },
+    },
+    template: '<InvoicesOverviewPanel :invoice="invoice" @invoice-update="onInvoiceUpdate" />',
     beforeCreate() {
       mockTaxesAndCustomers();
     },
@@ -51,6 +62,16 @@ export const Draft = createStory({
   invoice: {
     ...invoicePrototype,
     status: 'DRAFT',
+  },
+  componentConfig: {
+    beforeCreate() {
+      mockTaxesAndCustomers();
+      onPutToWorkspacePath(`invoices/${invoicePrototype.id}`)
+        .intercept((req, res) => {
+          action('PUT Invoice API')(req.body);
+          res.json(req.body);
+        });
+    },
   },
 });
 
