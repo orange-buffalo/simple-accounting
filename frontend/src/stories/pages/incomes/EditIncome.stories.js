@@ -14,6 +14,33 @@ const generalTax = {
   title: 'Tax 1',
 };
 
+const incomeProto = {
+  category: null,
+  title: 'Payment for Invoice #22',
+  timeRecorded: '2020-01-04T00:00:00',
+  dateReceived: '2020-05-03',
+  currency: 'AUD',
+  originalAmount: 6859,
+  attachments: [],
+  notes: null,
+  id: 42,
+  version: 0,
+  status: 'FINALIZED',
+  linkedInvoice: null,
+  generalTax: null,
+  generalTaxRateInBps: null,
+  generalTaxAmount: null,
+  convertedAmounts: {
+    originalAmountInDefaultCurrency: 6859,
+    adjustedAmountInDefaultCurrency: 6859,
+  },
+  incomeTaxableAmounts: {
+    originalAmountInDefaultCurrency: 6859,
+    adjustedAmountInDefaultCurrency: 6859,
+  },
+  useDifferentExchangeRateForIncomeTaxPurposes: false,
+};
+
 function mockApiResources() {
   onGetToWorkspacePath('/categories')
     .successJson(apiPage([category]));
@@ -45,6 +72,7 @@ export const CreateFromInvoice = () => ({
   data() {
     return {
       invoice: {
+        id: 100,
         title: 'Invoice #22041',
         currency: 'EUR',
         amount: 4276,
@@ -64,31 +92,23 @@ export const EditExistingIncome = () => ({
   beforeCreate() {
     mockApiResources();
     onGetToWorkspacePath('/incomes/42')
+      .successJson(incomeProto);
+  },
+});
+
+export const EditExistingIncomeWithInvoice = () => ({
+  components: { EditIncome },
+  template: '<EditIncome :id="42" />',
+  beforeCreate() {
+    mockApiResources();
+    onGetToWorkspacePath('/incomes/42')
       .successJson({
-        category: null,
-        title: 'Payment for Invoice #22',
-        timeRecorded: '2020-01-04T00:00:00',
-        dateReceived: '2020-05-03',
-        currency: 'AUD',
-        originalAmount: 6859,
-        attachments: [],
-        notes: null,
-        id: 42,
-        version: 0,
-        status: 'FINALIZED',
-        linkedInvoice: null,
-        generalTax: null,
-        generalTaxRateInBps: null,
-        generalTaxAmount: null,
-        convertedAmounts: {
-          originalAmountInDefaultCurrency: 6859,
-          adjustedAmountInDefaultCurrency: 6859,
-        },
-        incomeTaxableAmounts: {
-          originalAmountInDefaultCurrency: 6859,
-          adjustedAmountInDefaultCurrency: 6859,
-        },
-        useDifferentExchangeRateForIncomeTaxPurposes: false,
+        ...incomeProto,
+        linkedInvoice: 100,
+      });
+    onGetToWorkspacePath('/invoices/100')
+      .successJson({
+        title: 'Invoice 994',
       });
   },
 });
