@@ -240,7 +240,7 @@
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
   import useGeneralTaxes from '@/components/general-tax/useGeneralTaxes';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
-  import { app } from '@/services/app-services';
+  import useNavigation from '@/components/navigation/useNavigation';
 
   function useInvoiceApi({ invoice, currentWorkspace, emit }) {
     async function markSent() {
@@ -255,16 +255,18 @@
     return { markSent };
   }
 
-  function useNavigation({ router, invoice }) {
+  function useInvoiceNavigation({ invoice }) {
+    const { navigateToView } = useNavigation();
+
     function navigateToInvoiceEdit() {
-      router.push({
+      navigateToView({
         name: 'edit-invoice',
         params: { id: invoice.value.id },
       });
     }
 
     function markPaid() {
-      router.push({
+      navigateToView({
         name: 'edit-income',
         params: { invoice: invoice.value },
       });
@@ -370,10 +372,7 @@
           currentWorkspace,
           emit,
         }),
-        ...useNavigation({
-          invoice,
-          router: app.router,
-        }),
+        ...useInvoiceNavigation({ invoice }),
         isGeneralTaxApplicable,
         isForeignCurrency,
         generalTaxRate,

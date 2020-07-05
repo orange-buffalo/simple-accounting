@@ -241,6 +241,15 @@
     };
   }
 
+  function copyInvoiceProperties(income, invoice) {
+    safeAssign(income, {
+      title: i18n.t('editIncome.fromInvoice.title', [invoice.title]),
+      currency: invoice.currency,
+      originalAmount: invoice.amount,
+      generalTax: invoice.generalTax,
+    });
+  }
+
   export default {
     components: {
       SaGeneralTaxInput,
@@ -257,9 +266,13 @@
         type: Number,
         default: null,
       },
+      invoice: {
+        type: Object,
+        default: null,
+      },
     },
 
-    setup({ id }) {
+    setup({ id, invoice }) {
       const { defaultCurrency } = useCurrentWorkspace();
 
       const income = reactive({
@@ -269,6 +282,7 @@
         attachments: [],
         dateReceived: new Date(),
       });
+      if (invoice) copyInvoiceProperties(income, invoice);
 
       const isInForeignCurrency = computed(() => income.currency !== defaultCurrency);
 

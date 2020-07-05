@@ -389,6 +389,9 @@ export default {
       dateReceived: 'Прошу повідомити дату, коли дохід отриманий',
       originalAmount: 'Будь ласка, вкажіть суму доходу ',
     },
+    fromInvoice: {
+      title: 'Платіж за {0}',
+    },
   },
 
   incomesOverviewPanel: {

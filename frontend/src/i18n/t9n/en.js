@@ -390,6 +390,9 @@ export default {
       dateReceived: 'Please provide the date when income is received',
       originalAmount: 'Please provide income amount',
     },
+    fromInvoice: {
+      title: 'Payment for {0}',
+    },
   },
 
   incomesOverviewPanel: {

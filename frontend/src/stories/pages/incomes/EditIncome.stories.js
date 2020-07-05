@@ -9,11 +9,16 @@ const category = {
   expense: true,
 };
 
+const generalTax = {
+  id: 100,
+  title: 'Tax 1',
+};
+
 function mockApiResources() {
   onGetToWorkspacePath('/categories')
     .successJson(apiPage([category]));
   onGetToWorkspacePath('/general-taxes')
-    .successJson(apiPage([]));
+    .successJson(apiPage([generalTax]));
   onGetToWorkspacePath('/statistics/currencies-shortlist')
     .successJson(['AUD', 'USD']);
   onGet('api/profile/documents-storage')
@@ -30,6 +35,24 @@ export default {
 export const CreateNewIncome = () => ({
   components: { EditIncome },
   template: '<EditIncome />',
+  beforeCreate() {
+    mockApiResources();
+  },
+});
+
+export const CreateFromInvoice = () => ({
+  components: { EditIncome },
+  data() {
+    return {
+      invoice: {
+        title: 'Invoice #22041',
+        currency: 'EUR',
+        amount: 4276,
+        generalTax: 100,
+      },
+    };
+  },
+  template: '<EditIncome :invoice="invoice" />',
   beforeCreate() {
     mockApiResources();
   },
