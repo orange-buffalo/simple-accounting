@@ -158,7 +158,6 @@ class InvoicesApiController(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class InvoiceDto(
     val title: String,
-    val income: Long?,
     val customer: Long,
     val timeRecorded: Instant,
     val dateIssued: LocalDate,
@@ -202,7 +201,6 @@ data class EditInvoiceDto(
 private fun mapInvoiceDto(source: Invoice, timeService: TimeService) =
     InvoiceDto(
         title = source.title,
-        income = source.incomeId,
         customer = source.customerId,
         timeRecorded = source.timeRecorded,
         dateIssued = source.dateIssued,

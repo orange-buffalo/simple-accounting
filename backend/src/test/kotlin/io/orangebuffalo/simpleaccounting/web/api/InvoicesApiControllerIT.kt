@@ -55,7 +55,6 @@ internal class InvoicesApiControllerIT(
                             amount: 60,
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: ${testData.firstSpaceInvoice.id},
-                            income: ${testData.spaceIncome.id},
                             version: 0,
                             dateCancelled: "3000-01-02",
                             dateIssued: "3000-01-01",
@@ -209,7 +208,6 @@ internal class InvoicesApiControllerIT(
                             amount: 400,
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: "#{json-unit.any-number}",
-                            income: "#{json-unit.any-number}",
                             version: 0,
                             dateCancelled: "3000-02-02",
                             dateIssued: "3000-02-01",
@@ -425,7 +423,6 @@ internal class InvoicesApiControllerIT(
                             amount: 400,
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: ${testData.secondSpaceInvoice.id},
-                            income: "#{json-unit.any-number}",
                             version: 1,
                             dateCancelled: "3000-02-02",
                             dateIssued: "3000-02-01",
@@ -473,8 +470,7 @@ internal class InvoicesApiControllerIT(
                             dateIssued: "3000-02-01",
                             dueDate: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "DRAFT",
-                            income: ${testData.spaceIncome.id}
+                            status: "DRAFT"
                         }"""
                     )
                 )
@@ -648,11 +644,6 @@ internal class InvoicesApiControllerIT(
             dueDate = LocalDate.of(1999, 12, 24)
         )
 
-        val spaceIncome = Prototypes.income(
-            category = spaceDeliveryCategory,
-            workspace = planetExpressWorkspace
-        )
-
         val firstSpaceInvoice = Prototypes.invoice(
             title = "first space invoice",
             customer = spaceCustomer,
@@ -665,7 +656,6 @@ internal class InvoicesApiControllerIT(
             dueDate = LocalDate.of(3000, 1, 5),
             notes = "space notes",
             attachments = setOf(spaceDeliveryInvoicePrint),
-            income = spaceIncome,
             generalTax = planetExpressTax
         )
 
@@ -684,7 +674,6 @@ internal class InvoicesApiControllerIT(
             spaceDeliveryInvoicePrint, pizzaDeliveryInvoicePrint,
             pizzaDeliveryTax, planetExpressTax,
             spaceCustomer, anotherSpaceCustomer, pizzaCustomer,
-            spaceIncome,
             firstSpaceInvoice, secondSpaceInvoice, pizzaInvoice
         )
 

@@ -53,7 +53,7 @@
   import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
 
   export default {
-    name: 'IncomesOverview',
+    name: 'InvoicesOverview',
 
     components: {
       InvoicesOverviewPanel,

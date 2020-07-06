@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
-import org.jooq.impl.DSL.*
+import org.jooq.impl.DSL.or
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -21,7 +21,6 @@ import javax.validation.constraints.Size
 class IncomesApiController(
     private val incomeService: IncomeService,
     private val timeService: TimeService,
-    private val invoiceService: InvoiceService,
     private val workspaceService: WorkspaceService,
     filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
@@ -51,9 +50,10 @@ class IncomesApiController(
             notes = request.notes,
             attachments = request.attachments.toIncomeAttachments(),
             generalTaxId = request.generalTax,
-            status = IncomeStatus.PENDING_CONVERSION
+            status = IncomeStatus.PENDING_CONVERSION,
+            linkedInvoiceId = request.linkedInvoice
         )
-    ).mapToIncomeDto(invoiceService)
+    ).mapToIncomeDto()
 
     @GetMapping
     suspend fun getIncomes(@PathVariable workspaceId: Long): ApiPage<IncomeDto> =
@@ -67,7 +67,7 @@ class IncomesApiController(
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val income = incomeService.getIncomeByIdAndWorkspace(incomeId, workspace)
             ?: throw EntityNotFoundException("Income $incomeId is not found")
-        return income.mapToIncomeDto(invoiceService)
+        return income.mapToIncomeDto()
     }
 
     @PutMapping("{incomeId}")
@@ -94,11 +94,12 @@ class IncomesApiController(
                 notes = request.notes
                 attachments = request.attachments.toIncomeAttachments()
                 generalTaxId = request.generalTax
+                linkedInvoiceId = request.linkedInvoice
             }
             .let {
                 incomeService.saveIncome(it)
             }
-            .mapToIncomeDto(invoiceService)
+            .mapToIncomeDto()
     }
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Income, IncomeDto> {
@@ -121,7 +122,7 @@ class IncomesApiController(
             workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
         }
 
-        mapper { mapToIncomeDto(invoiceService) }
+        mapper { mapToIncomeDto() }
     }
 }
 
@@ -138,18 +139,13 @@ data class IncomeDto(
     val id: Long,
     val version: Int,
     val status: IncomeStatus,
-    val linkedInvoice: LinkedInvoiceDto?,
+    val linkedInvoice: Long?,
     val generalTax: Long?,
     val generalTaxRateInBps: Int?,
     val generalTaxAmount: Long?,
     val convertedAmounts: IncomeAmountsDto,
     val incomeTaxableAmounts: IncomeAmountsDto,
     val useDifferentExchangeRateForIncomeTaxPurposes: Boolean
-)
-
-data class LinkedInvoiceDto(
-    val id: Long,
-    val title: String
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -169,14 +165,14 @@ data class EditIncomeDto(
     val incomeTaxableAmountInDefaultCurrency: Long?,
     val attachments: List<Long>?,
     @field:Size(max = 1024) val notes: String?,
-    val generalTax: Long?
+    val generalTax: Long?,
+    val linkedInvoice: Long?
 )
 
 private fun List<Long>?.toIncomeAttachments(): Set<IncomeAttachment> =
     this?.asSequence()?.map(::IncomeAttachment)?.toSet() ?: emptySet()
 
-private suspend fun Income.mapToIncomeDto(invoiceService: InvoiceService): IncomeDto {
-    val linkedInvoice: Invoice? = invoiceService.findByIncome(this)
+private fun Income.mapToIncomeDto(): IncomeDto {
     return IncomeDto(
         category = categoryId,
         title = title,
@@ -192,12 +188,7 @@ private suspend fun Income.mapToIncomeDto(invoiceService: InvoiceService): Incom
         id = id!!,
         version = version!!,
         status = status,
-        linkedInvoice = linkedInvoice?.let {
-            LinkedInvoiceDto(
-                id = it.id!!,
-                title = it.title
-            )
-        },
+        linkedInvoice = linkedInvoiceId,
         generalTax = generalTaxId,
         generalTaxAmount = generalTaxAmount,
         generalTaxRateInBps = generalTaxRateInBps

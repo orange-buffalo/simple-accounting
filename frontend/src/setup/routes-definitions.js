@@ -110,6 +110,7 @@ export default new Router({
           path: 'incomes/create',
           name: 'create-new-income',
           component: EditIncome,
+          props: true,
         },
         {
           path: 'incomes/:id/edit',

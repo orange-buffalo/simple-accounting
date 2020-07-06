@@ -69,7 +69,8 @@ internal class IncomesApiControllerIT(
                             status: "FINALIZED",
                             generalTax: ${testData.spaceTax.id},
                             generalTaxAmount: 20,
-                            generalTaxRateInBps: 12000
+                            generalTaxRateInBps: 12000,
+                            linkedInvoice: ${testData.firstSpaceInvoice.id}
                     }"""
                     ),
 
@@ -171,7 +172,8 @@ internal class IncomesApiControllerIT(
                             status: "FINALIZED",
                             generalTax: ${testData.spaceTax.id},
                             generalTaxAmount: 20,
-                            generalTaxRateInBps: 12000
+                            generalTaxRateInBps: 12000,
+                            linkedInvoice: ${testData.firstSpaceInvoice.id}
                     }"""
                     )
                 )
@@ -467,7 +469,8 @@ internal class IncomesApiControllerIT(
                     "attachments": [],
                     "notes": "pension",
                     "dateReceived": "3000-02-02",
-                    "generalTax": ${testData.planetExpressTax.id}
+                    "generalTax": ${testData.planetExpressTax.id},
+                    "linkedInvoice": ${testData.secondSpaceInvoice.id}
                 }"""
             )
             .verifyOkAndJsonBody {
@@ -496,7 +499,8 @@ internal class IncomesApiControllerIT(
                             status: "FINALIZED",
                             generalTax: ${testData.planetExpressTax.id},
                             generalTaxRateInBps: 1000,
-                            generalTaxAmount: 2975
+                            generalTaxAmount: 2975,
+                            linkedInvoice: ${testData.secondSpaceInvoice.id}
                     }"""
                     )
                 )
@@ -664,7 +668,7 @@ internal class IncomesApiControllerIT(
             .verifyNotFound("Tax ${testData.pizzaDeliveryTax.id} is not found")
     }
 
-     @Test
+    @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when attachment is not found`(testData: IncomesApiTestData) {
         client.put()
@@ -723,6 +727,18 @@ internal class IncomesApiControllerIT(
             incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(50)
         )
 
+        val spaceCustomer = Prototypes.customer(
+            workspace = planetExpressWorkspace
+        )
+
+        val firstSpaceInvoice = Prototypes.invoice(
+            customer = spaceCustomer
+        )
+
+        val secondSpaceInvoice = Prototypes.invoice(
+            customer = spaceCustomer
+        )
+
         val firstSpaceIncome = Prototypes.income(
             title = "first space delivery",
             workspace = planetExpressWorkspace,
@@ -741,7 +757,8 @@ internal class IncomesApiControllerIT(
             status = IncomeStatus.FINALIZED,
             generalTax = spaceTax,
             generalTaxAmount = 20,
-            generalTaxRateInBps = 12000
+            generalTaxRateInBps = 12000 ,
+            linkedInvoice = firstSpaceInvoice
         )
 
         val secondSpaceIncome = Prototypes.income(
@@ -773,7 +790,8 @@ internal class IncomesApiControllerIT(
 
         override fun generateData() = listOf(
             farnsworth, fry, planetExpressWorkspace, spaceDeliveryCategory, spaceDeliveryPayslip,
-            spaceTax, firstSpaceIncome, secondSpaceIncome, thirdSpaceIncome,
+            spaceTax, spaceCustomer, firstSpaceInvoice, secondSpaceInvoice,
+            firstSpaceIncome, secondSpaceIncome, thirdSpaceIncome,
             pizzaDeliveryWorkspace, pizzaCategory, pizzaWageIncome,
             pizzaDeliveryTax, planetExpressTax, pensionCategory, pizzaDeliveryPayslip
         )

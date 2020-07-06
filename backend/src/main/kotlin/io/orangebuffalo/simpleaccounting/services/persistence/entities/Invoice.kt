@@ -8,7 +8,6 @@ import java.time.LocalDate
 @Table
 class Invoice(
 
-    var incomeId: Long? = null,
     var customerId: Long,
     var title: String,
     var timeRecorded: Instant,

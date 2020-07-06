@@ -267,7 +267,7 @@
 
     function markPaid() {
       navigateToView({
-        name: 'edit-income',
+        name: 'create-new-income',
         params: { invoice: invoice.value },
       });
     }

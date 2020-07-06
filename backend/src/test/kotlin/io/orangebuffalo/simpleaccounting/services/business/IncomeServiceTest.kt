@@ -1,9 +1,8 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.Prototypes
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Income
@@ -11,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeSta
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeRepository
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -19,6 +19,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import java.time.LocalDate
 
 @ExtendWith(MockitoExtension::class)
 @DisplayName("IncomeService")
@@ -39,12 +40,17 @@ internal class IncomeServiceTest {
     @field:Mock
     private lateinit var documentsService: DocumentsService
 
+    @field:Mock
+    private lateinit var invoiceService: InvoiceService
+
     @field:InjectMocks
     private lateinit var incomeService: IncomeService
 
     private val workspace = Prototypes.workspace().apply { id = 42 }
     private val generalTaxFromWorkspace =
         Prototypes.generalTax(workspace = workspace, rateInBps = 10_00).apply { id = 42 }
+    private val invoiceFromWorkspace =
+        Prototypes.invoice(customer = Prototypes.customer(workspace = workspace)).apply { id = 100 }
 
     @BeforeEach
     fun setup() {
@@ -342,6 +348,53 @@ internal class IncomeServiceTest {
             expectedUseDifferentExchangeRates = false,
             expectedStatus = IncomeStatus.FINALIZED
         )
+    }
+
+    @Test
+    fun `should validate invoice if provided`() {
+        invoiceService.stub {
+            onBlocking {
+                getInvoiceByIdAndWorkspaceId(id = 100, workspaceId = workspace.id!!)
+            } doReturn null
+        }
+
+        assertThatThrownBy {
+            runBlocking {
+                incomeService.saveIncome(
+                    Prototypes.income(
+                        currency = workspace.defaultCurrency,
+                        workspace = workspace,
+                        linkedInvoice = Prototypes.invoice().apply { id = 100 }
+                    )
+                )
+            }
+        }.isInstanceOf(EntityNotFoundException::class.java).hasMessage("Invoice 100 is not found")
+    }
+
+    @Test
+    fun `should update invoice if provided`() {
+        invoiceService.stub {
+            onBlocking {
+                getInvoiceByIdAndWorkspaceId(id = invoiceFromWorkspace.id!!, workspaceId = workspace.id!!)
+            } doReturn invoiceFromWorkspace
+        }
+        setupSaveIncomeMock()
+
+        runBlocking {
+            incomeService.saveIncome(
+                Prototypes.income(
+                    currency = workspace.defaultCurrency,
+                    workspace = workspace,
+                    linkedInvoice = invoiceFromWorkspace,
+                    dateReceived = LocalDate.of(3000, 5, 13)
+                )
+            )
+        }
+
+        verifyBlocking(invoiceService) {
+            saveInvoice(argThat { datePaid == LocalDate.of(3000, 5, 13) }, eq(workspace.id!!))
+            return@verifyBlocking
+        }
     }
 
     private fun mockGeneralTax() = runBlocking {
