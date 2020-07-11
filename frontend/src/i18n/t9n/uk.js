@@ -775,4 +775,8 @@ export default {
   errorHandler: {
     fatalApiError: 'Сталася помилка на сервері. Будь-ласка, спробуйте ще раз.',
   },
+
+  saBasicErrorMessage: {
+    defaultMessage: 'Сталася помилка. Будь ласка, спробуйте ще пізніше.',
+  },
 };

@@ -776,4 +776,8 @@ export default {
   errorHandler: {
     fatalApiError: 'We encountered a server error. Please try again.',
   },
+
+  saBasicErrorMessage: {
+    defaultMessage: 'An error happened. Please try again later.',
+  },
 };

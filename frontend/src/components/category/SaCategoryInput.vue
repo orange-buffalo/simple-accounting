@@ -1,6 +1,5 @@
 <template>
   <SaInputLoader :loading="!categoriesLoaded">
-    <!--suppress RequiredAttributes -->
     <ElSelect
       v-bind="props"
       v-on="listeners"
