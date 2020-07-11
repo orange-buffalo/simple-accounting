@@ -52,7 +52,7 @@ function createStory({ invoice, componentConfig }) {
 }
 
 export default {
-  title: 'Pages/Invoices/InvoicesOverviewPanel',
+  title: 'Pages|Invoices/InvoicesOverviewPanel',
   parameters: {
     fullWidth: true,
   },

@@ -40,7 +40,7 @@ function mockLoadingStorageStatus() {
 }
 
 export default {
-  title: 'Components/SaDocumentsList',
+  title: 'Components|SaDocumentsList',
 };
 
 export const NoDocuments = () => ({

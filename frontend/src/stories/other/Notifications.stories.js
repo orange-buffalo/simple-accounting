@@ -1,7 +1,7 @@
 import useNotifications from '@/components/useNotifications';
 
 export default {
-  title: 'Components/Notifications',
+  title: 'Other|Notifications',
 };
 
 export const Error = () => ({

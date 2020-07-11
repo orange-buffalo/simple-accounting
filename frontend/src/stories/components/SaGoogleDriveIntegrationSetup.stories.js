@@ -5,7 +5,7 @@ import { onGet } from '@/stories/utils/stories-api-mocks';
 import pushNotifications from '@/services/push-notifications';
 
 export default {
-  title: 'Components/SaGoogleDriveIntegrationSetup',
+  title: 'Components|SaGoogleDriveIntegrationSetup',
 };
 
 export const InitialLoading = () => ({

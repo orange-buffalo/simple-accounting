@@ -53,7 +53,7 @@ function mockApiResources() {
 }
 
 export default {
-  title: 'Pages/Incomes/EditIncome',
+  title: 'Pages|Incomes/EditIncome',
   parameters: {
     fullWidth: true,
   },

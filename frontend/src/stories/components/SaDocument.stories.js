@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 import SaDocument from '@/components/documents/SaDocument';
 
 export default {
-  title: 'Components/SaDocument',
+  title: 'Components|SaDocument',
 };
 
 export const Loading = () => ({

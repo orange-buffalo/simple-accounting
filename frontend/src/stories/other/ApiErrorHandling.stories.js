@@ -2,7 +2,7 @@
 import { API_FATAL_ERROR_EVENT } from '@/services/events';
 
 export default {
-  title: 'Components/ApiErrorHandling',
+  title: 'Other|ApiErrorHandling',
 };
 
 export const ApiFatalError = () => ({

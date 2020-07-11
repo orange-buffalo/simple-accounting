@@ -2,7 +2,7 @@ import MyProfile from '@/views/profile/MyProfile';
 import { onGet } from '@/stories/utils/stories-api-mocks';
 
 export default {
-  title: 'Pages/MyProfile',
+  title: 'Pages|MyProfile',
   parameters: {
     fullWidth: true,
   },

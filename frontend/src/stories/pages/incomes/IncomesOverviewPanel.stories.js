@@ -30,7 +30,7 @@ function mockTaxesAndCategories() {
 }
 
 export default {
-  title: 'Pages/Incomes/IncomesOverviewPanel',
+  title: 'Pages|Incomes/IncomesOverviewPanel',
   parameters: {
     fullWidth: true,
   },
