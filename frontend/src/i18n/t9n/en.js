@@ -780,4 +780,16 @@ export default {
   saBasicErrorMessage: {
     defaultMessage: 'An error happened. Please try again later.',
   },
+
+  saEntitySelect: {
+    loading: {
+      text: 'Loading...',
+    },
+    noData: {
+      text: 'No data found',
+    },
+    moreElements: {
+      text: '{0} more items..',
+    },
+  },
 };

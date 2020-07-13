@@ -125,4 +125,24 @@ describe('api service', () => {
         done();
       });
   });
+
+  it('fires not api fatal error event when skipGlobalErrorHandler is set', (done) => {
+    expect.assertions(1);
+
+    httpMock.get('/api/api-call', (req, res) => res.status(500)
+      .body(''));
+
+    api
+      .get('/api-call', {
+        skipGlobalErrorHandler: true,
+      })
+      .then(() => {
+        done(Error('should not call success callback'));
+      })
+      .catch(() => {
+        expect(apiFatalErrorEventMock.mock.calls.length)
+          .toBe(0);
+        done();
+      });
+  });
 });

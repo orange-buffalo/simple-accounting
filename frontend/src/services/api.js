@@ -156,7 +156,7 @@ api.interceptors.response.use(
         return axios.request(config);
       }
       LOGIN_REQUIRED_EVENT.emit();
-    } else if (error.response && error.response.status >= 400) {
+    } else if (error.response && error.response.status >= 400 && !error.config.skipGlobalErrorHandler) {
       API_FATAL_ERROR_EVENT.emit(error);
     }
     emitLoadingFinishedEvent();

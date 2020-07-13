@@ -779,4 +779,16 @@ export default {
   saBasicErrorMessage: {
     defaultMessage: 'Сталася помилка. Будь ласка, спробуйте ще пізніше.',
   },
+
+  saEntitySelect: {
+    loading: {
+      text: 'Завантаження...',
+    },
+    noData: {
+      text: 'Результатів не знайдено',
+    },
+    moreElements: {
+      text: 'Іще {0} елементів..',
+    },
+  },
 };
