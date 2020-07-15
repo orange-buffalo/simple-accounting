@@ -248,7 +248,7 @@
       },
       searchQueryParamName: {
         type: String,
-        default: 'searchText',
+        default: 'freeSearchText',
       },
     },
 

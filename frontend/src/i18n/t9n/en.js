@@ -792,4 +792,8 @@ export default {
       text: '{0} more items..',
     },
   },
+
+  saInvoiceSelect: {
+    placeholder: 'Select or search for invoice',
+  },
 };

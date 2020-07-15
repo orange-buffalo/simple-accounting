@@ -89,7 +89,7 @@ export const Loading = () => ({
       .intercept(async (req, res) => {
         if (initialLoadingComplete) {
           await responseDelay(1500);
-          res.json(generateEntitiesPage(5, 11, req.query.searchText));
+          res.json(generateEntitiesPage(5, 11, req.query.freeSearchText));
         } else {
           res.json(generateEntitiesPage(10, 11));
           initialLoadingComplete = true;

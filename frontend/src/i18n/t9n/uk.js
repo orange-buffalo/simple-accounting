@@ -791,4 +791,8 @@ export default {
       text: 'Іще {0} елементів..',
     },
   },
+
+  saInvoiceSelect: {
+    placeholder: 'Оберіть або знайдіть рахунок',
+  },
 };
