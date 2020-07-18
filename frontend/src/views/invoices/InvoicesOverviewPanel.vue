@@ -45,7 +45,7 @@
 
     <template v-slot:middle-column>
       <SaStatusLabel
-        :status="status"
+        :status="statusValue"
         :custom-icon="statusIcon"
       >
         {{ statusText }}
@@ -95,7 +95,7 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <SaStatusLabel
-              :status="status"
+              :status="statusValue"
               :custom-icon="statusIcon"
               :simplified="true"
             >
@@ -219,9 +219,12 @@
 </template>
 
 <script>
+  import {
+    watch, computed, toRefs, reactive,
+  } from '@vue/composition-api';
   import MoneyOutput from '@/components/MoneyOutput';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import { api } from '@/services/api';
+  import i18n from '@/services/i18n';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
   import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
@@ -236,10 +239,99 @@
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
   import useGeneralTaxes from '@/components/general-tax/useGeneralTaxes';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useNavigation from '@/components/navigation/useNavigation';
+
+  function useInvoiceApi({ invoice, currentWorkspace, emit }) {
+    async function markSent() {
+      const invoiceRequest = {
+        ...invoice.value,
+        dateSent: api.dateToString(new Date()),
+      };
+      await api.put(`/workspaces/${currentWorkspace.id}/invoices/${invoice.value.id}`, invoiceRequest);
+      emit('invoice-update');
+    }
+
+    return { markSent };
+  }
+
+  function useInvoiceNavigation({ invoice }) {
+    const { navigateToView } = useNavigation();
+
+    function navigateToInvoiceEdit() {
+      navigateToView({
+        name: 'edit-invoice',
+        params: { id: invoice.value.id },
+      });
+    }
+
+    function markPaid() {
+      navigateToView({
+        name: 'create-new-income',
+        params: { invoice: invoice.value },
+      });
+    }
+
+    return {
+      markPaid,
+      navigateToInvoiceEdit,
+    };
+  }
+
+  function useStatus({ invoice }) {
+    const status = reactive({
+      isDraft: false,
+      isPaid: false,
+      isCancelled: false,
+      isSent: false,
+      isOverdue: false,
+      statusIcon: null,
+      statusValue: null,
+      statusText: null,
+    });
+
+    function reset() {
+      status.isDraft = false;
+      status.isPaid = false;
+      status.isCancelled = false;
+      status.isSent = false;
+      status.isOverdue = false;
+      status.statusIcon = null;
+      status.statusValue = null;
+      status.statusText = null;
+    }
+
+    // computed does not work for some unclear reason
+    watch(invoice, () => {
+      reset();
+      if (invoice.value.status === 'DRAFT') {
+        status.isDraft = true;
+        status.statusIcon = 'draft';
+        status.statusValue = 'regular';
+        status.statusText = i18n.t('invoicesOverviewPanel.status.draft');
+      } else if (invoice.value.status === 'PAID') {
+        status.isPaid = true;
+        status.statusValue = 'success';
+        status.statusText = i18n.t('invoicesOverviewPanel.status.finalized');
+      } else if (invoice.value.status === 'CANCELLED') {
+        status.isCancelled = true;
+        status.statusIcon = 'cancel';
+        status.statusValue = 'regular';
+        status.statusText = i18n.t('invoicesOverviewPanel.status.cancelled');
+      } else if (invoice.value.status === 'SENT') {
+        status.isSent = true;
+        status.statusValue = 'pending';
+        status.statusText = i18n.t('invoicesOverviewPanel.status.sent');
+      } else if (invoice.value.status === 'OVERDUE') {
+        status.isOverdue = true;
+        status.statusValue = 'failure';
+        status.statusText = i18n.t('invoicesOverviewPanel.status.overdue');
+      }
+    });
+    return { ...toRefs(status) };
+  }
 
   export default {
-    name: 'InvoicesOverviewPanel',
-
     components: {
       SaGeneralTaxOutput,
       SaCustomerOutput,
@@ -257,8 +349,6 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces],
-
     props: {
       invoice: {
         type: Object,
@@ -266,118 +356,28 @@
       },
     },
 
-    computed: {
-      isDraft() {
-        return this.invoice.status === 'DRAFT';
-      },
-
-      isPaid() {
-        return this.invoice.status === 'PAID';
-      },
-
-      isCancelled() {
-        return this.invoice.status === 'CANCELLED';
-      },
-
-      isSent() {
-        return this.invoice.status === 'SENT';
-      },
-
-      isOverdue() {
-        return this.invoice.status === 'OVERDUE';
-      },
-
-      isForeignCurrency() {
-        return this.invoice.currency !== this.defaultCurrency;
-      },
-
-      status() {
-        if (this.isPaid) {
-          return 'success';
-        }
-        if (this.isDraft) {
-          return 'regular';
-        }
-        if (this.isCancelled) {
-          return 'regular';
-        }
-        if (this.isSent) {
-          return 'pending';
-        }
-        if (this.isOverdue) {
-          return 'failure';
-        }
-        return null;
-      },
-
-      statusIcon() {
-        if (this.isDraft) {
-          return 'draft';
-        }
-        if (this.isCancelled) {
-          return 'cancel';
-        }
-        return null;
-      },
-
-      statusText() {
-        if (this.isPaid) {
-          return this.$t('invoicesOverviewPanel.status.finalized');
-        }
-        if (this.isDraft) {
-          return this.$t('invoicesOverviewPanel.status.draft');
-        }
-        if (this.isCancelled) {
-          return this.$t('invoicesOverviewPanel.status.cancelled');
-        }
-        if (this.isSent) {
-          return this.$t('invoicesOverviewPanel.status.sent');
-        }
-        if (this.isOverdue) {
-          return this.$t('invoicesOverviewPanel.status.overdue');
-        }
-        return null;
-      },
-
-      isGeneralTaxApplicable() {
-        return this.invoice.generalTax;
-      },
-
-      generalTaxRate() {
-        return this.generalTaxById.value(this.invoice.generalTax).rateInBps;
-      },
-    },
-
-    created() {
+    setup(props, { emit }) {
+      const { invoice } = toRefs(props);
       const { generalTaxById } = useGeneralTaxes();
-      this.generalTaxById = generalTaxById;
-    },
+      const { currentWorkspace, defaultCurrency } = useCurrentWorkspace();
+      const isGeneralTaxApplicable = computed(() => invoice.value.generalTax != null);
+      const isForeignCurrency = computed(() => invoice.value.currency !== defaultCurrency);
+      const generalTaxRate = computed(() => generalTaxById.value(invoice.value.generalTax).rateInBps);
 
-    methods: {
-      navigateToInvoiceEdit() {
-        this.$router.push({
-          name: 'edit-invoice',
-          params: { id: this.invoice.id },
-        });
-      },
-
-      async markSent() {
-        this.invoice.dateSent = api.dateToString(new Date());
-        await api.put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice);
-        this.$emit('invoice-update');
-      },
-
-      async markPaid() {
-        this.invoice.datePaid = api.dateToString(new Date());
-
-        const invoiceResponse = await api
-          .put(`/workspaces/${this.currentWorkspace.id}/invoices/${this.invoice.id}`, this.invoice);
-
-        await this.$router.push({
-          name: 'edit-income',
-          params: { id: invoiceResponse.data.income },
-        });
-      },
+      return {
+        generalTaxById,
+        currentWorkspace,
+        ...useInvoiceApi({
+          invoice,
+          currentWorkspace,
+          emit,
+        }),
+        ...useInvoiceNavigation({ invoice }),
+        isGeneralTaxApplicable,
+        isForeignCurrency,
+        generalTaxRate,
+        ...useStatus({ invoice }),
+      };
     },
   };
 </script>

@@ -11,7 +11,7 @@ export function useApiCrud({
 }) {
   const { currentWorkspaceApiUrl } = useCurrentWorkspace();
 
-  const saveEntity = entityRequest => withLoading(async () => {
+  const saveEntity = (entityRequest) => withLoading(async () => {
     if (entity.id) {
       await api.put(currentWorkspaceApiUrl(`${apiEntityPath}/${entity.id}`), removeId(entityRequest));
     } else {
@@ -19,7 +19,7 @@ export function useApiCrud({
     }
   });
 
-  const loadEntity = entityConsumer => withLoading(async () => {
+  const loadEntity = (entityConsumer) => withLoading(async () => {
     if (entity.id) {
       const entityResponse = await api.get(currentWorkspaceApiUrl(`${apiEntityPath}/${entity.id}`));
       if (entityConsumer == null) {

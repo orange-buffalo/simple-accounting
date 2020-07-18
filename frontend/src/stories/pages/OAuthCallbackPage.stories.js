@@ -2,7 +2,7 @@ import OAuthCallbackPage from '@/views/auth/OAuthCallbackPage';
 import { onPost } from '@/stories/utils/stories-api-mocks';
 
 export default {
-  title: 'Pages/OAuthCallbackPage',
+  title: 'Pages|OAuthCallbackPage',
   parameters: {
     fullWidth: true,
   },

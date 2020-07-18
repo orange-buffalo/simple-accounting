@@ -2,7 +2,7 @@ import MyProfile from '@/views/profile/MyProfile';
 import { onGet } from '@/stories/utils/stories-api-mocks';
 
 export default {
-  title: 'Pages/MyProfile',
+  title: 'Pages|MyProfile',
   parameters: {
     fullWidth: true,
   },
@@ -12,7 +12,7 @@ export const WithGoogleDrive = () => ({
   components: { MyProfile },
   template: '<MyProfile/>',
   beforeCreate() {
-    onGet('profile')
+    onGet('/api/profile')
       .reply(200, {
         userName: 'fry',
         documentsStorage: 'google-drive',
@@ -21,7 +21,7 @@ export const WithGoogleDrive = () => ({
           language: 'en',
         },
       });
-    onGet('api/storage/google-drive/status')
+    onGet('/api/storage/google-drive/status')
       .reply(200, {
         folderId: '42',
         folderName: 'simple-accounting',

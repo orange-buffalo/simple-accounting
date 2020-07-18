@@ -33,7 +33,7 @@ function mockLoadingStorageStatus() {
 }
 
 export default {
-  title: 'Components/SaDocumentsUpload',
+  title: 'Components|SaDocumentsUpload',
 };
 
 export const LoadingOnCreateIsSet = () => ({

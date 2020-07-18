@@ -20,7 +20,7 @@
 
       async function loadI18n() {
         await mainConfig.app.i18n.setLocaleFromProfile({
-          locale: 'en',
+          locale: 'en-AU',
           language: 'en',
         });
         loaded.value = true;
@@ -46,6 +46,7 @@
 
   .stories-app--full-width {
     width: 100%;
+    height: 100vh;
     padding: 20px;
     box-sizing: border-box;
     background: $primary-grey;

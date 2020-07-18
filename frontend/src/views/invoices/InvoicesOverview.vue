@@ -33,10 +33,10 @@
     </div>
 
     <DataItems
+      #default="{item: invoice}"
       ref="invoicesList"
       :api-path="`/workspaces/${currentWorkspace.id}/invoices`"
       :filters="invoicesApiFilters"
-      #default="{item: invoice}"
     >
       <InvoicesOverviewPanel
         :invoice="invoice"
@@ -53,7 +53,7 @@
   import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
 
   export default {
-    name: 'IncomesOverview',
+    name: 'InvoicesOverview',
 
     components: {
       InvoicesOverviewPanel,

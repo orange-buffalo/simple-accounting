@@ -4,7 +4,7 @@ import Vue from 'vue';
 
 export function findByIdOrEmpty(list, targetItemId) {
   const result = list
-    .find(it => (it.id === targetItemId) || (it.id == null && targetItemId == null));
+    .find((it) => (it.id === targetItemId) || (it.id == null && targetItemId == null));
   return result || {};
 }
 
@@ -20,7 +20,7 @@ export function useLoading() {
     }
   };
 
-  const withLoadingProducer = closure => () => withLoading(closure);
+  const withLoadingProducer = (closure) => () => withLoading(closure);
 
   return {
     loading,
@@ -31,7 +31,7 @@ export function useLoading() {
 
 export function safeAssign(target, source) {
   Object.keys(source)
-    .forEach(key => Vue.set(target, key, source[key]));
+    .forEach((key) => Vue.set(target, key, source[key]));
 }
 
 export function useForm(submitAction) {
@@ -68,4 +68,4 @@ export function useConfirmation() {
   };
 }
 
-export const ID_ROUTER_PARAM_PROCESSOR = route => ({ id: Number(route.params.id) });
+export const ID_ROUTER_PARAM_PROCESSOR = (route) => ({ id: Number(route.params.id) });

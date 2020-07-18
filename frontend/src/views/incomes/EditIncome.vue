@@ -109,11 +109,10 @@
             <h2>{{ $t('editIncome.additionalInformation.header') }}</h2>
 
             <ElFormItem
-              v-if="income.linkedInvoice"
               :label="$t('editIncome.additionalInformation.linkedInvoice.label')"
               prop="reportedAmountInDefaultCurrency"
             >
-              <span>{{ income.linkedInvoice.title }}</span>
+              <SaInvoiceSelect v-model="income.linkedInvoice" />
             </ElFormItem>
 
             <ElFormItem
@@ -171,6 +170,7 @@
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
   import { safeAssign, useLoading } from '@/components/utils/utils';
   import { useApiCrud } from '@/components/utils/api-utils';
+  import SaInvoiceSelect from '@/components/invoice/SaInvoiceSelect';
 
   async function navigateToIncomesOverview() {
     const { navigateByViewName } = useNavigation();
@@ -241,8 +241,18 @@
     };
   }
 
+  function copyInvoiceProperties(income, invoice) {
+    safeAssign(income, {
+      title: i18n.t('editIncome.fromInvoice.title', [invoice.title]),
+      currency: invoice.currency,
+      originalAmount: invoice.amount,
+      generalTax: invoice.generalTax,
+    });
+  }
+
   export default {
     components: {
+      SaInvoiceSelect,
       SaGeneralTaxInput,
       SaCategoryInput,
       SaCurrencyInput,
@@ -257,9 +267,13 @@
         type: Number,
         default: null,
       },
+      invoice: {
+        type: Object,
+        default: null,
+      },
     },
 
-    setup({ id }) {
+    setup({ id, invoice }) {
       const { defaultCurrency } = useCurrentWorkspace();
 
       const income = reactive({
@@ -268,7 +282,9 @@
         useDifferentExchangeRateForIncomeTaxPurposes: false,
         attachments: [],
         dateReceived: new Date(),
+        linkedInvoice: invoice ? invoice.id : null,
       });
+      if (invoice) copyInvoiceProperties(income, invoice);
 
       const isInForeignCurrency = computed(() => income.currency !== defaultCurrency);
 

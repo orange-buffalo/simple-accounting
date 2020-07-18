@@ -390,6 +390,9 @@ export default {
       dateReceived: 'Please provide the date when income is received',
       originalAmount: 'Please provide income amount',
     },
+    fromInvoice: {
+      title: 'Payment for {0}',
+    },
   },
 
   incomesOverviewPanel: {
@@ -609,7 +612,7 @@ export default {
     },
     edit: 'Edit',
     markAsSent: 'Sent today',
-    markAsPaid: 'Paid today',
+    markAsPaid: 'Paid',
     generalInformation: {
       header: 'General Information',
     },
@@ -772,5 +775,25 @@ export default {
 
   errorHandler: {
     fatalApiError: 'We encountered a server error. Please try again.',
+  },
+
+  saBasicErrorMessage: {
+    defaultMessage: 'An error happened. Please try again later.',
+  },
+
+  saEntitySelect: {
+    loading: {
+      text: 'Loading...',
+    },
+    noData: {
+      text: 'No data found',
+    },
+    moreElements: {
+      text: '{0} more items..',
+    },
+  },
+
+  saInvoiceSelect: {
+    placeholder: 'Select or search for invoice',
   },
 };

@@ -2,7 +2,7 @@ import { onGetToWorkspacePath, responseDelay } from '@/stories/utils/stories-api
 import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink';
 
 export default {
-  title: 'Components/SaDocumentDownloadLink',
+  title: 'Components|SaDocumentDownloadLink',
 };
 
 export const Basic = () => ({

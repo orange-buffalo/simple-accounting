@@ -389,6 +389,9 @@ export default {
       dateReceived: 'Прошу повідомити дату, коли дохід отриманий',
       originalAmount: 'Будь ласка, вкажіть суму доходу ',
     },
+    fromInvoice: {
+      title: 'Платіж за {0}',
+    },
   },
 
   incomesOverviewPanel: {
@@ -607,8 +610,8 @@ export default {
       tooltip: 'В іноземній валюті',
     },
     edit: 'Редагувати',
-    markAsSent: 'Відправила сьогодні',
-    markAsPaid: 'Сьогодні',
+    markAsSent: 'Надіслано сьогодні',
+    markAsPaid: 'Оплата Отримана',
     generalInformation: {
       header: 'Загальна Інформація',
     },
@@ -771,5 +774,25 @@ export default {
 
   errorHandler: {
     fatalApiError: 'Сталася помилка на сервері. Будь-ласка, спробуйте ще раз.',
+  },
+
+  saBasicErrorMessage: {
+    defaultMessage: 'Сталася помилка. Будь ласка, спробуйте ще пізніше.',
+  },
+
+  saEntitySelect: {
+    loading: {
+      text: 'Завантаження...',
+    },
+    noData: {
+      text: 'Результатів не знайдено',
+    },
+    moreElements: {
+      text: 'Іще {0} елементів..',
+    },
+  },
+
+  saInvoiceSelect: {
+    placeholder: 'Оберіть або знайдіть рахунок',
   },
 };

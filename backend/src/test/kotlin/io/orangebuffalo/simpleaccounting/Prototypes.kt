@@ -167,7 +167,8 @@ class Prototypes {
             generalTax: GeneralTax? = null,
             generalTaxRateInBps: Int? = null,
             generalTaxAmount: Long? = null,
-            status: IncomeStatus = IncomeStatus.FINALIZED
+            status: IncomeStatus = IncomeStatus.FINALIZED,
+            linkedInvoice: Invoice? = null
         ) = Income(
             categoryId = category?.id,
             workspaceId = workspace.id!!,
@@ -184,7 +185,8 @@ class Prototypes {
             dateReceived = dateReceived,
             originalAmount = originalAmount,
             timeRecorded = timeRecorded,
-            title = title
+            title = title,
+            linkedInvoiceId = linkedInvoice?.id
         ).apply {
             id = currentEntityId++
             version = 0
@@ -244,7 +246,6 @@ class Prototypes {
         }
 
         fun invoice(
-            income: Income? = null,
             customer: Customer = customer(),
             title: String = "invoice",
             timeRecorded: Instant = MOCK_TIME,
@@ -259,7 +260,6 @@ class Prototypes {
             notes: String? = null,
             generalTax: GeneralTax? = null
         ): Invoice = Invoice(
-            incomeId = income?.id,
             customerId = customer.id!!,
             title = title,
             timeRecorded = timeRecorded,

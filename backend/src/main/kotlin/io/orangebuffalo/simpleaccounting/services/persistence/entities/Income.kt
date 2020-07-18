@@ -54,7 +54,9 @@ class Income(
 
     var generalTaxAmount: Long? = null,
 
-    var status: IncomeStatus
+    var status: IncomeStatus,
+
+    var linkedInvoiceId: Long? = null
 
 ) : AbstractEntity()
 

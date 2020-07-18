@@ -1,6 +1,6 @@
 <template>
   <OverviewItem :title="income.title">
-    <template v-slot:primary-attributes>
+    <template #primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="income.dateReceived"
         :tooltip="$t('incomesOverviewPanel.dateReceived.tooltip')"
@@ -10,7 +10,7 @@
       </OverviewItemPrimaryAttribute>
     </template>
 
-    <template v-slot:attributes-preview>
+    <template #attributes-preview>
       <OverviewItemAttributePreviewIcon
         v-if="income.notes"
         icon="notes"
@@ -36,32 +36,32 @@
       />
 
       <OverviewItemAttributePreviewIcon
-        v-if="income.linkedInvoice"
+        v-if="linkedInvoice.exists"
         :tooltip="$t('incomesOverviewPanel.linkedInvoice.tooltip')"
         icon="invoice"
       />
     </template>
 
-    <template v-slot:middle-column>
+    <template #middle-column>
       <ElTooltip
-        :content="fullStatusText"
-        :disabled="status === 'success'"
+        :content="incomeStatus.fullText"
+        :disabled="incomeStatus.isSuccess"
         placement="bottom"
       >
-        <SaStatusLabel :status="status">
-          {{ shortStatusText }}
+        <SaStatusLabel :status="incomeStatus.value">
+          {{ incomeStatus.shortText }}
         </SaStatusLabel>
       </ElTooltip>
     </template>
 
-    <template v-slot:last-column>
+    <template #last-column>
       <OverviewItemAmountPanel
         :currency="totalAmount.currency"
         :amount="totalAmount.value"
       />
     </template>
 
-    <template v-slot:details>
+    <template #details>
       <OverviewItemDetailsSectionActions>
         <SaActionLink
           v-if="currentWorkspace.editable"
@@ -81,10 +81,10 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <SaStatusLabel
-              :status="status"
+              :status="incomeStatus.value"
               :simplified="true"
             >
-              {{ fullStatusText }}
+              {{ incomeStatus.fullText }}
             </SaStatusLabel>
           </OverviewItemDetailsSectionAttribute>
 
@@ -171,11 +171,13 @@
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            v-if="income.linkedInvoice"
+            v-if="linkedInvoice.exists"
             :label="$t('incomesOverviewPanel.linkedInvoice.label')"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ income.linkedInvoice.title }}
+            <SaOutputLoader :loading="linkedInvoice.loading">
+              {{ linkedInvoice.title }}
+            </SaOutputLoader>
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
@@ -251,7 +253,7 @@
 </template>
 
 <script>
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { toRefs, computed, ref } from '@vue/composition-api';
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -266,11 +268,113 @@
   import SaStatusLabel from '@/components/SaStatusLabel';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
+  import i18n from '@/services/i18n';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { api } from '@/services/api';
+  import SaOutputLoader from '@/components/SaOutputLoader';
+
+  function useIncomeStatus({ income }) {
+    const { defaultCurrency } = useCurrentWorkspace();
+    const incomeStatus = computed(() => {
+      const statusProto = {
+        isSuccess: false,
+        value: 'pending',
+        shortText: i18n.t('incomesOverviewPanel.status.short.pending'),
+      };
+      if (income.value.status === 'FINALIZED') {
+        return {
+          ...statusProto,
+          isSuccess: true,
+          value: 'success',
+          shortText: i18n.t('incomesOverviewPanel.status.short.finalized'),
+          fullText: i18n.t('incomesOverviewPanel.status.full.finalized'),
+        };
+      }
+      if (income.value.status === 'PENDING_CONVERSION') {
+        return {
+          ...statusProto,
+          fullText: i18n.t('incomesOverviewPanel.status.full.pendingConversion', [defaultCurrency]),
+        };
+      }
+      return {
+        ...statusProto,
+        fullText: i18n.t('incomesOverviewPanel.status.full.waitingExchangeRate'),
+      };
+    });
+    return { incomeStatus };
+  }
+
+  function useUiState({ income }) {
+    const { defaultCurrency } = useCurrentWorkspace();
+
+    const totalAmount = computed(() => {
+      if (income.value.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
+        return {
+          value: income.value.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
+          currency: defaultCurrency,
+        };
+      }
+      if (income.value.convertedAmounts.adjustedAmountInDefaultCurrency) {
+        return {
+          value: income.value.convertedAmounts.adjustedAmountInDefaultCurrency,
+          currency: defaultCurrency,
+        };
+      }
+      return {
+        value: income.value.originalAmount,
+        currency: income.value.currency,
+      };
+    });
+
+    const isForeignCurrency = computed(() => income.value.currency !== defaultCurrency);
+
+    const isGeneralTaxApplicable = computed(() => income.value.generalTax != null);
+
+    return {
+      isForeignCurrency,
+      isGeneralTaxApplicable,
+      totalAmount,
+    };
+  }
+
+  function useIncomeNavigation({ income }) {
+    const { navigateToView } = useNavigation();
+    const navigateToIncomeEdit = () => navigateToView({
+      name: 'edit-income',
+      params: { id: income.value.id },
+    });
+    return { navigateToIncomeEdit };
+  }
+
+  function useLinkedInvoice({ income }) {
+    const linkedInvoice = ref({
+      loading: false,
+      exists: income.value.linkedInvoice != null,
+    });
+
+    async function loadLinkedInvoice() {
+      linkedInvoice.value.loading = true;
+      try {
+        const { currentWorkspaceId } = useCurrentWorkspace();
+        const invoiceResponse = await api
+          .get(`workspaces/${currentWorkspaceId}/invoices/${income.value.linkedInvoice}`);
+        linkedInvoice.value.title = invoiceResponse.data.title;
+      } finally {
+        linkedInvoice.value.loading = false;
+      }
+    }
+
+    if (income.value.linkedInvoice) {
+      loadLinkedInvoice();
+    }
+
+    return { linkedInvoice };
+  }
 
   export default {
-    name: 'IncomesOverviewPanel',
-
     components: {
+      SaOutputLoader,
       SaGeneralTaxOutput,
       SaCategoryOutput,
       SaDocumentsList,
@@ -287,8 +391,6 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces],
-
     props: {
       income: {
         type: Object,
@@ -296,62 +398,16 @@
       },
     },
 
-    computed: {
-      status() {
-        return this.income.status === 'FINALIZED' ? 'success' : 'pending';
-      },
+    setup(props) {
+      const { income } = toRefs(props);
 
-      shortStatusText() {
-        return this.income.status === 'FINALIZED'
-          ? this.$t('incomesOverviewPanel.status.short.finalized')
-          : this.$t('incomesOverviewPanel.status.short.pending');
-      },
-
-      fullStatusText() {
-        if (this.income.status === 'FINALIZED') {
-          return this.$t('incomesOverviewPanel.status.full.finalized');
-        }
-        if (this.income.status === 'PENDING_CONVERSION') {
-          return this.$t('incomesOverviewPanel.status.full.pendingConversion', [this.defaultCurrency]);
-        }
-        return this.$t('incomesOverviewPanel.status.full.waitingExchangeRate');
-      },
-
-      totalAmount() {
-        if (this.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
-          return {
-            value: this.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
-            currency: this.defaultCurrency,
-          };
-        }
-        if (this.income.convertedAmounts.adjustedAmountInDefaultCurrency) {
-          return {
-            value: this.income.convertedAmounts.adjustedAmountInDefaultCurrency,
-            currency: this.defaultCurrency,
-          };
-        }
-        return {
-          value: this.income.originalAmount,
-          currency: this.income.currency,
-        };
-      },
-
-      isForeignCurrency() {
-        return this.income.currency !== this.defaultCurrency;
-      },
-
-      isGeneralTaxApplicable() {
-        return this.income.generalTax;
-      },
-    },
-
-    methods: {
-      navigateToIncomeEdit() {
-        this.$router.push({
-          name: 'edit-income',
-          params: { id: this.income.id },
-        });
-      },
+      return {
+        ...useIncomeStatus({ income }),
+        ...useUiState({ income }),
+        ...useCurrentWorkspace(),
+        ...useIncomeNavigation({ income }),
+        ...useLinkedInvoice({ income }),
+      };
     },
   };
 </script>
