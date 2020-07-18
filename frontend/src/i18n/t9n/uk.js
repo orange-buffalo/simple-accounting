@@ -610,8 +610,8 @@ export default {
       tooltip: 'В іноземній валюті',
     },
     edit: 'Редагувати',
-    markAsSent: 'Відправила сьогодні',
-    markAsPaid: 'Сьогодні',
+    markAsSent: 'Надіслано сьогодні',
+    markAsPaid: 'Оплата Отримана',
     generalInformation: {
       header: 'Загальна Інформація',
     },

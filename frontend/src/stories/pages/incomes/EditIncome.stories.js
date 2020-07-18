@@ -1,5 +1,12 @@
 import EditIncome from '@/views/incomes/EditIncome';
-import { apiPage, onGet, onGetToWorkspacePath } from '@/stories/utils/stories-api-mocks';
+import {
+  apiPage,
+  onGet,
+  onGetToWorkspacePath,
+  onPostToWorkspacePath,
+  onPutToWorkspacePath,
+} from '@/stories/utils/stories-api-mocks';
+import { action } from '@storybook/addon-actions';
 
 const category = {
   id: 13,
@@ -41,15 +48,50 @@ const incomeProto = {
   useDifferentExchangeRateForIncomeTaxPurposes: false,
 };
 
+function generateInvoices() {
+  const invoices = [];
+  for (let i = 0; i < 25; i++) {
+    const id = 42 + i;
+    invoices.push({
+      title: `Invoice #2204${i}-${id}`,
+      dateIssued: '2020-05-03',
+      currency: 'AUD',
+      amount: 4276 + i * 139,
+      id,
+    });
+  }
+  return invoices;
+}
+
 function mockApiResources() {
   onGetToWorkspacePath('/categories')
     .successJson(apiPage([category]));
+  onGetToWorkspacePath('/invoices')
+    .successJson(apiPage(generateInvoices()));
   onGetToWorkspacePath('/general-taxes')
     .successJson(apiPage([generalTax]));
   onGetToWorkspacePath('/statistics/currencies-shortlist')
     .successJson(['AUD', 'USD']);
   onGet('api/profile/documents-storage')
     .successJson({ active: true });
+  onPutToWorkspacePath('/incomes/42')
+    .intercept((req, res) => {
+      action('PUT')(req.pathname, req.body);
+      res.json(req.body);
+    });
+  onGetToWorkspacePath('/invoices/100')
+    .successJson({
+      title: `Invoice #100`,
+      dateIssued: '2020-05-03',
+      currency: 'AUD',
+      amount: 4276,
+      id: 100,
+    });
+  onPostToWorkspacePath('/incomes')
+    .intercept((req, res) => {
+      action('POST')(req.pathname, req.body);
+      res.json(req.body);
+    });
 }
 
 export default {
@@ -109,6 +151,10 @@ export const EditExistingIncomeWithInvoice = () => ({
     onGetToWorkspacePath('/invoices/100')
       .successJson({
         title: 'Invoice 994',
+        dateIssued: '2020-05-03',
+        currency: 'AUD',
+        amount: 4276,
+        id: 100,
       });
   },
 });

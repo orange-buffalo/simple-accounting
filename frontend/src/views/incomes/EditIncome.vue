@@ -109,13 +109,10 @@
             <h2>{{ $t('editIncome.additionalInformation.header') }}</h2>
 
             <ElFormItem
-              v-if="linkedInvoice.exists"
               :label="$t('editIncome.additionalInformation.linkedInvoice.label')"
               prop="reportedAmountInDefaultCurrency"
             >
-              <SaOutputLoader :loading="linkedInvoice.loading">
-                {{ linkedInvoice.title }}
-              </SaOutputLoader>
+              <SaInvoiceSelect v-model="income.linkedInvoice" />
             </ElFormItem>
 
             <ElFormItem
@@ -159,9 +156,7 @@
 </template>
 
 <script>
-  import {
-    computed, reactive, watch, ref,
-  } from '@vue/composition-api';
+  import { computed, reactive } from '@vue/composition-api';
   import MoneyInput from '@/components/MoneyInput';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
@@ -175,8 +170,7 @@
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
   import { safeAssign, useLoading } from '@/components/utils/utils';
   import { useApiCrud } from '@/components/utils/api-utils';
-  import { api } from '@/services/api';
-  import SaOutputLoader from '@/components/SaOutputLoader';
+  import SaInvoiceSelect from '@/components/invoice/SaInvoiceSelect';
 
   async function navigateToIncomesOverview() {
     const { navigateByViewName } = useNavigation();
@@ -256,40 +250,9 @@
     });
   }
 
-  function useLinkedInvoice({ income, preLoadedInvoice }) {
-    const linkedInvoice = ref({
-      loading: false,
-    });
-
-    async function loadLinkedInvoice(invoiceId) {
-      linkedInvoice.value.loading = true;
-      try {
-        const { currentWorkspaceId } = useCurrentWorkspace();
-        const invoiceResponse = await api
-          .get(`workspaces/${currentWorkspaceId}/invoices/${invoiceId}`);
-        linkedInvoice.value.title = invoiceResponse.data.title;
-      } finally {
-        linkedInvoice.value.loading = false;
-      }
-    }
-
-    watch(() => income.linkedInvoice, (invoiceId) => {
-      linkedInvoice.value.exists = invoiceId != null;
-      if (linkedInvoice.value.exists) {
-        if (preLoadedInvoice) {
-          linkedInvoice.value.title = preLoadedInvoice.title;
-        } else {
-          loadLinkedInvoice(invoiceId);
-        }
-      }
-    }, { lazy: false });
-
-    return { linkedInvoice };
-  }
-
   export default {
     components: {
-      SaOutputLoader,
+      SaInvoiceSelect,
       SaGeneralTaxInput,
       SaCategoryInput,
       SaCurrencyInput,
@@ -338,10 +301,6 @@
         ...useIncomeForm(loading),
         loading,
         saveIncome,
-        ...useLinkedInvoice({
-          income,
-          preLoadedInvoice: invoice,
-        }),
       };
     },
   };

@@ -612,7 +612,7 @@ export default {
     },
     edit: 'Edit',
     markAsSent: 'Sent today',
-    markAsPaid: 'Paid today',
+    markAsPaid: 'Paid',
     generalInformation: {
       header: 'General Information',
     },
