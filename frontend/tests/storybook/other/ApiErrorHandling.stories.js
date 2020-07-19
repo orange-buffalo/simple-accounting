@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { API_FATAL_ERROR_EVENT } from '@/services/events';
 
 export default {

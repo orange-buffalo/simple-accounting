@@ -1,5 +1,5 @@
 import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
-import { apiPage, onGetToWorkspacePath, onPutToWorkspacePath } from '@/stories/utils/stories-api-mocks';
+import { apiPage, onGetToWorkspacePath, onPutToWorkspacePath } from '../../utils/stories-api-mocks';
 import { action } from '@storybook/addon-actions';
 
 const customer = {

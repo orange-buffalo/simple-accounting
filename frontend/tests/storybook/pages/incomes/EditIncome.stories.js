@@ -5,7 +5,7 @@ import {
   onGetToWorkspacePath,
   onPostToWorkspacePath,
   onPutToWorkspacePath,
-} from '@/stories/utils/stories-api-mocks';
+} from '../../utils/stories-api-mocks';
 import { action } from '@storybook/addon-actions';
 
 const category = {

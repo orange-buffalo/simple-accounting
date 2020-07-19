@@ -1,7 +1,7 @@
 import {
   apiPage, onGet, onGetToWorkspacePath, onPostToWorkspacePath, responseDelay,
-} from '@/stories/utils/stories-api-mocks';
-import SaDocumentsUploadStories from '@/stories/components/SaDocumentsUploadStories';
+} from '../utils/stories-api-mocks';
+import SaDocumentsUploadStories from '../components/SaDocumentsUploadStories';
 
 let nextDocumentId = 100500;
 let shouldFailInToggleTest = true;

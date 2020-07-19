@@ -1,6 +1,5 @@
-import { router } from '@/stories/utils/stories-app';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { action } from '@storybook/addon-actions';
+import { router } from './stories-app';
 
 // inspired by storybook-vue-router
 

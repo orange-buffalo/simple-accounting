@@ -1,6 +1,5 @@
 import SaEntitySelect from '@/components/SaEntitySelect';
-import { onGetToWorkspacePath, apiPage, responseDelay } from '@/stories/utils/stories-api-mocks';
-// eslint-disable-next-line import/no-extraneous-dependencies
+import { onGetToWorkspacePath, apiPage, responseDelay } from '../utils/stories-api-mocks';
 import { action } from '@storybook/addon-actions';
 
 export default {

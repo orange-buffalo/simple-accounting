@@ -1,7 +1,6 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { Polly } from '@pollyjs/core';
 import XHRAdapter from '@pollyjs/adapter-xhr';
-import { store } from '@/stories/utils/stories-app';
+import { store } from './stories-app';
 
 Polly.register(XHRAdapter);
 

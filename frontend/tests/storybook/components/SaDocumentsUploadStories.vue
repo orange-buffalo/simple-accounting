@@ -21,7 +21,6 @@
 
 <script>
   import { ref } from '@vue/composition-api';
-  // eslint-disable-next-line import/no-extraneous-dependencies
   import { action } from '@storybook/addon-actions';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
 

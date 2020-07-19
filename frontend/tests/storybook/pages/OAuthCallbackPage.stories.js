@@ -1,5 +1,5 @@
 import OAuthCallbackPage from '@/views/auth/OAuthCallbackPage';
-import { onPost } from '@/stories/utils/stories-api-mocks';
+import { onPost } from '../utils/stories-api-mocks';
 
 export default {
   title: 'Pages|OAuthCallbackPage',

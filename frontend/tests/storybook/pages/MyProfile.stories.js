@@ -1,5 +1,5 @@
 import MyProfile from '@/views/profile/MyProfile';
-import { onGet } from '@/stories/utils/stories-api-mocks';
+import { onGet } from '../utils/stories-api-mocks';
 
 export default {
   title: 'Pages|MyProfile',

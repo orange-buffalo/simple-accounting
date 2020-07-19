@@ -1,4 +1,4 @@
-import { store } from '@/stories/utils/stories-app';
+import { store } from './stories-app';
 
 export const DEFAULT_STORIES_WORKSPACE_ID = 42;
 export const DEFAULT_STORIES_WORKSPACE = {

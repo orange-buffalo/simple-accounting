@@ -1,5 +1,5 @@
 import IncomesOverviewPanel from '@/views/incomes/IncomesOverviewPanel';
-import { apiPage, onGetToWorkspacePath } from '@/stories/utils/stories-api-mocks';
+import { apiPage, onGetToWorkspacePath } from '../../utils/stories-api-mocks';
 
 const incomePrototype = {
   title: 'Payment 343',

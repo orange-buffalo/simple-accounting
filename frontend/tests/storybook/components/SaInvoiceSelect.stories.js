@@ -1,6 +1,5 @@
 import SaInvoiceSelect from '@/components/invoice/SaInvoiceSelect';
-import { onGetToWorkspacePath, apiPage } from '@/stories/utils/stories-api-mocks';
-// eslint-disable-next-line import/no-extraneous-dependencies
+import { onGetToWorkspacePath, apiPage } from '../utils/stories-api-mocks';
 import { action } from '@storybook/addon-actions';
 
 export default {

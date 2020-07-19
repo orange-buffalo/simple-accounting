@@ -1,5 +1,5 @@
-import { onGetToWorkspacePath, responseDelay } from '@/stories/utils/stories-api-mocks';
 import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink';
+import { onGetToWorkspacePath, responseDelay } from '../utils/stories-api-mocks';
 
 export default {
   title: 'Components|SaDocumentDownloadLink',

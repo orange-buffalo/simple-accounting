@@ -1,8 +1,8 @@
 import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup';
-import SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback
-  from '@/stories/components/SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback';
-import { onGet } from '@/stories/utils/stories-api-mocks';
 import pushNotifications from '@/services/push-notifications';
+import SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback
+  from '../components/SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback';
+import { onGet } from '../utils/stories-api-mocks';
 
 export default {
   title: 'Components|SaGoogleDriveIntegrationSetup',

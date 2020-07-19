@@ -1,5 +1,5 @@
 import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
-import { onGetToWorkspacePath, apiPage } from '@/stories/utils/stories-api-mocks';
+import { onGetToWorkspacePath, apiPage } from '../utils/stories-api-mocks';
 
 export default {
   title: 'Components|SaCustomerOutput',

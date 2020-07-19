@@ -1,5 +1,5 @@
 import mainConfig from '@/setup/setup-app';
-import StoriesApp from '@/stories/utils/StoriesApp';
+import StoriesApp from './StoriesApp';
 
 mainConfig.setupApp();
 

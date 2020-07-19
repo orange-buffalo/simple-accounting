@@ -1,7 +1,7 @@
+import SaDocumentsList from '@/components/documents/SaDocumentsList';
 import {
   apiPage, onGet, onGetToWorkspacePath, responseDelay,
-} from '@/stories/utils/stories-api-mocks';
-import SaDocumentsList from '@/components/documents/SaDocumentsList';
+} from '../utils/stories-api-mocks';
 
 let nextDocumentId = 100500;
 
