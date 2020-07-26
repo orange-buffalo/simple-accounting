@@ -2,6 +2,12 @@ import {
   apiPage, onGet, onGetToWorkspacePath, onPostToWorkspacePath, responseDelay,
 } from '../utils/stories-api-mocks';
 import SaDocumentsUploadStories from '../components/SaDocumentsUploadStories';
+import {
+  NO_STORYSHOTS_STORY,
+  pauseAndResetAnimation,
+  pauseAndResetDocumentLoaderAnimation, setViewportHeight,
+  storyshotsStory,
+} from '../utils/stories-utils';
 
 let nextDocumentId = 100500;
 let shouldFailInToggleTest = true;
@@ -12,7 +18,7 @@ function document(fileName, sizeInBytes) {
     id: nextDocumentId++,
     version: 0,
     name: fileName,
-    timeUploaded: Date(),
+    timeUploaded: new Date(),
     sizeInBytes,
   };
 }
@@ -32,6 +38,11 @@ function mockLoadingStorageStatus() {
     .neverEndingRequest();
 }
 
+async function pauseAndResetLoadingIndicator(page) {
+  await pauseAndResetAnimation(page, '.sa-documents-upload__loading-placeholder');
+}
+
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Components|SaDocumentsUpload',
 };
@@ -45,6 +56,11 @@ export const LoadingOnCreateIsSet = () => ({
 });
 LoadingOnCreateIsSet.story = {
   name: 'loading-on-create is set',
+  ...storyshotsStory({
+    async setup(page) {
+      await pauseAndResetLoadingIndicator(page);
+    },
+  }),
 };
 
 export const WithDocuments = () => ({
@@ -60,8 +76,33 @@ export const WithDocuments = () => ({
       ]));
   },
 });
+WithDocuments.story = storyshotsStory({
+  async setup(page) {
+    await setViewportHeight(page, 400);
+  },
+});
 
-export const WithDefferedDocuments = () => ({
+export const WithLoadingDocuments = () => ({
+  components: { SaDocumentsUploadStories },
+  template: '<SaDocumentsUploadStories :documents-ids="[42, 43]" :submittable="false"/>',
+  beforeCreate() {
+    mockSuccessStorageStatus();
+    onGetToWorkspacePath('documents')
+      .neverEndingRequest();
+  },
+});
+WithLoadingDocuments.story = storyshotsStory({
+  // width is calculated as a fractional value, antialiasing causes flaky test
+  matchOptions: {
+    failureThreshold: 100,
+    failureThresholdType: 'pixel',
+  },
+  async setup(page) {
+    await pauseAndResetDocumentLoaderAnimation(page);
+  },
+});
+
+export const WithDeferredDocuments = () => ({
   components: { SaDocumentsUploadStories },
   data() {
     return {
@@ -86,6 +127,7 @@ export const WithDefferedDocuments = () => ({
     }, 1000);
   },
 });
+WithDeferredDocuments.story = NO_STORYSHOTS_STORY;
 
 export const InitialLoadingWithNoDocuments = () => ({
   components: { SaDocumentsUploadStories },
@@ -103,7 +145,9 @@ export const InitialLoadingWithNoDocuments = () => ({
     }, 1000);
   },
 });
+InitialLoadingWithNoDocuments.story = NO_STORYSHOTS_STORY;
 
+// noinspection JSUnusedGlobalSymbols
 export const NoExistingDocuments = () => ({
   components: { SaDocumentsUploadStories },
   template: '<SaDocumentsUploadStories :documents-ids="[]" :submittable="false" />',
@@ -121,6 +165,7 @@ export const AllUploadsFailing = () => ({
       .reply(404);
   },
 });
+AllUploadsFailing.story = NO_STORYSHOTS_STORY;
 
 export const AllUploadsSucceeding = () => ({
   components: { SaDocumentsUploadStories },
@@ -131,6 +176,7 @@ export const AllUploadsSucceeding = () => ({
       .successJson(() => document('Service Agreement.pdf', 77000));
   },
 });
+AllUploadsSucceeding.story = NO_STORYSHOTS_STORY;
 
 export const EverySecondFileSucceeding = () => ({
   components: { SaDocumentsUploadStories },
@@ -150,6 +196,7 @@ export const EverySecondFileSucceeding = () => ({
       });
   },
 });
+EverySecondFileSucceeding.story = NO_STORYSHOTS_STORY;
 
 export const LoadingStorageStatus = () => ({
   components: { SaDocumentsUploadStories },
@@ -158,7 +205,13 @@ export const LoadingStorageStatus = () => ({
     mockLoadingStorageStatus();
   },
 });
+LoadingStorageStatus.story = storyshotsStory({
+  async setup(page) {
+    await pauseAndResetLoadingIndicator(page);
+  },
+});
 
+// noinspection JSUnusedGlobalSymbols
 export const FailedStorageStatus = () => ({
   components: { SaDocumentsUploadStories },
   template: '<SaDocumentsUploadStories :documents-ids="[]" :submittable="false"/>',

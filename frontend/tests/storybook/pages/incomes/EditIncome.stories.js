@@ -1,3 +1,4 @@
+import { action } from '@storybook/addon-actions';
 import EditIncome from '@/views/incomes/EditIncome';
 import {
   apiPage,
@@ -6,7 +7,7 @@ import {
   onPostToWorkspacePath,
   onPutToWorkspacePath,
 } from '../../utils/stories-api-mocks';
-import { action } from '@storybook/addon-actions';
+import { setViewportHeight } from '../../utils/stories-utils';
 
 const category = {
   id: 13,
@@ -50,7 +51,7 @@ const incomeProto = {
 
 function generateInvoices() {
   const invoices = [];
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 25; i += 1) {
     const id = 42 + i;
     invoices.push({
       title: `Invoice #2204${i}-${id}`,
@@ -81,7 +82,7 @@ function mockApiResources() {
     });
   onGetToWorkspacePath('/invoices/100')
     .successJson({
-      title: `Invoice #100`,
+      title: 'Invoice #100',
       dateIssued: '2020-05-03',
       currency: 'AUD',
       amount: 4276,
@@ -94,13 +95,20 @@ function mockApiResources() {
     });
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Pages|Incomes/EditIncome',
   parameters: {
     fullWidth: true,
+    storyshots: {
+      async setup(page) {
+        await setViewportHeight(page, 1100);
+      },
+    },
   },
 };
 
+// noinspection JSUnusedGlobalSymbols
 export const CreateNewIncome = () => ({
   components: { EditIncome },
   template: '<EditIncome />',
@@ -109,6 +117,7 @@ export const CreateNewIncome = () => ({
   },
 });
 
+// noinspection JSUnusedGlobalSymbols
 export const CreateFromInvoice = () => ({
   components: { EditIncome },
   data() {
@@ -128,6 +137,7 @@ export const CreateFromInvoice = () => ({
   },
 });
 
+// noinspection JSUnusedGlobalSymbols
 export const EditExistingIncome = () => ({
   components: { EditIncome },
   template: '<EditIncome :id="42" />',
@@ -138,6 +148,7 @@ export const EditExistingIncome = () => ({
   },
 });
 
+// noinspection JSUnusedGlobalSymbols
 export const EditExistingIncomeWithInvoice = () => ({
   components: { EditIncome },
   template: '<EditIncome :id="42" />',

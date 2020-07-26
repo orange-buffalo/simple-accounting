@@ -1,6 +1,7 @@
 import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
-import { apiPage, onGetToWorkspacePath, onPutToWorkspacePath } from '../../utils/stories-api-mocks';
 import { action } from '@storybook/addon-actions';
+import { apiPage, onGetToWorkspacePath, onPutToWorkspacePath } from '../../utils/stories-api-mocks';
+import { setViewportHeight, storyshotsStory, timeout } from '../../utils/stories-utils';
 
 const customer = {
   id: 77,
@@ -51,6 +52,13 @@ function createStory({ invoice, componentConfig }) {
   });
 }
 
+async function togglePanelInStoryshots(page) {
+  const openIndicator = await page.$('.overview-item__details-trigger');
+  await openIndicator.click();
+  await timeout(500);
+}
+
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Pages|Invoices/InvoicesOverviewPanel',
   parameters: {
@@ -74,6 +82,12 @@ export const Draft = createStory({
     },
   },
 });
+Draft.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 450);
+  },
+});
 
 export const Sent = createStory({
   invoice: {
@@ -82,12 +96,24 @@ export const Sent = createStory({
     status: 'SENT',
   },
 });
+Sent.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 450);
+  },
+});
 
 export const Overdue = createStory({
   invoice: {
     ...invoicePrototype,
     dateSent: '2020-05-04',
     status: 'OVERDUE',
+  },
+});
+Overdue.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 450);
   },
 });
 
@@ -99,12 +125,24 @@ export const Paid = createStory({
     status: 'PAID',
   },
 });
+Paid.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 450);
+  },
+});
 
 export const Cancelled = createStory({
   invoice: {
     ...invoicePrototype,
     dateCancelled: '2020-02-04',
     status: 'CANCELLED',
+  },
+});
+Cancelled.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 450);
   },
 });
 
@@ -118,6 +156,12 @@ ReadOnlyWorkspace.story = {
   parameters: {
     workspace: {
       editable: false,
+    },
+    storyshots: {
+      async setup(page) {
+        await togglePanelInStoryshots(page);
+        await setViewportHeight(page, 450);
+      },
     },
   },
 };

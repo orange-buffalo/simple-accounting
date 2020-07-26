@@ -1,7 +1,14 @@
+import { action } from '@storybook/addon-actions';
 import SaEntitySelect from '@/components/SaEntitySelect';
 import { onGetToWorkspacePath, apiPage, responseDelay } from '../utils/stories-api-mocks';
-import { action } from '@storybook/addon-actions';
+import {
+  NO_STORYSHOTS_STORY,
+  pauseAndResetInputLoaderAnimation,
+  removeSvgAnimations, setViewportHeight, storyshotsStory,
+  timeout,
+} from '../utils/stories-utils';
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Components|SaEntitySelect',
 };
@@ -11,11 +18,12 @@ let nextId = 1;
 function generateEntitiesPage(pageSize, totalSize, searchText) {
   const prefix = searchText ? searchText.eq : 'Entity';
   const data = [];
-  for (let i = 0; i < pageSize; i++) {
+  for (let i = 0; i < pageSize; i += 1) {
     data[i] = {
-      id: nextId++,
+      id: nextId,
       name: `${prefix} ${i}`,
     };
+    nextId += 1;
   }
   return {
     ...apiPage(data),
@@ -62,11 +70,24 @@ function setupStory() {
   });
 }
 
-export const InitialLading = () => ({
+async function toggleSelectInStoryshots(page) {
+  const openIndicator = await page.$('.vs__open-indicator');
+  await openIndicator.click();
+  await timeout(1000);
+}
+
+export const InitialLoading = () => ({
   ...setupStory(),
   beforeCreate() {
     startApiSpec()
       .neverEndingRequest();
+  },
+});
+
+InitialLoading.story = storyshotsStory({
+  async setup(page) {
+    await toggleSelectInStoryshots(page);
+    await removeSvgAnimations(page);
   },
 });
 
@@ -77,6 +98,12 @@ export const InitialLoadingFailure = () => ({
       .intercept((req, res) => {
         res.status(404);
       });
+  },
+});
+
+InitialLoadingFailure.story = storyshotsStory({
+  async setup(page) {
+    await toggleSelectInStoryshots(page);
   },
 });
 
@@ -96,6 +123,12 @@ export const Loading = () => ({
       });
   },
 });
+Loading.story = storyshotsStory({
+  async setup(page) {
+    await toggleSelectInStoryshots(page);
+    await setViewportHeight(page, 350);
+  },
+});
 
 export const FailingSearch = () => ({
   ...setupStory(),
@@ -112,12 +145,18 @@ export const FailingSearch = () => ({
       });
   },
 });
+FailingSearch.story = NO_STORYSHOTS_STORY;
 
 export const NoDataAfterInitialLoading = () => ({
   ...setupStory(),
   beforeCreate() {
     startApiSpec()
       .successJson(apiPage([]));
+  },
+});
+NoDataAfterInitialLoading.story = storyshotsStory({
+  async setup(page) {
+    await toggleSelectInStoryshots(page);
   },
 });
 
@@ -136,7 +175,9 @@ export const NoDataOnSearch = () => ({
       });
   },
 });
+NoDataOnSearch.story = NO_STORYSHOTS_STORY;
 
+// noinspection JSUnusedGlobalSymbols
 export const PreSelectedValue = () => ({
   ...setupStory(),
   beforeCreate() {
@@ -169,7 +210,13 @@ export const PreSelectedValueLoading = () => ({
     this.value = -10;
   },
 });
+PreSelectedValueLoading.story = storyshotsStory({
+  async setup(page) {
+    await pauseAndResetInputLoaderAnimation(page);
+  },
+});
 
+// noinspection JSUnusedGlobalSymbols
 export const PreSelectedValueLoadingFailed = () => ({
   ...setupStory(),
   beforeCreate() {

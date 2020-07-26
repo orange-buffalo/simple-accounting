@@ -3,7 +3,9 @@ import pushNotifications from '@/services/push-notifications';
 import SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback
   from '../components/SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback';
 import { onGet } from '../utils/stories-api-mocks';
+import { NO_STORYSHOTS_STORY, removeSvgAnimations, storyshotsStory } from '../utils/stories-utils';
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Components|SaGoogleDriveIntegrationSetup',
 };
@@ -16,7 +18,13 @@ export const InitialLoading = () => ({
       .neverEndingRequest();
   },
 });
+InitialLoading.story = storyshotsStory({
+  async setup(page) {
+    await removeSvgAnimations(page);
+  },
+});
 
+// noinspection JSUnusedGlobalSymbols
 export const ActiveIntegration = () => ({
   components: { SaGoogleDriveIntegrationSetup },
   template: '<SaGoogleDriveIntegrationSetup />',
@@ -30,6 +38,7 @@ export const ActiveIntegration = () => ({
   },
 });
 
+// noinspection JSUnusedGlobalSymbols
 export const AuthorizationRequired = () => ({
   components: { SaGoogleDriveIntegrationSetup },
   template: '<SaGoogleDriveIntegrationSetup />',
@@ -42,6 +51,7 @@ export const AuthorizationRequired = () => ({
   },
 });
 
+// noinspection JSUnusedGlobalSymbols
 export const AuthorizationFailed = () => ({
   components: { SaGoogleDriveIntegrationSetup },
   template: '<SaGoogleDriveIntegrationSetup />',
@@ -73,3 +83,4 @@ export const AuthorizationCallbacks = () => ({
       });
   },
 });
+AuthorizationCallbacks.story = NO_STORYSHOTS_STORY;

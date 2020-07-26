@@ -1,5 +1,7 @@
 import { API_FATAL_ERROR_EVENT } from '@/services/events';
+import { NO_STORYSHOTS_STORY } from '../utils/stories-utils';
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Other|ApiErrorHandling',
 };
@@ -17,3 +19,4 @@ export const ApiFatalError = () => ({
     this.emitApiFatalErrorEvent();
   },
 });
+ApiFatalError.story = NO_STORYSHOTS_STORY;

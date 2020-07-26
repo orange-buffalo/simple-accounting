@@ -2,6 +2,11 @@ import SaDocumentsList from '@/components/documents/SaDocumentsList';
 import {
   apiPage, onGet, onGetToWorkspacePath, responseDelay,
 } from '../utils/stories-api-mocks';
+import {
+  NO_STORYSHOTS_STORY,
+  pauseAndResetAnimation,
+  pauseAndResetDocumentLoaderAnimation, storyshotsStory,
+} from '../utils/stories-utils';
 
 let nextDocumentId = 100500;
 
@@ -11,7 +16,7 @@ function document(fileName, sizeInBytes) {
     id: nextDocumentId++,
     version: 0,
     name: fileName,
-    timeUploaded: Date(),
+    timeUploaded: new Date(),
     sizeInBytes,
   };
 }
@@ -39,10 +44,12 @@ function mockLoadingStorageStatus() {
     .neverEndingRequest();
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Components|SaDocumentsList',
 };
 
+// noinspection JSUnusedGlobalSymbols
 export const NoDocuments = () => ({
   components: { SaDocumentsList },
   template: '<SaDocumentsList :documents-ids="[]" style="width: 400px"/>',
@@ -51,6 +58,7 @@ export const NoDocuments = () => ({
   },
 });
 
+// noinspection JSUnusedGlobalSymbols
 export const WithDocuments = () => ({
   components: { SaDocumentsList },
   template: '<SaDocumentsList :documents-ids="[77, 78, 79]"  style="width: 400px" />',
@@ -66,7 +74,27 @@ export const WithDocuments = () => ({
   },
 });
 
-export const WithDefferedDocuments = () => ({
+export const WithLoadingDocuments = () => ({
+  components: { SaDocumentsList },
+  template: '<SaDocumentsList :documents-ids="[77, 78]" style="width: 400px"/>',
+  beforeCreate() {
+    mockSuccessStorageStatus();
+    onGetToWorkspacePath('documents')
+      .neverEndingRequest();
+  },
+});
+WithLoadingDocuments.story = storyshotsStory({
+  // width is calculated as a fractional value, antialiasing causes flaky test
+  matchOptions: {
+    failureThreshold: 100,
+    failureThresholdType: 'pixel',
+  },
+  async setup(page) {
+    await pauseAndResetDocumentLoaderAnimation(page);
+  },
+});
+
+export const WithDeferredDocuments = () => ({
   components: { SaDocumentsList },
   template: '<SaDocumentsList :documents-ids="[77, 78]" style="width: 400px"/>',
   beforeCreate() {
@@ -82,6 +110,7 @@ export const WithDefferedDocuments = () => ({
     mockFileDownload();
   },
 });
+WithDeferredDocuments.story = NO_STORYSHOTS_STORY;
 
 export const LoadingStorageStatus = () => ({
   components: { SaDocumentsList },
@@ -90,7 +119,13 @@ export const LoadingStorageStatus = () => ({
     mockLoadingStorageStatus();
   },
 });
+LoadingStorageStatus.story = storyshotsStory({
+  async setup(page) {
+    await pauseAndResetAnimation(page, '.sa-documents-list__loading-placeholder');
+  },
+});
 
+// noinspection JSUnusedGlobalSymbols
 export const FailedStorageStatus = () => ({
   components: { SaDocumentsList },
   template: '<SaDocumentsList :documents-ids="[]" style="width: 400px"/>',

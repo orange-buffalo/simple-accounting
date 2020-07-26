@@ -1,5 +1,7 @@
 import useNotifications from '@/components/useNotifications';
+import { storyshotsStory, timeout } from '../utils/stories-utils';
 
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Other|Notifications',
 };
@@ -18,5 +20,10 @@ export const Error = () => ({
   template: '<ElButton @click="showNotification">Show</ElButton>',
   mounted() {
     this.showNotification();
+  },
+});
+Error.story = storyshotsStory({
+  async setup() {
+    await timeout(1000);
   },
 });

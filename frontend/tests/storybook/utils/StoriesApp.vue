@@ -55,9 +55,10 @@
   .stories-app--full-centered {
     width: 100%;
     height: 100vh;
+    margin-top: 50px;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: start;
   }
 </style>

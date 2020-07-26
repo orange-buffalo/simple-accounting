@@ -1,5 +1,11 @@
 import IncomesOverviewPanel from '@/views/incomes/IncomesOverviewPanel';
 import { apiPage, onGetToWorkspacePath } from '../../utils/stories-api-mocks';
+import {
+  pauseAndResetOutputLoaderAnimation,
+  setViewportHeight,
+  storyshotsStory,
+  timeout,
+} from '../../utils/stories-utils';
 
 const incomePrototype = {
   title: 'Payment 343',
@@ -29,6 +35,13 @@ function mockTaxesAndCategories() {
     .successJson(apiPage([]));
 }
 
+async function togglePanelInStoryshots(page) {
+  const openIndicator = await page.$('.overview-item__details-trigger');
+  await openIndicator.click();
+  await timeout(500);
+}
+
+// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Pages|Incomes/IncomesOverviewPanel',
   parameters: {
@@ -55,6 +68,12 @@ export const WithInvoice = () => ({
       });
   },
 });
+WithInvoice.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 600);
+  },
+});
 
 export const WithLoadingInvoice = () => ({
   components: { IncomesOverviewPanel },
@@ -73,6 +92,13 @@ export const WithLoadingInvoice = () => ({
       .neverEndingRequest();
   },
 });
+WithLoadingInvoice.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await pauseAndResetOutputLoaderAnimation(page);
+    await setViewportHeight(page, 600);
+  },
+});
 
 export const Finalized = () => ({
   components: { IncomesOverviewPanel },
@@ -84,6 +110,12 @@ export const Finalized = () => ({
   template: '<IncomesOverviewPanel :income="income" />',
   beforeCreate() {
     mockTaxesAndCategories();
+  },
+});
+Finalized.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 600);
   },
 });
 
@@ -103,6 +135,12 @@ export const PendingConversion = () => ({
   template: '<IncomesOverviewPanel :income="income" />',
   beforeCreate() {
     mockTaxesAndCategories();
+  },
+});
+PendingConversion.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 600);
   },
 });
 
@@ -126,5 +164,11 @@ export const PendingConversionForTaxation = () => ({
   template: '<IncomesOverviewPanel :income="income" />',
   beforeCreate() {
     mockTaxesAndCategories();
+  },
+});
+PendingConversionForTaxation.story = storyshotsStory({
+  async setup(page) {
+    await togglePanelInStoryshots(page);
+    await setViewportHeight(page, 600);
   },
 });
