@@ -61,6 +61,7 @@
     "babel-plugin-component": "^1.1.1",
     "cldr-data": "^36.0.0",
     "deep-keys": "^0.5.0",
+    "dockerode": "^3.2.1",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-vue": "^6.2.2",

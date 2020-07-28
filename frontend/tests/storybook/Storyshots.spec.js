@@ -2,6 +2,29 @@ import initStoryshots from '@storybook/addon-storyshots';
 import { imageSnapshot } from '@storybook/addon-storyshots-puppeteer';
 import puppeteer from 'puppeteer';
 import { setViewportHeight } from './utils/stories-utils';
+import { setupDockerEnvironment, shutdownDockerEnvironment } from './utils/stories-docker-environment';
+
+let dockerEnvironment;
+
+beforeAll(async () => {
+  dockerEnvironment = await setupDockerEnvironment();
+}, 300000);
+
+let browser;
+
+async function getCustomBrowser() {
+  browser = await puppeteer.connect({ browserWSEndpoint: `ws://localhost:${dockerEnvironment.chromePort}` });
+  return browser;
+}
+
+afterAll(async () => {
+  if (browser) {
+    await browser.close();
+  }
+  if (dockerEnvironment) {
+    await shutdownDockerEnvironment(dockerEnvironment);
+  }
+}, 300000);
 
 const getGotoOptions = ({ context: { kind, name }, url }) => {
   console.info(`Executing story ${kind} / ${name} using URL ${url}`);
@@ -9,18 +32,6 @@ const getGotoOptions = ({ context: { kind, name }, url }) => {
     waitUntil: 'networkidle2',
   };
 };
-
-let browser = null;
-
-async function getCustomBrowser() {
-  browser = await puppeteer.connect({ browserWSEndpoint: 'ws://localhost:3000' });
-  return browser;
-}
-
-// eslint-disable-next-line no-undef
-afterAll(async () => {
-  await browser.close();
-});
 
 const getMatchOptions = ({ context: { parameters } }) => {
   if (parameters.storyshots && parameters.storyshots.matchOptions) {

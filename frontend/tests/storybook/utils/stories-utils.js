@@ -20,18 +20,10 @@ export async function pauseAndResetOutputLoaderAnimation(page) {
 export async function pauseAndResetAnimation(page, selector) {
   const elements = await page.$$(selector);
   for (let i = 0; i < elements.length; i += 1) {
-    // eslint-disable-next-line no-await-in-loop
-    await elements[i].evaluate((elementNode, animationClass) => new Promise((resolve) => {
+    elements[i].evaluate((elementNode) => {
       // eslint-disable-next-line no-param-reassign
-      elementNode.style = 'animation-play-state:paused';
-      elementNode.classList.remove(animationClass);
-      setTimeout(() => {
-        elementNode.classList.add(animationClass);
-        setTimeout(() => {
-          resolve();
-        }, 0);
-      }, 0);
-    }), selector);
+      elementNode.style = 'animation:none';
+    });
   }
 }
 
