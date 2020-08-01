@@ -2,18 +2,13 @@ import initStoryshots from '@storybook/addon-storyshots';
 import { imageSnapshot } from '@storybook/addon-storyshots-puppeteer';
 import puppeteer from 'puppeteer';
 import { setViewportHeight } from './utils/stories-utils';
-import { setupDockerEnvironment, shutdownDockerEnvironment } from './utils/stories-docker-environment';
 
-let dockerEnvironment;
-
-beforeAll(async () => {
-  dockerEnvironment = await setupDockerEnvironment();
-}, 300000);
+const { dockerEnvironment } = process;
 
 let browser;
 
 async function getCustomBrowser() {
-  browser = await puppeteer.connect({ browserWSEndpoint: `ws://localhost:${dockerEnvironment.chromePort}` });
+  browser = await puppeteer.connect({ browserWSEndpoint: dockerEnvironment.chromeUrl });
   return browser;
 }
 
@@ -21,10 +16,7 @@ afterAll(async () => {
   if (browser) {
     await browser.close();
   }
-  if (dockerEnvironment) {
-    await shutdownDockerEnvironment(dockerEnvironment);
-  }
-}, 300000);
+}, 30000);
 
 const getGotoOptions = ({ context: { kind, name }, url }) => {
   console.info(`Executing story ${kind} / ${name} using URL ${url}`);
@@ -68,6 +60,6 @@ initStoryshots({
     beforeScreenshot,
     getMatchOptions,
     getCustomBrowser,
-    storybookUrl: 'http://localhost:6006',
+    storybookUrl: dockerEnvironment.storybookUrl,
   }),
 });
