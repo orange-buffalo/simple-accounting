@@ -59,6 +59,6 @@
     box-sizing: border-box;
     display: flex;
     justify-content: center;
-    align-items: start;
+    align-items: flex-start;
   }
 </style>

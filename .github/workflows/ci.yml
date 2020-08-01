@@ -35,6 +35,9 @@ jobs:
     - name: "Test"
       run: ./gradlew check --scan --console=plain
 
+    - name: "Test (screenshot)"
+      run: ./gradlew npmScreenshotTests --scan --console=plain
+
     - name: "Publish"
       if: github.ref == 'refs/heads/master'
       env:

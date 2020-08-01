@@ -35,6 +35,13 @@ class SaFrontendPlugin : Plugin<Project> {
 
             dependsOn(npmInstall)
         }
+
+        project.tasks.register("npmScreenshotTests", SaNpmTask::class.java) {
+            args.set("run-script test:screenshot")
+            inputFiles.from(project.file("src"), project.file("tests"))
+
+            dependsOn(npmInstall)
+        }
     }
 
 }

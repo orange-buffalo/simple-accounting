@@ -24,6 +24,6 @@ export const Error = () => ({
 });
 Error.story = storyshotsStory({
   async setup() {
-    await timeout(1000);
+    await timeout(1200);
   },
 });
