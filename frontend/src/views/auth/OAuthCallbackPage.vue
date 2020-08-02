@@ -52,7 +52,9 @@
         code: params.get('code'),
       };
       try {
-        await api.post('/auth/oauth2/callback', request);
+        await api.post('/auth/oauth2/callback', request, {
+          skipGlobalErrorHandler: true,
+        });
         success.value = true;
       } catch (error) {
         if (error.response) {

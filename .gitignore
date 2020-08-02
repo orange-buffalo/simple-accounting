@@ -13,3 +13,6 @@ out/
 ### Local dev environment
 .gradletasknamecache
 /local-dev
+
+### Storyshots
+__diff_output__

@@ -17,25 +17,31 @@ module.exports = {
       registeredComponentsOnly: false,
     }],
     'no-use-before-define': ['error', { 'functions': false }],
+    // the two following configs are a workaround for https://github.com/babel/babel-eslint/issues/530
+    'template-curly-spacing': 'off',
+    'indent': [
+      'error', 2,
+      { ignoredNodes: ['TemplateLiteral'] },
+    ],
   },
   overrides: [
     {
       files: [
-        '*.vue'
+        '*.vue',
       ],
       rules: {
-        indent: 'off'
-      }
+        indent: 'off',
+      },
     },
     {
       files: [
         '**/__tests__/*.{j,t}s?(x)',
-        '**/tests/unit/**/*.spec.{j,t}s?(x)'
+        '**/tests/unit/**/*.spec.{j,t}s?(x)',
       ],
       env: {
-        jest: true
-      }
-    }
+        jest: true,
+      },
+    },
   ],
   parserOptions: { parser: 'babel-eslint' },
 };

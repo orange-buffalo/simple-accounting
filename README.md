@@ -2,6 +2,24 @@
 
 ## Development
 
+### Screenshot Tests
+
+1. Start Storybook:
+    ```shell script
+   npm run storybook:serve
+    ```
+1. Run the tests:
+    ```shell script
+   npm run test:screenshot
+    ```
+
+To run a particular story or kind:
+```shell script
+export STORYSHOTS_STORY_NAME="Initial Loading"
+export STORYSHOTS_STORY_KIND="EditIncome"
+npm run test:screenshot
+```
+
 ### Load Tests
 
 At this point we decided to not include load test into the CI pipeline. Load test are executed on demand locally.
