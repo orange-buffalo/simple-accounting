@@ -1,14 +1,14 @@
-package io.orangebuffalo.simpleaccounting.services.storage.gdrive
+package io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive
 
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class GoogleDriveStorageController(
-    private val storageService: GoogleDriveDocumentsStorageService
+    private val storage: GoogleDriveDocumentsStorage
 ) {
 
     @RequestMapping("/api/storage/google-drive/status")
     suspend fun getIntegrationStatus(): GoogleDriveStorageIntegrationStatus =
-        storageService.getCurrentUserIntegrationStatus()
+        storage.getCurrentUserIntegrationStatus()
 }

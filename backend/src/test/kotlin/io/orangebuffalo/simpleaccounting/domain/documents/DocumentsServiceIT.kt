@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.documents
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.stub
@@ -7,8 +7,8 @@ import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
@@ -39,7 +39,7 @@ class DocumentsServiceIT(
     fun `should return content for download`(testData: DocumentsServiceTestData) {
         testDocumentsStorage.mock.stub {
             onBlocking {
-                getDocumentContent(testData.fryWorkspace, testData.document.storageProviderLocation!!)
+                getDocumentContent(testData.fryWorkspace, testData.document.storageLocation!!)
             } doReturn "test-content".toDataBuffers()
         }
 
@@ -75,9 +75,9 @@ class DocumentsServiceTestData : TestData {
     val fryWorkspace = Prototypes.workspace(owner = fry)
     val document = Prototypes.document(
         name = "document.pdf",
-        storageProviderLocation = "document-in-storage",
+        storageLocation = "document-in-storage",
         workspace = fryWorkspace,
-        storageProviderId = "mock-storage",
+        storageId = "mock-storage",
         timeUploaded = MOCK_TIME,
         sizeInBytes = 42
     )

@@ -1,5 +1,9 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.documents
 
+import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadContentResponse
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadableContentProvider
@@ -7,9 +11,9 @@ import io.orangebuffalo.simpleaccounting.services.integration.downloads.Download
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.DocumentRepository
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
-import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -27,16 +31,16 @@ class DocumentsService(
 
     suspend fun saveDocument(request: SaveDocumentRequest): Document {
         val documentStorage = getDocumentStorageByUser(request.workspace.ownerId)
-        val storageProviderResponse = documentStorage.saveDocument(request)
+        val response = documentStorage.saveDocument(request)
         return withDbContext {
             documentRepository.save(
                 Document(
                     name = request.fileName,
                     timeUploaded = timeService.currentTime(),
                     workspaceId = request.workspace.id!!,
-                    storageProviderId = documentStorage.getId(),
-                    storageProviderLocation = storageProviderResponse.storageProviderLocation,
-                    sizeInBytes = storageProviderResponse.sizeInBytes
+                    storageId = documentStorage.getId(),
+                    storageLocation = response.storageLocation,
+                    sizeInBytes = response.sizeInBytes
                 )
             )
         }
@@ -56,14 +60,14 @@ class DocumentsService(
 
     suspend fun getDocumentContent(document: Document): Flux<DataBuffer> {
         val workspace = workspaceService.getWorkspace(document.workspaceId)
-        return getDocumentStorageById(document.storageProviderId).getDocumentContent(
+        return getDocumentStorageById(document.storageId).getDocumentContent(
             workspace,
-            document.storageProviderLocation ?: throw IllegalStateException("$document has not location assigned")
+            document.storageLocation ?: throw IllegalStateException("$document has not location assigned")
         )
     }
 
-    private fun getDocumentStorageById(providerId: String) = documentsStorages
-        .first { it.getId() == providerId }
+    private fun getDocumentStorageById(storageId: String) = documentsStorages
+        .first { it.getId() == storageId }
 
     suspend fun validateDocuments(workspaceId: Long, documentsIds: Collection<Long>) {
         val validDocumentsIds = withDbContext {

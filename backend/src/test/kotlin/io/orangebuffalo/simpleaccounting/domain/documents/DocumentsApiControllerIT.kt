@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.documents
 
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.doReturn
@@ -7,12 +7,10 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.services.business.DocumentDownloadMetadata
-import io.orangebuffalo.simpleaccounting.services.business.DocumentsService
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
-import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.utils.toDataBuffers
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
@@ -208,8 +206,8 @@ class DocumentsApiControllerIT(
         testDocumentsStorage.mock.stub {
             onBlocking {
                 saveDocument(argThat { workspace == testData.fryWorkspace && fileName == "test-file.txt" })
-            } doReturn StorageProviderResponse(
-                storageProviderLocation = "test-location",
+            } doReturn SaveDocumentResponse(
+                storageLocation = "test-location",
                 sizeInBytes = 42
             )
         }
@@ -308,8 +306,8 @@ class DocumentsApiControllerIT(
         val coffeeReceipt = Prototypes.document(
             name = "100_cups.pdf",
             workspace = fryWorkspace,
-            storageProviderId = "test-storage",
-            storageProviderLocation = "test-location",
+            storageId = "test-storage",
+            storageLocation = "test-location",
             timeUploaded = MOCK_TIME,
             sizeInBytes = 42
         )
@@ -350,7 +348,6 @@ class DocumentsApiControllerIT(
     @TestConfiguration
     class DocumentControllerTestConfig {
         @Bean
-        fun testDocumentStorageProvider() =
-            TestDocumentsStorage()
+        fun testDocumentsStorage() = TestDocumentsStorage()
     }
 }

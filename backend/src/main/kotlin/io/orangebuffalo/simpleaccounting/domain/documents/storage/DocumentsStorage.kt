@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.storage
+package io.orangebuffalo.simpleaccounting.domain.documents.storage
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import org.springframework.core.io.buffer.DataBuffer
@@ -6,7 +6,7 @@ import reactor.core.publisher.Flux
 
 interface DocumentsStorage {
 
-    suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse
+    suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse
 
     fun getId(): String
 
@@ -15,7 +15,7 @@ interface DocumentsStorage {
     suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus
 }
 
-data class StorageProviderResponse(val storageProviderLocation: String, val sizeInBytes: Long?)
+data class SaveDocumentResponse(val storageLocation: String, val sizeInBytes: Long?)
 
 data class SaveDocumentRequest(
     val fileName: String,

@@ -1,9 +1,9 @@
-package io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl
+package io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl
 
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentStorageException
-import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
-import io.orangebuffalo.simpleaccounting.services.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentStorageException
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthorizationRequiredException
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.beans.factory.annotation.Value

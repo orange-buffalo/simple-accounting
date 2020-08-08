@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.storage.gdrive
+package io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.nhaarman.mockitokotlin2.*
@@ -8,9 +8,9 @@ import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.*
-import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
-import io.orangebuffalo.simpleaccounting.services.storage.StorageAuthorizationRequiredException
-import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthorizationRequiredException
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.utils.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
@@ -42,7 +42,7 @@ private val bufferFactory = DefaultDataBufferFactory()
     ]
 )
 class GoogleDriveDocumentsStorageServiceIT(
-    @Autowired private val documentsStorageService: GoogleDriveDocumentsStorageService,
+    @Autowired private val documentsStorage: GoogleDriveDocumentsStorage,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val applicationEventPublisher: ApplicationEventPublisher
 ) {
@@ -248,8 +248,8 @@ class GoogleDriveDocumentsStorageServiceIT(
         val documentResponse = whenSavingDocument(testData)
 
         assertThat(documentResponse).isEqualTo(
-            StorageProviderResponse(
-                storageProviderLocation = "newFryFileId",
+            SaveDocumentResponse(
+                storageLocation = "newFryFileId",
                 sizeInBytes = 42
             )
         )
@@ -285,8 +285,8 @@ class GoogleDriveDocumentsStorageServiceIT(
         val documentResponse = whenSavingDocument(testData)
 
         assertThat(documentResponse).isEqualTo(
-            StorageProviderResponse(
-                storageProviderLocation = "newFryFileId",
+            SaveDocumentResponse(
+                storageLocation = "newFryFileId",
                 sizeInBytes = 42
             )
         )
@@ -413,14 +413,14 @@ class GoogleDriveDocumentsStorageServiceIT(
 
     private fun whenDownloadingDocumentContent(testData: GoogleDriveTestData): Flux<DataBuffer> {
         return runBlocking {
-            documentsStorageService.getDocumentContent(testData.workspace, "testLocation")
+            documentsStorage.getDocumentContent(testData.workspace, "testLocation")
         }
     }
 
-    private fun whenSavingDocument(testData: GoogleDriveTestData): StorageProviderResponse {
+    private fun whenSavingDocument(testData: GoogleDriveTestData): SaveDocumentResponse {
         val documentBody = ByteArrayInputStream("Document Body".toByteArray())
         return runBlocking {
-            documentsStorageService.saveDocument(
+            documentsStorage.saveDocument(
                 SaveDocumentRequest(
                     fileName = "testFileName",
                     workspace = testData.workspace,
@@ -464,7 +464,7 @@ class GoogleDriveDocumentsStorageServiceIT(
     }
 
     private fun whenCalculatingIntegrationStatus() =
-        runBlocking { documentsStorageService.getCurrentUserIntegrationStatus() }
+        runBlocking { documentsStorage.getCurrentUserIntegrationStatus() }
 
     private fun assertNewIntegration(testData: GoogleDriveTestData) {
         assertThat(jdbcAggregateTemplate.findAll(GoogleDriveStorageIntegration::class.java))

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.storage.gdrive
+package io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive
 
 import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
@@ -7,10 +7,10 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2Faile
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2SucceededEvent
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.storage.*
-import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.DriveFileNotFoundException
-import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.FolderResponse
-import io.orangebuffalo.simpleaccounting.services.storage.gdrive.impl.GoogleDriveApiAdapter
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.*
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl.DriveFileNotFoundException
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl.FolderResponse
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl.GoogleDriveApiAdapter
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.springframework.context.event.EventListener
@@ -22,7 +22,7 @@ const val OAUTH2_CLIENT_REGISTRATION_ID = "google-drive"
 const val AUTH_EVENT_NAME = "storage.google-drive.auth"
 
 @Service
-class GoogleDriveDocumentsStorageService(
+class GoogleDriveDocumentsStorage(
     private val userService: PlatformUserService,
     private val repository: GoogleDriveStorageIntegrationRepository,
     private val pushNotificationService: PushNotificationService,
@@ -32,7 +32,7 @@ class GoogleDriveDocumentsStorageService(
 
     private val workspaceFolderMutex = Mutex()
 
-    override suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse {
+    override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
         val integration = withDbContext { repository.findByUserId(request.workspace.ownerId) }
             ?: throw StorageAuthorizationRequiredException()
 
@@ -44,8 +44,8 @@ class GoogleDriveDocumentsStorageService(
             parentFolderId = workspaceFolder
         )
 
-        return StorageProviderResponse(
-            storageProviderLocation = newFile.id,
+        return SaveDocumentResponse(
+            storageLocation = newFile.id,
             sizeInBytes = newFile.sizeInBytes
         )
     }

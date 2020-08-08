@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.storage.local
+package io.orangebuffalo.simpleaccounting.domain.documents.storage.local
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
@@ -6,7 +6,7 @@ import java.nio.file.Path
 
 @ConfigurationProperties(prefix = "simpleaccounting.documents.storage.local-fs")
 @Component
-class LocalFileSystemDocumentStorageProperties {
+class LocalFileSystemDocumentsStorageProperties {
 
     lateinit var baseDirectory: Path
 }

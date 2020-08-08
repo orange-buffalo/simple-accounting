@@ -1,10 +1,10 @@
-package io.orangebuffalo.simpleaccounting.services.storage.local
+package io.orangebuffalo.simpleaccounting.domain.documents.storage.local
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
-import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
-import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.withContext
@@ -23,8 +23,8 @@ import java.util.*
 private val localFsStorageContext = newFixedThreadPoolContext(10, "local-fs-storage")
 
 @Service
-class LocalFileSystemDocumentStorage(
-    private val config: LocalFileSystemDocumentStorageProperties
+class LocalFileSystemDocumentsStorage(
+    private val config: LocalFileSystemDocumentsStorageProperties
 ) : DocumentsStorage {
 
     private val bufferFactory = DefaultDataBufferFactory()
@@ -39,7 +39,7 @@ class LocalFileSystemDocumentStorage(
 
     override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)
 
-    override suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse =
+    override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse =
         withContext(localFsStorageContext) {
             val documentDir = File(config.baseDirectory.toFile(), request.workspace.id.toString()).apply { mkdirs() }
             val documentName = "${UUID.randomUUID()}.${File(request.fileName).extension}"
@@ -50,7 +50,7 @@ class LocalFileSystemDocumentStorage(
                     .awaitLast()
             }
             val location = documentFile.relativeTo(config.baseDirectory.toFile()).toString()
-            StorageProviderResponse(
+            SaveDocumentResponse(
                 location,
                 documentFile.length()
             )

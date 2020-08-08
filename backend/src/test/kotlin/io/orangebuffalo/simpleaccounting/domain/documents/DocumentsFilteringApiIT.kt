@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.documents
 
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest

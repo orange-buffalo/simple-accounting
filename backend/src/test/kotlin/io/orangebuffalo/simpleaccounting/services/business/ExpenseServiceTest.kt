@@ -4,6 +4,7 @@ import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.Prototypes
+import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
