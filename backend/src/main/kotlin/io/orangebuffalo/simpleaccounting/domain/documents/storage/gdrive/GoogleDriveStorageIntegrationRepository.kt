@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.storage.gdrive
+package io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive
 
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
 

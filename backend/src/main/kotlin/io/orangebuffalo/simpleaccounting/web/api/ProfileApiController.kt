@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.simpleaccounting.services.business.DocumentsService
+import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import org.springframework.web.bind.annotation.*

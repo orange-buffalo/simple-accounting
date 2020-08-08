@@ -5,9 +5,9 @@ import com.nhaarman.mockitokotlin2.stub
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
-import io.orangebuffalo.simpleaccounting.services.business.DocumentsService
+import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

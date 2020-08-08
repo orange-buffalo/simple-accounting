@@ -1,12 +1,11 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.documents
 
-import io.orangebuffalo.simpleaccounting.services.business.DocumentsService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Document
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
@@ -70,9 +69,10 @@ class DocumentsApiController(
     suspend fun getDownloadToken(
         @PathVariable workspaceId: Long,
         @PathVariable documentId: Long
-    ): GetDownloadTokenResponse = GetDownloadTokenResponse(
-        token = documentsService.getDownloadToken(workspaceId, documentId)
-    )
+    ): GetDownloadTokenResponse =
+        GetDownloadTokenResponse(
+            token = documentsService.getDownloadToken(workspaceId, documentId)
+        )
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Document, DocumentDto> {
         query(Tables.DOCUMENT) {
@@ -99,12 +99,13 @@ data class DocumentDto(
     var sizeInBytes: Long?
 )
 
-private fun mapDocumentDto(source: Document) = DocumentDto(
-    name = source.name,
-    timeUploaded = source.timeUploaded,
-    id = source.id,
-    version = source.version!!,
-    sizeInBytes = source.sizeInBytes
-)
+private fun mapDocumentDto(source: Document) =
+    DocumentDto(
+        name = source.name,
+        timeUploaded = source.timeUploaded,
+        id = source.id,
+        version = source.version!!,
+        sizeInBytes = source.sizeInBytes
+    )
 
 data class GetDownloadTokenResponse(val token: String)

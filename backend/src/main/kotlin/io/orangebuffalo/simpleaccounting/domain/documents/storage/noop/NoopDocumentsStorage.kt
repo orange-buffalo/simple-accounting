@@ -1,10 +1,10 @@
-package io.orangebuffalo.simpleaccounting.services.storage.noop
+package io.orangebuffalo.simpleaccounting.domain.documents.storage.noop
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorage
-import io.orangebuffalo.simpleaccounting.services.storage.DocumentsStorageStatus
-import io.orangebuffalo.simpleaccounting.services.storage.SaveDocumentRequest
-import io.orangebuffalo.simpleaccounting.services.storage.StorageProviderResponse
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
@@ -19,15 +19,15 @@ import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.max
 
 @Service
-class NoopDocumentsStorageService : DocumentsStorage {
+class NoopDocumentsStorage : DocumentsStorage {
     private val bufferFactory = DefaultDataBufferFactory()
 
-    override suspend fun saveDocument(request: SaveDocumentRequest): StorageProviderResponse {
+    override suspend fun saveDocument(request: SaveDocumentRequest): SaveDocumentResponse {
         val filename = request.fileName
         if (filename.contains("fail")) {
             throw RuntimeException("Upload failed")
         }
-        return StorageProviderResponse(filename, getFakeContent(filename).contentLength())
+        return SaveDocumentResponse(filename, getFakeContent(filename).contentLength())
     }
 
     private fun getFakeContent(filename:String) : InMemoryResource  {

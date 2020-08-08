@@ -8,7 +8,7 @@ class Document(
     var name: String,
     val workspaceId: Long,
     val timeUploaded: Instant,
-    var storageProviderId: String,
-    var storageProviderLocation: String?,
+    var storageId: String,
+    var storageLocation: String?,
     val sizeInBytes: Long?
 ) : AbstractEntity()

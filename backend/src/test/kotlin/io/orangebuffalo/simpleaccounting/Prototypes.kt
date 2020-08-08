@@ -196,14 +196,14 @@ class Prototypes {
             name: String = "Slurm Receipt",
             workspace: Workspace = workspace(),
             timeUploaded: Instant = MOCK_TIME,
-            storageProviderId: String = "test-storage",
-            storageProviderLocation: String? = "test-location",
+            storageId: String = "test-storage",
+            storageLocation: String? = "test-location",
             sizeInBytes: Long? = null
         ): Document = Document(
             name = name,
             workspaceId = workspace.id!!,
-            storageProviderId = storageProviderId,
-            storageProviderLocation = storageProviderLocation,
+            storageId = storageId,
+            storageLocation = storageLocation,
             timeUploaded = timeUploaded,
             sizeInBytes = sizeInBytes
         ).apply {
