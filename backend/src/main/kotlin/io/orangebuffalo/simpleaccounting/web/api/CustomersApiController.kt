@@ -33,7 +33,7 @@ class CustomersApiController(
                 workspaceId = workspaceId
             )
         )
-        .let(::mapCustomerDto)
+        .mapToCustomerDto()
 
     @GetMapping
     suspend fun getCustomers(@PathVariable workspaceId: Long): ApiPage<CustomerDto> =
@@ -47,7 +47,7 @@ class CustomersApiController(
         workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val customer = customerService.getCustomerByIdAndWorkspace(customerId, workspaceId)
             ?: throw EntityNotFoundException("Customer $customerId is not found")
-        return mapCustomerDto(customer)
+        return customer.mapToCustomerDto()
     }
 
     @PutMapping("{customerId}")
@@ -56,7 +56,6 @@ class CustomersApiController(
         @PathVariable customerId: Long,
         @RequestBody @Valid request: EditCustomerDto
     ): CustomerDto {
-
         // todo #71: optimistic locking. etag?
         val customer = customerService.getCustomerByIdAndWorkspace(customerId, workspaceId)
             ?: throw EntityNotFoundException("Customer $customerId is not found")
@@ -64,7 +63,7 @@ class CustomersApiController(
         return customer
             .apply { name = request.name }
             .let { customerService.saveCustomer(it) }
-            .let { mapCustomerDto(it) }
+            .mapToCustomerDto()
     }
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Customer, CustomerDto> {
@@ -72,7 +71,7 @@ class CustomersApiController(
             addDefaultSorting { root.id.desc() }
             workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
         }
-        mapper { mapCustomerDto(this) }
+        mapper { mapToCustomerDto() }
     }
 }
 
@@ -87,8 +86,8 @@ data class EditCustomerDto(
     @field:NotBlank @field:Length(max = 255) val name: String
 )
 
-private fun mapCustomerDto(source: Customer) = CustomerDto(
-    name = source.name,
-    id = source.id!!,
-    version = source.version!!
+private fun Customer.mapToCustomerDto() = CustomerDto(
+    name = name,
+    id = id!!,
+    version = version!!
 )

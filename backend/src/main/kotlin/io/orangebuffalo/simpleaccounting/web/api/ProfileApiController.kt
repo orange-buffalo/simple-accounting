@@ -16,10 +16,9 @@ class ProfileApiController(
     private val documentsService: DocumentsService
 ) {
     @GetMapping
-    suspend fun getProfile(): ProfileDto {
-        val currentUser = platformUserService.getCurrentUser()
-        return mapToProfileDto(currentUser)
-    }
+    suspend fun getProfile(): ProfileDto = platformUserService
+        .getCurrentUser()
+        .mapToProfileDto()
 
     @PutMapping
     suspend fun updateProfile(
@@ -32,21 +31,20 @@ class ProfileApiController(
             i18nSettings.locale = request.i18n.locale
         }
         .let { platformUserService.save(it) }
-        .let { mapToProfileDto(it) }
+        .mapToProfileDto()
 
     @GetMapping("/documents-storage")
     suspend fun getDocumentsStorageStatus() = documentsService.getCurrentUserStorageStatus()
 }
 
-private fun mapToProfileDto(currentUser: PlatformUser): ProfileDto =
-    ProfileDto(
-        userName = currentUser.userName,
-        documentsStorage = currentUser.documentsStorage,
-        i18n = I18nSettingsDto(
-            locale = currentUser.i18nSettings.locale,
-            language = currentUser.i18nSettings.language
-        )
+private fun PlatformUser.mapToProfileDto() = ProfileDto(
+    userName = userName,
+    documentsStorage = documentsStorage,
+    i18n = I18nSettingsDto(
+        locale = i18nSettings.locale,
+        language = i18nSettings.language
     )
+)
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ProfileDto(

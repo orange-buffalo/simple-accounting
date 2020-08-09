@@ -32,19 +32,17 @@ class ReportingApiController(
         )
     }
 
-    private fun convertPendingTaxItem(item: PendingGeneralTaxSummaryItem) =
-        PendingTaxSummaryItemDto(
-            tax = item.tax,
-            includedItemsNumber = item.includedItemsNumber
-        )
+    private fun convertPendingTaxItem(item: PendingGeneralTaxSummaryItem) = PendingTaxSummaryItemDto(
+        tax = item.tax,
+        includedItemsNumber = item.includedItemsNumber
+    )
 
-    private fun convertFinalizedTaxItem(item: FinalizedGeneralTaxSummaryItem) =
-        FinalizedTaxSummaryItemDto(
-            taxAmount = item.taxAmount,
-            tax = item.tax,
-            includedItemsNumber = item.includedItemsNumber,
-            includedItemsAmount = item.includedItemsAmount
-        )
+    private fun convertFinalizedTaxItem(item: FinalizedGeneralTaxSummaryItem) = FinalizedTaxSummaryItemDto(
+        taxAmount = item.taxAmount,
+        tax = item.tax,
+        includedItemsNumber = item.includedItemsNumber,
+        includedItemsAmount = item.includedItemsAmount
+    )
 }
 
 data class GeneralTaxReportDto(

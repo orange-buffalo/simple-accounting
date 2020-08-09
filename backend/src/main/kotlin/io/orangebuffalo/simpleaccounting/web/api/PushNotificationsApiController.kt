@@ -16,14 +16,14 @@ class PushNotificationsApiController(
 ) {
 
     @GetMapping(produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    suspend fun getPushNotificationMessages(): Flow<CurrentUserPushNotificationMessage> =
-        pushNotificationService.subscribeToEventsForCurrentUser()
-            .map { pushNotificationMessage ->
-                CurrentUserPushNotificationMessage(
-                    eventName = pushNotificationMessage.eventName,
-                    data = pushNotificationMessage.data
-                )
-            }
+    suspend fun getPushNotificationMessages(): Flow<CurrentUserPushNotificationMessage> = pushNotificationService
+        .subscribeToEventsForCurrentUser()
+        .map { pushNotificationMessage ->
+            CurrentUserPushNotificationMessage(
+                eventName = pushNotificationMessage.eventName,
+                data = pushNotificationMessage.data
+            )
+        }
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

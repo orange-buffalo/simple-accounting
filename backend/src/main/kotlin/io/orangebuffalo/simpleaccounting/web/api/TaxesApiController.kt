@@ -37,7 +37,7 @@ class GeneralTaxApiController(
                 workspaceId = workspaceId
             )
         )
-        .let(::mapTaxDto)
+        .mapToTaxDto()
 
     @GetMapping
     suspend fun getTaxes(@PathVariable workspaceId: Long): ApiPage<GeneralTaxDto> =
@@ -51,7 +51,7 @@ class GeneralTaxApiController(
         workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expense = taxService.getTaxByIdAndWorkspace(taxId, workspaceId)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
-        return mapTaxDto(expense)
+        return expense.mapToTaxDto()
     }
 
     @PutMapping("{taxId}")
@@ -60,7 +60,6 @@ class GeneralTaxApiController(
         @PathVariable taxId: Long,
         @RequestBody @Valid request: EditGeneralTaxDto
     ): GeneralTaxDto {
-
         // todo #71: optimistic locking. etag?
         val tax = taxService.getTaxByIdAndWorkspace(taxId, workspaceId)
             ?: throw EntityNotFoundException("Tax $taxId is not found")
@@ -71,12 +70,8 @@ class GeneralTaxApiController(
                 description = request.description
                 rateInBps = request.rateInBps
             }
-            .let {
-                taxService.saveTax(it)
-            }
-            .let {
-                mapTaxDto(it)
-            }
+            .let { taxService.saveTax(it) }
+            .mapToTaxDto()
     }
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<GeneralTax, GeneralTaxDto> {
@@ -84,7 +79,7 @@ class GeneralTaxApiController(
             addDefaultSorting { root.id.desc() }
             workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
         }
-        mapper { mapTaxDto(this) }
+        mapper { mapToTaxDto() }
     }
 }
 
@@ -103,10 +98,10 @@ data class EditGeneralTaxDto(
     @field:Min(0) @field:Max(100_00) val rateInBps: Int
 )
 
-private fun mapTaxDto(source: GeneralTax) = GeneralTaxDto(
-    title = source.title,
-    id = source.id!!,
-    version = source.version!!,
-    description = source.description,
-    rateInBps = source.rateInBps
+private fun GeneralTax.mapToTaxDto() = GeneralTaxDto(
+    title = title,
+    id = id!!,
+    version = version!!,
+    description = description,
+    rateInBps = rateInBps
 )
