@@ -52,10 +52,10 @@ class InvoicesApiController(
             ),
             workspaceId
         )
-        .let { mapInvoiceDto(it, timeService) }
+        .mapToInvoiceDto(timeService)
 
     private fun getInvoiceAttachments(attachments: List<Long>?): Set<InvoiceAttachment> =
-        attachments?.asSequence()?.map { documentId -> InvoiceAttachment(documentId) }?.toSet() ?: emptySet()
+        attachments?.asSequence()?.map(::InvoiceAttachment)?.toSet() ?: emptySet()
 
     @GetMapping
     suspend fun getInvoices(@PathVariable workspaceId: Long) = filteringApiExecutor.executeFiltering(workspaceId)
@@ -69,7 +69,7 @@ class InvoicesApiController(
         // todo #71: when optimistic locking is addressed, move access control into the business service
         val invoice = invoiceService.getInvoiceByIdAndWorkspaceId(invoiceId, workspaceId)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
-        return mapInvoiceDto(invoice, timeService)
+        return invoice.mapToInvoiceDto(timeService)
     }
 
     @PutMapping("{invoiceId}")
@@ -78,7 +78,6 @@ class InvoicesApiController(
         @PathVariable invoiceId: Long,
         @RequestBody @Valid request: EditInvoiceDto
     ): InvoiceDto {
-
         workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
@@ -100,12 +99,8 @@ class InvoicesApiController(
                 amount = request.amount
                 generalTaxId = request.generalTax
             }
-            .let {
-                invoiceService.saveInvoice(it, workspaceId)
-            }
-            .let {
-                mapInvoiceDto(it, timeService)
-            }
+            .let { invoiceService.saveInvoice(it, workspaceId) }
+            .mapToInvoiceDto(timeService)
     }
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Invoice, InvoiceDto> {
@@ -151,7 +146,7 @@ class InvoicesApiController(
             addDefaultSorting { root.timeRecorded.asc() }
             workspaceFilter { workspaceId -> customer.workspaceId.eq(workspaceId) }
         }
-        mapper { mapInvoiceDto(this, timeService) }
+        mapper { mapToInvoiceDto(timeService) }
     }
 }
 
@@ -198,32 +193,29 @@ data class EditInvoiceDto(
     val generalTax: Long?
 )
 
-private fun mapInvoiceDto(source: Invoice, timeService: TimeService) =
-    InvoiceDto(
-        title = source.title,
-        customer = source.customerId,
-        timeRecorded = source.timeRecorded,
-        dateIssued = source.dateIssued,
-        dateCancelled = source.dateCancelled,
-        datePaid = source.datePaid,
-        dateSent = source.dateSent,
-        dueDate = source.dueDate,
-        currency = source.currency,
-        amount = source.amount,
-        attachments = source.attachments.map { it.documentId },
-        notes = source.notes,
-        id = source.id!!,
-        version = source.version!!,
-        status = getInvoiceStatus(source, timeService),
-        generalTax = source.generalTaxId
-    )
+private fun Invoice.mapToInvoiceDto(timeService: TimeService) = InvoiceDto(
+    title = title,
+    customer = customerId,
+    timeRecorded = timeRecorded,
+    dateIssued = dateIssued,
+    dateCancelled = dateCancelled,
+    datePaid = datePaid,
+    dateSent = dateSent,
+    dueDate = dueDate,
+    currency = currency,
+    amount = amount,
+    attachments = attachments.map { it.documentId },
+    notes = notes,
+    id = id!!,
+    version = version!!,
+    status = getInvoiceStatus(this, timeService),
+    generalTax = generalTaxId
+)
 
-private fun getInvoiceStatus(invoice: Invoice, timeService: TimeService): InvoiceStatus {
-    return when {
-        invoice.dateCancelled != null -> InvoiceStatus.CANCELLED
-        invoice.datePaid != null -> InvoiceStatus.PAID
-        invoice.dueDate.isBefore(timeService.currentDate()) -> InvoiceStatus.OVERDUE
-        invoice.dateSent != null -> InvoiceStatus.SENT
-        else -> InvoiceStatus.DRAFT
-    }
+private fun getInvoiceStatus(invoice: Invoice, timeService: TimeService): InvoiceStatus = when {
+    invoice.dateCancelled != null -> InvoiceStatus.CANCELLED
+    invoice.datePaid != null -> InvoiceStatus.PAID
+    invoice.dueDate.isBefore(timeService.currentDate()) -> InvoiceStatus.OVERDUE
+    invoice.dateSent != null -> InvoiceStatus.SENT
+    else -> InvoiceStatus.DRAFT
 }

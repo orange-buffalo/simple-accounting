@@ -23,11 +23,11 @@ class WorkspacesApiController(
         return if (currentPrincipal.isTransient) {
             workspaceService
                 .getWorkspaceByValidAccessToken(currentPrincipal.userName)
-                .let { listOf(mapWorkspaceDto(it, false)) }
+                .let { listOf(it.mapToWorkspaceDto(false)) }
         } else {
             workspaceService
                 .getUserWorkspaces(currentPrincipal.userName)
-                .map { mapWorkspaceDto(it, true) }
+                .map { it.mapToWorkspaceDto(true) }
         }
     }
 
@@ -44,7 +44,7 @@ class WorkspacesApiController(
                 ownerId = platformUserService.getCurrentUser().id!!
             )
         )
-        .let { mapWorkspaceDto(it, true) }
+        .mapToWorkspaceDto(true)
 
     @PutMapping("workspaces/{workspaceId}")
     suspend fun editWorkspace(
@@ -56,15 +56,15 @@ class WorkspacesApiController(
             name = editWorkspaceRequest.name
         }
         .let { workspaceService.save(it) }
-        .let { mapWorkspaceDto(it, true) }
+        .mapToWorkspaceDto(true)
 
     @GetMapping("shared-workspaces")
     suspend fun getSharedWorkspaces(): List<WorkspaceDto> = workspaceService
-        .getSharedWorkspaces().map { mapWorkspaceDto(it, false) }
+        .getSharedWorkspaces().map { it.mapToWorkspaceDto(false) }
 
     @PostMapping("shared-workspaces")
     suspend fun saveSharedWorkspace(@Valid @RequestBody request: SaveSharedWorkspaceRequestDto): WorkspaceDto =
-        mapWorkspaceDto(workspaceService.saveSharedWorkspace(request.token), false)
+        workspaceService.saveSharedWorkspace(request.token).mapToWorkspaceDto(false)
 }
 
 data class WorkspaceDto(
@@ -93,13 +93,12 @@ data class SaveSharedWorkspaceRequestDto(
     @field:NotBlank val token: String
 )
 
-private fun mapWorkspaceDto(source: Workspace, editable: Boolean): WorkspaceDto =
-    WorkspaceDto(
-        name = source.name,
-        id = source.id,
-        version = source.version!!,
-        taxEnabled = source.taxEnabled,
-        multiCurrencyEnabled = source.multiCurrencyEnabled,
-        defaultCurrency = source.defaultCurrency,
-        editable = editable
-    )
+private fun Workspace.mapToWorkspaceDto(editable: Boolean) = WorkspaceDto(
+    name = name,
+    id = id,
+    version = version!!,
+    taxEnabled = taxEnabled,
+    multiCurrencyEnabled = multiCurrencyEnabled,
+    defaultCurrency = defaultCurrency,
+    editable = editable
+)

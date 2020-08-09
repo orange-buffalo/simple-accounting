@@ -63,7 +63,6 @@ class AuthenticationApiController(
         @CookieValue("refreshToken", required = false) refreshToken: String?,
         authentication: Authentication?
     ): TokenResponse {
-
         val authenticatedAuth = when {
             authentication != null && authentication.isAuthenticated -> authentication
             refreshToken != null -> {
@@ -93,20 +92,18 @@ class AuthenticationApiController(
     private fun ResponseEntity.BodyBuilder.withRefreshTokenCookie(
         value: String?,
         maxAge: Duration
-    ): ResponseEntity.BodyBuilder {
-        return header(
-            HttpHeaders.SET_COOKIE,
-            ResponseCookie
-                .from("refreshToken", value ?: "")
-                .httpOnly(true)
-                .sameSite("Strict")
-                .path("/api/auth/token")
-                // todo #67: secure based on configuration
-                .maxAge(maxAge)
-                .build()
-                .toString()
-        )
-    }
+    ): ResponseEntity.BodyBuilder = header(
+        HttpHeaders.SET_COOKIE,
+        ResponseCookie
+            .from("refreshToken", value ?: "")
+            .httpOnly(true)
+            .sameSite("Strict")
+            .path("/api/auth/token")
+            // todo #67: secure based on configuration
+            .maxAge(maxAge)
+            .build()
+            .toString()
+    )
 }
 
 data class LoginRequest(

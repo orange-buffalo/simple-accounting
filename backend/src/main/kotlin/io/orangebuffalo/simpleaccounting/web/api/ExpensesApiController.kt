@@ -35,38 +35,36 @@ class ExpensesApiController(
     suspend fun createExpense(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditExpenseDto
-    ): ExpenseDto {
-        return expenseService
-            .saveExpense(
-                Expense(
-                    workspaceId = workspaceId,
-                    categoryId = request.category,
-                    title = request.title,
-                    timeRecorded = timeService.currentTime(),
-                    datePaid = request.datePaid,
-                    currency = request.currency,
-                    originalAmount = request.originalAmount,
-                    convertedAmounts = AmountsInDefaultCurrency(
-                        originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency,
-                        adjustedAmountInDefaultCurrency = null
-                    ),
-                    incomeTaxableAmounts = AmountsInDefaultCurrency(
-                        originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency,
-                        adjustedAmountInDefaultCurrency = null
-                    ),
-                    useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes,
-                    notes = request.notes,
-                    percentOnBusiness = request.percentOnBusiness ?: 100,
-                    attachments = toExpenseAttachments(request.attachments),
-                    generalTaxId = request.generalTax,
-                    status = ExpenseStatus.PENDING_CONVERSION
-                )
+    ): ExpenseDto = expenseService
+        .saveExpense(
+            Expense(
+                workspaceId = workspaceId,
+                categoryId = request.category,
+                title = request.title,
+                timeRecorded = timeService.currentTime(),
+                datePaid = request.datePaid,
+                currency = request.currency,
+                originalAmount = request.originalAmount,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency,
+                    adjustedAmountInDefaultCurrency = null
+                ),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency,
+                    adjustedAmountInDefaultCurrency = null
+                ),
+                useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes,
+                notes = request.notes,
+                percentOnBusiness = request.percentOnBusiness ?: 100,
+                attachments = toExpenseAttachments(request.attachments),
+                generalTaxId = request.generalTax,
+                status = ExpenseStatus.PENDING_CONVERSION
             )
-            .let(Expense::mapToExpenseDto)
-    }
+        )
+        .mapToExpenseDto()
 
     private fun toExpenseAttachments(documentIds: Collection<Long>?) =
-        documentIds?.asSequence()?.map { ExpenseAttachment(it) }?.toSet() ?: emptySet()
+        documentIds?.asSequence()?.map(::ExpenseAttachment)?.toSet() ?: emptySet()
 
     @GetMapping
     suspend fun getExpenses(@PathVariable workspaceId: Long): ApiPage<ExpenseDto> =
@@ -84,12 +82,12 @@ class ExpensesApiController(
     }
 
     @PutMapping("{expenseId}")
+    @Suppress("DuplicatedCode")
     suspend fun updateExpense(
         @PathVariable workspaceId: Long,
         @PathVariable expenseId: Long,
         @RequestBody @Valid request: EditExpenseDto
     ): ExpenseDto {
-
         workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
@@ -201,8 +199,7 @@ private fun Expense.mapToExpenseDto() = ExpenseDto(
     generalTaxRateInBps = generalTaxRateInBps
 )
 
-private fun AmountsInDefaultCurrency.mapToAmountsDto() =
-    ExpenseAmountsDto(
-        originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
-        adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency
-    )
+private fun AmountsInDefaultCurrency.mapToAmountsDto() = ExpenseAmountsDto(
+    originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
+    adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency
+)

@@ -21,8 +21,7 @@ class UsersApiController(
 ) {
 
     @GetMapping
-    suspend fun getUsers(): ApiPage<UserDto> =
-        filteringApiExecutor.executeFiltering()
+    suspend fun getUsers(): ApiPage<UserDto> = filteringApiExecutor.executeFiltering()
 
     @PostMapping
     suspend fun createUser(@RequestBody @Valid user: CreateUserDto): UserDto = userService
@@ -34,13 +33,13 @@ class UsersApiController(
                 i18nSettings = I18nSettings(locale = "en_AU", language = "en")
             )
         )
-        .let(::mapUserDto)
+        .mapToUserDto()
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<PlatformUser, UserDto> {
         query(Tables.PLATFORM_USER) {
             addDefaultSorting { root.id.desc() }
         }
-        mapper { mapUserDto(this) }
+        mapper { mapToUserDto() }
     }
 }
 
@@ -57,11 +56,9 @@ data class CreateUserDto(
     @field:NotBlank var password: String?
 )
 
-private fun mapUserDto(entity: PlatformUser): UserDto {
-    return UserDto(
-        userName = entity.userName,
-        id = entity.id,
-        version = entity.version!!,
-        admin = entity.isAdmin
-    )
-}
+private fun PlatformUser.mapToUserDto() = UserDto(
+    userName = userName,
+    id = id,
+    version = version!!,
+    admin = isAdmin
+)

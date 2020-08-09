@@ -44,10 +44,10 @@ class IncomeTaxPaymentsApiController(
                 title = request.title
             )
         )
-        .let(::mapIncomeTaxPaymentDto)
+        .mapToIncomeTaxPaymentDto()
 
     private fun mapAttachments(attachmentsIds: Collection<Long>?): Set<IncomeTaxPaymentAttachment> =
-        attachmentsIds?.asSequence()?.map { IncomeTaxPaymentAttachment(it) }?.toSet() ?: emptySet()
+        attachmentsIds?.asSequence()?.map(::IncomeTaxPaymentAttachment)?.toSet() ?: emptySet()
 
     @GetMapping
     suspend fun getTaxPayments(@PathVariable workspaceId: Long): ApiPage<IncomeTaxPaymentDto> =
@@ -61,7 +61,7 @@ class IncomeTaxPaymentsApiController(
         workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val taxPayment = taxPaymentService.getTaxPaymentByIdAndWorkspace(taxPaymentId, workspaceId)
             ?: throw EntityNotFoundException("Income Tax Payment $taxPaymentId is not found")
-        return mapIncomeTaxPaymentDto(taxPayment)
+        return taxPayment.mapToIncomeTaxPaymentDto()
     }
 
     @PutMapping("{taxPaymentId}")
@@ -70,7 +70,6 @@ class IncomeTaxPaymentsApiController(
         @PathVariable taxPaymentId: Long,
         @RequestBody @Valid request: EditIncomeTaxPaymentDto
     ): IncomeTaxPaymentDto {
-
         workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_WRITE)
 
         // todo #71: optimistic locking. etag?
@@ -86,12 +85,8 @@ class IncomeTaxPaymentsApiController(
                 amount = request.amount
                 title = request.title
             }
-            .let {
-                taxPaymentService.saveTaxPayment(it)
-            }
-            .let {
-                mapIncomeTaxPaymentDto(it)
-            }
+            .let { taxPaymentService.saveTaxPayment(it) }
+            .mapToIncomeTaxPaymentDto()
     }
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<IncomeTaxPayment, IncomeTaxPaymentDto> {
@@ -100,7 +95,7 @@ class IncomeTaxPaymentsApiController(
             addDefaultSorting { root.timeRecorded.asc() }
             workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
         }
-        mapper { mapIncomeTaxPaymentDto(this) }
+        mapper { mapToIncomeTaxPaymentDto() }
     }
 }
 
@@ -126,15 +121,14 @@ data class EditIncomeTaxPaymentDto(
     @field:NotBlank @field:Length(max = 255) val title: String
 )
 
-private fun mapIncomeTaxPaymentDto(source: IncomeTaxPayment) =
-    IncomeTaxPaymentDto(
-        id = source.id!!,
-        version = source.version!!,
-        timeRecorded = source.timeRecorded,
-        datePaid = source.datePaid,
-        reportingDate = source.reportingDate,
-        amount = source.amount,
-        attachments = source.attachments.map { it.documentId },
-        notes = source.notes,
-        title = source.title
-    )
+private fun IncomeTaxPayment.mapToIncomeTaxPaymentDto() = IncomeTaxPaymentDto(
+    id = id!!,
+    version = version!!,
+    timeRecorded = timeRecorded,
+    datePaid = datePaid,
+    reportingDate = reportingDate,
+    amount = amount,
+    attachments = attachments.map { it.documentId },
+    notes = notes,
+    title = title
+)

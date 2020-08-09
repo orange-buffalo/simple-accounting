@@ -68,10 +68,9 @@ class DocumentsApiController(
     suspend fun getDownloadToken(
         @PathVariable workspaceId: Long,
         @PathVariable documentId: Long
-    ): GetDownloadTokenResponse =
-        GetDownloadTokenResponse(
-            token = documentsService.getDownloadToken(workspaceId, documentId)
-        )
+    ): GetDownloadTokenResponse = GetDownloadTokenResponse(
+        token = documentsService.getDownloadToken(workspaceId, documentId)
+    )
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Document, DocumentDto> {
         query(Tables.DOCUMENT) {

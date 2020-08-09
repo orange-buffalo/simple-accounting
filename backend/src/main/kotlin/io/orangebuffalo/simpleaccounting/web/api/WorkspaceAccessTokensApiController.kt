@@ -30,12 +30,12 @@ class WorkspaceAccessTokensApiController(
         @RequestBody @Valid createTokenRequest: CreateWorkspaceAccessTokenDto
     ): WorkspaceAccessTokenDto {
         val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.ADMIN)
-        return mapToDto(
-            accessTokenService.createAccessToken(
+        return accessTokenService
+            .createAccessToken(
                 workspace,
                 createTokenRequest.validTill
             )
-        )
+            .mapToDto()
     }
 
     private val filteringApiExecutor = filteringApiExecutorBuilder
@@ -44,18 +44,17 @@ class WorkspaceAccessTokensApiController(
                 addDefaultSorting { root.id.desc() }
                 workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
             }
-            mapper { mapToDto(this) }
+            mapper { mapToDto() }
         }
 }
 
-private fun mapToDto(token: WorkspaceAccessToken) =
-    WorkspaceAccessTokenDto(
-        validTill = token.validTill,
-        revoked = token.revoked,
-        token = token.token,
-        id = token.id!!,
-        version = token.version!!
-    )
+private fun WorkspaceAccessToken.mapToDto() = WorkspaceAccessTokenDto(
+    validTill = validTill,
+    revoked = revoked,
+    token = token,
+    id = id!!,
+    version = version!!
+)
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class WorkspaceAccessTokenDto(

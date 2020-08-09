@@ -29,31 +29,33 @@ class IncomesApiController(
     suspend fun createIncome(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid request: EditIncomeDto
-    ): IncomeDto = incomeService.saveIncome(
-        Income(
-            workspaceId = workspaceId,
-            categoryId = request.category,
-            title = request.title,
-            timeRecorded = timeService.currentTime(),
-            dateReceived = request.dateReceived,
-            currency = request.currency,
-            originalAmount = request.originalAmount,
-            convertedAmounts = AmountsInDefaultCurrency(
-                originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency,
-                adjustedAmountInDefaultCurrency = null
-            ),
-            incomeTaxableAmounts = AmountsInDefaultCurrency(
-                originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency,
-                adjustedAmountInDefaultCurrency = null
-            ),
-            useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes,
-            notes = request.notes,
-            attachments = request.attachments.toIncomeAttachments(),
-            generalTaxId = request.generalTax,
-            status = IncomeStatus.PENDING_CONVERSION,
-            linkedInvoiceId = request.linkedInvoice
+    ): IncomeDto = incomeService
+        .saveIncome(
+            Income(
+                workspaceId = workspaceId,
+                categoryId = request.category,
+                title = request.title,
+                timeRecorded = timeService.currentTime(),
+                dateReceived = request.dateReceived,
+                currency = request.currency,
+                originalAmount = request.originalAmount,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = request.convertedAmountInDefaultCurrency,
+                    adjustedAmountInDefaultCurrency = null
+                ),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = request.incomeTaxableAmountInDefaultCurrency,
+                    adjustedAmountInDefaultCurrency = null
+                ),
+                useDifferentExchangeRateForIncomeTaxPurposes = request.useDifferentExchangeRateForIncomeTaxPurposes,
+                notes = request.notes,
+                attachments = request.attachments.toIncomeAttachments(),
+                generalTaxId = request.generalTax,
+                status = IncomeStatus.PENDING_CONVERSION,
+                linkedInvoiceId = request.linkedInvoice
+            )
         )
-    ).mapToIncomeDto()
+        .mapToIncomeDto()
 
     @GetMapping
     suspend fun getIncomes(@PathVariable workspaceId: Long): ApiPage<IncomeDto> =
@@ -71,12 +73,12 @@ class IncomesApiController(
     }
 
     @PutMapping("{incomeId}")
+    @Suppress("DuplicatedCode")
     suspend fun updateIncome(
         @PathVariable workspaceId: Long,
         @PathVariable incomeId: Long,
         @RequestBody @Valid request: EditIncomeDto
     ): IncomeDto {
-
         // todo #71: optimistic locking. etag?
         val income = incomeService.getIncomeByIdAndWorkspaceId(incomeId, workspaceId)
             ?: throw EntityNotFoundException("Income $incomeId is not found")
@@ -96,9 +98,7 @@ class IncomesApiController(
                 generalTaxId = request.generalTax
                 linkedInvoiceId = request.linkedInvoice
             }
-            .let {
-                incomeService.saveIncome(it)
-            }
+            .let { incomeService.saveIncome(it) }
             .mapToIncomeDto()
     }
 
@@ -172,32 +172,28 @@ data class EditIncomeDto(
 private fun List<Long>?.toIncomeAttachments(): Set<IncomeAttachment> =
     this?.asSequence()?.map(::IncomeAttachment)?.toSet() ?: emptySet()
 
-private fun Income.mapToIncomeDto(): IncomeDto {
-    return IncomeDto(
-        category = categoryId,
-        title = title,
-        dateReceived = dateReceived,
-        timeRecorded = timeRecorded,
-        currency = currency,
-        originalAmount = originalAmount,
-        convertedAmounts = convertedAmounts.mapToAmountsDto(),
-        attachments = attachments.map { it.documentId },
-        incomeTaxableAmounts = incomeTaxableAmounts.mapToAmountsDto(),
-        useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
-        notes = notes,
-        id = id!!,
-        version = version!!,
-        status = status,
-        linkedInvoice = linkedInvoiceId,
-        generalTax = generalTaxId,
-        generalTaxAmount = generalTaxAmount,
-        generalTaxRateInBps = generalTaxRateInBps
-    )
-}
+private fun Income.mapToIncomeDto(): IncomeDto = IncomeDto(
+    category = categoryId,
+    title = title,
+    dateReceived = dateReceived,
+    timeRecorded = timeRecorded,
+    currency = currency,
+    originalAmount = originalAmount,
+    convertedAmounts = convertedAmounts.mapToAmountsDto(),
+    attachments = attachments.map { it.documentId },
+    incomeTaxableAmounts = incomeTaxableAmounts.mapToAmountsDto(),
+    useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+    notes = notes,
+    id = id!!,
+    version = version!!,
+    status = status,
+    linkedInvoice = linkedInvoiceId,
+    generalTax = generalTaxId,
+    generalTaxAmount = generalTaxAmount,
+    generalTaxRateInBps = generalTaxRateInBps
+)
 
-private fun AmountsInDefaultCurrency.mapToAmountsDto() =
-    IncomeAmountsDto(
-        originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
-        adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency
-    )
-
+private fun AmountsInDefaultCurrency.mapToAmountsDto() = IncomeAmountsDto(
+    originalAmountInDefaultCurrency = originalAmountInDefaultCurrency,
+    adjustedAmountInDefaultCurrency = adjustedAmountInDefaultCurrency
+)

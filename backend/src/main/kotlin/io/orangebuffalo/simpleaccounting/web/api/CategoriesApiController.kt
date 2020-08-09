@@ -35,14 +35,14 @@ class CategoriesApiController(
                 description = createCategoryRequest.description
             )
         )
-        .let { mapCategoryDto(it) }
+        .mapToCategoryDto()
 
     private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Category, CategoryDto> {
         query(Tables.CATEGORY) {
             addDefaultSorting { root.id.desc() }
             workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
         }
-        mapper { mapCategoryDto(this) }
+        mapper { mapToCategoryDto() }
     }
 }
 
@@ -62,11 +62,11 @@ data class CreateCategoryDto(
     @field:NotNull var expense: Boolean
 )
 
-private fun mapCategoryDto(source: Category) = CategoryDto(
-    name = source.name,
-    id = source.id,
-    version = source.version!!,
-    description = source.description,
-    income = source.income,
-    expense = source.expense
+private fun Category.mapToCategoryDto() = CategoryDto(
+    name = name,
+    id = id,
+    version = version!!,
+    description = description,
+    income = income,
+    expense = expense
 )
