@@ -66,7 +66,9 @@ api.createCancelToken = function createCancelToken() {
 
 api.login = async function login(request) {
   cancelTokenRefresh();
-  const response = await api.post('/auth/login', request);
+  const response = await api.post('/auth/login', request, {
+    skipGlobalErrorHandler: true,
+  });
   updateApiToken(response.data.token);
   scheduleTokenRefresh();
 };
@@ -110,6 +112,7 @@ api.tryAutoLogin = async function tryAutoLogin() {
   try {
     const response = await api.post('/auth/token', {}, {
       withCredentials: true,
+      skipGlobalErrorHandler: true,
     });
 
     updateApiToken(response.data.token);
