@@ -10,7 +10,7 @@ kotlinDslPluginOptions {
     experimentalWarning.set(false)
 }
 
-val jooqVersion = "3.13.1"
+val jooqVersion = "3.13.4"
 
 dependencies {
     implementation("org.jooq:jooq-meta-extensions:$jooqVersion") {
