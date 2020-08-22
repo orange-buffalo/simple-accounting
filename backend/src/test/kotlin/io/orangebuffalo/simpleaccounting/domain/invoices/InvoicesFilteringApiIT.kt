@@ -1,10 +1,9 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.invoices
 
 import io.orangebuffalo.simpleaccounting.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Invoice
 import io.orangebuffalo.simpleaccounting.web.AbstractFilteringApiTest
 import io.orangebuffalo.simpleaccounting.web.generateFilteringApiTests
 
@@ -34,9 +33,7 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     val customer = save(Prototypes.customer(workspace = workspace))
                     Prototypes.invoice(
                         customer = customer,
-                        dateCancelled = null,
-                        datePaid = null,
-                        dateSent = null,
+                        status = InvoiceStatus.DRAFT,
                         dueDate = MOCK_DATE.plusDays(100)
                     )
                 }
@@ -120,6 +117,7 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     entity {
                         configure { invoice ->
                             invoice.title = "draft"
+                            invoice.status = InvoiceStatus.DRAFT
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -132,10 +130,8 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     entity {
                         configure { invoice ->
                             invoice.title = "cancelled"
-                            invoice.dateSent = MOCK_DATE
-                            invoice.datePaid = MOCK_DATE
+                            invoice.status = InvoiceStatus.CANCELLED
                             invoice.dueDate = MOCK_DATE.minusDays(100)
-                            invoice.dateCancelled = MOCK_DATE
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -148,7 +144,7 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     entity {
                         configure { invoice ->
                             invoice.title = "paid"
-                            invoice.datePaid = MOCK_DATE
+                            invoice.status = InvoiceStatus.PAID
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -161,7 +157,7 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     entity {
                         configure { invoice ->
                             invoice.title = "sent"
-                            invoice.dateSent = MOCK_DATE
+                            invoice.status = InvoiceStatus.SENT
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -174,8 +170,7 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     entity {
                         configure { invoice ->
                             invoice.title = "overdue"
-                            invoice.dateSent = MOCK_DATE
-                            invoice.dueDate = MOCK_DATE.minusDays(1)
+                            invoice.status = InvoiceStatus.OVERDUE
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)

@@ -42,3 +42,5 @@ inline fun <reified T : Any> T.kotlinHashCode(
         Objects.hash(*values)
     }
 }
+
+fun <T : Any> Optional<T>.toNullable(): T? = this.orElse(null)

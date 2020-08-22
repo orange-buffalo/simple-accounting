@@ -490,8 +490,6 @@ export default {
   },
 
   editInvoice: {
-    recordedOn: 'Recorded on {0, saDateTime, medium}',
-    cancelledOn: 'Cancelled on {0, date, medium}',
     cancelInvoice: {
       button: 'Cancel Invoice',
       confirm: {
@@ -499,6 +497,7 @@ export default {
         yes: 'Yes',
         no: 'No',
       },
+      status: 'This invoice has been cancelled',
     },
     pageHeader: {
       edit: 'Edit Invoice',
@@ -638,9 +637,6 @@ export default {
     },
     dateSent: {
       label: 'Date Sent',
-    },
-    dateCancelled: {
-      label: 'Date Cancelled',
     },
   },
 

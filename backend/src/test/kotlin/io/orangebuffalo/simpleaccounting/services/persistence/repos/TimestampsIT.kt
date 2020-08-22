@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.services.persistence.repos
 
 import io.orangebuffalo.simpleaccounting.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.Prototypes
+import io.orangebuffalo.simpleaccounting.domain.documents.DocumentRepository
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import org.assertj.core.api.Assertions.assertThat

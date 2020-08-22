@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.services.business
 import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.domain.invoices.InvoicesService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
@@ -42,7 +43,7 @@ internal class IncomeServiceTest {
     private lateinit var documentsService: DocumentsService
 
     @field:Mock
-    private lateinit var invoiceService: InvoiceService
+    private lateinit var invoicesService: InvoicesService
 
     @field:InjectMocks
     private lateinit var incomeService: IncomeService
@@ -353,7 +354,7 @@ internal class IncomeServiceTest {
 
     @Test
     fun `should validate invoice if provided`() {
-        invoiceService.stub {
+        invoicesService.stub {
             onBlocking {
                 getInvoiceByIdAndWorkspaceId(id = 100, workspaceId = workspace.id!!)
             } doReturn null
@@ -374,7 +375,7 @@ internal class IncomeServiceTest {
 
     @Test
     fun `should update invoice if provided`() {
-        invoiceService.stub {
+        invoicesService.stub {
             onBlocking {
                 getInvoiceByIdAndWorkspaceId(id = invoiceFromWorkspace.id!!, workspaceId = workspace.id!!)
             } doReturn invoiceFromWorkspace
@@ -392,7 +393,7 @@ internal class IncomeServiceTest {
             )
         }
 
-        verifyBlocking(invoiceService) {
+        verifyBlocking(invoicesService) {
             saveInvoice(argThat { datePaid == LocalDate.of(3000, 5, 13) }, eq(workspace.id!!))
             return@verifyBlocking
         }

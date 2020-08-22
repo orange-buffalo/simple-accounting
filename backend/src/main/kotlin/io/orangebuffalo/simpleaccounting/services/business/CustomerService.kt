@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundExce
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CustomerRepository
+import io.orangebuffalo.simpleaccounting.support.toNullable
 import org.springframework.stereotype.Service
 
 @Service
@@ -25,5 +26,9 @@ class CustomerService(
         if (!customerRepository.existsByIdAndWorkspaceId(customerId, workspaceId)) {
             throw EntityNotFoundException("Customer $customerId is not found")
         }
+    }
+
+    suspend fun findById(customerId: Long): Customer? = withDbContext {
+        customerRepository.findById(customerId).toNullable()
     }
 }

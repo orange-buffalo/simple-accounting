@@ -9,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.services.integration.downloads.Download
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadableContentProvider
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.DocumentRepository
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest

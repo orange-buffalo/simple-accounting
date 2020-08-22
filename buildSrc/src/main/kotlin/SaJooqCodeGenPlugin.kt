@@ -70,6 +70,7 @@ open class SaJooqCodeGenTask : DefaultTask() {
                     .withForcedTypes(
                         incomeStatusForcedType(),
                         expenseStatusForcedType(),
+                        invoiceStatusForcedType(),
                         // see below withJavaTimeTypes configuration
                         timestampForcedType(),
                         dateForcedType()
@@ -96,6 +97,11 @@ open class SaJooqCodeGenTask : DefaultTask() {
     private fun incomeStatusForcedType() = ForcedType()
         .withIncludeExpression("""INCOME\.STATUS""")
         .withUserType("io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus")
+        .withEnumConverter(true)
+
+    private fun invoiceStatusForcedType() = ForcedType()
+        .withIncludeExpression("""INVOICE\.STATUS""")
+        .withUserType("io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus")
         .withEnumConverter(true)
 
     private fun expenseStatusForcedType() = ForcedType()
