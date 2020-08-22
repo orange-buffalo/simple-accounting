@@ -135,7 +135,6 @@ Paid.story = storyshotsStory({
 export const Cancelled = createStory({
   invoice: {
     ...invoicePrototype,
-    dateCancelled: '2020-02-04',
     status: 'CANCELLED',
   },
 });

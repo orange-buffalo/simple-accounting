@@ -7,20 +7,20 @@
         v-if="isEditing"
         class="sa-header-options"
       >
-        <div>
-          <span v-if="!invoice.dateCancelled">{{ $t('editInvoice.recordedOn', [invoice.timeRecorded]) }}</span>
-          <span v-if="invoice.dateCancelled">{{ $t('editInvoice.cancelledOn', [invoice.dateCancelled]) }}</span>
-        </div>
-
-        <div>
-          <ElButton
-            v-if="!invoice.dateCancelled"
-            type="danger"
-            @click="cancelInvoice"
-          >
-            {{ $t('editInvoice.cancelInvoice.button') }}
-          </ElButton>
-        </div>
+        <span />
+        <ElButton
+          v-if="invoice.status !== 'CANCELLED'"
+          type="danger"
+          @click="cancelInvoice"
+        >
+          {{ $t('editInvoice.cancelInvoice.button') }}
+        </ElButton>
+        <SaStatusLabel
+          v-if="invoice.status === 'CANCELLED'"
+          status="failure"
+        >
+          {{ $t('editInvoice.cancelInvoice.status') }}
+        </SaStatusLabel>
       </div>
     </div>
 
@@ -209,6 +209,7 @@
   import useNavigation from '@/components/navigation/useNavigation';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
   import { useApiCrud } from '@/components/utils/api-utils';
+  import SaStatusLabel from '@/components/SaStatusLabel';
 
   function useInvoiceApi(invoice, uiState) {
     const {
@@ -228,7 +229,6 @@
         dateIssued: invoice.dateIssued,
         datePaid: uiState.alreadyPaid ? invoice.datePaid : null,
         dateSent: uiState.alreadySent ? invoice.dateSent : null,
-        dateCancelled: invoice.dateCancelled,
         dueDate: invoice.dueDate,
         title: invoice.title,
         currency: invoice.currency,
@@ -240,11 +240,11 @@
       await navigateToInvoicesOverview();
     };
 
+    const { currentWorkspaceId } = useCurrentWorkspace();
+
     const cancelInvoice = withLoadingProducer(async () => {
-      safeAssign(invoice, {
-        dateCancelled: api.dateToString(new Date()),
-      });
-      await saveInvoice(invoice.attachments);
+      const { data } = await api.post(`workspaces/${currentWorkspaceId}/invoices/${invoice.id}/cancel`);
+      safeAssign(invoice, data);
     });
 
     loadEntity((invoiceResponse) => {
@@ -310,6 +310,7 @@
 
   export default {
     components: {
+      SaStatusLabel,
       SaGeneralTaxInput,
       SaCustomerInput,
       SaCurrencyInput,
@@ -333,6 +334,7 @@
         id,
         attachments: [],
         dateIssued: new Date(),
+        currency: defaultCurrency,
       });
 
       const uiState = reactive({

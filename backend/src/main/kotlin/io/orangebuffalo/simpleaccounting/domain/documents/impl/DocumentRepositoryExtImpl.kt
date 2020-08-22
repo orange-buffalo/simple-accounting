@@ -1,7 +1,7 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
+package io.orangebuffalo.simpleaccounting.domain.documents.impl
 
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.DocumentRepositoryExt
+import io.orangebuffalo.simpleaccounting.domain.documents.DocumentRepositoryExt
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 

@@ -489,8 +489,6 @@ export default {
   },
 
   editInvoice: {
-    recordedOn: 'Записаних на {0, saDateTime, medium}',
-    cancelledOn: 'Скасовано на {0, date, medium}',
     cancelInvoice: {
       button: 'Скасувати Рахунок',
       confirm: {
@@ -498,6 +496,7 @@ export default {
         yes: 'Так',
         no: 'Немає',
       },
+      status: 'Цей разунок було відмінено',
     },
     pageHeader: {
       edit: 'Редагування Накладної',
@@ -637,9 +636,6 @@ export default {
     },
     dateSent: {
       label: 'Дата Відправки',
-    },
-    dateCancelled: {
-      label: 'Дата Скасування',
     },
   },
 

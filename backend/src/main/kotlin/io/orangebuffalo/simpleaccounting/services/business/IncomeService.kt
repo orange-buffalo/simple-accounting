@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.domain.invoices.InvoicesService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
@@ -18,7 +19,7 @@ class IncomeService(
     private val generalTaxService: GeneralTaxService,
     private val categoryService: CategoryService,
     private val documentsService: DocumentsService,
-    private val invoiceService: InvoiceService
+    private val invoicesService: InvoicesService
 ) {
     suspend fun saveIncome(income: Income): Income {
         val workspace = workspaceService.getAccessibleWorkspace(income.workspaceId, WorkspaceAccessMode.READ_WRITE)
@@ -59,11 +60,11 @@ class IncomeService(
     private suspend fun updateInvoiceIfLinked(income: Income) {
         val invoiceId = income.linkedInvoiceId ?: return
 
-        val invoice = invoiceService.getInvoiceByIdAndWorkspaceId(id = invoiceId, workspaceId = income.workspaceId)
+        val invoice = invoicesService.getInvoiceByIdAndWorkspaceId(id = invoiceId, workspaceId = income.workspaceId)
             ?: throw EntityNotFoundException("Invoice $invoiceId is not found")
 
         invoice.datePaid = income.dateReceived
-        invoiceService.saveInvoice(invoice, income.workspaceId)
+        invoicesService.saveInvoice(invoice, income.workspaceId)
     }
 
     private suspend fun getGeneralTax(income: Income): GeneralTax? =

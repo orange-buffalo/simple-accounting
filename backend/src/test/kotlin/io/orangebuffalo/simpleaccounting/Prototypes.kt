@@ -1,6 +1,9 @@
 package io.orangebuffalo.simpleaccounting
 
 import io.orangebuffalo.simpleaccounting.domain.documents.Document
+import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
+import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceAttachment
+import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import java.time.Instant
 import java.time.LocalDate
@@ -253,13 +256,14 @@ class Prototypes {
             dateIssued: LocalDate = MOCK_DATE,
             dateSent: LocalDate? = null,
             datePaid: LocalDate? = null,
-            dateCancelled: LocalDate? = null,
+            timeCancelled: Instant? = null,
             dueDate: LocalDate = MOCK_DATE,
             currency: String = "USD",
             amount: Long = 100,
             attachments: Set<Document> = setOf(),
             notes: String? = null,
-            generalTax: GeneralTax? = null
+            generalTax: GeneralTax? = null,
+            status: InvoiceStatus = InvoiceStatus.DRAFT
         ): Invoice = Invoice(
             customerId = customer.id!!,
             title = title,
@@ -267,13 +271,16 @@ class Prototypes {
             dateIssued = dateIssued,
             dateSent = dateSent,
             datePaid = datePaid,
-            dateCancelled = dateCancelled,
+            timeCancelled = timeCancelled,
             dueDate = dueDate,
             currency = currency,
             amount = amount,
-            attachments = attachments.asSequence().map { document -> InvoiceAttachment(document.id!!) }.toSet(),
+            attachments = attachments.asSequence().map { document ->
+                InvoiceAttachment(document.id!!)
+            }.toSet(),
             notes = notes,
-            generalTaxId = generalTax?.id
+            generalTaxId = generalTax?.id,
+            status = status
         ).apply {
             id = currentEntityId++
             version = 0

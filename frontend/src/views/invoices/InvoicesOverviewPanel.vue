@@ -146,7 +146,7 @@
         </div>
 
         <div
-          v-if="invoice.dateSent || invoice.dateCancelled || invoice.datePaid"
+          v-if="invoice.dateSent || invoice.datePaid"
           class="row"
         >
           <OverviewItemDetailsSectionAttribute
@@ -155,14 +155,6 @@
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t('common.date.medium', [invoice.dateSent]) }}
-          </OverviewItemDetailsSectionAttribute>
-
-          <OverviewItemDetailsSectionAttribute
-            v-if="invoice.dateCancelled"
-            :label="$t('invoicesOverviewPanel.dateCancelled.label')"
-            class="col col-xs-12 col-md-6 col-lg-4"
-          >
-            {{ $t('common.date.medium', [invoice.dateCancelled]) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute

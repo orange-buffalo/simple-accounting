@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.invoices
 
 import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
@@ -56,13 +56,12 @@ internal class InvoicesApiControllerIT(
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: ${testData.firstSpaceInvoice.id},
                             version: 0,
-                            dateCancelled: "3000-01-02",
                             dateIssued: "3000-01-01",
                             datePaid: "3000-01-04",
                             dateSent: "3000-01-03",
                             dueDate: "3000-01-05",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "CANCELLED",
+                            status: "DRAFT",
                             notes: "space notes",
                             generalTax: ${testData.planetExpressTax.id}
                     }"""
@@ -189,7 +188,6 @@ internal class InvoicesApiControllerIT(
                     "currency": "TGF",
                     "amount": 400,
                     "attachments": [${testData.spaceDeliveryInvoicePrint.id}],
-                    "dateCancelled": "3000-02-02",
                     "dateIssued": "3000-02-01",
                     "datePaid": "3000-02-04",
                     "dateSent": "3000-02-03",
@@ -209,13 +207,12 @@ internal class InvoicesApiControllerIT(
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: "#{json-unit.any-number}",
                             version: 0,
-                            dateCancelled: "3000-02-02",
                             dateIssued: "3000-02-01",
                             datePaid: "3000-02-04",
                             dateSent: "3000-02-03",
                             dueDate: "3000-02-05",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "CANCELLED",
+                            status: "PAID",
                             notes: "new space notes",
                             generalTax: ${testData.planetExpressTax.id}
                         }"""
@@ -404,7 +401,6 @@ internal class InvoicesApiControllerIT(
                     "currency": "TGF",
                     "amount": 400,
                     "attachments": [${testData.spaceDeliveryInvoicePrint.id}],
-                    "dateCancelled": "3000-02-02",
                     "dateIssued": "3000-02-01",
                     "datePaid": "3000-02-04",
                     "dateSent": "3000-02-03",
@@ -424,13 +420,12 @@ internal class InvoicesApiControllerIT(
                             attachments: [${testData.spaceDeliveryInvoicePrint.id}],
                             id: ${testData.secondSpaceInvoice.id},
                             version: 1,
-                            dateCancelled: "3000-02-02",
                             dateIssued: "3000-02-01",
                             datePaid: "3000-02-04",
                             dateSent: "3000-02-03",
                             dueDate: "3000-02-05",
                             timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "CANCELLED",
+                            status: "PAID",
                             notes: "new space notes",
                             generalTax: ${testData.planetExpressTax.id}
                         }"""
@@ -616,6 +611,65 @@ internal class InvoicesApiControllerIT(
             .verifyNotFound("Documents [${testData.pizzaDeliveryInvoicePrint.id}] are not found")
     }
 
+    @Test
+    @WithMockFarnsworthUser
+    fun `should fail with 404 on invoice cancellation when workspace belongs to another user`(testData: InvoicesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}/cancel")
+            .sendJson(testData.simpleInvoice())
+            .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should fail with 404 on invoice cancellation when invoice belongs to another workspace`(testData: InvoicesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.pizzaInvoice.id}/cancel")
+            .sendJson(testData.simpleInvoice())
+            .verifyNotFound("Invoice ${testData.pizzaInvoice.id} is not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should fail with 404 on invoice cancellation when invoice does not exist`(testData: InvoicesApiTestData) {
+        client.post()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/5566/cancel")
+            .sendJson(testData.simpleInvoice())
+            .verifyNotFound("Invoice 5566 is not found")
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should cancel invoice of current user`(testData: InvoicesApiTestData) {
+        mockCurrentDate(timeService)
+
+        client.post()
+            .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}/cancel")
+            .verifyOkAndJsonBody {
+                isEqualTo(
+                    json(
+                        """{
+                            customer: ${testData.spaceCustomer.id},
+                            title: "first space invoice",
+                            currency: "THF",
+                            amount: 60,
+                            attachments: [${testData.spaceDeliveryInvoicePrint.id}],
+                            id: ${testData.firstSpaceInvoice.id},
+                            version: 1,
+                            dateIssued: "3000-01-01",
+                            datePaid: "3000-01-04",
+                            dateSent: "3000-01-03",
+                            dueDate: "3000-01-05",
+                            timeRecorded: "$MOCK_TIME_VALUE",
+                            status: "CANCELLED",
+                            notes: "space notes",
+                            generalTax: ${testData.planetExpressTax.id}
+                        }"""
+                    )
+                )
+            }
+    }
+
     class InvoicesApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
@@ -638,7 +692,6 @@ internal class InvoicesApiControllerIT(
             currency = "THF",
             amount = 50,
             dateIssued = LocalDate.of(1999, 12, 20),
-            dateCancelled = LocalDate.of(1999, 12, 21),
             dateSent = LocalDate.of(1999, 12, 22),
             datePaid = LocalDate.of(1999, 12, 23),
             dueDate = LocalDate.of(1999, 12, 24)
@@ -650,7 +703,6 @@ internal class InvoicesApiControllerIT(
             currency = "THF",
             amount = 60,
             dateIssued = LocalDate.of(3000, 1, 1),
-            dateCancelled = LocalDate.of(3000, 1, 2),
             dateSent = LocalDate.of(3000, 1, 3),
             datePaid = LocalDate.of(3000, 1, 4),
             dueDate = LocalDate.of(3000, 1, 5),
