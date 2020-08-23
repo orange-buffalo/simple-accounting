@@ -1,11 +1,11 @@
 import { action } from '@storybook/addon-actions';
 import SaInvoiceSelect from '@/components/invoice/SaInvoiceSelect';
 import { onGetToWorkspacePath, apiPage } from '../utils/stories-api-mocks';
-import { setViewportHeight, storyshotsStory, timeout } from '../utils/stories-utils';
+import { setViewportHeight, timeout } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Components|SaInvoiceSelect',
+  title: 'Components/SaInvoiceSelect',
 };
 
 async function toggleSelectInStoryshots(page) {
@@ -15,12 +15,14 @@ async function toggleSelectInStoryshots(page) {
 }
 
 export const Empty = createStory();
-Empty.story = storyshotsStory({
-  async setup(page) {
-    await toggleSelectInStoryshots(page);
-    await setViewportHeight(page, 500);
+Empty.parameters = {
+  storyshots: {
+    async setup(page) {
+      await toggleSelectInStoryshots(page);
+      await setViewportHeight(page, 500);
+    },
   },
-});
+};
 
 export const PreSelected = createStory({
   data() {
@@ -29,12 +31,14 @@ export const PreSelected = createStory({
     };
   },
 });
-PreSelected.story = storyshotsStory({
-  async setup(page) {
-    await toggleSelectInStoryshots(page);
-    await setViewportHeight(page, 500);
+PreSelected.parameters = {
+  storyshots: {
+    async setup(page) {
+      await toggleSelectInStoryshots(page);
+      await setViewportHeight(page, 500);
+    },
   },
-});
+};
 
 function createStory(componentSpec) {
   return () => ({

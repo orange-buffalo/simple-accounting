@@ -58,7 +58,7 @@ function mockApiResources() {
 }
 
 export default {
-  title: 'Pages|Invoices/EditInvoice',
+  title: 'Pages/Invoices/EditInvoice',
   parameters: {
     fullWidth: true,
     storyshots: {

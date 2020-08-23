@@ -1,11 +1,6 @@
 import IncomesOverviewPanel from '@/views/incomes/IncomesOverviewPanel';
 import { apiPage, onGetToWorkspacePath } from '../../utils/stories-api-mocks';
-import {
-  pauseAndResetOutputLoaderAnimation,
-  setViewportHeight,
-  storyshotsStory,
-  timeout,
-} from '../../utils/stories-utils';
+import { pauseAndResetOutputLoaderAnimation, setViewportHeight, timeout } from '../../utils/stories-utils';
 
 const incomePrototype = {
   title: 'Payment 343',
@@ -43,7 +38,7 @@ async function togglePanelInStoryshots(page) {
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Pages|Incomes/IncomesOverviewPanel',
+  title: 'Pages/Incomes/IncomesOverviewPanel',
   parameters: {
     fullWidth: true,
   },
@@ -68,12 +63,14 @@ export const WithInvoice = () => ({
       });
   },
 });
-WithInvoice.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 600);
+WithInvoice.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 600);
+    },
   },
-});
+};
 
 export const WithLoadingInvoice = () => ({
   components: { IncomesOverviewPanel },
@@ -92,13 +89,15 @@ export const WithLoadingInvoice = () => ({
       .neverEndingRequest();
   },
 });
-WithLoadingInvoice.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await pauseAndResetOutputLoaderAnimation(page);
-    await setViewportHeight(page, 600);
+WithLoadingInvoice.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await pauseAndResetOutputLoaderAnimation(page);
+      await setViewportHeight(page, 600);
+    },
   },
-});
+};
 
 export const Finalized = () => ({
   components: { IncomesOverviewPanel },
@@ -112,12 +111,14 @@ export const Finalized = () => ({
     mockTaxesAndCategories();
   },
 });
-Finalized.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 600);
+Finalized.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 600);
+    },
   },
-});
+};
 
 export const PendingConversion = () => ({
   components: { IncomesOverviewPanel },
@@ -137,12 +138,14 @@ export const PendingConversion = () => ({
     mockTaxesAndCategories();
   },
 });
-PendingConversion.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 600);
+PendingConversion.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 600);
+    },
   },
-});
+};
 
 export const PendingConversionForTaxation = () => ({
   components: { IncomesOverviewPanel },
@@ -166,9 +169,11 @@ export const PendingConversionForTaxation = () => ({
     mockTaxesAndCategories();
   },
 });
-PendingConversionForTaxation.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 600);
+PendingConversionForTaxation.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 600);
+    },
   },
-});
+};

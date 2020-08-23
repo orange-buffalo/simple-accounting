@@ -3,11 +3,11 @@ import pushNotifications from '@/services/push-notifications';
 import SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback
   from '../components/SaGoogleDriveIntegrationSetupStoriesAuthorizationCallback';
 import { onGet } from '../utils/stories-api-mocks';
-import { NO_STORYSHOTS_STORY, removeSvgAnimations, storyshotsStory } from '../utils/stories-utils';
+import { removeSvgAnimations } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Components|SaGoogleDriveIntegrationSetup',
+  title: 'Components/SaGoogleDriveIntegrationSetup',
 };
 
 export const InitialLoading = () => ({
@@ -18,11 +18,13 @@ export const InitialLoading = () => ({
       .neverEndingRequest();
   },
 });
-InitialLoading.story = storyshotsStory({
-  async setup(page) {
-    await removeSvgAnimations(page);
+InitialLoading.parameters = {
+  storyshots: {
+    async setup(page) {
+      await removeSvgAnimations(page);
+    },
   },
-});
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const ActiveIntegration = () => ({
@@ -83,4 +85,6 @@ export const AuthorizationCallbacks = () => ({
       });
   },
 });
-AuthorizationCallbacks.story = NO_STORYSHOTS_STORY;
+AuthorizationCallbacks.parameters = {
+  storyshots: false,
+};

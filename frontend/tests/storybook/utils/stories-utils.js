@@ -45,22 +45,6 @@ export async function removeSvgAnimations(page) {
   }
 }
 
-export const NO_STORYSHOTS_STORY = {
-  parameters: {
-    storyshots: false,
-  },
-};
-
-export function storyshotsStory(storyshotsConfig) {
-  return {
-    parameters: {
-      storyshots: {
-        ...storyshotsConfig,
-      },
-    },
-  };
-}
-
 export async function setViewportHeight(page, height) {
   await page.setViewport({
     width: 1200,

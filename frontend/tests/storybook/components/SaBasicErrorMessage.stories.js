@@ -1,7 +1,7 @@
 import SaBasicErrorMessage from '@/components/SaBasicErrorMessage';
 
 export default {
-  title: 'Components|SaBasicErrorMessage',
+  title: 'Components/SaBasicErrorMessage',
 };
 
 export const Default = () => ({
