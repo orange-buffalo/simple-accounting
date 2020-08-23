@@ -76,7 +76,7 @@
             documentsLoading.value = false;
           }
         }
-      });
+      }, { immediate: true });
 
       return {
         documents,

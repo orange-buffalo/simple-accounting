@@ -179,7 +179,7 @@
       } else {
         loadSelectedValue(newValue);
       }
-    }, { lazy: false });
+    }, { immediate: true });
 
     watch(selectedValue, (newValue) => {
       if (newValue === null) {
@@ -188,7 +188,7 @@
         knownSelectedValues.push(newValue);
         emit('input', newValue.id);
       }
-    }, { lazy: true });
+    }, { immediate: false });
 
     return {
       selectedValue,
@@ -213,7 +213,7 @@
       if (!searchRequestState.value.error) {
         availableValues.value = data;
       }
-    }, { lazy: true });
+    }, { immediate: false });
 
     return {
       availableValues,

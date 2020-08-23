@@ -147,7 +147,7 @@
         if (form.password || form.userName) {
           uiState.loginError = null;
         }
-      });
+      }, { immediate: true });
 
       const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
 
