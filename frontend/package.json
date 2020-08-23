@@ -42,8 +42,8 @@
     "vuex": "^3.5.1"
   },
   "devDependencies": {
-    "@pollyjs/adapter-xhr": "^4.3.0",
-    "@pollyjs/core": "^4.3.0",
+    "@pollyjs/adapter-xhr": "^5.0.0",
+    "@pollyjs/core": "^5.0.0",
     "@storybook/addon-actions": "^6.0",
     "@storybook/addon-links": "^6.0",
     "@storybook/addon-storyshots": "^6.0",
