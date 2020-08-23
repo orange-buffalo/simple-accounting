@@ -30,7 +30,7 @@
     "jwt-decode": "^2.2.0",
     "lockr": "^0.8.5",
     "lodash": "^4.17.20",
-    "marked": "^0.8.2",
+    "marked": "^1.1.1",
     "messageformat": "^2.3.0",
     "qs": "^6.9.4",
     "text-mask-addons": "^3.8.0",
