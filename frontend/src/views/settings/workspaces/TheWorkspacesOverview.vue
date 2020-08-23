@@ -41,9 +41,9 @@
 
 <script>
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
   import { api } from '@/services/api';
   import SaIcon from '@/components/SaIcon';
+  import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
 
   export default {
     name: 'TheWorkspacesOverview',
@@ -63,7 +63,7 @@
 
     computed: {
       ownOtherWorkspaces() {
-        return this.workspaces.filter(it => it.id !== this.currentWorkspace.id);
+        return this.workspaces.filter((it) => it.id !== this.currentWorkspace.id);
       },
 
       hasOtherOwnWorkspaces() {

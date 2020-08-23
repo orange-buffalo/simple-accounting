@@ -7,7 +7,7 @@ export default function useCategories() {
   const categories = ref([]);
   const categoriesLoaded = ref(false);
 
-  const categoryById = computed(() => categoryId => findByIdOrEmpty(categories.value, categoryId));
+  const categoryById = computed(() => (categoryId) => findByIdOrEmpty(categories.value, categoryId));
   const { currentWorkspaceApiUrl } = useCurrentWorkspace();
 
   const loadCategories = async function loadCategories() {

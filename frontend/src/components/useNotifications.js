@@ -26,12 +26,11 @@ function showNotification({ message, type }) {
         },
       }),
       createElement('span', {
-          class: {
-            'sa-notification__content__text': true,
-          },
+        class: {
+          'sa-notification__content__text': true,
         },
-        message,
-      ),
+      },
+      message),
     ],
   );
 
@@ -39,7 +38,7 @@ function showNotification({ message, type }) {
     showClose: true,
     message: content,
     duration: 0,
-    iconClass: `sa-notification__icon`,
+    iconClass: 'sa-notification__icon',
     customClass: `sa-notification--${type.notificationClass}`,
   });
 }

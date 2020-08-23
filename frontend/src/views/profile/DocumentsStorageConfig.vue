@@ -16,9 +16,18 @@
     name: 'DocumentsStorageConfig',
 
     props: {
-      storageName: String,
-      storageId: String,
-      userDocumentsStorage: String,
+      storageName: {
+        type: String,
+        default: null,
+      },
+      storageId: {
+        type: String,
+        default: null,
+      },
+      userDocumentsStorage: {
+        type: String,
+        default: null,
+      },
     },
 
     data() {
@@ -29,16 +38,16 @@
 
     watch: {
       userDocumentsStorage() {
-        this._setEnabled();
+        this.setEnabled();
       },
     },
 
     created() {
-      this._setEnabled();
+      this.setEnabled();
     },
 
     methods: {
-      _setEnabled() {
+      setEnabled() {
         this.enabled = this.storageId === this.userDocumentsStorage;
       },
 

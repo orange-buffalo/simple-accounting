@@ -5,10 +5,10 @@
       :data="data"
     >
       <ElTableColumn
+        #default="{row: item}"
         align="left"
         header-align="left"
         label="Tax"
-        #default="{row: item}"
       >
         <SaGeneralTaxOutput :general-tax-id="item.taxId" />
       </ElTableColumn>

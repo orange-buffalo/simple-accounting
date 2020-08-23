@@ -80,13 +80,13 @@
         const finalizedTaxes = collected ? this.report.finalizedCollectedTaxes : this.report.finalizedPaidTaxes;
         const pendingTaxes = collected ? this.report.pendingCollectedTaxes : this.report.pendingPaidTaxes;
 
-        let taxes = finalizedTaxes.map(tax => ({
+        let taxes = finalizedTaxes.map((tax) => ({
           ...tax,
           finalized: true,
           taxId: tax.tax,
         }));
 
-        taxes = taxes.concat(pendingTaxes.map(tax => ({
+        taxes = taxes.concat(pendingTaxes.map((tax) => ({
           ...tax,
           finalized: false,
           taxId: tax.tax,
@@ -96,7 +96,7 @@
       },
 
       $getTotalAmount(taxes) {
-        return taxes.map(tax => tax.taxAmount)
+        return taxes.map((tax) => tax.taxAmount)
           .reduce((it, sum) => sum + it, 0);
       },
     },

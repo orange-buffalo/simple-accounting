@@ -20,8 +20,8 @@
 
     <DataItems
       ref="taxesList"
-      :api-path="`/workspaces/${currentWorkspace.id}/general-taxes`"
       #default="{item: tax}"
+      :api-path="`/workspaces/${currentWorkspace.id}/general-taxes`"
     >
       <GeneralTaxOverviewPanel :tax="tax" />
     </DataItems>
@@ -30,9 +30,9 @@
 
 <script>
   import DataItems from '@/components/DataItems';
-  import GeneralTaxOverviewPanel from './GeneralTaxOverviewPanel';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
+  import GeneralTaxOverviewPanel from './GeneralTaxOverviewPanel';
 
   export default {
     name: 'GeneralTaxesOverview',

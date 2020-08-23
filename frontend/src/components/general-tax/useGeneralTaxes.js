@@ -7,7 +7,7 @@ export default function useGeneralTaxes() {
   const generalTaxes = ref([]);
   const generalTaxesLoaded = ref(false);
 
-  const generalTaxById = computed(() => taxId => findByIdOrEmpty(generalTaxes.value, taxId));
+  const generalTaxById = computed(() => (taxId) => findByIdOrEmpty(generalTaxes.value, taxId));
   const { currentWorkspaceApiUrl } = useCurrentWorkspace();
 
   const loadGeneralTaxes = async function loadGeneralTaxes() {

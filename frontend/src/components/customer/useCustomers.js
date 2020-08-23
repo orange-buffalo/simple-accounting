@@ -7,7 +7,7 @@ export default function useCustomers() {
   const customers = ref([]);
   const customersLoaded = ref(false);
 
-  const customerById = computed(() => customerId => findByIdOrEmpty(customers.value, customerId));
+  const customerById = computed(() => (customerId) => findByIdOrEmpty(customers.value, customerId));
   const { currentWorkspaceApiUrl } = useCurrentWorkspace();
 
   const loadCustomers = async function loadCustomers() {

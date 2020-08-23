@@ -51,9 +51,7 @@
 </template>
 
 <script>
-
-  import { mapMutations } from 'vuex';
-  import api from '@/services/api';
+  import { api } from '@/services/api';
 
   export default {
     name: 'CreateUser',
@@ -101,7 +99,7 @@
                 password: this.form.password,
                 admin: this.form.admin,
               })
-              .then((response) => {
+              .then(() => {
                 this.$router.push('/users');
               });
           }

@@ -44,8 +44,10 @@
             >&nbsp;</span>
           </template>
 
-          <div class="home-page__row__hero__header__loader"
-               v-else>
+          <div
+            v-else
+            class="home-page__row__hero__header__loader"
+          >
             <i class="el-icon-loading" />
           </div>
         </div>
@@ -92,8 +94,10 @@
             >&nbsp;</span>
           </template>
 
-          <div class="home-page__row__hero__header__loader"
-               v-else>
+          <div
+            v-else
+            class="home-page__row__hero__header__loader"
+          >
             <i class="el-icon-loading" />
           </div>
         </div>
@@ -132,8 +136,10 @@
             <span class="home-page__row__hero__header__pending">&nbsp;</span>
           </template>
 
-          <div class="home-page__row__hero__header__loader"
-               v-else>
+          <div
+            v-else
+            class="home-page__row__hero__header__loader"
+          >
             <i class="el-icon-loading" />
           </div>
         </div>
@@ -318,7 +324,7 @@
           now,
         ];
       } else {
-        this.selectedDateRange = selectedDateRange.map(it => new Date(it));
+        this.selectedDateRange = selectedDateRange.map((it) => new Date(it));
       }
 
       this.reload();
@@ -334,23 +340,23 @@
         api.get(`/workspaces/${this.currentWorkspace.id}/statistics/expenses`
           + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
           + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-          .then(response => this.expenses = response.data);
+          .then((response) => this.expenses = response.data);
 
         api.get(`/workspaces/${this.currentWorkspace.id}/statistics/incomes`
           + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
           + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-          .then(response => this.incomes = response.data);
+          .then((response) => this.incomes = response.data);
 
         api.get(`/workspaces/${this.currentWorkspace.id}/statistics/income-tax-payments`
           + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
           + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-          .then(response => this.incomeTaxPayments = response.data);
+          .then((response) => this.incomeTaxPayments = response.data);
 
         api.pageRequest(`/workspaces/${this.currentWorkspace.id}/invoices`)
           .eager()
           .inFilter('status', ['SENT', 'OVERDUE'])
           .getPageData()
-          .then(invoices => this.pendingInvoices = invoices);
+          .then((invoices) => this.pendingInvoices = invoices);
       },
     },
   };

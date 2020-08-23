@@ -9,8 +9,8 @@ describe('i18n', () => {
 
   it('should provide same keys for all languages', async () => {
     const bundles = await Promise.all(i18n.getSupportedLanguages()
-      .map(language => import(`@/i18n/t9n/${language.languageCode}`)
-        .then(module => ({
+      .map((language) => import(`@/i18n/t9n/${language.languageCode}`)
+        .then((module) => ({
           messages: module.default,
           language: language.languageCode,
         }))));

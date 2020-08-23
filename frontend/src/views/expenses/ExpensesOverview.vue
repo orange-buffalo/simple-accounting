@@ -33,9 +33,9 @@
     </div>
 
     <DataItems
+      #default="{item: expense}"
       :api-path="`/workspaces/${currentWorkspace.id}/expenses`"
       :filters="apiFilters"
-      #default="{item: expense}"
     >
       <ExpensesOverviewPanel :expense="expense" />
     </DataItems>

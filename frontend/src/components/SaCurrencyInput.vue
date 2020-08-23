@@ -93,7 +93,7 @@
       const currenciesShortlistResponse = await api
         .get(`/workspaces/${this.currentWorkspace.id}/statistics/currencies-shortlist`);
       this.currenciesShortlist = currenciesShortlistResponse.data
-        .map(currencyCode => this.currencies[currencyCode]);
+        .map((currencyCode) => this.currencies[currencyCode]);
     },
   };
 </script>
