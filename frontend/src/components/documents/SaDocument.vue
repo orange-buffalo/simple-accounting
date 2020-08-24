@@ -122,7 +122,7 @@
       const documentTypeIcon = ref('');
       watch(() => props.documentName, (documentName) => {
         documentTypeIcon.value = getDocumentTypeIcon(documentName);
-      });
+      }, { immediate: true });
 
       const onRemove = () => emit('removed');
 

@@ -22,6 +22,6 @@ export function lookupClosestLocale(requestedLocale, availableLocales) {
 
 export async function loadCldrData(locale) {
   const { default: localeCldrData } = await
-    import(/* webpackChunkName: "[request]" */ `@/i18n/l10n/locale-${locale}.json`);
+  import(/* webpackChunkName: "[request]" */ `@/i18n/l10n/locale-${locale}.json`);
   return [...baseCldrData, ...localeCldrData];
 }

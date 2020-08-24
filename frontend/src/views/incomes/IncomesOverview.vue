@@ -33,9 +33,9 @@
     </div>
 
     <DataItems
+      #default="{item: income}"
       :api-path="`/workspaces/${currentWorkspace.id}/incomes`"
       :filters="apiFilters"
-      #default="{item: income}"
     >
       <IncomesOverviewPanel :income="income" />
     </DataItems>

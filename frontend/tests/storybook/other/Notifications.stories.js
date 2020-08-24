@@ -1,9 +1,9 @@
 import useNotifications from '@/components/useNotifications';
-import { storyshotsStory, timeout } from '../utils/stories-utils';
+import { timeout } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Other|Notifications',
+  title: 'Other/Notifications',
 };
 
 export const Error = () => ({
@@ -22,8 +22,10 @@ export const Error = () => ({
     this.showNotification();
   },
 });
-Error.story = storyshotsStory({
-  async setup() {
-    await timeout(1200);
+Error.parameters = {
+  storyshots: {
+    async setup() {
+      await timeout(1200);
+    },
   },
-});
+};

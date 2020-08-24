@@ -1,17 +1,17 @@
 import OAuthCallbackPage from '@/views/auth/OAuthCallbackPage';
 import { onPost } from '../utils/stories-api-mocks';
-import { removeSvgAnimations, setViewportHeight, storyshotsStory } from '../utils/stories-utils';
+import { removeSvgAnimations, setViewportHeight } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Pages|OAuthCallbackPage',
+  title: 'Pages/OAuthCallbackPage',
   parameters: {
     fullWidth: true,
-    ...storyshotsStory({
+    storyshots: {
       async setup(page) {
         await setViewportHeight(page, 400);
       },
-    }),
+    },
   },
 };
 
@@ -23,12 +23,14 @@ export const Loading = () => ({
       .neverEndingRequest();
   },
 });
-Loading.story = storyshotsStory({
-  async setup(page) {
-    await removeSvgAnimations(page);
-    await setViewportHeight(page, 400);
+Loading.parameters = {
+  storyshots: {
+    async setup(page) {
+      await removeSvgAnimations(page);
+      await setViewportHeight(page, 400);
+    },
   },
-});
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const Success = () => ({

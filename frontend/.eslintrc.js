@@ -16,10 +16,10 @@ module.exports = {
     'vue/component-name-in-template-casing': ['error', 'PascalCase', {
       registeredComponentsOnly: false,
     }],
-    'no-use-before-define': ['error', { 'functions': false }],
+    'no-use-before-define': ['error', { functions: false }],
     // the two following configs are a workaround for https://github.com/babel/babel-eslint/issues/530
     'template-curly-spacing': 'off',
-    'indent': [
+    indent: [
       'error', 2,
       { ignoredNodes: ['TemplateLiteral'] },
     ],

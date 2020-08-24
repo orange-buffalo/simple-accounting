@@ -319,7 +319,7 @@
         status.statusValue = 'failure';
         status.statusText = i18n.t('invoicesOverviewPanel.status.overdue');
       }
-    });
+    }, { immediate: true });
     return { ...toRefs(status) };
   }
 

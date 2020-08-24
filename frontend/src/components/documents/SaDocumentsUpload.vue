@@ -119,7 +119,7 @@
       }));
 
       addEmptyDocumentAggregateIfNecessary();
-    }, { lazy: true });
+    }, { immediate: false });
 
     watch(() => props.documentsIds, async () => {
       if (!props.documentsIds.length) {
@@ -172,7 +172,7 @@
       if (props.documentsIds.length) {
         await loadDocuments();
       }
-    }, { lazy: false });
+    }, { immediate: true });
 
     return {
       documents,
@@ -184,7 +184,7 @@
     const documentsReassigned = ref(false);
     watch(() => props.documentsIds, () => {
       documentsReassigned.value = true;
-    }, { lazy: true });
+    }, { immediate: false });
 
     const uiState = computed(() => {
       const state = {

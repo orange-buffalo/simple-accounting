@@ -1,7 +1,7 @@
 import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
 import { action } from '@storybook/addon-actions';
 import { apiPage, onGetToWorkspacePath, onPutToWorkspacePath } from '../../utils/stories-api-mocks';
-import { setViewportHeight, storyshotsStory, timeout } from '../../utils/stories-utils';
+import { setViewportHeight, timeout } from '../../utils/stories-utils';
 
 const customer = {
   id: 77,
@@ -60,7 +60,7 @@ async function togglePanelInStoryshots(page) {
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Pages|Invoices/InvoicesOverviewPanel',
+  title: 'Pages/Invoices/InvoicesOverviewPanel',
   parameters: {
     fullWidth: true,
   },
@@ -82,12 +82,14 @@ export const Draft = createStory({
     },
   },
 });
-Draft.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 450);
+Draft.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 450);
+    },
   },
-});
+};
 
 export const Sent = createStory({
   invoice: {
@@ -96,12 +98,14 @@ export const Sent = createStory({
     status: 'SENT',
   },
 });
-Sent.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 450);
+Sent.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 450);
+    },
   },
-});
+};
 
 export const Overdue = createStory({
   invoice: {
@@ -110,12 +114,14 @@ export const Overdue = createStory({
     status: 'OVERDUE',
   },
 });
-Overdue.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 450);
+Overdue.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 450);
+    },
   },
-});
+};
 
 export const Paid = createStory({
   invoice: {
@@ -125,12 +131,14 @@ export const Paid = createStory({
     status: 'PAID',
   },
 });
-Paid.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 450);
+Paid.story.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 450);
+    },
   },
-});
+};
 
 export const Cancelled = createStory({
   invoice: {
@@ -138,12 +146,14 @@ export const Cancelled = createStory({
     status: 'CANCELLED',
   },
 });
-Cancelled.story = storyshotsStory({
-  async setup(page) {
-    await togglePanelInStoryshots(page);
-    await setViewportHeight(page, 450);
+Cancelled.parameters = {
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 450);
+    },
   },
-});
+};
 
 export const ReadOnlyWorkspace = createStory({
   invoice: {
@@ -151,16 +161,14 @@ export const ReadOnlyWorkspace = createStory({
     status: 'DRAFT',
   },
 });
-ReadOnlyWorkspace.story = {
-  parameters: {
-    workspace: {
-      editable: false,
-    },
-    storyshots: {
-      async setup(page) {
-        await togglePanelInStoryshots(page);
-        await setViewportHeight(page, 450);
-      },
+ReadOnlyWorkspace.parameters = {
+  workspace: {
+    editable: false,
+  },
+  storyshots: {
+    async setup(page) {
+      await togglePanelInStoryshots(page);
+      await setViewportHeight(page, 450);
     },
   },
 };

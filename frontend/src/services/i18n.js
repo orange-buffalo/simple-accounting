@@ -1,14 +1,14 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import Globalize from 'globalize';
-import ICUFormatter from './i18n/icu-formatter';
 import supportedLocaleCodes from '@/i18n/l10n/supported-locales.json';
 import { loadCldrData, lookupClosestLocale } from '@/services/i18n/locale-utils';
+import ICUFormatter from './i18n/icu-formatter';
 
 Vue.use(VueI18n);
 
 // register component with a name compliant with our code conventions
-const i18nComponent = Vue.component('i18n')
+const i18nComponent = Vue.component('i18n');
 Vue.component('I18n', i18nComponent);
 
 const i18n = new VueI18n({});
@@ -34,7 +34,7 @@ async function loadLanguage(language) {
   i18n.locale = language;
   currentLanguage = language;
   supportedLocales = (await
-    import(/* webpackChunkName: "[request]" */ `@/i18n/l10n/locales-display-names-${language}.json`)).default;
+  import(/* webpackChunkName: "[request]" */ `@/i18n/l10n/locales-display-names-${language}.json`)).default;
 }
 
 function buildCurrenciesInfo(cldr) {
@@ -111,15 +111,15 @@ async function setupI18n(locale, language) {
 
 function getValidLocale(requestedLocales) {
   return requestedLocales
-    .map(requestedLocale => lookupClosestLocale(requestedLocale, supportedLocaleCodes))
-    .find(closestSupportedLocale => closestSupportedLocale != null) || 'en';
+    .map((requestedLocale) => lookupClosestLocale(requestedLocale, supportedLocaleCodes))
+    .find((closestSupportedLocale) => closestSupportedLocale != null) || 'en';
 }
 
 function getValidLanguage(requestedLocales) {
-  const supportedLanguageCodes = supportedLanguages.map(it => it.languageCode);
+  const supportedLanguageCodes = supportedLanguages.map((it) => it.languageCode);
   return requestedLocales
-    .map(requestedLocale => lookupClosestLocale(requestedLocale, supportedLanguageCodes))
-    .find(closestSupportedLocale => closestSupportedLocale != null) || 'en';
+    .map((requestedLocale) => lookupClosestLocale(requestedLocale, supportedLanguageCodes))
+    .find((closestSupportedLocale) => closestSupportedLocale != null) || 'en';
 }
 
 i18n.setLocaleFromBrowser = function setLocaleFromBrowser() {

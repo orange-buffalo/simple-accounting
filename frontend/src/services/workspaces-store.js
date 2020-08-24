@@ -39,13 +39,13 @@ export default {
       if (workspaces.length > 0) {
         const previousWsId = lockr.get('current-workspace');
         if (previousWsId != null) {
-          currentWs = workspaces.find(it => it.id === previousWsId);
+          currentWs = workspaces.find((it) => it.id === previousWsId);
 
           if (!currentWs) {
             const sharedWorkspacesResponse = await api.get('/shared-workspaces');
             const sharedWorkspaces = sharedWorkspacesResponse.data;
 
-            currentWs = sharedWorkspaces.find(it => it.id === previousWsId);
+            currentWs = sharedWorkspaces.find((it) => it.id === previousWsId);
           }
         }
 

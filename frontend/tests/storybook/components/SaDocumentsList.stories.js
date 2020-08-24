@@ -2,11 +2,7 @@ import SaDocumentsList from '@/components/documents/SaDocumentsList';
 import {
   apiPage, onGet, onGetToWorkspacePath, responseDelay,
 } from '../utils/stories-api-mocks';
-import {
-  NO_STORYSHOTS_STORY,
-  pauseAndResetAnimation,
-  pauseAndResetDocumentLoaderAnimation, storyshotsStory,
-} from '../utils/stories-utils';
+import { pauseAndResetAnimation, pauseAndResetDocumentLoaderAnimation } from '../utils/stories-utils';
 
 let nextDocumentId = 100500;
 
@@ -46,7 +42,7 @@ function mockLoadingStorageStatus() {
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Components|SaDocumentsList',
+  title: 'Components/SaDocumentsList',
 };
 
 // noinspection JSUnusedGlobalSymbols
@@ -83,16 +79,18 @@ export const WithLoadingDocuments = () => ({
       .neverEndingRequest();
   },
 });
-WithLoadingDocuments.story = storyshotsStory({
-  // width is calculated as a fractional value, antialiasing causes flaky test
-  matchOptions: {
-    failureThreshold: 100,
-    failureThresholdType: 'pixel',
+WithLoadingDocuments.parameters = {
+  storyshots: {
+    // width is calculated as a fractional value, antialiasing causes flaky test
+    matchOptions: {
+      failureThreshold: 100,
+      failureThresholdType: 'pixel',
+    },
+    async setup(page) {
+      await pauseAndResetDocumentLoaderAnimation(page);
+    },
   },
-  async setup(page) {
-    await pauseAndResetDocumentLoaderAnimation(page);
-  },
-});
+};
 
 export const WithDeferredDocuments = () => ({
   components: { SaDocumentsList },
@@ -110,7 +108,9 @@ export const WithDeferredDocuments = () => ({
     mockFileDownload();
   },
 });
-WithDeferredDocuments.story = NO_STORYSHOTS_STORY;
+WithDeferredDocuments.parameters = {
+  storyshots: false,
+};
 
 export const LoadingStorageStatus = () => ({
   components: { SaDocumentsList },
@@ -119,11 +119,13 @@ export const LoadingStorageStatus = () => ({
     mockLoadingStorageStatus();
   },
 });
-LoadingStorageStatus.story = storyshotsStory({
-  async setup(page) {
-    await pauseAndResetAnimation(page, '.sa-documents-list__loading-placeholder');
+LoadingStorageStatus.parameters = {
+  storyshots: {
+    async setup(page) {
+      await pauseAndResetAnimation(page, '.sa-documents-list__loading-placeholder');
+    },
   },
-});
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const FailedStorageStatus = () => ({

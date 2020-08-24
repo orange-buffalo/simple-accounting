@@ -29,7 +29,7 @@
 
       watch(() => props.icon, async (icon) => {
         loadedIcon.value = await loadIcon(icon);
-      });
+      }, { immediate: true });
 
       return {
         loadedIcon,

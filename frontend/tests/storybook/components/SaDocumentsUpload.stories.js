@@ -3,10 +3,7 @@ import {
 } from '../utils/stories-api-mocks';
 import SaDocumentsUploadStories from '../components/SaDocumentsUploadStories';
 import {
-  NO_STORYSHOTS_STORY,
-  pauseAndResetAnimation,
-  pauseAndResetDocumentLoaderAnimation, setViewportHeight,
-  storyshotsStory,
+  pauseAndResetAnimation, pauseAndResetDocumentLoaderAnimation, setViewportHeight,
 } from '../utils/stories-utils';
 
 let nextDocumentId = 100500;
@@ -44,7 +41,7 @@ async function pauseAndResetLoadingIndicator(page) {
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Components|SaDocumentsUpload',
+  title: 'Components/SaDocumentsUpload',
 };
 
 export const LoadingOnCreateIsSet = () => ({
@@ -54,13 +51,13 @@ export const LoadingOnCreateIsSet = () => ({
     mockLoadingStorageStatus();
   },
 });
-LoadingOnCreateIsSet.story = {
-  name: 'loading-on-create is set',
-  ...storyshotsStory({
+LoadingOnCreateIsSet.storyName = 'loading-on-create is set';
+LoadingOnCreateIsSet.parameters = {
+  storyshots: {
     async setup(page) {
       await pauseAndResetLoadingIndicator(page);
     },
-  }),
+  },
 };
 
 export const WithDocuments = () => ({
@@ -76,11 +73,13 @@ export const WithDocuments = () => ({
       ]));
   },
 });
-WithDocuments.story = storyshotsStory({
-  async setup(page) {
-    await setViewportHeight(page, 400);
+WithDocuments.parameters = {
+  storyshots: {
+    async setup(page) {
+      await setViewportHeight(page, 400);
+    },
   },
-});
+};
 
 export const WithLoadingDocuments = () => ({
   components: { SaDocumentsUploadStories },
@@ -91,16 +90,18 @@ export const WithLoadingDocuments = () => ({
       .neverEndingRequest();
   },
 });
-WithLoadingDocuments.story = storyshotsStory({
-  // width is calculated as a fractional value, antialiasing causes flaky test
-  matchOptions: {
-    failureThreshold: 100,
-    failureThresholdType: 'pixel',
+WithLoadingDocuments.parameters = {
+  storyshots: {
+    // width is calculated as a fractional value, antialiasing causes flaky test
+    matchOptions: {
+      failureThreshold: 100,
+      failureThresholdType: 'pixel',
+    },
+    async setup(page) {
+      await pauseAndResetDocumentLoaderAnimation(page);
+    },
   },
-  async setup(page) {
-    await pauseAndResetDocumentLoaderAnimation(page);
-  },
-});
+};
 
 export const WithDeferredDocuments = () => ({
   components: { SaDocumentsUploadStories },
@@ -127,7 +128,9 @@ export const WithDeferredDocuments = () => ({
     }, 1000);
   },
 });
-WithDeferredDocuments.story = NO_STORYSHOTS_STORY;
+WithDeferredDocuments.parameters = {
+  storyshots: false,
+};
 
 export const InitialLoadingWithNoDocuments = () => ({
   components: { SaDocumentsUploadStories },
@@ -145,7 +148,9 @@ export const InitialLoadingWithNoDocuments = () => ({
     }, 1000);
   },
 });
-InitialLoadingWithNoDocuments.story = NO_STORYSHOTS_STORY;
+InitialLoadingWithNoDocuments.parameters = {
+  storyshots: false,
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const NoExistingDocuments = () => ({
@@ -165,7 +170,9 @@ export const AllUploadsFailing = () => ({
       .reply(404);
   },
 });
-AllUploadsFailing.story = NO_STORYSHOTS_STORY;
+AllUploadsFailing.parameters = {
+  storyshots: false,
+};
 
 export const AllUploadsSucceeding = () => ({
   components: { SaDocumentsUploadStories },
@@ -176,7 +183,9 @@ export const AllUploadsSucceeding = () => ({
       .successJson(() => document('Service Agreement.pdf', 77000));
   },
 });
-AllUploadsSucceeding.story = NO_STORYSHOTS_STORY;
+AllUploadsSucceeding.parameters = {
+  storyshots: false,
+};
 
 export const EverySecondFileSucceeding = () => ({
   components: { SaDocumentsUploadStories },
@@ -196,7 +205,9 @@ export const EverySecondFileSucceeding = () => ({
       });
   },
 });
-EverySecondFileSucceeding.story = NO_STORYSHOTS_STORY;
+EverySecondFileSucceeding.parameters = {
+  storyshots: false,
+};
 
 export const LoadingStorageStatus = () => ({
   components: { SaDocumentsUploadStories },
@@ -205,11 +216,13 @@ export const LoadingStorageStatus = () => ({
     mockLoadingStorageStatus();
   },
 });
-LoadingStorageStatus.story = storyshotsStory({
-  async setup(page) {
-    await pauseAndResetLoadingIndicator(page);
+LoadingStorageStatus.parameters = {
+  storyshots: {
+    async setup(page) {
+      await pauseAndResetLoadingIndicator(page);
+    },
   },
-});
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const FailedStorageStatus = () => ({

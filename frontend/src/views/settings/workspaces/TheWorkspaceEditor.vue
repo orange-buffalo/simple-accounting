@@ -98,7 +98,7 @@
 
     async created() {
       if (this.isEditing) {
-        const workspace = this.workspaces.find(it => it.id === this.$route.params.id);
+        const workspace = this.workspaces.find((it) => it.id === this.$route.params.id);
         this.workspaceForm = { ...workspace };
       } else {
         this.workspaceForm = {};

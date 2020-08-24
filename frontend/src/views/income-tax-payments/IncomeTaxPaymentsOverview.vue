@@ -20,8 +20,8 @@
     </div>
 
     <DataItems
-      :api-path="`/workspaces/${currentWorkspace.id}/income-tax-payments`"
       #default="{item: taxPayment}"
+      :api-path="`/workspaces/${currentWorkspace.id}/income-tax-payments`"
     >
       <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />
     </DataItems>

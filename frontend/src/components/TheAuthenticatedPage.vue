@@ -32,7 +32,6 @@
   };
 </script>
 
-
 <style lang="scss">
   @import "~@/styles/vars.scss";
 

@@ -2,15 +2,12 @@ import { action } from '@storybook/addon-actions';
 import SaEntitySelect from '@/components/SaEntitySelect';
 import { onGetToWorkspacePath, apiPage, responseDelay } from '../utils/stories-api-mocks';
 import {
-  NO_STORYSHOTS_STORY,
-  pauseAndResetInputLoaderAnimation,
-  removeSvgAnimations, setViewportHeight, storyshotsStory,
-  timeout,
+  pauseAndResetInputLoaderAnimation, removeSvgAnimations, setViewportHeight, timeout,
 } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Components|SaEntitySelect',
+  title: 'Components/SaEntitySelect',
 };
 
 let nextId = 1;
@@ -65,7 +62,7 @@ function setupStory() {
         @input="onChange"
         style="width: 350px"
       >
-        {{ entity.name }}
+      {{ entity.name }}
       </SaEntitySelect>`,
   });
 }
@@ -84,12 +81,14 @@ export const InitialLoading = () => ({
   },
 });
 
-InitialLoading.story = storyshotsStory({
-  async setup(page) {
-    await toggleSelectInStoryshots(page);
-    await removeSvgAnimations(page);
+InitialLoading.parameters = {
+  storyshots: {
+    async setup(page) {
+      await toggleSelectInStoryshots(page);
+      await removeSvgAnimations(page);
+    },
   },
-});
+};
 
 export const InitialLoadingFailure = () => ({
   ...setupStory(),
@@ -101,11 +100,13 @@ export const InitialLoadingFailure = () => ({
   },
 });
 
-InitialLoadingFailure.story = storyshotsStory({
-  async setup(page) {
-    await toggleSelectInStoryshots(page);
+InitialLoadingFailure.parameters = {
+  storyshots: {
+    async setup(page) {
+      await toggleSelectInStoryshots(page);
+    },
   },
-});
+};
 
 export const Loading = () => ({
   ...setupStory(),
@@ -123,12 +124,14 @@ export const Loading = () => ({
       });
   },
 });
-Loading.story = storyshotsStory({
-  async setup(page) {
-    await toggleSelectInStoryshots(page);
-    await setViewportHeight(page, 350);
+Loading.parameters = {
+  storyshots: {
+    async setup(page) {
+      await toggleSelectInStoryshots(page);
+      await setViewportHeight(page, 350);
+    },
   },
-});
+};
 
 export const FailingSearch = () => ({
   ...setupStory(),
@@ -145,7 +148,9 @@ export const FailingSearch = () => ({
       });
   },
 });
-FailingSearch.story = NO_STORYSHOTS_STORY;
+FailingSearch.parameters = {
+  storyshots: false,
+};
 
 export const NoDataAfterInitialLoading = () => ({
   ...setupStory(),
@@ -154,11 +159,13 @@ export const NoDataAfterInitialLoading = () => ({
       .successJson(apiPage([]));
   },
 });
-NoDataAfterInitialLoading.story = storyshotsStory({
-  async setup(page) {
-    await toggleSelectInStoryshots(page);
+NoDataAfterInitialLoading.parameters = {
+  storyshots: {
+    async setup(page) {
+      await toggleSelectInStoryshots(page);
+    },
   },
-});
+};
 
 export const NoDataOnSearch = () => ({
   ...setupStory(),
@@ -175,7 +182,9 @@ export const NoDataOnSearch = () => ({
       });
   },
 });
-NoDataOnSearch.story = NO_STORYSHOTS_STORY;
+NoDataOnSearch.parameters = {
+  storyshots: false,
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const PreSelectedValue = () => ({
@@ -210,11 +219,13 @@ export const PreSelectedValueLoading = () => ({
     this.value = -10;
   },
 });
-PreSelectedValueLoading.story = storyshotsStory({
-  async setup(page) {
-    await pauseAndResetInputLoaderAnimation(page);
+PreSelectedValueLoading.parameters = {
+  storyshots: {
+    async setup(page) {
+      await pauseAndResetInputLoaderAnimation(page);
+    },
   },
-});
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const PreSelectedValueLoadingFailed = () => ({

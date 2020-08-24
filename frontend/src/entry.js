@@ -40,7 +40,7 @@ async function initApp() {
     const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
 
     const { userApi } = await
-      import(/* webpackChunkName: "user-api" */ '@/services/user-api');
+    import(/* webpackChunkName: "user-api" */ '@/services/user-api');
     const profile = await userApi.getProfile();
     await app.i18n.setLocaleFromProfile(profile.i18n);
 
@@ -49,7 +49,7 @@ async function initApp() {
     }
 
     const { initWorkspace } = await
-      import(/* webpackChunkName: "workspaces-service" */ '@/services/workspaces-service');
+    import(/* webpackChunkName: "workspaces-service" */ '@/services/workspaces-service');
     await initWorkspace();
 
     mountApp();

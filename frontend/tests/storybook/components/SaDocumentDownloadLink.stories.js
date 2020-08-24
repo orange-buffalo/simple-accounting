@@ -2,7 +2,7 @@ import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLin
 import { onGetToWorkspacePath, responseDelay } from '../utils/stories-api-mocks';
 
 export default {
-  title: 'Components|SaDocumentDownloadLink',
+  title: 'Components/SaDocumentDownloadLink',
 };
 
 export const Basic = () => ({

@@ -4,7 +4,7 @@ import { setViewportHeight } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Pages|MyProfile',
+  title: 'Pages/MyProfile',
   parameters: {
     fullWidth: true,
     storyshots: {

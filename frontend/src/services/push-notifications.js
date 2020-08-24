@@ -6,8 +6,8 @@ let eventListeners = [];
 
 function notifyListeners(eventName, data) {
   eventListeners
-    .filter(it => it.eventName === eventName)
-    .forEach(it => it.callback(data));
+    .filter((it) => it.eventName === eventName)
+    .forEach((it) => it.callback(data));
 }
 
 export default {
@@ -51,7 +51,7 @@ export default {
 
   unsubscribe(eventName, callback) {
     eventListeners = eventListeners
-      .filter(it => it.eventName !== eventName && it.callback !== callback);
+      .filter((it) => it.eventName !== eventName && it.callback !== callback);
 
     if (eventListeners.length === 0) {
       eventSource.close();

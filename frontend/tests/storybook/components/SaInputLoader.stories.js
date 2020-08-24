@@ -1,9 +1,9 @@
 import SaInputLoader from '@/components/SaInputLoader';
-import { NO_STORYSHOTS_STORY, pauseAndResetInputLoaderAnimation, storyshotsStory } from '../utils/stories-utils';
+import { pauseAndResetInputLoaderAnimation } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Components|SaInputLoader',
+  title: 'Components/SaInputLoader',
 };
 
 const delay = 1000;
@@ -34,11 +34,13 @@ export const Loading = createStory({
     this.loading = true;
   },
 });
-Loading.story = storyshotsStory({
-  async setup(page) {
-    await pauseAndResetInputLoaderAnimation(page);
+Loading.parameters = {
+  storyshots: {
+    async setup(page) {
+      await pauseAndResetInputLoaderAnimation(page);
+    },
   },
-});
+};
 
 export const Error = createStory({
   created() {
@@ -54,7 +56,9 @@ export const DelayedLoading = createStory({
     }, delay);
   },
 });
-DelayedLoading.story = NO_STORYSHOTS_STORY;
+DelayedLoading.parameters = {
+  storyshots: false,
+};
 
 export const DelayedError = createStory({
   created() {
@@ -65,4 +69,6 @@ export const DelayedError = createStory({
     }, delay);
   },
 });
-DelayedError.story = NO_STORYSHOTS_STORY;
+DelayedError.parameters = {
+  storyshots: false,
+};

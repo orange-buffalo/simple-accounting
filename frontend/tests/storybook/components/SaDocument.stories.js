@@ -1,21 +1,23 @@
 import { action } from '@storybook/addon-actions';
 import SaDocument from '@/components/documents/SaDocument';
-import { pauseAndResetDocumentLoaderAnimation, storyshotsStory } from '../utils/stories-utils';
+import { pauseAndResetDocumentLoaderAnimation } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Components|SaDocument',
+  title: 'Components/SaDocument',
 };
 
 export const Loading = () => ({
   components: { SaDocument },
   template: '<SaDocument loading style="width: 400px" />',
 });
-Loading.story = storyshotsStory({
-  async setup(page) {
-    await pauseAndResetDocumentLoaderAnimation(page);
+Loading.parameters = {
+  storyshots: {
+    async setup(page) {
+      await pauseAndResetDocumentLoaderAnimation(page);
+    },
   },
-});
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const Loaded = () => ({
