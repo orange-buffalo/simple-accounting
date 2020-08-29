@@ -89,9 +89,6 @@ tasks.withType<KotlinCompile> {
 tasks {
     test {
         useJUnitPlatform()
-
-        systemProperty("spring.profiles.active", "test")
-
         beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
     }
 }
