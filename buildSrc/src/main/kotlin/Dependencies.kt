@@ -16,6 +16,8 @@ object Versions {
     const val jsonUnit = "2.18.1"
     const val wireMock = "2.27.1"
     const val awaitility = "4.0.3"
+    const val selenide = "5.14.2"
+    const val testContainers = "1.14.3"
 
     const val dockerPlugin = "6.6.1"
     const val semverGitPlugin = "1.2.1"
