@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import io.orangebuffalo.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.simpleaccounting.web.ui.SpaWebFilter
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest
+import org.springframework.boot.actuate.health.HealthEndpoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
@@ -70,21 +72,25 @@ class WebConfig : WebFluxConfigurer {
 
         return http
             .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-            .authorizeExchange()
-            .pathMatchers("/api/auth/**").permitAll()
-            .pathMatchers("/api/downloads/**").permitAll()
-            .pathMatchers("/api/users/**").hasRole("ADMIN")
-            .pathMatchers("/api/**").authenticated()
-            .pathMatchers("/**").permitAll()
-            .and()
-            .exceptionHandling()
-            .authenticationEntryPoint(bearerAuthenticationEntryPoint())
-            .and()
+            .authorizeExchange { authorizeExchange ->
+                authorizeExchange
+                    .matchers(EndpointRequest.to(HealthEndpoint::class.java)).permitAll()
+                    .matchers(EndpointRequest.toAnyEndpoint()).denyAll()
+                    .pathMatchers("/api/auth/**").permitAll()
+                    .pathMatchers("/api/downloads/**").permitAll()
+                    .pathMatchers("/api/users/**").hasRole("ADMIN")
+                    .pathMatchers("/api/**").authenticated()
+                    .pathMatchers("/**").permitAll()
+            }
+            .exceptionHandling { exceptionHandling ->
+                exceptionHandling
+                    .authenticationEntryPoint(bearerAuthenticationEntryPoint())
+            }
             .addFilterAt(jwtTokenAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-            .csrf().disable()
-            .httpBasic().disable()
-            .formLogin().disable()
-            .logout().disable()
+            .csrf { csrf -> csrf.disable() }
+            .httpBasic { httpBasic -> httpBasic.disable() }
+            .formLogin { formLogin -> formLogin.disable() }
+            .logout { logout -> logout.disable() }
             .build()
     }
 

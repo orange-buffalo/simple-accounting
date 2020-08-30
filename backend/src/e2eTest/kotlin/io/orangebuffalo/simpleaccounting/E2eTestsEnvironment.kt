@@ -8,6 +8,7 @@ import org.openqa.selenium.chrome.ChromeOptions
 import org.testcontainers.containers.BrowserWebDriverContainer
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.Network
+import org.testcontainers.containers.wait.strategy.Wait
 
 private val chromeLogger = KotlinLogging.logger("chrome")
 private val simpleAccountingLogger = KotlinLogging.logger("simple-accounting")
@@ -26,6 +27,7 @@ private val simpleAccounting: SimpleAccountingApp = SimpleAccountingApp()
     .withNetworkAliases("simple-accounting")
     .withEnv("spring_profiles_active", "ci-tests")
     .withLogConsumer { frame -> simpleAccountingLogger.info(frame.utf8String) }
+    .waitingFor(Wait.forHealthcheck())
 
 class E2eTestsEnvironment : BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback, Extension {
     override fun beforeAll(context: ExtensionContext) {
@@ -39,9 +41,6 @@ class E2eTestsEnvironment : BeforeAllCallback, BeforeEachCallback, AfterEachCall
         // but keep singleton containers as they start slowly
         if (!simpleAccounting.isRunning) {
             simpleAccounting.start()
-
-            // todo #253: add healthcheck to the image
-            Thread.sleep(12000)
 
             chrome.start()
 

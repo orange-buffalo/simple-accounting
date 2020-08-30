@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.ui
 
+import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
@@ -12,6 +13,7 @@ class SpaWebFilter : WebFilter {
 
     private val requestMatcher = AndServerWebExchangeMatcher(
         ServerWebExchangeMatchers.pathMatchers("/**"),
+        NegatedServerWebExchangeMatcher(EndpointRequest.toAnyEndpoint()),
         NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/favicon.ico")),
         NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/api/**")),
         NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/assets/**"))
