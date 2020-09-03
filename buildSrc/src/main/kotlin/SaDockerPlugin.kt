@@ -17,17 +17,15 @@ import org.gradle.kotlin.dsl.register
 import java.io.File
 
 open class SaDockerPlugin : Plugin<Project> {
-
     override fun apply(project: Project) {
         val extension = project.extensions.create<SaDockerImageExtension>("saDockerImage")
 
          project.tasks.register<SaPrepareDockerBuild>("prepareDockerBuild") {
              dockerBuildDir.set(extension.dockerBuildDir)
              bootJar.set(project.tasks.getByPath(":backend:bootJar").outputs.files)
-             dockerSourceDir.set(project.file("src/main/docker"))
+             dockerSourceDir.set(project.file("src/docker"))
          }
     }
-
 }
 
 open class SaDockerImageExtension(objects: ObjectFactory) {

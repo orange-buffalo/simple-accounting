@@ -38,6 +38,11 @@ jobs:
     - name: "Test (screenshot)"
       run: ./gradlew npmScreenshotTests --scan --console=plain
 
+    - name: "Test (end-to-end)"
+      env:
+        DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
+      run: ./gradlew e2eTest -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN" --scan --console=plain
+
     - name: "Publish"
       if: github.ref == 'refs/heads/master'
       env:

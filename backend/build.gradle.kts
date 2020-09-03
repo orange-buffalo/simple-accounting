@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
 buildscript {
     repositories {
@@ -16,14 +18,23 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlin
     id("org.springframework.boot") version Versions.springBoot
     id("io.spring.dependency-management") version Versions.springDependencyManagement
+    id("com.bmuschko.docker-remote-api") version Versions.dockerPlugin
 }
 
 apply<SaJooqCodeGenPlugin>()
+apply<SaDockerPlugin>()
 
 repositories {
     mavenCentral()
     jcenter()
 }
+
+sourceSets {
+    create("e2eTest")
+}
+
+val e2eTestImplementation: Configuration by configurations.getting
+val e2eTestRuntimeOnly: Configuration by configurations.getting
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
@@ -31,6 +42,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.security:spring-security-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -70,6 +82,14 @@ dependencies {
     testImplementation("org.awaitility:awaitility:${Versions.awaitility}")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+
+    e2eTestImplementation("org.junit.jupiter:junit-jupiter-api")
+    e2eTestImplementation("com.codeborne:selenide:${Versions.selenide}")
+    e2eTestImplementation("org.testcontainers:selenium:${Versions.testContainers}")
+    e2eTestImplementation("io.github.microutils:kotlin-logging:${Versions.kotlinLogging}")
+
+    e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    e2eTestRuntimeOnly("org.slf4j:slf4j-simple")
 }
 
 tasks.register<Copy>("copyFrontend") {
@@ -89,9 +109,51 @@ tasks.withType<KotlinCompile> {
 tasks {
     test {
         useJUnitPlatform()
-
-        systemProperty("spring.profiles.active", "test")
-
         beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
     }
+}
+
+docker {
+    registryCredentials {
+        username.set(project.properties["docker.hub.username"] as String?)
+        password.set(project.properties["docker.hub.password"] as String?)
+    }
+}
+
+val saDockerImageExtension = the<SaDockerImageExtension>()
+
+configure<SaDockerImageExtension> {
+    image.set("orangebuffalo/simple-accounting:${project.version}")
+    dockerBuildDir.set(project.layout.buildDirectory.map { projectBuildDir ->
+        projectBuildDir.dir("docker-build")
+    })
+}
+
+val buildDockerImage = tasks.register<DockerBuildImage>("buildDockerImage") {
+    inputDir.set(saDockerImageExtension.dockerBuildDir)
+    images.add(saDockerImageExtension.image)
+    images.add("orangebuffalo/simple-accounting:latest")
+    dependsOn("prepareDockerBuild")
+}
+
+project.tasks.register<DockerPushImage>("pushDockerImage") {
+    images.add(saDockerImageExtension.image)
+    dependsOn(buildDockerImage)
+}
+
+tasks.build {
+    dependsOn(buildDockerImage)
+}
+
+val e2eTest = task<Test>("e2eTest") {
+    description = "Runs E2E tests."
+    group = "verification"
+
+    useJUnitPlatform()
+    beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
+
+    testClassesDirs = sourceSets["e2eTest"].output.classesDirs
+    classpath = sourceSets["e2eTest"].runtimeClasspath
+
+    dependsOn(buildDockerImage)
 }
