@@ -66,7 +66,7 @@ async function setupStorybookContainer(gitHubBuildContainer) {
     console.info('Creating storybook container..');
 
     const containerName = 'sa-screenshot-tests-storybook';
-    const image = 'node:lts';
+    const image = 'node:12';
 
     await pullImage(image);
 
