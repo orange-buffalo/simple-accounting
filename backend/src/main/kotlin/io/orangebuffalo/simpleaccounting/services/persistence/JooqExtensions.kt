@@ -1,9 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.persistence
 
-import org.jooq.Configuration
-import org.jooq.Field
-import org.jooq.Result
-import org.jooq.ResultQuery
+import org.jooq.*
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import org.springframework.data.jdbc.core.convert.EntityRowMapper
 import org.springframework.data.jdbc.core.convert.JdbcConverter
@@ -27,13 +24,14 @@ fun Configuration.set(jdbcMappingContext: JdbcMappingContext): Configuration {
 }
 
 fun <T : Any> Result<*>.asListOf(targetEntityType: KClass<T>): List<T> {
-    val jdbcConverter = this.configuration().data(jdbcConverterKey) as JdbcConverter
-    val jdbcMappingContext = this.configuration().data(jdbcMappingContextKey) as JdbcMappingContext
+    val configuration = this.configuration() ?: throw IllegalStateException("JOOQ configuration is not attached")
+    val jdbcConverter = configuration.data(jdbcConverterKey) as JdbcConverter
+    val jdbcMappingContext = configuration.data(jdbcMappingContextKey) as JdbcMappingContext
     val persistentEntity = jdbcMappingContext.getPersistentEntity(targetEntityType.java)
         ?: throw IllegalStateException("$targetEntityType is not a known entity type")
 
     @Suppress("UNCHECKED_CAST")
-    val mapper = EntityRowMapper<T>(persistentEntity as RelationalPersistentEntity<T>, jdbcConverter)
+    val mapper = EntityRowMapper(persistentEntity as RelationalPersistentEntity<T>, jdbcConverter)
 
     val resultSet = this.intoResultSet()
     var rowNumber = 1
@@ -82,3 +80,6 @@ fun <T> Field<T>.mapTo(property: KProperty1<*, *>): Field<T> {
     val snakeCasePropertyName = ParsingUtils.reconcatenateCamelCase(propertyName, "_")
     return this.`as`(snakeCasePropertyName)
 }
+
+inline fun <reified T: Any>  TableLike<*>.fieldOrFail(name: String) =
+    this.field(name, T::class.java) ?: throw IllegalStateException("Filed $name is not found for $this")

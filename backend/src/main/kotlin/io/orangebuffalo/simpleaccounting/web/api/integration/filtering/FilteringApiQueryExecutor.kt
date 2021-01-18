@@ -65,7 +65,7 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
             configureQuery(countQuery)
             val countConditions: Collection<Condition> =
                 validateAndGetConditions(fileApiRequest, workspaceId, countQuery)
-            val totalRecordsCount = countQuery.where(countConditions).fetchOneInto(Long::class.java)
+            val totalRecordsCount = countQuery.where(countConditions).fetchOneInto(Long::class.java)!!
 
             val dataQuery = dslContext.select(*root.fields()).from(root)
             configureQuery(dataQuery)

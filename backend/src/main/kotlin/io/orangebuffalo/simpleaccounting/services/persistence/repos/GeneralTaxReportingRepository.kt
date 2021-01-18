@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseSt
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
+import io.orangebuffalo.simpleaccounting.services.persistence.fieldOrFail
 import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.DSLContext
@@ -101,7 +102,7 @@ class GeneralTaxReportingRepository(private val dslContext: DSLContext) {
 
         return dslContext
             .select(
-                taxData.field(TaxReportFields.taxId)
+                taxData.fieldOrFail<Long>(TaxReportFields.taxId)
                     .mapTo(GeneralTaxReportRawItem::taxId),
                 sum(taxData.field(TaxReportFields.taxAmount, Long::class.java))
                     .mapTo(GeneralTaxReportRawItem::taxAmount),
@@ -109,16 +110,16 @@ class GeneralTaxReportingRepository(private val dslContext: DSLContext) {
                     .mapTo(GeneralTaxReportRawItem::itemsCount),
                 sum(taxData.field(TaxReportFields.itemsAmount, Long::class.java))
                     .mapTo(GeneralTaxReportRawItem::itemsAmount),
-                taxData.field(TaxReportFields.finalized)
+                taxData.fieldOrFail<Boolean>(TaxReportFields.finalized)
                     .mapTo(GeneralTaxReportRawItem::finalized),
-                taxData.field(TaxReportFields.paid)
+                taxData.fieldOrFail<Boolean>(TaxReportFields.paid)
                     .mapTo(GeneralTaxReportRawItem::paid)
             )
             .from(taxData)
             .where(
-                taxData.field(TaxReportFields.targetDateField, LocalDate::class.java).greaterOrEqual(fromDate),
-                taxData.field(TaxReportFields.targetDateField, LocalDate::class.java).lessOrEqual(toDate),
-                taxData.field(TaxReportFields.workspaceIdField, Long::class.java).eq(workspace.id)
+                taxData.fieldOrFail<LocalDate>(TaxReportFields.targetDateField).greaterOrEqual(fromDate),
+                taxData.fieldOrFail<LocalDate>(TaxReportFields.targetDateField).lessOrEqual(toDate),
+                taxData.fieldOrFail<Long>(TaxReportFields.workspaceIdField).eq(workspace.id)
             )
             .groupBy(
                 taxData.field(TaxReportFields.taxId),
