@@ -3,7 +3,19 @@ plugins {
     id("com.github.ben-manes.versions") version Versions.versionsPlugin
 }
 
-val semVersion = semver.info.version
+semver {
+    branches {
+        branch {
+            regex = ".+"
+            incrementer = "MINOR_INCREMENTER"
+            formatter = Transformer<Any, io.wusa.Info> { info ->
+                "${info.version.major}.${info.version.minor}.${info.version.patch}"
+            }
+        }
+    }
+}
+
+val semVersion = semver.info
 allprojects {
     version = semVersion
     group = "io.orangebuffalo.simpleaccounting"
