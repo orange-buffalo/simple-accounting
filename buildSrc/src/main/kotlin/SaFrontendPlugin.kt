@@ -13,7 +13,7 @@ class SaFrontendPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val npmInstall = project.tasks.register("npmInstall", SaNpmTask::class.java) {
-            args.set("install")
+            args.set("ci")
             outputDirectories.from(project.file("node_modules"))
         }
 
