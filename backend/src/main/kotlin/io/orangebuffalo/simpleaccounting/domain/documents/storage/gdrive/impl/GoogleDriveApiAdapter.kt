@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl
 
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentStorageException
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
-import kotlinx.coroutines.reactive.awaitFirst
+import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpStatus
@@ -61,7 +61,7 @@ class GoogleDriveApiAdapter(
             }
             .bodyToMono(GDriveFile::class.java)
             .map { driveFile -> driveFile.toUploadFileResponse() }
-            .awaitFirst()
+            .awaitSingle()
     }
 
     suspend fun downloadFile(fileId: String): Flux<DataBuffer> {
@@ -98,7 +98,7 @@ class GoogleDriveApiAdapter(
                 "Error while retrieving folder $folderName for $parentFolderId: $errorJson"
             }
             .bodyToMono(GDriveFiles::class.java)
-            .awaitFirst()
+            .awaitSingle()
 
         return if (matchingFolders.files.isEmpty()) null else matchingFolders.files[0].id
     }
@@ -126,7 +126,7 @@ class GoogleDriveApiAdapter(
         }
         .bodyToMono(GDriveFile::class.java)
         .map { driveFile -> driveFile.toFolderResponse() }
-        .awaitFirst()
+        .awaitSingle()
 
     suspend fun getFolderById(folderId: String): FolderResponse? {
         return createWebClient()
@@ -155,7 +155,7 @@ class GoogleDriveApiAdapter(
         errorDescriptor: (errorJson: String?) -> String
     ): ClientResponse {
         val clientResponse = try {
-            this.exchange().awaitFirst()
+            this.exchange().awaitSingle()
         } catch (e: OAuth2AuthorizationException) {
             throw StorageAuthorizationRequiredException(cause = e)
         }

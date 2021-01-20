@@ -5,8 +5,8 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.Client
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient
@@ -157,7 +157,7 @@ class OAuth2ClientAuthorizationProvider(
         )
 
         val tokenResponse = try {
-            accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitFirst()
+            accessTokenResponseClient.getTokenResponse(codeGrantRequest).awaitSingle()
         } catch (e: OAuth2AuthorizationException) {
             publishFailedAuthEvent(savedRequest)
             throw e

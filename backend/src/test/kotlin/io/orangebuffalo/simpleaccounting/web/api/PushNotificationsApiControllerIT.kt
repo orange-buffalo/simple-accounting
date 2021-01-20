@@ -8,8 +8,8 @@ import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.test.StepVerifier
 import java.time.Duration
+import java.time.temporal.ChronoUnit
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Push Notifications API ")
@@ -36,11 +37,9 @@ class PushNotificationsApiControllerIT(
                 .expectStatus().isOk
                 .returnResult(String::class.java)
         }
+        waitUntilSubscribed()
 
         runBlocking {
-            //todo #94: check deeper if we can get an event that headers are consumed and start pushing events after that
-            delay(1000)
-
             pushNotificationService.sendPushNotification("good-news-everyone")
 
             StepVerifier.create(result.await().responseBody)
@@ -66,11 +65,9 @@ class PushNotificationsApiControllerIT(
                 .expectStatus().isOk
                 .returnResult(String::class.java)
         }
+        waitUntilSubscribed()
 
         runBlocking {
-            //todo #94: check deeper if we can get an event that headers are consumed and start pushing events after that
-            delay(1000)
-
             pushNotificationService.sendPushNotification(
                 eventName = "good-news-everyone", data = "deadly delivery"
             )
@@ -109,11 +106,9 @@ class PushNotificationsApiControllerIT(
                 .expectStatus().isOk
                 .returnResult(String::class.java)
         }
+        waitUntilSubscribed()
 
         runBlocking {
-            //todo #94: check deeper if we can get an event that headers are consumed and start pushing events after that
-            delay(1000)
-
             pushNotificationService.sendPushNotification(
                 eventName = "good-news-everyone", data = "deadly delivery"
             )
@@ -150,6 +145,12 @@ class PushNotificationsApiControllerIT(
                 .expectNoEvent(Duration.ofSeconds(1))
                 .thenCancel()
                 .verify(Duration.ofSeconds(5))
+        }
+    }
+
+    private fun waitUntilSubscribed() {
+        await().atMost(Duration.of(5, ChronoUnit.SECONDS)).until {
+            runBlocking { pushNotificationService.getActiveSubscribersCount() } == 1
         }
     }
 
