@@ -2,7 +2,8 @@ FROM openjdk:8-jre-alpine
 
 RUN apk --no-cache add curl
 
-RUN mkdir -p /opt/app
+RUN mkdir -p /opt/app \
+    && mkdir -p /data/config
 COPY app.jar /opt/app/app.jar
 
 EXPOSE 9393
