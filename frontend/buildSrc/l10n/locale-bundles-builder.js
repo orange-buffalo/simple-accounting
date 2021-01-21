@@ -19,7 +19,7 @@ function mergeAndSaveCldrJsonFiles(baseDir, jsonFiles, outputFile) {
   fs.writeFileSync(outputFile, mergedJson);
 }
 
-const baseCodeGenDir = 'src/i18n/l10n';
+const baseCodeGenDir = 'generatedSrc/i18n/l10n';
 const baseCldrDataDir = 'node_modules/cldr-data';
 
 function prepareCodeGenDir() {
@@ -90,7 +90,7 @@ function generateLocalesDisplayNames() {
     const cldr = new Cldr(language);
 
     const localizedLocales = localesCodes
-      .map(localeCode => ({
+      .map((localeCode) => ({
         locale: localeCode,
         displayName: cldr.main(`localeDisplayNames/languages/${localeCode}`),
       }))

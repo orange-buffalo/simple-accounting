@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import Globalize from 'globalize';
-import supportedLocaleCodes from '@/i18n/l10n/supported-locales.json';
+import supportedLocaleCodes from '@/../generatedSrc/i18n/l10n/supported-locales.json';
 import { loadCldrData, lookupClosestLocale } from '@/services/i18n/locale-utils';
 import ICUFormatter from './i18n/icu-formatter';
 
@@ -34,7 +34,8 @@ async function loadLanguage(language) {
   i18n.locale = language;
   currentLanguage = language;
   supportedLocales = (await
-  import(/* webpackChunkName: "[request]" */ `@/i18n/l10n/locales-display-names-${language}.json`)).default;
+  import(/* webpackChunkName: "[request]" */ `@/../generatedSrc/i18n/l10n/locales-display-names-${language}.json`))
+    .default;
 }
 
 function buildCurrenciesInfo(cldr) {
