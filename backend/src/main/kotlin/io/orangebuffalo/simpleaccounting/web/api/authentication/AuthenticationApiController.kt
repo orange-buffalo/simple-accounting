@@ -7,11 +7,14 @@ import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshAuthenticationToken
 import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshTokenService
 import io.orangebuffalo.simpleaccounting.services.security.remeberme.TOKEN_LIFETIME_IN_DAYS
-import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
-import org.springframework.security.authentication.*
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.InsufficientAuthenticationException
+import org.springframework.security.authentication.ReactiveAuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
@@ -30,7 +33,7 @@ class AuthenticationApiController(
     @PostMapping("login")
     suspend fun login(@Valid @RequestBody loginRequest: LoginRequest): ResponseEntity<TokenResponse> {
         val authenticationToken = UsernamePasswordAuthenticationToken(loginRequest.userName, loginRequest.password)
-        val authentication = authenticationManager.authenticate(authenticationToken).awaitFirst()
+        val authentication = authenticationManager.authenticate(authenticationToken).awaitSingle()
         val principal = authentication.principal as SecurityPrincipal
         val jwtToken = jwtService.buildJwtToken(principal)
 
@@ -70,7 +73,7 @@ class AuthenticationApiController(
                     RefreshAuthenticationToken(
                         refreshToken
                     )
-                authenticationManager.authenticate(authenticationToken).awaitFirst()
+                authenticationManager.authenticate(authenticationToken).awaitSingle()
             }
             else -> throw InsufficientAuthenticationException("Not authenticated")
         }

@@ -16,12 +16,12 @@ spring:
               - "https://www.googleapis.com/auth/drive.file"
             redirect-uri: "https://simple-accounting.orange-buffalo.io/oauth-callback"
 
-  resources:
-    add-mappings: false
-
   jpa:
     properties:
       hibernate.create_empty_composites.enabled: true
+  web:
+    resources:
+      add-mappings: false
 
 server:
   port: 9393
@@ -42,8 +42,6 @@ simpleaccounting:
 ---
 
 spring:
-  profiles: development
-
   datasource:
     url: jdbc:h2:./local-dev/dev
     password: killallhumans
@@ -55,6 +53,9 @@ spring:
         registration:
           google-drive:
             redirect-uri: "http://localhost:9393/oauth-callback"
+  config:
+    activate:
+      on-profile: development
 
 simpleaccounting:
   documents:
@@ -65,8 +66,6 @@ simpleaccounting:
 ---
 
 spring:
-  profiles: ci-tests
-
   datasource:
     url: jdbc:h2:mem:ci-tests
 
@@ -78,12 +77,13 @@ spring:
             client-id: "noop"
             client-secret: "noop"
             redirect-uri: "http://ci-tests/noop"
+  config:
+    activate:
+      on-profile: ci-tests
 
 ---
 
 spring:
-  profiles: load-tests
-
   datasource:
     url: jdbc:h2:/tmp/sa-load-tests
 
@@ -95,3 +95,6 @@ spring:
             client-id: "noop"
             client-secret: "noop"
             redirect-uri: "http://ci-tests/noop"
+  config:
+    activate:
+      on-profile: load-tests

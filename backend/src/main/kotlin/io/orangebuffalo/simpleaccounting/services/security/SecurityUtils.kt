@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.security
 
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.mono
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -45,7 +45,7 @@ suspend fun <T : Any?> runAs(principal: SpringSecurityPrincipal, block: suspend 
         block()
     }.subscriberContext(
         ReactiveSecurityContextHolder.withAuthentication(ProgrammaticAuthentication(principal))
-    ).awaitFirst()
+    ).awaitSingle()
 }
 
 class ProgrammaticAuthentication(val user: SpringSecurityPrincipal) : AbstractAuthenticationToken(user.authorities) {
