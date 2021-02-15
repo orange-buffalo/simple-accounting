@@ -106,7 +106,7 @@ class OAuth2ClientAuthorizationProvider(
             .clientId(clientRegistration.clientId)
             .authorizationUri(clientRegistration.providerDetails.authorizationUri)
             .additionalParameters(additionalParameters)
-            .redirectUri(clientRegistration.redirectUriTemplate)
+            .redirectUri(clientRegistration.redirectUri)
             .scopes(clientRegistration.scopes)
             .state(state)
             .build()

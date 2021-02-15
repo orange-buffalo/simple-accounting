@@ -155,6 +155,8 @@ class GoogleDriveApiAdapter(
         errorDescriptor: (errorJson: String?) -> String
     ): ClientResponse {
         val clientResponse = try {
+            @Suppress("DEPRECATION")
+            // Spring 5.3 does not provide coroutine-compatible API to achieve the sameSecurityUtils
             this.exchange().awaitSingle()
         } catch (e: OAuth2AuthorizationException) {
             throw StorageAuthorizationRequiredException(cause = e)

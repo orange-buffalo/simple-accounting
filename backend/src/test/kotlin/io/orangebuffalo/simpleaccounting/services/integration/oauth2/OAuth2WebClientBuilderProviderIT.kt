@@ -149,7 +149,7 @@ class OAuth2WebClientBuilderProviderIT(
         assertNumberOfReceivedWireMockRequests(2)
 
         val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java)
-        assertThat(persistedClients).hasOnlyOneElementSatisfying { persistedClient ->
+        assertThat(persistedClients).singleElement().satisfies { persistedClient ->
             assertThat(persistedClient.accessToken).isEqualTo("newAccessToken")
             assertThat(persistedClient.accessTokenExpiresAt)
                 .isCloseTo(Instant.now().plusSeconds(3600), within(20, SECONDS))
