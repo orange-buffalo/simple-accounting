@@ -14,8 +14,7 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRe
 import io.orangebuffalo.simpleaccounting.utils.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.api.Assertions.*
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -468,7 +467,7 @@ class GoogleDriveDocumentsStorageServiceIT(
 
     private fun assertNewIntegration(testData: GoogleDriveTestData) {
         assertThat(jdbcAggregateTemplate.findAll(GoogleDriveStorageIntegration::class.java))
-            .hasOnlyOneElementSatisfying { integration ->
+            .singleElement().satisfies { integration ->
                 assertThat(integration.userId).isEqualTo(testData.fry.id!!)
                 assertThat(integration.folderId).isEqualTo("newFolderId")
             }

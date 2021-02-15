@@ -48,6 +48,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
 
     @BeforeEach
     fun setup() {
+        @Suppress("ReactiveStreamsUnusedPublisher")
         whenever(clientRegistrationRepository.findByRegistrationId("clientRegistration")) doReturn
                 Mono.just(clientRegistration)
     }
@@ -58,20 +59,20 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
             clientService.loadAuthorizedClient<OAuth2AuthorizedClient?>("clientRegistration", "fullClient").block()
 
         assertThat(actualToken).isNotNull().all {
-            prop(OAuth2AuthorizedClient::getAccessToken).isNotNull().all {
-                prop(OAuth2AccessToken::getScopes).isEqualTo(setOf("scope"))
-                prop(OAuth2AccessToken::getTokenType).isEqualTo(OAuth2AccessToken.TokenType.BEARER)
-                prop(OAuth2AccessToken::getExpiresAt).isEqualTo(data.accessTokenExpireTime)
-                prop(OAuth2AccessToken::getIssuedAt).isEqualTo(data.accessTokenIssueTime)
-                prop(OAuth2AccessToken::getTokenValue).isEqualTo("accessToken")
+            prop("accessToken") { it.accessToken }.isNotNull().all {
+                prop("scopes") { it.scopes }.isEqualTo(setOf("scope"))
+                prop("tokenType") { it.tokenType }.isEqualTo(OAuth2AccessToken.TokenType.BEARER)
+                prop("expiresAt") { it.expiresAt }.isEqualTo(data.accessTokenExpireTime)
+                prop("issuedAt") { it.issuedAt }.isEqualTo(data.accessTokenIssueTime)
+                prop("tokenValue") { it.tokenValue }.isEqualTo("accessToken")
             }
 
-            prop(OAuth2AuthorizedClient::getClientRegistration).isEqualTo(clientRegistration)
-            prop(OAuth2AuthorizedClient::getPrincipalName).isEqualTo("fullClient")
+            prop("clientRegistration") { it.clientRegistration }.isEqualTo(clientRegistration)
+            prop("principalName") { it.principalName }.isEqualTo("fullClient")
 
-            prop(OAuth2AuthorizedClient::getRefreshToken).all {
-                prop(OAuth2RefreshToken::getTokenValue).isEqualTo("refreshToken")
-                prop(OAuth2RefreshToken::getIssuedAt).isEqualTo(data.refreshTokenIssueTime)
+            prop("refreshToken") { it.refreshToken }.isNotNull().all {
+                prop("tokenValue") { it.tokenValue }.isEqualTo("refreshToken")
+                prop("issuedAt") { it.issuedAt }.isEqualTo(data.refreshTokenIssueTime)
             }
         }
     }
@@ -83,18 +84,18 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
                 .block()
 
         assertThat(actualToken).isNotNull().all {
-            prop(OAuth2AuthorizedClient::getAccessToken).isNotNull().all {
-                prop(OAuth2AccessToken::getScopes).isEqualTo(setOf("scope"))
-                prop(OAuth2AccessToken::getTokenType).isEqualTo(OAuth2AccessToken.TokenType.BEARER)
-                prop(OAuth2AccessToken::getExpiresAt).isEqualTo(data.accessTokenExpireTime)
-                prop(OAuth2AccessToken::getIssuedAt).isEqualTo(data.accessTokenIssueTime)
-                prop(OAuth2AccessToken::getTokenValue).isEqualTo("accessToken")
+            prop("accessToken") { it.accessToken }.isNotNull().all {
+                prop("scopes") { it.scopes }.isEqualTo(setOf("scope"))
+                prop("tokenType") { it.tokenType }.isEqualTo(OAuth2AccessToken.TokenType.BEARER)
+                prop("expiresAt") { it.expiresAt }.isEqualTo(data.accessTokenExpireTime)
+                prop("issuedAt") { it.issuedAt }.isEqualTo(data.accessTokenIssueTime)
+                prop("tokenValue") { it.tokenValue }.isEqualTo("accessToken")
             }
 
-            prop(OAuth2AuthorizedClient::getClientRegistration).isEqualTo(clientRegistration)
-            prop(OAuth2AuthorizedClient::getPrincipalName).isEqualTo("noRefreshTokenClient")
+            prop("clientRegistration") { it.clientRegistration }.isEqualTo(clientRegistration)
+            prop("principalName") { it.principalName }.isEqualTo("noRefreshTokenClient")
 
-            prop(OAuth2AuthorizedClient::getRefreshToken).isNull()
+            prop("refreshToken") { it.refreshToken }.isNull()
         }
     }
 

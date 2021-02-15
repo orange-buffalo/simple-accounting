@@ -203,7 +203,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
         assertThat(succeededEvent.user).isEqualTo(testData.fry)
 
         val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java)
-        assertThat(persistedClients).hasOnlyOneElementSatisfying { client ->
+        assertThat(persistedClients).singleElement().satisfies { client ->
             assertThat(client.accessToken).isEqualTo("MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3")
             assertThat(client.refreshToken).isEqualTo("IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk")
             assertThat(client.accessTokenScopes).contains(ClientTokenScope("scope1"), ClientTokenScope("scope2"))

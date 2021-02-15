@@ -22,4 +22,4 @@ yarn-error.log*
 *.sw*
 
 # generated files
-src/i18n/l10n
+generatedSrc

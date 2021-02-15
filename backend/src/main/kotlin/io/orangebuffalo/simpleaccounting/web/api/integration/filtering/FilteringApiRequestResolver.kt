@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
-import arrow.core.Option
 import arrow.core.getOrElse
+import io.orangebuffalo.simpleaccounting.support.Maybe
 import io.orangebuffalo.simpleaccounting.web.api.integration.ApiValidationException
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
@@ -152,7 +152,7 @@ class FilteringApiRequestResolver {
         if (param != null && param.size > 1) {
             throw ApiValidationException("Only a single '$paramName' parameter is supported")
         }
-        return Option.fromNullable(param)
+        return Maybe.fromNullable(param)
             .map { it[0] }
             .map { paramValue ->
                 try {

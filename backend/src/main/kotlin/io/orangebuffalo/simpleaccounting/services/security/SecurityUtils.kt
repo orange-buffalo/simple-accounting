@@ -43,7 +43,7 @@ inline fun <reified T : Authentication> Authentication.mono(
 suspend fun <T : Any?> runAs(principal: SpringSecurityPrincipal, block: suspend () -> T): T {
     return mono {
         block()
-    }.subscriberContext(
+    }.contextWrite(
         ReactiveSecurityContextHolder.withAuthentication(ProgrammaticAuthentication(principal))
     ).awaitSingle()
 }
