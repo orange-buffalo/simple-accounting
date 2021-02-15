@@ -13,6 +13,11 @@
    npm run test:screenshot
     ```
 
+To accept the changes and override Git-manages screenshots:
+```shell script
+npm run test:screenshot -- -u
+```
+
 To run a particular story or kind:
 ```shell script
 export STORYSHOTS_STORY_NAME="Initial Loading"

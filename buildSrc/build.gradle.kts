@@ -1,5 +1,5 @@
 object Versions {
-    const val jooq = "3.14.4"
+    const val jooq = "3.14.7"
 }
 
 repositories {
