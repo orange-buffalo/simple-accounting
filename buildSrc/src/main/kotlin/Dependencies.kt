@@ -2,7 +2,7 @@ object Versions {
     const val springBoot = "2.4.3"
     const val springDependencyManagement = "1.0.11.RELEASE"
     const val kotlin = "1.4.31"
-    const val kotlinCoroutines = "1.4.2"
+    const val kotlinCoroutines = "1.4.3"
     const val kotlinLogging = "2.0.4"
     const val arrow = "0.11.0"
     const val jjwt = "0.11.2"
@@ -21,5 +21,5 @@ object Versions {
 
     const val dockerPlugin = "6.7.0"
     const val semverGitPlugin = "1.2.1"
-    const val versionsPlugin = "0.36.0"
+    const val versionsPlugin = "0.38.0"
 }
