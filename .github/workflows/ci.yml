@@ -38,10 +38,20 @@ jobs:
     - name: "Test (screenshot)"
       run: ./gradlew npmScreenshotTests --scan --console=plain
 
+    - name: "Save Failed Screenshots"
+      uses: actions/upload-artifact@v2
+      with:
+        name: Storyshots Diff Files
+        path: frontend/tests/storybook/__image_snapshots__/__diff_output__
+        if-no-files-found: "ignore"
+
     - name: "Test (end-to-end)"
       env:
         DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
       run: ./gradlew e2eTest -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN" --scan --console=plain
+
+    - name: "Report Test Coverage"
+      uses: codecov/codecov-action@v1
 
     - name: "Publish"
       if: github.ref == 'refs/heads/master'

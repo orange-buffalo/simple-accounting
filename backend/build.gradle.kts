@@ -19,6 +19,7 @@ plugins {
     id("org.springframework.boot") version Versions.springBoot
     id("io.spring.dependency-management") version Versions.springDependencyManagement
     id("com.bmuschko.docker-remote-api") version Versions.dockerPlugin
+    jacoco
 }
 
 apply<SaJooqCodeGenPlugin>()
@@ -110,6 +111,18 @@ tasks {
     test {
         useJUnitPlatform()
         beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
+    }
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.isEnabled = true
+        csv.isEnabled = false
+        html.isEnabled = false
     }
 }
 
