@@ -3,7 +3,7 @@ object Versions {
     const val springDependencyManagement = "1.0.11.RELEASE"
     const val kotlin = "1.4.31"
     const val kotlinCoroutines = "1.4.3"
-    const val kotlinLogging = "2.0.5"
+    const val kotlinLogging = "1.12.5"
     const val arrow = "0.11.0"
     const val jjwt = "0.11.2"
     const val javaxEl = "3.0.1-b12"
