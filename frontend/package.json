@@ -23,7 +23,7 @@
     "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.9.1",
     "dompurify": "^2.2.6",
-    "dropzone": "^5.8.0",
+    "dropzone": "^5.8.1",
     "element-ui": "^2.15.1",
     "eventsource": "^1.0.7",
     "globalize": "^1.6.0",
