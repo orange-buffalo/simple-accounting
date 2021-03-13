@@ -14,6 +14,10 @@
         type: Boolean,
         default: false,
       },
+      fullScreen: {
+        type: Boolean,
+        default: false,
+      },
     },
     setup(props) {
       const loaded = ref(false);
@@ -30,7 +34,8 @@
 
       const classes = computed(() => ({
         'stories-app--full-width': props.fullWidth,
-        'stories-app--full-centered': !props.fullWidth,
+        'stories-app--full-screen': props.fullScreen,
+        'stories-app--full-centered': !props.fullWidth && !props.fullScreen,
       }));
 
       return {
@@ -50,6 +55,11 @@
     padding: 20px;
     box-sizing: border-box;
     background: $primary-grey;
+  }
+
+  .stories-app--full-screen {
+    width: 100%;
+    height: 100vh;
   }
 
   .stories-app--full-centered {

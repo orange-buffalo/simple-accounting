@@ -232,6 +232,8 @@
       justify-content: space-around;
       color: white;
       font-size: 110%;
+      padding: 10px;
+      box-sizing: border-box;
     }
 
     &__login {
