@@ -7,7 +7,7 @@ object Versions {
     const val arrow = "0.11.0"
     const val jjwt = "0.11.2"
     const val javaxEl = "3.0.1-b12"
-    const val guava = "30.1-jre"
+    const val guava = "30.1.1-jre"
     const val jooq = "3.14.8"
 
     const val assertk = "0.23.1"
