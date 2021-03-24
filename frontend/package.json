@@ -35,7 +35,7 @@
     "qs": "^6.10.1",
     "text-mask-addons": "^3.8.0",
     "vue": "^2.6.12",
-    "vue-i18n": "^8.24.1",
+    "vue-i18n": "^8.24.2",
     "vue-router": "^3.5.1",
     "vue-select": "^3.11.2",
     "vue-text-mask": "^6.1.2",
