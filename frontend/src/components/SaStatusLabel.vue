@@ -12,28 +12,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import SaIcon from '@/components/SaIcon';
+  import { defineComponent, computed, PropType } from '@vue/composition-api';
 
-  export default {
-    name: 'SaStatusLabel',
+  type StatusLabelStatus = 'success' | 'pending' | 'regular' | 'failure';
 
+  export default defineComponent({
     components: {
       SaIcon,
     },
 
     props: {
       status: {
-        type: String,
+        type: String as PropType<StatusLabelStatus>,
         required: true,
-        validator(value) {
-          return [
-            'success',
-            'pending',
-            'regular',
-            'failure',
-          ].indexOf(value) !== -1;
-        },
       },
       simplified: {
         type: Boolean,
@@ -49,12 +42,12 @@
       },
     },
 
-    computed: {
-      statusIcon() {
-        if (this.customIcon) {
-          return this.customIcon;
+    setup(props) {
+      const statusIcon = computed((): string => {
+        if (props.customIcon) {
+          return props.customIcon;
         }
-        switch (this.status) {
+        switch (props.status) {
         case 'success':
           return 'success';
         case 'pending':
@@ -63,23 +56,28 @@
           return 'error';
         case 'regular':
           return 'gear';
+        default:
+          throw new Error(`${props.status} is not supported yet`);
         }
-      },
+      });
 
-      statusClass() {
-        return {
-          'sa-status-label_success': !this.simplified && this.status === 'success',
-          'sa-status-label_pending': !this.simplified && this.status === 'pending',
-          'sa-status-label_regular': !this.simplified && this.status === 'regular',
-          'sa-status-label_failure': !this.simplified && this.status === 'failure',
-          'sa-status-label_success-simplified': this.simplified && this.status === 'success',
-          'sa-status-label_pending-simplified': this.simplified && this.status === 'pending',
-          'sa-status-label_regular-simplified': this.simplified && this.status === 'regular',
-          'sa-status-label_failure-simplified': this.simplified && this.status === 'failure',
-        };
-      },
+      const statusClass = computed(() => ({
+        'sa-status-label_success': !props.simplified && props.status === 'success',
+        'sa-status-label_pending': !props.simplified && props.status === 'pending',
+        'sa-status-label_regular': !props.simplified && props.status === 'regular',
+        'sa-status-label_failure': !props.simplified && props.status === 'failure',
+        'sa-status-label_success-simplified': props.simplified && props.status === 'success',
+        'sa-status-label_pending-simplified': props.simplified && props.status === 'pending',
+        'sa-status-label_regular-simplified': props.simplified && props.status === 'regular',
+        'sa-status-label_failure-simplified': props.simplified && props.status === 'failure',
+      }));
+
+      return {
+        statusIcon,
+        statusClass,
+      };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

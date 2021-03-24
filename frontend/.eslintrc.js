@@ -1,9 +1,13 @@
 module.exports = {
   root: true,
   env: { node: true },
+
   extends: [
-    'plugin:vue/recommended',
-    '@vue/airbnb'],
+    'plugin:vue/essential',
+    '@vue/airbnb',
+    '@vue/typescript',
+  ],
+
   rules: {
     'import/no-useless-path-segments': 'off',
     'import/extensions': 'off',
@@ -19,11 +23,16 @@ module.exports = {
     'no-use-before-define': ['error', { functions: false }],
     // the two following configs are a workaround for https://github.com/babel/babel-eslint/issues/530
     'template-curly-spacing': 'off',
+    'import/no-unresolved': 'off',
     indent: [
       'error', 2,
       { ignoredNodes: ['TemplateLiteral'] },
     ],
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error'],
+    'import/no-extraneous-dependencies': ['error', { devDependencies: ['**/*.stories.js', 'config/storybook/*.*'] }],
   },
+
   overrides: [
     {
       files: [
@@ -43,5 +52,9 @@ module.exports = {
       },
     },
   ],
-  parserOptions: { parser: 'babel-eslint' },
+
+  parserOptions: {
+    parser: '@typescript-eslint/parser',
+  },
+
 };

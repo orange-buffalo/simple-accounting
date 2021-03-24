@@ -33,7 +33,7 @@
     </div>
 
     <DataItems
-      #default="{item: expense}"
+      v-slot="{item: expense}"
       :api-path="`/workspaces/${currentWorkspace.id}/expenses`"
       :filters="apiFilters"
     >

@@ -20,7 +20,7 @@
 
     <DataItems
       ref="taxesList"
-      #default="{item: tax}"
+      v-slot="{item: tax}"
       :api-path="`/workspaces/${currentWorkspace.id}/general-taxes`"
     >
       <GeneralTaxOverviewPanel :tax="tax" />

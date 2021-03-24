@@ -5,7 +5,7 @@
       :data="data"
     >
       <ElTableColumn
-        #default="{row: item}"
+        v-slot="{row: item}"
         align="left"
         header-align="left"
         label="Tax"

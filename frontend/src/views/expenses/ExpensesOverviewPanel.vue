@@ -1,6 +1,6 @@
 <template>
   <OverviewItem :title="expense.title">
-    <template v-slot:primary-attributes>
+    <template #primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="expense.datePaid"
         :tooltip="$t('expensesOverviewPanel.datePaid.tooltip')"
@@ -10,7 +10,7 @@
       </OverviewItemPrimaryAttribute>
     </template>
 
-    <template v-slot:attributes-preview>
+    <template #attributes-preview>
       <OverviewItemAttributePreviewIcon
         v-if="expense.notes"
         icon="notes"
@@ -42,7 +42,7 @@
       />
     </template>
 
-    <template v-slot:middle-column>
+    <template #middle-column>
       <ElTooltip
         :content="fullStatusText"
         :disabled="status === 'success'"
@@ -54,14 +54,14 @@
       </ElTooltip>
     </template>
 
-    <template v-slot:last-column>
+    <template #last-column>
       <OverviewItemAmountPanel
         :currency="totalAmount.currency"
         :amount="totalAmount.value"
       />
     </template>
 
-    <template v-slot:details>
+    <template #details>
       <OverviewItemDetailsSectionActions>
         <SaActionLink
           v-if="currentWorkspace.editable"

@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { addDecorator } from '@storybook/vue';
 import { createStoriesAppDecorator } from '../../tests/storybook/utils/stories-app';
 import { createStoreMockDecorator } from '../../tests/storybook/utils/stories-store-mocks';

@@ -8,15 +8,16 @@
   </span>
 </template>
 
-<script>
-  import { ref, watch } from '@vue/composition-api';
+<script lang="ts">
+  import { defineComponent, ref, watch } from '@vue/composition-api';
 
-  async function loadIcon(iconName) {
+  async function loadIcon(iconName: string) {
+    // noinspection TypeScriptCheckImport
     const iconModule = await import(/* webpackMode: "eager" */ `@/icons/svg/${iconName}.svg`);
     return iconModule.default;
   }
 
-  export default {
+  export default defineComponent({
     props: {
       icon: {
         type: String,
@@ -35,7 +36,7 @@
         loadedIcon,
       };
     },
-  };
+  });
 </script>
 
 <style lang="scss">
