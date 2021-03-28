@@ -7,7 +7,7 @@ describe('api service', () => {
     jest.resetModules();
     httpMock.setup();
 
-    ({ api } = require('@/services/api'));
+    ({ api } = require('@/services/api-legacy'));
   });
 
   afterEach(() => {

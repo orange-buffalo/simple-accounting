@@ -229,7 +229,7 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import MoneyOutput from '@/components/MoneyOutput';
   import { lockr } from '@/services/app-services';

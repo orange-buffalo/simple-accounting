@@ -3,7 +3,7 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import { initWorkspace } from '@/services/workspaces-service';
 
   export default {

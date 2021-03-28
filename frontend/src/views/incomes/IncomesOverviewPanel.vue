@@ -271,7 +271,7 @@
   import i18n from '@/services/i18n';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useNavigation from '@/components/navigation/useNavigation';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaOutputLoader from '@/components/SaOutputLoader';
 
   function useIncomeStatus({ income }) {

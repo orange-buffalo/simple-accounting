@@ -1,5 +1,5 @@
 import Router from 'vue-router';
-import { api } from '@/services/api';
+import { api } from '@/services/api-legacy';
 import Login from '@/views/Login';
 import LoginByLink from '@/views/LoginByLink';
 import WorkspaceSetup from '@/views/WorkspaceSetup';

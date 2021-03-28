@@ -1,5 +1,5 @@
 import { computed, ref } from '@vue/composition-api';
-import { api } from '@/services/api';
+import { api } from '@/services/api-legacy';
 import { findByIdOrEmpty } from '@/components/utils/utils';
 import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
 

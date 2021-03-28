@@ -86,7 +86,7 @@
   import {
     computed, onMounted, onUnmounted, ref,
   } from '@vue/composition-api';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaStatusLabel from '@/components/SaStatusLabel';
   import SaIcon from '@/components/SaIcon';
   import pushNotifications from '@/services/push-notifications';

@@ -84,7 +84,7 @@
 
 <script>
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import TheGeneralTaxReport from '@/views/reporting/TheGeneralTaxReport';
   import SaIcon from '@/components/SaIcon';
 

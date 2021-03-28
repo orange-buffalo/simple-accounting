@@ -215,7 +215,7 @@
     watch, computed, toRefs, reactive,
   } from '@vue/composition-api';
   import MoneyOutput from '@/components/MoneyOutput';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import i18n from '@/services/i18n';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';

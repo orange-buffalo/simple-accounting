@@ -74,7 +74,7 @@
     toRefs,
     watch,
   } from '@vue/composition-api';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import { initWorkspace } from '@/services/workspaces-service';
   import { userApi } from '@/services/user-api';
   import { app } from '@/services/app-services';

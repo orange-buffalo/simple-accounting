@@ -35,7 +35,7 @@
 
 <script>
   import DocumentsStorageConfig from '@/views/profile/DocumentsStorageConfig';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import MyProfileLanguagePreferences from '@/views/profile/MyProfileLanguagePreferences';
   import SaForm from '@/components/SaForm';
   import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup';

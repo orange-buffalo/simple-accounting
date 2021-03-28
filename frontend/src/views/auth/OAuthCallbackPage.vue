@@ -34,7 +34,7 @@
 
 <script>
   import { ref } from '@vue/composition-api';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import LogoLogin from '@/assets/logo-login.svg';
   import SaIcon from '@/components/SaIcon';
   import SaStatusLabel from '@/components/SaStatusLabel';

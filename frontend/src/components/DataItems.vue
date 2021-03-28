@@ -57,7 +57,7 @@
 
 <script>
   import throttle from 'lodash/throttle';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaIcon from '@/components/SaIcon';
 
   export default {

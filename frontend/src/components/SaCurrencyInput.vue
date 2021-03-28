@@ -26,7 +26,7 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import i18n from '@/services/i18n';
 

@@ -48,7 +48,7 @@
 
   import { mapActions } from 'vuex';
   import { Message } from 'element-ui';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
 
   export default {
     name: 'WorkspaceSetup',

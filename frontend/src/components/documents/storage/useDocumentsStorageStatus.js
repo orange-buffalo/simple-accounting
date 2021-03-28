@@ -1,5 +1,5 @@
 import { ref } from '@vue/composition-api';
-import { api } from '@/services/api';
+import { api } from '@/services/api-legacy';
 
 export default function useDocumentsStorageStatus() {
   const documentsStorageStatus = ref({

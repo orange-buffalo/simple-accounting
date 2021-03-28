@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import { api } from '@/services/api';
+import { api } from '@/services/api-legacy';
 import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 import { app } from '@/services/app-services';
 import router from './routes-definitions';

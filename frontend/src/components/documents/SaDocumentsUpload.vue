@@ -36,7 +36,7 @@
 <script>
   import { computed, ref, watch } from '@vue/composition-api';
   import SaDocumentUpload from '@/components/documents/SaDocumentUpload';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaDocument from '@/components/documents/SaDocument';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';

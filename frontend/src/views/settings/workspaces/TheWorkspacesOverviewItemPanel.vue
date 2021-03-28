@@ -78,7 +78,7 @@
   import copy from 'copy-to-clipboard';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaAttributeValue from '@/components/SaAttributeValue';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaIcon from '@/components/SaIcon';
 
   export default {
