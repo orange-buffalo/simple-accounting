@@ -18,7 +18,7 @@ object Versions {
     const val awaitility = "4.0.3"
     const val selenide = "5.20.1"
     const val testContainers = "1.15.2"
-    const val openapiDiff = "2.0.0-beta.4"
+    const val zjsonpatch = "0.4.11"
     const val springdocOpenapi = "1.5.5"
 
     const val dockerPlugin = "6.7.0"

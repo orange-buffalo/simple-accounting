@@ -81,7 +81,8 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
     testImplementation("com.github.tomakehurst:wiremock-jre8:${Versions.wireMock}")
     testImplementation("org.awaitility:awaitility:${Versions.awaitility}")
-    testImplementation("com.github.joschi.openapi-diff:core:${Versions.openapiDiff}")
+    testImplementation("com.flipkart.zjsonpatch:zjsonpatch:${Versions.zjsonpatch}")
+    testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 
     testRuntimeOnly("org.springdoc:springdoc-openapi-kotlin:${Versions.springdocOpenapi}")
     testRuntimeOnly("org.springdoc:springdoc-openapi-webflux-core:${Versions.springdocOpenapi}")

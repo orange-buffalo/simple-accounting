@@ -1,10 +1,12 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.flipkart.zjsonpatch.JsonDiff
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.whenever
-import com.qdesrame.openapi.diff.core.OpenApiCompare
-import com.qdesrame.openapi.diff.core.output.MarkdownRender
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.web.ui.SpaWebFilter
 import org.assertj.core.api.Assertions.assertThat
@@ -50,10 +52,19 @@ class ApiSpecIT(
             .expectStatus().isOk
             .expectBody<String>()
             .consumeWith {
-                val changedSpec = OpenApiCompare.fromContents(committedSpec.file.readText(), it.responseBody)
-                assertThat(changedSpec.isChanged.isUnchanged)
-                    .withFailMessage { MarkdownRender().render(changedSpec); }
-                    .isTrue
+                val currentApiSpec = it.responseBody!!
+
+                val mapper = ObjectMapper(YAMLFactory())
+                val schemaDiff = JsonDiff.asJson(
+                    mapper.readTree(committedSpec.inputStream),
+                    mapper.readTree(currentApiSpec)
+                )
+
+                assertThat(schemaDiff).isInstanceOfSatisfying(ArrayNode::class.java) { changes ->
+                    assertThat(changes.size())
+                        .withFailMessage { schemaDiff.toPrettyString() }
+                        .isZero()
+                }
             }
     }
 }

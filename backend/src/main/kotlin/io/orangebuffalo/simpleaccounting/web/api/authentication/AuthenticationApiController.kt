@@ -50,8 +50,10 @@ class AuthenticationApiController(
         return response.body(TokenResponse(jwtToken))
     }
 
-    @PostMapping(path = ["login"], params = ["sharedWorkspaceToken"])
-    suspend fun login(@RequestParam("sharedWorkspaceToken") sharedWorkspaceToken: String): TokenResponse {
+    @PostMapping("login-by-token")
+    suspend fun loginBySharedWorkspaceToken(
+        @RequestParam("sharedWorkspaceToken") sharedWorkspaceToken: String
+    ): TokenResponse {
         val workspaceAccessToken = workspaceAccessTokenService.getValidToken(sharedWorkspaceToken)
             ?: throw BadCredentialsException("Token $sharedWorkspaceToken is not valid")
         val jwtToken = jwtService.buildJwtToken(

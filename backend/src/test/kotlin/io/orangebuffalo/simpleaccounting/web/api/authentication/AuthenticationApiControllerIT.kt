@@ -22,6 +22,7 @@ import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
 
 private const val LOGIN_PATH = "/api/auth/login"
+private const val LOGIN_BY_TOKEN_PATH = "/api/auth/login-by-token"
 private const val TOKEN_PATH = "/api/auth/token"
 
 @SimpleAccountingIntegrationTest
@@ -340,7 +341,7 @@ class AuthenticationApiControllerIT(
     fun `should return 401 on shared workspaces token login if token is not known`(testData: AuthenticationApiTestData) {
         mockCurrentTime(timeService)
 
-        client.post().uri("$LOGIN_PATH?sharedWorkspaceToken=42")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=42")
             .exchange()
             .expectStatus().isUnauthorized
     }
@@ -349,7 +350,7 @@ class AuthenticationApiControllerIT(
     fun `should return 401 on shared workspaces token login if token is revoked`(testData: AuthenticationApiTestData) {
         mockCurrentTime(timeService)
 
-        client.post().uri("$LOGIN_PATH?sharedWorkspaceToken=revokedToken")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=revokedToken")
             .exchange()
             .expectStatus().isUnauthorized
     }
@@ -358,7 +359,7 @@ class AuthenticationApiControllerIT(
     fun `should return 401 on shared workspaces token login if token is expired`(testData: AuthenticationApiTestData) {
         mockCurrentTime(timeService)
 
-        client.post().uri("$LOGIN_PATH?sharedWorkspaceToken=expiredToken")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=expiredToken")
             .exchange()
             .expectStatus().isUnauthorized
     }
@@ -374,7 +375,7 @@ class AuthenticationApiControllerIT(
                     && roles.contains("USER")
         }, eq(testData.validAccessToken.validTill))) doReturn "jwtTokenForSharedWorkspace"
 
-        client.post().uri("$LOGIN_PATH?sharedWorkspaceToken=validToken")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=validToken")
             .exchange()
             .expectStatus().isOk
             .expectHeader().doesNotExist(HttpHeaders.SET_COOKIE)

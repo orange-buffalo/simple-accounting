@@ -112,7 +112,7 @@ export async function handleErrorResponse(error: any): Promise<any | null> {
 
 async function login(request : Components.Schemas.LoginRequest) {
   cancelTokenRefresh();
-  const response = await apiClient.login_1(null, request, {
+  const response = await apiClient.login(null, request, {
     skipGlobalErrorHandler: true,
   } as any);
   updateApiToken(response.data.token);
@@ -129,7 +129,7 @@ async function loginBySharedToken(sharedToken: string) {
   cancelTokenRefresh();
 
   try {
-    const tokenLoginResponse = await apiClient.login_1({
+    const tokenLoginResponse = await apiClient.loginBySharedWorkspaceToken({
       sharedWorkspaceToken: sharedToken,
     });
 

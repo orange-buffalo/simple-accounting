@@ -689,14 +689,16 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
   }
-  namespace Login1 {
+  namespace Login {
+    export type RequestBody = Components.Schemas.LoginRequest;
+  }
+  namespace LoginBySharedWorkspaceToken {
     namespace Parameters {
       export type SharedWorkspaceToken = string;
     }
     export interface QueryParameters {
       sharedWorkspaceToken: Parameters.SharedWorkspaceToken;
     }
-    export type RequestBody = Components.Schemas.LoginRequest;
   }
   namespace RefreshToken {
     export interface CookieParameters {
@@ -1134,11 +1136,19 @@ export interface OperationMethods {
     config?: AxiosRequestConfig
   ): OperationResponse<any>
   /**
-   * login_1
+   * login
    */
-  'login_1'(
-    parameters?: Parameters<Paths.Login1.QueryParameters> | null,
-    data?: Paths.Login1.RequestBody,
+  'login'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.Login.RequestBody,
+    config?: AxiosRequestConfig
+  ): OperationResponse<any>
+  /**
+   * loginBySharedWorkspaceToken
+   */
+  'loginBySharedWorkspaceToken'(
+    parameters?: Parameters<Paths.LoginBySharedWorkspaceToken.QueryParameters> | null,
+    data?: any,
     config?: AxiosRequestConfig
   ): OperationResponse<any>
   /**
@@ -1198,6 +1208,14 @@ export interface OperationMethods {
     config?: AxiosRequestConfig
   ): OperationResponse<any>
   /**
+   * getIntegrationStatus
+   */
+  'getIntegrationStatus'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): OperationResponse<any>
+  /**
    * getPushNotificationMessages
    */
   'getPushNotificationMessages'(
@@ -1218,62 +1236,6 @@ export interface OperationMethods {
    */
   'getContent'(
     parameters?: Parameters<Paths.GetContent.QueryParameters> | null,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<any>
-  /**
-   * getIntegrationStatus_1
-   */
-  'getIntegrationStatus_1'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<any>
-  /**
-   * getIntegrationStatus_6
-   */
-  'getIntegrationStatus_6'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<any>
-  /**
-   * getIntegrationStatus_3
-   */
-  'getIntegrationStatus_3'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<any>
-  /**
-   * getIntegrationStatus_4
-   */
-  'getIntegrationStatus_4'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<any>
-  /**
-   * getIntegrationStatus_5
-   */
-  'getIntegrationStatus_5'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<any>
-  /**
-   * getIntegrationStatus
-   */
-  'getIntegrationStatus'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<any>
-  /**
-   * getIntegrationStatus_2
-   */
-  'getIntegrationStatus_2'(
-    parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
     config?: AxiosRequestConfig
   ): OperationResponse<any>
@@ -1673,11 +1635,21 @@ export interface PathsDictionary {
   }
   ['/api/auth/login']: {
     /**
-     * login_1
+     * login
      */
     'post'(
-      parameters?: Parameters<Paths.Login1.QueryParameters> | null,
-      data?: Paths.Login1.RequestBody,
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.Login.RequestBody,
+      config?: AxiosRequestConfig
+    ): OperationResponse<any>
+  }
+  ['/api/auth/login-by-token']: {
+    /**
+     * loginBySharedWorkspaceToken
+     */
+    'post'(
+      parameters?: Parameters<Paths.LoginBySharedWorkspaceToken.QueryParameters> | null,
+      data?: any,
       config?: AxiosRequestConfig
     ): OperationResponse<any>
   }
@@ -1751,6 +1723,16 @@ export interface PathsDictionary {
       config?: AxiosRequestConfig
     ): OperationResponse<any>
   }
+  ['/api/storage/google-drive/status']: {
+    /**
+     * getIntegrationStatus
+     */
+    'get'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: any,
+      config?: AxiosRequestConfig
+    ): OperationResponse<any>
+  }
   ['/api/push-notifications']: {
     /**
      * getPushNotificationMessages
@@ -1777,64 +1759,6 @@ export interface PathsDictionary {
      */
     'get'(
       parameters?: Parameters<Paths.GetContent.QueryParameters> | null,
-      data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<any>
-  }
-  ['/api/storage/google-drive/status']: {
-    /**
-     * getIntegrationStatus_1
-     */
-    'get'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<any>
-    /**
-     * getIntegrationStatus_6
-     */
-    'put'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<any>
-    /**
-     * getIntegrationStatus_3
-     */
-    'post'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<any>
-    /**
-     * getIntegrationStatus_5
-     */
-    'delete'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<any>
-    /**
-     * getIntegrationStatus
-     */
-    'options'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<any>
-    /**
-     * getIntegrationStatus_2
-     */
-    'head'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<any>
-    /**
-     * getIntegrationStatus_4
-     */
-    'patch'(
-      parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
       config?: AxiosRequestConfig
     ): OperationResponse<any>
