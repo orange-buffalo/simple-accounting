@@ -1,6 +1,12 @@
 import { Page } from 'puppeteer';
 import Dashboard from '@/views/Dashboard';
-import { Components } from '@/services/api/api-client-definition';
+import {
+  CategoryDto,
+  CustomerDto,
+  IncomesExpensesStatisticsDto,
+  IncomeTaxPaymentsStatisticsDto,
+  InvoiceDto,
+} from '@/services/api';
 import { apiPage, onGet } from '../utils/stories-api-mocks';
 import { Categories, Customers } from '../utils/stories-common-data';
 import { pauseAndResetAnimation, setViewportHeight } from '../utils/stories-utils';
@@ -55,7 +61,7 @@ export const Loaded = () => ({
         }],
         currencyExchangeDifference: 0,
         totalAmount: 1998615,
-      } as Components.Schemas.IncomesExpensesStatisticsDto);
+      } as IncomesExpensesStatisticsDto);
 
     onGet('/api/workspaces/42/statistics/incomes')
       .successJson({
@@ -72,15 +78,15 @@ export const Loaded = () => ({
         }],
         currencyExchangeDifference: 3782,
         totalAmount: 7487200,
-      } as Components.Schemas.IncomesExpensesStatisticsDto);
+      } as IncomesExpensesStatisticsDto);
 
     onGet('/api/workspaces/42/statistics/income-tax-payments')
       .successJson({
         totalTaxPayments: 478292,
-      } as Components.Schemas.IncomeTaxPaymentsStatisticsDto);
+      } as IncomeTaxPaymentsStatisticsDto);
 
     onGet('/api/workspaces/42/invoices')
-      .successJson(apiPage<Components.Schemas.InvoiceDto>([{
+      .successJson(apiPage<InvoiceDto>([{
         currency: 'USD',
         amount: 234289,
         customer: Customers.customer1.id,
@@ -109,12 +115,12 @@ export const Loaded = () => ({
       }]));
 
     onGet('api/workspaces/42/categories')
-      .successJson(apiPage<Components.Schemas.CategoryDto>([
+      .successJson(apiPage<CategoryDto>([
         Categories.category1, Categories.category2, Categories.category3, Categories.category4,
       ]));
 
     onGet('api/workspaces/42/customers')
-      .successJson(apiPage<Components.Schemas.CustomerDto>([Customers.customer1]));
+      .successJson(apiPage<CustomerDto>([Customers.customer1]));
   },
 });
 Loaded.parameters = {

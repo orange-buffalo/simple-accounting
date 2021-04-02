@@ -1,6 +1,6 @@
-import { Components } from '@/services/api/api-client-definition';
+import { CategoryDto, CustomerDto } from '@/services/api';
 
-const categories: Array<Components.Schemas.CategoryDto> = [];
+const categories: Array<CategoryDto> = [];
 for (let i = 1; i < 5; i += 1) {
   categories[i - 1] = {
     id: i,
@@ -18,7 +18,7 @@ export const Categories = {
   category4: categories[3],
 };
 
-const customers: Array<Components.Schemas.CustomerDto> = [];
+const customers: Array<CustomerDto> = [];
 for (let i = 1; i < 5; i += 1) {
   customers[i - 1] = {
     id: i,

@@ -1,8 +1,9 @@
-import { Client as SimpleAccountingClient, Components } from '@/services/api/api-client-definition';
+import { Client as SimpleAccountingClient } from '@/services/api/api-client-definition';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { AxiosRequestConfig } from 'openapi-client-axios';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
+import { LoginRequest } from '@/services/api';
 
 interface ApiToken {
   jwtToken: string | null,
@@ -110,7 +111,7 @@ export async function handleErrorResponse(error: any): Promise<any | null> {
   return null;
 }
 
-async function login(request : Components.Schemas.LoginRequest) {
+async function login(request : LoginRequest) {
   cancelTokenRefresh();
   const response = await apiClient.login(null, request, {
     skipGlobalErrorHandler: true,
