@@ -17,7 +17,7 @@ export default {
 
 export const Loading = () => ({
   components: { OAuthCallbackPage },
-  template: '<OAuthCallbackPage style="height: 100%"/>',
+  template: '<OAuthCallbackPage />',
   beforeCreate() {
     onPost('/api/auth/oauth2/callback')
       .neverEndingRequest();
@@ -35,7 +35,7 @@ Loading.parameters = {
 // noinspection JSUnusedGlobalSymbols
 export const Success = () => ({
   components: { OAuthCallbackPage },
-  template: '<OAuthCallbackPage style="height: 100%"/>',
+  template: '<OAuthCallbackPage />',
   beforeCreate() {
     onPost('/api/auth/oauth2/callback')
       .successJson({});
@@ -45,7 +45,7 @@ export const Success = () => ({
 // noinspection JSUnusedGlobalSymbols
 export const Failure = () => ({
   components: { OAuthCallbackPage },
-  template: '<OAuthCallbackPage style="height: 100%"/>',
+  template: '<OAuthCallbackPage />',
   beforeCreate() {
     onPost('/api/auth/oauth2/callback')
       .intercept((req, res) => res.status(400)

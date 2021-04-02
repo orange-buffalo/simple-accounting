@@ -36,6 +36,7 @@ module.exports = {
         '**/*.stories.ts',
         '**/*.spec.js',
         '**/*.spec.ts',
+        '**/stories-app.js',
         'config/storybook/*.*'],
     }],
   },
