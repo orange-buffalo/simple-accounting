@@ -131,7 +131,7 @@ export const Paid = createStory({
     status: 'PAID',
   },
 });
-Paid.story.parameters = {
+Paid.parameters = {
   storyshots: {
     async setup(page) {
       await togglePanelInStoryshots(page);
