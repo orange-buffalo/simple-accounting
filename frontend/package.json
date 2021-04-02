@@ -52,6 +52,8 @@
     "@storybook/theming": "^6.1.21",
     "@storybook/vue": "^6.1.21",
     "@types/jest": "^26.0.22",
+    "@types/pollyjs__adapter-xhr": "^2.6.1",
+    "@types/pollyjs__core": "^4.3.2",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "@vue/cli-plugin-babel": "^4.5.12",

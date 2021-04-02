@@ -1,7 +1,8 @@
 import { Page } from 'puppeteer';
 import Dashboard from '@/views/Dashboard';
 import { Components } from '@/services/api/api-client-definition';
-import { onGet } from '../utils/stories-api-mocks';
+import { apiPage, onGet } from '../utils/stories-api-mocks';
+import { Categories, Customers } from '../utils/stories-common-data';
 import { pauseAndResetAnimation, setViewportHeight } from '../utils/stories-utils';
 
 // noinspection JSUnusedGlobalSymbols
@@ -42,12 +43,12 @@ export const Loaded = () => ({
     onGet('/api/workspaces/42/statistics/expenses')
       .successJson({
         items: [{
-          categoryId: 1,
+          categoryId: Categories.category1.id,
           totalAmount: 1920223,
           finalizedCount: 3,
           pendingCount: 2,
         }, {
-          categoryId: 2,
+          categoryId: Categories.category2.id,
           totalAmount: 78392,
           finalizedCount: 1,
           pendingCount: 0,
@@ -59,12 +60,12 @@ export const Loaded = () => ({
     onGet('/api/workspaces/42/statistics/incomes')
       .successJson({
         items: [{
-          categoryId: 3,
+          categoryId: Categories.category3.id,
           totalAmount: 7394307,
           finalizedCount: 12,
           pendingCount: 0,
         }, {
-          categoryId: 4,
+          categoryId: Categories.category4.id,
           totalAmount: 92893,
           finalizedCount: 341,
           pendingCount: 4,
@@ -79,58 +80,41 @@ export const Loaded = () => ({
       } as Components.Schemas.IncomeTaxPaymentsStatisticsDto);
 
     onGet('/api/workspaces/42/invoices')
-      .successJson({
-        totalElements: 0,
-        pageSize: 0,
-        data: [{
-          currency: 'USD',
-          amount: 234289,
-          customer: 1,
-          title: 'Invoice #706',
-          status: 'SENT',
-          dateIssued: '2030-01-02',
-          dateSent: '2030-01-05',
-          dueDate: '2030-06-23',
-        }, {
-          currency: 'EUR',
-          amount: 98372,
-          customer: 1,
-          title: 'Invoice #032',
-          status: 'OVERDUE',
-          dateIssued: '2030-01-02',
-          dateSent: '2030-01-05',
-          dueDate: '2030-02-01',
-        }],
-      } as Components.Schemas.ApiPageInvoiceDto);
+      .successJson(apiPage<Components.Schemas.InvoiceDto>([{
+        currency: 'USD',
+        amount: 234289,
+        customer: Customers.customer1.id,
+        title: 'Invoice #706',
+        status: 'SENT',
+        dateIssued: '2030-01-02',
+        dateSent: '2030-01-05',
+        dueDate: '2030-06-23',
+        timeRecorded: '',
+        id: 1,
+        version: 1,
+        attachments: [],
+      }, {
+        currency: 'EUR',
+        amount: 98372,
+        customer: Customers.customer1.id,
+        title: 'Invoice #032',
+        status: 'OVERDUE',
+        dateIssued: '2030-01-02',
+        dateSent: '2030-01-05',
+        dueDate: '2030-02-01',
+        timeRecorded: '',
+        id: 1,
+        version: 1,
+        attachments: [],
+      }]));
 
     onGet('api/workspaces/42/categories')
-      .successJson({
-        totalElements: 4,
-        pageSize: 4,
-        data: [{
-          id: 1,
-          name: 'Category 1',
-        }, {
-          id: 2,
-          name: 'Category 2',
-        }, {
-          id: 3,
-          name: 'Category 3',
-        }, {
-          id: 4,
-          name: 'Category 4',
-        }],
-      } as Components.Schemas.ApiPageCategoryDto);
+      .successJson(apiPage<Components.Schemas.CategoryDto>([
+        Categories.category1, Categories.category2, Categories.category3, Categories.category4,
+      ]));
 
     onGet('api/workspaces/42/customers')
-      .successJson({
-        totalElements: 1,
-        pageSize: 1,
-        data: [{
-          id: 1,
-          name: 'Customer 1',
-        }],
-      } as Components.Schemas.ApiPageCustomerDto);
+      .successJson(apiPage<Components.Schemas.CustomerDto>([Customers.customer1]));
   },
 });
 Loaded.parameters = {

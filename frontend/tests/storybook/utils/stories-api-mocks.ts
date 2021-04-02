@@ -1,22 +1,29 @@
-import { Polly } from '@pollyjs/core';
+import { Polly, PollyServer, RouteHandler } from '@pollyjs/core';
 import XHRAdapter from '@pollyjs/adapter-xhr';
+import { ApiPage } from '@/services/api';
 import { store } from './stories-app';
 
 Polly.register(XHRAdapter);
 
-let polly;
-let server;
+let polly: Polly | null;
+let server: PollyServer;
 
 resetApiMock();
 
-function enrichRequestMock(requestMock) {
-  // eslint-disable-next-line no-param-reassign
-  requestMock.neverEndingRequest = function neverEndingRequest() {
-    return this.intercept(async () => server.timeout(99999999));
+interface EnhancedRouteHandler extends RouteHandler {
+  neverEndingRequest: () => EnhancedRouteHandler,
+  successJson: (jsonOrSupplier: any) => EnhancedRouteHandler,
+  reply: (statusCode: number, json: any) => EnhancedRouteHandler,
+}
+
+function enrichRequestMock(requestMock: RouteHandler): EnhancedRouteHandler {
+  const enhancedMock = requestMock as EnhancedRouteHandler;
+
+  enhancedMock.neverEndingRequest = function neverEndingRequest() {
+    return this.intercept(async () => server.timeout(99999999)) as EnhancedRouteHandler;
   };
 
-  // eslint-disable-next-line no-param-reassign
-  requestMock.successJson = function successJson(jsonOrSupplier) {
+  enhancedMock.successJson = function successJson(jsonOrSupplier: any): EnhancedRouteHandler {
     return this.intercept((req, res) => {
       let json = jsonOrSupplier;
       if (typeof jsonOrSupplier === 'function') {
@@ -24,43 +31,44 @@ function enrichRequestMock(requestMock) {
       }
       res.status(200)
         .json(json);
-    });
+    }) as EnhancedRouteHandler;
   };
 
-  // eslint-disable-next-line no-param-reassign
-  requestMock.reply = function reply(statusCode, json) {
-    return this.intercept((req, res) => res.status(statusCode)
-      .json(json));
+  enhancedMock.reply = function reply(statusCode: number, json: any) {
+    return this.intercept((req, res) => {
+      res.status(statusCode)
+        .json(json);
+    }) as EnhancedRouteHandler;
   };
 
-  return requestMock;
+  return enhancedMock;
 }
 
-export async function responseDelay(timeout) {
+export async function responseDelay(timeout: number) {
   await server.timeout(timeout);
 }
 
-export function onGetToWorkspacePath(subPath) {
+export function onGetToWorkspacePath(subPath: string) {
   return onGet(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
 }
 
-export function onPutToWorkspacePath(subPath) {
+export function onPutToWorkspacePath(subPath: string) {
   return onPut(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
 }
 
-export function onPostToWorkspacePath(subPath) {
+export function onPostToWorkspacePath(subPath: string) {
   return onPost(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
 }
 
-export function onGet(path) {
+export function onGet(path: string) {
   return enrichRequestMock(server.get(path));
 }
 
-export function onPost(path) {
+export function onPost(path: string) {
   return enrichRequestMock(server.post(path));
 }
 
-export function onPut(path) {
+export function onPut(path: string) {
   return enrichRequestMock(server.put(path));
 }
 
@@ -93,7 +101,7 @@ export function createApiMockDecorator() {
   };
 }
 
-export function apiPage(data) {
+export function apiPage<T>(data: Array<T>): ApiPage<T> {
   return {
     pageNumber: 1,
     totalElements: data.length,

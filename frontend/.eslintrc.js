@@ -32,11 +32,9 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error'],
     'import/no-extraneous-dependencies': ['error', {
       devDependencies: [
-        '**/*.stories.js',
-        '**/*.stories.ts',
+        '**/tests/storybook/**/*.*',
         '**/*.spec.js',
         '**/*.spec.ts',
-        '**/stories-app.js',
         'config/storybook/*.*'],
     }],
   },

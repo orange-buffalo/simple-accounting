@@ -1,5 +1,8 @@
 import Docker from 'dockerode';
-import { timeout } from './stories-utils';
+
+function timeout(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 const docker = new Docker();
 
