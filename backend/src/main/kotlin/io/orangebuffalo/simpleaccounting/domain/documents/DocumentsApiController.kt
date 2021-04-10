@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundExce
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
@@ -22,7 +22,7 @@ import java.time.Instant
 class DocumentsApiController(
     private val documentsService: DocumentsService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
 ) {
 
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])

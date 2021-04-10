@@ -372,6 +372,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       invoiceId: Parameters.InvoiceId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.InvoiceDto;
+    }
   }
   namespace CreateCategory {
     namespace Parameters {
@@ -381,6 +384,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.CreateCategoryDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.CategoryDto;
+    }
   }
   namespace CreateCustomer {
     namespace Parameters {
@@ -390,6 +396,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditCustomerDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.CustomerDto;
+    }
   }
   namespace CreateExpense {
     namespace Parameters {
@@ -399,6 +408,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditExpenseDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.ExpenseDto;
+    }
   }
   namespace CreateIncome {
     namespace Parameters {
@@ -408,6 +420,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditIncomeDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomeDto;
+    }
   }
   namespace CreateInvoice {
     namespace Parameters {
@@ -417,6 +432,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditInvoiceDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.InvoiceDto;
+    }
   }
   namespace CreateTax {
     namespace Parameters {
@@ -426,6 +444,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditGeneralTaxDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.GeneralTaxDto;
+    }
   }
   namespace CreateTaxPayment {
     namespace Parameters {
@@ -435,6 +456,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditIncomeTaxPaymentDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomeTaxPaymentDto;
+    }
   }
   namespace CreateToken {
     namespace Parameters {
@@ -444,12 +468,21 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.CreateWorkspaceAccessTokenDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.WorkspaceAccessTokenDto;
+    }
   }
   namespace CreateUser {
     export type RequestBody = Components.Schemas.CreateUserDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.UserDto;
+    }
   }
   namespace CreateWorkspace {
     export type RequestBody = Components.Schemas.CreateWorkspaceDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.WorkspaceDto;
+    }
   }
   namespace EditWorkspace {
     namespace Parameters {
@@ -459,6 +492,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditWorkspaceDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.WorkspaceDto;
+    }
   }
   namespace GetAccessTokens {
     namespace Parameters {
@@ -466,6 +502,9 @@ declare namespace Paths {
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageWorkspaceAccessTokenDto;
     }
   }
   namespace GetCategories {
@@ -475,6 +514,9 @@ declare namespace Paths {
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageCategoryDto;
+    }
   }
   namespace GetContent {
     namespace Parameters {
@@ -483,6 +525,9 @@ declare namespace Paths {
     export interface QueryParameters {
       token: Parameters.Token;
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.FluxDataBuffer;
+    }
   }
   namespace GetCurrenciesShortlist {
     namespace Parameters {
@@ -490,6 +535,9 @@ declare namespace Paths {
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
+    }
+    namespace Responses {
+      export type $200 = string[];
     }
   }
   namespace GetCustomer {
@@ -501,6 +549,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       customerId: Parameters.CustomerId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.CustomerDto;
+    }
   }
   namespace GetCustomers {
     namespace Parameters {
@@ -508,6 +559,9 @@ declare namespace Paths {
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageCustomerDto;
     }
   }
   namespace GetDocumentContent {
@@ -519,6 +573,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       documentId: Parameters.DocumentId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.FluxDataBuffer;
+    }
   }
   namespace GetDocuments {
     namespace Parameters {
@@ -526,6 +583,14 @@ declare namespace Paths {
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageDocumentDto;
+    }
+  }
+  namespace GetDocumentsStorageStatus {
+    namespace Responses {
+      export type $200 = Components.Schemas.DocumentsStorageStatus;
     }
   }
   namespace GetDownloadToken {
@@ -537,6 +602,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       documentId: Parameters.DocumentId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.GetDownloadTokenResponse;
+    }
   }
   namespace GetExpense {
     namespace Parameters {
@@ -547,6 +615,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       expenseId: Parameters.ExpenseId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.ExpenseDto;
+    }
   }
   namespace GetExpenses {
     namespace Parameters {
@@ -554,6 +625,9 @@ declare namespace Paths {
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageExpenseDto;
     }
   }
   namespace GetExpensesStatistics {
@@ -569,6 +643,9 @@ declare namespace Paths {
       fromDate: Parameters.FromDate; // date
       toDate: Parameters.ToDate; // date
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomesExpensesStatisticsDto;
+    }
   }
   namespace GetGeneralTaxReport {
     namespace Parameters {
@@ -583,6 +660,9 @@ declare namespace Paths {
       fromDate: Parameters.FromDate; // date
       toDate: Parameters.ToDate; // date
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.GeneralTaxReportDto;
+    }
   }
   namespace GetIncome {
     namespace Parameters {
@@ -593,6 +673,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       incomeId: Parameters.IncomeId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomeDto;
+    }
   }
   namespace GetIncomes {
     namespace Parameters {
@@ -600,6 +683,9 @@ declare namespace Paths {
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageIncomeDto;
     }
   }
   namespace GetIncomesStatistics {
@@ -615,6 +701,14 @@ declare namespace Paths {
       fromDate: Parameters.FromDate; // date
       toDate: Parameters.ToDate; // date
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomesExpensesStatisticsDto;
+    }
+  }
+  namespace GetIntegrationStatus {
+    namespace Responses {
+      export type $200 = Components.Schemas.GoogleDriveStorageIntegrationStatus;
+    }
   }
   namespace GetInvoice {
     namespace Parameters {
@@ -625,18 +719,48 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       invoiceId: Parameters.InvoiceId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.InvoiceDto;
+    }
   }
   namespace GetInvoices {
     namespace Parameters {
+      export type FreeSearchTextEq = string;
+      export type PageNumber = number; // int32
+      export type PageSize = number; // int32
+      export type SortBy = "_NOT_SUPPORTED";
+      export type SortOrder = "asc" | "desc";
+      export type StatusIn = ("DRAFT" | "SENT" | "OVERDUE" | "PAID" | "CANCELLED")[];
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
+    export interface QueryParameters {
+      sortBy?: Parameters.SortBy;
+      "freeSearchText[eq]"?: Parameters.FreeSearchTextEq;
+      "status[in]"?: Parameters.StatusIn;
+      pageNumber?: Parameters.PageNumber; // int32
+      pageSize?: Parameters.PageSize; // int32
+      sortOrder?: Parameters.SortOrder;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageInvoiceDto;
+    }
+  }
+  namespace GetProfile {
+    namespace Responses {
+      export type $200 = Components.Schemas.ProfileDto;
+    }
   }
   namespace GetPushNotificationMessages {
     namespace Responses {
       export type $200 = Components.Schemas.CurrentUserPushNotificationMessage[];
+    }
+  }
+  namespace GetSharedWorkspaces {
+    namespace Responses {
+      export type $200 = Components.Schemas.WorkspaceDto[];
     }
   }
   namespace GetTax {
@@ -648,6 +772,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       taxId: Parameters.TaxId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.GeneralTaxDto;
+    }
   }
   namespace GetTaxPayment {
     namespace Parameters {
@@ -658,6 +785,9 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       taxPaymentId: Parameters.TaxPaymentId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomeTaxPaymentDto;
+    }
   }
   namespace GetTaxPayments {
     namespace Parameters {
@@ -665,6 +795,9 @@ declare namespace Paths {
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageIncomeTaxPaymentDto;
     }
   }
   namespace GetTaxPaymentsStatistics {
@@ -680,6 +813,9 @@ declare namespace Paths {
       fromDate: Parameters.FromDate; // date
       toDate: Parameters.ToDate; // date
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomeTaxPaymentsStatisticsDto;
+    }
   }
   namespace GetTaxes {
     namespace Parameters {
@@ -688,9 +824,25 @@ declare namespace Paths {
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageGeneralTaxDto;
+    }
+  }
+  namespace GetUsers {
+    namespace Responses {
+      export type $200 = Components.Schemas.ApiPageUserDto;
+    }
+  }
+  namespace GetWorkspaces {
+    namespace Responses {
+      export type $200 = Components.Schemas.WorkspaceDto[];
+    }
   }
   namespace Login {
     export type RequestBody = Components.Schemas.LoginRequest;
+    namespace Responses {
+      export type $200 = Components.Schemas.TokenResponse;
+    }
   }
   namespace LoginBySharedWorkspaceToken {
     namespace Parameters {
@@ -698,6 +850,14 @@ declare namespace Paths {
     }
     export interface QueryParameters {
       sharedWorkspaceToken: Parameters.SharedWorkspaceToken;
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.TokenResponse;
+    }
+  }
+  namespace Logout {
+    namespace Responses {
+      export type $200 = string;
     }
   }
   namespace RefreshToken {
@@ -707,9 +867,15 @@ declare namespace Paths {
     namespace Parameters {
       export type RefreshToken = string;
     }
+    namespace Responses {
+      export type $200 = Components.Schemas.TokenResponse;
+    }
   }
   namespace SaveSharedWorkspace {
     export type RequestBody = Components.Schemas.SaveSharedWorkspaceRequestDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.WorkspaceDto;
+    }
   }
   namespace UpdateCustomer {
     namespace Parameters {
@@ -721,6 +887,9 @@ declare namespace Paths {
       customerId: Parameters.CustomerId; // int64
     }
     export type RequestBody = Components.Schemas.EditCustomerDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.CustomerDto;
+    }
   }
   namespace UpdateExpense {
     namespace Parameters {
@@ -732,6 +901,9 @@ declare namespace Paths {
       expenseId: Parameters.ExpenseId; // int64
     }
     export type RequestBody = Components.Schemas.EditExpenseDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.ExpenseDto;
+    }
   }
   namespace UpdateIncome {
     namespace Parameters {
@@ -743,6 +915,9 @@ declare namespace Paths {
       incomeId: Parameters.IncomeId; // int64
     }
     export type RequestBody = Components.Schemas.EditIncomeDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomeDto;
+    }
   }
   namespace UpdateInvoice {
     namespace Parameters {
@@ -754,9 +929,15 @@ declare namespace Paths {
       invoiceId: Parameters.InvoiceId; // int64
     }
     export type RequestBody = Components.Schemas.EditInvoiceDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.InvoiceDto;
+    }
   }
   namespace UpdateProfile {
     export type RequestBody = Components.Schemas.UpdateProfileRequestDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.ProfileDto;
+    }
   }
   namespace UpdateTax {
     namespace Parameters {
@@ -768,6 +949,9 @@ declare namespace Paths {
       taxId: Parameters.TaxId; // int64
     }
     export type RequestBody = Components.Schemas.EditGeneralTaxDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.GeneralTaxDto;
+    }
   }
   namespace UpdateTaxPayment {
     namespace Parameters {
@@ -779,6 +963,9 @@ declare namespace Paths {
       taxPaymentId: Parameters.TaxPaymentId; // int64
     }
     export type RequestBody = Components.Schemas.EditIncomeTaxPaymentDto;
+    namespace Responses {
+      export type $200 = Components.Schemas.IncomeTaxPaymentDto;
+    }
   }
   namespace UploadNewDocument {
     namespace Parameters {
@@ -786,6 +973,9 @@ declare namespace Paths {
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
+    }
+    namespace Responses {
+      export type $200 = Components.Schemas.DocumentDto;
     }
   }
 }
@@ -798,7 +988,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.EditWorkspace.PathParameters> | null,
     data?: Paths.EditWorkspace.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.EditWorkspace.Responses.$200>
   /**
    * getInvoice
    */
@@ -806,7 +996,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetInvoice.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetInvoice.Responses.$200>
   /**
    * updateInvoice
    */
@@ -814,7 +1004,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.UpdateInvoice.PathParameters> | null,
     data?: Paths.UpdateInvoice.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.UpdateInvoice.Responses.$200>
   /**
    * getIncome
    */
@@ -822,7 +1012,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetIncome.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetIncome.Responses.$200>
   /**
    * updateIncome
    */
@@ -830,7 +1020,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.UpdateIncome.PathParameters> | null,
     data?: Paths.UpdateIncome.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.UpdateIncome.Responses.$200>
   /**
    * getTaxPayment
    */
@@ -838,7 +1028,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetTaxPayment.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetTaxPayment.Responses.$200>
   /**
    * updateTaxPayment
    */
@@ -846,7 +1036,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.UpdateTaxPayment.PathParameters> | null,
     data?: Paths.UpdateTaxPayment.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.UpdateTaxPayment.Responses.$200>
   /**
    * getTax
    */
@@ -854,7 +1044,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetTax.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetTax.Responses.$200>
   /**
    * updateTax
    */
@@ -862,7 +1052,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.UpdateTax.PathParameters> | null,
     data?: Paths.UpdateTax.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.UpdateTax.Responses.$200>
   /**
    * getExpense
    */
@@ -870,7 +1060,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetExpense.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetExpense.Responses.$200>
   /**
    * updateExpense
    */
@@ -878,7 +1068,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.UpdateExpense.PathParameters> | null,
     data?: Paths.UpdateExpense.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.UpdateExpense.Responses.$200>
   /**
    * getCustomer
    */
@@ -886,7 +1076,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetCustomer.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetCustomer.Responses.$200>
   /**
    * updateCustomer
    */
@@ -894,7 +1084,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.UpdateCustomer.PathParameters> | null,
     data?: Paths.UpdateCustomer.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.UpdateCustomer.Responses.$200>
   /**
    * getProfile
    */
@@ -902,7 +1092,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetProfile.Responses.$200>
   /**
    * updateProfile
    */
@@ -910,7 +1100,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.UpdateProfile.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.UpdateProfile.Responses.$200>
   /**
    * getWorkspaces
    */
@@ -918,7 +1108,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetWorkspaces.Responses.$200>
   /**
    * createWorkspace
    */
@@ -926,7 +1116,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.CreateWorkspace.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateWorkspace.Responses.$200>
   /**
    * getAccessTokens
    */
@@ -934,7 +1124,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetAccessTokens.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetAccessTokens.Responses.$200>
   /**
    * createToken
    */
@@ -942,15 +1132,15 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CreateToken.PathParameters> | null,
     data?: Paths.CreateToken.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateToken.Responses.$200>
   /**
    * getInvoices
    */
   'getInvoices'(
-    parameters?: Parameters<Paths.GetInvoices.PathParameters> | null,
+    parameters?: Parameters<Paths.GetInvoices.PathParameters & Paths.GetInvoices.QueryParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetInvoices.Responses.$200>
   /**
    * createInvoice
    */
@@ -958,7 +1148,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CreateInvoice.PathParameters> | null,
     data?: Paths.CreateInvoice.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateInvoice.Responses.$200>
   /**
    * cancelInvoice
    */
@@ -966,7 +1156,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CancelInvoice.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CancelInvoice.Responses.$200>
   /**
    * getIncomes
    */
@@ -974,7 +1164,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetIncomes.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetIncomes.Responses.$200>
   /**
    * createIncome
    */
@@ -982,7 +1172,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CreateIncome.PathParameters> | null,
     data?: Paths.CreateIncome.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateIncome.Responses.$200>
   /**
    * getTaxPayments
    */
@@ -990,7 +1180,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetTaxPayments.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetTaxPayments.Responses.$200>
   /**
    * createTaxPayment
    */
@@ -998,7 +1188,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CreateTaxPayment.PathParameters> | null,
     data?: Paths.CreateTaxPayment.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateTaxPayment.Responses.$200>
   /**
    * getTaxes
    */
@@ -1006,7 +1196,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetTaxes.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetTaxes.Responses.$200>
   /**
    * createTax
    */
@@ -1014,7 +1204,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CreateTax.PathParameters> | null,
     data?: Paths.CreateTax.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateTax.Responses.$200>
   /**
    * getExpenses
    */
@@ -1022,7 +1212,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetExpenses.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetExpenses.Responses.$200>
   /**
    * createExpense
    */
@@ -1030,7 +1220,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CreateExpense.PathParameters> | null,
     data?: Paths.CreateExpense.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateExpense.Responses.$200>
   /**
    * getDocuments
    */
@@ -1038,7 +1228,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetDocuments.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetDocuments.Responses.$200>
   /**
    * uploadNewDocument
    */
@@ -1046,7 +1236,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.UploadNewDocument.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.UploadNewDocument.Responses.$200>
   /**
    * getCustomers
    */
@@ -1054,7 +1244,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetCustomers.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetCustomers.Responses.$200>
   /**
    * createCustomer
    */
@@ -1062,7 +1252,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CreateCustomer.PathParameters> | null,
     data?: Paths.CreateCustomer.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateCustomer.Responses.$200>
   /**
    * getCategories
    */
@@ -1070,7 +1260,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetCategories.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetCategories.Responses.$200>
   /**
    * createCategory
    */
@@ -1078,7 +1268,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.CreateCategory.PathParameters> | null,
     data?: Paths.CreateCategory.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateCategory.Responses.$200>
   /**
    * getUsers
    */
@@ -1086,7 +1276,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetUsers.Responses.$200>
   /**
    * createUser
    */
@@ -1094,7 +1284,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.CreateUser.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.CreateUser.Responses.$200>
   /**
    * getSharedWorkspaces
    */
@@ -1102,7 +1292,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetSharedWorkspaces.Responses.$200>
   /**
    * saveSharedWorkspace
    */
@@ -1110,7 +1300,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.SaveSharedWorkspace.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.SaveSharedWorkspace.Responses.$200>
   /**
    * refreshToken
    */
@@ -1118,7 +1308,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.RefreshToken.CookieParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.RefreshToken.Responses.$200>
   /**
    * authCallback
    */
@@ -1134,7 +1324,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.Logout.Responses.$200>
   /**
    * login
    */
@@ -1142,7 +1332,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.Login.RequestBody,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.Login.Responses.$200>
   /**
    * loginBySharedWorkspaceToken
    */
@@ -1150,7 +1340,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.LoginBySharedWorkspaceToken.QueryParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.LoginBySharedWorkspaceToken.Responses.$200>
   /**
    * getIncomesStatistics
    */
@@ -1158,7 +1348,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetIncomesStatistics.PathParameters & Paths.GetIncomesStatistics.QueryParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetIncomesStatistics.Responses.$200>
   /**
    * getTaxPaymentsStatistics
    */
@@ -1166,7 +1356,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetTaxPaymentsStatistics.PathParameters & Paths.GetTaxPaymentsStatistics.QueryParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetTaxPaymentsStatistics.Responses.$200>
   /**
    * getExpensesStatistics
    */
@@ -1174,7 +1364,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetExpensesStatistics.PathParameters & Paths.GetExpensesStatistics.QueryParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetExpensesStatistics.Responses.$200>
   /**
    * getCurrenciesShortlist
    */
@@ -1182,7 +1372,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetCurrenciesShortlist.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetCurrenciesShortlist.Responses.$200>
   /**
    * getGeneralTaxReport
    */
@@ -1190,7 +1380,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetGeneralTaxReport.PathParameters & Paths.GetGeneralTaxReport.QueryParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetGeneralTaxReport.Responses.$200>
   /**
    * getDownloadToken
    */
@@ -1198,7 +1388,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetDownloadToken.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetDownloadToken.Responses.$200>
   /**
    * getDocumentContent
    */
@@ -1206,7 +1396,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetDocumentContent.PathParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetDocumentContent.Responses.$200>
   /**
    * getIntegrationStatus
    */
@@ -1214,7 +1404,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetIntegrationStatus.Responses.$200>
   /**
    * getPushNotificationMessages
    */
@@ -1230,7 +1420,7 @@ export interface OperationMethods {
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetDocumentsStorageStatus.Responses.$200>
   /**
    * getContent
    */
@@ -1238,7 +1428,7 @@ export interface OperationMethods {
     parameters?: Parameters<Paths.GetContent.QueryParameters> | null,
     data?: any,
     config?: AxiosRequestConfig
-  ): OperationResponse<any>
+  ): OperationResponse<Paths.GetContent.Responses.$200>
 }
 export interface PathsDictionary {
   ['/api/workspaces/{workspaceId}']: {
@@ -1249,7 +1439,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.EditWorkspace.PathParameters> | null,
       data?: Paths.EditWorkspace.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.EditWorkspace.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/invoices/{invoiceId}']: {
     /**
@@ -1259,7 +1449,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetInvoice.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetInvoice.Responses.$200>
     /**
      * updateInvoice
      */
@@ -1267,7 +1457,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.UpdateInvoice.PathParameters> | null,
       data?: Paths.UpdateInvoice.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.UpdateInvoice.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/incomes/{incomeId}']: {
     /**
@@ -1277,7 +1467,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetIncome.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetIncome.Responses.$200>
     /**
      * updateIncome
      */
@@ -1285,7 +1475,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.UpdateIncome.PathParameters> | null,
       data?: Paths.UpdateIncome.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.UpdateIncome.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}']: {
     /**
@@ -1295,7 +1485,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetTaxPayment.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetTaxPayment.Responses.$200>
     /**
      * updateTaxPayment
      */
@@ -1303,7 +1493,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.UpdateTaxPayment.PathParameters> | null,
       data?: Paths.UpdateTaxPayment.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.UpdateTaxPayment.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/general-taxes/{taxId}']: {
     /**
@@ -1313,7 +1503,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetTax.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetTax.Responses.$200>
     /**
      * updateTax
      */
@@ -1321,7 +1511,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.UpdateTax.PathParameters> | null,
       data?: Paths.UpdateTax.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.UpdateTax.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/expenses/{expenseId}']: {
     /**
@@ -1331,7 +1521,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetExpense.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetExpense.Responses.$200>
     /**
      * updateExpense
      */
@@ -1339,7 +1529,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.UpdateExpense.PathParameters> | null,
       data?: Paths.UpdateExpense.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.UpdateExpense.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/customers/{customerId}']: {
     /**
@@ -1349,7 +1539,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetCustomer.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetCustomer.Responses.$200>
     /**
      * updateCustomer
      */
@@ -1357,7 +1547,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.UpdateCustomer.PathParameters> | null,
       data?: Paths.UpdateCustomer.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.UpdateCustomer.Responses.$200>
   }
   ['/api/profile']: {
     /**
@@ -1367,7 +1557,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetProfile.Responses.$200>
     /**
      * updateProfile
      */
@@ -1375,7 +1565,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.UpdateProfile.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.UpdateProfile.Responses.$200>
   }
   ['/api/workspaces']: {
     /**
@@ -1385,7 +1575,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetWorkspaces.Responses.$200>
     /**
      * createWorkspace
      */
@@ -1393,7 +1583,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.CreateWorkspace.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateWorkspace.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/workspace-access-tokens']: {
     /**
@@ -1403,7 +1593,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetAccessTokens.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetAccessTokens.Responses.$200>
     /**
      * createToken
      */
@@ -1411,17 +1601,17 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CreateToken.PathParameters> | null,
       data?: Paths.CreateToken.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateToken.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/invoices']: {
     /**
      * getInvoices
      */
     'get'(
-      parameters?: Parameters<Paths.GetInvoices.PathParameters> | null,
+      parameters?: Parameters<Paths.GetInvoices.PathParameters & Paths.GetInvoices.QueryParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetInvoices.Responses.$200>
     /**
      * createInvoice
      */
@@ -1429,7 +1619,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CreateInvoice.PathParameters> | null,
       data?: Paths.CreateInvoice.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateInvoice.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/invoices/{invoiceId}/cancel']: {
     /**
@@ -1439,7 +1629,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CancelInvoice.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CancelInvoice.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/incomes']: {
     /**
@@ -1449,7 +1639,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetIncomes.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetIncomes.Responses.$200>
     /**
      * createIncome
      */
@@ -1457,7 +1647,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CreateIncome.PathParameters> | null,
       data?: Paths.CreateIncome.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateIncome.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/income-tax-payments']: {
     /**
@@ -1467,7 +1657,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetTaxPayments.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetTaxPayments.Responses.$200>
     /**
      * createTaxPayment
      */
@@ -1475,7 +1665,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CreateTaxPayment.PathParameters> | null,
       data?: Paths.CreateTaxPayment.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateTaxPayment.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/general-taxes']: {
     /**
@@ -1485,7 +1675,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetTaxes.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetTaxes.Responses.$200>
     /**
      * createTax
      */
@@ -1493,7 +1683,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CreateTax.PathParameters> | null,
       data?: Paths.CreateTax.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateTax.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/expenses']: {
     /**
@@ -1503,7 +1693,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetExpenses.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetExpenses.Responses.$200>
     /**
      * createExpense
      */
@@ -1511,7 +1701,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CreateExpense.PathParameters> | null,
       data?: Paths.CreateExpense.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateExpense.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/documents']: {
     /**
@@ -1521,7 +1711,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetDocuments.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetDocuments.Responses.$200>
     /**
      * uploadNewDocument
      */
@@ -1529,7 +1719,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.UploadNewDocument.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.UploadNewDocument.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/customers']: {
     /**
@@ -1539,7 +1729,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetCustomers.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetCustomers.Responses.$200>
     /**
      * createCustomer
      */
@@ -1547,7 +1737,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CreateCustomer.PathParameters> | null,
       data?: Paths.CreateCustomer.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateCustomer.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/categories']: {
     /**
@@ -1557,7 +1747,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetCategories.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetCategories.Responses.$200>
     /**
      * createCategory
      */
@@ -1565,7 +1755,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.CreateCategory.PathParameters> | null,
       data?: Paths.CreateCategory.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateCategory.Responses.$200>
   }
   ['/api/users']: {
     /**
@@ -1575,7 +1765,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetUsers.Responses.$200>
     /**
      * createUser
      */
@@ -1583,7 +1773,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.CreateUser.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.CreateUser.Responses.$200>
   }
   ['/api/shared-workspaces']: {
     /**
@@ -1593,7 +1783,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetSharedWorkspaces.Responses.$200>
     /**
      * saveSharedWorkspace
      */
@@ -1601,7 +1791,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.SaveSharedWorkspace.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.SaveSharedWorkspace.Responses.$200>
   }
   ['/api/auth/token']: {
     /**
@@ -1611,7 +1801,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.RefreshToken.CookieParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.RefreshToken.Responses.$200>
   }
   ['/api/auth/oauth2/callback']: {
     /**
@@ -1631,7 +1821,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.Logout.Responses.$200>
   }
   ['/api/auth/login']: {
     /**
@@ -1641,7 +1831,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.Login.RequestBody,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.Login.Responses.$200>
   }
   ['/api/auth/login-by-token']: {
     /**
@@ -1651,7 +1841,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.LoginBySharedWorkspaceToken.QueryParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.LoginBySharedWorkspaceToken.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/statistics/incomes']: {
     /**
@@ -1661,7 +1851,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetIncomesStatistics.PathParameters & Paths.GetIncomesStatistics.QueryParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetIncomesStatistics.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/statistics/income-tax-payments']: {
     /**
@@ -1671,7 +1861,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetTaxPaymentsStatistics.PathParameters & Paths.GetTaxPaymentsStatistics.QueryParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetTaxPaymentsStatistics.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/statistics/expenses']: {
     /**
@@ -1681,7 +1871,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetExpensesStatistics.PathParameters & Paths.GetExpensesStatistics.QueryParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetExpensesStatistics.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/statistics/currencies-shortlist']: {
     /**
@@ -1691,7 +1881,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetCurrenciesShortlist.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetCurrenciesShortlist.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/reporting/general-taxes']: {
     /**
@@ -1701,7 +1891,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetGeneralTaxReport.PathParameters & Paths.GetGeneralTaxReport.QueryParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetGeneralTaxReport.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/documents/{documentId}/download-token']: {
     /**
@@ -1711,7 +1901,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetDownloadToken.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetDownloadToken.Responses.$200>
   }
   ['/api/workspaces/{workspaceId}/documents/{documentId}/content']: {
     /**
@@ -1721,7 +1911,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetDocumentContent.PathParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetDocumentContent.Responses.$200>
   }
   ['/api/storage/google-drive/status']: {
     /**
@@ -1731,7 +1921,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetIntegrationStatus.Responses.$200>
   }
   ['/api/push-notifications']: {
     /**
@@ -1751,7 +1941,7 @@ export interface PathsDictionary {
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetDocumentsStorageStatus.Responses.$200>
   }
   ['/api/downloads']: {
     /**
@@ -1761,7 +1951,7 @@ export interface PathsDictionary {
       parameters?: Parameters<Paths.GetContent.QueryParameters> | null,
       data?: any,
       config?: AxiosRequestConfig
-    ): OperationResponse<any>
+    ): OperationResponse<Paths.GetContent.Responses.$200>
   }
 }
 export type Client = OpenAPIClient<OperationMethods, PathsDictionary>

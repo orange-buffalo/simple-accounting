@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundExce
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
 import org.hibernate.validator.constraints.Length
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -21,7 +21,7 @@ import javax.validation.constraints.NotBlank
 class GeneralTaxApiController(
     private val taxService: GeneralTaxService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
 ) {
 
     @PostMapping

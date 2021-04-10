@@ -56,6 +56,7 @@ dependencies {
     implementation("org.jooq:jooq:${Versions.jooq}")
     implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
+    implementation("org.springdoc:springdoc-openapi-common:${Versions.springdocOpenapi}")
 
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 

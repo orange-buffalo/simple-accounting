@@ -26,6 +26,7 @@ import org.springframework.web.server.WebFilterChain
 @TestPropertySource(
     properties = [
         "springdoc.api-docs.path=/api-docs",
+        "springdoc.default-produces-media-type=application/json"
     ]
 )
 @DisplayName("API Spec")

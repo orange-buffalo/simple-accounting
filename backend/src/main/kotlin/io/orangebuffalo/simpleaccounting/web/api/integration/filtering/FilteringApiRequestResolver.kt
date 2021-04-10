@@ -113,7 +113,7 @@ class FilteringApiRequestResolver {
             .toList())
 
     private fun isFilterQueryParam(queryParam: String) =
-        queryParam != "sortBy" && queryParam != "limit" && queryParam != "page"
+        !setOf("sortBy", "limit", "page", "pageNumber", "pageSize", "sortOrder").contains(queryParam)
 
     private fun validateAndExtractSort(
         queryParams: MultiValueMap<String, String>,

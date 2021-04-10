@@ -5,23 +5,40 @@ const BACKEND_SPEC_PATH = '../backend/src/test/resources/api-spec.yaml';
 const FRONTEND_SPEC_PATH = 'src/services/api/api-spec.json';
 const CLIENT_DEFINITION_PATH = 'src/services/api/api-client-definition.ts';
 
+function filterResponses(obj: any): void {
+  for (const [key, value] of Object.entries(obj)) {
+    if (key === 'responses') {
+      // we are only interested in 200 response for API Client
+      // remove other responses from spec to have simple response types
+      const response = (value as any)['200'];
+      if (response) {
+        // eslint-disable-next-line no-param-reassign
+        obj[key] = {
+          200: response,
+        };
+      }
+    } else if (typeof value === 'object') {
+      filterResponses(value);
+    }
+  }
+}
+
 describe('API Spec', () => {
-  it('stored in sources should be up-to-date', () => {
+  it('stored in sources should be up-to-date', async () => {
     const yaml = require('js-yaml');
-    const currentApiSpec = JSON.stringify(
-      yaml.load(readFileSync(BACKEND_SPEC_PATH, 'utf8')),
-      null,
-      2,
-    );
+    const currentApiSpec = yaml.load(readFileSync(BACKEND_SPEC_PATH, 'utf8'));
+    filterResponses(currentApiSpec);
+
+    const currentApiSpecString = JSON.stringify(currentApiSpec, null, 2);
 
     // support simpler local workflow
     if (process.env.REPLACE_COMMITTED_SPECS) {
-      writeFileSync(FRONTEND_SPEC_PATH, currentApiSpec);
+      writeFileSync(FRONTEND_SPEC_PATH, currentApiSpecString);
     }
 
     const vcsApiSpec = readFileSync(FRONTEND_SPEC_PATH, 'utf8');
     expect(vcsApiSpec)
-      .toEqual(currentApiSpec);
+      .toEqual(currentApiSpecString);
   });
 });
 
@@ -31,7 +48,7 @@ describe('Generated API Client', () => {
       transformOperationName: (operation: string) => operation,
     };
     const [imports, schemaTypes, operationTypings] = await generateTypesForDocument(
-      BACKEND_SPEC_PATH, opts,
+      FRONTEND_SPEC_PATH, opts,
     );
     const generatedClientDefinition = `${imports}
           \n${schemaTypes.replace(/\s+$/gm, '')}

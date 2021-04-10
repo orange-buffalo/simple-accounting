@@ -3,7 +3,7 @@ import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { AxiosRequestConfig } from 'openapi-client-axios';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
-import { LoginRequest } from '@/services/api';
+import { LoginRequest } from '@/services/api/api-types';
 
 interface ApiToken {
   jwtToken: string | null,

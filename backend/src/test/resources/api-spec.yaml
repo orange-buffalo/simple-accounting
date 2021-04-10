@@ -28,13 +28,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/WorkspaceDto'
   /api/workspaces/{workspaceId}/invoices/{invoiceId}:
@@ -59,13 +59,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceDto'
     put:
@@ -95,13 +95,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceDto'
   /api/workspaces/{workspaceId}/incomes/{incomeId}:
@@ -126,13 +126,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomeDto'
     put:
@@ -162,13 +162,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomeDto'
   /api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}:
@@ -193,13 +193,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomeTaxPaymentDto'
     put:
@@ -229,13 +229,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomeTaxPaymentDto'
   /api/workspaces/{workspaceId}/general-taxes/{taxId}:
@@ -260,13 +260,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/GeneralTaxDto'
     put:
@@ -296,13 +296,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/GeneralTaxDto'
   /api/workspaces/{workspaceId}/expenses/{expenseId}:
@@ -327,13 +327,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ExpenseDto'
     put:
@@ -363,13 +363,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ExpenseDto'
   /api/workspaces/{workspaceId}/customers/{customerId}:
@@ -394,13 +394,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CustomerDto'
     put:
@@ -430,13 +430,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CustomerDto'
   /api/profile:
@@ -448,13 +448,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ProfileDto'
     put:
@@ -471,13 +471,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ProfileDto'
   /api/workspaces:
@@ -489,13 +489,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -514,13 +514,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/WorkspaceDto'
   /api/workspaces/{workspaceId}/workspace-access-tokens:
@@ -539,13 +539,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageWorkspaceAccessTokenDto'
     post:
@@ -569,13 +569,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/WorkspaceAccessTokenDto'
   /api/workspaces/{workspaceId}/invoices:
@@ -590,17 +590,62 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - _NOT_SUPPORTED
+      - name: "freeSearchText[eq]"
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: "status[in]"
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - DRAFT
+            - SENT
+            - OVERDUE
+            - PAID
+            - CANCELLED
+      - name: pageNumber
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: sortOrder
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
       responses:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageInvoiceDto'
     post:
@@ -624,13 +669,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceDto'
   /api/workspaces/{workspaceId}/invoices/{invoiceId}/cancel:
@@ -655,13 +700,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceDto'
   /api/workspaces/{workspaceId}/incomes:
@@ -680,13 +725,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageIncomeDto'
     post:
@@ -710,13 +755,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomeDto'
   /api/workspaces/{workspaceId}/income-tax-payments:
@@ -735,13 +780,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageIncomeTaxPaymentDto'
     post:
@@ -765,13 +810,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomeTaxPaymentDto'
   /api/workspaces/{workspaceId}/general-taxes:
@@ -790,13 +835,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageGeneralTaxDto'
     post:
@@ -820,13 +865,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/GeneralTaxDto'
   /api/workspaces/{workspaceId}/expenses:
@@ -845,13 +890,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageExpenseDto'
     post:
@@ -875,13 +920,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ExpenseDto'
   /api/workspaces/{workspaceId}/documents:
@@ -900,13 +945,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageDocumentDto'
     post:
@@ -933,13 +978,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/DocumentDto'
   /api/workspaces/{workspaceId}/customers:
@@ -958,13 +1003,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageCustomerDto'
     post:
@@ -988,13 +1033,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CustomerDto'
   /api/workspaces/{workspaceId}/categories:
@@ -1013,13 +1058,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageCategoryDto'
     post:
@@ -1043,13 +1088,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CategoryDto'
   /api/users:
@@ -1061,13 +1106,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ApiPageUserDto'
     post:
@@ -1084,13 +1129,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
   /api/shared-workspaces:
@@ -1102,13 +1147,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -1127,13 +1172,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/WorkspaceDto'
   /api/auth/token:
@@ -1151,13 +1196,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
   /api/auth/oauth2/callback:
@@ -1175,7 +1220,7 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
@@ -1189,13 +1234,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 type: string
   /api/auth/login:
@@ -1213,13 +1258,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
   /api/auth/login-by-token:
@@ -1237,13 +1282,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
   /api/workspaces/{workspaceId}/statistics/incomes:
@@ -1274,13 +1319,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomesExpensesStatisticsDto'
   /api/workspaces/{workspaceId}/statistics/income-tax-payments:
@@ -1311,13 +1356,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomeTaxPaymentsStatisticsDto'
   /api/workspaces/{workspaceId}/statistics/expenses:
@@ -1348,13 +1393,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/IncomesExpensesStatisticsDto'
   /api/workspaces/{workspaceId}/statistics/currencies-shortlist:
@@ -1373,13 +1418,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -1412,13 +1457,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/GeneralTaxReportDto'
   /api/workspaces/{workspaceId}/documents/{documentId}/download-token:
@@ -1443,13 +1488,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/GetDownloadTokenResponse'
   /api/workspaces/{workspaceId}/documents/{documentId}/content:
@@ -1474,13 +1519,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/FluxDataBuffer'
   /api/storage/google-drive/status:
@@ -1492,13 +1537,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/GoogleDriveStorageIntegrationStatus'
   /api/push-notifications:
@@ -1510,7 +1555,7 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
@@ -1530,13 +1575,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/DocumentsStorageStatus'
   /api/downloads:
@@ -1554,13 +1599,13 @@ paths:
         "400":
           description: Bad Request
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/FluxDataBuffer'
 components:
