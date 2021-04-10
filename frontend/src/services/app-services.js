@@ -2,6 +2,9 @@ import Lockr from 'lockr';
 
 Lockr.prefix = 'simple-accounting.';
 
+/**
+ * @deprecated
+ */
 export const lockr = Lockr;
 
 export const app = {
