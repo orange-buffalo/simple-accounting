@@ -24,6 +24,7 @@ module.exports = {
     // the two following configs are a workaround for https://github.com/babel/babel-eslint/issues/530
     'template-curly-spacing': 'off',
     'import/no-unresolved': 'off',
+    'import/prefer-default-export': 'off',
     indent: [
       'error', 2,
       { ignoredNodes: ['TemplateLiteral'] },
@@ -37,6 +38,7 @@ module.exports = {
         '**/*.spec.ts',
         'config/storybook/*.*'],
     }],
+    'no-restricted-syntax': 'off',
   },
 
   overrides: [
