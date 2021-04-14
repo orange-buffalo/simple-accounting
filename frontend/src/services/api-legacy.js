@@ -10,6 +10,9 @@ import pageRequest from './api-filtering';
 
 const { CancelToken } = axios;
 
+/**
+ * @deprecated use api-client
+ */
 export const api = axios.create({
   baseURL: '/api',
   timeout: 10000,

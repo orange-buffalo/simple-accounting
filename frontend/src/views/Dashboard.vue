@@ -237,7 +237,7 @@
     defineComponent, ref, computed, watch, Ref,
   } from '@vue/composition-api';
   import {
-    apiClient, apiDateString, consumePageInto, eagerPagination, InvoiceDto,
+    apiClient, apiDateString, InvoiceDto, consumeAllPages,
   } from '@/services/api';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import { useStorage } from '@/services/storage';
@@ -304,12 +304,15 @@
     const pendingInvoices = ref<Array<InvoiceDto>>([]);
 
     const { currentWorkspaceId } = useCurrentWorkspace();
-    apiClient.getInvoices({
+
+    consumeAllPages((pageRequest) => apiClient.getInvoices({
       workspaceId: currentWorkspaceId,
       'status[in]': ['SENT', 'OVERDUE'],
-      ...eagerPagination(),
-    })
-      .then(consumePageInto(pendingInvoices));
+      ...pageRequest,
+    }))
+      .then((data) => {
+        pendingInvoices.value = data;
+      });
 
     const invoiceStatus = (invoice:InvoiceDto) => {
       if (invoice.status === 'OVERDUE') {

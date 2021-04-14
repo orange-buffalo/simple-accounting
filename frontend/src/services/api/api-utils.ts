@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { ApiPage } from '@/services/api/api-types';
-import { Ref } from '@vue/composition-api';
+import { ApiPage, ApiPageRequest } from '@/services/api/api-types';
 
 export function apiDateString(date: Date) {
   return `${date.getFullYear()}-${
@@ -8,15 +7,21 @@ export function apiDateString(date: Date) {
     (`0${date.getDate()}`).slice(-2)}`;
 }
 
-export function eagerPagination() {
-  return {
+export async function consumeAllPages<T>(
+  requestExecutor: (pageRequest: ApiPageRequest) => Promise<AxiosResponse<ApiPage<T>>>,
+): Promise<T[]> {
+  let result: T[] = [];
+  const request: ApiPageRequest = {
+    pageNumber: 1,
     pageSize: 100,
   };
-}
-
-export function consumePageInto<T>(ref: Ref<Array<T>>) {
-  return (response: AxiosResponse<ApiPage<T>>) => {
-    // eslint-disable-next-line no-param-reassign
-    ref.value = response.data.data;
-  };
+  let totalElements = 1000;
+  while ((request.pageNumber! - 1) * request.pageSize! < totalElements) {
+    // eslint-disable-next-line no-await-in-loop
+    const response = await requestExecutor(request);
+    result = result.concat(response.data.data);
+    request.pageNumber! += 1;
+    totalElements = response.data.totalElements;
+  }
+  return result;
 }
