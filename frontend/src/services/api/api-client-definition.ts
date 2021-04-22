@@ -359,12 +359,12 @@ export namespace Components {
     }
   }
 }
-declare namespace Paths {
-  namespace AuthCallback {
+export namespace Paths {
+  export namespace AuthCallback {
     export type RequestBody = Components.Schemas.OAuth2AuthorizationCallbackRequest;
   }
-  namespace CancelInvoice {
-    namespace Parameters {
+  export namespace CancelInvoice {
+    export namespace Parameters {
       export type InvoiceId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -372,176 +372,176 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       invoiceId: Parameters.InvoiceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.InvoiceDto;
     }
   }
-  namespace CreateCategory {
-    namespace Parameters {
+  export namespace CreateCategory {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.CreateCategoryDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.CategoryDto;
     }
   }
-  namespace CreateCustomer {
-    namespace Parameters {
+  export namespace CreateCustomer {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditCustomerDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.CustomerDto;
     }
   }
-  namespace CreateExpense {
-    namespace Parameters {
+  export namespace CreateExpense {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditExpenseDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ExpenseDto;
     }
   }
-  namespace CreateIncome {
-    namespace Parameters {
+  export namespace CreateIncome {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditIncomeDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomeDto;
     }
   }
-  namespace CreateInvoice {
-    namespace Parameters {
+  export namespace CreateInvoice {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditInvoiceDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.InvoiceDto;
     }
   }
-  namespace CreateTax {
-    namespace Parameters {
+  export namespace CreateTax {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditGeneralTaxDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.GeneralTaxDto;
     }
   }
-  namespace CreateTaxPayment {
-    namespace Parameters {
+  export namespace CreateTaxPayment {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditIncomeTaxPaymentDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomeTaxPaymentDto;
     }
   }
-  namespace CreateToken {
-    namespace Parameters {
+  export namespace CreateToken {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.CreateWorkspaceAccessTokenDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.WorkspaceAccessTokenDto;
     }
   }
-  namespace CreateUser {
+  export namespace CreateUser {
     export type RequestBody = Components.Schemas.CreateUserDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.UserDto;
     }
   }
-  namespace CreateWorkspace {
+  export namespace CreateWorkspace {
     export type RequestBody = Components.Schemas.CreateWorkspaceDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.WorkspaceDto;
     }
   }
-  namespace EditWorkspace {
-    namespace Parameters {
+  export namespace EditWorkspace {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
     export type RequestBody = Components.Schemas.EditWorkspaceDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.WorkspaceDto;
     }
   }
-  namespace GetAccessTokens {
-    namespace Parameters {
+  export namespace GetAccessTokens {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageWorkspaceAccessTokenDto;
     }
   }
-  namespace GetCategories {
-    namespace Parameters {
+  export namespace GetCategories {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageCategoryDto;
     }
   }
-  namespace GetContent {
-    namespace Parameters {
+  export namespace GetContent {
+    export namespace Parameters {
       export type Token = string;
     }
     export interface QueryParameters {
       token: Parameters.Token;
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.FluxDataBuffer;
     }
   }
-  namespace GetCurrenciesShortlist {
-    namespace Parameters {
+  export namespace GetCurrenciesShortlist {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = string[];
     }
   }
-  namespace GetCustomer {
-    namespace Parameters {
+  export namespace GetCustomer {
+    export namespace Parameters {
       export type CustomerId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -549,23 +549,23 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       customerId: Parameters.CustomerId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.CustomerDto;
     }
   }
-  namespace GetCustomers {
-    namespace Parameters {
+  export namespace GetCustomers {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageCustomerDto;
     }
   }
-  namespace GetDocumentContent {
-    namespace Parameters {
+  export namespace GetDocumentContent {
+    export namespace Parameters {
       export type DocumentId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -573,28 +573,28 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       documentId: Parameters.DocumentId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.FluxDataBuffer;
     }
   }
-  namespace GetDocuments {
-    namespace Parameters {
+  export namespace GetDocuments {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageDocumentDto;
     }
   }
-  namespace GetDocumentsStorageStatus {
-    namespace Responses {
+  export namespace GetDocumentsStorageStatus {
+    export namespace Responses {
       export type $200 = Components.Schemas.DocumentsStorageStatus;
     }
   }
-  namespace GetDownloadToken {
-    namespace Parameters {
+  export namespace GetDownloadToken {
+    export namespace Parameters {
       export type DocumentId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -602,12 +602,12 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       documentId: Parameters.DocumentId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.GetDownloadTokenResponse;
     }
   }
-  namespace GetExpense {
-    namespace Parameters {
+  export namespace GetExpense {
+    export namespace Parameters {
       export type ExpenseId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -615,23 +615,23 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       expenseId: Parameters.ExpenseId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ExpenseDto;
     }
   }
-  namespace GetExpenses {
-    namespace Parameters {
+  export namespace GetExpenses {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageExpenseDto;
     }
   }
-  namespace GetExpensesStatistics {
-    namespace Parameters {
+  export namespace GetExpensesStatistics {
+    export namespace Parameters {
       export type FromDate = string; // date
       export type ToDate = string; // date
       export type WorkspaceId = number; // int64
@@ -643,12 +643,12 @@ declare namespace Paths {
       fromDate: Parameters.FromDate; // date
       toDate: Parameters.ToDate; // date
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomesExpensesStatisticsDto;
     }
   }
-  namespace GetGeneralTaxReport {
-    namespace Parameters {
+  export namespace GetGeneralTaxReport {
+    export namespace Parameters {
       export type FromDate = string; // date
       export type ToDate = string; // date
       export type WorkspaceId = number; // int64
@@ -660,12 +660,12 @@ declare namespace Paths {
       fromDate: Parameters.FromDate; // date
       toDate: Parameters.ToDate; // date
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.GeneralTaxReportDto;
     }
   }
-  namespace GetIncome {
-    namespace Parameters {
+  export namespace GetIncome {
+    export namespace Parameters {
       export type IncomeId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -673,23 +673,23 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       incomeId: Parameters.IncomeId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomeDto;
     }
   }
-  namespace GetIncomes {
-    namespace Parameters {
+  export namespace GetIncomes {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageIncomeDto;
     }
   }
-  namespace GetIncomesStatistics {
-    namespace Parameters {
+  export namespace GetIncomesStatistics {
+    export namespace Parameters {
       export type FromDate = string; // date
       export type ToDate = string; // date
       export type WorkspaceId = number; // int64
@@ -701,17 +701,17 @@ declare namespace Paths {
       fromDate: Parameters.FromDate; // date
       toDate: Parameters.ToDate; // date
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomesExpensesStatisticsDto;
     }
   }
-  namespace GetIntegrationStatus {
-    namespace Responses {
+  export namespace GetIntegrationStatus {
+    export namespace Responses {
       export type $200 = Components.Schemas.GoogleDriveStorageIntegrationStatus;
     }
   }
-  namespace GetInvoice {
-    namespace Parameters {
+  export namespace GetInvoice {
+    export namespace Parameters {
       export type InvoiceId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -719,12 +719,12 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       invoiceId: Parameters.InvoiceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.InvoiceDto;
     }
   }
-  namespace GetInvoices {
-    namespace Parameters {
+  export namespace GetInvoices {
+    export namespace Parameters {
       export type FreeSearchTextEq = string;
       export type PageNumber = number; // int32
       export type PageSize = number; // int32
@@ -744,27 +744,27 @@ declare namespace Paths {
       pageSize?: Parameters.PageSize; // int32
       sortOrder?: Parameters.SortOrder;
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageInvoiceDto;
     }
   }
-  namespace GetProfile {
-    namespace Responses {
+  export namespace GetProfile {
+    export namespace Responses {
       export type $200 = Components.Schemas.ProfileDto;
     }
   }
-  namespace GetPushNotificationMessages {
-    namespace Responses {
+  export namespace GetPushNotificationMessages {
+    export namespace Responses {
       export type $200 = Components.Schemas.CurrentUserPushNotificationMessage[];
     }
   }
-  namespace GetSharedWorkspaces {
-    namespace Responses {
+  export namespace GetSharedWorkspaces {
+    export namespace Responses {
       export type $200 = Components.Schemas.WorkspaceDto[];
     }
   }
-  namespace GetTax {
-    namespace Parameters {
+  export namespace GetTax {
+    export namespace Parameters {
       export type TaxId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -772,12 +772,12 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       taxId: Parameters.TaxId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.GeneralTaxDto;
     }
   }
-  namespace GetTaxPayment {
-    namespace Parameters {
+  export namespace GetTaxPayment {
+    export namespace Parameters {
       export type TaxPaymentId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -785,23 +785,23 @@ declare namespace Paths {
       workspaceId: Parameters.WorkspaceId; // int64
       taxPaymentId: Parameters.TaxPaymentId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomeTaxPaymentDto;
     }
   }
-  namespace GetTaxPayments {
-    namespace Parameters {
+  export namespace GetTaxPayments {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageIncomeTaxPaymentDto;
     }
   }
-  namespace GetTaxPaymentsStatistics {
-    namespace Parameters {
+  export namespace GetTaxPaymentsStatistics {
+    export namespace Parameters {
       export type FromDate = string; // date
       export type ToDate = string; // date
       export type WorkspaceId = number; // int64
@@ -813,72 +813,72 @@ declare namespace Paths {
       fromDate: Parameters.FromDate; // date
       toDate: Parameters.ToDate; // date
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomeTaxPaymentsStatisticsDto;
     }
   }
-  namespace GetTaxes {
-    namespace Parameters {
+  export namespace GetTaxes {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageGeneralTaxDto;
     }
   }
-  namespace GetUsers {
-    namespace Responses {
+  export namespace GetUsers {
+    export namespace Responses {
       export type $200 = Components.Schemas.ApiPageUserDto;
     }
   }
-  namespace GetWorkspaces {
-    namespace Responses {
+  export namespace GetWorkspaces {
+    export namespace Responses {
       export type $200 = Components.Schemas.WorkspaceDto[];
     }
   }
-  namespace Login {
+  export namespace Login {
     export type RequestBody = Components.Schemas.LoginRequest;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.TokenResponse;
     }
   }
-  namespace LoginBySharedWorkspaceToken {
-    namespace Parameters {
+  export namespace LoginBySharedWorkspaceToken {
+    export namespace Parameters {
       export type SharedWorkspaceToken = string;
     }
     export interface QueryParameters {
       sharedWorkspaceToken: Parameters.SharedWorkspaceToken;
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.TokenResponse;
     }
   }
-  namespace Logout {
-    namespace Responses {
+  export namespace Logout {
+    export namespace Responses {
       export type $200 = string;
     }
   }
-  namespace RefreshToken {
+  export namespace RefreshToken {
     export interface CookieParameters {
       refreshToken?: Parameters.RefreshToken;
     }
-    namespace Parameters {
+    export namespace Parameters {
       export type RefreshToken = string;
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.TokenResponse;
     }
   }
-  namespace SaveSharedWorkspace {
+  export namespace SaveSharedWorkspace {
     export type RequestBody = Components.Schemas.SaveSharedWorkspaceRequestDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.WorkspaceDto;
     }
   }
-  namespace UpdateCustomer {
-    namespace Parameters {
+  export namespace UpdateCustomer {
+    export namespace Parameters {
       export type CustomerId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -887,12 +887,12 @@ declare namespace Paths {
       customerId: Parameters.CustomerId; // int64
     }
     export type RequestBody = Components.Schemas.EditCustomerDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.CustomerDto;
     }
   }
-  namespace UpdateExpense {
-    namespace Parameters {
+  export namespace UpdateExpense {
+    export namespace Parameters {
       export type ExpenseId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -901,12 +901,12 @@ declare namespace Paths {
       expenseId: Parameters.ExpenseId; // int64
     }
     export type RequestBody = Components.Schemas.EditExpenseDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ExpenseDto;
     }
   }
-  namespace UpdateIncome {
-    namespace Parameters {
+  export namespace UpdateIncome {
+    export namespace Parameters {
       export type IncomeId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -915,12 +915,12 @@ declare namespace Paths {
       incomeId: Parameters.IncomeId; // int64
     }
     export type RequestBody = Components.Schemas.EditIncomeDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomeDto;
     }
   }
-  namespace UpdateInvoice {
-    namespace Parameters {
+  export namespace UpdateInvoice {
+    export namespace Parameters {
       export type InvoiceId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -929,18 +929,18 @@ declare namespace Paths {
       invoiceId: Parameters.InvoiceId; // int64
     }
     export type RequestBody = Components.Schemas.EditInvoiceDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.InvoiceDto;
     }
   }
-  namespace UpdateProfile {
+  export namespace UpdateProfile {
     export type RequestBody = Components.Schemas.UpdateProfileRequestDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.ProfileDto;
     }
   }
-  namespace UpdateTax {
-    namespace Parameters {
+  export namespace UpdateTax {
+    export namespace Parameters {
       export type TaxId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -949,12 +949,12 @@ declare namespace Paths {
       taxId: Parameters.TaxId; // int64
     }
     export type RequestBody = Components.Schemas.EditGeneralTaxDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.GeneralTaxDto;
     }
   }
-  namespace UpdateTaxPayment {
-    namespace Parameters {
+  export namespace UpdateTaxPayment {
+    export namespace Parameters {
       export type TaxPaymentId = number; // int64
       export type WorkspaceId = number; // int64
     }
@@ -963,18 +963,18 @@ declare namespace Paths {
       taxPaymentId: Parameters.TaxPaymentId; // int64
     }
     export type RequestBody = Components.Schemas.EditIncomeTaxPaymentDto;
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.IncomeTaxPaymentDto;
     }
   }
-  namespace UploadNewDocument {
-    namespace Parameters {
+  export namespace UploadNewDocument {
+    export namespace Parameters {
       export type WorkspaceId = number; // int64
     }
     export interface PathParameters {
       workspaceId: Parameters.WorkspaceId; // int64
     }
-    namespace Responses {
+    export namespace Responses {
       export type $200 = Components.Schemas.DocumentDto;
     }
   }

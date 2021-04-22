@@ -53,8 +53,8 @@ describe('Generated API Client', () => {
     const generatedClientDefinition = `${imports}
           \n${schemaTypes.replace(/\s+$/gm, '')}
           \n${operationTypings.replace(/\s+$/gm, '')}\n`
-      .replace('declare namespace', 'export namespace')
-      .replace('  namespace', '  export namespace');
+      .replace(/declare namespace/g, 'export namespace')
+      .replace(/ {2}namespace/g, '  export namespace');
 
     // support simpler local workflow
     if (process.env.REPLACE_COMMITTED_SPECS) {
