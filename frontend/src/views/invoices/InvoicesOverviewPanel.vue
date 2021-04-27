@@ -1,6 +1,6 @@
 <template>
   <OverviewItem :title="invoice.title">
-    <template v-slot:primary-attributes>
+    <template #primary-attributes>
       <OverviewItemPrimaryAttribute
         :tooltip="$t('invoicesOverviewPanel.customer.tooltip')"
         icon="customer"
@@ -17,7 +17,7 @@
       </OverviewItemPrimaryAttribute>
     </template>
 
-    <template v-slot:attributes-preview>
+    <template #attributes-preview>
       <OverviewItemAttributePreviewIcon
         v-if="invoice.notes"
         icon="notes"
@@ -43,7 +43,7 @@
       />
     </template>
 
-    <template v-slot:middle-column>
+    <template #middle-column>
       <SaStatusLabel
         :status="statusValue"
         :custom-icon="statusIcon"
@@ -52,14 +52,14 @@
       </SaStatusLabel>
     </template>
 
-    <template v-slot:last-column>
+    <template #last-column>
       <OverviewItemAmountPanel
         :currency="invoice.currency"
         :amount="invoice.amount"
       />
     </template>
 
-    <template v-slot:details>
+    <template #details>
       <OverviewItemDetailsSectionActions>
         <SaActionLink
           v-if="currentWorkspace.editable"
@@ -215,7 +215,7 @@
     watch, computed, toRefs, reactive,
   } from '@vue/composition-api';
   import MoneyOutput from '@/components/MoneyOutput';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import i18n from '@/services/i18n';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';

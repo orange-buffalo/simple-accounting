@@ -42,7 +42,7 @@
 
 <script>
   import Dropzone from 'dropzone';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaIcon from '@/components/SaIcon';
   import SaDocument from '@/components/documents/SaDocument';
   import withWorkspaces from '@/components/mixins/with-workspaces';

@@ -1,5 +1,5 @@
 import { Message } from 'element-ui';
-import { createElement } from '@vue/composition-api';
+import { h } from '@vue/composition-api';
 import SaIcon from '@/components/SaIcon';
 
 const NotificationType = {
@@ -9,15 +9,18 @@ const NotificationType = {
   },
 };
 
-function showNotification({ message, type }) {
-  const content = createElement(
+function showNotification({
+  message,
+  type,
+}) {
+  const content = h(
     'span', {
       class: {
         'sa-notification__content': true,
       },
     },
     [
-      createElement(SaIcon, {
+      h(SaIcon, {
         props: {
           icon: type.icon,
         },
@@ -25,7 +28,7 @@ function showNotification({ message, type }) {
           'sa-notification__content__icon': true,
         },
       }),
-      createElement('span', {
+      h('span', {
         class: {
           'sa-notification__content__text': true,
         },

@@ -1,5 +1,5 @@
 import 'eventsource/lib/eventsource-polyfill';
-import { api } from '@/services/api';
+import { api } from '@/services/api-legacy';
 
 let eventSource = null;
 let eventListeners = [];

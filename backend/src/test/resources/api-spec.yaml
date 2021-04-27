@@ -1,0 +1,2697 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: ""
+  description: Generated server url
+paths:
+  /api/workspaces/{workspaceId}:
+    put:
+      tags:
+      - workspaces-api-controller
+      operationId: editWorkspace
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditWorkspaceDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDto'
+  /api/workspaces/{workspaceId}/invoices/{invoiceId}:
+    get:
+      tags:
+      - invoices-api-controller
+      operationId: getInvoice
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: invoiceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDto'
+    put:
+      tags:
+      - invoices-api-controller
+      operationId: updateInvoice
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: invoiceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditInvoiceDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDto'
+  /api/workspaces/{workspaceId}/incomes/{incomeId}:
+    get:
+      tags:
+      - incomes-api-controller
+      operationId: getIncome
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: incomeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeDto'
+    put:
+      tags:
+      - incomes-api-controller
+      operationId: updateIncome
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: incomeId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditIncomeDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeDto'
+  /api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}:
+    get:
+      tags:
+      - income-tax-payments-api-controller
+      operationId: getTaxPayment
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: taxPaymentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeTaxPaymentDto'
+    put:
+      tags:
+      - income-tax-payments-api-controller
+      operationId: updateTaxPayment
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: taxPaymentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditIncomeTaxPaymentDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeTaxPaymentDto'
+  /api/workspaces/{workspaceId}/general-taxes/{taxId}:
+    get:
+      tags:
+      - general-tax-api-controller
+      operationId: getTax
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: taxId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralTaxDto'
+    put:
+      tags:
+      - general-tax-api-controller
+      operationId: updateTax
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: taxId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditGeneralTaxDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralTaxDto'
+  /api/workspaces/{workspaceId}/expenses/{expenseId}:
+    get:
+      tags:
+      - expenses-api-controller
+      operationId: getExpense
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: expenseId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseDto'
+    put:
+      tags:
+      - expenses-api-controller
+      operationId: updateExpense
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: expenseId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditExpenseDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseDto'
+  /api/workspaces/{workspaceId}/customers/{customerId}:
+    get:
+      tags:
+      - customers-api-controller
+      operationId: getCustomer
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerDto'
+    put:
+      tags:
+      - customers-api-controller
+      operationId: updateCustomer
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditCustomerDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerDto'
+  /api/profile:
+    get:
+      tags:
+      - profile-api-controller
+      operationId: getProfile
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileDto'
+    put:
+      tags:
+      - profile-api-controller
+      operationId: updateProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequestDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileDto'
+  /api/workspaces:
+    get:
+      tags:
+      - workspaces-api-controller
+      operationId: getWorkspaces
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkspaceDto'
+    post:
+      tags:
+      - workspaces-api-controller
+      operationId: createWorkspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkspaceDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDto'
+  /api/workspaces/{workspaceId}/workspace-access-tokens:
+    get:
+      tags:
+      - workspace-access-tokens-api-controller
+      operationId: getAccessTokens
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageWorkspaceAccessTokenDto'
+    post:
+      tags:
+      - workspace-access-tokens-api-controller
+      operationId: createToken
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkspaceAccessTokenDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceAccessTokenDto'
+  /api/workspaces/{workspaceId}/invoices:
+    get:
+      tags:
+      - invoices-api-controller
+      operationId: getInvoices
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - _NOT_SUPPORTED
+      - name: "freeSearchText[eq]"
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: "status[in]"
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - DRAFT
+            - SENT
+            - OVERDUE
+            - PAID
+            - CANCELLED
+      - name: pageNumber
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: sortOrder
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageInvoiceDto'
+    post:
+      tags:
+      - invoices-api-controller
+      operationId: createInvoice
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditInvoiceDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDto'
+  /api/workspaces/{workspaceId}/invoices/{invoiceId}/cancel:
+    post:
+      tags:
+      - invoices-api-controller
+      operationId: cancelInvoice
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: invoiceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDto'
+  /api/workspaces/{workspaceId}/incomes:
+    get:
+      tags:
+      - incomes-api-controller
+      operationId: getIncomes
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageIncomeDto'
+    post:
+      tags:
+      - incomes-api-controller
+      operationId: createIncome
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditIncomeDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeDto'
+  /api/workspaces/{workspaceId}/income-tax-payments:
+    get:
+      tags:
+      - income-tax-payments-api-controller
+      operationId: getTaxPayments
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageIncomeTaxPaymentDto'
+    post:
+      tags:
+      - income-tax-payments-api-controller
+      operationId: createTaxPayment
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditIncomeTaxPaymentDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeTaxPaymentDto'
+  /api/workspaces/{workspaceId}/general-taxes:
+    get:
+      tags:
+      - general-tax-api-controller
+      operationId: getTaxes
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageGeneralTaxDto'
+    post:
+      tags:
+      - general-tax-api-controller
+      operationId: createTax
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditGeneralTaxDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralTaxDto'
+  /api/workspaces/{workspaceId}/expenses:
+    get:
+      tags:
+      - expenses-api-controller
+      operationId: getExpenses
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageExpenseDto'
+    post:
+      tags:
+      - expenses-api-controller
+      operationId: createExpense
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditExpenseDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseDto'
+  /api/workspaces/{workspaceId}/documents:
+    get:
+      tags:
+      - documents-api-controller
+      operationId: getDocuments
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageDocumentDto'
+    post:
+      tags:
+      - documents-api-controller
+      operationId: uploadNewDocument
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDto'
+  /api/workspaces/{workspaceId}/customers:
+    get:
+      tags:
+      - customers-api-controller
+      operationId: getCustomers
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageCustomerDto'
+    post:
+      tags:
+      - customers-api-controller
+      operationId: createCustomer
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditCustomerDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerDto'
+  /api/workspaces/{workspaceId}/categories:
+    get:
+      tags:
+      - categories-api-controller
+      operationId: getCategories
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageCategoryDto'
+    post:
+      tags:
+      - categories-api-controller
+      operationId: createCategory
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDto'
+  /api/users:
+    get:
+      tags:
+      - users-api-controller
+      operationId: getUsers
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPageUserDto'
+    post:
+      tags:
+      - users-api-controller
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+  /api/shared-workspaces:
+    get:
+      tags:
+      - workspaces-api-controller
+      operationId: getSharedWorkspaces
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkspaceDto'
+    post:
+      tags:
+      - workspaces-api-controller
+      operationId: saveSharedWorkspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSharedWorkspaceRequestDto'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDto'
+  /api/auth/token:
+    post:
+      tags:
+      - authentication-api-controller
+      operationId: refreshToken
+      parameters:
+      - name: refreshToken
+        in: cookie
+        required: false
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+  /api/auth/oauth2/callback:
+    post:
+      tags:
+      - o-auth-2-callback-controller
+      operationId: authCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OAuth2AuthorizationCallbackRequest'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+  /api/auth/logout:
+    post:
+      tags:
+      - authentication-api-controller
+      operationId: logout
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/auth/login:
+    post:
+      tags:
+      - authentication-api-controller
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+  /api/auth/login-by-token:
+    post:
+      tags:
+      - authentication-api-controller
+      operationId: loginBySharedWorkspaceToken
+      parameters:
+      - name: sharedWorkspaceToken
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+  /api/workspaces/{workspaceId}/statistics/incomes:
+    get:
+      tags:
+      - statistics-api-controller
+      operationId: getIncomesStatistics
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: fromDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomesExpensesStatisticsDto'
+  /api/workspaces/{workspaceId}/statistics/income-tax-payments:
+    get:
+      tags:
+      - statistics-api-controller
+      operationId: getTaxPaymentsStatistics
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: fromDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeTaxPaymentsStatisticsDto'
+  /api/workspaces/{workspaceId}/statistics/expenses:
+    get:
+      tags:
+      - statistics-api-controller
+      operationId: getExpensesStatistics
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: fromDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomesExpensesStatisticsDto'
+  /api/workspaces/{workspaceId}/statistics/currencies-shortlist:
+    get:
+      tags:
+      - statistics-api-controller
+      operationId: getCurrenciesShortlist
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/workspaces/{workspaceId}/reporting/general-taxes:
+    get:
+      tags:
+      - reporting-api-controller
+      operationId: getGeneralTaxReport
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: fromDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: toDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralTaxReportDto'
+  /api/workspaces/{workspaceId}/documents/{documentId}/download-token:
+    get:
+      tags:
+      - documents-api-controller
+      operationId: getDownloadToken
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDownloadTokenResponse'
+  /api/workspaces/{workspaceId}/documents/{documentId}/content:
+    get:
+      tags:
+      - documents-api-controller
+      operationId: getDocumentContent
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: documentId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FluxDataBuffer'
+  /api/storage/google-drive/status:
+    get:
+      tags:
+      - google-drive-storage-api-controller
+      operationId: getIntegrationStatus
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleDriveStorageIntegrationStatus'
+  /api/push-notifications:
+    get:
+      tags:
+      - push-notifications-api-controller
+      operationId: getPushNotificationMessages
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            text/event-stream:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CurrentUserPushNotificationMessage'
+  /api/profile/documents-storage:
+    get:
+      tags:
+      - profile-api-controller
+      operationId: getDocumentsStorageStatus
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentsStorageStatus'
+  /api/downloads:
+    get:
+      tags:
+      - downloads-api-controller
+      operationId: getContent
+      parameters:
+      - name: token
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FluxDataBuffer'
+components:
+  schemas:
+    ErrorResponse:
+      required:
+      - errorId
+      type: object
+      properties:
+        errorId:
+          type: string
+    EditWorkspaceDto:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          maxLength: 255
+          minLength: 0
+          type: string
+    WorkspaceDto:
+      required:
+      - defaultCurrency
+      - editable
+      - multiCurrencyEnabled
+      - name
+      - taxEnabled
+      - version
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        name:
+          type: string
+        taxEnabled:
+          type: boolean
+        multiCurrencyEnabled:
+          type: boolean
+        defaultCurrency:
+          type: string
+        editable:
+          type: boolean
+    EditInvoiceDto:
+      required:
+      - amount
+      - currency
+      - customer
+      - dateIssued
+      - dueDate
+      - title
+      type: object
+      properties:
+        title:
+          type: string
+        customer:
+          type: integer
+          format: int64
+        dateIssued:
+          type: string
+          format: date
+        dateSent:
+          type: string
+          format: date
+        datePaid:
+          type: string
+          format: date
+        dateCancelled:
+          type: string
+          format: date
+        dueDate:
+          type: string
+          format: date
+        currency:
+          type: string
+        amount:
+          type: integer
+          format: int64
+        attachments:
+          type: array
+          items:
+            type: integer
+            format: int64
+        notes:
+          maxLength: 1024
+          minLength: 0
+          type: string
+        generalTax:
+          type: integer
+          format: int64
+    InvoiceDto:
+      required:
+      - amount
+      - attachments
+      - currency
+      - customer
+      - dateIssued
+      - dueDate
+      - id
+      - status
+      - timeRecorded
+      - title
+      - version
+      type: object
+      properties:
+        title:
+          type: string
+        customer:
+          type: integer
+          format: int64
+        timeRecorded:
+          type: string
+          format: date-time
+        dateIssued:
+          type: string
+          format: date
+        dateSent:
+          type: string
+          format: date
+        datePaid:
+          type: string
+          format: date
+        dueDate:
+          type: string
+          format: date
+        currency:
+          type: string
+        amount:
+          type: integer
+          format: int64
+        attachments:
+          type: array
+          items:
+            type: integer
+            format: int64
+        notes:
+          type: string
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - SENT
+          - OVERDUE
+          - PAID
+          - CANCELLED
+        generalTax:
+          type: integer
+          format: int64
+    EditIncomeDto:
+      required:
+      - currency
+      - dateReceived
+      - originalAmount
+      - title
+      - useDifferentExchangeRateForIncomeTaxPurposes
+      type: object
+      properties:
+        category:
+          type: integer
+          format: int64
+        dateReceived:
+          type: string
+          format: date
+        title:
+          type: string
+        currency:
+          type: string
+        originalAmount:
+          type: integer
+          format: int64
+        convertedAmountInDefaultCurrency:
+          type: integer
+          format: int64
+        useDifferentExchangeRateForIncomeTaxPurposes:
+          type: boolean
+        incomeTaxableAmountInDefaultCurrency:
+          type: integer
+          format: int64
+        attachments:
+          type: array
+          items:
+            type: integer
+            format: int64
+        notes:
+          maxLength: 1024
+          minLength: 0
+          type: string
+        generalTax:
+          type: integer
+          format: int64
+        linkedInvoice:
+          type: integer
+          format: int64
+    IncomeAmountsDto:
+      type: object
+      properties:
+        originalAmountInDefaultCurrency:
+          type: integer
+          format: int64
+        adjustedAmountInDefaultCurrency:
+          type: integer
+          format: int64
+    IncomeDto:
+      required:
+      - attachments
+      - convertedAmounts
+      - currency
+      - dateReceived
+      - id
+      - incomeTaxableAmounts
+      - originalAmount
+      - status
+      - timeRecorded
+      - title
+      - useDifferentExchangeRateForIncomeTaxPurposes
+      - version
+      type: object
+      properties:
+        category:
+          type: integer
+          format: int64
+        title:
+          type: string
+        timeRecorded:
+          type: string
+          format: date-time
+        dateReceived:
+          type: string
+          format: date
+        currency:
+          type: string
+        originalAmount:
+          type: integer
+          format: int64
+        attachments:
+          type: array
+          items:
+            type: integer
+            format: int64
+        notes:
+          type: string
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - FINALIZED
+          - PENDING_CONVERSION
+          - PENDING_CONVERSION_FOR_TAXATION_PURPOSES
+        linkedInvoice:
+          type: integer
+          format: int64
+        generalTax:
+          type: integer
+          format: int64
+        generalTaxRateInBps:
+          type: integer
+          format: int32
+        generalTaxAmount:
+          type: integer
+          format: int64
+        convertedAmounts:
+          $ref: '#/components/schemas/IncomeAmountsDto'
+        incomeTaxableAmounts:
+          $ref: '#/components/schemas/IncomeAmountsDto'
+        useDifferentExchangeRateForIncomeTaxPurposes:
+          type: boolean
+    EditIncomeTaxPaymentDto:
+      required:
+      - amount
+      - datePaid
+      - title
+      type: object
+      properties:
+        datePaid:
+          type: string
+          format: date
+        reportingDate:
+          type: string
+          format: date
+        amount:
+          type: integer
+          format: int64
+        attachments:
+          type: array
+          items:
+            type: integer
+            format: int64
+        notes:
+          type: string
+        title:
+          type: string
+    IncomeTaxPaymentDto:
+      required:
+      - amount
+      - attachments
+      - datePaid
+      - id
+      - reportingDate
+      - timeRecorded
+      - title
+      - version
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        title:
+          type: string
+        timeRecorded:
+          type: string
+          format: date-time
+        datePaid:
+          type: string
+          format: date
+        reportingDate:
+          type: string
+          format: date
+        amount:
+          type: integer
+          format: int64
+        attachments:
+          type: array
+          items:
+            type: integer
+            format: int64
+        notes:
+          type: string
+    EditGeneralTaxDto:
+      required:
+      - rateInBps
+      - title
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        rateInBps:
+          maximum: 10000
+          minimum: 0
+          type: integer
+          format: int32
+    GeneralTaxDto:
+      required:
+      - id
+      - rateInBps
+      - title
+      - version
+      type: object
+      properties:
+        title:
+          type: string
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        description:
+          type: string
+        rateInBps:
+          type: integer
+          format: int32
+    EditExpenseDto:
+      required:
+      - currency
+      - datePaid
+      - originalAmount
+      - title
+      - useDifferentExchangeRateForIncomeTaxPurposes
+      type: object
+      properties:
+        category:
+          type: integer
+          format: int64
+        datePaid:
+          type: string
+          format: date
+        title:
+          type: string
+        currency:
+          type: string
+        originalAmount:
+          type: integer
+          format: int64
+        convertedAmountInDefaultCurrency:
+          type: integer
+          format: int64
+        useDifferentExchangeRateForIncomeTaxPurposes:
+          type: boolean
+        incomeTaxableAmountInDefaultCurrency:
+          type: integer
+          format: int64
+        attachments:
+          type: array
+          items:
+            type: integer
+            format: int64
+        percentOnBusiness:
+          type: integer
+          format: int32
+        notes:
+          maxLength: 1024
+          minLength: 0
+          type: string
+        generalTax:
+          type: integer
+          format: int64
+    ExpenseAmountsDto:
+      type: object
+      properties:
+        originalAmountInDefaultCurrency:
+          type: integer
+          format: int64
+        adjustedAmountInDefaultCurrency:
+          type: integer
+          format: int64
+    ExpenseDto:
+      required:
+      - attachments
+      - convertedAmounts
+      - currency
+      - datePaid
+      - id
+      - incomeTaxableAmounts
+      - originalAmount
+      - percentOnBusiness
+      - status
+      - timeRecorded
+      - title
+      - useDifferentExchangeRateForIncomeTaxPurposes
+      - version
+      type: object
+      properties:
+        category:
+          type: integer
+          format: int64
+        title:
+          type: string
+        timeRecorded:
+          type: string
+          format: date-time
+        datePaid:
+          type: string
+          format: date
+        currency:
+          type: string
+        originalAmount:
+          type: integer
+          format: int64
+        attachments:
+          type: array
+          items:
+            type: integer
+            format: int64
+        percentOnBusiness:
+          type: integer
+          format: int32
+        notes:
+          type: string
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - FINALIZED
+          - PENDING_CONVERSION
+          - PENDING_CONVERSION_FOR_TAXATION_PURPOSES
+        generalTax:
+          type: integer
+          format: int64
+        generalTaxRateInBps:
+          type: integer
+          format: int32
+        generalTaxAmount:
+          type: integer
+          format: int64
+        convertedAmounts:
+          $ref: '#/components/schemas/ExpenseAmountsDto'
+        incomeTaxableAmounts:
+          $ref: '#/components/schemas/ExpenseAmountsDto'
+        useDifferentExchangeRateForIncomeTaxPurposes:
+          type: boolean
+    EditCustomerDto:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+    CustomerDto:
+      required:
+      - id
+      - name
+      - version
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+    I18nSettingsDto:
+      required:
+      - language
+      - locale
+      type: object
+      properties:
+        locale:
+          type: string
+        language:
+          type: string
+    UpdateProfileRequestDto:
+      required:
+      - i18n
+      type: object
+      properties:
+        documentsStorage:
+          maxLength: 255
+          minLength: 0
+          type: string
+        i18n:
+          $ref: '#/components/schemas/I18nSettingsDto'
+    ProfileDto:
+      required:
+      - i18n
+      - userName
+      type: object
+      properties:
+        userName:
+          type: string
+        documentsStorage:
+          type: string
+        i18n:
+          $ref: '#/components/schemas/I18nSettingsDto'
+    CreateWorkspaceDto:
+      required:
+      - defaultCurrency
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        defaultCurrency:
+          type: string
+    CreateWorkspaceAccessTokenDto:
+      required:
+      - validTill
+      type: object
+      properties:
+        validTill:
+          type: string
+          format: date-time
+    WorkspaceAccessTokenDto:
+      required:
+      - id
+      - revoked
+      - token
+      - validTill
+      - version
+      type: object
+      properties:
+        validTill:
+          type: string
+          format: date-time
+        revoked:
+          type: boolean
+        token:
+          type: string
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+    DocumentDto:
+      required:
+      - name
+      - timeUploaded
+      - version
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        name:
+          type: string
+        timeUploaded:
+          type: string
+          format: date-time
+        sizeInBytes:
+          type: integer
+          format: int64
+    CreateCategoryDto:
+      required:
+      - expense
+      - income
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        income:
+          type: boolean
+        expense:
+          type: boolean
+    CategoryDto:
+      required:
+      - expense
+      - income
+      - name
+      - version
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        name:
+          type: string
+        description:
+          type: string
+        income:
+          type: boolean
+        expense:
+          type: boolean
+    CreateUserDto:
+      required:
+      - admin
+      - password
+      - userName
+      type: object
+      properties:
+        userName:
+          type: string
+        admin:
+          type: boolean
+        password:
+          type: string
+    UserDto:
+      required:
+      - admin
+      - userName
+      - version
+      type: object
+      properties:
+        userName:
+          type: string
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        admin:
+          type: boolean
+    SaveSharedWorkspaceRequestDto:
+      required:
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+    TokenResponse:
+      required:
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+    OAuth2AuthorizationCallbackRequest:
+      required:
+      - state
+      type: object
+      properties:
+        code:
+          type: string
+        error:
+          type: string
+        state:
+          type: string
+    LoginRequest:
+      required:
+      - password
+      - rememberMe
+      - userName
+      type: object
+      properties:
+        userName:
+          type: string
+        password:
+          type: string
+        rememberMe:
+          type: boolean
+    ApiPageWorkspaceAccessTokenDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkspaceAccessTokenDto'
+    IncomeExpensesStatisticsItemDto:
+      required:
+      - currencyExchangeDifference
+      - finalizedCount
+      - pendingCount
+      - totalAmount
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          format: int64
+        totalAmount:
+          type: integer
+          format: int64
+        finalizedCount:
+          type: integer
+          format: int64
+        pendingCount:
+          type: integer
+          format: int64
+        currencyExchangeDifference:
+          type: integer
+          format: int64
+    IncomesExpensesStatisticsDto:
+      required:
+      - currencyExchangeDifference
+      - finalizedCount
+      - items
+      - pendingCount
+      - totalAmount
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomeExpensesStatisticsItemDto'
+        totalAmount:
+          type: integer
+          format: int64
+        finalizedCount:
+          type: integer
+          format: int64
+        pendingCount:
+          type: integer
+          format: int64
+        currencyExchangeDifference:
+          type: integer
+          format: int64
+    IncomeTaxPaymentsStatisticsDto:
+      required:
+      - totalTaxPayments
+      type: object
+      properties:
+        totalTaxPayments:
+          type: integer
+          format: int64
+    FinalizedTaxSummaryItemDto:
+      required:
+      - includedItemsAmount
+      - includedItemsNumber
+      - tax
+      - taxAmount
+      type: object
+      properties:
+        tax:
+          type: integer
+          format: int64
+        taxAmount:
+          type: integer
+          format: int64
+        includedItemsNumber:
+          type: integer
+          format: int64
+        includedItemsAmount:
+          type: integer
+          format: int64
+    GeneralTaxReportDto:
+      required:
+      - finalizedCollectedTaxes
+      - finalizedPaidTaxes
+      - pendingCollectedTaxes
+      - pendingPaidTaxes
+      type: object
+      properties:
+        finalizedCollectedTaxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinalizedTaxSummaryItemDto'
+        finalizedPaidTaxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinalizedTaxSummaryItemDto'
+        pendingCollectedTaxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendingTaxSummaryItemDto'
+        pendingPaidTaxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendingTaxSummaryItemDto'
+    PendingTaxSummaryItemDto:
+      required:
+      - includedItemsNumber
+      - tax
+      type: object
+      properties:
+        tax:
+          type: integer
+          format: int64
+        includedItemsNumber:
+          type: integer
+          format: int64
+    ApiPageInvoiceDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceDto'
+    ApiPageIncomeDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomeDto'
+    ApiPageIncomeTaxPaymentDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomeTaxPaymentDto'
+    ApiPageGeneralTaxDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeneralTaxDto'
+    ApiPageExpenseDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpenseDto'
+    ApiPageDocumentDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentDto'
+    GetDownloadTokenResponse:
+      required:
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+    FluxDataBuffer:
+      type: object
+      properties:
+        prefetch:
+          type: integer
+          format: int32
+    ApiPageCustomerDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerDto'
+    ApiPageCategoryDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryDto'
+    ApiPageUserDto:
+      required:
+      - data
+      - pageNumber
+      - pageSize
+      - totalElements
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDto'
+    GoogleDriveStorageIntegrationStatus:
+      required:
+      - authorizationRequired
+      type: object
+      properties:
+        folderId:
+          type: string
+        folderName:
+          type: string
+        authorizationUrl:
+          type: string
+        authorizationRequired:
+          type: boolean
+    CurrentUserPushNotificationMessage:
+      required:
+      - eventName
+      type: object
+      properties:
+        eventName:
+          type: string
+        data:
+          type: object
+    DocumentsStorageStatus:
+      required:
+      - active
+      type: object
+      properties:
+        active:
+          type: boolean

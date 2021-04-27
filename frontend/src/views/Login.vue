@@ -37,6 +37,7 @@
           </ElInput>
         </ElFormItem>
 
+        <!--suppress HtmlDeprecatedAttribute -->
         <ElFormItem
           prop="rememberMe"
           align="center"
@@ -74,7 +75,6 @@
     toRefs,
     watch,
   } from '@vue/composition-api';
-  import { api } from '@/services/api';
   import { initWorkspace } from '@/services/workspaces-service';
   import { userApi } from '@/services/user-api';
   import { app } from '@/services/app-services';
@@ -83,6 +83,7 @@
   import SaIcon from '@/components/SaIcon';
   import useNavigation from '@/components/navigation/useNavigation';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import { useAuth } from '@/services/api';
 
   class AccountLockTimer {
     constructor(onTimerUpdate) {
@@ -177,11 +178,12 @@
         } else if (app.store.state.app.lastView) {
           await navigateByViewName(app.store.state.app.lastView);
         } else {
-          await navigateByViewName('root');
+          await navigateByViewName('dashboard');
         }
       };
 
-      if (api.isLoggedIn()) {
+      const { isLoggedIn, login, isAdmin } = useAuth();
+      if (isLoggedIn) {
         emit('login');
       }
 
@@ -190,11 +192,11 @@
         uiState.loginInProgress = true;
         accountLockTimer.cancel();
         try {
-          await api.login({ ...form });
+          await login({ ...form });
           const profile = await userApi.getProfile();
           await app.i18n.setLocaleFromProfile(profile.i18n);
 
-          if (api.isAdmin()) {
+          if (isAdmin()) {
             await onAdminLogin();
           } else {
             await onUserLogin();

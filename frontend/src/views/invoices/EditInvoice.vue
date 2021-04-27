@@ -195,7 +195,7 @@
 
 <script>
   import { reactive, toRefs } from '@vue/composition-api';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import i18n from '@/services/i18n';
   import MoneyInput from '@/components/MoneyInput';
   import SaCurrencyInput from '@/components/SaCurrencyInput';

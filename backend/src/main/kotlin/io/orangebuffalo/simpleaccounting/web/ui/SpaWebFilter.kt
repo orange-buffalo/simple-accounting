@@ -9,7 +9,7 @@ import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 
-class SpaWebFilter : WebFilter {
+open class SpaWebFilter : WebFilter {
 
     private val requestMatcher = AndServerWebExchangeMatcher(
         ServerWebExchangeMatchers.pathMatchers("/**"),

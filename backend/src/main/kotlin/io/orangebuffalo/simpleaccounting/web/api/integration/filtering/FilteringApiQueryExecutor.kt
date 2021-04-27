@@ -2,82 +2,74 @@ package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
-import io.orangebuffalo.simpleaccounting.web.api.integration.ApiValidationException
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator.MultiArgumentsOperator
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator.SingleArgumentOperator
 import org.jooq.*
 import org.jooq.impl.DSL
-import org.springframework.core.convert.ConversionException
-import org.springframework.core.convert.ConversionService
 import kotlin.reflect.KClass
 
-class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
+class FilteringApiQueryExecutor<T : Table<*>, E : Any, SF : Enum<SF>, PR : ApiPageRequest<SF>>(
     dslContext: DSLContext,
-    conversionService: ConversionService,
     root: T,
     entityType: KClass<E>,
-    init: FilteringApiQuerySpec<T>.() -> Unit
+    init: FilteringApiQuerySpec<T, SF, PR>.() -> Unit
 ) {
 
-    private var querySpec: FilteringApiQuerySpecIml<T, E> =
-        FilteringApiQuerySpecIml(dslContext, conversionService, root, entityType).apply(init)
+    private var querySpec: FilteringApiQuerySpecIml<T, E, SF, PR> =
+        FilteringApiQuerySpecIml<T, E, SF, PR>(dslContext, root, entityType).apply(init)
 
-    suspend fun executeFilteringQuery(request: FilteringApiRequest, workspaceId: Long? = null): ApiPage<E> =
+    suspend fun executeFilteringQuery(request: PR, workspaceId: Long? = null): ApiPage<E> =
         querySpec.executeQuery(request, workspaceId)
 
-    private class FilteringApiQuerySpecIml<T : Table<*>, E : Any>(
+    private class FilteringApiQuerySpecIml<T : Table<*>, E : Any, SF : Enum<SF>, PR : ApiPageRequest<SF>>(
         private val dslContext: DSLContext,
-        private val conversionService: ConversionService,
         override val root: T,
         private val entityType: KClass<E>
-    ) : FilteringApiQuerySpec<T>, FilteringApiQuerySpec.HasRoot<T> {
+    ) : FilteringApiQuerySpec<T, SF, PR>, FilteringApiQuerySpec.HasRoot<T> {
 
-        private val conditionsSpecs: MutableMap<String, (SelectJoinStep<out Record>, FilteringApiRequestPredicate) -> Condition> =
-            mutableMapOf()
         private val defaultSortingList: MutableList<FilteringApiQuerySpec.HasRoot<T>.() -> SortField<out Any>> =
             mutableListOf()
         private var workspaceFilter: (FilteringApiQuerySpec.WorkspaceFilterConfig<T>.(Long?) -> Condition)? = null
         private var queryConfigurer: (FilteringApiQuerySpec.QueryConfigurer<T>.() -> Unit)? = null
+        private val filters: MutableList<Filters<PR, out Any?>> = mutableListOf()
 
-        override fun <V : Any> filterByField(
-            apiFieldName: String,
-            modelFieldType: KClass<V>,
-            fieldsConditionsSpec: FilteringApiQuerySpec.FieldConditionsSpec<T, V>.() -> Unit
+        override fun workspaceFilter(spec: FilteringApiQuerySpec.WorkspaceFilterConfig<T>.(Long?) -> Condition) {
+            workspaceFilter = spec
+        }
+
+        override fun configure(spec: FilteringApiQuerySpec.QueryConfigurer<T>.() -> Unit) {
+            queryConfigurer = spec
+        }
+
+        override fun <V : Any?> onFilter(
+            filterValueProvider: (PR) -> V,
+            queryPredicateProvider: FilteringApiQuerySpec.HasRoot<T>.(predicateValue: V) -> Condition
         ) {
-            conditionsSpecs[apiFieldName] = { query, requestPredicate ->
-                val fieldConditions = FieldConditionsSpecImpl(
-                    apiFieldName = requestPredicate.apiField,
-                    valueType = modelFieldType,
-                    query = query,
-                    conversionService = conversionService
-                )
-                fieldsConditionsSpec(fieldConditions)
-                fieldConditions.buildByOperator(requestPredicate.operator, requestPredicate.value)
-            }
+            filters.add(Filters(filterValueProvider, queryPredicateProvider))
         }
 
         override fun addDefaultSorting(init: FilteringApiQuerySpec.HasRoot<T>.() -> SortField<out Any>) {
             defaultSortingList.add(init)
         }
 
-        suspend fun executeQuery(fileApiRequest: FilteringApiRequest, workspaceId: Long?): ApiPage<E> = withDbContext {
+        suspend fun executeQuery(request: PR, workspaceId: Long?): ApiPage<E> = withDbContext {
             val countQuery = dslContext.selectCount().from(root)
             configureQuery(countQuery)
-            val countConditions: Collection<Condition> =
-                validateAndGetConditions(fileApiRequest, workspaceId, countQuery)
-            val totalRecordsCount = countQuery.where(countConditions).fetchOneInto(Long::class.java)!!
+            val countPredicates: Collection<Condition> =
+                getQueryPredicates(request, workspaceId, countQuery)
+            val totalRecordsCount = countQuery.where(countPredicates).fetchOneInto(Long::class.java)!!
 
             val dataQuery = dslContext.select(*root.fields()).from(root)
             configureQuery(dataQuery)
-            val dataConditions: Collection<Condition> = validateAndGetConditions(fileApiRequest, workspaceId, dataQuery)
-            val data = dataQuery.where(dataConditions)
+            val dataPredicates: Collection<Condition> = getQueryPredicates(request, workspaceId, dataQuery)
+            val pageNumber = request.pageNumber ?: 1
+            val pageSize = request.pageSize ?: 10
+            val data = dataQuery.where(dataPredicates)
                 .orderBy(validateAndGetSorting())
-                .limit((fileApiRequest.pageNumber - 1) * fileApiRequest.pageSize, fileApiRequest.pageSize)
+                .limit((pageNumber - 1) * pageSize, pageSize)
                 .fetchListOf(entityType)
 
             ApiPage(
-                pageNumber = fileApiRequest.pageNumber,
-                pageSize = fileApiRequest.pageSize,
+                pageNumber = pageNumber,
+                pageSize = pageSize,
                 totalElements = totalRecordsCount,
                 data = data
             )
@@ -95,15 +87,16 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
             return defaultSortingList.map { sorting -> sorting(this) }
         }
 
-        private fun validateAndGetConditions(
-            fileApiRequest: FilteringApiRequest,
+        private fun getQueryPredicates(
+            request: PR,
             workspaceId: Long?,
             query: SelectJoinStep<out Record>
-        ): Collection<Condition> = fileApiRequest.predicates
-            .map { requestPredicate -> validatePredicateAndGetCondition(requestPredicate, query) }
-            .plus(getWorkspaceFilterCondition(workspaceId, query))
+        ): Collection<Condition> = filters.asSequence()
+            .map { filter -> filter.queryPredicate(request) }
+            .plus(getWorkspaceFilterPredicate(workspaceId, query))
+            .toList()
 
-        private fun getWorkspaceFilterCondition(workspaceId: Long?, query: SelectJoinStep<out Record>): Condition {
+        private fun getWorkspaceFilterPredicate(workspaceId: Long?, query: SelectJoinStep<out Record>): Condition {
             if (workspaceId == null) {
                 return DSL.trueCondition()
             }
@@ -114,70 +107,20 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
                 override val query = query
                 override val root = this@FilteringApiQuerySpecIml.root
             }
-            return filter(dataHolder, workspaceId)
+            return filter.invoke(dataHolder, workspaceId)
         }
 
-        private fun validatePredicateAndGetCondition(
-            requestPredicate: FilteringApiRequestPredicate,
-            query: SelectJoinStep<out Record>
-        ): Condition {
-            val fieldConditionsSpec = conditionsSpecs[requestPredicate.apiField]
-                ?: throw ApiValidationException("Filtering by '${requestPredicate.apiField}' is not supported")
-            return fieldConditionsSpec(query, requestPredicate)
-        }
-
-        private inner class FieldConditionsSpecImpl<V : Any>(
-            private val apiFieldName: String,
-            private val valueType: KClass<V>,
-            override val query: SelectJoinStep<out Record>,
-            private val conversionService: ConversionService
-        ) : FilteringApiQuerySpec.FieldConditionsSpec<T, V>,
-            FilteringApiQuerySpec.HasRoot<T> by this@FilteringApiQuerySpecIml {
-
-            private val conditionsSpecs: MutableMap<FilteringApiPredicateOperator, (String) -> Condition> =
-                mutableMapOf()
-
-            override fun onPredicate(
-                operator: SingleArgumentOperator,
-                init: FilteringApiQuerySpec.HasRoot<T>.(predicateValue: V) -> Condition
-            ) {
-                conditionsSpecs[operator] = { requestValue -> init(this, convertRequestValue(requestValue)) }
-            }
-
-            override fun onPredicate(
-                operator: MultiArgumentsOperator,
-                init: FilteringApiQuerySpec.HasRoot<T>.(predicateValue: Collection<V>) -> Condition
-            ) {
-                conditionsSpecs[operator] = { requestValue ->
-                    init(this, requestValue.split(',').asSequence()
-                        .map { singleValue -> convertRequestValue(singleValue) }
-                        .toList()
-                    )
+        private inner class Filters<PR, V : Any?>(
+            val valueProvider: (PR) -> V,
+            val conditionProvider: FilteringApiQuerySpec.HasRoot<T>.(predicateValue: V) -> Condition
+        ) {
+            fun queryPredicate(pageRequest: PR): Condition {
+                val filterValue = valueProvider.invoke(pageRequest) ?: return DSL.trueCondition()
+                if (filterValue is Collection<*> && filterValue.isEmpty()) {
+                    return DSL.trueCondition()
                 }
+                return conditionProvider.invoke(this@FilteringApiQuerySpecIml, filterValue)
             }
-
-            fun buildByOperator(operator: FilteringApiPredicateOperator, requestValue: String): Condition {
-                val conditionSpec = conditionsSpecs[operator]
-                    ?: throw ApiValidationException("'${operator.requestValue}' operator is not supported for '$apiFieldName' filter")
-                return conditionSpec(requestValue)
-            }
-
-            private fun convertRequestValue(requestValue: String): V = try {
-                conversionService.convert(requestValue, valueType.java)!!
-            } catch (e: ConversionException) {
-                throw ApiValidationException(
-                    "Cannot convert '$requestValue' to ${valueType.simpleName} ('$apiFieldName')",
-                    e
-                )
-            }
-        }
-
-        override fun workspaceFilter(spec: FilteringApiQuerySpec.WorkspaceFilterConfig<T>.(Long?) -> Condition) {
-            workspaceFilter = spec
-        }
-
-        override fun configure(spec: FilteringApiQuerySpec.QueryConfigurer<T>.() -> Unit) {
-            queryConfigurer = spec
         }
     }
 }
@@ -186,32 +129,18 @@ class FilteringApiQueryExecutor<T : Table<*>, E : Any>(
 annotation class FilteringApiDsl
 
 @FilteringApiDsl
-interface FilteringApiQuerySpec<T : Table<*>> {
+interface FilteringApiQuerySpec<T : Table<*>, SF : Enum<SF>, PR : ApiPageRequest<SF>> {
 
     fun configure(spec: QueryConfigurer<T>.() -> Unit)
 
     fun workspaceFilter(spec: WorkspaceFilterConfig<T>.(Long?) -> Condition)
 
-    fun <V : Any> filterByField(
-        apiFieldName: String,
-        modelFieldType: KClass<V>,
-        fieldsConditionsSpec: FieldConditionsSpec<T, V>.() -> Unit
+    fun <V : Any?> onFilter(
+        filterValueProvider: (PR) -> V,
+        queryPredicateProvider: HasRoot<T>.(predicateValue: V) -> Condition
     )
 
     fun addDefaultSorting(init: HasRoot<T>.() -> SortField<out Any>)
-
-    @FilteringApiDsl
-    interface FieldConditionsSpec<T : Table<*>, V : Any> : HasRoot<T>, HasQuery {
-        fun onPredicate(
-            operator: SingleArgumentOperator,
-            init: HasRoot<T>.(predicateValue: V) -> Condition
-        )
-
-        fun onPredicate(
-            operator: MultiArgumentsOperator,
-            init: HasRoot<T>.(predicateValue: Collection<V>) -> Condition
-        )
-    }
 
     @FilteringApiDsl
     interface HasQuery {

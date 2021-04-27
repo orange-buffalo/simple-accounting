@@ -7,7 +7,7 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import javax.validation.Valid
@@ -17,7 +17,7 @@ import javax.validation.Valid
 class WorkspaceAccessTokensApiController(
     private val accessTokenService: WorkspaceAccessTokenService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
 ) {
 
     @GetMapping

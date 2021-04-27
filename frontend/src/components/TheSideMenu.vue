@@ -90,7 +90,7 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import TheSideMenuLink from '@/components/TheSideMenuLink';
   import withWorkspaces from '@/components/mixins/with-workspaces';
   import MenuLogo from '@/assets/logo-menu.svg';

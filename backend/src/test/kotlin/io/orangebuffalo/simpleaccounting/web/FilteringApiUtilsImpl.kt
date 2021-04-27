@@ -252,8 +252,9 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         private val filterReplacements = mutableListOf<(String) -> String>()
 
         init {
-            val limit = max(1, filteringBuilder.entitiesSpecs.size)
-            url += "?limit=$limit"
+            val pageSize = max(1, filteringBuilder.entitiesSpecs.size)
+            // todo remove limit once we migrate all APIs
+            url += "?pageSize=$pageSize&limit=${pageSize}"
         }
 
         fun addQueryParam(filter: String) {
@@ -292,7 +293,9 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
     ) : AbstractFilteringApiTestCase(baseUrl) {
 
         init {
-            url += (if (sortingQueryParam == null) "?" else "?$sortingQueryParam&") + "limit=${entitiesInitiators.size}"
+            url += (if (sortingQueryParam == null) "?" else "?$sortingQueryParam&") +
+                    // todo remove limit once all APIs are migrated
+                    "limit=${entitiesInitiators.size}&pageSize=${entitiesInitiators.size}"
         }
 
         override fun generateData(): List<Any> {

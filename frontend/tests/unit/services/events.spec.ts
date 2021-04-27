@@ -1,5 +1,5 @@
 describe('an event', () => {
-  let loginRequiredEvent;
+  let loginRequiredEvent : any;
 
   beforeEach(() => {
     jest.resetModules();

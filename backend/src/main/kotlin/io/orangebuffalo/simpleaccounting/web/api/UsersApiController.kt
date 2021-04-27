@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSetti
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull
 class UsersApiController(
     private val userService: PlatformUserService,
     private val passwordEncoder: PasswordEncoder,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
 ) {
 
     @GetMapping

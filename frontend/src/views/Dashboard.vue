@@ -6,6 +6,7 @@
       <div class="sa-header-options">
         <span>&nbsp;</span>
 
+        <!--suppress HtmlDeprecatedAttribute -->
         <ElDatePicker
           v-model="selectedDateRange"
           type="daterange"
@@ -57,7 +58,8 @@
           class="home-page__row__hero__details"
         >
           <div
-            v-for="item in expensesItems"
+            v-for="item in expenses.items"
+            :key="item.categoryId || 'fake'"
             class="home-page__row__hero__details__item"
           >
             <span><SaCategoryOutput :category-id="item.categoryId" /></span>
@@ -107,7 +109,8 @@
           class="home-page__row__hero__details"
         >
           <div
-            v-for="item in incomesItems"
+            v-for="item in incomes.items"
+            :key="item.categoryId || 'fake'"
             class="home-page__row__hero__details__item"
           >
             <span><SaCategoryOutput :category-id="item.categoryId" /></span>
@@ -184,6 +187,7 @@
 
       <div
         v-for="invoice in pendingInvoices"
+        :key="invoice.id"
         class="home-page__row__hero"
       >
         <div class="home-page__row__hero__header">
@@ -228,20 +232,99 @@
   </div>
 </template>
 
-<script>
-  import { api } from '@/services/api';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+<script lang="ts">
+  import {
+    defineComponent, ref, computed, watch, Ref,
+  } from '@vue/composition-api';
+  import {
+    apiClient, apiDateString, InvoiceDto, consumeAllPages,
+  } from '@/services/api';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import { useStorage } from '@/services/storage';
   import MoneyOutput from '@/components/MoneyOutput';
-  import { lockr } from '@/services/app-services';
   import SaIcon from '@/components/SaIcon';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput';
+  import { AxiosResponse } from 'axios';
 
-  const SELECTED_DATE_RANGE_KEY = 'dashboard.selected-date-range';
+  function useSelectedDateRange() {
+    const storage = useStorage<Array<Date>>('dashboard.selected-date-range');
 
-  export default {
-    name: 'Dashboard',
+    const selectedDateRange = ref<Array<Date>>(storage.getOrDefault([]));
+    if (!selectedDateRange.value.length) {
+      const now = new Date();
+      selectedDateRange.value = [
+        new Date(now.getFullYear(), 0, 1),
+        now,
+      ];
+    } else {
+      selectedDateRange.value = selectedDateRange.value.map((it) => new Date(it));
+    }
 
+    watch(selectedDateRange, (newDatesRanges) => {
+      storage.set(newDatesRanges);
+    });
+
+    return { selectedDateRange };
+  }
+
+  type StatisticsRequest = {
+      fromDate: string,
+      toDate: string,
+      workspaceId: number,
+  }
+
+  function useStatisticsData<T>(
+    selectedDateRange: Ref<Array<Date>>,
+    apiCall: (request: StatisticsRequest) => Promise<AxiosResponse<T>>,
+  ) {
+    const statisticsData: Ref<T | null> = ref(null);
+    const { currentWorkspaceId } = useCurrentWorkspace();
+
+    watch(selectedDateRange, async ([fromDate, toDate]) => {
+      statisticsData.value = null;
+
+      const response = await apiCall({
+        fromDate: apiDateString(fromDate),
+        toDate: apiDateString(toDate),
+        workspaceId: currentWorkspaceId,
+      });
+      statisticsData.value = response.data;
+    }, { immediate: true });
+
+    const statisticsLoaded = computed(() => statisticsData.value !== null);
+
+    return {
+      statisticsData,
+      statisticsLoaded,
+    };
+  }
+
+  function useInvoices() {
+    const pendingInvoices = ref<Array<InvoiceDto>>([]);
+
+    const { currentWorkspaceId } = useCurrentWorkspace();
+
+    consumeAllPages((pageRequest) => apiClient.getInvoices({
+      workspaceId: currentWorkspaceId,
+      'status[in]': ['SENT', 'OVERDUE'],
+      ...pageRequest,
+    }))
+      .then((data) => {
+        pendingInvoices.value = data;
+      });
+
+    const invoiceStatus = (invoice:InvoiceDto) => {
+      if (invoice.status === 'OVERDUE') {
+        return 'Overdue';
+      }
+      return 'Pending';
+    };
+
+    return { pendingInvoices, invoiceStatus };
+  }
+
+  export default defineComponent({
     components: {
       SaCategoryOutput,
       SaCustomerOutput,
@@ -249,117 +332,74 @@
       MoneyOutput,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const { selectedDateRange } = useSelectedDateRange();
 
-    data() {
+      const {
+        statisticsData: expenses,
+        statisticsLoaded: expensesLoaded,
+      } = useStatisticsData(selectedDateRange, (request) => apiClient.getExpensesStatistics(request));
+
+      const {
+        statisticsData: incomes,
+        statisticsLoaded: incomesLoaded,
+      } = useStatisticsData(selectedDateRange, (request) => apiClient.getIncomesStatistics(request));
+
+      const {
+        statisticsData: incomeTaxPayments,
+        statisticsLoaded: taxPaymentsLoaded,
+      } = useStatisticsData(selectedDateRange, (request) => apiClient.getTaxPaymentsStatistics(request));
+
+      const profitLoaded = computed(() => incomesLoaded.value && expensesLoaded.value && taxPaymentsLoaded.value);
+
+      const { defaultCurrency } = useCurrentWorkspace();
+
+      watch(expenses, (newExpenses) => {
+        if (newExpenses) {
+          newExpenses.items.sort((a, b) => b.totalAmount - a.totalAmount);
+        }
+      });
+
+      watch(incomes, (newIncomes) => {
+        if (newIncomes) {
+          newIncomes.items.sort((a, b) => b.totalAmount - a.totalAmount);
+        }
+      });
+
+      const incomeTaxableAmount = computed(() => {
+        if (incomes.value && expenses.value) {
+          return incomes.value.totalAmount - expenses.value.totalAmount;
+        }
+        return 0;
+      });
+
+      const currencyExchangeDifference = computed(() => {
+        if (incomes.value && expenses.value) {
+          return incomes.value.currencyExchangeDifference + expenses.value.currencyExchangeDifference;
+        }
+        return 0;
+      });
+
+      const totalProfit = computed(() => (incomeTaxPayments.value
+        ? incomeTaxableAmount.value + currencyExchangeDifference.value - incomeTaxPayments.value.totalTaxPayments : 0));
+
       return {
-        expenses: {},
-        incomes: {},
-        incomeTaxPayments: {},
-        selectedDateRange: [],
-        pendingInvoices: [],
+        selectedDateRange,
+        expenses,
+        expensesLoaded,
+        incomes,
+        incomesLoaded,
+        incomeTaxPayments,
+        taxPaymentsLoaded,
+        profitLoaded,
+        defaultCurrency,
+        incomeTaxableAmount,
+        currencyExchangeDifference,
+        totalProfit,
+        ...useInvoices(),
       };
     },
-
-    computed: {
-      incomesLoaded() {
-        return this.incomes.items != null;
-      },
-
-      expensesLoaded() {
-        return this.incomes.items != null;
-      },
-
-      taxPaymentsLoaded() {
-        return this.incomeTaxPayments.totalTaxPayments != null;
-      },
-
-      profitLoaded() {
-        return this.incomesLoaded && this.expensesLoaded && this.taxPaymentsLoaded;
-      },
-
-      expensesItems() {
-        return (this.expenses.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
-      },
-
-      incomesItems() {
-        return (this.incomes.items || []).sort((a, b) => b.totalAmount - a.totalAmount);
-      },
-
-      incomeTaxableAmount() {
-        return this.incomes.totalAmount - this.expenses.totalAmount;
-      },
-
-      totalProfit() {
-        return this.incomeTaxableAmount + this.currencyExchangeDifference - this.incomeTaxPayments.totalTaxPayments;
-      },
-
-      invoiceStatus() {
-        return (invoice) => {
-          if (invoice.status === 'OVERDUE') {
-            return 'Overdue';
-          }
-          return 'Pending';
-        };
-      },
-
-      currencyExchangeDifference() {
-        return this.incomes.currencyExchangeDifference + this.expenses.currencyExchangeDifference;
-      },
-    },
-
-    watch: {
-      selectedDateRange() {
-        lockr.set(SELECTED_DATE_RANGE_KEY, this.selectedDateRange);
-        this.reload();
-      },
-    },
-
-    created() {
-      const selectedDateRange = lockr.get(SELECTED_DATE_RANGE_KEY);
-      if (selectedDateRange == null) {
-        const now = new Date();
-        this.selectedDateRange = [
-          new Date(now.getFullYear(), 0, 1),
-          now,
-        ];
-      } else {
-        this.selectedDateRange = selectedDateRange.map((it) => new Date(it));
-      }
-
-      this.reload();
-    },
-
-    methods: {
-      reload() {
-        this.expenses = {};
-        this.incomes = {};
-        this.incomeTaxPayments = {};
-        this.pendingInvoices = [];
-
-        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/expenses`
-          + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
-          + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-          .then((response) => this.expenses = response.data);
-
-        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/incomes`
-          + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
-          + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-          .then((response) => this.incomes = response.data);
-
-        api.get(`/workspaces/${this.currentWorkspace.id}/statistics/income-tax-payments`
-          + `?fromDate=${api.dateToString(this.selectedDateRange[0])}`
-          + `&toDate=${api.dateToString(this.selectedDateRange[1])}`)
-          .then((response) => this.incomeTaxPayments = response.data);
-
-        api.pageRequest(`/workspaces/${this.currentWorkspace.id}/invoices`)
-          .eager()
-          .inFilter('status', ['SENT', 'OVERDUE'])
-          .getPageData()
-          .then((invoices) => this.pendingInvoices = invoices);
-      },
-    },
-  };
+  });
 </script>
 
 <style lang="scss">

@@ -55,7 +55,7 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaForm from '@/components/SaForm';
   import withWorkspaces from '@/components/mixins/with-workspaces';
 

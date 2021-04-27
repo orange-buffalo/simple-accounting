@@ -6,10 +6,11 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
+import io.swagger.v3.oas.annotations.Parameter
 import org.hibernate.validator.constraints.Length
 import org.jooq.impl.DSL.or
+import org.springdoc.api.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -54,7 +55,10 @@ class InvoicesApiController(
         attachments?.asSequence()?.map(::InvoiceAttachment)?.toSet() ?: emptySet()
 
     @GetMapping
-    suspend fun getInvoices(@PathVariable workspaceId: Long) = filteringApiExecutor.executeFiltering(workspaceId)
+    suspend fun getInvoices(
+        @PathVariable workspaceId: Long,
+        @ParameterObject request: InvoicesFilteringRequest
+    ) = filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @GetMapping("{invoiceId}")
     suspend fun getInvoice(
@@ -108,32 +112,41 @@ class InvoicesApiController(
             .mapToInvoiceDto()
     }
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Invoice, InvoiceDto> {
-        query(Tables.INVOICE) {
-            val customer = Tables.CUSTOMER.`as`("filterCustomer")
+    private val filteringApiExecutor = filteringApiExecutorBuilder
+        .executor<Invoice, InvoiceDto, NoOpFiltering, InvoicesFilteringRequest> {
+            query(Tables.INVOICE) {
+                val customer = Tables.CUSTOMER.`as`("filterCustomer")
 
-            configure {
-                query.join(customer).on(customer.id.eq(root.customerId))
-            }
+                configure {
+                    query.join(customer).on(customer.id.eq(root.customerId))
+                }
 
-            filterByField("freeSearchText", String::class) {
-                onPredicate(FilteringApiPredicateOperator.EQ) { filter ->
+                onFilter(InvoicesFilteringRequest::freeSearchText) { filter ->
                     or(
                         root.notes.containsIgnoreCase(filter),
                         root.title.containsIgnoreCase(filter),
                         customer.name.containsIgnoreCase(filter)
                     )
                 }
+
+                onFilter(InvoicesFilteringRequest::statusIn) { statuses -> root.status.`in`(statuses) }
+
+                addDefaultSorting { root.dateIssued.desc() }
+                addDefaultSorting { root.timeRecorded.asc() }
+                workspaceFilter { workspaceId -> customer.workspaceId.eq(workspaceId) }
             }
-            filterByField("status", InvoiceStatus::class) {
-                onPredicate(FilteringApiPredicateOperator.IN) { statuses -> root.status.`in`(statuses) }
-            }
-            addDefaultSorting { root.dateIssued.desc() }
-            addDefaultSorting { root.timeRecorded.asc() }
-            workspaceFilter { workspaceId -> customer.workspaceId.eq(workspaceId) }
+            mapper { mapToInvoiceDto() }
         }
-        mapper { mapToInvoiceDto() }
-    }
+}
+
+class InvoicesFilteringRequest : ApiPageRequest<NoOpFiltering>() {
+    override var sortBy: NoOpFiltering? = null
+
+    @field:Parameter(name = "freeSearchText[eq]")
+    var freeSearchText: String? = null
+
+    @field:Parameter(name = "status[in]")
+    var statusIn: List<InvoiceStatus>? = null
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

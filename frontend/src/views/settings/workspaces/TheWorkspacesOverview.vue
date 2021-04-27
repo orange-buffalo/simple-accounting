@@ -41,7 +41,7 @@
 
 <script>
   import withWorkspaces from '@/components/mixins/with-workspaces';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaIcon from '@/components/SaIcon';
   import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
 

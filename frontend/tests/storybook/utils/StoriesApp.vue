@@ -51,7 +51,7 @@
 
   .stories-app--full-width {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     padding: 20px;
     box-sizing: border-box;
     background: $primary-grey;

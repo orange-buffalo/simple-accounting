@@ -45,6 +45,16 @@ class FilteringApiRequestResolverTest {
             ),
 
             FilteringApiRequestResolverUseCase(
+                description = "should ignore new API parameters",
+                expectedRequest = defaultRequest,
+                queryParams = queryParams(
+                    "pageNumber" to "20",
+                    "pageSize" to "10",
+                    "sortOrder" to "10",
+                )
+            ),
+
+            FilteringApiRequestResolverUseCase(
                 description = "should return and error when multiple limit parameters supplied",
                 expectedError = "Only a single 'limit' parameter is supported",
                 queryParams = queryParams(

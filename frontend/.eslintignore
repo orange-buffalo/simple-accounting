@@ -1,2 +1,3 @@
 **/icons/*.js
 vue.config.js
+src/services/api/api-client-definition.ts

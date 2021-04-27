@@ -49,7 +49,7 @@
 </template>
 
 <script>
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaForm from '@/components/SaForm';
   import withWorkspaces from '@/components/mixins/with-workspaces';

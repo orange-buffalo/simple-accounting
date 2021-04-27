@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundExce
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
 import org.jooq.impl.DSL.or
 import org.springframework.web.bind.annotation.*
@@ -22,7 +22,7 @@ class IncomesApiController(
     private val incomeService: IncomeService,
     private val timeService: TimeService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
 ) {
 
     @PostMapping

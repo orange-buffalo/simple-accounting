@@ -20,7 +20,7 @@
     </div>
 
     <DataItems
-      #default="{item: taxPayment}"
+      v-slot="{item: taxPayment}"
       :api-path="`/workspaces/${currentWorkspace.id}/income-tax-payments`"
     >
       <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />

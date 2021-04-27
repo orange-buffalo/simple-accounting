@@ -56,6 +56,7 @@ dependencies {
     implementation("org.jooq:jooq:${Versions.jooq}")
     implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
+    implementation("org.springdoc:springdoc-openapi-common:${Versions.springdocOpenapi}")
 
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -81,7 +82,11 @@ dependencies {
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
     testImplementation("com.github.tomakehurst:wiremock-jre8:${Versions.wireMock}")
     testImplementation("org.awaitility:awaitility:${Versions.awaitility}")
+    testImplementation("com.flipkart.zjsonpatch:zjsonpatch:${Versions.zjsonpatch}")
+    testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 
+    testRuntimeOnly("org.springdoc:springdoc-openapi-kotlin:${Versions.springdocOpenapi}")
+    testRuntimeOnly("org.springdoc:springdoc-openapi-webflux-core:${Versions.springdocOpenapi}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
     e2eTestImplementation("org.junit.jupiter:junit-jupiter-api")

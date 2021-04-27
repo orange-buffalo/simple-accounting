@@ -31,7 +31,7 @@
 
 <script>
   import { ref, watch } from '@vue/composition-api';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import SaDocument from '@/components/documents/SaDocument';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';

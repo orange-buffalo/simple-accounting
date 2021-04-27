@@ -20,12 +20,12 @@ import reactor.core.publisher.Mono
 import java.util.stream.Stream
 
 @SimpleAccountingIntegrationTest
-internal class FilteringApiQueryExecutorIT(
+internal class FilteringApiQueryExecutorLegacyIT(
     @Autowired val jdbcTemplate: JdbcTemplate,
     @Autowired val dslContext: DSLContext,
     @Autowired val conversionService: ConversionService
 ) {
-    lateinit var filteringApiQueryExecutor: FilteringApiQueryExecutor<TestDummyTable, TestDummy>
+    lateinit var filteringApiQueryExecutor: FilteringApiQueryExecutorLegacy<TestDummyTable, TestDummy>
 
     companion object {
         private val defaultRequest = FilteringApiRequest(
@@ -188,7 +188,7 @@ internal class FilteringApiQueryExecutorIT(
         jdbcTemplate.execute("insert into filtering_api_query_dummy values(${bender.id}, '${bender.name}')")
         jdbcTemplate.execute("insert into filtering_api_query_dummy values(${zoidberg.id}, '${zoidberg.name}')")
 
-        filteringApiQueryExecutor = FilteringApiQueryExecutor(
+        filteringApiQueryExecutor = FilteringApiQueryExecutorLegacy(
             dslContext = dslContext,
             conversionService = conversionService,
             root = TestDummyTable.testDummy,

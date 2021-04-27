@@ -10,7 +10,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeTax
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeTaxPaymentAttachment
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
 import org.hibernate.validator.constraints.Length
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
@@ -24,7 +24,7 @@ class IncomeTaxPaymentsApiController(
     private val taxPaymentService: IncomeTaxPaymentService,
     private val timeService: TimeService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
 ) {
 
     @PostMapping

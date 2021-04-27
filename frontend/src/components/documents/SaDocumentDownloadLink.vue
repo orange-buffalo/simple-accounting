@@ -18,7 +18,7 @@
 
 <script>
   import { ref } from '@vue/composition-api';
-  import { api } from '@/services/api';
+  import { api } from '@/services/api-legacy';
   import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
 
   function useDocumentsApi(documentId) {

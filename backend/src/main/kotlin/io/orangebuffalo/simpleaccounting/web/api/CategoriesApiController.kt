@@ -4,7 +4,7 @@ import io.orangebuffalo.simpleaccounting.services.business.CategoryService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull
 @RequestMapping("/api/workspaces/{workspaceId}/categories")
 class CategoriesApiController(
     private val categoryService: CategoryService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
 ) {
 
     @GetMapping

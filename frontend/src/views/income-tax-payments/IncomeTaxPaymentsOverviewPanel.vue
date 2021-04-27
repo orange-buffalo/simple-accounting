@@ -1,6 +1,6 @@
 <template>
   <OverviewItem :title="taxPayment.title">
-    <template v-slot:primary-attributes>
+    <template #primary-attributes>
       <OverviewItemPrimaryAttribute
         v-if="taxPayment.datePaid"
         :tooltip="$t('incomeTaxPaymentsOverviewPanel.datePaid.label')"
@@ -10,7 +10,7 @@
       </OverviewItemPrimaryAttribute>
     </template>
 
-    <template v-slot:attributes-preview>
+    <template #attributes-preview>
       <OverviewItemAttributePreviewIcon
         v-if="taxPayment.notes"
         icon="notes"
@@ -24,14 +24,14 @@
       />
     </template>
 
-    <template v-slot:last-column>
+    <template #last-column>
       <OverviewItemAmountPanel
         :currency="defaultCurrency"
         :amount="taxPayment.amount"
       />
     </template>
 
-    <template v-slot:details>
+    <template #details>
       <OverviewItemDetailsSectionActions>
         <SaActionLink
           v-if="currentWorkspace.editable"
