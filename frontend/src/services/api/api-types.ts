@@ -22,4 +22,4 @@ export type IncomeTaxPaymentsStatisticsDto = Components.Schemas.IncomeTaxPayment
 export type InvoiceDto = Components.Schemas.InvoiceDto;
 export type CategoryDto = Components.Schemas.CategoryDto;
 export type CustomerDto = Components.Schemas.CustomerDto;
-export type GetCategoriesParameters = Paths.GetCategories.PathParameters;
+export type GetInvoicesParameters = Paths.GetInvoices.PathParameters & Paths.GetInvoices.QueryParameters;

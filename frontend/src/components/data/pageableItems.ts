@@ -1,5 +1,6 @@
 import {
-  isRef, reactive, ref, Ref, watch,
+  isRef,
+  reactive, ref, Ref, watch,
 } from '@vue/composition-api';
 import axios, { AxiosResponse, CancelTokenSource } from 'axios';
 import throttle from 'lodash/throttle';
@@ -12,6 +13,11 @@ export interface PageableItems<D> {
   pageSize: Ref<number>,
   data: Ref<D[]>,
   loading: Ref<boolean>,
+}
+
+interface PageableItemsReturn<D> {
+  items: PageableItems<D>,
+  reload: () => Promise<void>,
 }
 
 function useLoading() {
@@ -45,21 +51,10 @@ function useLoading() {
   };
 }
 
-function validateRefProperties(requestParameters: any) {
-  Object.keys(requestParameters)
-    .forEach((key) => {
-      if (!isRef((requestParameters as any)[key])) {
-        throw Error(`${key} is not a Ref! It is required to support reactivity on the filters`);
-      }
-    });
-}
-
 export function usePageableItems<R extends ApiPageRequest, D>(
   requestParameters: R,
   requestExecutor: (request: R, config: AxiosRequestConfig) => Promise<AxiosResponse<ApiPage<D>>>,
-): PageableItems<D> {
-  validateRefProperties(requestParameters);
-
+): PageableItemsReturn<D> {
   const pageNumber = ref(1);
   const totalElements = ref(0);
   const pageSize = ref(10);
@@ -106,7 +101,7 @@ export function usePageableItems<R extends ApiPageRequest, D>(
     leading: false,
   });
 
-  watch(Object.values(requestParameters), () => {
+  watch(Object.values(requestParameters).filter((it) => isRef(it)), () => {
     // unwrap refs
     reloadData(reactive(requestParameters) as R);
   }, {
@@ -115,10 +110,13 @@ export function usePageableItems<R extends ApiPageRequest, D>(
   });
 
   return {
-    pageNumber,
-    totalElements,
-    pageSize,
-    data,
-    loading,
+    items: {
+      pageNumber,
+      totalElements,
+      pageSize,
+      data,
+      loading,
+    },
+    reload: () => reloadData(requestParameters) || Promise.resolve(),
   };
 }

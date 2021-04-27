@@ -10,7 +10,7 @@
 
         <div>
           <ElInput
-            v-model="userFilters.freeSearchText"
+            v-model="invoicesFilter"
             :placeholder="$t('invoicesOverview.filters.input.placeholder')"
             clearable
           >
@@ -32,65 +32,59 @@
       </div>
     </div>
 
-    <DataItems
+    <SaPageableItems
       v-slot="{item: invoice}"
-      ref="invoicesList"
-      :api-path="`/workspaces/${currentWorkspace.id}/invoices`"
-      :filters="invoicesApiFilters"
+      :items="invoices"
     >
       <InvoicesOverviewPanel
         :invoice="invoice"
         @invoice-update="onInvoiceUpdate"
       />
-    </DataItems>
+    </SaPageableItems>
   </div>
 </template>
 
-<script>
-  import DataItems from '@/components/DataItems';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+<script lang="ts">
+  import { defineComponent, ref } from '@vue/composition-api';
+  import SaPageableItems from '@/components/data/SaPageableItems';
   import SaIcon from '@/components/SaIcon';
+  import { usePageableItems } from '@/components/data/pageableItems';
   import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
+  import { apiClient, GetInvoicesParameters, InvoiceDto } from '@/services/api';
+  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+  import useNavigation from '@/components/navigation/useNavigation';
 
-  export default {
-    name: 'InvoicesOverview',
-
+  export default defineComponent({
     components: {
       InvoicesOverviewPanel,
       SaIcon,
-      DataItems,
+      SaPageableItems,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const invoicesFilter = ref<String | null>(null);
+      const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
+      const { items, reload } = usePageableItems<GetInvoicesParameters, InvoiceDto>({
+        workspaceId: currentWorkspaceId,
+        'freeSearchText[eq]': invoicesFilter as any,
+      }, (request, config) => apiClient.getInvoices(request, null, config));
+      const { navigateByViewName } = useNavigation();
 
-    data() {
+      const navigateToCreateInvoiceView = () => {
+        navigateByViewName({ name: 'create-new-invoice' });
+      };
+
+      const onInvoiceUpdate = () => {
+        reload();
+      };
+
       return {
-        userFilters: {
-          freeSearchText: null,
-        },
+        invoices: items,
+        invoicesFilter,
+        navigateToCreateInvoiceView,
+        onInvoiceUpdate,
+        currentWorkspace,
       };
     },
-
-    computed: {
-      invoicesApiFilters() {
-        // read the property to enable reactivity
-        const { freeSearchText } = this.userFilters;
-        return {
-          applyToRequest: (pageRequest) => {
-            pageRequest.eqFilter('freeSearchText', freeSearchText);
-          },
-        };
-      },
-    },
-
-    methods: {
-      navigateToCreateInvoiceView() {
-        this.$router.push({ name: 'create-new-invoice' });
-      },
-
-      onInvoiceUpdate() {
-        this.$refs.invoicesList.reloadData();
-      },
-    },
-  };
+  });
 </script>

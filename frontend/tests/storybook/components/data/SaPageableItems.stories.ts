@@ -52,7 +52,7 @@ function setupStory() {
     components: { SaPageableItems },
     setup() {
       const filter = ref<string|null>(null);
-      const pageableItems = usePageableItems<ResourceRequest, ResourceResponse>({
+      const { items: pageableItems } = usePageableItems<ResourceRequest, ResourceResponse>({
         'filter[eq]': filter as any,
       }, (request, config) => apiClient.get('resource', {
         ...config,
