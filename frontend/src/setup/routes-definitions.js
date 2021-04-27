@@ -68,10 +68,10 @@ export default new Router({
     {
       path: '/',
       component: TheAuthenticatedPage,
-      name: 'root',
       children: [
         {
           path: '',
+          name: 'dashboard',
           component: Dashboard,
         },
         {
@@ -217,11 +217,14 @@ export default new Router({
           name: 'create-new-user',
           component: CreateUser,
         },
-        {
-          path: '*',
-          redirect: '/',
-        },
       ],
+    },
+
+    {
+      path: '*',
+      redirect: {
+        name: 'dashboard',
+      },
     },
   ],
 });
