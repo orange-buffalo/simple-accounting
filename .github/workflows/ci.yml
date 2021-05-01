@@ -6,7 +6,9 @@ jobs:
   build:
     name: "Build and Tests"
     runs-on: ubuntu-18.04
-    container: orangebuffalo/simple-accounting-ci:v1
+    container:
+      image: orangebuffalo/simple-accounting-ci:v1
+      options: --privileged
 
     steps:
 
