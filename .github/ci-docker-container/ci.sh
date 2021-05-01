@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
+echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 
 if [ "$1" = "initialize" ]; then
   echo "Initializing CI toolset"
