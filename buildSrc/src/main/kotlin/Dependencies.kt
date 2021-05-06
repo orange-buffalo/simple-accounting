@@ -10,7 +10,7 @@ object Versions {
     const val guava = "30.1.1-jre"
     const val jooq = "3.14.9"
 
-    const val assertk = "0.23.1"
+    const val assertk = "0.24"
     const val mockito = "3.9.0"
     const val mockitoKotlin = "2.2.0"
     const val jsonUnit = "2.25.0"
