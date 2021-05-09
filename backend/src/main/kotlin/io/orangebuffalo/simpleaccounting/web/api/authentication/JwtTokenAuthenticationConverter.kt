@@ -19,7 +19,7 @@ class JwtTokenAuthenticationConverter : ServerAuthenticationConverter {
 
     private fun extractBearerToken(exchange: ServerWebExchange): Mono<String> {
         return Flux.fromIterable(exchange.request.headers.getValuesAsList(HttpHeaders.AUTHORIZATION))
-            .filter { it.toLowerCase().startsWith(BEARER.toLowerCase()) }
+            .filter { it.lowercase().startsWith(BEARER.lowercase()) }
             .map { it.substring(BEARER.length).trim() }
             .filter { it.isNotEmpty() }
             .next()

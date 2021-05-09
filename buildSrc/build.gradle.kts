@@ -3,15 +3,11 @@ object Versions {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 plugins {
     `kotlin-dsl`
-}
-
-kotlinDslPluginOptions {
-    experimentalWarning.set(false)
 }
 
 dependencies {

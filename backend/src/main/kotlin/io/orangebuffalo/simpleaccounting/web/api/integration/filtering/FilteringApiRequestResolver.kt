@@ -13,7 +13,7 @@ enum class FilteringApiRequestSortDirection {
 
     companion object {
         internal fun fromRequestString(value: String): FilteringApiRequestSortDirection? =
-            values().firstOrNull { it.name.toLowerCase() == value }
+            values().firstOrNull { it.name.lowercase() == value }
     }
 }
 

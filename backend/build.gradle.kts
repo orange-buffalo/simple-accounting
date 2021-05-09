@@ -28,7 +28,6 @@ apply<SaDockerPlugin>()
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 sourceSets {
@@ -99,39 +98,10 @@ dependencies {
     e2eTestRuntimeOnly("org.slf4j:slf4j-simple")
 }
 
-tasks.register<Copy>("copyFrontend") {
+val copyFrontend = task<Copy>("copyFrontend") {
     from(tasks.getByPath(":frontend:npmBuild"))
     into("${sourceSets.getByName("main").output.resourcesDir}/META-INF/resources")
 }
-
-tasks.bootJar {
-    dependsOn("copyFrontend")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict")
-    kotlinOptions.jvmTarget = "1.8"
-}
-
-tasks {
-    test {
-        useJUnitPlatform()
-        beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
-    }
-}
-
-// todo enable once https://github.com/jacoco/jacoco/milestone/31 is delivered
-//tasks.test {
-//    finalizedBy(tasks.jacocoTestReport)
-//}
-//
-//tasks.jacocoTestReport {
-//    reports {
-//        xml.isEnabled = true
-//        csv.isEnabled = false
-//        html.isEnabled = false
-//    }
-//}
 
 docker {
     registryCredentials {
@@ -149,19 +119,15 @@ configure<SaDockerImageExtension> {
     })
 }
 
-val buildDockerImage = tasks.register<DockerBuildImage>("buildDockerImage") {
+val buildDockerImage = task<DockerBuildImage>("buildDockerImage") {
     inputDir.set(saDockerImageExtension.dockerBuildDir)
     images.add(saDockerImageExtension.image)
     images.add("orangebuffalo/simple-accounting:latest")
     dependsOn("prepareDockerBuild")
 }
 
-project.tasks.register<DockerPushImage>("pushDockerImage") {
+task<DockerPushImage>("pushDockerImage") {
     images.add(saDockerImageExtension.image)
-    dependsOn(buildDockerImage)
-}
-
-tasks.build {
     dependsOn(buildDockerImage)
 }
 
@@ -177,3 +143,41 @@ val e2eTest = task<Test>("e2eTest") {
 
     dependsOn(buildDockerImage)
 }
+
+
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict")
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    compileTestKotlin {
+        dependsOn(copyFrontend)
+    }
+
+    test {
+        useJUnitPlatform()
+        beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
+    }
+
+    build {
+        dependsOn(buildDockerImage)
+    }
+
+    bootJarMainClassName {
+        dependsOn(copyFrontend)
+    }
+}
+
+// todo enable once https://github.com/jacoco/jacoco/milestone/31 is delivered
+//tasks.test {
+//    finalizedBy(tasks.jacocoTestReport)
+//}
+//
+//tasks.jacocoTestReport {
+//    reports {
+//        xml.isEnabled = true
+//        csv.isEnabled = false
+//        html.isEnabled = false
+//    }
+//}
