@@ -158,6 +158,7 @@ class OAuth2WebClientBuilderProviderIT(
 
     private fun getPersistedClientsCount() = jdbcAggregateTemplate.count(PersistentOAuth2AuthorizedClient::class.java)
 
+    @Suppress("DEPRECATION")
     private fun executeResourceRequest(): ClientResponse? = webClientBuilderProvider
         .forClient("test-client")
         .baseUrl("http://localhost:$wireMockPort")
@@ -165,7 +166,7 @@ class OAuth2WebClientBuilderProviderIT(
         .get()
         .uri("/resource")
         .exchange()
-        .subscriberContext { context ->
+        .contextWrite { context ->
             // required by Spring OAuth2 support to renew the token
             context.put(ServerWebExchange::class.java, MockServerWebExchange.from(MockServerHttpRequest.get("/test")))
         }

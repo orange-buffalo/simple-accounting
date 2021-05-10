@@ -109,7 +109,7 @@ class IncomesApiController(
                 query.leftJoin(category).on(root.categoryId.eq(category.id))
 
                 onPredicate(FilteringApiPredicateOperator.EQ) { searchText ->
-                    val token = searchText.toLowerCase()
+                    val token = searchText.lowercase()
                     or(
                         category.name.containsIgnoreCase(token),
                         root.notes.containsIgnoreCase(token),
