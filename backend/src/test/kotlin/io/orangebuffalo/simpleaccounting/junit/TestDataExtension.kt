@@ -76,7 +76,7 @@ class TestDataExtension : Extension, ParameterResolver, BeforeEachCallback, Invo
     }
 
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any =
-        parameterContext.parameter.type.newInstance() as TestData
+        parameterContext.parameter.type.getDeclaredConstructor().newInstance() as TestData
 }
 
 interface TestData {

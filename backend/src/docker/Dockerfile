@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-alpine
+FROM adoptopenjdk/openjdk11:alpine-jre
 
 RUN apk --no-cache add curl
 
@@ -9,7 +9,6 @@ COPY app.jar /opt/app/app.jar
 EXPOSE 9393
 
 ENTRYPOINT ["java", \
-            "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", \
             "-Xmx128m", \
             "-jar", "/opt/app/app.jar", \
            "--spring.config.additional-location=file:/data/config/" \
