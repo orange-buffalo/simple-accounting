@@ -148,7 +148,7 @@ val e2eTest = task<Test>("e2eTest") {
 tasks {
     withType<KotlinCompile> {
         kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict")
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
 
     compileTestKotlin {
