@@ -30,7 +30,7 @@ class ParameterObjectArgumentResolver(
     ): Any? {
         val objectType = ResolvableType.forMethodParameter(parameter)
         val resolvedType = objectType.resolve() ?: throw IllegalArgumentException("Cannot resolve type for $objectType")
-        val resolvedObject = resolvedType.newInstance()
+        val resolvedObject = resolvedType.getDeclaredConstructor().newInstance()
 
         // Swagger annotations are on the fields
         val fieldsByName = mutableMapOf<String, Field>()

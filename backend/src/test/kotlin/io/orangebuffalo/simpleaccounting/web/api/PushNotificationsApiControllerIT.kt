@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.assertNextJsonIs
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -26,6 +27,7 @@ class PushNotificationsApiControllerIT(
     @Autowired val pushNotificationService: PushNotificationService
 ) {
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     @WithMockFryUser
     fun `should receive a single broadcast event`(testData: PushNotificationsApiTestData) {
@@ -54,6 +56,7 @@ class PushNotificationsApiControllerIT(
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     @WithMockFryUser
     fun `should receive multiple broadcast events`(testData: PushNotificationsApiTestData) {
@@ -95,6 +98,7 @@ class PushNotificationsApiControllerIT(
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     @WithMockFryUser
     fun `should not receive events addressed to another user`(testData: PushNotificationsApiTestData) {

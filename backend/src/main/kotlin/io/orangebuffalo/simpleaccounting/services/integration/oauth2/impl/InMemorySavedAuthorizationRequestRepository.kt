@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
 
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.SavedAuthorizationRequest
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.SavedAuthorizationRequestRepository
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -28,6 +29,7 @@ class InMemorySavedAuthorizationRequestRepository : SavedAuthorizationRequestRep
         scheduleRequestCleanup(authorizationRequest.state)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun scheduleRequestCleanup(state: String) {
         GlobalScope.launch {
             delay(Duration.ofDays(2).toMillis())

@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -15,6 +16,7 @@ data class OAuth2FailedEvent(
     val context: CoroutineContext
 ) {
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun launchIfClientMatches(clientRegistrationId: String, block: suspend () -> Unit) {
         if (this.clientRegistrationId == clientRegistrationId) {
             GlobalScope.launch(context) { block() }

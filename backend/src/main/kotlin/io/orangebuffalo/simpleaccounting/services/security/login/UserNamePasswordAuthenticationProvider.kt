@@ -57,7 +57,7 @@ class UserNamePasswordAuthenticationProvider(
             }
             // fire and forget the request - throttler will either process the request if it is available,
             // or skips it if there is an in-flight request already
-            userRequestProcessor.offer(authenticationRequest)
+            userRequestProcessor.trySend(authenticationRequest)
         }
     }
 
