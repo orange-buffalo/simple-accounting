@@ -1,10 +1,9 @@
 package io.orangebuffalo.simpleaccounting.utils
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-internal class ComnibatorTest {
+internal class CombinatorTest {
 
     private val consumer = CombinationConsumer()
 

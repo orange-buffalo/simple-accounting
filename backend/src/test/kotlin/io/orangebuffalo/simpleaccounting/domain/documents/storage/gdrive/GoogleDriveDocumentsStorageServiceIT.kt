@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRe
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.utils.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.*
@@ -291,6 +292,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun `should send push notification with new auth URL on authorization failure`(testData: GoogleDriveTestData) {
         clientAuthorizationProvider.stub {
@@ -323,6 +325,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun `should process success authorization event`(testData: GoogleDriveTestData) {
         webClientBuilderProvider.mockAccessToken("driveToken")

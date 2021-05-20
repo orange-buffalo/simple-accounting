@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.integration.downloads
 
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -16,6 +17,7 @@ class DownloadsRepository {
     private val mutex = Mutex()
     private val requestsStorage = mutableMapOf<String, PersistentDownloadRequest>()
 
+    @OptIn(DelicateCoroutinesApi::class)
     suspend fun storeDownloadRequest(token: String, providerId: String, metadata: Any, userName: String) {
         mutex.withLock {
             requestsStorage[token] = PersistentDownloadRequest(

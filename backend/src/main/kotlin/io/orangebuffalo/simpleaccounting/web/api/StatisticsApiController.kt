@@ -101,10 +101,10 @@ data class IncomeTaxPaymentsStatisticsDto(
 data class IncomesExpensesStatisticsDto(
     val items: List<IncomeExpensesStatisticsItemDto>
 ) {
-    val totalAmount: Long = items.map { it.totalAmount }.sum()
-    val finalizedCount: Long = items.map { it.finalizedCount }.sum()
-    val pendingCount: Long = items.map { it.pendingCount }.sum()
-    val currencyExchangeDifference: Long = items.map { it.currencyExchangeDifference }.sum()
+    val totalAmount: Long = items.sumOf { it.totalAmount }
+    val finalizedCount: Long = items.sumOf { it.finalizedCount }
+    val pendingCount: Long = items.sumOf { it.pendingCount }
+    val currencyExchangeDifference: Long = items.sumOf { it.currencyExchangeDifference }
 }
 
 data class IncomeExpensesStatisticsItemDto(

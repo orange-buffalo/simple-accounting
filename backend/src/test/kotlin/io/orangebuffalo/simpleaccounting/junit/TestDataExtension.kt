@@ -27,7 +27,10 @@ class TestDataExtension : Extension, ParameterResolver, BeforeEachCallback, Invo
 
         jdbcTemplate.execute("set referential_integrity false")
 
-        tablesToTruncate.forEach { jdbcTemplate.execute("""truncate table "$it"""") }
+        tablesToTruncate.forEach {
+            @Suppress("SqlResolve")
+            jdbcTemplate.execute("""truncate table "$it"""")
+        }
 
         jdbcTemplate.execute("set referential_integrity true")
     }
