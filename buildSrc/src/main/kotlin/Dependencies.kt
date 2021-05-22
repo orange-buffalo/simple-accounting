@@ -1,5 +1,5 @@
 object Versions {
-    const val springBoot = "2.4.5"
+    const val springBoot = "2.5.0"
     const val springDependencyManagement = "1.0.11.RELEASE"
     const val kotlin = "1.5.0"
     const val kotlinCoroutines = "1.5.0"
@@ -8,7 +8,7 @@ object Versions {
     const val jjwt = "0.11.2"
     const val javaxEl = "3.0.1-b12"
     const val guava = "30.1.1-jre"
-    const val jooq = "3.14.9"
+    const val jooq = "3.14.11"
 
     const val assertk = "0.24"
     const val mockito = "3.10.0"
