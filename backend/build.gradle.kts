@@ -167,6 +167,10 @@ tasks {
     bootJarMainClassName {
         dependsOn(copyFrontend)
     }
+
+    jar {
+        dependsOn(copyFrontend)
+    }
 }
 
 // todo enable once https://github.com/jacoco/jacoco/milestone/31 is delivered

@@ -1529,7 +1529,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FluxDataBuffer'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataBuffer'
   /api/storage/google-drive/status:
     get:
       tags:
@@ -1609,7 +1611,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FluxDataBuffer'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataBuffer'
 components:
   schemas:
     ErrorResponse:
@@ -2599,12 +2603,8 @@ components:
       properties:
         token:
           type: string
-    FluxDataBuffer:
+    DataBuffer:
       type: object
-      properties:
-        prefetch:
-          type: integer
-          format: int32
     ApiPageCustomerDto:
       required:
       - data
