@@ -104,6 +104,8 @@ export namespace Components {
       id: number; // int64
       version: number; // int32
     }
+    export interface DataBuffer {
+    }
     export interface DocumentDto {
       id?: number; // int64
       version: number; // int32
@@ -207,9 +209,6 @@ export namespace Components {
       taxAmount: number; // int64
       includedItemsNumber: number; // int64
       includedItemsAmount: number; // int64
-    }
-    export interface FluxDataBuffer {
-      prefetch?: number; // int32
     }
     export interface GeneralTaxDto {
       title: string;
@@ -526,7 +525,7 @@ export namespace Paths {
       token: Parameters.Token;
     }
     export namespace Responses {
-      export type $200 = Components.Schemas.FluxDataBuffer;
+      export type $200 = Components.Schemas.DataBuffer[];
     }
   }
   export namespace GetCurrenciesShortlist {
@@ -574,7 +573,7 @@ export namespace Paths {
       documentId: Parameters.DocumentId; // int64
     }
     export namespace Responses {
-      export type $200 = Components.Schemas.FluxDataBuffer;
+      export type $200 = Components.Schemas.DataBuffer[];
     }
   }
   export namespace GetDocuments {
