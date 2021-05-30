@@ -2,20 +2,24 @@ package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
 
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.SavedAuthorizationRequest
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.SavedAuthorizationRequestRepository
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Repository
 import java.time.Duration
+import javax.annotation.PreDestroy
 
 @Repository
 class InMemorySavedAuthorizationRequestRepository : SavedAuthorizationRequestRepository {
 
     private val requests = mutableMapOf<String, SavedAuthorizationRequest>()
     private val mutex = Mutex()
+    private val scope = CoroutineScope(Dispatchers.Default)
+
+    @PreDestroy
+    fun cancelAsyncJobs() {
+        scope.cancel()
+    }
 
     override suspend fun findByStateAndRemove(state: String): SavedAuthorizationRequest {
         val request = mutex.withLock { requests.remove(state) }
@@ -29,9 +33,8 @@ class InMemorySavedAuthorizationRequestRepository : SavedAuthorizationRequestRep
         scheduleRequestCleanup(authorizationRequest.state)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun scheduleRequestCleanup(state: String) {
-        GlobalScope.launch {
+        scope.launch {
             delay(Duration.ofDays(2).toMillis())
             mutex.withLock { requests.remove(state) }
         }

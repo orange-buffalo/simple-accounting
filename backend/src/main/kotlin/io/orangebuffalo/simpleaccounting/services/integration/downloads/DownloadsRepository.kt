@@ -1,23 +1,26 @@
 package io.orangebuffalo.simpleaccounting.services.integration.downloads
 
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Component
+import javax.annotation.PreDestroy
 
 private const val tokenLifetimeInMs = 120_000L
 
 @Component
 class DownloadsRepository {
 
+    private val scope = CoroutineScope(Dispatchers.Default)
     private val mutex = Mutex()
     private val requestsStorage = mutableMapOf<String, PersistentDownloadRequest>()
 
-    @OptIn(DelicateCoroutinesApi::class)
+    @PreDestroy
+    fun cancelAsyncJobs() {
+        scope.cancel()
+    }
+
     suspend fun storeDownloadRequest(token: String, providerId: String, metadata: Any, userName: String) {
         mutex.withLock {
             requestsStorage[token] = PersistentDownloadRequest(
@@ -27,13 +30,12 @@ class DownloadsRepository {
             )
         }
 
-        GlobalScope.launch {
+        scope.launch {
             delay(tokenLifetimeInMs)
             mutex.withLock {
                 requestsStorage.remove(token)
             }
         }
-
     }
 
     suspend fun getRequestByToken(token: String): PersistentDownloadRequest =
