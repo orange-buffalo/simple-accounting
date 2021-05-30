@@ -187,13 +187,13 @@
     const {
       convertedAmounts,
       incomeTaxableAmounts,
-      generalTaxRateInBps,
-      generalTaxAmount,
-      status,
-      version,
-      timeRecorded,
       ...expenseEditProperties
     } = sourceExpense;
+    delete expenseEditProperties.generalTaxRateInBps;
+    delete expenseEditProperties.generalTaxAmount;
+    delete expenseEditProperties.status;
+    delete expenseEditProperties.version;
+    delete expenseEditProperties.timeRecorded;
     safeAssign(targetExpense, {
       ...expenseEditProperties,
       convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,

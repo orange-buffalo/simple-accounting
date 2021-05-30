@@ -196,13 +196,13 @@
       const {
         convertedAmounts,
         incomeTaxableAmounts,
-        generalTaxRateInBps,
-        generalTaxAmount,
-        status,
-        version,
-        timeRecorded,
         ...incomeEditProperties
       } = incomeResponse;
+      delete incomeEditProperties.generalTaxRateInBps;
+      delete incomeEditProperties.generalTaxAmount;
+      delete incomeEditProperties.status;
+      delete incomeEditProperties.version;
+      delete incomeEditProperties.timeRecorded;
       safeAssign(income, {
         ...incomeEditProperties,
         convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,

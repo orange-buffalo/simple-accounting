@@ -40,9 +40,7 @@ export function useApiCrud({
 }
 
 export function removeId(entity) {
-  const {
-    id,
-    ...entityWithoutId
-  } = entity;
+  const { ...entityWithoutId } = entity;
+  delete entityWithoutId.id;
   return entityWithoutId;
 }
