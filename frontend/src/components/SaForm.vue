@@ -31,8 +31,9 @@
 
     computed: {
       formProps() {
-        const { labelPosition, ...otherProps } = this.$attrs;
-        return otherProps;
+        const { ...props } = this.$attrs;
+        delete props.labelPosition;
+        return props;
       },
     },
 

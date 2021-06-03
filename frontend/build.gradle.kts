@@ -6,4 +6,5 @@ tasks.register("clean") {
 
 tasks.register("check") {
     dependsOn("npmTest")
+    dependsOn("npmLint")
 }
