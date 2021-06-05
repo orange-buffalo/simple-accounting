@@ -11,10 +11,11 @@
   </ElTooltip>
 </template>
 
-<script>
+<script lang="ts">
+  import { defineComponent } from '@vue/composition-api';
   import SaIcon from '@/components/SaIcon';
 
-  export default {
+  export default defineComponent({
     components: {
       SaIcon,
     },
@@ -29,7 +30,7 @@
         default: null,
       },
     },
-  };
+  });
 </script>
 
 <style lang="scss">
