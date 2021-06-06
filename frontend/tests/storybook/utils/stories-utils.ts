@@ -22,9 +22,10 @@ export async function pauseAndResetOutputLoaderAnimation(page: Page) {
 export async function pauseAndResetAnimation(page: Page, selector: string) {
   const elements = await page.$$(selector);
   for (let i = 0; i < elements.length; i += 1) {
-    elements[i].evaluate((elementNode) => {
+    // eslint-disable-next-line no-await-in-loop
+    await elements[i].evaluate((elementNode) => {
       // eslint-disable-next-line no-param-reassign
-      elementNode.style = 'animation:none';
+      (elementNode as HTMLElement).style.animation = 'none';
     });
   }
 }
@@ -33,17 +34,12 @@ export async function removeSvgAnimations(page: Page) {
   const elements = await page.$$('.sa-icon__svg');
   for (let i = 0; i < elements.length; i += 1) {
     // eslint-disable-next-line no-await-in-loop
-    await elements[i].evaluate((elementNode) => new Promise<void>((resolve) => {
+    await elements[i].evaluate((elementNode) => {
       const animateTransform = elementNode.querySelector('animateTransform');
-      if (animateTransform) {
+      if (animateTransform && animateTransform.parentNode) {
         animateTransform.parentNode.removeChild(animateTransform);
-        setTimeout(() => {
-          resolve();
-        }, 0);
-      } else {
-        resolve();
       }
-    }));
+    });
   }
 }
 
