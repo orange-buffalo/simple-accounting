@@ -20,7 +20,7 @@
     "axios": "^0.21.1",
     "cldrjs": "^0.5.5",
     "copy-to-clipboard": "^3.3.1",
-    "core-js": "^3.13.1",
+    "core-js": "^3.14.0",
     "dompurify": "^2.2.9",
     "dropzone": "^5.9.2",
     "element-ui": "^2.15.2",
