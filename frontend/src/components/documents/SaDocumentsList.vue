@@ -29,15 +29,15 @@
   </div>
 </template>
 
-<script>
-  import { ref, watch } from '@vue/composition-api';
+<script lang="ts">
+  import { ref, watch, defineComponent } from '@vue/composition-api';
   import { api } from '@/services/api-legacy';
   import SaDocument from '@/components/documents/SaDocument';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
-  export default {
+  export default defineComponent({
     components: {
       SaFailedDocumentsStorageMessage,
       SaDocument,
@@ -59,12 +59,14 @@
         if (documentsIds.length) {
           documentsLoading.value = true;
 
+          // @ts-ignore: TODO migrate controller to new api
           const cancelToken = api.createCancelToken();
           onCleanup(() => cancelToken.cancel());
 
           const { currentWorkspaceApiUrl } = useCurrentWorkspace();
 
           try {
+            // @ts-ignore: TODO migrate controller to new api
             documents.value = await api.pageRequest(currentWorkspaceApiUrl('documents'))
               .eager()
               .inFilter('id', documentsIds)
@@ -84,7 +86,7 @@
         documentsStorageStatus,
       };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

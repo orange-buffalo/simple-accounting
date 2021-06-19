@@ -89,32 +89,34 @@
   </ElAside>
 </template>
 
-<script>
-  import { api } from '@/services/api-legacy';
+<script lang="ts">
+  import { defineComponent } from '@vue/composition-api';
   import TheSideMenuLink from '@/components/TheSideMenuLink';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import MenuLogo from '@/assets/logo-menu.svg';
+  import { useAuth } from '@/services/api';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
-  export default {
-    name: 'TheSideMenu',
-
+  export default defineComponent({
     components: {
       TheSideMenuLink,
       MenuLogo,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const {
+        isAdmin,
+        isCurrentUserRegular,
+      } = useAuth();
 
-    computed: {
-      isUser() {
-        return !api.isAdmin();
-      },
+      const { currentWorkspace } = useCurrentWorkspace();
 
-      isCurrentUserRegular() {
-        return api.isCurrentUserRegular();
-      },
+      return {
+        isUser: !isAdmin(),
+        isCurrentUserRegular: isCurrentUserRegular(),
+        currentWorkspace,
+      };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

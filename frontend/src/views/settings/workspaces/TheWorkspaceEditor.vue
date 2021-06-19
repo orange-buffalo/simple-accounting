@@ -6,7 +6,7 @@
 
     <SaForm
       ref="workspaceForm"
-      :model="workspaceForm"
+      :model="workspaceData"
       :rules="workspaceValidationRules"
     >
       <template #default>
@@ -17,7 +17,7 @@
               label="Workspace Name"
               prop="name"
             >
-              <ElInput v-model="workspaceForm.name" />
+              <ElInput v-model="workspaceData.name" />
             </ElFormItem>
 
             <ElFormItem
@@ -25,7 +25,7 @@
               prop="defaultCurrency"
             >
               <SaCurrencyInput
-                v-model="workspaceForm.defaultCurrency"
+                v-model="workspaceData.defaultCurrency"
                 :disabled="isEditing"
               />
             </ElFormItem>
@@ -48,91 +48,108 @@
   </div>
 </template>
 
-<script>
-  import { api } from '@/services/api-legacy';
+<script lang="ts">
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaForm from '@/components/SaForm';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { useWorkspaces } from '@/services/workspaces';
+  import { defineComponent, PropType, ref } from '@vue/composition-api';
+  import { apiClient } from '@/services/api';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { ElForm } from 'element-ui/types/form';
 
-  export default {
-    name: 'TheWorkspaceEditor',
+  interface WorkspaceForm {
+    name?: string;
+    defaultCurrency?: string;
+  }
 
+  export default defineComponent({
     components: {
       SaCurrencyInput,
       SaForm,
     },
 
-    mixins: [withWorkspaces],
+    props: {
+      id: {
+        type: Number as PropType<number | null>,
+        default: null,
+      },
+    },
 
-    data() {
-      return {
-        workspaceForm: {},
-        workspaceValidationRules: {
-          name: [
-            {
-              required: true,
-              message: 'Please provide the name',
-            },
-            {
-              max: 255,
-              message: 'Name is too long',
-            },
-          ],
-          defaultCurrency: {
+    setup(props) {
+      const isEditing = props.id != null;
+      // todo i18n
+      const pageHeader = isEditing ? 'Edit Workspace' : 'Create New Workspace';
+
+      const workspaceData = ref<WorkspaceForm>({});
+
+      const loadWorkspace = async () => {
+        if (isEditing) {
+          // todo get by id
+          const response = await apiClient.getWorkspaces();
+          const workspace = response.data.find((it) => it.id === props.id);
+          workspaceData.value = { ...workspace };
+        }
+      };
+      loadWorkspace();
+
+      const { navigateByViewName } = useNavigation();
+      const navigateToWorkspacesOverview = () => navigateByViewName('workspaces-overview');
+
+      const workspaceForm = ref<ElForm | null>(null);
+      // todo i18n
+      const workspaceValidationRules = {
+        name: [
+          {
             required: true,
-            message: 'Please select a default currency',
+            message: 'Please provide the name',
           },
+          {
+            max: 255,
+            message: 'Name is too long',
+          },
+        ],
+        defaultCurrency: {
+          required: true,
+          message: 'Please select a default currency',
         },
       };
-    },
 
-    computed: {
-      isEditing() {
-        return this.$route.params.id != null;
-      },
-
-      pageHeader() {
-        return this.isEditing ? 'Edit Workspace' : 'Create New Workspace';
-      },
-    },
-
-    async created() {
-      if (this.isEditing) {
-        const workspace = this.workspaces.find((it) => it.id === this.$route.params.id);
-        this.workspaceForm = { ...workspace };
-      } else {
-        this.workspaceForm = {};
-      }
-    },
-
-    methods: {
-      navigateToWorkspacesOverview() {
-        this.$router.push({ name: 'workspaces-overview' });
-      },
-
-      async saveWorkspace() {
+      const saveWorkspace = async () => {
         try {
-          await this.$refs.workspaceForm.validate();
+          await workspaceForm.value!.validate();
         } catch (e) {
           return;
         }
 
-        if (this.workspaceForm.id) {
-          await api.put(`/workspaces/${this.workspaceForm.id}`, {
-            name: this.workspaceForm.name,
+        if (props.id) {
+          await apiClient.editWorkspace({
+            workspaceId: props.id!,
+          }, {
+            name: workspaceData.value.name!,
           });
         } else {
-          await api.post('/workspaces', {
-            name: this.workspaceForm.name,
-            defaultCurrency: this.workspaceForm.defaultCurrency,
+          await apiClient.createWorkspace({}, {
+            defaultCurrency: workspaceData.value.defaultCurrency!,
+            name: workspaceData.value.name!,
           });
         }
 
         // todo #90: when categories are removed from workspace, just use the reply to update current workspace
-        await this.$store.dispatch('workspaces/loadWorkspaces');
+        await useWorkspaces()
+          .loadWorkspaces();
 
-        this.navigateToWorkspacesOverview();
-      },
+        await navigateToWorkspacesOverview();
+      };
+
+      return {
+        isEditing,
+        pageHeader,
+        navigateToWorkspacesOverview,
+        workspaceData,
+        workspaceForm,
+        workspaceValidationRules,
+        saveWorkspace,
+      };
     },
-  };
+  });
 </script>

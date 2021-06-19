@@ -75,14 +75,13 @@
     toRefs,
     watch,
   } from '@vue/composition-api';
-  import { initWorkspace } from '@/services/workspaces-service';
+  import { initWorkspace, useCurrentWorkspace } from '@/services/workspaces';
   import { userApi } from '@/services/user-api';
   import { app } from '@/services/app-services';
   import i18n from '@/services/i18n';
   import LogoLogin from '@/assets/logo-login.svg';
   import SaIcon from '@/components/SaIcon';
   import useNavigation from '@/components/navigation/useNavigation';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import { useAuth } from '@/services/api';
 
   class AccountLockTimer {

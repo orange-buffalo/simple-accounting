@@ -255,8 +255,7 @@
   </OverviewItem>
 </template>
 
-<script>
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+<script lang="ts">
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -271,10 +270,13 @@
   import SaStatusLabel from '@/components/SaStatusLabel';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
+  import { computed, defineComponent, PropType } from '@vue/composition-api';
+  import { ExpenseDto } from '@/services/api';
+  import i18n from '@/services/i18n';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import useNavigation from '@/components/navigation/useNavigation';
 
-  export default {
-    name: 'ExpensesOverviewPanel',
-
+  export default defineComponent({
     components: {
       SaGeneralTaxOutput,
       SaCategoryOutput,
@@ -292,78 +294,78 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces],
-
     props: {
       expense: {
-        type: Object,
+        type: Object as PropType<ExpenseDto>,
         required: true,
       },
     },
 
-    computed: {
-      status() {
-        return this.expense.status === 'FINALIZED' ? 'success' : 'pending';
-      },
+    setup(props) {
+      const { defaultCurrency, currentWorkspace } = useCurrentWorkspace();
+      const { navigateToView } = useNavigation();
 
-      shortStatusText() {
-        return this.expense.status === 'FINALIZED'
-          ? this.$t('expensesOverviewPanel.status.short.finalized')
-          : this.$t('expensesOverviewPanel.status.short.pending');
-      },
+      const status = computed(() => (props.expense.status === 'FINALIZED' ? 'success' : 'pending'));
 
-      fullStatusText() {
-        if (this.expense.status === 'FINALIZED') {
-          return this.$t('expensesOverviewPanel.status.full.finalized');
+      const shortStatusText = computed(() => (props.expense.status === 'FINALIZED'
+        ? i18n.t('expensesOverviewPanel.status.short.finalized')
+        : i18n.t('expensesOverviewPanel.status.short.pending')));
+
+      const fullStatusText = computed(() => {
+        if (props.expense.status === 'FINALIZED') {
+          return i18n.t('expensesOverviewPanel.status.full.finalized');
         }
-        if (this.expense.status === 'PENDING_CONVERSION') {
-          return this.$t('expensesOverviewPanel.status.full.pendingConversion', [this.defaultCurrency]);
+        if (props.expense.status === 'PENDING_CONVERSION') {
+          return i18n.t('expensesOverviewPanel.status.full.pendingConversion', [defaultCurrency]);
         }
-        return this.$t('expensesOverviewPanel.status.full.waitingExchangeRate');
-      },
+        return i18n.t('expensesOverviewPanel.status.full.waitingExchangeRate');
+      });
 
-      totalAmount() {
-        if (this.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
+      const totalAmount = computed(() => {
+        if (props.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
           return {
-            value: this.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
-            currency: this.defaultCurrency,
+            value: props.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
+            currency: defaultCurrency,
           };
         }
-        if (this.expense.convertedAmounts.adjustedAmountInDefaultCurrency) {
+        if (props.expense.convertedAmounts.adjustedAmountInDefaultCurrency) {
           return {
-            value: this.expense.convertedAmounts.adjustedAmountInDefaultCurrency,
-            currency: this.defaultCurrency,
+            value: props.expense.convertedAmounts.adjustedAmountInDefaultCurrency,
+            currency: defaultCurrency,
           };
         }
         return {
-          value: this.expense.originalAmount,
-          currency: this.expense.currency,
+          value: props.expense.originalAmount,
+          currency: props.expense.currency,
         };
-      },
+      });
 
-      isForeignCurrency() {
-        return this.expense.currency !== this.defaultCurrency;
-      },
+      const isForeignCurrency = computed(() => (props.expense.currency !== defaultCurrency));
 
-      isGeneralTaxApplicable() {
-        return this.expense.generalTax != null;
-      },
+      const isGeneralTaxApplicable = computed(() => (props.expense.generalTax != null));
+
+      const navigateToExpenseEdit = () => navigateToView({
+        name: 'edit-expense',
+        params: { id: `${props.expense.id}` },
+      });
+
+      const navigateToExpenseCreateWithPrototype = () => navigateToView({
+        name: 'create-new-expense',
+        params: { prototype: props.expense },
+      });
+
+      return {
+        status,
+        shortStatusText,
+        fullStatusText,
+        totalAmount,
+        isForeignCurrency,
+        isGeneralTaxApplicable,
+        navigateToExpenseEdit,
+        navigateToExpenseCreateWithPrototype,
+        currentWorkspace,
+        defaultCurrency,
+      };
     },
-
-    methods: {
-      navigateToExpenseEdit() {
-        this.$router.push({
-          name: 'edit-expense',
-          params: { id: `${this.expense.id}` },
-        });
-      },
-
-      navigateToExpenseCreateWithPrototype() {
-        this.$router.push({
-          name: 'create-new-expense',
-          params: { prototype: this.expense },
-        });
-      },
-    },
-  };
+  });
 </script>

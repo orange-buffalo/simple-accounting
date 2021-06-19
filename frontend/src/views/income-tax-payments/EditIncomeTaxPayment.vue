@@ -112,11 +112,11 @@
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
   import SaNotesInput from '@/components/SaNotesInput';
   import SaForm from '@/components/SaForm';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
   import { useLoading } from '@/components/utils/utils';
   import useNavigation from '@/components/navigation/useNavigation';
   import { useApiCrud } from '@/components/utils/api-utils';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   function useTaxPaymentForm(loading) {
     const taxPaymentValidationRules = {

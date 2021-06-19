@@ -40,24 +40,30 @@
   </div>
 </template>
 
-<script>
-  import Dropzone from 'dropzone';
-  import { api } from '@/services/api-legacy';
+<script lang="ts">
+  import {
+    computed, defineComponent, onBeforeUnmount, onMounted, reactive, ref,
+  } from '@vue/composition-api';
+  import Dropzone, { DropzoneFile } from 'dropzone';
   import SaIcon from '@/components/SaIcon';
   import SaDocument from '@/components/documents/SaDocument';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { useAuth } from '@/services/api';
+  import i18n from '@/services/i18n';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   Dropzone.autoDiscover = false;
 
-  export default {
-    name: 'SaDocumentUpload',
+  interface Document {
+    id: number | null,
+    name: string| null,
+    sizeInBytes: number| null,
+  }
 
+  export default defineComponent({
     components: {
       SaDocument,
       SaIcon,
     },
-
-    mixins: [withWorkspaces],
 
     props: {
       documentId: {
@@ -76,147 +82,156 @@
       },
     },
 
-    data() {
-      return {
-        document: {
-          id: this.documentId,
-          name: this.documentName,
-          sizeInBytes: this.documentSizeInBytes,
-        },
-        uploading: false,
-        uploadingProgress: 0,
-        uploadingFailed: false,
-        selectedFile: null,
-        headers: {
-          Authorization: `Bearer ${api.getToken()}`,
-        },
-        maxFileSize: 50 * 1024 * 1024,
-      };
-    },
+    // todo: refactor to split into multiple functions
+    setup(props, { emit }) {
+      const document = reactive<Document>({
+        id: props.documentId,
+        name: props.documentName,
+        sizeInBytes: props.documentSizeInBytes,
+      });
+      const uploading = ref(false);
+      const uploadingProgress = ref(0);
+      const uploadingFailed = ref(false);
+      const selectedFile = ref<DropzoneFile | null>(null);
 
-    computed: {
-      documentAvailable() {
-        return this.document.id != null;
-      },
+      const { getToken } = useAuth();
 
-      fileSelectorAvailable() {
-        return !this.documentAvailable && this.selectedFile == null;
-      },
+      const documentAvailable = computed(() => document.id != null);
 
-      displayedSize() {
-        return this.uploadingFailed ? null : this.document.sizeInBytes;
-      },
+      const fileSelectorAvailable = computed(() => !documentAvailable.value && selectedFile.value == null);
 
-      status() {
-        if (this.uploadingFailed) {
+      const displayedSize = computed(() => (uploadingFailed.value ? null : document.sizeInBytes));
+
+      const status = computed(() => {
+        if (uploadingFailed.value) {
           return {
             icon: 'error',
-            text: this.$t('saDocumentUpload.uploadStatusMessage.error'),
+            text: i18n.t('saDocumentUpload.uploadStatusMessage.error'),
             failure: true,
           };
         }
 
-        if (this.uploading) {
+        if (uploading.value) {
           return {
             icon: 'upload',
-            text: this.$t('saDocumentUpload.uploadStatusMessage.uploading'),
+            text: i18n.t('saDocumentUpload.uploadStatusMessage.uploading'),
           };
         }
 
         return {
           icon: 'upload',
-          text: this.$t('saDocumentUpload.uploadStatusMessage.scheduled'),
+          text: i18n.t('saDocumentUpload.uploadStatusMessage.scheduled'),
         };
-      },
-    },
+      });
 
-    mounted() {
-      if (!this.dropzone && this.$refs.dropPanel) {
-        this.dropzone = new Dropzone(this.$refs.dropPanel, {
-          url: `/api/workspaces/${this.currentWorkspace.id}/documents`,
-          paramName: 'file',
-          createImageThumbnails: false,
-          autoProcessQueue: false,
-          previewTemplate: '<span>',
-          accept: (file, done) => {
-            this.uploadingFailed = false;
-            if (file.size > this.maxFileSize) {
-              this.uploadingFailed = true;
-              done();
-              this.dropzone.removeAllFiles();
-            } else {
-              this.selectedFile = file;
-              this.document = {
-                id: null,
-                name: file.name,
-                sizeInBytes: file.size,
-              };
-              this.$emit('document-selected');
-              done();
-            }
-          },
-        });
+      const maxFileSize = 50 * 1024 * 1024;
+      const dropPanel = ref<HTMLElement | null>(null);
+      let dropzone : Dropzone | null;
+      const { currentWorkspaceId } = useCurrentWorkspace();
+      const headers = {
+        Authorization: `Bearer ${getToken()}`,
+      };
+      onMounted(() => {
+        if (!dropzone && dropPanel.value) {
+          dropzone = new Dropzone(dropPanel.value, {
+            url: `/api/workspaces/${currentWorkspaceId}/documents`,
+            paramName: 'file',
+            createImageThumbnails: false,
+            autoProcessQueue: false,
+            previewTemplate: '<span>',
+            accept: (file, done) => {
+              uploadingFailed.value = false;
+              if (file.size > maxFileSize) {
+                uploadingFailed.value = true;
+                done();
+                dropzone!.removeAllFiles();
+              } else {
+                selectedFile.value = file;
+                document.id = null;
+                document.name = file.name;
+                document.sizeInBytes = file.size;
+                emit('document-selected');
+                done();
+              }
+            },
+          });
 
-        this.dropzone.on('uploadprogress', (file, progress) => {
-          this.uploadingProgress = progress;
-        });
+          dropzone.on('uploadprogress', (file, progress) => {
+            uploadingProgress.value = progress;
+          });
 
-        this.dropzone.on('error', (file, error) => {
-          // todo #72: special processing for storage service config error
-          // todo #77: handle 401 by acquiring new token and restarting upload
-          this.uploading = false;
-          this.uploadingFailed = true;
-          this.dropzone.files[0].status = 'queued';
-          this.$emit('upload-failed', error);
-        });
+          dropzone.on('error', (file, error) => {
+            // todo #72: special processing for storage service config error
+            // todo #77: handle 401 by acquiring new token and restarting upload
+            uploading.value = false;
+            uploadingFailed.value = true;
+            dropzone!.files[0].status = 'queued';
+            emit('upload-failed', error);
+          });
 
-        this.dropzone.on('success', (file, response) => {
-          this.uploading = false;
-          const { id, name, sizeInBytes } = response;
-          this.document = {
-            id,
-            name,
-            sizeInBytes,
-          };
-          this.$emit('upload-completed', this.document);
-        });
+          dropzone.on('success', (file, response) => {
+            uploading.value = false;
+            const {
+              id,
+              name,
+              sizeInBytes,
+            } = response as any; // todo type
+            document.id = id;
+            document.name = name;
+            document.sizeInBytes = sizeInBytes;
+            emit('upload-completed', document);
+          });
 
-        this.dropzone.on('processing', () => {
-          this.dropzone.options.headers = this.headers;
-        });
-      }
-    },
-
-    destroyed() {
-      if (this.dropzone) {
-        this.dropzone.destroy();
-        this.dropzone = null;
-      }
-    },
-
-    methods: {
-      onRemove() {
-        if (this.dropzone) {
-          this.dropzone.removeAllFiles();
+          dropzone.on('processing', () => {
+            dropzone!.options.headers = headers;
+          });
         }
-        this.document = {
-          id: null,
-          name: null,
-          sizeInBytes: null,
-        };
-        this.$emit('document-removed');
-      },
+      });
 
-      submitUpload() {
-        if (this.selectedFile && !this.documentAvailable) {
-          this.uploading = true;
-          this.uploadingFailed = false;
-          this.uploadingProgress = 0;
-          this.dropzone.processQueue();
+      onBeforeUnmount(() => {
+        if (dropzone) {
+          dropzone.destroy();
+          dropzone = null;
         }
-      },
+      });
+
+      const onRemove = () => {
+        if (dropzone) {
+          dropzone.removeAllFiles();
+        }
+        document.id = null;
+        document.name = null;
+        document.sizeInBytes = null;
+        emit('document-removed');
+      };
+
+      const submitUpload = () => {
+        if (selectedFile.value && !documentAvailable.value) {
+          uploading.value = true;
+          uploadingFailed.value = false;
+          uploadingProgress.value = 0;
+          dropzone!.processQueue();
+        }
+      };
+
+      return {
+        document,
+        uploading,
+        uploadingProgress,
+        uploadingFailed,
+        selectedFile,
+        headers,
+        maxFileSize,
+        documentAvailable,
+        fileSelectorAvailable,
+        displayedSize,
+        status,
+        onRemove,
+        submitUpload,
+        dropPanel,
+      };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

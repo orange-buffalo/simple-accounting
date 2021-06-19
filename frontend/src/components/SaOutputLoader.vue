@@ -9,19 +9,17 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script lang="ts">
+  import { defineComponent } from '@vue/composition-api';
+
+  export default defineComponent({
     props: {
       loading: {
         type: Boolean,
         required: true,
       },
     },
-
-    setup() {
-      // no special behaviour
-    },
-  };
+  });
 </script>
 
 <style lang="scss">

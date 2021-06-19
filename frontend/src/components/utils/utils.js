@@ -4,7 +4,7 @@ import Vue from 'vue';
 
 export function findByIdOrEmpty(list, targetItemId) {
   const result = list
-    .find((it) => (it.id === targetItemId) || (it.id == null && targetItemId == null));
+    .find((it) => (it.id === targetItemId) || (!it.id && !targetItemId));
   return result || {};
 }
 

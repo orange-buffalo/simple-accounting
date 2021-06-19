@@ -210,12 +210,11 @@
   </OverviewItem>
 </template>
 
-<script>
+<script lang="ts">
   import {
-    watch, computed, toRefs, reactive,
+    watch, computed, toRefs, reactive, defineComponent, PropType, Ref,
   } from '@vue/composition-api';
   import MoneyOutput from '@/components/MoneyOutput';
-  import { api } from '@/services/api-legacy';
   import i18n from '@/services/i18n';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -231,23 +230,29 @@
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
   import useGeneralTaxes from '@/components/general-tax/useGeneralTaxes';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useNavigation from '@/components/navigation/useNavigation';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import {
+    apiClient, apiDateString, InvoiceDto, WorkspaceDto,
+  } from '@/services/api';
 
-  function useInvoiceApi({ invoice, currentWorkspace, emit }) {
+  function useInvoiceApi(invoice : Ref<InvoiceDto>, currentWorkspace: WorkspaceDto, emit : (even:string) => void) {
     async function markSent() {
       const invoiceRequest = {
         ...invoice.value,
-        dateSent: api.dateToString(new Date()),
+        dateSent: apiDateString(new Date()),
       };
-      await api.put(`/workspaces/${currentWorkspace.id}/invoices/${invoice.value.id}`, invoiceRequest);
+      await apiClient.updateInvoice({
+        invoiceId: invoice.value.id!,
+        workspaceId: currentWorkspace.id!,
+      }, invoiceRequest);
       emit('invoice-update');
     }
 
     return { markSent };
   }
 
-  function useInvoiceNavigation({ invoice }) {
+  function useInvoiceNavigation(invoice: Ref<InvoiceDto>) {
     const { navigateToView } = useNavigation();
 
     function navigateToInvoiceEdit() {
@@ -270,16 +275,16 @@
     };
   }
 
-  function useStatus({ invoice }) {
+  function useStatus(invoice: Ref<InvoiceDto>) {
     const status = reactive({
       isDraft: false,
       isPaid: false,
       isCancelled: false,
       isSent: false,
       isOverdue: false,
-      statusIcon: null,
-      statusValue: null,
-      statusText: null,
+      statusIcon: null as string | null,
+      statusValue: null as string | null,
+      statusText: null as string | null,
     });
 
     function reset() {
@@ -300,30 +305,30 @@
         status.isDraft = true;
         status.statusIcon = 'draft';
         status.statusValue = 'regular';
-        status.statusText = i18n.t('invoicesOverviewPanel.status.draft');
+        status.statusText = i18n.t('invoicesOverviewPanel.status.draft') as string;
       } else if (invoice.value.status === 'PAID') {
         status.isPaid = true;
         status.statusValue = 'success';
-        status.statusText = i18n.t('invoicesOverviewPanel.status.finalized');
+        status.statusText = i18n.t('invoicesOverviewPanel.status.finalized') as string;
       } else if (invoice.value.status === 'CANCELLED') {
         status.isCancelled = true;
         status.statusIcon = 'cancel';
         status.statusValue = 'regular';
-        status.statusText = i18n.t('invoicesOverviewPanel.status.cancelled');
+        status.statusText = i18n.t('invoicesOverviewPanel.status.cancelled') as string;
       } else if (invoice.value.status === 'SENT') {
         status.isSent = true;
         status.statusValue = 'pending';
-        status.statusText = i18n.t('invoicesOverviewPanel.status.sent');
+        status.statusText = i18n.t('invoicesOverviewPanel.status.sent') as string;
       } else if (invoice.value.status === 'OVERDUE') {
         status.isOverdue = true;
         status.statusValue = 'failure';
-        status.statusText = i18n.t('invoicesOverviewPanel.status.overdue');
+        status.statusText = i18n.t('invoicesOverviewPanel.status.overdue') as string;
       }
     }, { immediate: true });
     return { ...toRefs(status) };
   }
 
-  export default {
+  export default defineComponent({
     components: {
       SaGeneralTaxOutput,
       SaCustomerOutput,
@@ -343,7 +348,7 @@
 
     props: {
       invoice: {
-        type: Object,
+        type: Object as PropType<InvoiceDto>,
         required: true,
       },
     },
@@ -351,7 +356,10 @@
     setup(props, { emit }) {
       const { invoice } = toRefs(props);
       const { generalTaxById } = useGeneralTaxes();
-      const { currentWorkspace, defaultCurrency } = useCurrentWorkspace();
+      const {
+        currentWorkspace,
+        defaultCurrency,
+      } = useCurrentWorkspace();
       const isGeneralTaxApplicable = computed(() => invoice.value.generalTax != null);
       const isForeignCurrency = computed(() => invoice.value.currency !== defaultCurrency);
       const generalTaxRate = computed(() => generalTaxById.value(invoice.value.generalTax).rateInBps);
@@ -359,17 +367,13 @@
       return {
         generalTaxById,
         currentWorkspace,
-        ...useInvoiceApi({
-          invoice,
-          currentWorkspace,
-          emit,
-        }),
-        ...useInvoiceNavigation({ invoice }),
+        ...useInvoiceApi(invoice, currentWorkspace, emit),
+        ...useInvoiceNavigation(invoice),
         isGeneralTaxApplicable,
         isForeignCurrency,
         generalTaxRate,
-        ...useStatus({ invoice }),
+        ...useStatus(invoice),
       };
     },
-  };
+  });
 </script>

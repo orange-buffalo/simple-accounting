@@ -1,4 +1,4 @@
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { ApiPage, ApiPageRequest } from '@/services/api/api-types';
 
 export function apiDateString(date: Date) {
@@ -24,4 +24,10 @@ export async function consumeAllPages<T>(
     totalElements = response.data.totalElements;
   }
   return result;
+}
+
+const { CancelToken } = axios;
+
+export function createCancelToken() {
+  return CancelToken.source();
 }

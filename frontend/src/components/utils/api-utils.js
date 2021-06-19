@@ -1,6 +1,6 @@
-import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
 import { safeAssign } from '@/components/utils/utils';
 import { api } from '@/services/api-legacy';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
 export function useApiCrud({
   apiEntityPath,

@@ -252,8 +252,10 @@
   </OverviewItem>
 </template>
 
-<script>
-  import { toRefs, computed, ref } from '@vue/composition-api';
+<script lang="ts">
+  import {
+    toRefs, computed, ref, defineComponent, PropType, Ref,
+  } from '@vue/composition-api';
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -269,12 +271,12 @@
   import SaCategoryOutput from '@/components/category/SaCategoryOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
   import i18n from '@/services/i18n';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useNavigation from '@/components/navigation/useNavigation';
-  import { api } from '@/services/api-legacy';
   import SaOutputLoader from '@/components/SaOutputLoader';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import { apiClient, IncomeDto } from '@/services/api';
 
-  function useIncomeStatus({ income }) {
+  function useIncomeStatus(income: Ref<IncomeDto>) {
     const { defaultCurrency } = useCurrentWorkspace();
     const incomeStatus = computed(() => {
       const statusProto = {
@@ -305,7 +307,7 @@
     return { incomeStatus };
   }
 
-  function useUiState({ income }) {
+  function useUiState(income:Ref<IncomeDto>) {
     const { defaultCurrency } = useCurrentWorkspace();
 
     const totalAmount = computed(() => {
@@ -338,7 +340,7 @@
     };
   }
 
-  function useIncomeNavigation({ income }) {
+  function useIncomeNavigation(income:Ref<IncomeDto>) {
     const { navigateToView } = useNavigation();
     const navigateToIncomeEdit = () => navigateToView({
       name: 'edit-income',
@@ -347,32 +349,35 @@
     return { navigateToIncomeEdit };
   }
 
-  function useLinkedInvoice({ income }) {
+  function useLinkedInvoice(income:Ref<IncomeDto>) {
     const linkedInvoice = ref({
       loading: false,
       exists: income.value.linkedInvoice != null,
+      title: null as String | null,
     });
 
     async function loadLinkedInvoice() {
-      linkedInvoice.value.loading = true;
-      try {
-        const { currentWorkspaceId } = useCurrentWorkspace();
-        const invoiceResponse = await api
-          .get(`workspaces/${currentWorkspaceId}/invoices/${income.value.linkedInvoice}`);
-        linkedInvoice.value.title = invoiceResponse.data.title;
-      } finally {
-        linkedInvoice.value.loading = false;
+      if (income.value.linkedInvoice) {
+        linkedInvoice.value.loading = true;
+        try {
+          const { currentWorkspaceId } = useCurrentWorkspace();
+          const invoiceResponse = await apiClient.getInvoice({
+            invoiceId: income.value.linkedInvoice,
+            workspaceId: currentWorkspaceId,
+          });
+          linkedInvoice.value.title = invoiceResponse.data.title;
+        } finally {
+          linkedInvoice.value.loading = false;
+        }
       }
     }
 
-    if (income.value.linkedInvoice) {
-      loadLinkedInvoice();
-    }
+    loadLinkedInvoice();
 
     return { linkedInvoice };
   }
 
-  export default {
+  export default defineComponent({
     components: {
       SaOutputLoader,
       SaGeneralTaxOutput,
@@ -393,7 +398,7 @@
 
     props: {
       income: {
-        type: Object,
+        type: Object as PropType<IncomeDto>,
         required: true,
       },
     },
@@ -402,12 +407,12 @@
       const { income } = toRefs(props);
 
       return {
-        ...useIncomeStatus({ income }),
-        ...useUiState({ income }),
+        ...useIncomeStatus(income),
+        ...useUiState(income),
         ...useCurrentWorkspace(),
-        ...useIncomeNavigation({ income }),
-        ...useLinkedInvoice({ income }),
+        ...useIncomeNavigation(income),
+        ...useLinkedInvoice(income),
       };
     },
-  };
+  });
 </script>

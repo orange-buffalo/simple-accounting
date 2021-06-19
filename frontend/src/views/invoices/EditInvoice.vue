@@ -204,12 +204,12 @@
   import SaForm from '@/components/SaForm';
   import SaCustomerInput from '@/components/customer/SaCustomerInput';
   import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import { safeAssign, useConfirmation, useLoading } from '@/components/utils/utils';
   import useNavigation from '@/components/navigation/useNavigation';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
   import { useApiCrud } from '@/components/utils/api-utils';
   import SaStatusLabel from '@/components/SaStatusLabel';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   function useInvoiceApi(invoice, uiState) {
     const {

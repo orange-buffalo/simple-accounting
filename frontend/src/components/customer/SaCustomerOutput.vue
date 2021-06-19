@@ -4,12 +4,12 @@
   </SaOutputLoader>
 </template>
 
-<script>
-  import { computed } from '@vue/composition-api';
+<script lang="ts">
+  import { computed, defineComponent } from '@vue/composition-api';
   import useCustomers from '@/components/customer/useCustomers';
   import SaOutputLoader from '@/components/SaOutputLoader';
 
-  export default {
+  export default defineComponent({
     components: {
       SaOutputLoader,
     },
@@ -22,7 +22,10 @@
     },
 
     setup({ customerId }) {
-      const { customersLoaded, customerById } = useCustomers();
+      const {
+        customersLoaded,
+        customerById,
+      } = useCustomers();
 
       const customerName = computed(() => customerById.value(customerId).name);
 
@@ -31,5 +34,5 @@
         customerName,
       };
     },
-  };
+  });
 </script>

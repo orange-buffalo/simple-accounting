@@ -57,14 +57,12 @@
 <script>
   import { api } from '@/services/api-legacy';
   import SaForm from '@/components/SaForm';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   export default {
     name: 'CreateCategory',
 
     components: { SaForm },
-
-    mixins: [withWorkspaces],
 
     data() {
       return {
@@ -112,7 +110,9 @@
           return;
         }
 
-        await api.post(`/workspaces/${this.currentWorkspace.id}/categories`, this.category);
+        const { currentWorkspaceId } = useCurrentWorkspace();
+
+        await api.post(`/workspaces/${currentWorkspaceId}/categories`, this.category);
         await this.$router.push({ name: 'settings-categories' });
       },
 

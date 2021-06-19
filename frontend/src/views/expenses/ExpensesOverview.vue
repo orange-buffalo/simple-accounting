@@ -10,7 +10,7 @@
 
         <div>
           <ElInput
-            v-model="userFilters.freeSearchText"
+            v-model="freeSearchText"
             :placeholder="$t('expensesOverview.filters.input.placeholder')"
             clearable
           >
@@ -42,47 +42,44 @@
   </div>
 </template>
 
-<script>
-  import DataItems from '@/components/DataItems';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+<script lang="ts">
+  import { computed, defineComponent, ref } from '@vue/composition-api';
   import SaIcon from '@/components/SaIcon';
   import ExpensesOverviewPanel from '@/views/expenses/ExpensesOverviewPanel';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import DataItems from '@/components/DataItems.vue';
+  import useNavigation from '@/components/navigation/useNavigation';
 
-  export default {
-    name: 'ExpensesOverview',
-
+  export default defineComponent({
     components: {
       ExpensesOverviewPanel,
       DataItems,
       SaIcon,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const { currentWorkspace } = useCurrentWorkspace();
 
-    data() {
+      const freeSearchText = ref<String | null>(null);
+
+      const apiFilters = computed(() => {
+        const filterValue = freeSearchText.value;
+        return ({
+          applyToRequest: (pageRequest: any) => {
+            pageRequest.eqFilter('freeSearchText', filterValue);
+          },
+        });
+      });
+
+      const { navigateByViewName } = useNavigation();
+      const navigateToCreateExpenseView = () => navigateByViewName('create-new-expense');
+
       return {
-        userFilters: {
-          freeSearchText: null,
-        },
+        currentWorkspace,
+        freeSearchText,
+        apiFilters,
+        navigateToCreateExpenseView,
       };
     },
-
-    computed: {
-      apiFilters() {
-        // read the value to support reactivity
-        const { freeSearchText } = this.userFilters;
-        return {
-          applyToRequest: (pageRequest) => {
-            pageRequest.eqFilter('freeSearchText', freeSearchText);
-          },
-        };
-      },
-    },
-
-    methods: {
-      navigateToCreateExpenseView() {
-        this.$router.push({ name: 'create-new-expense' });
-      },
-    },
-  };
+  });
 </script>

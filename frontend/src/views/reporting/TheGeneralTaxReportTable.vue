@@ -55,26 +55,31 @@
   </div>
 </template>
 
-<script>
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+<script lang="ts">
   import MoneyOutput from '@/components/MoneyOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
+  import { defineComponent, PropType } from '@vue/composition-api';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import { ReportTax } from '@/views/reporting/general-tax-report';
 
-  export default {
-    name: 'TheGeneralTaxReportTable',
-
+  export default defineComponent({
     components: {
       SaGeneralTaxOutput,
       MoneyOutput,
     },
 
-    mixins: [withWorkspaces],
-
     props: {
       data: {
-        type: Array,
+        type: Array as PropType<ReportTax[]>,
         required: true,
       },
     },
-  };
+
+    setup() {
+      const { defaultCurrency } = useCurrentWorkspace();
+      return {
+        defaultCurrency,
+      };
+    },
+  });
 </script>

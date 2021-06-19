@@ -43,27 +43,33 @@
   </div>
 </template>
 
-<script>
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+<script lang="ts">
+  import { defineComponent } from '@vue/composition-api';
   import DataItems from '@/components/DataItems';
   import SaIcon from '@/components/SaIcon';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import useNavigation from '@/components/navigation/useNavigation';
 
-  export default {
-    name: 'Categories',
-
+  export default defineComponent({
     components: {
       SaIcon,
       DataItems,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const { currentWorkspace } = useCurrentWorkspace();
+      const { navigateByViewName } = useNavigation();
 
-    methods: {
-      navigateToNewCategoryView() {
-        this.$router.push({ name: 'create-new-category' });
-      },
+      const navigateToNewCategoryView = () => {
+        navigateByViewName('create-new-category');
+      };
+
+      return {
+        currentWorkspace,
+        navigateToNewCategoryView,
+      };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

@@ -1,4 +1,4 @@
-import { store } from './stories-app';
+import { useWorkspaces } from '@/services/workspaces';
 
 export const DEFAULT_STORIES_WORKSPACE_ID = 42;
 export const DEFAULT_STORIES_WORKSPACE = {
@@ -8,7 +8,8 @@ export const DEFAULT_STORIES_WORKSPACE = {
 };
 
 export function mockWorkspace(workspace) {
-  store.commit('workspaces/setCurrentWorkspace', workspace);
+  const { setCurrentWorkspace } = useWorkspaces();
+  setCurrentWorkspace(workspace);
 }
 
 export function createStoreMockDecorator() {

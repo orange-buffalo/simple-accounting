@@ -15,28 +15,33 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import SaIcon from '@/components/SaIcon';
+  import { defineComponent, PropType } from '@vue/composition-api';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { CustomerDto } from '@/services/api';
 
-  export default {
-    name: 'CustomerOverviewPanel',
+  export default defineComponent({
     components: { SaIcon },
+
     props: {
       customer: {
-        type: Object,
+        type: Object as PropType<CustomerDto>,
         required: true,
       },
     },
 
-    methods: {
-      navigateToCustomerEdit() {
-        this.$router.push({
-          name: 'edit-customer',
-          params: { id: this.customer.id },
-        });
-      },
+    setup(props) {
+      const { navigateToView } = useNavigation();
+      const navigateToCustomerEdit = () => navigateToView({
+        name: 'edit-customer',
+        params: { id: props.customer.id },
+      });
+      return {
+        navigateToCustomerEdit,
+      };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

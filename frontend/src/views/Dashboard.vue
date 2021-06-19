@@ -239,13 +239,13 @@
   import {
     apiClient, apiDateString, InvoiceDto, consumeAllPages,
   } from '@/services/api';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import { useStorage } from '@/services/storage';
   import MoneyOutput from '@/components/MoneyOutput';
   import SaIcon from '@/components/SaIcon';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput';
   import { AxiosResponse } from 'axios';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   function useSelectedDateRange() {
     const storage = useStorage<Array<Date>>('dashboard.selected-date-range');

@@ -4,12 +4,12 @@
   </SaOutputLoader>
 </template>
 
-<script>
-  import { computed } from '@vue/composition-api';
+<script lang="ts">
+  import { computed, defineComponent } from '@vue/composition-api';
   import useGeneralTaxes from '@/components/general-tax/useGeneralTaxes';
   import SaOutputLoader from '@/components/SaOutputLoader';
 
-  export default {
+  export default defineComponent({
     components: {
       SaOutputLoader,
     },
@@ -22,7 +22,10 @@
     },
 
     setup({ generalTaxId }) {
-      const { generalTaxById, generalTaxesLoaded } = useGeneralTaxes();
+      const {
+        generalTaxById,
+        generalTaxesLoaded,
+      } = useGeneralTaxes();
 
       const generalTaxTitle = computed(() => generalTaxById.value(generalTaxId).title);
 
@@ -31,5 +34,5 @@
         generalTaxTitle,
       };
     },
-  };
+  });
 </script>

@@ -25,7 +25,7 @@ class WorkspaceAccessTokensApiController(
         filteringApiExecutor.executeFiltering(workspaceId, WorkspaceAccessMode.ADMIN)
 
     @PostMapping
-    suspend fun createToken(
+    suspend fun createAccessToken(
         @PathVariable workspaceId: Long,
         @RequestBody @Valid createTokenRequest: CreateWorkspaceAccessTokenDto
     ): WorkspaceAccessTokenDto {

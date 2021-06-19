@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 export default function pageRequest(uri) {
   let limit = 10;
   let page = 1;

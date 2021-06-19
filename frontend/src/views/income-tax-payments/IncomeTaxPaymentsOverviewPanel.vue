@@ -87,8 +87,7 @@
   </OverviewItem>
 </template>
 
-<script>
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+<script lang="ts">
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
   import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
@@ -99,10 +98,12 @@
   import SaActionLink from '@/components/SaActionLink';
   import SaDocumentsList from '@/components/documents/SaDocumentsList';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
+  import { defineComponent, PropType } from '@vue/composition-api';
+  import { IncomeTaxPaymentDto } from '@/services/api';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
-  export default {
-    name: 'IncomeTaxPaymentsOverviewPanel',
-
+  export default defineComponent({
     components: {
       SaDocumentsList,
       OverviewItemDetailsSectionAttribute,
@@ -116,22 +117,30 @@
       SaMarkdownOutput,
     },
 
-    mixins: [withWorkspaces],
-
     props: {
       taxPayment: {
-        type: Object,
+        type: Object as PropType<IncomeTaxPaymentDto>,
         required: true,
       },
     },
 
-    methods: {
-      navigateToTaxPaymentEdit() {
-        this.$router.push({
-          name: 'edit-income-tax-payment',
-          params: { id: this.taxPayment.id },
-        });
-      },
+    setup(props) {
+      const { navigateToView } = useNavigation();
+      const navigateToTaxPaymentEdit = () => navigateToView({
+        name: 'edit-income-tax-payment',
+        params: { id: props.taxPayment.id },
+      });
+
+      const {
+        currentWorkspace,
+        defaultCurrency,
+      } = useCurrentWorkspace();
+
+      return {
+        navigateToTaxPaymentEdit,
+        currentWorkspace,
+        defaultCurrency,
+      };
     },
-  };
+  });
 </script>

@@ -38,9 +38,9 @@
   import SaDocumentUpload from '@/components/documents/SaDocumentUpload';
   import { api } from '@/services/api-legacy';
   import SaDocument from '@/components/documents/SaDocument';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   const DOCUMENT_AGGREGATE_STATE = {
     EMPTY: 'empty',
