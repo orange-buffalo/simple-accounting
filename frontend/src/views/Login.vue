@@ -83,6 +83,7 @@
   import SaIcon from '@/components/SaIcon';
   import useNavigation from '@/components/navigation/useNavigation';
   import { useAuth } from '@/services/api';
+  import { useLastView } from '@/services/use-last-view';
 
   class AccountLockTimer {
     constructor(onTimerUpdate) {
@@ -171,11 +172,12 @@
         await initWorkspace();
 
         const { currentWorkspace } = useCurrentWorkspace();
+        const { lastView } = useLastView();
 
         if (!currentWorkspace) {
           await navigateByViewName('workspace-setup');
-        } else if (app.store.state.app.lastView) {
-          await navigateByViewName(app.store.state.app.lastView);
+        } else if (lastView) {
+          await navigateByViewName(lastView);
         } else {
           await navigateByViewName('dashboard');
         }

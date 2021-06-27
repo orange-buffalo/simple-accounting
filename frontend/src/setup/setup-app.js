@@ -32,7 +32,6 @@ import VueCompositionApi from '@vue/composition-api';
 import SimpleAccounting from '@/SimpleAccounting.vue';
 import '@/styles/main.scss';
 import setupRouter from '@/setup/setup-router';
-import setupStore from '@/setup/setup-store';
 import setupI18n from '@/setup/setup-i18n';
 import setupErrorHandler from '@/setup/setup-error-handler';
 import { app } from '@/services/app-services';
@@ -73,11 +72,9 @@ function setupApp() {
   Vue.use(VueCompositionApi);
 
   const router = setupRouter();
-  const store = setupStore();
   const i18n = setupI18n();
   const vue = new Vue({
     router,
-    store,
     i18n,
     render: (h) => h(SimpleAccounting),
   });
@@ -88,7 +85,6 @@ function setupApp() {
   app.init({
     vue,
     router,
-    store,
     i18n,
   });
 }

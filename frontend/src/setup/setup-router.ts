@@ -1,22 +1,27 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import { api } from '@/services/api-legacy';
 import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
-import { app } from '@/services/app-services';
+import { useAuth } from '@/services/api';
+import { useLastView } from '@/services/use-last-view';
 import router from './routes-definitions';
 
 function setupAuthenticationHooks() {
+  const {
+    isLoggedIn,
+    tryAutoLogin,
+  } = useAuth();
   router.beforeEach(async (to, from, next) => {
+    const { setLastView } = useLastView();
     if (to.name !== 'login'
       && to.name !== 'logout'
       && to.name !== 'login-by-link'
       && to.name !== 'oauth-callback'
-      && !api.isLoggedIn()) {
-      if (await api.tryAutoLogin()) {
+      && !isLoggedIn()) {
+      if (await tryAutoLogin()) {
         SUCCESSFUL_LOGIN_EVENT.emit();
         next();
       } else {
-        app.store.commit('app/setLastView', to.name);
+        setLastView(to.name);
         next({ name: 'login' });
       }
     } else {

@@ -1,17 +1,21 @@
+type Listener = (data: any) => void;
+
 class Event {
+  listeners: Array<Listener>;
+
   constructor() {
     this.listeners = [];
   }
 
-  emit(data) {
+  emit(data: any = null) {
     this.listeners.forEach((listener) => listener(data));
   }
 
-  subscribe(listener) {
+  subscribe(listener: Listener) {
     this.listeners.push(listener);
   }
 
-  unsubscribe(listener) {
+  unsubscribe(listener: Listener) {
     this.listeners = this.listeners.filter((registeredListener) => registeredListener !== listener);
   }
 }
