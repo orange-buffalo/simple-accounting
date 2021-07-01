@@ -1,5 +1,6 @@
 import { apiClient, WorkspaceDto } from '@/services/api';
 import { useStorage } from '@/services/storage';
+import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
 
 let currentWorkspace: WorkspaceDto | null;
 let workspaces: WorkspaceDto[];
@@ -8,6 +9,7 @@ const storage = useStorage<number>('current-workspace');
 function setCurrentWorkspace(workspace: WorkspaceDto) {
   currentWorkspace = workspace;
   storage.set(workspace.id!);
+  WORKSPACE_CHANGED_EVENT.emit(currentWorkspace);
 }
 
 function createWorkspace(workspace: WorkspaceDto) {

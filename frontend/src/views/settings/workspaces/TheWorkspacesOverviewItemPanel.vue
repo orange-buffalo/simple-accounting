@@ -122,7 +122,6 @@
       });
 
       const switchToWorkspace = () => {
-        // todo #90: do not commit directly, use wrapper action
         useWorkspaces()
           .setCurrentWorkspace(props.workspace);
         navigateByPath('/');

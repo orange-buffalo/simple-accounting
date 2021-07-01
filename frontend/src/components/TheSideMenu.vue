@@ -90,11 +90,14 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent } from '@vue/composition-api';
+  import {
+    defineComponent, onUnmounted, ref,
+  } from '@vue/composition-api';
   import TheSideMenuLink from '@/components/TheSideMenuLink';
   import MenuLogo from '@/assets/logo-menu.svg';
-  import { useAuth } from '@/services/api';
+  import { useAuth, WorkspaceDto } from '@/services/api';
   import { useCurrentWorkspace } from '@/services/workspaces';
+  import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
 
   export default defineComponent({
     components: {
@@ -108,7 +111,12 @@
         isCurrentUserRegular,
       } = useAuth();
 
-      const { currentWorkspace } = useCurrentWorkspace();
+      const currentWorkspace = ref(useCurrentWorkspace().currentWorkspace);
+      const onWorkspaceChange = (newWorkspace: WorkspaceDto) => {
+        currentWorkspace.value = newWorkspace;
+      };
+      WORKSPACE_CHANGED_EVENT.subscribe(onWorkspaceChange);
+      onUnmounted(() => WORKSPACE_CHANGED_EVENT.unsubscribe(onWorkspaceChange));
 
       return {
         isUser: !isAdmin(),

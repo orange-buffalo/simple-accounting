@@ -134,7 +134,6 @@
           });
         }
 
-        // todo #90: when categories are removed from workspace, just use the reply to update current workspace
         await useWorkspaces()
           .loadWorkspaces();
 

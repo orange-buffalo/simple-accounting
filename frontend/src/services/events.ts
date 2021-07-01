@@ -27,3 +27,5 @@ export const LOADING_STARTED_EVENT = new Event();
 export const LOADING_FINISHED_EVENT = new Event();
 
 export const API_FATAL_ERROR_EVENT = new Event();
+
+export const WORKSPACE_CHANGED_EVENT = new Event();
