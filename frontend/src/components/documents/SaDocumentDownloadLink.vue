@@ -16,20 +16,22 @@
   </span>
 </template>
 
-<script>
-  import { ref } from '@vue/composition-api';
-  import { api } from '@/services/api-legacy';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
+<script lang="ts">
+  import { ref, defineComponent } from '@vue/composition-api';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import { apiClient } from '@/services/api';
 
-  function useDocumentsApi(documentId) {
+  function useDocumentsApi(documentId: number) {
     const creatingDownloadLink = ref(false);
     const { currentWorkspaceId } = useCurrentWorkspace();
 
     async function getDownloadToken() {
       creatingDownloadLink.value = true;
       try {
-        const linkResponse = await api
-          .get(`/workspaces/${currentWorkspaceId}/documents/${documentId}/download-token`);
+        const linkResponse = await apiClient.getDownloadToken({
+          workspaceId: currentWorkspaceId,
+          documentId,
+        });
         return linkResponse.data.token;
       } finally {
         // let the document storage some time to prepare the data
@@ -45,7 +47,7 @@
     };
   }
 
-  function downloadFile(downloadToken, documentId, fileName) {
+  function downloadFile(downloadToken: string, documentId: number, fileName: string) {
     const a = document.createElement('a');
     a.style.display = 'none';
     document.body.appendChild(a);
@@ -55,7 +57,7 @@
     document.body.removeChild(a);
   }
 
-  export default {
+  export default defineComponent({
     props: {
       documentName: {
         type: String,
@@ -69,7 +71,10 @@
     },
 
     setup(props) {
-      const { getDownloadToken, creatingDownloadLink } = useDocumentsApi(props.documentId);
+      const {
+        getDownloadToken,
+        creatingDownloadLink,
+      } = useDocumentsApi(props.documentId);
 
       async function startDownload() {
         const downloadToken = await getDownloadToken();
@@ -81,7 +86,7 @@
         startDownload,
       };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

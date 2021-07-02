@@ -54,8 +54,7 @@ async function initApp() {
       await app.router.push(targetRoute);
     }
 
-    const { initWorkspace } = await
-    import(/* webpackChunkName: "workspaces-service" */ '@/services/workspaces-service');
+    const { initWorkspace } = await import(/* webpackChunkName: "workspaces" */ '@/services/workspaces');
     await initWorkspace();
 
     mountApp();

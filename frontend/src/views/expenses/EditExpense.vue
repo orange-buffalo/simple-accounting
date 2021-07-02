@@ -177,11 +177,11 @@
   import SaCategoryInput from '@/components/category/SaCategoryInput';
   import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
   import i18n from '@/services/i18n';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import { safeAssign, useLoading } from '@/components/utils/utils';
   import useNavigation from '@/components/navigation/useNavigation';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
   import { useApiCrud } from '@/components/utils/api-utils';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   function copyExpenseProperties(targetExpense, sourceExpense, overrides) {
     const {
@@ -296,6 +296,7 @@
         datePaid: new Date(),
         currency: defaultCurrency,
         id,
+        useDifferentExchangeRateForIncomeTaxPurposes: false,
       });
 
       const isInForeignCurrency = computed(() => expense.currency !== defaultCurrency);

@@ -72,11 +72,11 @@
 <script>
   import VSelect from 'vue-select';
   import { ref, watch } from '@vue/composition-api';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import { api } from '@/services/api-legacy';
   import SaInputLoader from '@/components/SaInputLoader';
   import SaBasicErrorMessage from '@/components/SaBasicErrorMessage';
   import SaStatusLabel from '@/components/SaStatusLabel';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   const maxItemsToDisplay = 10;
   const itemsToDisplay = 5;

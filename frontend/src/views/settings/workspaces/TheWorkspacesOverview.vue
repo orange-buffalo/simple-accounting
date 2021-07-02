@@ -32,58 +32,60 @@
       <h2>Workspaces Shared With Me</h2>
       <TheWorkspacesOverviewItemPanel
         v-for="workspace in sharedWorkspaces"
-        :key="workspace.id"
+        :key="`${workspace.id}-shared`"
         :workspace="workspace"
       />
     </template>
   </div>
 </template>
 
-<script>
-  import withWorkspaces from '@/components/mixins/with-workspaces';
-  import { api } from '@/services/api-legacy';
+<script lang="ts">
   import SaIcon from '@/components/SaIcon';
-  import TheWorkspacesOverviewItemPanel from './TheWorkspacesOverviewItemPanel';
+  import { computed, defineComponent, ref } from '@vue/composition-api';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import { apiClient, WorkspaceDto } from '@/services/api';
+  import TheWorkspacesOverviewItemPanel from '@/views/settings/workspaces/TheWorkspacesOverviewItemPanel';
 
-  export default {
-    name: 'TheWorkspacesOverview',
-
+  export default defineComponent({
     components: {
       SaIcon,
       TheWorkspacesOverviewItemPanel,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const sharedWorkspaces = ref<WorkspaceDto[]>([]);
+      const loadSharedWorkspaces = async () => {
+        const response = await apiClient.getSharedWorkspaces();
+        sharedWorkspaces.value = response.data;
+      };
+      loadSharedWorkspaces();
 
-    data() {
+      const workspaces = ref<WorkspaceDto[]>([]);
+      const loadWorkspaces = async () => {
+        const response = await apiClient.getWorkspaces();
+        workspaces.value = response.data;
+      };
+      loadWorkspaces();
+
+      const { navigateByViewName } = useNavigation();
+      const navigateToCreateWorkspace = () => navigateByViewName('create-new-workspace');
+
+      const hasSharedWorkspaces = computed(() => sharedWorkspaces.value.length);
+
+      const { currentWorkspace } = useCurrentWorkspace();
+      const ownOtherWorkspaces = computed(() => workspaces.value.filter((it) => it.id !== currentWorkspace.id));
+      const hasOtherOwnWorkspaces = computed(() => ownOtherWorkspaces.value.length);
+
       return {
-        sharedWorkspaces: [],
+        navigateToCreateWorkspace,
+        sharedWorkspaces,
+        hasSharedWorkspaces,
+        ownOtherWorkspaces,
+        hasOtherOwnWorkspaces,
+        workspaces,
+        currentWorkspace,
       };
     },
-
-    computed: {
-      ownOtherWorkspaces() {
-        return this.workspaces.filter((it) => it.id !== this.currentWorkspace.id);
-      },
-
-      hasOtherOwnWorkspaces() {
-        return this.ownOtherWorkspaces.length;
-      },
-
-      hasSharedWorkspaces() {
-        return this.sharedWorkspaces.length;
-      },
-    },
-
-    async created() {
-      const sharedWorkspacesResponse = await api.get('/shared-workspaces');
-      this.sharedWorkspaces = sharedWorkspacesResponse.data;
-    },
-
-    methods: {
-      navigateToCreateWorkspace() {
-        this.$router.push({ name: 'create-new-workspace' });
-      },
-    },
-  };
+  });
 </script>

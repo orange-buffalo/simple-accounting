@@ -74,83 +74,85 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import copy from 'copy-to-clipboard';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaAttributeValue from '@/components/SaAttributeValue';
-  import { api } from '@/services/api-legacy';
   import SaIcon from '@/components/SaIcon';
+  import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
+  import {
+    computed, defineComponent, PropType, ref,
+  } from '@vue/composition-api';
+  import { apiClient, WorkspaceAccessTokenDto, WorkspaceDto } from '@/services/api';
+  import useNavigation from '@/components/navigation/useNavigation';
 
-  export default {
-    name: 'TheWorkspacesOverviewItemPanel',
-
+  export default defineComponent({
     components: {
       SaIcon,
       SaAttributeValue,
     },
 
-    mixins: [withWorkspaces],
-
     props: {
       workspace: {
-        type: Object,
+        type: Object as PropType<WorkspaceDto>,
         required: true,
       },
     },
 
-    data() {
-      return {
-        accessTokens: [],
-        newShareValidTill: new Date(),
+    setup(props) {
+      const accessTokens = ref<WorkspaceAccessTokenDto[]>([]);
+      const newShareValidTill = ref(new Date());
+
+      const hasAccessTokens = computed(() => accessTokens.value.length);
+
+      const { currentWorkspaceId } = useCurrentWorkspace();
+      const isCurrent = computed(() => props.workspace.id === currentWorkspaceId);
+
+      const reloadAccessTokens = async () => {
+        const response = await apiClient.getAccessTokens({
+          workspaceId: props.workspace.id!,
+        });
+        accessTokens.value = response.data.data;
       };
-    },
+      reloadAccessTokens();
 
-    computed: {
-      hasAccessTokens() {
-        return this.accessTokens.length;
-      },
+      const { navigateToView, navigateByPath } = useNavigation();
+      const navigateToWorkspaceEdit = () => navigateToView({
+        name: 'edit-workspace',
+        params: { id: props.workspace.id },
+      });
 
-      isCurrent() {
-        return this.workspace.id === this.currentWorkspace.id;
-      },
-    },
+      const switchToWorkspace = () => {
+        useWorkspaces()
+          .setCurrentWorkspace(props.workspace);
+        navigateByPath('/');
+      };
 
-    async created() {
-      this.reloadAccessTokens();
-    },
-
-    methods: {
-      navigateToWorkspaceEdit() {
-        this.$router.push({
-          name: 'edit-workspace',
-          params: { id: this.workspace.id },
+      const shareWorkspace = async () => {
+        await apiClient.createAccessToken({
+          workspaceId: props.workspace.id!,
+        }, {
+          validTill: newShareValidTill.value.toISOString(),
         });
-      },
+        await reloadAccessTokens();
+      };
 
-      switchToWorkspace() {
-        // todo #90: do not commit directly, use wrapper action
-        this.$store.commit('workspaces/setCurrentWorkspace', this.workspace);
-        this.$router.push('/');
-      },
-
-      async shareWorkspace() {
-        await api.post(`/workspaces/${this.workspace.id}/workspace-access-tokens`, {
-          validTill: this.newShareValidTill.toISOString(),
-        });
-        this.reloadAccessTokens();
-      },
-
-      async reloadAccessTokens() {
-        const response = await api.get(`/workspaces/${this.workspace.id}/workspace-access-tokens`);
-        this.accessTokens = response.data.data;
-      },
-
-      copyShareLink(token) {
+      const copyShareLink = (token: string) => {
         const shareLink = `${window.location.origin}/login-by-link/${token}`;
         copy(shareLink);
-      },
+      };
+
+      return {
+        accessTokens,
+        newShareValidTill,
+        hasAccessTokens,
+        isCurrent,
+        navigateToWorkspaceEdit,
+        switchToWorkspace,
+        shareWorkspace,
+        copyShareLink,
+      };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

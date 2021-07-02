@@ -89,32 +89,42 @@
   </ElAside>
 </template>
 
-<script>
-  import { api } from '@/services/api-legacy';
+<script lang="ts">
+  import {
+    defineComponent, onUnmounted, ref,
+  } from '@vue/composition-api';
   import TheSideMenuLink from '@/components/TheSideMenuLink';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import MenuLogo from '@/assets/logo-menu.svg';
+  import { useAuth, WorkspaceDto } from '@/services/api';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
 
-  export default {
-    name: 'TheSideMenu',
-
+  export default defineComponent({
     components: {
       TheSideMenuLink,
       MenuLogo,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const {
+        isAdmin,
+        isCurrentUserRegular,
+      } = useAuth();
 
-    computed: {
-      isUser() {
-        return !api.isAdmin();
-      },
+      const currentWorkspace = ref(useCurrentWorkspace().currentWorkspace);
+      const onWorkspaceChange = (newWorkspace: WorkspaceDto) => {
+        currentWorkspace.value = newWorkspace;
+      };
+      WORKSPACE_CHANGED_EVENT.subscribe(onWorkspaceChange);
+      onUnmounted(() => WORKSPACE_CHANGED_EVENT.unsubscribe(onWorkspaceChange));
 
-      isCurrentUserRegular() {
-        return api.isCurrentUserRegular();
-      },
+      return {
+        isUser: !isAdmin(),
+        isCurrentUserRegular: isCurrentUserRegular(),
+        currentWorkspace,
+      };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

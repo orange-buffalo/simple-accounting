@@ -52,13 +52,13 @@
   </div>
 </template>
 
-<script>
-  import { watch, ref } from '@vue/composition-api';
+<script lang="ts">
+  import { watch, ref, defineComponent } from '@vue/composition-api';
   import SaIcon from '@/components/SaIcon';
   import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink';
   import i18n from '@/services/i18n';
 
-  function getDocumentTypeIcon(documentName) {
+  function getDocumentTypeIcon(documentName: string) {
     const fileName = documentName.toLowerCase();
     if (fileName.endsWith('.pdf')) {
       return 'pdf';
@@ -75,7 +75,7 @@
     return 'file';
   }
 
-  export default {
+  export default defineComponent({
     components: {
       SaDocumentDownloadLink,
       SaIcon,
@@ -126,7 +126,7 @@
 
       const onRemove = () => emit('removed');
 
-      const progressFormat = (percent) => i18n.t('common.percent', [percent / 100]);
+      const progressFormat = (percent: number) => i18n.t('common.percent', [percent / 100]);
 
       return {
         documentTypeIcon,
@@ -134,7 +134,7 @@
         progressFormat,
       };
     },
-  };
+  });
 </script>
 
 <style lang="scss">

@@ -10,7 +10,7 @@
 
         <div>
           <ElInput
-            v-model="userFilters.freeSearchText"
+            v-model="freeSearchText"
             :placeholder="$t('incomesOverview.filters.input.placeholder')"
             clearable
           >
@@ -42,47 +42,44 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+  import { computed, defineComponent, ref } from '@vue/composition-api';
   import DataItems from '@/components/DataItems';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
   import IncomesOverviewPanel from '@/views/incomes/IncomesOverviewPanel';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import useNavigation from '@/components/navigation/useNavigation';
 
-  export default {
-    name: 'IncomesOverview',
-
+  export default defineComponent({
     components: {
       IncomesOverviewPanel,
       SaIcon,
       DataItems,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const { currentWorkspace } = useCurrentWorkspace();
 
-    data() {
+      const freeSearchText = ref<String | null>(null);
+
+      const apiFilters = computed(() => {
+        const filterValue = freeSearchText.value;
+        return ({
+          applyToRequest: (pageRequest: any) => {
+            pageRequest.eqFilter('freeSearchText', filterValue);
+          },
+        });
+      });
+
+      const { navigateByViewName } = useNavigation();
+      const navigateToCreateIncomeView = () => navigateByViewName('create-new-income');
+
       return {
-        userFilters: {
-          freeSearchText: null,
-        },
+        currentWorkspace,
+        freeSearchText,
+        apiFilters,
+        navigateToCreateIncomeView,
       };
     },
-
-    computed: {
-      apiFilters() {
-        // read the property to enable reactivity
-        const { freeSearchText } = this.userFilters;
-        return {
-          applyToRequest: (pageRequest) => {
-            pageRequest.eqFilter('freeSearchText', freeSearchText);
-          },
-        };
-      },
-    },
-
-    methods: {
-      navigateToCreateIncomeView() {
-        this.$router.push({ name: 'create-new-income' });
-      },
-    },
-  };
+  });
 </script>

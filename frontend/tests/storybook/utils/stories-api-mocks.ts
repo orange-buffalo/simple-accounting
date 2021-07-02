@@ -1,7 +1,7 @@
 import { Polly, PollyServer, RouteHandler } from '@pollyjs/core';
 import XHRAdapter from '@pollyjs/adapter-xhr';
 import { ApiPage } from '@/services/api';
-import { store } from './stories-app';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
 Polly.register(XHRAdapter);
 
@@ -49,15 +49,18 @@ export async function responseDelay(timeout: number) {
 }
 
 export function onGetToWorkspacePath(subPath: string) {
-  return onGet(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
+  const { currentWorkspaceId } = useCurrentWorkspace();
+  return onGet(`api/workspaces/${currentWorkspaceId}/${subPath}`);
 }
 
 export function onPutToWorkspacePath(subPath: string) {
-  return onPut(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
+  const { currentWorkspaceId } = useCurrentWorkspace();
+  return onPut(`api/workspaces/${currentWorkspaceId}/${subPath}`);
 }
 
 export function onPostToWorkspacePath(subPath: string) {
-  return onPost(`api/workspaces/${store.state.workspaces.currentWorkspace.id}/${subPath}`);
+  const { currentWorkspaceId } = useCurrentWorkspace();
+  return onPost(`api/workspaces/${currentWorkspaceId}/${subPath}`);
 }
 
 export function onGet(path: string) {

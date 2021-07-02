@@ -4,12 +4,12 @@
   </SaOutputLoader>
 </template>
 
-<script>
-  import { computed } from '@vue/composition-api';
+<script lang="ts">
+  import { computed, defineComponent } from '@vue/composition-api';
   import useCategories from '@/components/category/useCategories';
   import SaOutputLoader from '@/components/SaOutputLoader';
 
-  export default {
+  export default defineComponent({
     components: {
       SaOutputLoader,
     },
@@ -21,15 +21,15 @@
       },
     },
 
-    setup({ categoryId }) {
+    setup(props) {
       const { categoryById, categoriesLoaded } = useCategories();
 
-      const categoryName = computed(() => categoryById.value(categoryId).name);
+      const categoryName = computed(() => categoryById.value(props.categoryId).name);
 
       return {
         categoryName,
         categoriesLoaded,
       };
     },
-  };
+  });
 </script>

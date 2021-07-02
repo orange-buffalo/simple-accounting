@@ -196,6 +196,7 @@ export default new Router({
           path: 'settings/workspaces/:id/edit',
           name: 'edit-workspace',
           component: TheWorkspaceEditor,
+          props: ID_ROUTER_PARAM_PROCESSOR,
         },
         {
           path: 'my-profile',

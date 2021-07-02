@@ -25,16 +25,26 @@
   </ElSelect>
 </template>
 
-<script>
-  import { api } from '@/services/api-legacy';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
+<script lang="ts">
+  import {
+    computed, defineComponent, Ref, ref, watch,
+  } from '@vue/composition-api';
   import i18n from '@/services/i18n';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import { apiClient } from '@/services/api';
 
-  export default {
-    name: 'SaCurrencyInput',
+  // todo: types once i18n migrated to ts
+  async function loadShortlist(currenciesShortlist: Ref<Array<any>>, currencies: any) {
+    const { currentWorkspaceId } = useCurrentWorkspace();
+    const response = await apiClient.getCurrenciesShortlist({
+      workspaceId: currentWorkspaceId,
+    });
+    // eslint-disable-next-line no-param-reassign
+    currenciesShortlist.value = response.data
+      .map((currencyCode) => currencies[currencyCode]);
+  }
 
-    mixins: [withWorkspaces],
-
+  export default defineComponent({
     props: {
       value: {
         type: String,
@@ -50,52 +60,45 @@
       },
     },
 
-    data() {
-      return {
-        inputValue: this.value,
-        currenciesShortlist: [],
-        currencies: i18n.getCurrenciesInfo(),
-      };
-    },
+    setup(props, { emit }) {
+      // todo: types when i18n is migrated to ts
+      const currenciesShortlist = ref([]);
+      const currencies = (i18n as any).getCurrenciesInfo();
 
-    computed: {
-      currenciesGroups() {
+      const currenciesGroups = computed(() => {
         const groups = [];
-        if (this.currenciesShortlist.length > 0) {
+        if (currenciesShortlist.value.length > 0) {
           groups.push({
-            title: this.$t('saCurrencyInput.groups.recent'),
-            currencies: this.currenciesShortlist,
+            title: i18n.t('saCurrencyInput.groups.recent'),
+            currencies: currenciesShortlist.value,
           });
         }
         groups.push({
-          title: this.$t('saCurrencyInput.groups.all'),
-          currencies: Object.values(this.currencies),
+          title: i18n.t('saCurrencyInput.groups.all'),
+          currencies: Object.values(currencies),
         });
         return groups;
-      },
+      });
+
+      const { defaultCurrency } = useCurrentWorkspace();
+      const inputValue = ref(props.value || defaultCurrency);
+      watch(() => props.value, (newValue) => {
+        inputValue.value = newValue;
+      });
+      watch(inputValue, (newValue) => {
+        emit('input', newValue);
+      });
+
+      loadShortlist(currenciesShortlist, currencies);
+
+      return {
+        inputValue,
+        currenciesShortlist,
+        currencies,
+        currenciesGroups,
+      };
     },
-
-    watch: {
-      value(val) {
-        this.inputValue = val;
-      },
-
-      inputValue(val) {
-        this.$emit('input', val);
-      },
-    },
-
-    async created() {
-      if (!this.inputValue) {
-        this.inputValue = this.defaultCurrency;
-      }
-
-      const currenciesShortlistResponse = await api
-        .get(`/workspaces/${this.currentWorkspace.id}/statistics/currencies-shortlist`);
-      this.currenciesShortlist = currenciesShortlistResponse.data
-        .map((currencyCode) => this.currencies[currencyCode]);
-    },
-  };
+  });
 </script>
 
 <style lang="scss">

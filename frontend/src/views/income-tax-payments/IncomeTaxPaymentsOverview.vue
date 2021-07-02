@@ -28,27 +28,29 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import DataItems from '@/components/DataItems';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
   import IncomeTaxPaymentsOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentsOverviewPanel';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { defineComponent } from '@vue/composition-api';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
-  export default {
-    name: 'TaxPaymentsOverview',
-
+  export default defineComponent({
     components: {
       IncomeTaxPaymentsOverviewPanel,
       SaIcon,
       DataItems,
     },
 
-    mixins: [withWorkspaces],
-
-    methods: {
-      navigateToCreateTaxPaymentView() {
-        this.$router.push({ name: 'create-new-income-tax-payment' });
-      },
+    setup() {
+      const { navigateByViewName } = useNavigation();
+      const { currentWorkspace } = useCurrentWorkspace();
+      const navigateToCreateTaxPaymentView = () => navigateByViewName('create-new-income-tax-payment');
+      return {
+        navigateToCreateTaxPaymentView,
+        currentWorkspace,
+      };
     },
-  };
+  });
 </script>

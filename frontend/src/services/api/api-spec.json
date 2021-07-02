@@ -713,7 +713,7 @@
         "tags": [
           "workspace-access-tokens-api-controller"
         ],
-        "operationId": "createToken",
+        "operationId": "createAccessToken",
         "parameters": [
           {
             "name": "workspaceId",

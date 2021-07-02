@@ -166,11 +166,11 @@
   import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
   import useNavigation from '@/components/navigation/useNavigation';
   import i18n from '@/services/i18n';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
   import { safeAssign, useLoading } from '@/components/utils/utils';
   import { useApiCrud } from '@/components/utils/api-utils';
   import SaInvoiceSelect from '@/components/invoice/SaInvoiceSelect';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   async function navigateToIncomesOverview() {
     const { navigateByViewName } = useNavigation();

@@ -45,10 +45,9 @@
 </template>
 
 <script>
-
-  import { mapActions } from 'vuex';
   import { Message } from 'element-ui';
   import { api } from '@/services/api-legacy';
+  import { useWorkspaces } from '@/services/workspaces';
 
   export default {
     name: 'WorkspaceSetup',
@@ -87,7 +86,7 @@
             api
               .post('/workspaces', this.form)
               .then((response) => {
-                this.createWorkspace(response.data);
+                useWorkspaces().createWorkspace(response.data);
                 this.$router.push('/');
               })
               .catch(() => {
@@ -101,10 +100,6 @@
           }
         });
       },
-
-      ...mapActions({
-        createWorkspace: 'workspaces/createWorkspace',
-      }),
     },
   };
 </script>

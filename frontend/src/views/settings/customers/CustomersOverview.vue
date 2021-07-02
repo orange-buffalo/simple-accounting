@@ -29,27 +29,30 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import DataItems from '@/components/DataItems';
   import SaIcon from '@/components/SaIcon';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
-  import CustomerOverviewPanel from './CustomerOverviewPanel';
+  import { defineComponent } from '@vue/composition-api';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import CustomerOverviewPanel from '@/views/settings/customers/CustomerOverviewPanel';
 
-  export default {
-    name: 'CustomersOverview',
-
+  export default defineComponent({
     components: {
       SaIcon,
       DataItems,
       CustomerOverviewPanel,
     },
 
-    mixins: [withWorkspaces],
+    setup() {
+      const { navigateByViewName } = useNavigation();
+      const { currentWorkspace } = useCurrentWorkspace();
 
-    methods: {
-      navigateToCreateCustomerView() {
-        this.$router.push({ name: 'create-new-customer' });
-      },
+      const navigateToCreateCustomerView = () => navigateByViewName('create-new-customer');
+      return {
+        navigateToCreateCustomerView,
+        currentWorkspace,
+      };
     },
-  };
+  });
 </script>

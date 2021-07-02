@@ -28,27 +28,29 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import DataItems from '@/components/DataItems';
-  import withWorkspaces from '@/components/mixins/with-workspaces';
   import SaIcon from '@/components/SaIcon';
-  import GeneralTaxOverviewPanel from './GeneralTaxOverviewPanel';
+  import { defineComponent } from '@vue/composition-api';
+  import useNavigation from '@/components/navigation/useNavigation';
+  import { useCurrentWorkspace } from '@/services/workspaces';
+  import GeneralTaxOverviewPanel from '@/views/settings/general-taxes/GeneralTaxOverviewPanel';
 
-  export default {
-    name: 'GeneralTaxesOverview',
-
+  export default defineComponent({
     components: {
       SaIcon,
       DataItems,
       GeneralTaxOverviewPanel,
     },
 
-    mixins: [withWorkspaces],
-
-    methods: {
-      navigateToCreateTaxView() {
-        this.$router.push({ name: 'create-new-general-tax' });
-      },
+    setup() {
+      const { navigateByViewName } = useNavigation();
+      const navigateToCreateTaxView = () => navigateByViewName('create-new-general-tax');
+      const { currentWorkspace } = useCurrentWorkspace();
+      return {
+        navigateToCreateTaxView,
+        currentWorkspace,
+      };
     },
-  };
+  });
 </script>

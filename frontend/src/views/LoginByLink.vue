@@ -4,7 +4,7 @@
 
 <script>
   import { api } from '@/services/api-legacy';
-  import { initWorkspace } from '@/services/workspaces-service';
+  import { initWorkspace, useWorkspaces } from '@/services/workspaces';
 
   export default {
     name: 'LoginByLink',
@@ -27,10 +27,12 @@
             });
             const workspace = sharedWorkspaceResponse.data;
 
-            // todo #90: do not commit directly, use wrapper action
-            this.$store.commit('workspaces/setCurrentWorkspace', workspace);
-
-            await initWorkspace();
+            const {
+              loadWorkspaces,
+              setCurrentWorkspace,
+            } = useWorkspaces();
+            setCurrentWorkspace(workspace);
+            await loadWorkspaces();
             await this.$router.push('/');
           } else if (await api.loginBySharedToken(this.token)) {
             await initWorkspace();

@@ -51,8 +51,8 @@
   import { usePageableItems } from '@/components/data/pageableItems';
   import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
   import { apiClient, GetInvoicesParameters, InvoiceDto } from '@/services/api';
-  import useCurrentWorkspace from '@/components/workspace/useCurrentWorkspace';
   import useNavigation from '@/components/navigation/useNavigation';
+  import { useCurrentWorkspace } from '@/services/workspaces';
 
   export default defineComponent({
     components: {
@@ -71,7 +71,7 @@
       const { navigateByViewName } = useNavigation();
 
       const navigateToCreateInvoiceView = () => {
-        navigateByViewName({ name: 'create-new-invoice' });
+        navigateByViewName('create-new-invoice');
       };
 
       const onInvoiceUpdate = () => {
