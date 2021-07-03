@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@drewbot/sass-flexbox-grid": "^2.0.7",
-    "@vue/composition-api": "^1.0.0-rc.12",
+    "@vue/composition-api": "^1.0.0-rc.13",
     "axios": "^0.21.1",
     "cldrjs": "^0.5.5",
     "copy-to-clipboard": "^3.3.1",
@@ -71,7 +71,7 @@
     "cldr-data": "^36.0.0",
     "deep-keys": "^0.5.0",
     "dockerode": "^3.3.0",
-    "eslint": "^7.29.0",
+    "eslint": "^7.30.0",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-vue": "^7.12.1",
     "jest": "^27.0.6",
