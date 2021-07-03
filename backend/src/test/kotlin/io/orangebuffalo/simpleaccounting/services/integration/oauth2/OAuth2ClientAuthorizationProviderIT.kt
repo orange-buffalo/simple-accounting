@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
-import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.client.WireMock.badRequest
+import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.WithSaMockUser
@@ -25,6 +26,10 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.test.context.TestPropertySource
 import java.net.URI
+import java.net.URLEncoder
+import java.net.URLEncoder.*
+import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.*
 import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
 
@@ -164,7 +169,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
             withRequestBody(containing(urlEncodeParameter("grant_type" to "authorization_code")))
             withRequestBody(containing(urlEncodeParameter("code" to "testCode")))
             withRequestBody(containing(urlEncodeParameter("redirect_uri" to "http://test-host/auth-callback")))
-            withBasicAuth("Client ID", "Client Secret")
+            withBasicAuth(encode("Client ID", UTF_8), encode("Client Secret", UTF_8))
             willReturnOkJson(
                 """{ 
                     "access_token": "access_token",
