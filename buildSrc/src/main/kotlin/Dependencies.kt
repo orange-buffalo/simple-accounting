@@ -16,7 +16,7 @@ object Versions {
     const val jsonUnit = "2.27.0"
     const val wireMock = "2.29.0"
     const val awaitility = "4.1.0"
-    const val selenide = "5.22.2"
+    const val selenide = "5.22.3"
     const val testContainers = "1.15.3"
     const val zjsonpatch = "0.4.11"
     const val springdocOpenapi = "1.5.9"
