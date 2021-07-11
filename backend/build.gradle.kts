@@ -19,8 +19,7 @@ plugins {
     id("org.springframework.boot") version Versions.springBoot
     id("io.spring.dependency-management") version Versions.springDependencyManagement
     id("com.bmuschko.docker-remote-api") version Versions.dockerPlugin
-    // todo enable once https://github.com/jacoco/jacoco/milestone/31 is delivered
-    // jacoco
+    jacoco
 }
 
 apply<SaJooqCodeGenPlugin>()
@@ -173,15 +172,14 @@ tasks {
     }
 }
 
-// todo enable once https://github.com/jacoco/jacoco/milestone/31 is delivered
-//tasks.test {
-//    finalizedBy(tasks.jacocoTestReport)
-//}
-//
-//tasks.jacocoTestReport {
-//    reports {
-//        xml.isEnabled = true
-//        csv.isEnabled = false
-//        html.isEnabled = false
-//    }
-//}
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(false)
+    }
+}
