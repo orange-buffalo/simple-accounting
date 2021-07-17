@@ -71,7 +71,7 @@
     "cldr-data": "^36.0.0",
     "deep-keys": "^0.5.0",
     "dockerode": "^3.3.0",
-    "eslint": "^7.30.0",
+    "eslint": "^7.31.0",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-vue": "^7.13.0",
     "jest": "^27.0.6",
