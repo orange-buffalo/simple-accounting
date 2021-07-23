@@ -1,5 +1,5 @@
 object Versions {
-    const val springBoot = "2.5.2"
+    const val springBoot = "2.5.3"
     const val springDependencyManagement = "1.0.11.RELEASE"
     const val kotlin = "1.5.21"
     const val kotlinCoroutines = "1.5.1"
