@@ -19,7 +19,7 @@ object Versions {
     const val selenide = "5.23.0"
     const val testContainers = "1.16.0"
     const val zjsonpatch = "0.4.11"
-    const val springdocOpenapi = "1.5.9"
+    const val springdocOpenapi = "1.5.10"
 
     const val dockerPlugin = "7.1.0"
     const val semverGitPlugin = "1.2.1"
