@@ -169,7 +169,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
             withRequestBody(containing(urlEncodeParameter("grant_type" to "authorization_code")))
             withRequestBody(containing(urlEncodeParameter("code" to "testCode")))
             withRequestBody(containing(urlEncodeParameter("redirect_uri" to "http://test-host/auth-callback")))
-            withBasicAuth(encode("Client ID", UTF_8), encode("Client Secret", UTF_8))
+            withBasicAuth("Client ID", "Client Secret")
             willReturnOkJson(
                 """{ 
                     "access_token": "access_token",
