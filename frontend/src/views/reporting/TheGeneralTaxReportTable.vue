@@ -5,7 +5,7 @@
       :data="data"
     >
       <ElTableColumn
-        v-slot="{row: item}"
+        #default="{row: item}"
         align="left"
         header-align="left"
         label="Tax"
@@ -24,41 +24,35 @@
         align="right"
         header-align="right"
         label="Items Amount"
+        #default="{row}"
       >
-        <template
-          v-if="scope.row.finalized"
-          slot-scope="scope"
-        >
-          <MoneyOutput
-            :currency="defaultCurrency"
-            :amount="scope.row.includedItemsAmount"
-          />
-        </template>
+        <MoneyOutput
+          v-if="row.finalized"
+          :currency="defaultCurrency"
+          :amount="row.includedItemsAmount"
+        />
       </ElTableColumn>
 
       <ElTableColumn
         align="right"
         header-align="right"
         label="Tax Amount"
+        #default="{row}"
       >
-        <template
-          v-if="scope.row.finalized"
-          slot-scope="scope"
-        >
-          <MoneyOutput
-            :currency="defaultCurrency"
-            :amount="scope.row.taxAmount"
-          />
-        </template>
+        <MoneyOutput
+          v-if="row.finalized"
+          :currency="defaultCurrency"
+          :amount="row.taxAmount"
+        />
       </ElTableColumn>
     </ElTable>
   </div>
 </template>
 
 <script lang="ts">
+  import { defineComponent, PropType } from '@vue/composition-api';
   import MoneyOutput from '@/components/MoneyOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
-  import { defineComponent, PropType } from '@vue/composition-api';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { ReportTax } from '@/views/reporting/general-tax-report';
 

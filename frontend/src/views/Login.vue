@@ -17,10 +17,9 @@
             v-model="form.userName"
             :placeholder="$t('loginPage.userName.placeholder')"
           >
-            <SaIcon
-              slot="prefix"
-              icon="login"
-            />
+            <template #prefix>
+              <SaIcon icon="login" />
+            </template>
           </ElInput>
         </ElFormItem>
 
@@ -30,10 +29,9 @@
             type="password"
             :placeholder="$t('loginPage.password.placeholder')"
           >
-            <SaIcon
-              slot="prefix"
-              icon="password"
-            />
+            <template #prefix>
+              <SaIcon icon="password" />
+            </template>
           </ElInput>
         </ElFormItem>
 

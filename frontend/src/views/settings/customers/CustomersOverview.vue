@@ -21,18 +21,17 @@
     <DataItems
       ref="customersList"
       :api-path="`/workspaces/${currentWorkspace.id}/customers`"
+      #default="{item}"
     >
-      <template slot-scope="scope">
-        <CustomerOverviewPanel :customer="scope.item" />
-      </template>
+      <CustomerOverviewPanel :customer="item" />
     </DataItems>
   </div>
 </template>
 
 <script lang="ts">
+  import { defineComponent } from '@vue/composition-api';
   import DataItems from '@/components/DataItems';
   import SaIcon from '@/components/SaIcon';
-  import { defineComponent } from '@vue/composition-api';
   import useNavigation from '@/components/navigation/useNavigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import CustomerOverviewPanel from '@/views/settings/customers/CustomerOverviewPanel';

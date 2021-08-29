@@ -17,11 +17,11 @@
     <DataItems
       :api-path="`/workspaces/${currentWorkspace.id}/categories`"
       :paginator="false"
+      #default="{item}"
     >
-      <template slot-scope="scope">
         <div class="sa-item-info-panel">
           <div class="sa-item-title-panel">
-            <h3>{{ scope.item.name }}</h3>
+            <h3>{{ item.name }}</h3>
 
             <span class="sa-item-edit-link">
               <!--<pencil-solid-icon/>-->
@@ -29,16 +29,15 @@
             </span>
           </div>
           <p>
-            {{ scope.item.description }}
+            {{ item.description }}
           </p>
           <p>
-            Income: {{ scope.item.income }}
+            Income: {{ item.income }}
           </p>
           <p>
-            Expense: {{ scope.item.expense }}
+            Expense: {{ item.expense }}
           </p>
         </div>
-      </template>
     </DataItems>
   </div>
 </template>

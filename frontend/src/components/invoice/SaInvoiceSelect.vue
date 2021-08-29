@@ -1,6 +1,6 @@
 <template>
   <SaEntitySelect
-    v-slot="{ entity: invoice }"
+    #default="{ entity: invoice }"
     v-bind="props"
     entity-path="invoices"
     :placeholder="$t('saInvoiceSelect.placeholder')"

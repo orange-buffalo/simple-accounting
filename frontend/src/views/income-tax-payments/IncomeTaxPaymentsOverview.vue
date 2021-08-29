@@ -20,7 +20,7 @@
     </div>
 
     <DataItems
-      v-slot="{item: taxPayment}"
+      #default="{item: taxPayment}"
       :api-path="`/workspaces/${currentWorkspace.id}/income-tax-payments`"
     >
       <IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />
@@ -29,11 +29,11 @@
 </template>
 
 <script lang="ts">
+  import { defineComponent } from '@vue/composition-api';
   import DataItems from '@/components/DataItems';
   import SaIcon from '@/components/SaIcon';
   import IncomeTaxPaymentsOverviewPanel from '@/views/income-tax-payments/IncomeTaxPaymentsOverviewPanel';
   import useNavigation from '@/components/navigation/useNavigation';
-  import { defineComponent } from '@vue/composition-api';
   import { useCurrentWorkspace } from '@/services/workspaces';
 
   export default defineComponent({

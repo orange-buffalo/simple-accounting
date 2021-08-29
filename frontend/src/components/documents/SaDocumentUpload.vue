@@ -23,18 +23,19 @@
         :removable="true"
         @removed="onRemove"
       >
-        <div
-          v-if="!documentAvailable"
-          slot="extras"
-          class="sa-document-upload__status"
-          :class="{'sa-document-upload__status_error': status.failure}"
-        >
-          <SaIcon
-            :icon="status.icon"
-            class="sa-document-upload__status-icon"
-          />
-          <span>{{ status.text }}</span>
-        </div>
+        <template #extras>
+          <div
+            v-if="!documentAvailable"
+            class="sa-document-upload__status"
+            :class="{'sa-document-upload__status_error': status.failure}"
+          >
+            <SaIcon
+              :icon="status.icon"
+              class="sa-document-upload__status-icon"
+            />
+            <span>{{ status.text }}</span>
+          </div>
+        </template>
       </SaDocument>
     </template>
   </div>

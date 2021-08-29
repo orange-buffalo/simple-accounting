@@ -26,10 +26,6 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.test.context.TestPropertySource
 import java.net.URI
-import java.net.URLEncoder
-import java.net.URLEncoder.*
-import java.nio.charset.StandardCharsets
-import java.nio.charset.StandardCharsets.*
 import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
 
