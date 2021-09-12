@@ -18,10 +18,9 @@
       />
       <ElTableColumn
         label="Is Administrator?"
+        #default="{row}"
       >
-        <template slot-scope="scope">
-          {{ scope.row.admin ? 'Yes' : 'No' }}
-        </template>
+        {{ row.admin ? 'Yes' : 'No' }}
       </ElTableColumn>
     </DataTable>
   </div>

@@ -14,10 +14,9 @@
             :placeholder="$t('invoicesOverview.filters.input.placeholder')"
             clearable
           >
-            <i
-              slot="prefix"
-              class="el-icon-search el-input__icon"
-            />
+            <template #prefix>
+              <i class="el-icon-search el-input__icon" />
+            </template>
           </ElInput>
         </div>
 
@@ -33,7 +32,7 @@
     </div>
 
     <SaPageableItems
-      v-slot="{item: invoice}"
+      #default="{item: invoice}"
       :items="invoices"
     >
       <InvoicesOverviewPanel

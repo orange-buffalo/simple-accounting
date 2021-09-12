@@ -20,7 +20,7 @@
 
     <DataItems
       ref="taxesList"
-      v-slot="{item: tax}"
+      #default="{item: tax}"
       :api-path="`/workspaces/${currentWorkspace.id}/general-taxes`"
     >
       <GeneralTaxOverviewPanel :tax="tax" />
@@ -29,9 +29,9 @@
 </template>
 
 <script lang="ts">
+  import { defineComponent } from '@vue/composition-api';
   import DataItems from '@/components/DataItems';
   import SaIcon from '@/components/SaIcon';
-  import { defineComponent } from '@vue/composition-api';
   import useNavigation from '@/components/navigation/useNavigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import GeneralTaxOverviewPanel from '@/views/settings/general-taxes/GeneralTaxOverviewPanel';

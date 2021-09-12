@@ -14,10 +14,9 @@
             :placeholder="$t('incomesOverview.filters.input.placeholder')"
             clearable
           >
-            <i
-              slot="prefix"
-              class="el-icon-search el-input__icon"
-            />
+            <template #prefix>
+              <i class="el-icon-search el-input__icon" />
+            </template>
           </ElInput>
         </div>
 
@@ -33,7 +32,7 @@
     </div>
 
     <DataItems
-      v-slot="{item: income}"
+      #default="{item: income}"
       :api-path="`/workspaces/${currentWorkspace.id}/incomes`"
       :filters="apiFilters"
     >

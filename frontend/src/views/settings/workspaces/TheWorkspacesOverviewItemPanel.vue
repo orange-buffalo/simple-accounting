@@ -33,23 +33,20 @@
           >
             <ElTableColumn
               label="Valid Till"
+              #default="{row}"
             >
-              <template slot-scope="scope">
-                {{ $t('common.dateTime.medium', [scope.row.validTill]) }}
-              </template>
+              {{ $t('common.dateTime.medium', [row.validTill]) }}
             </ElTableColumn>
-            <ElTableColumn align="right">
-              <template slot-scope="scope">
-                <div class="workspace-panel__share-link-panel">
-                  <SaIcon icon="copy" />
-                  <ElButton
-                    type="text"
-                    @click="copyShareLink(scope.row.token)"
-                  >
-                    Copy link
-                  </ElButton>
-                </div>
-              </template>
+            <ElTableColumn align="right" #default="{row}">
+              <div class="workspace-panel__share-link-panel">
+                <SaIcon icon="copy" />
+                <ElButton
+                  type="text"
+                  @click="copyShareLink(row.token)"
+                >
+                  Copy link
+                </ElButton>
+              </div>
             </ElTableColumn>
           </ElTable>
 
@@ -76,12 +73,12 @@
 
 <script lang="ts">
   import copy from 'copy-to-clipboard';
-  import SaAttributeValue from '@/components/SaAttributeValue';
-  import SaIcon from '@/components/SaIcon';
-  import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
   import {
     computed, defineComponent, PropType, ref,
   } from '@vue/composition-api';
+  import SaAttributeValue from '@/components/SaAttributeValue';
+  import SaIcon from '@/components/SaIcon';
+  import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
   import { apiClient, WorkspaceAccessTokenDto, WorkspaceDto } from '@/services/api';
   import useNavigation from '@/components/navigation/useNavigation';
 

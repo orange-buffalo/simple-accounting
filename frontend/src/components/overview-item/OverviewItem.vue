@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
     <div
       class="row overview-item__panel"
       :class="{'row overview-item__panel_with-details': detailsVisible}"
