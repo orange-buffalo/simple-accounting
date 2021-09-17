@@ -65,6 +65,7 @@ export const AuthorizationFailed = () => ({
       });
   },
   mounted() {
+    // TODO #383
     setTimeout(() => {
       pushNotifications.pushEvent('storage.google-drive.auth', {
         authorizationRequired: true,

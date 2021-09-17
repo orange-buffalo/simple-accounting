@@ -1,7 +1,7 @@
-import { Client as SimpleAccountingClient } from '@/services/api/api-client-definition';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { AxiosRequestConfig } from 'openapi-client-axios';
+import { Client as SimpleAccountingClient } from '@/services/api/api-client-definition';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 import { LoginRequest } from '@/services/api/api-types';
 
@@ -76,7 +76,7 @@ async function tryAutoLogin() {
     scheduleTokenRefresh();
 
     return true;
-  } catch (error) {
+  } catch (error: any) {
     if (error.response && error.response.status === 401) {
       return false;
     }
@@ -111,7 +111,7 @@ export async function handleErrorResponse(error: any): Promise<any | null> {
   return null;
 }
 
-async function login(request : LoginRequest) {
+async function login(request: LoginRequest) {
   cancelTokenRefresh();
   const response = await apiClient.login(null, request, {
     skipGlobalErrorHandler: true,
@@ -137,7 +137,7 @@ async function loginBySharedToken(sharedToken: string) {
     updateApiToken(tokenLoginResponse.data.token);
 
     return true;
-  } catch (error) {
+  } catch (error: any) {
     if (error.response && error.response.status === 401) {
       return false;
     }
