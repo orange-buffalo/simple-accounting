@@ -4,7 +4,7 @@ object Versions {
     const val kotlin = "1.5.31"
     const val kotlinCoroutines = "1.5.2"
     const val kotlinLogging = "2.0.11"
-    const val arrow = "0.13.3"
+    const val arrow = "1.0.0"
     const val jjwt = "0.11.2"
     const val javaxEl = "3.0.1-b12"
     const val guava = "30.1.1-jre"
