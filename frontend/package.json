@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@drewbot/sass-flexbox-grid": "^2.0.7",
-    "@vue/composition-api": "^1.2.1",
+    "@vue/composition-api": "^1.2.2",
     "axios": "^0.21.4",
     "cldrjs": "^0.5.5",
     "copy-to-clipboard": "^3.3.1",
@@ -35,7 +35,7 @@
     "qs": "^6.10.1",
     "text-mask-addons": "^3.8.0",
     "vue": "^2.6.14",
-    "vue-i18n": "^8.26.0",
+    "vue-i18n": "^8.26.1",
     "vue-router": "^3.5.2",
     "vue-select": "^3.13.0",
     "vue-text-mask": "^6.1.2"
