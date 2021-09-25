@@ -53,7 +53,7 @@
     "@types/dropzone": "^5.7.4",
     "@types/jest": "^27.0.2",
     "@types/lockr": "^0.8.7",
-    "@types/lodash": "^4.14.173",
+    "@types/lodash": "^4.14.174",
     "@types/pollyjs__adapter-xhr": "^2.6.1",
     "@types/pollyjs__core": "^4.3.3",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
