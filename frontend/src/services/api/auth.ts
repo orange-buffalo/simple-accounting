@@ -89,7 +89,7 @@ export function applyAuthorization(config: AxiosRequestConfig): AxiosRequestConf
     headers,
     ...otherConfig
   } = config;
-  if (apiToken.jwtToken) {
+  if (apiToken.jwtToken && headers) {
     headers.Authorization = `Bearer ${apiToken.jwtToken}`;
   }
   return { headers, ...otherConfig };
