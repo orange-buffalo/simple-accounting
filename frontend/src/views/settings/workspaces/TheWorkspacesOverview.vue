@@ -40,8 +40,8 @@
 </template>
 
 <script lang="ts">
-  import SaIcon from '@/components/SaIcon';
   import { computed, defineComponent, ref } from '@vue/composition-api';
+  import SaIcon from '@/components/SaIcon';
   import useNavigation from '@/components/navigation/useNavigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { apiClient, WorkspaceDto } from '@/services/api';

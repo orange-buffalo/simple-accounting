@@ -1,9 +1,9 @@
 import { action } from '@storybook/addon-actions';
+import { defineComponent, ref } from '@vue/composition-api';
+import { Page } from 'puppeteer';
 import SaPageableItems from '@/components/data/SaPageableItems';
 import { usePageableItems } from '@/components/data/pageableItems';
-import { defineComponent, ref } from '@vue/composition-api';
 import { apiClient, ApiPage, ApiPageRequest } from '@/services/api';
-import { Page } from 'puppeteer';
 import { onGet } from '../../utils/stories-api-mocks';
 import { pauseAndResetAnimation } from '../../utils/stories-utils';
 

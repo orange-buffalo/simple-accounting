@@ -11,12 +11,12 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.*
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl.DriveFileNotFoundException
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl.FolderResponse
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl.GoogleDriveApiAdapter
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.springframework.context.event.EventListener
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
 
 const val OAUTH2_CLIENT_REGISTRATION_ID = "google-drive"
 const val AUTH_EVENT_NAME = "storage.google-drive.auth"
@@ -71,7 +71,7 @@ class GoogleDriveDocumentsStorage(
 
     override fun getId(): String = "google-drive"
 
-    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flux<DataBuffer> =
+    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer> =
         googleDriveApi.downloadFile(storageLocation)
 
     override suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {

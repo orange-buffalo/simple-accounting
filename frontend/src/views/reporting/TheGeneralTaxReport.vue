@@ -34,12 +34,12 @@
 </template>
 
 <script lang="ts">
-  import MoneyOutput from '@/components/MoneyOutput';
-  import TheGeneralTaxReportTable from '@/views/reporting/TheGeneralTaxReportTable';
   import {
     computed,
     defineComponent, onMounted, PropType, ref, watch,
   } from '@vue/composition-api';
+  import MoneyOutput from '@/components/MoneyOutput';
+  import TheGeneralTaxReportTable from '@/views/reporting/TheGeneralTaxReportTable';
   import {
     apiClient,
     apiDateString,

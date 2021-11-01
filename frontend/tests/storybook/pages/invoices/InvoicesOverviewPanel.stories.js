@@ -1,5 +1,5 @@
-import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
 import { action } from '@storybook/addon-actions';
+import InvoicesOverviewPanel from '@/views/invoices/InvoicesOverviewPanel';
 import { apiPage, onGetToWorkspacePath, onPutToWorkspacePath } from '../../utils/stories-api-mocks';
 import { setViewportHeight, timeout } from '../../utils/stories-utils';
 

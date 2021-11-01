@@ -4,18 +4,20 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.WithSaMockUser
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
+import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.*
-import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
-import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthorizationRequiredException
-import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.utils.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -29,7 +31,6 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
-import reactor.core.publisher.Flux
 import java.io.ByteArrayInputStream
 
 private val bufferFactory = DefaultDataBufferFactory()
@@ -413,7 +414,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         }
     }
 
-    private fun whenDownloadingDocumentContent(testData: GoogleDriveTestData): Flux<DataBuffer> {
+    private fun whenDownloadingDocumentContent(testData: GoogleDriveTestData): Flow<DataBuffer> {
         return runBlocking {
             documentsStorage.getDocumentContent(testData.workspace, "testLocation")
         }

@@ -88,6 +88,7 @@
 </template>
 
 <script lang="ts">
+  import { defineComponent, PropType } from '@vue/composition-api';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
   import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon';
@@ -98,7 +99,6 @@
   import SaActionLink from '@/components/SaActionLink';
   import SaDocumentsList from '@/components/documents/SaDocumentsList';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput';
-  import { defineComponent, PropType } from '@vue/composition-api';
   import { IncomeTaxPaymentDto } from '@/services/api';
   import useNavigation from '@/components/navigation/useNavigation';
   import { useCurrentWorkspace } from '@/services/workspaces';

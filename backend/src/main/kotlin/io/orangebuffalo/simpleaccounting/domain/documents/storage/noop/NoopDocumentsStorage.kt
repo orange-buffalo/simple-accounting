@@ -1,20 +1,19 @@
 package io.orangebuffalo.simpleaccounting.domain.documents.storage.noop
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.asFlux
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.security.util.InMemoryResource
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.max
 
@@ -40,7 +39,7 @@ class NoopDocumentsStorage : DocumentsStorage {
 
     override fun getId(): String = "noop"
 
-    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flux<DataBuffer> {
+    override suspend fun getDocumentContent(workspace: Workspace, storageLocation: String): Flow<DataBuffer> {
         val resource = getFakeContent(storageLocation)
         val contentLength = resource.contentLength()
         val bufferSize = max(1, contentLength / 30)
@@ -56,7 +55,6 @@ class NoopDocumentsStorage : DocumentsStorage {
                 delay(100)
                 dataBuffer
             }
-            .asFlux()
     }
 
     override suspend fun getCurrentUserStorageStatus() = DocumentsStorageStatus(true)

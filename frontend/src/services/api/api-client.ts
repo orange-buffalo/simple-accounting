@@ -1,6 +1,6 @@
-import { Client } from '@/services/api/api-client-definition';
 import qs from 'qs';
 import { OpenAPIClientAxios, Document } from 'openapi-client-axios';
+import { Client } from '@/services/api/api-client-definition';
 import { initAuth, applyAuthorization, handleErrorResponse } from '@/services/api/auth';
 import {
   API_FATAL_ERROR_EVENT,
