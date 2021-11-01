@@ -20,5 +20,5 @@ ENTRYPOINT ["java", \
             "-jar", "/opt/app/app.jar" \
             ]
 
-HEALTHCHECK --start-period=10s --interval=3s --timeout=10s --retries=10 \
+HEALTHCHECK --start-period=10s --interval=10s --timeout=10s --retries=10 \
         CMD curl --silent --fail --request GET http://localhost:9393/actuator/health 2>&1 | grep UP || exit 1
