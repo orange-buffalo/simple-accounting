@@ -16,7 +16,7 @@
 
 <script>
   import DOMPurify from 'dompurify';
-  import marked from 'marked';
+  import { marked } from 'marked';
   import debounce from 'lodash/debounce';
 
   function renderMarkdown(source) {
