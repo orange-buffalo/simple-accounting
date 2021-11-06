@@ -4,8 +4,8 @@ import {
 } from '@vue/composition-api';
 import axios, { AxiosResponse, CancelTokenSource } from 'axios';
 import throttle from 'lodash/throttle';
-import { ApiPage, ApiPageRequest } from '@/services/api';
 import { AxiosRequestConfig } from 'openapi-client-axios';
+import { ApiPage, ApiPageRequest } from '@/services/api';
 
 export interface PageableItems<D> {
   pageNumber: Ref<number>,

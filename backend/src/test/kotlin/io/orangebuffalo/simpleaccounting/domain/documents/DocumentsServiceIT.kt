@@ -5,10 +5,10 @@ import com.nhaarman.mockitokotlin2.stub
 import io.orangebuffalo.simpleaccounting.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.Prototypes
 import io.orangebuffalo.simpleaccounting.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.junit.TestData
 import io.orangebuffalo.simpleaccounting.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking

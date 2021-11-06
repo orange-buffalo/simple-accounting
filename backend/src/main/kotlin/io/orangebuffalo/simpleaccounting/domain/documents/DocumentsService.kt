@@ -12,10 +12,10 @@ import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
+import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Flux
 
 @Service
 class DocumentsService(
@@ -56,7 +56,7 @@ class DocumentsService(
         documentRepository.findByIdAndWorkspaceId(documentId, workspaceId)
     }
 
-    suspend fun getDocumentContent(document: Document): Flux<DataBuffer> {
+    suspend fun getDocumentContent(document: Document): Flow<DataBuffer> {
         val workspace = workspaceService.getWorkspace(document.workspaceId)
         return getDocumentStorageById(document.storageId).getDocumentContent(
             workspace,

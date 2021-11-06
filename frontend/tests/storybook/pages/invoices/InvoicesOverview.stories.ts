@@ -1,5 +1,5 @@
-import InvoicesOverview from '@/views/invoices/InvoicesOverview';
 import { Page } from 'puppeteer';
+import InvoicesOverview from '@/views/invoices/InvoicesOverview';
 import { CustomerDto, InvoiceDto } from '@/services/api';
 import { apiPage, onGetToWorkspacePath } from '../../utils/stories-api-mocks';
 import { setViewportHeight } from '../../utils/stories-utils';

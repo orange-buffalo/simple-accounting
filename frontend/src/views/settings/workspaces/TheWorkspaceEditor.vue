@@ -49,13 +49,13 @@
 </template>
 
 <script lang="ts">
+  import { defineComponent, PropType, ref } from '@vue/composition-api';
+  import { ElForm } from 'element-ui/types/form';
   import SaCurrencyInput from '@/components/SaCurrencyInput';
   import SaForm from '@/components/SaForm';
   import { useWorkspaces } from '@/services/workspaces';
-  import { defineComponent, PropType, ref } from '@vue/composition-api';
   import { apiClient } from '@/services/api';
   import useNavigation from '@/components/navigation/useNavigation';
-  import { ElForm } from 'element-ui/types/form';
 
   interface WorkspaceForm {
     name?: string;

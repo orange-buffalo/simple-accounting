@@ -1,6 +1,6 @@
+import { Page } from 'puppeteer';
 import Categories from '@/views/settings/categories/Categories';
 import { CategoryDto } from '@/services/api';
-import { Page } from 'puppeteer';
 import { apiPage, onGet } from '../../utils/stories-api-mocks';
 import { setViewportHeight } from '../../utils/stories-utils';
 

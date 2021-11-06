@@ -1,7 +1,7 @@
+import httpMock from 'xhr-mock';
 import {
   apiDateString, ApiPage, consumeAllPages, SimpleAccountingClient,
 } from '@/services/api';
-import httpMock from 'xhr-mock';
 
 describe('apiDateString', () => {
   it('should convert date without zeros', () => {

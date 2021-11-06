@@ -4,6 +4,8 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentStorag
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.beans.factory.annotation.Value
@@ -64,7 +66,7 @@ class GoogleDriveApiAdapter(
             .awaitSingle()
     }
 
-    suspend fun downloadFile(fileId: String): Flux<DataBuffer> {
+    suspend fun downloadFile(fileId: String): Flow<DataBuffer> {
         return createWebClient()
             .get()
             .uri { builder ->
@@ -77,6 +79,7 @@ class GoogleDriveApiAdapter(
                 "Error while downloading $fileId: $errorJson"
             }
             .body(BodyExtractors.toDataBuffers())
+            .asFlow()
     }
 
     suspend fun findFolderByNameAndParent(

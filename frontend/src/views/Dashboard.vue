@@ -236,6 +236,7 @@
   import {
     defineComponent, ref, computed, watch, Ref,
   } from '@vue/composition-api';
+  import { AxiosResponse } from 'axios';
   import {
     apiClient, apiDateString, InvoiceDto, consumeAllPages,
   } from '@/services/api';
@@ -244,7 +245,6 @@
   import SaIcon from '@/components/SaIcon';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput';
-  import { AxiosResponse } from 'axios';
   import { useCurrentWorkspace } from '@/services/workspaces';
 
   function useSelectedDateRange() {
@@ -269,9 +269,9 @@
   }
 
   type StatisticsRequest = {
-      fromDate: string,
-      toDate: string,
-      workspaceId: number,
+    fromDate: string,
+    toDate: string,
+    workspaceId: number,
   }
 
   function useStatisticsData<T>(

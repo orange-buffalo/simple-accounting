@@ -256,6 +256,7 @@
 </template>
 
 <script lang="ts">
+  import { computed, defineComponent, PropType } from '@vue/composition-api';
   import MoneyOutput from '@/components/MoneyOutput';
   import OverviewItem from '@/components/overview-item/OverviewItem';
   import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel';
@@ -270,7 +271,6 @@
   import SaStatusLabel from '@/components/SaStatusLabel';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput';
-  import { computed, defineComponent, PropType } from '@vue/composition-api';
   import { ExpenseDto } from '@/services/api';
   import i18n from '@/services/i18n';
   import { useCurrentWorkspace } from '@/services/workspaces';

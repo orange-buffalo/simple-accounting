@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts">
-  import SaIcon from '@/components/SaIcon';
   import { defineComponent, computed, PropType } from '@vue/composition-api';
+  import SaIcon from '@/components/SaIcon';
 
   type StatusLabelStatus = 'success' | 'pending' | 'regular' | 'failure';
 

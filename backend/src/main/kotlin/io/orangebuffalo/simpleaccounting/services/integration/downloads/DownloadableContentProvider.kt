@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.integration.downloads
 
+import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
-import reactor.core.publisher.Flux
 
 /**
  * Service capable to provide the downloadable content.
@@ -37,7 +37,7 @@ data class DownloadContentResponse(
     /**
      * Cold publisher of content data. Caller is responsible for releasing the buffers.
      */
-    val content: Flux<DataBuffer>,
+    val content: Flow<DataBuffer>,
 
     // todo #108
     val contentType: String? = null

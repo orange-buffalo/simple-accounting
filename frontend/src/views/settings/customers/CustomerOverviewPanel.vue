@@ -16,8 +16,8 @@
 </template>
 
 <script lang="ts">
-  import SaIcon from '@/components/SaIcon';
   import { defineComponent, PropType } from '@vue/composition-api';
+  import SaIcon from '@/components/SaIcon';
   import useNavigation from '@/components/navigation/useNavigation';
   import { CustomerDto } from '@/services/api';
 
