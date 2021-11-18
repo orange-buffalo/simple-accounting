@@ -51,7 +51,7 @@
     "@storybook/theming": "^6.3.12",
     "@storybook/vue": "^6.3.12",
     "@types/dropzone": "^5.7.4",
-    "@types/jest": "^27.0.2",
+    "@types/jest": "^27.0.3",
     "@types/lockr": "^0.8.7",
     "@types/lodash": "^4.14.177",
     "@types/pollyjs__adapter-xhr": "^2.6.1",
