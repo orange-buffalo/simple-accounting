@@ -1,7 +1,10 @@
+// eslint-disable-next-line import/no-import-module-exports
 import Docker from 'dockerode';
 
 function timeout(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 const docker = new Docker();

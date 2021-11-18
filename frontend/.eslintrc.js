@@ -39,6 +39,7 @@ module.exports = {
         'config/storybook/*.*'],
     }],
     'no-restricted-syntax': 'off',
+    'vuejs-accessibility/click-events-have-key-events': 'off',
   },
 
   overrides: [
