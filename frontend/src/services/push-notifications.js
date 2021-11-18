@@ -14,13 +14,11 @@ export default {
 
   init() {
     // eslint-disable-next-line no-undef
-    eventSource = new EventSourcePolyfill(
-      '/api/push-notifications', {
-        headers: {
-          Authorization: `Bearer ${api.getToken()}`,
-        },
+    eventSource = new EventSourcePolyfill('/api/push-notifications', {
+      headers: {
+        Authorization: `Bearer ${api.getToken()}`,
       },
-    );
+    });
 
     eventSource.onmessage = (event) => {
       const message = JSON.parse(event.data);

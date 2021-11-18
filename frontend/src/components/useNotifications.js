@@ -14,7 +14,8 @@ function showNotification({
   type,
 }) {
   const content = h(
-    'span', {
+    'span',
+    {
       class: {
         'sa-notification__content': true,
       },
@@ -28,12 +29,15 @@ function showNotification({
           'sa-notification__content__icon': true,
         },
       }),
-      h('span', {
-        class: {
-          'sa-notification__content__text': true,
+      h(
+        'span',
+        {
+          class: {
+            'sa-notification__content__text': true,
+          },
         },
-      },
-      message),
+        message,
+      ),
     ],
   );
 

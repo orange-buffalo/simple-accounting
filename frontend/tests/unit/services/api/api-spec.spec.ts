@@ -47,9 +47,7 @@ describe('Generated API Client', () => {
     const opts = {
       transformOperationName: (operation: string) => operation,
     };
-    const [imports, schemaTypes, operationTypings] = await generateTypesForDocument(
-      FRONTEND_SPEC_PATH, opts,
-    );
+    const [imports, schemaTypes, operationTypings] = await generateTypesForDocument(FRONTEND_SPEC_PATH, opts);
     const generatedClientDefinition = `${imports}
           \n${schemaTypes.replace(/\s+$/gm, '')}
           \n${operationTypings.replace(/\s+$/gm, '')}\n`
