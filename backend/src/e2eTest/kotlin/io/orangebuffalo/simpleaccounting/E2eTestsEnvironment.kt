@@ -31,7 +31,6 @@ private val simpleAccounting: SimpleAccountingApp = SimpleAccountingApp()
 
 class E2eTestsEnvironment : BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback, Extension {
     override fun beforeAll(context: ExtensionContext) {
-        Configuration.startMaximized = true
         Configuration.baseUrl = "http://simple-accounting:9393"
         Configuration.timeout = 10_000
     }

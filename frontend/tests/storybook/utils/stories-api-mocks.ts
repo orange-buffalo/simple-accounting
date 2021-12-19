@@ -82,7 +82,7 @@ export function resetApiMock() {
   }
   polly = new Polly('Stories API Mock', {
     adapters: ['xhr'],
-    logging: true,
+    logLevel: 'trace',
   });
   server = polly.server;
 
