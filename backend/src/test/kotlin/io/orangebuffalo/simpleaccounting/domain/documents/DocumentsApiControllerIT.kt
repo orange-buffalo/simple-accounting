@@ -132,7 +132,7 @@ class DocumentsApiControllerIT(
             //.expectHeader().contentType(MediaType.APPLICATION_PDF)
             .expectBody()
             .consumeWith { exchange ->
-                assertThat(exchange.responseBody).isNotNull().satisfies { body ->
+                assertThat(exchange.responseBody).isNotNull.satisfies { body ->
                     val text = String(body, StandardCharsets.UTF_8)
                     assertThat(text).isEqualTo("test-content")
                 }
