@@ -23,5 +23,5 @@ object Versions {
 
     const val dockerPlugin = "7.1.0"
     const val semverGitPlugin = "1.2.1"
-    const val versionsPlugin = "0.39.0"
+    const val versionsPlugin = "0.40.0"
 }
