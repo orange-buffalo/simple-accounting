@@ -61,7 +61,7 @@
     },
 
     setup() {
-      const invoicesFilter = ref<String | null>(null);
+      const invoicesFilter = ref<String | undefined>(undefined);
       const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
       const { items, reload } = usePageableItems<GetInvoicesParameters, InvoiceDto>({
         workspaceId: currentWorkspaceId,

@@ -25,9 +25,7 @@ export default function useCategories() {
       name: 'Not specified',
       income: true,
       expense: true,
-      id: null,
       version: -1,
-      description: null,
     };
 
     categories.value = [emptyCategory];
