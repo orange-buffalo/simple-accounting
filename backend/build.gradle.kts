@@ -92,10 +92,15 @@ dependencies {
     e2eTestImplementation("com.codeborne:selenide:${Versions.selenide}")
     e2eTestImplementation("org.testcontainers:selenium:${Versions.testContainers}")
     e2eTestImplementation("io.github.microutils:kotlin-logging:${Versions.kotlinLogging}")
+    // add version explicitly to manage upgrades by sa-deppy
+    e2eTestImplementation("org.seleniumhq.selenium:selenium-java:${Versions.selenium}")
 
     e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     e2eTestRuntimeOnly("org.slf4j:slf4j-simple")
 }
+
+// spring boot comes with 3.x while selenide needs 4.x
+extra["selenium.version"] = Versions.selenium
 
 val copyFrontend = task<Copy>("copyFrontend") {
     from(tasks.getByPath(":frontend:npmBuild"))
