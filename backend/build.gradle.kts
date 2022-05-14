@@ -152,6 +152,9 @@ tasks {
 
     compileTestKotlin {
         dependsOn(copyFrontend)
+        // a workaround for https://github.com/assertj/assertj-core/issues/2357
+        // to be removed with upgrade to kotlin 7
+        kotlinOptions.languageVersion = "1.7"
     }
 
     test {

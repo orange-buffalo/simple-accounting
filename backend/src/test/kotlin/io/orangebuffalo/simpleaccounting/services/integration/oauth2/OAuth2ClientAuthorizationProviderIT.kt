@@ -33,8 +33,8 @@ import java.time.temporal.ChronoUnit.SECONDS
 @TestPropertySource(
     properties = [
         "spring.security.oauth2.client.registration.test-client.provider=test-provider",
-        "spring.security.oauth2.client.registration.test-client.client-id=Client ID",
-        "spring.security.oauth2.client.registration.test-client.client-secret=Client Secret",
+        "spring.security.oauth2.client.registration.test-client.client-id=Client_ID",
+        "spring.security.oauth2.client.registration.test-client.client-secret=Client_Secret",
         "spring.security.oauth2.client.registration.test-client.authorization-grant-type=authorization_code",
         "spring.security.oauth2.client.registration.test-client.redirect-uri=http://test-host/auth-callback",
         "spring.security.oauth2.client.registration.test-client.scope=scope2,scope1",
@@ -78,11 +78,11 @@ internal class OAuth2ClientAuthorizationProviderIT(
             .hasParameter("state", savedRequest.state)
             .hasParameter("redirect_uri", "http://test-host/auth-callback")
             .hasParameter("response_type", "code")
-            .hasParameter("client_id", "Client ID")
+            .hasParameter("client_id", "Client_ID")
             .hasParameter("scope", "scope2 scope1")
 
         assertThat(savedRequest.request.scopes).contains("scope1", "scope2")
-        assertThat(savedRequest.request.clientId).isEqualTo("Client ID")
+        assertThat(savedRequest.request.clientId).isEqualTo("Client_ID")
     }
 
     @Test
@@ -165,7 +165,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
             withRequestBody(containing(urlEncodeParameter("grant_type" to "authorization_code")))
             withRequestBody(containing(urlEncodeParameter("code" to "testCode")))
             withRequestBody(containing(urlEncodeParameter("redirect_uri" to "http://test-host/auth-callback")))
-            withBasicAuth("Client ID", "Client Secret")
+            withBasicAuth("Client_ID", "Client_Secret")
             willReturnOkJson(
                 """{ 
                     "access_token": "access_token",
@@ -234,7 +234,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
                 clientRegistrationId = "test-client",
                 state = "testState",
                 request = OAuth2AuthorizationRequest.authorizationCode()
-                    .clientId("Client ID")
+                    .clientId("Client_ID")
                     .authorizationUri("http://test-provider.com/auth")
                     .redirectUri("http://test-host/auth-callback")
                     .scopes(setOf("scope1", "scope2"))
