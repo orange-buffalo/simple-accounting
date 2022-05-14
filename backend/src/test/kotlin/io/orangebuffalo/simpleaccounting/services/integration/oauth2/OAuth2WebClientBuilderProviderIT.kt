@@ -28,7 +28,7 @@ import java.time.temporal.ChronoUnit.SECONDS
 @TestPropertySource(
     properties = [
         "spring.security.oauth2.client.registration.test-client.provider=test-provider",
-        "spring.security.oauth2.client.registration.test-client.client-id=Client ID",
+        "spring.security.oauth2.client.registration.test-client.client-id=Client_ID",
         "spring.security.oauth2.client.registration.test-client.authorization-grant-type=authorization_code",
         "spring.security.oauth2.client.registration.test-client.redirect-uri=http://test-host/auth-callback",
         "spring.security.oauth2.client.provider.test-provider.authorization-uri=http://test-provider.com/auth",
@@ -129,7 +129,7 @@ class OAuth2WebClientBuilderProviderIT(
         }
         stubPostRequestTo("/token") {
             withRequestBody(containing(urlEncodeParameter("grant_type" to "refresh_token")))
-            withRequestBody(containing(urlEncodeParameter("client_id" to "Client ID")))
+            withRequestBody(containing(urlEncodeParameter("client_id" to "Client_ID")))
             withRequestBody(containing(urlEncodeParameter("refresh_token" to "refreshToken")))
             willReturnOkJson(
                 """{ 
