@@ -99,9 +99,6 @@ export const Loaded = () => ({
         id: 1,
         version: 1,
         attachments: [],
-        datePaid: null,
-        notes: null,
-        generalTax: null,
       }, {
         currency: 'EUR',
         amount: 98372,
@@ -115,9 +112,6 @@ export const Loaded = () => ({
         id: 2,
         version: 1,
         attachments: [],
-        datePaid: null,
-        notes: null,
-        generalTax: null,
       }]));
 
     onGet('api/workspaces/42/categories')

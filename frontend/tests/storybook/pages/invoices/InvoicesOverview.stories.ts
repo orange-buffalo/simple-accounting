@@ -33,10 +33,6 @@ function mockApiResponses() {
       attachments: [],
       id: 42,
       version: 0,
-      datePaid: null,
-      dateSent: null,
-      notes: null,
-      generalTax: null,
     } as InvoiceDto]));
   onGetToWorkspacePath('/customers')
     .successJson(apiPage([{

@@ -8,12 +8,12 @@ export interface ApiPage<T> {
 }
 
 export interface ApiPageRequest {
-  pageNumber?: number | null,
-  pageSize?: number | null,
+  pageNumber?: number,
+  pageSize?: number,
 }
 
-export interface HasId {
-  id?: number | null,
+export interface HasOptionalId {
+  id?: number,
 }
 
 export type LoginRequest = Components.Schemas.LoginRequest;

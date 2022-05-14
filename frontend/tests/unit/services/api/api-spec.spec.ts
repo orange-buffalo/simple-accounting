@@ -53,8 +53,6 @@ describe('Generated API Client', () => {
           \n${operationTypings.replace(/\s+$/gm, '')}\n`
       .replace(/declare namespace/g, 'export namespace')
       .replace(/ {2}namespace/g, '  export namespace')
-      // replace undefined with nullable for proper API support
-      .replace(/((\s+)(.*?)\?:\s*(.+?)[;])/g, '$2$3?: $4 | null;')
       // workaround for generator bug
       .replace(/\$\$200/g, '$200');
 

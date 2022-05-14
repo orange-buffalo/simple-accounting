@@ -56,7 +56,7 @@
 <script lang="ts">
   import { computed, defineComponent, PropType } from '@vue/composition-api';
   import { PageableItems } from '@/components/data/pageableItems';
-  import { HasId } from '@/services/api';
+  import { HasOptionalId } from '@/services/api';
   import SaIcon from '@/components/SaIcon';
 
   export default defineComponent({
@@ -64,7 +64,7 @@
 
     props: {
       items: {
-        type: Object as PropType<PageableItems<HasId>>,
+        type: Object as PropType<PageableItems<HasOptionalId>>,
         required: true,
       },
     },

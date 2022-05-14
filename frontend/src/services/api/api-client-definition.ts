@@ -69,16 +69,16 @@ export namespace Components {
             data: WorkspaceAccessTokenDto[];
         }
         export interface CategoryDto {
-            id?: number | null; // int64
+            id?: number; // int64
             version: number; // int32
             name: string;
-            description?: string | null;
+            description?: string;
             income: boolean;
             expense: boolean;
         }
         export interface CreateCategoryDto {
             name: string;
-            description?: string | null;
+            description?: string;
             income: boolean;
             expense: boolean;
         }
@@ -108,11 +108,11 @@ export namespace Components {
         export interface DataBuffer {
         }
         export interface DocumentDto {
-            id?: number | null; // int64
+            id?: number; // int64
             version: number; // int32
             name: string;
             timeUploaded: string; // date-time
-            sizeInBytes?: number | null; // int64
+            sizeInBytes?: number; // int64
         }
         export interface DocumentsStorageStatus {
             active: boolean;
@@ -121,59 +121,59 @@ export namespace Components {
             name: string;
         }
         export interface EditExpenseDto {
-            category?: number | null; // int64
+            category?: number; // int64
             datePaid: string; // date
             title: string;
             currency: string;
             originalAmount: number; // int64
-            convertedAmountInDefaultCurrency?: number | null; // int64
+            convertedAmountInDefaultCurrency?: number; // int64
             useDifferentExchangeRateForIncomeTaxPurposes: boolean;
-            incomeTaxableAmountInDefaultCurrency?: number | null; // int64
-            attachments?: number /* int64 */[] | null;
-            percentOnBusiness?: number | null; // int32
-            notes?: string | null;
-            generalTax?: number | null; // int64
+            incomeTaxableAmountInDefaultCurrency?: number; // int64
+            attachments?: number /* int64 */[];
+            percentOnBusiness?: number; // int32
+            notes?: string;
+            generalTax?: number; // int64
         }
         export interface EditGeneralTaxDto {
             title: string;
-            description?: string | null;
+            description?: string;
             rateInBps: number; // int32
         }
         export interface EditIncomeDto {
-            category?: number | null; // int64
+            category?: number; // int64
             dateReceived: string; // date
             title: string;
             currency: string;
             originalAmount: number; // int64
-            convertedAmountInDefaultCurrency?: number | null; // int64
+            convertedAmountInDefaultCurrency?: number; // int64
             useDifferentExchangeRateForIncomeTaxPurposes: boolean;
-            incomeTaxableAmountInDefaultCurrency?: number | null; // int64
-            attachments?: number /* int64 */[] | null;
-            notes?: string | null;
-            generalTax?: number | null; // int64
-            linkedInvoice?: number | null; // int64
+            incomeTaxableAmountInDefaultCurrency?: number; // int64
+            attachments?: number /* int64 */[];
+            notes?: string;
+            generalTax?: number; // int64
+            linkedInvoice?: number; // int64
         }
         export interface EditIncomeTaxPaymentDto {
             datePaid: string; // date
-            reportingDate?: string | null; // date
+            reportingDate?: string; // date
             amount: number; // int64
-            attachments?: number /* int64 */[] | null;
-            notes?: string | null;
+            attachments?: number /* int64 */[];
+            notes?: string;
             title: string;
         }
         export interface EditInvoiceDto {
             title: string;
             customer: number; // int64
             dateIssued: string; // date
-            dateSent?: string | null; // date
-            datePaid?: string | null; // date
-            dateCancelled?: string | null; // date
+            dateSent?: string; // date
+            datePaid?: string; // date
+            dateCancelled?: string; // date
             dueDate: string; // date
             currency: string;
             amount: number; // int64
-            attachments?: number /* int64 */[] | null;
-            notes?: string | null;
-            generalTax?: number | null; // int64
+            attachments?: number /* int64 */[];
+            notes?: string;
+            generalTax?: number; // int64
         }
         export interface EditWorkspaceDto {
             name: string;
@@ -182,11 +182,11 @@ export namespace Components {
             errorId: string;
         }
         export interface ExpenseAmountsDto {
-            originalAmountInDefaultCurrency?: number | null; // int64
-            adjustedAmountInDefaultCurrency?: number | null; // int64
+            originalAmountInDefaultCurrency?: number; // int64
+            adjustedAmountInDefaultCurrency?: number; // int64
         }
         export interface ExpenseDto {
-            category?: number | null; // int64
+            category?: number; // int64
             title: string;
             timeRecorded: string; // date-time
             datePaid: string; // date
@@ -194,13 +194,13 @@ export namespace Components {
             originalAmount: number; // int64
             attachments: number /* int64 */[];
             percentOnBusiness: number; // int32
-            notes?: string | null;
+            notes?: string;
             id: number; // int64
             version: number; // int32
             status: "FINALIZED" | "PENDING_CONVERSION" | "PENDING_CONVERSION_FOR_TAXATION_PURPOSES";
-            generalTax?: number | null; // int64
-            generalTaxRateInBps?: number | null; // int32
-            generalTaxAmount?: number | null; // int64
+            generalTax?: number; // int64
+            generalTaxRateInBps?: number; // int32
+            generalTaxAmount?: number; // int64
             convertedAmounts: ExpenseAmountsDto;
             incomeTaxableAmounts: ExpenseAmountsDto;
             useDifferentExchangeRateForIncomeTaxPurposes: boolean;
@@ -215,7 +215,7 @@ export namespace Components {
             title: string;
             id: number; // int64
             version: number; // int32
-            description?: string | null;
+            description?: string;
             rateInBps: number; // int32
         }
         export interface GeneralTaxReportDto {
@@ -228,9 +228,9 @@ export namespace Components {
             token: string;
         }
         export interface GoogleDriveStorageIntegrationStatus {
-            folderId?: string | null;
-            folderName?: string | null;
-            authorizationUrl?: string | null;
+            folderId?: string;
+            folderName?: string;
+            authorizationUrl?: string;
             authorizationRequired: boolean;
         }
         export interface I18nSettingsDto {
@@ -238,31 +238,31 @@ export namespace Components {
             language: string;
         }
         export interface IncomeAmountsDto {
-            originalAmountInDefaultCurrency?: number | null; // int64
-            adjustedAmountInDefaultCurrency?: number | null; // int64
+            originalAmountInDefaultCurrency?: number; // int64
+            adjustedAmountInDefaultCurrency?: number; // int64
         }
         export interface IncomeDto {
-            category?: number | null; // int64
+            category?: number; // int64
             title: string;
             timeRecorded: string; // date-time
             dateReceived: string; // date
             currency: string;
             originalAmount: number; // int64
             attachments: number /* int64 */[];
-            notes?: string | null;
+            notes?: string;
             id: number; // int64
             version: number; // int32
             status: "FINALIZED" | "PENDING_CONVERSION" | "PENDING_CONVERSION_FOR_TAXATION_PURPOSES";
-            linkedInvoice?: number | null; // int64
-            generalTax?: number | null; // int64
-            generalTaxRateInBps?: number | null; // int32
-            generalTaxAmount?: number | null; // int64
+            linkedInvoice?: number; // int64
+            generalTax?: number; // int64
+            generalTaxRateInBps?: number; // int32
+            generalTaxAmount?: number; // int64
             convertedAmounts: IncomeAmountsDto;
             incomeTaxableAmounts: IncomeAmountsDto;
             useDifferentExchangeRateForIncomeTaxPurposes: boolean;
         }
         export interface IncomeExpensesStatisticsItemDto {
-            categoryId?: number | null; // int64
+            categoryId?: number; // int64
             totalAmount: number; // int64
             finalizedCount: number; // int64
             pendingCount: number; // int64
@@ -277,7 +277,7 @@ export namespace Components {
             reportingDate: string; // date
             amount: number; // int64
             attachments: number /* int64 */[];
-            notes?: string | null;
+            notes?: string;
         }
         export interface IncomeTaxPaymentsStatisticsDto {
             totalTaxPayments: number; // int64
@@ -294,17 +294,17 @@ export namespace Components {
             customer: number; // int64
             timeRecorded: string; // date-time
             dateIssued: string; // date
-            dateSent?: string | null; // date
-            datePaid?: string | null; // date
+            dateSent?: string; // date
+            datePaid?: string; // date
             dueDate: string; // date
             currency: string;
             amount: number; // int64
             attachments: number /* int64 */[];
-            notes?: string | null;
+            notes?: string;
             id: number; // int64
             version: number; // int32
             status: "DRAFT" | "SENT" | "OVERDUE" | "PAID" | "CANCELLED";
-            generalTax?: number | null; // int64
+            generalTax?: number; // int64
         }
         export interface LoginRequest {
             userName: string;
@@ -312,8 +312,8 @@ export namespace Components {
             rememberMe: boolean;
         }
         export interface OAuth2AuthorizationCallbackRequest {
-            code?: string | null;
-            error?: string | null;
+            code?: string;
+            error?: string;
             state: string;
         }
         export interface PendingTaxSummaryItemDto {
@@ -322,7 +322,7 @@ export namespace Components {
         }
         export interface ProfileDto {
             userName: string;
-            documentsStorage?: string | null;
+            documentsStorage?: string;
             i18n: I18nSettingsDto;
         }
         export interface SaveSharedWorkspaceRequestDto {
@@ -332,12 +332,12 @@ export namespace Components {
             token: string;
         }
         export interface UpdateProfileRequestDto {
-            documentsStorage?: string | null;
+            documentsStorage?: string;
             i18n: I18nSettingsDto;
         }
         export interface UserDto {
             userName: string;
-            id?: number | null; // int64
+            id?: number; // int64
             version: number; // int32
             admin: boolean;
         }
@@ -349,7 +349,7 @@ export namespace Components {
             version: number; // int32
         }
         export interface WorkspaceDto {
-            id?: number | null; // int64
+            id?: number; // int64
             version: number; // int32
             name: string;
             taxEnabled: boolean;
@@ -741,12 +741,12 @@ export namespace Paths {
             workspaceId: Parameters.WorkspaceId /* int64 */;
         }
         export interface QueryParameters {
-            sortBy?: Parameters.SortBy | null;
-            "freeSearchText[eq]"?: Parameters.FreeSearchTextEq | null;
-            "status[in]"?: Parameters.StatusIn | null;
-            pageNumber?: Parameters.PageNumber /* int32 */ | null;
-            pageSize?: Parameters.PageSize /* int32 */ | null;
-            sortOrder?: Parameters.SortOrder | null;
+            sortBy?: Parameters.SortBy;
+            "freeSearchText[eq]"?: Parameters.FreeSearchTextEq;
+            "status[in]"?: Parameters.StatusIn;
+            pageNumber?: Parameters.PageNumber /* int32 */;
+            pageSize?: Parameters.PageSize /* int32 */;
+            sortOrder?: Parameters.SortOrder;
         }
         export namespace Responses {
             export type $200 = Components.Schemas.ApiPageInvoiceDto;
@@ -866,7 +866,7 @@ export namespace Paths {
     }
     export namespace RefreshToken {
         export interface CookieParameters {
-            refreshToken?: Parameters.RefreshToken | null;
+            refreshToken?: Parameters.RefreshToken;
         }
         export namespace Parameters {
             export type RefreshToken = string;
