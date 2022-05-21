@@ -73,7 +73,11 @@
   }
 
   function useTaxApi(tax) {
-    const { loadEntity, loading, saveEntity } = useApiCrud({
+    const {
+      loadEntity,
+      loading,
+      saveEntity,
+    } = useApiCrud({
       apiEntityPath: 'general-taxes',
       entity: tax,
       ...useLoading(),
@@ -122,14 +126,21 @@
       },
     },
 
-    setup({ id }) {
-      const tax = reactive({ id });
+    setup(props) {
+      const tax = reactive({ id: props.id });
 
-      const { loading, saveTax } = useTaxApi(tax);
+      const {
+        loading,
+        saveTax,
+      } = useTaxApi(tax);
 
-      const { form, taxValidationRules, submitForm } = useTaxForm(saveTax);
+      const {
+        form,
+        taxValidationRules,
+        submitForm,
+      } = useTaxForm(saveTax);
 
-      const pageHeader = id ? 'Edit General Tax' : 'Create New General Tax';
+      const pageHeader = props.id ? 'Edit General Tax' : 'Create New General Tax';
 
       return {
         loading,

@@ -21,13 +21,13 @@
       },
     },
 
-    setup({ generalTaxId }) {
+    setup(props) {
       const {
         generalTaxById,
         generalTaxesLoaded,
       } = useGeneralTaxes();
 
-      const generalTaxTitle = computed(() => generalTaxById.value(generalTaxId).title);
+      const generalTaxTitle = computed(() => generalTaxById.value(props.generalTaxId).title);
 
       return {
         generalTaxesLoaded,

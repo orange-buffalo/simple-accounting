@@ -178,7 +178,11 @@
   }
 
   function useIncomeApi(income) {
-    const { loading, saveEntity, loadEntity } = useApiCrud({
+    const {
+      loading,
+      saveEntity,
+      loadEntity,
+    } = useApiCrud({
       apiEntityPath: 'incomes',
       entity: income,
       ...useLoading(),
@@ -273,24 +277,29 @@
       },
     },
 
-    setup({ id, invoice }) {
+    setup(props) {
       const { defaultCurrency } = useCurrentWorkspace();
 
       const income = reactive({
-        id,
+        id: props.id,
         currency: defaultCurrency,
         useDifferentExchangeRateForIncomeTaxPurposes: false,
         attachments: [],
         dateReceived: new Date(),
-        linkedInvoice: invoice ? invoice.id : null,
+        linkedInvoice: props.invoice ? props.invoice.id : null,
       });
-      if (invoice) copyInvoiceProperties(income, invoice);
+      if (props.invoice) copyInvoiceProperties(income, props.invoice);
 
       const isInForeignCurrency = computed(() => income.currency !== defaultCurrency);
 
-      const pageHeader = id ? i18n.t('editIncome.pageHeader.edit') : i18n.t('editIncome.pageHeader.create');
+      const pageHeader = props.id
+        ? i18n.t('editIncome.pageHeader.edit')
+        : i18n.t('editIncome.pageHeader.create');
 
-      const { loading, saveIncome } = useIncomeApi(income);
+      const {
+        loading,
+        saveIncome,
+      } = useIncomeApi(income);
 
       return {
         income,

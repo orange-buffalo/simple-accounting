@@ -40,6 +40,7 @@ module.exports = {
     }],
     'no-restricted-syntax': 'off',
     'vuejs-accessibility/click-events-have-key-events': 'off',
+    'vue/multi-word-component-names': 'off',
   },
 
   overrides: [
