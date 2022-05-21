@@ -32,6 +32,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
 import java.io.ByteArrayInputStream
+import java.util.function.Consumer
 
 private val bufferFactory = DefaultDataBufferFactory()
 
@@ -471,10 +472,10 @@ class GoogleDriveDocumentsStorageServiceIT(
 
     private fun assertNewIntegration(testData: GoogleDriveTestData) {
         assertThat(jdbcAggregateTemplate.findAll(GoogleDriveStorageIntegration::class.java))
-            .singleElement().satisfies { integration ->
+            .singleElement().satisfies(Consumer { integration ->
                 assertThat(integration.userId).isEqualTo(testData.fry.id!!)
                 assertThat(integration.folderId).isEqualTo("newFolderId")
-            }
+            })
     }
 
     private fun givenExistingDriveIntegration(testData: GoogleDriveTestData) {

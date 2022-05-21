@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.ContentDisposition
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
+import java.util.function.Consumer
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Downloads API ")
@@ -62,10 +63,10 @@ class DownloadsApiControllerIT(
             //.expectHeader().contentType(MediaType.APPLICATION_PDF)
             .expectBody()
             .consumeWith { exchange ->
-                assertThat(exchange.responseBody).isNotNull().satisfies { body ->
+                assertThat(exchange.responseBody).isNotNull.satisfies(Consumer { body ->
                     val text = String(body, StandardCharsets.UTF_8)
                     assertThat(text).isEqualTo("test-content")
-                }
+                })
             }
     }
 

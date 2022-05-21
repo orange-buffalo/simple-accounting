@@ -23,6 +23,7 @@ import org.springframework.web.server.ServerWebExchange
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
+import java.util.function.Consumer
 
 @SimpleAccountingIntegrationTest
 @TestPropertySource(
@@ -149,11 +150,11 @@ class OAuth2WebClientBuilderProviderIT(
         assertNumberOfReceivedWireMockRequests(2)
 
         val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java)
-        assertThat(persistedClients).singleElement().satisfies { persistedClient ->
+        assertThat(persistedClients).singleElement().satisfies(Consumer { persistedClient ->
             assertThat(persistedClient.accessToken).isEqualTo("newAccessToken")
             assertThat(persistedClient.accessTokenExpiresAt)
                 .isCloseTo(Instant.now().plusSeconds(3600), within(20, SECONDS))
-        }
+        })
     }
 
     private fun getPersistedClientsCount() = jdbcAggregateTemplate.count(PersistentOAuth2AuthorizedClient::class.java)

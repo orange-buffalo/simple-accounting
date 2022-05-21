@@ -30,6 +30,7 @@ import org.springframework.security.util.InMemoryResource
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
+import java.util.function.Consumer
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Documents API ")
@@ -132,10 +133,10 @@ class DocumentsApiControllerIT(
             //.expectHeader().contentType(MediaType.APPLICATION_PDF)
             .expectBody()
             .consumeWith { exchange ->
-                assertThat(exchange.responseBody).isNotNull.satisfies { body ->
+                assertThat(exchange.responseBody).isNotNull.satisfies(Consumer { body ->
                     val text = String(body, StandardCharsets.UTF_8)
                     assertThat(text).isEqualTo("test-content")
-                }
+                })
             }
     }
 
