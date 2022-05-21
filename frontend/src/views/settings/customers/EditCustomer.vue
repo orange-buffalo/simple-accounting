@@ -47,7 +47,11 @@
   import { useApiCrud } from '@/components/utils/api-utils';
 
   function useCustomerApi(customer) {
-    const { loadEntity, loading, saveEntity } = useApiCrud({
+    const {
+      loadEntity,
+      loading,
+      saveEntity,
+    } = useApiCrud({
       apiEntityPath: 'customers',
       entity: customer,
       ...useLoading(),
@@ -97,14 +101,21 @@
       },
     },
 
-    setup({ id }) {
-      const customer = reactive({ id });
+    setup(props) {
+      const customer = reactive({ id: props.id });
 
-      const { loading, saveCustomer } = useCustomerApi(customer);
+      const {
+        loading,
+        saveCustomer,
+      } = useCustomerApi(customer);
 
-      const { form, customerValidationRules, submitForm } = useCustomerForm(saveCustomer);
+      const {
+        form,
+        customerValidationRules,
+        submitForm,
+      } = useCustomerForm(saveCustomer);
 
-      const pageHeader = id ? 'Edit Customer' : 'Create New Customer';
+      const pageHeader = props.id ? 'Edit Customer' : 'Create New Customer';
 
       return {
         loading,

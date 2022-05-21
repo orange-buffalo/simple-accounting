@@ -21,13 +21,13 @@
       },
     },
 
-    setup({ customerId }) {
+    setup(props) {
       const {
         customersLoaded,
         customerById,
       } = useCustomers();
 
-      const customerName = computed(() => customerById.value(customerId).name);
+      const customerName = computed(() => customerById.value(props.customerId).name);
 
       return {
         customersLoaded,

@@ -28,6 +28,7 @@ import org.springframework.test.context.TestPropertySource
 import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
+import java.util.function.Consumer
 
 @SimpleAccountingIntegrationTest
 @TestPropertySource(
@@ -204,14 +205,14 @@ internal class OAuth2ClientAuthorizationProviderIT(
         assertThat(succeededEvent.user).isEqualTo(testData.fry)
 
         val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java)
-        assertThat(persistedClients).singleElement().satisfies { client ->
+        assertThat(persistedClients).singleElement().satisfies(Consumer { client ->
             assertThat(client.accessToken).isEqualTo("MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3")
             assertThat(client.refreshToken).isEqualTo("IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk")
             assertThat(client.accessTokenScopes).contains(ClientTokenScope("scope1"), ClientTokenScope("scope2"))
             assertThat(client.accessTokenExpiresAt).isCloseTo(Instant.now().plusSeconds(3600), within(20, SECONDS))
             assertThat(client.clientRegistrationId).isEqualTo("test-client")
             assertThat(client.userName).isEqualTo("Fry")
-        }
+        })
     }
 
     private fun verifyAuthFailedEvent(testData: AuthorizationProviderTestData) {

@@ -327,11 +327,11 @@
       },
     },
 
-    setup({ id }) {
+    setup(props) {
       const { defaultCurrency } = useCurrentWorkspace();
 
       const invoice = reactive({
-        id,
+        id: props.id,
         attachments: [],
         dateIssued: new Date(),
         currency: defaultCurrency,
@@ -340,12 +340,18 @@
       const uiState = reactive({
         alreadySent: false,
         alreadyPaid: false,
-        isEditing: id != null,
+        isEditing: props.id != null,
       });
 
-      const pageHeader = id ? i18n.t('editInvoice.pageHeader.edit') : i18n.t('editInvoice.pageHeader.create');
+      const pageHeader = props.id
+        ? i18n.t('editInvoice.pageHeader.edit')
+        : i18n.t('editInvoice.pageHeader.create');
 
-      const { loading, saveInvoice, cancelInvoice } = useInvoiceApi(invoice, uiState);
+      const {
+        loading,
+        saveInvoice,
+        cancelInvoice,
+      } = useInvoiceApi(invoice, uiState);
 
       const { executeAfterConfirmation } = useConfirmation();
       const cancelInvoiceWithConfirmation = () => executeAfterConfirmation(

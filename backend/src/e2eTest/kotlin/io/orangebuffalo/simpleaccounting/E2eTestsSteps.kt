@@ -6,8 +6,8 @@ import com.codeborne.selenide.Selenide.open
 
 fun loginWithFry() {
     open("/")
-    element(by("placeholder", "Login")).value = "Fry"
-    element(by("placeholder", "Password")).value = "password"
+    element(by("placeholder", "Login")).setValue("Fry")
+    element(by("placeholder", "Password")).setValue("password")
     element(byText("Login")).click()
 }
 

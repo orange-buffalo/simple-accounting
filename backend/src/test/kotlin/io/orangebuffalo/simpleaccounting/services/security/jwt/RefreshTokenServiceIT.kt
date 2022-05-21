@@ -20,6 +20,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.function.Consumer
 
 @SimpleAccountingIntegrationTest
 class RefreshTokenServiceIT(
@@ -44,10 +45,10 @@ class RefreshTokenServiceIT(
         assertThat(token).isNotNull().startsWith("${testData.fry.id}:")
 
         val refreshToken = refreshTokenRepository.findByToken(token)
-        assertThat(refreshToken).isNotNull.satisfies {
+        assertThat(refreshToken).isNotNull.satisfies(Consumer {
             assertThat(it!!.userId).isEqualTo(testData.fry.id)
             assertThat(it.expirationTime).isEqualTo(expirationTime)
-        }
+        })
     }
 
     @Test
@@ -58,10 +59,10 @@ class RefreshTokenServiceIT(
             refreshTokenService.validateTokenAndBuildUserDetails(testData.refreshToken.token)
         }
 
-        assertThat(userDetails).isNotNull.satisfies {
+        assertThat(userDetails).isNotNull.satisfies(Consumer {
             assertThat(it.username).isEqualTo("Fry")
             assertThat(it.authorities).contains(SimpleGrantedAuthority("ROLE_USER"))
-        }
+        })
     }
 
     @Test

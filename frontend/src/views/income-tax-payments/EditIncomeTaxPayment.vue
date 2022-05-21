@@ -141,7 +141,11 @@
   }
 
   function useTaxPaymentApi(taxPayment) {
-    const { loading, saveEntity, loadEntity } = useApiCrud({
+    const {
+      loading,
+      saveEntity,
+      loadEntity,
+    } = useApiCrud({
       apiEntityPath: 'income-tax-payments',
       entity: taxPayment,
       ...useLoading(),
@@ -183,20 +187,23 @@
       },
     },
 
-    setup({ id }) {
+    setup(props) {
       const { defaultCurrency } = useCurrentWorkspace();
 
       const taxPayment = reactive({
-        id,
+        id: props.id,
         attachments: [],
         datePaid: new Date(),
       });
 
-      const pageHeader = id
+      const pageHeader = props.id
         ? i18n.t('editIncomeTaxPayment.header.edit')
         : i18n.t('editIncomeTaxPayment.header.create');
 
-      const { loading, saveTaxPayment } = useTaxPaymentApi(taxPayment);
+      const {
+        loading,
+        saveTaxPayment,
+      } = useTaxPaymentApi(taxPayment);
 
       return {
         taxPayment,

@@ -208,7 +208,11 @@
   }
 
   function useExpenseApi(expense, uiState) {
-    const { loading, saveEntity, loadEntity } = useApiCrud({
+    const {
+      loading,
+      saveEntity,
+      loadEntity,
+    } = useApiCrud({
       apiEntityPath: 'expenses',
       entity: expense,
       ...useLoading(),
@@ -287,7 +291,7 @@
       },
     },
 
-    setup({ id, prototype }) {
+    setup(props) {
       const { defaultCurrency } = useCurrentWorkspace();
 
       const expense = reactive({
@@ -295,7 +299,7 @@
         percentOnBusiness: 100,
         datePaid: new Date(),
         currency: defaultCurrency,
-        id,
+        id: props.id,
         useDifferentExchangeRateForIncomeTaxPurposes: false,
       });
 
@@ -305,17 +309,22 @@
         partialForBusiness: false,
       });
 
-      const pageHeader = id ? i18n.t('editExpense.pageHeader.edit') : i18n.t('editExpense.pageHeader.create');
+      const pageHeader = props.id
+        ? i18n.t('editExpense.pageHeader.edit')
+        : i18n.t('editExpense.pageHeader.create');
 
-      if (prototype) {
-        copyExpenseProperties(expense, prototype, {
+      if (props.prototype) {
+        copyExpenseProperties(expense, props.prototype, {
           datePaid: null,
           id: null,
         });
         setupUiState(expense, uiState);
       }
 
-      const { loading, saveExpense } = useExpenseApi(expense, uiState);
+      const {
+        loading,
+        saveExpense,
+      } = useExpenseApi(expense, uiState);
 
       return {
         expense,
