@@ -1,9 +1,9 @@
 object Versions {
-    const val springBoot = "2.6.7"
+    const val springBoot = "2.7.0"
     const val springDependencyManagement = "1.0.11.RELEASE"
     const val kotlin = "1.6.21"
     const val kotlinCoroutines = "1.6.1"
-    const val kotlinLogging = "2.1.21"
+    const val kotlinLogging = "2.1.23"
     const val arrow = "1.1.3-alpha.1"
     const val jjwt = "0.11.5"
     const val javaxEl = "3.0.1-b12"
@@ -16,9 +16,9 @@ object Versions {
     const val jsonUnit = "2.35.0"
     const val wireMock = "2.33.2"
     const val awaitility = "4.2.0"
-    const val selenide = "6.4.0"
+    const val selenide = "6.5.0"
     const val selenium = "4.1.4"
-    const val testContainers = "1.17.1"
+    const val testContainers = "1.17.2"
     const val zjsonpatch = "0.4.12"
     const val springdocOpenapi = "1.6.8"
 
