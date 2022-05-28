@@ -11,18 +11,18 @@ object Versions {
     const val jooq = "3.15.10"
 
     const val assertk = "0.24"
-    const val mockito = "4.5.1"
+    const val mockito = "4.6.0"
     const val mockitoKotlin = "2.2.0"
     const val jsonUnit = "2.35.0"
     const val wireMock = "2.33.2"
     const val awaitility = "4.2.0"
-    const val selenide = "6.5.0"
-    const val selenium = "4.1.4"
+    const val selenide = "6.5.1"
+    const val selenium = "4.2.0"
     const val testContainers = "1.17.2"
     const val zjsonpatch = "0.4.12"
-    const val springdocOpenapi = "1.6.8"
+    const val springdocOpenapi = "1.6.9"
 
-    const val dockerPlugin = "7.3.0"
+    const val dockerPlugin = "7.4.0"
     const val semverGitPlugin = "1.2.1"
     const val versionsPlugin = "0.42.0"
 }
