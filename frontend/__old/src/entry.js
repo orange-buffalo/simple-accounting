@@ -16,20 +16,20 @@
 //
 // document.body.appendChild(loaderDiv);
 
-async function resolveDeferredAndSetupApp(setupAppDeferred) {
-  const {
-    default: {
-      app,
-      setupApp,
-      mountApp,
-    },
-  } = await setupAppDeferred;
-  setupApp();
-  return ({
-    app,
-    mountApp,
-  });
-}
+// async function resolveDeferredAndSetupApp(setupAppDeferred) {
+//   const {
+//     default: {
+//       app,
+//       setupApp,
+//       mountApp,
+//     },
+//   } = await setupAppDeferred;
+//   setupApp();
+//   return ({
+//     app,
+//     mountApp,
+//   });
+// }
 
 async function initApp() {
   const setupAppDeferred = import(/* webpackPreload: true, webpackChunkName: "setup-app" */ '@/setup/setup-app');
