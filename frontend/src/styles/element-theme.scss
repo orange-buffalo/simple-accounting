@@ -1,0 +1,47 @@
+@use "vars";
+
+.el-form-item.is-success .el-input__inner:focus,
+.el-form-item.is-success .el-textarea__inner:focus {
+  // todo
+  //border-color: $--input-focus-border;
+}
+
+.el-form-item.is-success .el-input__inner:hover,
+.el-form-item.is-success .el-textarea__inner:hover {
+  // todo
+  //border-color: $--input-hover-border;
+}
+
+.el-form-item.is-success .el-input__inner,
+.el-form-item.is-success .el-textarea__inner {
+  // todo
+  //border-color: $--input-border-color;
+}
+
+.el-loading-mask {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.el-alert {
+  line-height: 1em;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    font-size: 100%;
+
+    .sa-icon {
+      margin-right: 5px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__description {
+    font-size: 90%;
+
+    .el-button {
+      padding: 0;
+    }
+  }
+}

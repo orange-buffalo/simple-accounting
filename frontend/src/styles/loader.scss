@@ -1,6 +1,6 @@
+@use "vars" as *;
+@use "mixins" as *;
 @import url("https://fonts.googleapis.com/css?family=Muli");
-@import "vars";
-@import "mixins";
 
 $loader-color: $accent-contrast-color;
 

@@ -1,4 +1,4 @@
-@import "vars";
+@use "vars" as *;
 
 @mixin gradient-background {
   background-color: $primary-color;
