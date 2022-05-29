@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import SimpleAccounting from '@/SimpleAccounting.vue';
 import setupRouter from '@/setup/setup-router';
 import { app, AppServices } from '@/services/app-services';
+import '@/styles/element-theme.scss';
 
 function setupApp() {
   const vue = createApp(SimpleAccounting);
