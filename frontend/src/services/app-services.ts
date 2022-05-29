@@ -3,6 +3,7 @@ import type { Router } from 'vue-router';
 
 export class AppServices {
   vue!: App;
+
   router!: Router;
 
   init(

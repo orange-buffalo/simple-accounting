@@ -13,7 +13,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "@/styles/vars.scss" as *;`,
+        additionalData: '@use "@/styles/vars.scss" as *;',
       },
     },
   },
@@ -24,7 +24,7 @@ export default defineConfig({
     }),
     Components({
       resolvers: [ElementPlusResolver({
-         importStyle: "sass",
+        importStyle: 'sass',
       })],
     }),
   ],

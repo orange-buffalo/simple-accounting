@@ -1,17 +1,18 @@
 import { generateTypesForDocument } from 'openapi-client-axios-typegen';
 import { readFileSync, writeFileSync } from 'fs';
-import  {describe, it, expect} from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 const BACKEND_SPEC_PATH = '../backend/src/test/resources/api-spec.yaml';
 const FRONTEND_SPEC_PATH = 'src/services/api/api-spec.json';
 const CLIENT_DEFINITION_PATH = 'src/services/api/api-client-definition.ts';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function filterResponses(obj: any): void {
   for (const [key, value] of Object.entries(obj)) {
     if (key === 'responses') {
       // we are only interested in 200 response for API Client
       // remove other responses from spec to have simple response types
-      const response = (value as any)['200'];
+      const response = (value as never)['200'];
       if (response) {
         // eslint-disable-next-line no-param-reassign
         obj[key] = {
@@ -26,7 +27,7 @@ function filterResponses(obj: any): void {
 
 describe('API Spec', () => {
   it('stored in sources should be up-to-date', async () => {
-    const yaml = require('js-yaml');
+    const yaml = await import('js-yaml');
     const currentApiSpec = yaml.load(readFileSync(BACKEND_SPEC_PATH, 'utf8'));
     filterResponses(currentApiSpec);
 
@@ -45,6 +46,7 @@ describe('API Spec', () => {
 
 describe('Generated API Client', () => {
   it('should be up-to-date', async () => {
+    // noinspection JSUnusedGlobalSymbols
     const opts = {
       transformOperationName: (operation: string) => operation,
     };
