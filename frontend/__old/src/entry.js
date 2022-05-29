@@ -32,7 +32,7 @@
 // }
 
 async function initApp() {
-  const setupAppDeferred = import(/* webpackPreload: true, webpackChunkName: "setup-app" */ '@/setup/setup-app');
+  // const setupAppDeferred = import(/* webpackPreload: true, webpackChunkName: "setup-app" */ '@/setup/setup-app');
   const { useAuth } = await import(/* webpackPreload: true, webpackChunkName: "api-services" */ '@/services/api');
   const { tryAutoLogin } = useAuth();
   const targetRoute = window.location.pathname;
@@ -67,9 +67,9 @@ async function initApp() {
     mountApp();
   }
 
-  loaderDiv.setAttribute('style', 'opacity: 0');
-  setTimeout(() => loaderDiv.remove(), 500);
+  // loaderDiv.setAttribute('style', 'opacity: 0');
+  // setTimeout(() => loaderDiv.remove(), 500);
 }
 
 // noinspection JSIgnoredPromiseFromCall
-initApp();
+// initApp();

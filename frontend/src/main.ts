@@ -1,9 +1,6 @@
 import { createLoader } from '@/setup/loader';
+import { bootstrapApp } from '@/setup/bootstrap';
 
 createLoader();
-
-import('@/setup/bootstrap')
-  .then(({ bootstrapApp }) => {
-    // noinspection JSIgnoredPromiseFromCall
-    bootstrapApp();
-  });
+// noinspection JSIgnoredPromiseFromCall
+bootstrapApp();
