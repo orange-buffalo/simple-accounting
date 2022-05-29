@@ -1,5 +1,6 @@
 import { generateTypesForDocument } from 'openapi-client-axios-typegen';
 import { readFileSync, writeFileSync } from 'fs';
+import  {describe, it, expect} from 'vitest';
 
 const BACKEND_SPEC_PATH = '../backend/src/test/resources/api-spec.yaml';
 const FRONTEND_SPEC_PATH = 'src/services/api/api-spec.json';
