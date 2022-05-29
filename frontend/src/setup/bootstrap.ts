@@ -20,8 +20,7 @@ export async function bootstrapApp() {
   const setupAppDeferred = import('@/setup/setup-app');
 
   // todo
-  const { mountApp } =
-    await resolveDeferredAndSetupApp(setupAppDeferred);
+  const { mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
   mountApp();
 
   removeLoader();
