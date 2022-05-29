@@ -1,20 +1,20 @@
-import '@/styles/loader.scss';
-
-const appDiv = document.getElementById('simple-accounting');
-appDiv.style.display = 'none';
-
-const loaderDiv = document.createElement('div');
-loaderDiv.className = 'app-loader-screen';
-
-loaderDiv.innerHTML += `
-<div class="app-loader-container">
-  <h1>simple-accounting</h1>
-  <div class="app-loader">
-  </div>
-</div>
-`;
-
-document.body.appendChild(loaderDiv);
+// import '@/styles/loader.scss';
+//
+// const appDiv = document.getElementById('simple-accounting');
+// appDiv.style.display = 'none';
+//
+// const loaderDiv = document.createElement('div');
+// loaderDiv.className = 'app-loader-screen';
+//
+// loaderDiv.innerHTML += `
+// <div class="app-loader-container">
+//   <h1>simple-accounting</h1>
+//   <div class="app-loader">
+//   </div>
+// </div>
+// `;
+//
+// document.body.appendChild(loaderDiv);
 
 async function resolveDeferredAndSetupApp(setupAppDeferred) {
   const {
