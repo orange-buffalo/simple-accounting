@@ -9,18 +9,26 @@ import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.junit.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.web.ui.SpaWebFilter
+import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.core.io.Resource
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilterChain
+import org.testcontainers.containers.BindMode
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.shaded.com.google.common.io.Files
+import java.io.File
+
+
+private val logger = KotlinLogging.logger {}
 
 @SimpleAccountingIntegrationTest
 @TestPropertySource(
@@ -31,8 +39,7 @@ import org.springframework.web.server.WebFilterChain
 )
 @DisplayName("API Spec")
 class ApiSpecIT(
-    @Autowired val client: WebTestClient,
-    @Autowired @Value("classpath:/api-spec.yaml") val committedSpec: Resource
+    @Autowired val client: WebTestClient
 ) {
 
     @MockBean
@@ -47,6 +54,8 @@ class ApiSpecIT(
             webFilterChain.filter(serverWebExchange)
         }
 
+        val committedSpec = File("src/test/resources/api-spec.yaml")
+
         client.get()
             .uri("/api-docs.yaml")
             .exchange()
@@ -57,9 +66,14 @@ class ApiSpecIT(
 
                 val mapper = ObjectMapper(YAMLFactory())
                 val schemaDiff = JsonDiff.asJson(
-                    mapper.readTree(committedSpec.inputStream),
+                    mapper.readTree(committedSpec.inputStream()),
                     mapper.readTree(currentApiSpec)
                 )
+
+                if (shouldOverrideCommittedFiles()) {
+                    logger.warn { "Overriding committed spec" }
+                    committedSpec.writeText(currentApiSpec)
+                }
 
                 assertThat(schemaDiff).isInstanceOfSatisfying(ArrayNode::class.java) { changes ->
                     assertThat(changes.size())
@@ -68,4 +82,83 @@ class ApiSpecIT(
                 }
             }
     }
+
+    @Test
+    fun `should have TS API client up to date`() {
+        val baseCommittedDirectory = File("../frontend/src/services/api/generated")
+        val committedFiles = getRelativeFilePathsByBaseDir(baseCommittedDirectory)
+
+        val tmpDir = Files.createTempDir()
+        val generator = OpenApiGenerator()
+            .withClasspathResourceMapping("/api-spec.yaml", "/api-spec.yaml", BindMode.READ_ONLY)
+            .withFileSystemBind(tmpDir.absolutePath, "/out", BindMode.READ_WRITE)
+            .withCommand("generate", "-g", "typescript-fetch", "-o", "/out", "-i", "/api-spec.yaml")
+            .withLogConsumer { logger.info { it.utf8String } }
+            .waitingFor(Wait.forLogMessage(".*Thanks for using OpenAPI Generator.*", 1))
+        generator.start()
+
+        val generatedFiles = getRelativeFilePathsByBaseDir(tmpDir).toMutableSet()
+        generatedFiles.remove(".openapi-generator-ignore")
+        generatedFiles.remove(".openapi-generator/FILES")
+        generatedFiles.remove(".openapi-generator/VERSION")
+
+        assertSoftly { softly ->
+            val deletedFiles = committedFiles.subtract(generatedFiles)
+            val addedFiles = generatedFiles.subtract(committedFiles)
+            val existingFiles = generatedFiles.intersect(committedFiles)
+
+            softly.assertThat(deletedFiles)
+                .`as`("Some files are no longer generated")
+                .isEmpty()
+
+            softly.assertThat(addedFiles)
+                .`as`("New files have been generated")
+                .isEmpty()
+
+            val changedFiles = mutableMapOf<String, String>()
+            existingFiles.forEach { relativePath ->
+                val committedContent = File(baseCommittedDirectory, relativePath).readText()
+                val generatedContent = File(tmpDir, relativePath).readText()
+                if (committedContent != generatedContent) {
+                    changedFiles[relativePath] = generatedContent
+                }
+                softly.assertThat(committedContent)
+                    .`as`("$relativePath has different content")
+                    .isEqualTo(generatedContent)
+            }
+
+            if (shouldOverrideCommittedFiles()) {
+                logger.warn { "Overriding committed client" }
+
+                deletedFiles.forEach { relativePath ->
+                    logger.info { "Deleting $relativePath" }
+                    File(baseCommittedDirectory, relativePath).delete()
+                }
+
+                addedFiles.forEach { relativePath ->
+                    logger.info { "Adding $relativePath" }
+                    val content = File(tmpDir, relativePath).readText()
+                    File(baseCommittedDirectory, relativePath).writeText(content)
+                }
+
+                changedFiles.forEach { (relativePath, content) ->
+                    logger.info { "Updating $relativePath" }
+                    File(baseCommittedDirectory, relativePath).writeText(content)
+                }
+            }
+        }
+    }
+
+    private fun getRelativeFilePathsByBaseDir(baseDir: File) = baseDir.walk()
+        .filter { it.isFile }
+        .map {
+            it.relativeTo(baseDir).path
+        }
+        .toSet()
+
+    private fun shouldOverrideCommittedFiles(): Boolean = System.getenv("OVERRIDE_COMMITTED_FILES") != null
+
+    private class OpenApiGenerator
+        : GenericContainer<OpenApiGenerator>("orangebuffalo/openapigenerator:latest")
+
 }

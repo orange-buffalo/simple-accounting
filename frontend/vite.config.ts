@@ -5,8 +5,7 @@ import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
-// todo: do we need it?
-// import commonjs from '@rollup/plugin-commonjs';
+import commonjs from '@rollup/plugin-commonjs';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -18,6 +17,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    commonjs(),
     vue(),
     AutoImport({
       resolvers: [ElementPlusResolver()],
@@ -31,6 +31,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  server: {
+    proxy: {
+      '^/api': {
+        target: 'http://localhost:9393',
+      },
     },
   },
 });

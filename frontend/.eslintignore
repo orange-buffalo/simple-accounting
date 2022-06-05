@@ -1,5 +1,5 @@
 **/icons/*.js
-src/services/api/api-client-definition.ts
+src/services/api/generated/**
 components.d.ts
 dist/*
 # todo

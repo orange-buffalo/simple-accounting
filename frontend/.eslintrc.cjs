@@ -34,6 +34,7 @@ module.exports = {
       { ignoredNodes: ['TemplateLiteral'] },
     ],
     'no-unused-vars': 'off',
+    'consistent-return': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
     'import/no-extraneous-dependencies': ['error', {
       devDependencies: [
