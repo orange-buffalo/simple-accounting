@@ -83,6 +83,7 @@ dependencies {
     testImplementation("org.awaitility:awaitility:${Versions.awaitility}")
     testImplementation("com.flipkart.zjsonpatch:zjsonpatch:${Versions.zjsonpatch}")
     testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+    testImplementation("org.testcontainers:testcontainers:${Versions.testContainers}")
 
     testRuntimeOnly("org.springdoc:springdoc-openapi-kotlin:${Versions.springdocOpenapi}")
     testRuntimeOnly("org.springdoc:springdoc-openapi-webflux-core:${Versions.springdocOpenapi}")
