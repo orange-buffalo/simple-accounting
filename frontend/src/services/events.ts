@@ -1,4 +1,4 @@
-type Listener = (data: any) => void;
+type Listener = (data: unknown) => void;
 
 class Event {
   listeners: Array<Listener>;
@@ -7,7 +7,7 @@ class Event {
     this.listeners = [];
   }
 
-  emit(data: any = null) {
+  emit(data: unknown = null) {
     this.listeners.forEach((listener) => listener(data));
   }
 

@@ -1,14 +1,19 @@
+import {
+  describe, it, beforeEach, vi, expect,
+} from 'vitest';
+
 describe('an event', () => {
+  // eslint-disable-next-line
   let loginRequiredEvent : any;
 
-  beforeEach(() => {
-    jest.resetModules();
-    loginRequiredEvent = require('@/services/events').LOGIN_REQUIRED_EVENT;
+  beforeEach(async () => {
+    vi.resetModules();
+    loginRequiredEvent = (await import('@/services/events')).LOGIN_REQUIRED_EVENT;
   });
 
   it('should invoke all subscribers', () => {
-    const firstSubscriber = jest.fn();
-    const secondSubscriber = jest.fn();
+    const firstSubscriber = vi.fn();
+    const secondSubscriber = vi.fn();
 
     loginRequiredEvent.subscribe(firstSubscriber);
     loginRequiredEvent.subscribe(secondSubscriber);
@@ -22,7 +27,7 @@ describe('an event', () => {
   });
 
   it('should pass event data to the subscriber', () => {
-    const subscriber = jest.fn();
+    const subscriber = vi.fn();
 
     loginRequiredEvent.subscribe(subscriber);
 
@@ -35,7 +40,7 @@ describe('an event', () => {
   });
 
   it('should not invoke unsubscribed subscriber', () => {
-    const subscriber = jest.fn();
+    const subscriber = vi.fn();
 
     loginRequiredEvent.subscribe(subscriber);
     loginRequiredEvent.unsubscribe(subscriber);
