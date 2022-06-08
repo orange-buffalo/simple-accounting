@@ -20,6 +20,8 @@ export async function consumeAllPages<T>(
     // eslint-disable-next-line no-await-in-loop
     const response = await requestExecutor(request);
     result = result.concat(response.data);
+    // TODO
+    // eslint-disable-next-line
     request.pageNumber! += 1;
     totalElements = response.totalElements;
   }
