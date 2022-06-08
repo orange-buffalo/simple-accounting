@@ -19,11 +19,11 @@ describe('apiDateString', () => {
   });
 });
 
-interface FakeEntity {
-  name: string,
-}
-
 // todo
+// interface FakeEntity {
+//   name: string,
+// }
+
 // describe('consumeAllPages', () => {
 //   let apiClient: SimpleAccountingClient;
 //
