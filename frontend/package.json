@@ -7,7 +7,9 @@
     "preview": "vite preview --port 5050",
     "test:unit": "vitest --environment jsdom",
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "element-plus": "^2.2.2",
@@ -17,8 +19,14 @@
     "vue-router": "^4.0.14"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.2",
+    "@mdx-js/react": "^2.1.1",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rushstack/eslint-patch": "^1.1.0",
+    "@storybook/addons": "^6.5.8",
+    "@storybook/builder-vite": "^0.1.36",
+    "@storybook/theming": "^6.5.8",
+    "@storybook/vue3": "^6.5.8",
     "@types/js-yaml": "^4.0.5",
     "@types/jsdom": "^16.2.14",
     "@types/node": "^16.11.27",
@@ -28,7 +36,9 @@
     "@vue/eslint-config-typescript": "^10.0.0",
     "@vue/test-utils": "^2.0.0-rc.20",
     "@vue/tsconfig": "^0.1.3",
+    "babel-loader": "^8.2.5",
     "eslint": "^8.5.0",
+    "eslint-plugin-storybook": "^0.5.12",
     "eslint-plugin-vue": "^8.2.0",
     "js-yaml": "^4.1.0",
     "jsdom": "^19.0.0",

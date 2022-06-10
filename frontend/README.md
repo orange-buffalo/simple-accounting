@@ -1,5 +1,19 @@
 # frontend
 
+## Storybook
+Storybook, for now, uses Webpack for manager app and Vite for stories.
+The following dependencies are only needed for Storybook and should be removed when they support Vite fully:
+* `@babel/core`
+* `babel-loader`
+
+And also `.babelrc` config is only used for Storybook.
+
+The following dependencies are required by Storybook Vite builder:
+* `@mdx-js/react`
+
+
+## TODO review
+
 ## Project setup
 ```
 npm install
