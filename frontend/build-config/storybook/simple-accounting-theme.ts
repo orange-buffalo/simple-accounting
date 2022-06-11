@@ -1,6 +1,7 @@
+import type { ThemeVars } from '@storybook/theming';
 import { create } from '@storybook/theming';
 
-export default create({
+const theme : ThemeVars = create({
   base: 'light',
   brandTitle: 'simple-accounting',
   appBg: 'linear-gradient(190deg,#323e51,#284165 25%,#395a6d)',
@@ -9,3 +10,5 @@ export default create({
   textColor: '#ffffff',
   barBg: '#ffffff',
 });
+
+export default theme;

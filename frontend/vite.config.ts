@@ -6,6 +6,7 @@ import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import commonjs from '@rollup/plugin-commonjs';
+import { vitePlugins } from './build-config/vite-plugins';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -27,6 +28,7 @@ export default defineConfig({
         importStyle: 'sass',
       })],
     }),
+    ...vitePlugins,
   ],
   resolve: {
     alias: {

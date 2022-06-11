@@ -1,5 +1,4 @@
 import { addons } from '@storybook/addons';
-// @ts-ignore
 import simpleAccountingTheme from './simple-accounting-theme';
 
 addons.setConfig({
