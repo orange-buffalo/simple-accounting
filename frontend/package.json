@@ -8,10 +8,11 @@
     "test:unit": "vitest --environment jsdom",
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "storybook": "start-storybook -p 6006 -c build-config/storybook",
+    "build-storybook": "build-storybook -c build-config/storybook"
   },
   "dependencies": {
+    "@storybook/addon-actions": "^6.5.8",
     "element-plus": "^2.2.2",
     "jwt-decode": "^3.1.2",
     "qs": "^6.10.3",
@@ -48,6 +49,7 @@
     "unplugin-vue-components": "^0.19.6",
     "vi-fetch": "^0.7.1",
     "vite": "^2.9.5",
+    "vite-svg-loader": "^3.3.0",
     "vitest": "^0.9.3",
     "vue-tsc": "^0.34.7"
   }

@@ -3,7 +3,12 @@ require('@rushstack/eslint-patch/modern-module-resolution');
 
 module.exports = {
   root: true,
-  extends: ['plugin:vue/vue3-essential', 'eslint:recommended', '@vue/eslint-config-typescript/recommended', '@vue/airbnb', 'plugin:storybook/recommended'],
+  extends: [
+    'plugin:vue/vue3-essential',
+    'eslint:recommended',
+    '@vue/eslint-config-typescript/recommended',
+    '@vue/airbnb',
+    'plugin:storybook/recommended'],
   env: {
     'vue/setup-compiler-macros': true,
   },
@@ -28,15 +33,14 @@ module.exports = {
     'template-curly-spacing': 'off',
     'import/no-unresolved': 'off',
     'import/prefer-default-export': 'off',
-    indent: ['error', 2, {
-      ignoredNodes: ['TemplateLiteral'],
-    }],
+    indent: 'off',
     'no-unused-vars': 'off',
     'consistent-return': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
     'import/no-extraneous-dependencies': ['error', {
-      devDependencies: ['**/tests/storybook/**/*.*', '**/*.spec.js', '**/*.spec.ts', 'vite.config.ts', '.eslintrc.cjs', 'config/storybook/*.*'],
+      devDependencies: ['**/*.spec.js', '**/*.spec.ts', 'vite.config.ts', '.eslintrc.cjs', 'build-config/**/*.*'],
     }],
+    'import/no-import-module-exports': 'off',
     'no-restricted-syntax': 'off',
     'vuejs-accessibility/click-events-have-key-events': 'off',
     'vue/multi-word-component-names': 'off',
