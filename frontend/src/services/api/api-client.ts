@@ -9,7 +9,7 @@ import {
 } from '@/services/events';
 import {
   AuthenticationApiControllerApi,
-  Configuration, FetchError, ResponseError,
+  Configuration, FetchError, ResponseError, WorkspacesApiControllerApi,
 } from '@/services/api/generated';
 import type {
   ConfigurationParameters,
@@ -93,7 +93,7 @@ const expiredTokenInterceptor: Middleware = {
   },
 };
 
-const defaultConfig: ConfigurationParameters = {
+const defaultConfigParameters: ConfigurationParameters = {
   basePath: '',
   queryParamsStringify: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
   middleware: [
@@ -103,12 +103,15 @@ const defaultConfig: ConfigurationParameters = {
     errorHandlingInterceptor,
   ],
 };
+const defaultConfig = new Configuration(defaultConfigParameters);
 
 export const authApi = new AuthenticationApiControllerApi(new Configuration({
-  ...defaultConfig,
+  ...defaultConfigParameters,
   middleware: [
     loadingEventsInterceptor,
     authorizationTokenInterceptor,
     errorHandlingInterceptor,
   ],
 }));
+
+export const workspacesApi = new WorkspacesApiControllerApi(defaultConfig);

@@ -1,4 +1,5 @@
-import { apiClient, WorkspaceDto } from '@/services/api';
+import type { WorkspaceDto } from '@/services/api';
+import { workspacesApi } from '@/services/api';
 import { useStorage } from '@/services/storage';
 import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
 
@@ -7,8 +8,9 @@ let workspaces: WorkspaceDto[];
 const storage = useStorage<number>('current-workspace');
 
 function setCurrentWorkspace(workspace: WorkspaceDto) {
+  if (workspace.id == null) throw new Error('Invalid workspace provided');
   currentWorkspace = workspace;
-  storage.set(workspace.id!);
+  storage.set(workspace.id);
   WORKSPACE_CHANGED_EVENT.emit(currentWorkspace);
 }
 
@@ -18,8 +20,7 @@ function createWorkspace(workspace: WorkspaceDto) {
 }
 
 async function loadWorkspaces() {
-  const workspacesResponse = await apiClient.getWorkspaces();
-  workspaces = workspacesResponse.data;
+  workspaces = await workspacesApi.getWorkspaces();
 
   if (workspaces.length > 0) {
     const previousWsId = storage.getOrNull();
@@ -27,9 +28,7 @@ async function loadWorkspaces() {
       currentWorkspace = workspaces.find((it) => it.id === previousWsId) || null;
 
       if (!currentWorkspace) {
-        const sharedWorkspacesResponse = await apiClient.getSharedWorkspaces();
-        const sharedWorkspaces = sharedWorkspacesResponse.data;
-
+        const sharedWorkspaces = await workspacesApi.getSharedWorkspaces();
         currentWorkspace = sharedWorkspaces.find((it) => it.id === previousWsId) || null;
       }
     }
@@ -38,7 +37,9 @@ async function loadWorkspaces() {
       [currentWorkspace] = workspaces;
     }
 
-    storage.set(currentWorkspace.id!);
+    if (currentWorkspace.id == null) throw new Error('Invalid workspace');
+
+    storage.set(currentWorkspace.id);
   }
 }
 
@@ -51,11 +52,12 @@ export function useWorkspaces() {
 }
 
 export function useCurrentWorkspace() {
-  const currentWorkspaceId = currentWorkspace!.id!;
+  if (currentWorkspace == null || currentWorkspace.id == null) throw new Error('Workspace has not been set');
+  const currentWorkspaceId = currentWorkspace.id;
   const currentWorkspaceApiUrl = (url: string) => `/workspaces/${currentWorkspaceId}/${url}`;
-  const { defaultCurrency } = currentWorkspace!;
+  const { defaultCurrency } = currentWorkspace;
   return {
-    currentWorkspace: currentWorkspace!,
+    currentWorkspace,
     currentWorkspaceId,
     currentWorkspaceApiUrl,
     defaultCurrency,
