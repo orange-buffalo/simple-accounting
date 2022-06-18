@@ -19,7 +19,7 @@ function mergeAndSaveCldrJsonFiles(baseDir, jsonFiles, outputFile) {
   fs.writeFileSync(outputFile, mergedJson);
 }
 
-const baseCodeGenDir = 'generatedSrc/i18n/l10n';
+const baseCodeGenDir = 'src/services/i18n/l10n';
 const baseCldrDataDir = 'node_modules/cldr-data';
 
 function prepareCodeGenDir() {
@@ -69,7 +69,7 @@ function generateLocalesBundlesJsons() {
 }
 
 function generateLocalesDisplayNames() {
-  const messagesDir = 'src/i18n/t9n';
+  const messagesDir = 'src/services/i18n/t9n';
   const messagesFiles = fs.readdirSync(messagesDir);
 
   const { localesCodes } = getSupportedLocalesCodes();
