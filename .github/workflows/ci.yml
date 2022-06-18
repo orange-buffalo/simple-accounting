@@ -52,26 +52,36 @@ jobs:
     - name: "Build"
       env:
         DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
-      run: ./gradlew assemble buildDockerImage --scan --console=plain -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN"
+      run: |
+          ./gradlew assemble buildDockerImage \
+            --scan --console=plain \
+            -Pdocker.hub.username=orangebuffalo \
+            -Pdocker.hub.password="$DOCKERHUB_TOKEN"
 
     - name: "Test"
       run: ./gradlew check --scan --console=plain
 
-    - name: "Test (screenshot)"
-      run: ./gradlew npmScreenshotTests --scan --console=plain
+    - name: "Test (storybook)"
+      run: |
+          ./gradlew npmBuildStorybook --scan --console=plain
+          ./gradlew storybookTest --scan --console=plain
 
     - name: "Save Failed Screenshots"
       uses: actions/upload-artifact@v2
       if: ${{ always() }}
       with:
         name: Storyshots Diff Files
-        path: frontend/tests/storybook/__image_snapshots__/__diff_output__
+        path: tests/build/storybookTest
         if-no-files-found: "ignore"
 
     - name: "Test (end-to-end)"
       env:
         DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
-      run: ./gradlew e2eTest -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN" --scan --console=plain
+      run: |
+          ./gradlew e2eTest \
+            -Pdocker.hub.username=orangebuffalo \
+            -Pdocker.hub.password="$DOCKERHUB_TOKEN" \
+            --scan --console=plain
 
     - name: "Report Test Coverage"
       uses: codecov/codecov-action@v1
@@ -80,7 +90,11 @@ jobs:
       if: github.ref == 'refs/heads/master'
       env:
         DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
-      run: ./gradlew pushDockerImage --scan --console=plain -Pdocker.hub.username=orangebuffalo -Pdocker.hub.password="$DOCKERHUB_TOKEN"
+      run: |
+          ./gradlew pushDockerImage \
+            --scan --console=plain \
+            -Pdocker.hub.username=orangebuffalo \
+            -Pdocker.hub.password="$DOCKERHUB_TOKEN"
 
     - name: "Push Version Tag"
       if: github.ref == 'refs/heads/master'

@@ -1,18 +1,9 @@
 <template>
-  <span class="sa-icon">
-    <Component
-        :is="loadedIcon"
-        class="sa-icon__svg"
-        @click="$emit('click')"
-    />
-  </span>
+  <span class="sa-icon" v-html="loadedIcon" @click="$emit('click')"/>
 </template>
 
 <script lang="ts">
-  import type { DefineComponent } from 'vue';
-  import {
-    defineComponent, shallowRef, watch,
-  } from 'vue';
+  import { defineComponent, shallowRef, watch } from 'vue';
   import { iconByName } from '@/icons';
 
   export default defineComponent({
@@ -24,7 +15,7 @@
     },
 
     setup(props) {
-      const loadedIcon = shallowRef<DefineComponent | null>(null);
+      const loadedIcon = shallowRef<string | null>(null);
 
       watch(() => props.icon, async (icon) => {
         loadedIcon.value = iconByName(icon);
@@ -43,7 +34,7 @@
   width: 16px;
   height: 16px;
 
-  &__svg {
+  svg {
     width: 100%;
     height: 100%;
     color: inherit;
