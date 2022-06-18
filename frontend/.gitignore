@@ -29,7 +29,7 @@ storybook-static
 *.sw?
 
 # generated files
-generatedSrc
+src/services/i18n/l10n
 
 
 # local env files
