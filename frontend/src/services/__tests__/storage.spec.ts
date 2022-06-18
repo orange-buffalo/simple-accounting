@@ -1,3 +1,6 @@
+import {
+  describe, beforeEach, it, expect, vi, afterEach,
+} from 'vitest';
 import { useStorage } from '@/services/storage';
 
 describe('Storage', () => {
@@ -7,6 +10,7 @@ describe('Storage', () => {
 
   it('should return null when nothing in storage', () => {
     const storageAccess = useStorage<string>('myKey');
+
     expect(storageAccess)
       .toBeDefined();
     expect(storageAccess.getOrNull())
@@ -14,11 +18,17 @@ describe('Storage', () => {
   });
 
   it('should return the value from storage', () => {
-    // eslint-disable-next-line no-underscore-dangle
-    localStorage.__STORE__['simple-accounting.myKey'] = JSON.stringify({
-      data: 'persistedValue',
-    });
+    vi.spyOn(Storage.prototype, 'getItem')
+      .mockImplementation((key) => {
+        expect(key)
+          .toBe('simple-accounting.myKey');
+        return JSON.stringify({
+          data: 'persistedValue',
+        });
+      });
+
     const storageAccess = useStorage<string>('myKey');
+
     expect(storageAccess)
       .toBeDefined();
     expect(storageAccess.getOrNull())
@@ -26,23 +36,22 @@ describe('Storage', () => {
   });
 
   it('should save the value to storage', () => {
-    // eslint-disable-next-line no-underscore-dangle
-    localStorage.__STORE__['simple-accounting.myKey'] = {
-      data: 'persistedValue',
-    };
+    const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
+
     const storageAccess = useStorage<string>('myKey');
     expect(storageAccess)
       .toBeDefined();
     storageAccess.set('newValue');
-    // eslint-disable-next-line no-underscore-dangle
-    expect(localStorage.__STORE__['simple-accounting.myKey'])
-      .toBe(JSON.stringify({
+
+    expect(storageSpy)
+      .toBeCalledWith('simple-accounting.myKey', JSON.stringify({
         data: 'newValue',
       }));
   });
 
   it('should return default value when nothing in storage', () => {
     const storageAccess = useStorage<string>('myKey');
+
     expect(storageAccess)
       .toBeDefined();
     expect(storageAccess.getOrDefault('default'))
@@ -50,25 +59,29 @@ describe('Storage', () => {
   });
 
   it('should remove value from storage', () => {
-    // eslint-disable-next-line no-underscore-dangle
-    localStorage.__STORE__['simple-accounting.myKey'] = {
-      data: 'persistedValue',
-    };
+    const storageSpy = vi.spyOn(Storage.prototype, 'removeItem');
+
     const storageAccess = useStorage<string>('myKey');
     expect(storageAccess)
       .toBeDefined();
     storageAccess.clear();
-    // eslint-disable-next-line no-underscore-dangle
-    expect(Object.keys(localStorage.__STORE__).length)
-      .toBe(0);
+
+    expect(storageSpy)
+      .toBeCalledWith('simple-accounting.myKey');
   });
 
   it('should return the value if present', () => {
-    // eslint-disable-next-line no-underscore-dangle
-    localStorage.__STORE__['simple-accounting.myKey'] = JSON.stringify({
-      data: 'persistedValue',
-    });
+    vi.spyOn(Storage.prototype, 'getItem')
+      .mockImplementation((key) => {
+        expect(key)
+          .toBe('simple-accounting.myKey');
+        return JSON.stringify({
+          data: 'persistedValue',
+        });
+      });
+
     const storageAccess = useStorage<string>('myKey');
+
     expect(storageAccess)
       .toBeDefined();
     expect(storageAccess.get())
@@ -81,5 +94,9 @@ describe('Storage', () => {
       .toBeDefined();
     expect(() => storageAccess.get())
       .toThrow('Value for myKey is not found in storage');
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 });

@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'url';
-
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
@@ -41,5 +41,8 @@ export default defineConfig({
         target: 'http://localhost:9393',
       },
     },
+  },
+  test: {
+    environment: 'jsdom',
   },
 });

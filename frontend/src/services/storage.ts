@@ -1,6 +1,4 @@
-import Lockr from 'lockr';
-
-Lockr.prefix = 'simple-accounting.';
+const prefix = 'simple-accounting.';
 
 class StorageAccessor<T> {
   private readonly key: string;
@@ -14,17 +12,29 @@ class StorageAccessor<T> {
 
   set(value: T): void {
     this.value = value;
-    Lockr.set(this.key, value);
+    localStorage.setItem(prefix + this.key, JSON.stringify({
+      data: value,
+    }));
   }
 
   clear(): void {
     this.value = null;
-    Lockr.rm(this.key);
+    localStorage.removeItem(prefix + this.key);
   }
 
   getOrNull(): T | null {
     if (this.value == null) {
-      this.value = Lockr.get(this.key);
+      const storageValueJson = localStorage.getItem(prefix + this.key);
+      if (storageValueJson) {
+        try {
+          const storageValue = JSON.parse(storageValueJson);
+          if (storageValue.data) {
+            this.value = storageValue.data;
+          }
+        } catch (e) {
+          // no op
+        }
+      }
     }
     return this.value || null;
   }
