@@ -1,11 +1,11 @@
-import baseCldrData from '@/../generatedSrc/i18n/l10n/base.json';
+import baseCldrData from '@/services/i18n/l10n/base.json';
 
 // https://github.com/format-message/format-message/blob/master/packages/lookup-closest-locale/index.js
-export function lookupClosestLocale(requestedLocale, availableLocales) {
+export function lookupClosestLocale(requestedLocale: string, availableLocales: string[]) {
   if (availableLocales.includes(requestedLocale)) {
     return requestedLocale;
   }
-  const locales = [].concat(requestedLocale || []);
+  const locales = ([] as string[]).concat([requestedLocale]);
   // eslint-disable-next-line
   for (let l = 0, ll = locales.length; l < ll; ++l) {
     const current = locales[l].split('-');
@@ -20,8 +20,7 @@ export function lookupClosestLocale(requestedLocale, availableLocales) {
   return null;
 }
 
-export async function loadCldrData(locale) {
-  const { default: localeCldrData } = await
-  import(/* webpackChunkName: "[request]" */ `@/../generatedSrc/i18n/l10n/locale-${locale}.json`);
+export async function loadCldrData(locale: string) {
+  const { default: localeCldrData } = await import(`./l10n/locale-${locale}.json`);
   return [...baseCldrData, ...localeCldrData];
 }

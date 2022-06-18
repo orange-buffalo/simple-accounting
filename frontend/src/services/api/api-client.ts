@@ -9,7 +9,7 @@ import {
 } from '@/services/events';
 import {
   AuthenticationApiControllerApi,
-  Configuration, FetchError, ResponseError, WorkspacesApiControllerApi,
+  Configuration, FetchError, ProfileApiControllerApi, ResponseError, WorkspacesApiControllerApi,
 } from '@/services/api/generated';
 import type {
   ConfigurationParameters,
@@ -115,3 +115,4 @@ export const authApi = new AuthenticationApiControllerApi(new Configuration({
 }));
 
 export const workspacesApi = new WorkspacesApiControllerApi(defaultConfig);
+export const profileApi = new ProfileApiControllerApi(defaultConfig);
