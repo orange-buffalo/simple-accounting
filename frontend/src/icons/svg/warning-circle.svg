@@ -1,69 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   height="88.000053"
-   width="88"
-   id="svg14"
-   viewBox="0 0 88 88.000053"
-   y="0px"
-   x="0px"
-   version="1.1">
-  <metadata
-     id="metadata20">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs18" />
-  <g
-     id="g8"
-     transform="translate(-5.9999995,-958.36215)">
-    <path
-       id="path2"
-       overflow="visible"
-       display="inline"
-       visibility="visible"
-       marker="none"
-       stroke="none"
-       fill-rule="evenodd"
-       fill-opacity="1"
-       fill="#000000"
-       d="m 50,958.36215 c -24.2761,0 -44.0000005,19.72396 -44.0000005,43.99995 0,24.2761 19.7239005,44.0001 44.0000005,44.0001 24.276099,0 44,-19.724 44,-44.0001 0,-24.27599 -19.723901,-43.99995 -44,-43.99995 z m 0,3.99969 c 22.1143,0 40.000301,17.88599 40.000301,40.00026 0,22.1144 -17.886001,40.0007 -40.000301,40.0007 -22.1143,0 -40.0006005,-17.8863 -40.0006005,-40.0007 C 9.9993995,980.24784 27.8857,962.36184 50,962.36184 Z"
-       style="color:#000000;text-indent:0;text-transform:none;direction:ltr;baseline-shift:baseline;enable-background:accumulate" />
-    <path
-       id="path4"
-       overflow="visible"
-       display="inline"
-       visibility="visible"
-       marker="none"
-       stroke="none"
-       fill-rule="evenodd"
-       fill-opacity="1"
-       fill="#000000"
-       d="m 49.97,980.17527 a 2.000005,2.000005 0 0 0 -1.9697,2.02813 v 30.0741 a 2.000005,2.000005 0 1 0 3.9994,0 V 982.2034 A 2.000005,2.000005 0 0 0 49.97,980.17527 Z"
-       style="color:#000000;text-indent:0;text-transform:none;direction:ltr;baseline-shift:baseline;enable-background:accumulate" />
-    <path
-       id="path6"
-       overflow="visible"
-       display="inline"
-       visibility="visible"
-       marker="none"
-       stroke="none"
-       fill-rule="evenodd"
-       fill-opacity="1"
-       fill="#000000"
-       d="m 49.97,1020.105 a 2.000005,2.000005 0 0 0 -1.9697,2.0278 v 0.3884 a 2.000005,2.000005 0 1 0 3.9994,0 v -0.3884 A 2.000005,2.000005 0 0 0 49.97,1020.105 Z"
-       style="color:#000000;text-indent:0;text-transform:none;direction:ltr;baseline-shift:baseline;enable-background:accumulate" />
-  </g>
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" id="svg14" viewBox="0 0 88 88.000053" y="0px" x="0px" version="1.1">
+    <metadata id="metadata20">
+        <rdf:RDF>
+            <cc:Work rdf:about="">
+                <dc:format>
+                    image/svg+xml
+                </dc:format>
+                <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+                <dc:title/>
+            </cc:Work>
+        </rdf:RDF>
+    </metadata>
+    <defs id="defs18"/>
+    <g id="g8" transform="translate(-5.9999995,-958.36215)">
+        <path id="path2" overflow="visible" display="inline" visibility="visible" marker="none" stroke="none" fill-rule="evenodd" fill-opacity="1" fill="#000000" d="m 50,958.36215 c -24.2761,0 -44.0000005,19.72396 -44.0000005,43.99995 0,24.2761 19.7239005,44.0001 44.0000005,44.0001 24.276099,0 44,-19.724 44,-44.0001 0,-24.27599 -19.723901,-43.99995 -44,-43.99995 z m 0,3.99969 c 22.1143,0 40.000301,17.88599 40.000301,40.00026 0,22.1144 -17.886001,40.0007 -40.000301,40.0007 -22.1143,0 -40.0006005,-17.8863 -40.0006005,-40.0007 C 9.9993995,980.24784 27.8857,962.36184 50,962.36184 Z" style="color:#000000;text-indent:0;text-transform:none;direction:ltr;baseline-shift:baseline;enable-background:accumulate"/>
+        <path id="path4" overflow="visible" display="inline" visibility="visible" marker="none" stroke="none" fill-rule="evenodd" fill-opacity="1" fill="#000000" d="m 49.97,980.17527 a 2.000005,2.000005 0 0 0 -1.9697,2.02813 v 30.0741 a 2.000005,2.000005 0 1 0 3.9994,0 V 982.2034 A 2.000005,2.000005 0 0 0 49.97,980.17527 Z" style="color:#000000;text-indent:0;text-transform:none;direction:ltr;baseline-shift:baseline;enable-background:accumulate"/>
+        <path id="path6" overflow="visible" display="inline" visibility="visible" marker="none" stroke="none" fill-rule="evenodd" fill-opacity="1" fill="#000000" d="m 49.97,1020.105 a 2.000005,2.000005 0 0 0 -1.9697,2.0278 v 0.3884 a 2.000005,2.000005 0 1 0 3.9994,0 v -0.3884 A 2.000005,2.000005 0 0 0 49.97,1020.105 Z" style="color:#000000;text-indent:0;text-transform:none;direction:ltr;baseline-shift:baseline;enable-background:accumulate"/>
+    </g>
 </svg>

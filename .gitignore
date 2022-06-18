@@ -9,13 +9,12 @@ build/
 *.iml
 *.ipr
 out/
+**/.test-config.yaml
 
 ### Local dev environment
 .gradletasknamecache
 /local-dev
 
-### Storyshots
-__diff_output__
 
 ### Jest coverage files
 frontend/coverage

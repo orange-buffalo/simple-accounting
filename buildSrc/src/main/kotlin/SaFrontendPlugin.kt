@@ -14,6 +14,7 @@ class SaFrontendPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val npmInstall = project.tasks.register("npmInstall", SaNpmTask::class.java) {
             args.set("ci")
+            inputFiles.from(project.file("package.json"), project.file("package-lock.json"))
             outputDirectories.from(project.file("node_modules"))
         }
 
@@ -31,21 +32,21 @@ class SaFrontendPlugin : Plugin<Project> {
 
         project.tasks.register("npmTest", SaNpmTask::class.java) {
             args.set("run-script test:unit")
-            inputFiles.from(project.file("src"), project.file("tests"))
+            inputFiles.from(project.file("src"))
 
             dependsOn(npmInstall)
         }
 
         project.tasks.register("npmLint", SaNpmTask::class.java) {
             args.set("run-script lint")
-            inputFiles.from(project.file("src"), project.file("tests"))
+            inputFiles.from(project.file("src"))
 
             dependsOn(npmInstall)
         }
 
-        project.tasks.register("npmScreenshotTests", SaNpmTask::class.java) {
-            args.set("run-script test:screenshot")
-            inputFiles.from(project.file("src"), project.file("tests"))
+        project.tasks.register("npmBuildStorybook", SaNpmTask::class.java) {
+            args.set("run-script build-storybook")
+            inputFiles.from(project.file("src"))
 
             dependsOn(npmInstall)
         }

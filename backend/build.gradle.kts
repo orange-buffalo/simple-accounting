@@ -13,28 +13,17 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version Versions.kotlin
-    kotlin("kapt") version Versions.kotlin
+    kotlin("jvm")
+    kotlin("kapt")
+    id("io.spring.dependency-management")
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlin
     id("org.springframework.boot") version Versions.springBoot
-    id("io.spring.dependency-management") version Versions.springDependencyManagement
     id("com.bmuschko.docker-remote-api") version Versions.dockerPlugin
     jacoco
 }
 
 apply<SaJooqCodeGenPlugin>()
 apply<SaDockerPlugin>()
-
-repositories {
-    mavenCentral()
-}
-
-sourceSets {
-    create("e2eTest")
-}
-
-val e2eTestImplementation: Configuration by configurations.getting
-val e2eTestRuntimeOnly: Configuration by configurations.getting
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
@@ -88,20 +77,7 @@ dependencies {
     testRuntimeOnly("org.springdoc:springdoc-openapi-kotlin:${Versions.springdocOpenapi}")
     testRuntimeOnly("org.springdoc:springdoc-openapi-webflux-core:${Versions.springdocOpenapi}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-
-    e2eTestImplementation("org.junit.jupiter:junit-jupiter-api")
-    e2eTestImplementation("com.codeborne:selenide:${Versions.selenide}")
-    e2eTestImplementation("org.testcontainers:selenium:${Versions.testContainers}")
-    e2eTestImplementation("io.github.microutils:kotlin-logging:${Versions.kotlinLogging}")
-    // add version explicitly to manage upgrades by sa-deppy
-    e2eTestImplementation("org.seleniumhq.selenium:selenium-java:${Versions.selenium}")
-
-    e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    e2eTestRuntimeOnly("org.slf4j:slf4j-simple")
 }
-
-// spring boot comes with 3.x while selenide needs 4.x
-extra["selenium.version"] = Versions.selenium
 
 val copyFrontend = task<Copy>("copyFrontend") {
     from(tasks.getByPath(":frontend:npmBuild"))
@@ -136,36 +112,9 @@ task<DockerPushImage>("pushDockerImage") {
     dependsOn(buildDockerImage)
 }
 
-val e2eTest = task<Test>("e2eTest") {
-    description = "Runs E2E tests."
-    group = "verification"
-
-    useJUnitPlatform()
-    beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
-
-    testClassesDirs = sourceSets["e2eTest"].output.classesDirs
-    classpath = sourceSets["e2eTest"].runtimeClasspath
-
-    dependsOn(buildDockerImage)
-}
-
-
 tasks {
-    withType<KotlinCompile> {
-        kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict", "-Xopt-in=kotlin.RequiresOptIn")
-        kotlinOptions.jvmTarget = "11"
-    }
-
     compileTestKotlin {
         dependsOn(copyFrontend)
-        // a workaround for https://github.com/assertj/assertj-core/issues/2357
-        // to be removed with upgrade to kotlin 7
-        kotlinOptions.languageVersion = "1.7"
-    }
-
-    test {
-        useJUnitPlatform()
-        beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
     }
 
     build {

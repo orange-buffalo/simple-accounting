@@ -1,8 +1,9 @@
 plugins {
-    id("com.gradle.enterprise").version("3.1")
+    id("com.gradle.enterprise").version("3.10.2")
 }
 
 rootProject.name = "simple-accounting"
 
 include("frontend")
 include("backend")
+include("tests")
