@@ -52,7 +52,10 @@ function getSupportedLocalesCodes() {
 }
 
 function generateLocalesBundlesJsons() {
-  const { baseLocalesDir, localesCodes } = getSupportedLocalesCodes();
+  const {
+    baseLocalesDir,
+    localesCodes,
+  } = getSupportedLocalesCodes();
   localesCodes.forEach((locale) => {
     mergeAndSaveCldrJsonFiles(
       `${baseLocalesDir}/${locale}`,
@@ -70,12 +73,13 @@ function generateLocalesBundlesJsons() {
 
 function generateLocalesDisplayNames() {
   const messagesDir = 'src/services/i18n/t9n';
-  const messagesFiles = fs.readdirSync(messagesDir);
+  const messagesFiles = fs.readdirSync(messagesDir)
+    .filter((it) => it !== 'index.ts');
 
   const { localesCodes } = getSupportedLocalesCodes();
 
   messagesFiles.forEach((messagesFile) => {
-    const languageRx = /(.*?)\.js/g;
+    const languageRx = /(.*?)\.ts/g;
     const [, language] = languageRx.exec(messagesFile);
 
     const languageCldrJson = getMergedCldrJson(baseCldrDataDir, [

@@ -1,5 +1,8 @@
-export default function bpsFormatter({ i18n }) {
-  return function bpsFormatterImpl(bpsValue, locale, arg) {
+import { i18n } from '@/services/i18n';
+
+export function bpsFormatter() {
+  return function bpsFormatterImpl(value: unknown, locale: string, arg: string | null) {
+    const bpsValue = value as number;
     if (arg !== 'percent') {
       throw Error(`${arg} is not supported for bps formatter`);
     }

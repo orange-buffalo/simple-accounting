@@ -13,7 +13,7 @@ export default {
       yes: 'Yes',
       no: 'No',
     },
-    percent: '{0, number, percent}',
+    percent: '{0, number, :: percent scale/100 .00}',
   },
 
   loginPage: {

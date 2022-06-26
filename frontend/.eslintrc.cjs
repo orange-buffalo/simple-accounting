@@ -26,6 +26,7 @@ module.exports = {
     'vue/component-name-in-template-casing': ['error', 'PascalCase', {
       registeredComponentsOnly: false,
     }],
+    '@typescript-eslint/ban-ts-comment': 'off',
     'no-use-before-define': ['error', {
       functions: false,
     }],
@@ -38,7 +39,12 @@ module.exports = {
     'consistent-return': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
     'import/no-extraneous-dependencies': ['error', {
-      devDependencies: ['**/*.spec.js', '**/*.spec.ts', 'vite.config.ts', '.eslintrc.cjs', 'build-config/**/*.*'],
+      devDependencies: [
+        '**/*.stories.ts',
+        '**/*.spec.ts',
+        'vite.config.ts',
+        '.eslintrc.cjs',
+        'build-config/**/*.*'],
     }],
     'import/no-import-module-exports': 'off',
     'no-restricted-syntax': 'off',
