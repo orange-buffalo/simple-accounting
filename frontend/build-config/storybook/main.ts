@@ -20,7 +20,6 @@ const storybookConfig: StorybookViteConfig = {
     buildStoriesJson: true,
   },
   async viteFinal(config, { configType }) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { config: userConfig } = await loadConfigFromFile(
       /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -14,8 +14,10 @@
     "build-svgs": "svgo -f src/icons/svg -o src/icons/svg --config build-config/svgo.config.js"
   },
   "dependencies": {
-    "@storybook/addon-actions": "^6.5.8",
+    "@messageformat/core": "^3.0.1",
     "element-plus": "^2.2.2",
+    "flat": "^5.0.2",
+    "globalize": "^1.7.0",
     "jwt-decode": "^3.1.2",
     "qs": "^6.10.3",
     "vue": "^3.2.33",
@@ -24,12 +26,14 @@
   "devDependencies": {
     "@babel/core": "^7.18.2",
     "@mdx-js/react": "^2.1.1",
-    "@rollup/plugin-commonjs": "^22.0.0",
     "@rushstack/eslint-patch": "^1.1.0",
+    "@storybook/addon-actions": "^6.5.9",
     "@storybook/addons": "^6.5.8",
     "@storybook/builder-vite": "^0.1.36",
     "@storybook/theming": "^6.5.8",
     "@storybook/vue3": "^6.5.8",
+    "@types/flat": "^5.0.2",
+    "@types/globalize": "^1.5.2",
     "@types/js-yaml": "^4.0.5",
     "@types/jsdom": "^16.2.14",
     "@types/node": "^16.11.27",
@@ -52,7 +56,7 @@
     "unplugin-auto-import": "^0.8.6",
     "unplugin-vue-components": "^0.19.6",
     "vi-fetch": "^0.7.1",
-    "vite": "^2.9.5",
+    "vite": "^2.9.12",
     "vite-svg-loader": "^3.3.0",
     "vitest": "^0.9.3",
     "vue-tsc": "^0.34.7"
