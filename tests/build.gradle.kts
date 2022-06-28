@@ -62,7 +62,7 @@ val e2eTest = task<Test>("e2eTest") {
     testClassesDirs = sourceSets["e2eTest"].output.classesDirs
     classpath = sourceSets["e2eTest"].runtimeClasspath
 
-    dependsOn("backend:buildDockerImage")
+    dependsOn(":backend:buildDockerImage")
 }
 
 val storybookTest = task<Test>("storybookTest") {
