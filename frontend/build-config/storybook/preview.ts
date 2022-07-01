@@ -1,3 +1,6 @@
+// @ts-ignore
+import { createStoriesAppDecorator } from './decorators/stories-app';
+
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
   controls: {
@@ -7,3 +10,7 @@ export const parameters = {
     },
   },
 };
+
+export const decorators = [
+  createStoriesAppDecorator(),
+];
