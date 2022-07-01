@@ -1,10 +1,10 @@
-@import 'element-theme';
+@use 'element-theme' as *;
+@use "vars" as *;
+//@use "grid" as *;
+@use "mixins" as *;
+//@import "notifications";
+//@import "vue-select";
 @import url("https://fonts.googleapis.com/css?family=Muli");
-@import "vars";
-@import "grid";
-@import "mixins";
-@import "notifications";
-@import "vue-select";
 
 body {
   margin: 0;

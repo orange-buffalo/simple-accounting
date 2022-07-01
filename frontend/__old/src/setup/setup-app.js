@@ -13,33 +13,6 @@ function setupElementUi({ i18n }) {
 }
 
 function setupApp() {
-  Vue.config.productionTip = false;
-  Vue.use(VueCompositionApi);
-
-  const router = setupRouter();
-  const i18n = setupI18n();
-  const vue = new Vue({
-    router,
-    i18n,
-    render: (h) => h(SimpleAccounting),
-  });
-
   setupElementUi({ i18n });
   setupErrorHandler();
-
-  app.init({
-    vue,
-    router,
-    i18n,
-  });
 }
-
-function mountApp() {
-  app.vue.$mount('#simple-accounting');
-}
-
-export default {
-  app,
-  setupApp,
-  mountApp,
-};
