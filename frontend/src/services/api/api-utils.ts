@@ -1,4 +1,5 @@
 import type { ApiPage, ApiPageRequest } from '@/services/api/api-types';
+import { ResponseError } from '@/services/api/generated';
 
 export function apiDateString(date: Date) {
   return `${date.getFullYear()}-${
@@ -26,4 +27,9 @@ export async function consumeAllPages<T>(
     totalElements = response.totalElements;
   }
   return result;
+}
+
+export async function consumeApiErrorResponse<T>(e: unknown): Promise<T> {
+  if (!(e instanceof ResponseError)) throw new Error(`Unknown error ${JSON.stringify(e)}`);
+  return (await e.response.json()) as T;
 }

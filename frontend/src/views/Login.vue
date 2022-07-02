@@ -7,15 +7,14 @@
       <LogoLogin class="login-page__login__logo" />
 
       <ElForm
-        ref="form"
-        class="login-page__login-form"
-        :model="form"
-        label-width="0px"
+          class="login-page__login-form"
+          :model="form"
+          label-width="0px"
       >
-        <ElFormItem prop="userName">
+        <ElFormItem>
           <ElInput
-            v-model="form.userName"
-            :placeholder="$t('loginPage.userName.placeholder')"
+              v-model="form.userName"
+              :placeholder="$t('loginPage.userName.placeholder')"
           >
             <template #prefix>
               <SaIcon icon="login" />
@@ -23,11 +22,11 @@
           </ElInput>
         </ElFormItem>
 
-        <ElFormItem prop="password">
+        <ElFormItem>
           <ElInput
-            v-model="form.password"
-            type="password"
-            :placeholder="$t('loginPage.password.placeholder')"
+              v-model="form.password"
+              type="password"
+              :placeholder="$t('loginPage.password.placeholder')"
           >
             <template #prefix>
               <SaIcon icon="password" />
@@ -36,61 +35,64 @@
         </ElFormItem>
 
         <!--suppress HtmlDeprecatedAttribute -->
-        <ElFormItem
-          prop="rememberMe"
-          align="center"
-        >
+        <ElFormItem align="center">
           <ElCheckbox v-model="form.rememberMe">
             {{ $t('loginPage.rememberMe.label') }}
           </ElCheckbox>
         </ElFormItem>
 
         <ElButton
-          type="primary"
-          :disabled="!loginEnabled"
-          @click="executeLogin"
+            type="primary"
+            :disabled="!loginEnabled"
+            @click="executeLogin"
         >
           <i
-            v-if="loginInProgress"
-            class="el-icon-loading"
+              v-if="uiState.loginInProgress"
+              class="el-icon-loading"
           />
           <span v-else>{{ $t('loginPage.login') }}</span>
         </ElButton>
 
         <div class="login-page__login-error">
-          {{ loginError }}
+          {{ uiState.loginError }}
         </div>
       </ElForm>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
+  import type { Ref } from 'vue';
   import {
     computed,
     reactive,
     ref,
-    toRefs,
     watch,
-  } from '@vue/composition-api';
+  } from 'vue';
+
   import { initWorkspace, useCurrentWorkspace } from '@/services/workspaces';
-  import { userApi } from '@/services/user-api';
-  import { app } from '@/services/app-services';
-  import i18n from '@/services/i18n';
-  import LogoLogin from '@/assets/logo-login.svg';
-  import SaIcon from '@/components/SaIcon';
-  import useNavigation from '@/components/navigation/useNavigation';
-  import { useAuth } from '@/services/api';
+  import { i18n } from '@/services/i18n';
+  /// <reference types="vite-svg-loader" />
+  import LogoLogin from '@/assets/logo-login.svg?component';
+  import SaIcon from '@/components/SaIcon.vue';
+  import useNavigation from '@/services/use-navigation';
+  import { useAuth, profileApi, consumeApiErrorResponse } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
 
   class AccountLockTimer {
-    constructor(onTimerUpdate) {
+    private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
+
+    private $remainingDurationInSec: Ref<number | null>;
+
+    private $timerRef: number | null;
+
+    constructor(onTimerUpdate: (remainingDurationInSec: number) => void) {
       this.$remainingDurationInSec = ref(null);
       this.$onTimerUpdate = onTimerUpdate;
       this.$timerRef = null;
     }
 
-    start(durationInSec) {
+    start(durationInSec: number) {
       this.$onTimerUpdate(durationInSec);
       this.$timerRef = setInterval(() => this.$handler(), 1000);
       this.$remainingDurationInSec.value = durationInSec;
@@ -107,7 +109,9 @@
       }
     }
 
+    // noinspection JSUnusedGlobalSymbols
     $handler() {
+      if (this.$remainingDurationInSec.value == null) throw new Error('No active');
       this.$remainingDurationInSec.value -= 1;
       this.$onTimerUpdate(this.$remainingDurationInSec.value);
       if (this.$remainingDurationInSec.value === 0) {
@@ -116,110 +120,112 @@
     }
   }
 
-  export default {
-    components: {
-      SaIcon,
-      LogoLogin,
-    },
+  interface UiState {
+    loginError: string | null;
+    loginInProgress: boolean,
+  }
 
-    setup(props, { emit }) {
-      const form = reactive({
-        userName: '',
-        password: '',
-        rememberMe: true,
-      });
+  const form = reactive({
+    userName: '',
+    password: '',
+    rememberMe: true,
+  });
 
-      const uiState = reactive({
-        loginError: '',
-        loginInProgress: false,
-      });
+  const uiState = reactive<UiState>({
+    loginError: '',
+    loginInProgress: false,
+  });
 
-      const accountLockTimer = new AccountLockTimer((lockDurationInSec) => {
-        if (lockDurationInSec === 0) {
-          uiState.loginError = null;
-        } else {
-          uiState.loginError = i18n.t('loginPage.loginError.accountLocked', [lockDurationInSec]);
-        }
-      });
+  const accountLockTimer = new AccountLockTimer((lockDurationInSec) => {
+    if (lockDurationInSec === 0) {
+      uiState.loginError = null;
+    } else {
+      uiState.loginError = i18n.t('loginPage.loginError.accountLocked', [lockDurationInSec]);
+    }
+  });
 
-      watch(() => [form.userName, form.password], () => {
-        if (form.password || form.userName) {
-          uiState.loginError = null;
-        }
-      }, { immediate: true });
+  watch(() => [form.userName, form.password], () => {
+    if (form.password || form.userName) {
+      uiState.loginError = null;
+    }
+  }, { immediate: true });
 
-      const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
+  const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
 
-      const onLoginError = (apiResponse) => {
-        if (apiResponse && apiResponse.error === 'AccountLocked') {
-          accountLockTimer.start(apiResponse.lockExpiresInSec);
-        } else if (apiResponse && apiResponse.error === 'LoginNotAvailable') {
-          uiState.loginError = i18n.t('loginPage.loginError.underAttack');
-        } else {
-          uiState.loginError = i18n.t('loginPage.loginError.generalFailure');
-        }
-      };
+  interface LoginErrorResponse {
+    error?: string,
+    lockExpiresInSec?: number
+  }
 
-      const { navigateByViewName } = useNavigation();
+  const onLoginError = async (apiResponseError: unknown) => {
+    const apiResponse = await consumeApiErrorResponse<LoginErrorResponse>(apiResponseError);
+    if (apiResponse && apiResponse.error === 'AccountLocked' && apiResponse.lockExpiresInSec !== undefined) {
+      accountLockTimer.start(apiResponse.lockExpiresInSec);
+    } else if (apiResponse && apiResponse.error === 'LoginNotAvailable') {
+      uiState.loginError = i18n.t('loginPage.loginError.underAttack');
+    } else {
+      uiState.loginError = i18n.t('loginPage.loginError.generalFailure');
+    }
+  };
 
-      const onAdminLogin = async () => {
-        await navigateByViewName('users-overview');
-      };
+  const { navigateByViewName } = useNavigation();
 
-      const onUserLogin = async () => {
-        await initWorkspace();
+  const onAdminLogin = async () => {
+    await navigateByViewName('users-overview');
+  };
 
-        const { currentWorkspace } = useCurrentWorkspace();
-        const { lastView } = useLastView();
+  const onUserLogin = async () => {
+    await initWorkspace();
 
-        if (!currentWorkspace) {
-          await navigateByViewName('workspace-setup');
-        } else if (lastView) {
-          await navigateByViewName(lastView);
-        } else {
-          await navigateByViewName('dashboard');
-        }
-      };
+    const { currentWorkspace } = useCurrentWorkspace();
+    const { lastView } = useLastView();
 
-      const { isLoggedIn, login, isAdmin } = useAuth();
-      if (isLoggedIn) {
-        emit('login');
+    if (!currentWorkspace) {
+      await navigateByViewName('workspace-setup');
+    } else if (lastView) {
+      await navigateByViewName(lastView);
+    } else {
+      await navigateByViewName('dashboard');
+    }
+  };
+
+  const emit = defineEmits<{(e: 'login'): void;
+  }>();
+
+  const {
+    isLoggedIn,
+    login,
+    isAdmin,
+  } = useAuth();
+  if (isLoggedIn()) {
+    emit('login');
+  }
+
+  const executeLogin = async () => {
+    uiState.loginError = null;
+    uiState.loginInProgress = true;
+    accountLockTimer.cancel();
+    try {
+      await login({ ...form });
+      const profile = await profileApi.getProfile();
+      await i18n.setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
+
+      if (isAdmin()) {
+        await onAdminLogin();
+      } else {
+        await onUserLogin();
       }
-
-      const executeLogin = async () => {
-        uiState.loginError = null;
-        uiState.loginInProgress = true;
-        accountLockTimer.cancel();
-        try {
-          await login({ ...form });
-          const profile = await userApi.getProfile();
-          await app.i18n.setLocaleFromProfile(profile.i18n);
-
-          if (isAdmin()) {
-            await onAdminLogin();
-          } else {
-            await onUserLogin();
-          }
-        } catch ({ response: { data } }) {
-          onLoginError(data);
-        } finally {
-          uiState.loginInProgress = false;
-        }
-      };
-
-      return {
-        form,
-        ...toRefs(uiState),
-        executeLogin,
-        loginEnabled,
-      };
-    },
+    } catch (e: unknown) {
+      await onLoginError(e);
+    } finally {
+      uiState.loginInProgress = false;
+    }
   };
 </script>
 
 <style lang="scss">
-  @import "~@/styles/vars.scss";
-  @import "~@/styles/mixins.scss";
+  @use "@/styles/vars.scss" as *;
+  @use "@/styles/mixins.scss" as *;
 
   .login-page {
     display: flex;

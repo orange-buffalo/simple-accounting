@@ -1,23 +1,23 @@
-// import type { SimpleAccountingInitializer } from '@/setup/setup-app';
-// import { removeLoader } from '@/setup/loader';
-//
-// async function resolveDeferredAndSetupApp(setupAppDeferred: Promise<{ default: SimpleAccountingInitializer }>) {
-//   const {
-//     default: {
-//       app,
-//       setupApp,
-//       mountApp,
-//     },
-//   } = await setupAppDeferred;
-//   setupApp();
-//   return ({
-//     app,
-//     mountApp,
-//   });
-// }
+import type { SimpleAccountingInitializer } from '@/setup/setup-app';
+import { removeLoader } from '@/setup/loader';
+
+async function resolveDeferredAndSetupApp(setupAppDeferred: Promise<{ default: SimpleAccountingInitializer }>) {
+  const {
+    default: {
+      app,
+      setupApp,
+      mountApp,
+    },
+  } = await setupAppDeferred;
+  setupApp();
+  return ({
+    app,
+    mountApp,
+  });
+}
 
 export async function bootstrapApp() {
-  // const setupAppDeferred = import('@/setup/setup-app');
+  const setupAppDeferred = import('@/setup/setup-app');
 
   const { useAuth } = await import('@/services/api');
   const { tryAutoLogin } = useAuth();
@@ -47,13 +47,15 @@ export async function bootstrapApp() {
     //
     // mountApp();
   } else {
-    // const { app, mountApp } = await resolveDeferredAndSetupApp(setupAppDeferred);
-    // await app.i18n.setLocaleFromBrowser();
-    // if (app.router.currentRoute.path !== '/login') {
-    //   await app.router.push({ name: 'login' });
-    // }
-    // mountApp();
+    const {
+      app,
+      mountApp,
+    } = await resolveDeferredAndSetupApp(setupAppDeferred);
+    await app.i18n.setLocaleFromBrowser();
+    if (app.router.currentRoute.value.path !== '/login') {
+      await app.router.push({ name: 'login' });
+    }
+    mountApp();
+    removeLoader();
   }
-
-  // removeLoader();
 }

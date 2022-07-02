@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Login from '@/views/Login.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useAuth } from '@/services/api';
 // import { useLastView } from '@/services/use-last-view';
@@ -34,7 +35,13 @@ import { createRouter, createWebHistory } from 'vue-router';
 export default function setupRouter() {
   const router = createRouter({
     history: createWebHistory(),
-    routes: [],
+    routes: [
+      {
+      path: '/login',
+      name: 'login',
+      component: Login,
+    },
+    ],
   });
 
   // setupAuthenticationHooks();
