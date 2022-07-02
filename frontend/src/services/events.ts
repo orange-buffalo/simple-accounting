@@ -1,31 +1,39 @@
-type Listener = (data: unknown) => void;
+export type Listener<T> = (data: T) => void;
 
-class Event {
-  listeners: Array<Listener>;
+export interface Event<T> {
+  emit(data: T): void;
+
+  subscribe(listener: Listener<T>): void;
+
+  unsubscribe(listener: Listener<T>): void;
+}
+
+class EventImpl<T> implements Event<T> {
+  listeners: Array<Listener<T>>;
 
   constructor() {
     this.listeners = [];
   }
 
-  emit(data: unknown = null) {
+  emit(data: T) {
     this.listeners.forEach((listener) => listener(data));
   }
 
-  subscribe(listener: Listener) {
+  subscribe(listener: Listener<T>) {
     this.listeners.push(listener);
   }
 
-  unsubscribe(listener: Listener) {
+  unsubscribe(listener: Listener<T>) {
     this.listeners = this.listeners.filter((registeredListener) => registeredListener !== listener);
   }
 }
 
-export const LOGIN_REQUIRED_EVENT = new Event();
-export const SUCCESSFUL_LOGIN_EVENT = new Event();
+export const LOGIN_REQUIRED_EVENT: Event<void> = new EventImpl();
+export const SUCCESSFUL_LOGIN_EVENT: Event<void> = new EventImpl();
 
-export const LOADING_STARTED_EVENT = new Event();
-export const LOADING_FINISHED_EVENT = new Event();
+export const LOADING_STARTED_EVENT: Event<void> = new EventImpl();
+export const LOADING_FINISHED_EVENT: Event<void> = new EventImpl();
 
-export const API_FATAL_ERROR_EVENT = new Event();
+export const API_FATAL_ERROR_EVENT: Event<void> = new EventImpl();
 
-export const WORKSPACE_CHANGED_EVENT = new Event();
+export const WORKSPACE_CHANGED_EVENT: Event<void> = new EventImpl();

@@ -129,7 +129,27 @@ function isCurrentUserTransient() {
   return apiToken.isTransient;
 }
 
-export function useAuth() {
+export interface Auth {
+  logout: () => Promise<void>;
+
+  getToken(): (string | null);
+
+  isCurrentUserTransient: () => boolean;
+
+  tryAutoLogin: () => Promise<boolean>;
+
+  isLoggedIn(): boolean;
+
+  isAdmin(): boolean;
+
+  login: (request: LoginRequest) => Promise<void>;
+
+  isCurrentUserRegular(): boolean;
+
+  loginBySharedToken: (sharedToken: string) => Promise<boolean>;
+}
+
+export function useAuth() : Auth {
   return {
     getToken(): string | null {
       return apiToken.jwtToken;
