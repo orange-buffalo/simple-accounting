@@ -32,7 +32,7 @@ export class PushNotificationsApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getPushNotificationMessagesRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<CurrentUserPushNotificationMessage>>> {
+    async getPushNotificationMessagesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<Array<CurrentUserPushNotificationMessage>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -42,15 +42,15 @@ export class PushNotificationsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CurrentUserPushNotificationMessageFromJSON));
     }
 
     /**
      */
-    async getPushNotificationMessages(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<CurrentUserPushNotificationMessage>> {
-        const response = await this.getPushNotificationMessagesRaw(initOverrides);
+    async getPushNotificationMessages(initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<Array<CurrentUserPushNotificationMessage>> {
+        const response = await this.getPushNotificationMessagesRaw(initOverrides, metadata);
         return await response.value();
     }
 

@@ -51,6 +51,19 @@ export interface GeneralTaxDto {
     rateInBps: number;
 }
 
+/**
+ * Check if a given object implements the GeneralTaxDto interface.
+ */
+export function instanceOfGeneralTaxDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "rateInBps" in value;
+
+    return isInstance;
+}
+
 export function GeneralTaxDtoFromJSON(json: any): GeneralTaxDto {
     return GeneralTaxDtoFromJSONTyped(json, false);
 }

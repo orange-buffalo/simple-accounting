@@ -148,6 +148,27 @@ export const IncomeDtoStatusEnum = {
 export type IncomeDtoStatusEnum = typeof IncomeDtoStatusEnum[keyof typeof IncomeDtoStatusEnum];
 
 
+/**
+ * Check if a given object implements the IncomeDto interface.
+ */
+export function instanceOfIncomeDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "timeRecorded" in value;
+    isInstance = isInstance && "dateReceived" in value;
+    isInstance = isInstance && "currency" in value;
+    isInstance = isInstance && "originalAmount" in value;
+    isInstance = isInstance && "attachments" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "convertedAmounts" in value;
+    isInstance = isInstance && "incomeTaxableAmounts" in value;
+    isInstance = isInstance && "useDifferentExchangeRateForIncomeTaxPurposes" in value;
+
+    return isInstance;
+}
+
 export function IncomeDtoFromJSON(json: any): IncomeDto {
     return IncomeDtoFromJSONTyped(json, false);
 }

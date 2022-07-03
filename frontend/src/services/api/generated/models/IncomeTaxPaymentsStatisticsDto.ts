@@ -27,6 +27,16 @@ export interface IncomeTaxPaymentsStatisticsDto {
     totalTaxPayments: number;
 }
 
+/**
+ * Check if a given object implements the IncomeTaxPaymentsStatisticsDto interface.
+ */
+export function instanceOfIncomeTaxPaymentsStatisticsDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "totalTaxPayments" in value;
+
+    return isInstance;
+}
+
 export function IncomeTaxPaymentsStatisticsDtoFromJSON(json: any): IncomeTaxPaymentsStatisticsDto {
     return IncomeTaxPaymentsStatisticsDtoFromJSONTyped(json, false);
 }

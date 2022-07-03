@@ -75,6 +75,23 @@ export interface IncomeTaxPaymentDto {
     notes?: string;
 }
 
+/**
+ * Check if a given object implements the IncomeTaxPaymentDto interface.
+ */
+export function instanceOfIncomeTaxPaymentDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "timeRecorded" in value;
+    isInstance = isInstance && "datePaid" in value;
+    isInstance = isInstance && "reportingDate" in value;
+    isInstance = isInstance && "amount" in value;
+    isInstance = isInstance && "attachments" in value;
+
+    return isInstance;
+}
+
 export function IncomeTaxPaymentDtoFromJSON(json: any): IncomeTaxPaymentDto {
     return IncomeTaxPaymentDtoFromJSONTyped(json, false);
 }

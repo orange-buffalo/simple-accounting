@@ -27,6 +27,16 @@ export interface SaveSharedWorkspaceRequestDto {
     token: string;
 }
 
+/**
+ * Check if a given object implements the SaveSharedWorkspaceRequestDto interface.
+ */
+export function instanceOfSaveSharedWorkspaceRequestDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "token" in value;
+
+    return isInstance;
+}
+
 export function SaveSharedWorkspaceRequestDtoFromJSON(json: any): SaveSharedWorkspaceRequestDto {
     return SaveSharedWorkspaceRequestDtoFromJSONTyped(json, false);
 }

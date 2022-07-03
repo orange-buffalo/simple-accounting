@@ -52,6 +52,19 @@ export interface ApiPageCategoryDto {
     data: Array<CategoryDto>;
 }
 
+/**
+ * Check if a given object implements the ApiPageCategoryDto interface.
+ */
+export function instanceOfApiPageCategoryDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "pageNumber" in value;
+    isInstance = isInstance && "pageSize" in value;
+    isInstance = isInstance && "totalElements" in value;
+    isInstance = isInstance && "data" in value;
+
+    return isInstance;
+}
+
 export function ApiPageCategoryDtoFromJSON(json: any): ApiPageCategoryDto {
     return ApiPageCategoryDtoFromJSONTyped(json, false);
 }

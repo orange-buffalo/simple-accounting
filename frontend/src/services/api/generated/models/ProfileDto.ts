@@ -46,6 +46,17 @@ export interface ProfileDto {
     i18n: I18nSettingsDto;
 }
 
+/**
+ * Check if a given object implements the ProfileDto interface.
+ */
+export function instanceOfProfileDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "userName" in value;
+    isInstance = isInstance && "i18n" in value;
+
+    return isInstance;
+}
+
 export function ProfileDtoFromJSON(json: any): ProfileDto {
     return ProfileDtoFromJSONTyped(json, false);
 }

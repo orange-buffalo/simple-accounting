@@ -45,6 +45,19 @@ export interface FinalizedTaxSummaryItemDto {
     includedItemsAmount: number;
 }
 
+/**
+ * Check if a given object implements the FinalizedTaxSummaryItemDto interface.
+ */
+export function instanceOfFinalizedTaxSummaryItemDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "tax" in value;
+    isInstance = isInstance && "taxAmount" in value;
+    isInstance = isInstance && "includedItemsNumber" in value;
+    isInstance = isInstance && "includedItemsAmount" in value;
+
+    return isInstance;
+}
+
 export function FinalizedTaxSummaryItemDtoFromJSON(json: any): FinalizedTaxSummaryItemDto {
     return FinalizedTaxSummaryItemDtoFromJSONTyped(json, false);
 }

@@ -148,6 +148,28 @@ export const ExpenseDtoStatusEnum = {
 export type ExpenseDtoStatusEnum = typeof ExpenseDtoStatusEnum[keyof typeof ExpenseDtoStatusEnum];
 
 
+/**
+ * Check if a given object implements the ExpenseDto interface.
+ */
+export function instanceOfExpenseDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "timeRecorded" in value;
+    isInstance = isInstance && "datePaid" in value;
+    isInstance = isInstance && "currency" in value;
+    isInstance = isInstance && "originalAmount" in value;
+    isInstance = isInstance && "attachments" in value;
+    isInstance = isInstance && "percentOnBusiness" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "convertedAmounts" in value;
+    isInstance = isInstance && "incomeTaxableAmounts" in value;
+    isInstance = isInstance && "useDifferentExchangeRateForIncomeTaxPurposes" in value;
+
+    return isInstance;
+}
+
 export function ExpenseDtoFromJSON(json: any): ExpenseDto {
     return ExpenseDtoFromJSONTyped(json, false);
 }

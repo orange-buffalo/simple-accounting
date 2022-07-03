@@ -113,16 +113,16 @@ export class BaseAPI {
         return this.withMiddleware<T>(...middlewares);
     }
 
-    protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverideFunction): Promise<Response> {
+    protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction, metadata?: any): Promise<Response> {
         const { url, init } = await this.createFetchParams(context, initOverrides);
-        const response = await this.fetchApi(url, init);
+        const response = await this.fetchApi(url, init, metadata);
         if (response.status >= 200 && response.status < 300) {
             return response;
         }
         throw new ResponseError(response, 'Response returned an error code');
     }
 
-    private async createFetchParams(context: RequestOpts, initOverrides?: RequestInit | InitOverideFunction) {
+    private async createFetchParams(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction) {
         let url = this.configuration.basePath + context.path;
         if (context.query !== undefined && Object.keys(context.query).length !== 0) {
             // only add the querystring to the URL if there are query parameters.
@@ -167,17 +167,18 @@ export class BaseAPI {
         return { url, init };
     }
 
-    private fetchApi = async (url: string, init: RequestInit) => {
+    private fetchApi = async (url: string, init: RequestInit, metadata?: any) => {
         let fetchParams = { url, init };
         for (const middleware of this.middleware) {
             if (middleware.pre) {
                 fetchParams = await middleware.pre({
                     fetch: this.fetchApi,
                     ...fetchParams,
+                    metadata,
                 }) || fetchParams;
             }
         }
-        let response = null;
+        let response = undefined;
         try {
             response = await (this.configuration.fetchApi || fetch)(fetchParams.url, fetchParams.init);
         } catch (e) {
@@ -189,11 +190,12 @@ export class BaseAPI {
                         init: fetchParams.init,
                         error: e,
                         response: response ? response.clone() : undefined,
+                        metadata,
                     }) || response;
                 }
             }
-            if (!response) {
-                throw new FetchError(e, 'Interceptors did not provide an alternative response');
+            if (response !== undefined) {
+                throw new FetchError(e, 'The request failed and the interceptors did not return an alternative response');
             }
         }
         for (const middleware of this.middleware) {
@@ -203,6 +205,7 @@ export class BaseAPI {
                     url: fetchParams.url,
                     init: fetchParams.init,
                     response: response.clone(),
+                    metadata
                 }) || response;
             }
         }
@@ -267,7 +270,7 @@ export type HTTPBody = Json | FormData | URLSearchParams;
 export type HTTPRequestInit = { headers?: HTTPHeaders; method: HTTPMethod; credentials?: RequestCredentials; body?: HTTPBody }
 export type ModelPropertyNaming = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
 
-export type InitOverideFunction = (requestContext: { init: HTTPRequestInit, context: RequestOpts }) => Promise<RequestInit>
+export type InitOverrideFunction = (requestContext: { init: HTTPRequestInit, context: RequestOpts }) => Promise<RequestInit>
 
 export interface FetchParams {
     url: string;
@@ -294,7 +297,7 @@ export function querystring(params: HTTPQuery, prefix: string = ''): string {
         .join('&');
 }
 
-function querystringSingleKey(key: string, value: string | number | null | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery, keyPrefix: string = ''): string {
+function querystringSingleKey(key: string, value: string | number | null | undefined | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery, keyPrefix: string = ''): string {
     const fullKey = keyPrefix + (keyPrefix.length ? `[${key}]` : key);
     if (value instanceof Array) {
         const multiValue = value.map(singleValue => encodeURIComponent(String(singleValue)))
@@ -338,6 +341,7 @@ export interface RequestContext {
     fetch: FetchAPI;
     url: string;
     init: RequestInit;
+    metadata?: any;
 }
 
 export interface ResponseContext {
@@ -345,6 +349,7 @@ export interface ResponseContext {
     url: string;
     init: RequestInit;
     response: Response;
+    metadata?: any;
 }
 
 export interface ErrorContext {
@@ -353,6 +358,7 @@ export interface ErrorContext {
     init: RequestInit;
     error: unknown;
     response?: Response;
+    metadata?: any;
 }
 
 export interface Middleware {

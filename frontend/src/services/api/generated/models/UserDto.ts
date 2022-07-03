@@ -45,6 +45,18 @@ export interface UserDto {
     admin: boolean;
 }
 
+/**
+ * Check if a given object implements the UserDto interface.
+ */
+export function instanceOfUserDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "userName" in value;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "admin" in value;
+
+    return isInstance;
+}
+
 export function UserDtoFromJSON(json: any): UserDto {
     return UserDtoFromJSONTyped(json, false);
 }

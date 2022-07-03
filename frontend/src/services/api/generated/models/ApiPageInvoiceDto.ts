@@ -52,6 +52,19 @@ export interface ApiPageInvoiceDto {
     data: Array<InvoiceDto>;
 }
 
+/**
+ * Check if a given object implements the ApiPageInvoiceDto interface.
+ */
+export function instanceOfApiPageInvoiceDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "pageNumber" in value;
+    isInstance = isInstance && "pageSize" in value;
+    isInstance = isInstance && "totalElements" in value;
+    isInstance = isInstance && "data" in value;
+
+    return isInstance;
+}
+
 export function ApiPageInvoiceDtoFromJSON(json: any): ApiPageInvoiceDto {
     return ApiPageInvoiceDtoFromJSONTyped(json, false);
 }

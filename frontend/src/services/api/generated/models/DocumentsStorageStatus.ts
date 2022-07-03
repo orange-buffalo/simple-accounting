@@ -27,6 +27,16 @@ export interface DocumentsStorageStatus {
     active: boolean;
 }
 
+/**
+ * Check if a given object implements the DocumentsStorageStatus interface.
+ */
+export function instanceOfDocumentsStorageStatus(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "active" in value;
+
+    return isInstance;
+}
+
 export function DocumentsStorageStatusFromJSON(json: any): DocumentsStorageStatus {
     return DocumentsStorageStatusFromJSONTyped(json, false);
 }

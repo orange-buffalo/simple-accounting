@@ -47,7 +47,7 @@ export class CategoriesApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async createCategoryRaw(requestParameters: CreateCategoryRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<CategoryDto>> {
+    async createCategoryRaw(requestParameters: CreateCategoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<CategoryDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createCategory.');
         }
@@ -68,21 +68,21 @@ export class CategoriesApiControllerApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
             body: CreateCategoryDtoToJSON(requestParameters.createCategoryDto),
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CategoryDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createCategory(requestParameters: CreateCategoryRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<CategoryDto> {
-        const response = await this.createCategoryRaw(requestParameters, initOverrides);
+    async createCategory(requestParameters: CreateCategoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<CategoryDto> {
+        const response = await this.createCategoryRaw(requestParameters, initOverrides, metadata);
         return await response.value();
     }
 
     /**
      */
-    async getCategoriesRaw(requestParameters: GetCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<ApiPageCategoryDto>> {
+    async getCategoriesRaw(requestParameters: GetCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<ApiPageCategoryDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getCategories.');
         }
@@ -96,15 +96,15 @@ export class CategoriesApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageCategoryDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getCategories(requestParameters: GetCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<ApiPageCategoryDto> {
-        const response = await this.getCategoriesRaw(requestParameters, initOverrides);
+    async getCategories(requestParameters: GetCategoriesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<ApiPageCategoryDto> {
+        const response = await this.getCategoriesRaw(requestParameters, initOverrides, metadata);
         return await response.value();
     }
 

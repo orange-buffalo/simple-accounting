@@ -33,6 +33,17 @@ export interface PendingTaxSummaryItemDto {
     includedItemsNumber: number;
 }
 
+/**
+ * Check if a given object implements the PendingTaxSummaryItemDto interface.
+ */
+export function instanceOfPendingTaxSummaryItemDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "tax" in value;
+    isInstance = isInstance && "includedItemsNumber" in value;
+
+    return isInstance;
+}
+
 export function PendingTaxSummaryItemDtoFromJSON(json: any): PendingTaxSummaryItemDto {
     return PendingTaxSummaryItemDtoFromJSONTyped(json, false);
 }

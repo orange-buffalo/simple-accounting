@@ -125,6 +125,26 @@ export const InvoiceDtoStatusEnum = {
 export type InvoiceDtoStatusEnum = typeof InvoiceDtoStatusEnum[keyof typeof InvoiceDtoStatusEnum];
 
 
+/**
+ * Check if a given object implements the InvoiceDto interface.
+ */
+export function instanceOfInvoiceDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "customer" in value;
+    isInstance = isInstance && "timeRecorded" in value;
+    isInstance = isInstance && "dateIssued" in value;
+    isInstance = isInstance && "dueDate" in value;
+    isInstance = isInstance && "currency" in value;
+    isInstance = isInstance && "amount" in value;
+    isInstance = isInstance && "attachments" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "status" in value;
+
+    return isInstance;
+}
+
 export function InvoiceDtoFromJSON(json: any): InvoiceDto {
     return InvoiceDtoFromJSONTyped(json, false);
 }

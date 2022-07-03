@@ -40,6 +40,16 @@ export interface UpdateProfileRequestDto {
     i18n: I18nSettingsDto;
 }
 
+/**
+ * Check if a given object implements the UpdateProfileRequestDto interface.
+ */
+export function instanceOfUpdateProfileRequestDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "i18n" in value;
+
+    return isInstance;
+}
+
 export function UpdateProfileRequestDtoFromJSON(json: any): UpdateProfileRequestDto {
     return UpdateProfileRequestDtoFromJSONTyped(json, false);
 }

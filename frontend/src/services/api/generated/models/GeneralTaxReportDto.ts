@@ -58,6 +58,19 @@ export interface GeneralTaxReportDto {
     pendingPaidTaxes: Array<PendingTaxSummaryItemDto>;
 }
 
+/**
+ * Check if a given object implements the GeneralTaxReportDto interface.
+ */
+export function instanceOfGeneralTaxReportDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "finalizedCollectedTaxes" in value;
+    isInstance = isInstance && "finalizedPaidTaxes" in value;
+    isInstance = isInstance && "pendingCollectedTaxes" in value;
+    isInstance = isInstance && "pendingPaidTaxes" in value;
+
+    return isInstance;
+}
+
 export function GeneralTaxReportDtoFromJSON(json: any): GeneralTaxReportDto {
     return GeneralTaxReportDtoFromJSONTyped(json, false);
 }

@@ -27,6 +27,16 @@ export interface EditCustomerDto {
     name: string;
 }
 
+/**
+ * Check if a given object implements the EditCustomerDto interface.
+ */
+export function instanceOfEditCustomerDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "name" in value;
+
+    return isInstance;
+}
+
 export function EditCustomerDtoFromJSON(json: any): EditCustomerDto {
     return EditCustomerDtoFromJSONTyped(json, false);
 }

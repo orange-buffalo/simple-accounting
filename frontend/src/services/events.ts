@@ -1,3 +1,5 @@
+import type { ResponseError, FetchError } from '@/services/api';
+
 export type Listener<T> = (data: T) => void;
 
 export interface Event<T> {
@@ -34,6 +36,6 @@ export const SUCCESSFUL_LOGIN_EVENT: Event<void> = new EventImpl();
 export const LOADING_STARTED_EVENT: Event<void> = new EventImpl();
 export const LOADING_FINISHED_EVENT: Event<void> = new EventImpl();
 
-export const API_FATAL_ERROR_EVENT: Event<void> = new EventImpl();
+export const API_FATAL_ERROR_EVENT: Event<ResponseError | FetchError> = new EventImpl();
 
 export const WORKSPACE_CHANGED_EVENT: Event<void> = new EventImpl();

@@ -39,6 +39,17 @@ export interface EditGeneralTaxDto {
     rateInBps: number;
 }
 
+/**
+ * Check if a given object implements the EditGeneralTaxDto interface.
+ */
+export function instanceOfEditGeneralTaxDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "rateInBps" in value;
+
+    return isInstance;
+}
+
 export function EditGeneralTaxDtoFromJSON(json: any): EditGeneralTaxDto {
     return EditGeneralTaxDtoFromJSONTyped(json, false);
 }

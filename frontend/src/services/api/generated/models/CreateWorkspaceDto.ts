@@ -33,6 +33,17 @@ export interface CreateWorkspaceDto {
     defaultCurrency: string;
 }
 
+/**
+ * Check if a given object implements the CreateWorkspaceDto interface.
+ */
+export function instanceOfCreateWorkspaceDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "defaultCurrency" in value;
+
+    return isInstance;
+}
+
 export function CreateWorkspaceDtoFromJSON(json: any): CreateWorkspaceDto {
     return CreateWorkspaceDtoFromJSONTyped(json, false);
 }

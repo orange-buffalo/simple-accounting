@@ -57,6 +57,18 @@ export interface EditIncomeTaxPaymentDto {
     title: string;
 }
 
+/**
+ * Check if a given object implements the EditIncomeTaxPaymentDto interface.
+ */
+export function instanceOfEditIncomeTaxPaymentDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "datePaid" in value;
+    isInstance = isInstance && "amount" in value;
+    isInstance = isInstance && "title" in value;
+
+    return isInstance;
+}
+
 export function EditIncomeTaxPaymentDtoFromJSON(json: any): EditIncomeTaxPaymentDto {
     return EditIncomeTaxPaymentDtoFromJSONTyped(json, false);
 }

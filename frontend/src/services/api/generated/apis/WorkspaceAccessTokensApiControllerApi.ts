@@ -47,7 +47,7 @@ export class WorkspaceAccessTokensApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async createAccessTokenRaw(requestParameters: CreateAccessTokenRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<WorkspaceAccessTokenDto>> {
+    async createAccessTokenRaw(requestParameters: CreateAccessTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<WorkspaceAccessTokenDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createAccessToken.');
         }
@@ -68,21 +68,21 @@ export class WorkspaceAccessTokensApiControllerApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
             body: CreateWorkspaceAccessTokenDtoToJSON(requestParameters.createWorkspaceAccessTokenDto),
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceAccessTokenDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createAccessToken(requestParameters: CreateAccessTokenRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<WorkspaceAccessTokenDto> {
-        const response = await this.createAccessTokenRaw(requestParameters, initOverrides);
+    async createAccessToken(requestParameters: CreateAccessTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<WorkspaceAccessTokenDto> {
+        const response = await this.createAccessTokenRaw(requestParameters, initOverrides, metadata);
         return await response.value();
     }
 
     /**
      */
-    async getAccessTokensRaw(requestParameters: GetAccessTokensRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<ApiPageWorkspaceAccessTokenDto>> {
+    async getAccessTokensRaw(requestParameters: GetAccessTokensRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<ApiPageWorkspaceAccessTokenDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getAccessTokens.');
         }
@@ -96,15 +96,15 @@ export class WorkspaceAccessTokensApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageWorkspaceAccessTokenDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getAccessTokens(requestParameters: GetAccessTokensRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<ApiPageWorkspaceAccessTokenDto> {
-        const response = await this.getAccessTokensRaw(requestParameters, initOverrides);
+    async getAccessTokens(requestParameters: GetAccessTokensRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<ApiPageWorkspaceAccessTokenDto> {
+        const response = await this.getAccessTokensRaw(requestParameters, initOverrides, metadata);
         return await response.value();
     }
 

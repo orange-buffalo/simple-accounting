@@ -93,6 +93,21 @@ export interface EditInvoiceDto {
     generalTax?: number;
 }
 
+/**
+ * Check if a given object implements the EditInvoiceDto interface.
+ */
+export function instanceOfEditInvoiceDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "customer" in value;
+    isInstance = isInstance && "dateIssued" in value;
+    isInstance = isInstance && "dueDate" in value;
+    isInstance = isInstance && "currency" in value;
+    isInstance = isInstance && "amount" in value;
+
+    return isInstance;
+}
+
 export function EditInvoiceDtoFromJSON(json: any): EditInvoiceDto {
     return EditInvoiceDtoFromJSONTyped(json, false);
 }

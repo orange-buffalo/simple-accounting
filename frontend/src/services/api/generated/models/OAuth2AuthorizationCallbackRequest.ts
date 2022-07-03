@@ -39,6 +39,16 @@ export interface OAuth2AuthorizationCallbackRequest {
     state: string;
 }
 
+/**
+ * Check if a given object implements the OAuth2AuthorizationCallbackRequest interface.
+ */
+export function instanceOfOAuth2AuthorizationCallbackRequest(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "state" in value;
+
+    return isInstance;
+}
+
 export function OAuth2AuthorizationCallbackRequestFromJSON(json: any): OAuth2AuthorizationCallbackRequest {
     return OAuth2AuthorizationCallbackRequestFromJSONTyped(json, false);
 }

@@ -39,6 +39,18 @@ export interface CustomerDto {
     version: number;
 }
 
+/**
+ * Check if a given object implements the CustomerDto interface.
+ */
+export function instanceOfCustomerDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "version" in value;
+
+    return isInstance;
+}
+
 export function CustomerDtoFromJSON(json: any): CustomerDto {
     return CustomerDtoFromJSONTyped(json, false);
 }

@@ -63,6 +63,21 @@ export interface WorkspaceDto {
     editable: boolean;
 }
 
+/**
+ * Check if a given object implements the WorkspaceDto interface.
+ */
+export function instanceOfWorkspaceDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "taxEnabled" in value;
+    isInstance = isInstance && "multiCurrencyEnabled" in value;
+    isInstance = isInstance && "defaultCurrency" in value;
+    isInstance = isInstance && "editable" in value;
+
+    return isInstance;
+}
+
 export function WorkspaceDtoFromJSON(json: any): WorkspaceDto {
     return WorkspaceDtoFromJSONTyped(json, false);
 }
