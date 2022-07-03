@@ -52,6 +52,19 @@ export interface ApiPageUserDto {
     data: Array<UserDto>;
 }
 
+/**
+ * Check if a given object implements the ApiPageUserDto interface.
+ */
+export function instanceOfApiPageUserDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "pageNumber" in value;
+    isInstance = isInstance && "pageSize" in value;
+    isInstance = isInstance && "totalElements" in value;
+    isInstance = isInstance && "data" in value;
+
+    return isInstance;
+}
+
 export function ApiPageUserDtoFromJSON(json: any): ApiPageUserDto {
     return ApiPageUserDtoFromJSONTyped(json, false);
 }

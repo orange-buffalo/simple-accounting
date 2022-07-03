@@ -52,6 +52,19 @@ export interface ApiPageWorkspaceAccessTokenDto {
     data: Array<WorkspaceAccessTokenDto>;
 }
 
+/**
+ * Check if a given object implements the ApiPageWorkspaceAccessTokenDto interface.
+ */
+export function instanceOfApiPageWorkspaceAccessTokenDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "pageNumber" in value;
+    isInstance = isInstance && "pageSize" in value;
+    isInstance = isInstance && "totalElements" in value;
+    isInstance = isInstance && "data" in value;
+
+    return isInstance;
+}
+
 export function ApiPageWorkspaceAccessTokenDtoFromJSON(json: any): ApiPageWorkspaceAccessTokenDto {
     return ApiPageWorkspaceAccessTokenDtoFromJSONTyped(json, false);
 }

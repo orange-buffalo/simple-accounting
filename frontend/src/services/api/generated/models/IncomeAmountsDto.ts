@@ -33,6 +33,15 @@ export interface IncomeAmountsDto {
     adjustedAmountInDefaultCurrency?: number;
 }
 
+/**
+ * Check if a given object implements the IncomeAmountsDto interface.
+ */
+export function instanceOfIncomeAmountsDto(value: object): boolean {
+    let isInstance = true;
+
+    return isInstance;
+}
+
 export function IncomeAmountsDtoFromJSON(json: any): IncomeAmountsDto {
     return IncomeAmountsDtoFromJSONTyped(json, false);
 }

@@ -45,6 +45,16 @@ export interface GoogleDriveStorageIntegrationStatus {
     authorizationRequired: boolean;
 }
 
+/**
+ * Check if a given object implements the GoogleDriveStorageIntegrationStatus interface.
+ */
+export function instanceOfGoogleDriveStorageIntegrationStatus(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "authorizationRequired" in value;
+
+    return isInstance;
+}
+
 export function GoogleDriveStorageIntegrationStatusFromJSON(json: any): GoogleDriveStorageIntegrationStatus {
     return GoogleDriveStorageIntegrationStatusFromJSONTyped(json, false);
 }

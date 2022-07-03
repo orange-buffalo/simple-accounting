@@ -57,6 +57,19 @@ export interface CategoryDto {
     expense: boolean;
 }
 
+/**
+ * Check if a given object implements the CategoryDto interface.
+ */
+export function instanceOfCategoryDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "income" in value;
+    isInstance = isInstance && "expense" in value;
+
+    return isInstance;
+}
+
 export function CategoryDtoFromJSON(json: any): CategoryDto {
     return CategoryDtoFromJSONTyped(json, false);
 }

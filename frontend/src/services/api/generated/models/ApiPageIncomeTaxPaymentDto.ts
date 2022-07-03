@@ -52,6 +52,19 @@ export interface ApiPageIncomeTaxPaymentDto {
     data: Array<IncomeTaxPaymentDto>;
 }
 
+/**
+ * Check if a given object implements the ApiPageIncomeTaxPaymentDto interface.
+ */
+export function instanceOfApiPageIncomeTaxPaymentDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "pageNumber" in value;
+    isInstance = isInstance && "pageSize" in value;
+    isInstance = isInstance && "totalElements" in value;
+    isInstance = isInstance && "data" in value;
+
+    return isInstance;
+}
+
 export function ApiPageIncomeTaxPaymentDtoFromJSON(json: any): ApiPageIncomeTaxPaymentDto {
     return ApiPageIncomeTaxPaymentDtoFromJSONTyped(json, false);
 }

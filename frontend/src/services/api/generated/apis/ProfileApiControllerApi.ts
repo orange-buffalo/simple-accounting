@@ -42,7 +42,7 @@ export class ProfileApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getDocumentsStorageStatusRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<DocumentsStorageStatus>> {
+    async getDocumentsStorageStatusRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<DocumentsStorageStatus>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -52,21 +52,21 @@ export class ProfileApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => DocumentsStorageStatusFromJSON(jsonValue));
     }
 
     /**
      */
-    async getDocumentsStorageStatus(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<DocumentsStorageStatus> {
-        const response = await this.getDocumentsStorageStatusRaw(initOverrides);
+    async getDocumentsStorageStatus(initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<DocumentsStorageStatus> {
+        const response = await this.getDocumentsStorageStatusRaw(initOverrides, metadata);
         return await response.value();
     }
 
     /**
      */
-    async getProfileRaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<ProfileDto>> {
+    async getProfileRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<ProfileDto>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -76,21 +76,21 @@ export class ProfileApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ProfileDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getProfile(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<ProfileDto> {
-        const response = await this.getProfileRaw(initOverrides);
+    async getProfile(initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<ProfileDto> {
+        const response = await this.getProfileRaw(initOverrides, metadata);
         return await response.value();
     }
 
     /**
      */
-    async updateProfileRaw(requestParameters: UpdateProfileRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<ProfileDto>> {
+    async updateProfileRaw(requestParameters: UpdateProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<ProfileDto>> {
         if (requestParameters.updateProfileRequestDto === null || requestParameters.updateProfileRequestDto === undefined) {
             throw new runtime.RequiredError('updateProfileRequestDto','Required parameter requestParameters.updateProfileRequestDto was null or undefined when calling updateProfile.');
         }
@@ -107,15 +107,15 @@ export class ProfileApiControllerApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
             body: UpdateProfileRequestDtoToJSON(requestParameters.updateProfileRequestDto),
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ProfileDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async updateProfile(requestParameters: UpdateProfileRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<ProfileDto> {
-        const response = await this.updateProfileRaw(requestParameters, initOverrides);
+    async updateProfile(requestParameters: UpdateProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<ProfileDto> {
+        const response = await this.updateProfileRaw(requestParameters, initOverrides, metadata);
         return await response.value();
     }
 

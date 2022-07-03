@@ -93,6 +93,20 @@ export interface EditExpenseDto {
     generalTax?: number;
 }
 
+/**
+ * Check if a given object implements the EditExpenseDto interface.
+ */
+export function instanceOfEditExpenseDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "datePaid" in value;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "currency" in value;
+    isInstance = isInstance && "originalAmount" in value;
+    isInstance = isInstance && "useDifferentExchangeRateForIncomeTaxPurposes" in value;
+
+    return isInstance;
+}
+
 export function EditExpenseDtoFromJSON(json: any): EditExpenseDto {
     return EditExpenseDtoFromJSONTyped(json, false);
 }

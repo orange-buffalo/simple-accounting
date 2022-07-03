@@ -33,6 +33,16 @@ export interface CurrentUserPushNotificationMessage {
     data?: object;
 }
 
+/**
+ * Check if a given object implements the CurrentUserPushNotificationMessage interface.
+ */
+export function instanceOfCurrentUserPushNotificationMessage(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "eventName" in value;
+
+    return isInstance;
+}
+
 export function CurrentUserPushNotificationMessageFromJSON(json: any): CurrentUserPushNotificationMessage {
     return CurrentUserPushNotificationMessageFromJSONTyped(json, false);
 }

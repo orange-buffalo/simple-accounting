@@ -33,6 +33,15 @@ export interface ExpenseAmountsDto {
     adjustedAmountInDefaultCurrency?: number;
 }
 
+/**
+ * Check if a given object implements the ExpenseAmountsDto interface.
+ */
+export function instanceOfExpenseAmountsDto(value: object): boolean {
+    let isInstance = true;
+
+    return isInstance;
+}
+
 export function ExpenseAmountsDtoFromJSON(json: any): ExpenseAmountsDto {
     return ExpenseAmountsDtoFromJSONTyped(json, false);
 }

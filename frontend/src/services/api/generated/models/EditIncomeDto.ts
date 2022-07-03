@@ -93,6 +93,20 @@ export interface EditIncomeDto {
     linkedInvoice?: number;
 }
 
+/**
+ * Check if a given object implements the EditIncomeDto interface.
+ */
+export function instanceOfEditIncomeDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "dateReceived" in value;
+    isInstance = isInstance && "title" in value;
+    isInstance = isInstance && "currency" in value;
+    isInstance = isInstance && "originalAmount" in value;
+    isInstance = isInstance && "useDifferentExchangeRateForIncomeTaxPurposes" in value;
+
+    return isInstance;
+}
+
 export function EditIncomeDtoFromJSON(json: any): EditIncomeDto {
     return EditIncomeDtoFromJSONTyped(json, false);
 }

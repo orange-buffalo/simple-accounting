@@ -46,7 +46,10 @@ export function applyAuthorization(init: RequestInit): RequestInit {
 }
 
 const authorizationTokenInterceptor: Middleware = {
-  async pre({ url, init }): Promise<FetchParams | void> {
+  async pre({
+    url,
+    init,
+  }): Promise<FetchParams | void> {
     return {
       url,
       init: applyAuthorization(init),
@@ -54,11 +57,17 @@ const authorizationTokenInterceptor: Middleware = {
   },
 };
 
+interface InterceptorMetadata {
+  skipGlobalErrorHandler?: boolean;
+}
+
 const errorHandlingInterceptor: Middleware = {
-  async post({ response }): Promise<Response | void> {
+  async post({
+    response,
+    metadata,
+  }): Promise<Response | void> {
     if (response.status >= 400
-    // TODO
-    // && !error.config.skipGlobalErrorHandler
+      && (!metadata || !(metadata as InterceptorMetadata).skipGlobalErrorHandler)
     ) {
       API_FATAL_ERROR_EVENT.emit(new ResponseError(response));
     }
@@ -67,10 +76,10 @@ const errorHandlingInterceptor: Middleware = {
   async onError({
     error,
     response,
+    metadata,
   }): Promise<Response | void> {
     if (!response
-    // TODO
-    // && !error.config.skipGlobalErrorHandler
+      && (!metadata || !(metadata as InterceptorMetadata).skipGlobalErrorHandler)
     ) {
       API_FATAL_ERROR_EVENT.emit(new FetchError(error));
     }

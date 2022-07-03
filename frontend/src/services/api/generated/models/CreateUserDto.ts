@@ -39,6 +39,18 @@ export interface CreateUserDto {
     password: string;
 }
 
+/**
+ * Check if a given object implements the CreateUserDto interface.
+ */
+export function instanceOfCreateUserDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "userName" in value;
+    isInstance = isInstance && "admin" in value;
+    isInstance = isInstance && "password" in value;
+
+    return isInstance;
+}
+
 export function CreateUserDtoFromJSON(json: any): CreateUserDto {
     return CreateUserDtoFromJSONTyped(json, false);
 }

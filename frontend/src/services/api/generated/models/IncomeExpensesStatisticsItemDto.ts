@@ -51,6 +51,19 @@ export interface IncomeExpensesStatisticsItemDto {
     currencyExchangeDifference: number;
 }
 
+/**
+ * Check if a given object implements the IncomeExpensesStatisticsItemDto interface.
+ */
+export function instanceOfIncomeExpensesStatisticsItemDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "totalAmount" in value;
+    isInstance = isInstance && "finalizedCount" in value;
+    isInstance = isInstance && "pendingCount" in value;
+    isInstance = isInstance && "currencyExchangeDifference" in value;
+
+    return isInstance;
+}
+
 export function IncomeExpensesStatisticsItemDtoFromJSON(json: any): IncomeExpensesStatisticsItemDto {
     return IncomeExpensesStatisticsItemDtoFromJSONTyped(json, false);
 }

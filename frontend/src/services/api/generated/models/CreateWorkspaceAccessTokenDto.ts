@@ -27,6 +27,16 @@ export interface CreateWorkspaceAccessTokenDto {
     validTill: Date;
 }
 
+/**
+ * Check if a given object implements the CreateWorkspaceAccessTokenDto interface.
+ */
+export function instanceOfCreateWorkspaceAccessTokenDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "validTill" in value;
+
+    return isInstance;
+}
+
 export function CreateWorkspaceAccessTokenDtoFromJSON(json: any): CreateWorkspaceAccessTokenDto {
     return CreateWorkspaceAccessTokenDtoFromJSONTyped(json, false);
 }

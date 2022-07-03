@@ -27,6 +27,16 @@ export interface ErrorResponse {
     errorId: string;
 }
 
+/**
+ * Check if a given object implements the ErrorResponse interface.
+ */
+export function instanceOfErrorResponse(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "errorId" in value;
+
+    return isInstance;
+}
+
 export function ErrorResponseFromJSON(json: any): ErrorResponse {
     return ErrorResponseFromJSONTyped(json, false);
 }

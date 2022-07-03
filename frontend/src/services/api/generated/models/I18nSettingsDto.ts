@@ -33,6 +33,17 @@ export interface I18nSettingsDto {
     language: string;
 }
 
+/**
+ * Check if a given object implements the I18nSettingsDto interface.
+ */
+export function instanceOfI18nSettingsDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "locale" in value;
+    isInstance = isInstance && "language" in value;
+
+    return isInstance;
+}
+
 export function I18nSettingsDtoFromJSON(json: any): I18nSettingsDto {
     return I18nSettingsDtoFromJSONTyped(json, false);
 }

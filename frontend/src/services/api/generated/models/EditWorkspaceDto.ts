@@ -27,6 +27,16 @@ export interface EditWorkspaceDto {
     name: string;
 }
 
+/**
+ * Check if a given object implements the EditWorkspaceDto interface.
+ */
+export function instanceOfEditWorkspaceDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "name" in value;
+
+    return isInstance;
+}
+
 export function EditWorkspaceDtoFromJSON(json: any): EditWorkspaceDto {
     return EditWorkspaceDtoFromJSONTyped(json, false);
 }

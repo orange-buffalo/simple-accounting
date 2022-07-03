@@ -52,6 +52,19 @@ export interface ApiPageExpenseDto {
     data: Array<ExpenseDto>;
 }
 
+/**
+ * Check if a given object implements the ApiPageExpenseDto interface.
+ */
+export function instanceOfApiPageExpenseDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "pageNumber" in value;
+    isInstance = isInstance && "pageSize" in value;
+    isInstance = isInstance && "totalElements" in value;
+    isInstance = isInstance && "data" in value;
+
+    return isInstance;
+}
+
 export function ApiPageExpenseDtoFromJSON(json: any): ApiPageExpenseDto {
     return ApiPageExpenseDtoFromJSONTyped(json, false);
 }

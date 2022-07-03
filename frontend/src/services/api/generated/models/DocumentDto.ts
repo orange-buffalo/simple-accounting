@@ -51,6 +51,18 @@ export interface DocumentDto {
     sizeInBytes?: number;
 }
 
+/**
+ * Check if a given object implements the DocumentDto interface.
+ */
+export function instanceOfDocumentDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "version" in value;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "timeUploaded" in value;
+
+    return isInstance;
+}
+
 export function DocumentDtoFromJSON(json: any): DocumentDto {
     return DocumentDtoFromJSONTyped(json, false);
 }

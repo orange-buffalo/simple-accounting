@@ -27,6 +27,16 @@ export interface TokenResponse {
     token: string;
 }
 
+/**
+ * Check if a given object implements the TokenResponse interface.
+ */
+export function instanceOfTokenResponse(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "token" in value;
+
+    return isInstance;
+}
+
 export function TokenResponseFromJSON(json: any): TokenResponse {
     return TokenResponseFromJSONTyped(json, false);
 }

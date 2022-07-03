@@ -45,6 +45,18 @@ export interface CreateCategoryDto {
     expense: boolean;
 }
 
+/**
+ * Check if a given object implements the CreateCategoryDto interface.
+ */
+export function instanceOfCreateCategoryDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "income" in value;
+    isInstance = isInstance && "expense" in value;
+
+    return isInstance;
+}
+
 export function CreateCategoryDtoFromJSON(json: any): CreateCategoryDto {
     return CreateCategoryDtoFromJSONTyped(json, false);
 }

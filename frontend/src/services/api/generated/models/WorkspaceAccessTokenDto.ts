@@ -51,6 +51,20 @@ export interface WorkspaceAccessTokenDto {
     version: number;
 }
 
+/**
+ * Check if a given object implements the WorkspaceAccessTokenDto interface.
+ */
+export function instanceOfWorkspaceAccessTokenDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "validTill" in value;
+    isInstance = isInstance && "revoked" in value;
+    isInstance = isInstance && "token" in value;
+    isInstance = isInstance && "id" in value;
+    isInstance = isInstance && "version" in value;
+
+    return isInstance;
+}
+
 export function WorkspaceAccessTokenDtoFromJSON(json: any): WorkspaceAccessTokenDto {
     return WorkspaceAccessTokenDtoFromJSONTyped(json, false);
 }

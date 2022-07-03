@@ -52,6 +52,19 @@ export interface ApiPageGeneralTaxDto {
     data: Array<GeneralTaxDto>;
 }
 
+/**
+ * Check if a given object implements the ApiPageGeneralTaxDto interface.
+ */
+export function instanceOfApiPageGeneralTaxDto(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "pageNumber" in value;
+    isInstance = isInstance && "pageSize" in value;
+    isInstance = isInstance && "totalElements" in value;
+    isInstance = isInstance && "data" in value;
+
+    return isInstance;
+}
+
 export function ApiPageGeneralTaxDtoFromJSON(json: any): ApiPageGeneralTaxDto {
     return ApiPageGeneralTaxDtoFromJSONTyped(json, false);
 }

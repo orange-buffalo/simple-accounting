@@ -33,7 +33,7 @@ export class DownloadsApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getContentRaw(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<Array<object>>> {
+    async getContentRaw(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<Array<object>>> {
         if (requestParameters.token === null || requestParameters.token === undefined) {
             throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling getContent.');
         }
@@ -51,15 +51,15 @@ export class DownloadsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, metadata);
 
         return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<Array<object>> {
-        const response = await this.getContentRaw(requestParameters, initOverrides);
+    async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<Array<object>> {
+        const response = await this.getContentRaw(requestParameters, initOverrides, metadata);
         return await response.value();
     }
 

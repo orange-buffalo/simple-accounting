@@ -3,7 +3,9 @@ import {
 } from 'vitest';
 import type { InspectionFilter, InspectionOptions } from 'fetch-mock';
 import fetchMock from 'fetch-mock';
-import type { Auth, ProfileApiControllerApi } from '@/services/api';
+import type {
+  Auth, ProfileApiControllerApi, ResponseError, FetchError,
+} from '@/services/api';
 
 // eslint-disable-next-line max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
@@ -11,7 +13,7 @@ const API_TIME = new Date('2020-01-04T00:00:00');
 
 describe('API Client', () => {
   let loginRequiredEventMock: () => void;
-  let apiFatalErrorEventMock: () => void;
+  let apiFatalErrorEventMock: (error: ResponseError | FetchError) => void;
   let useAuth: () => Auth;
   let profileApi: ProfileApiControllerApi;
 
@@ -106,26 +108,25 @@ describe('API Client', () => {
       .toHaveBeenCalled();
   });
 
-  // TODO
-  // it('fires not api fatal error event when skipGlobalErrorHandler is set', (done) => {
-  //   expect.assertions(1);
-  //
-  //   httpMock.get('/api-call', (req, res) => res.status(500)
-  //     .body(''));
-  //
-  //   apiClient
-  //     .get('/api-call', {
-  //       skipGlobalErrorHandler: true,
-  //     } as any)
-  //     .then(() => {
-  //       done(Error('should not call success callback'));
-  //     })
-  //     .catch(() => {
-  //       expect(apiFatalErrorEventMock.mock.calls.length)
-  //         .toBe(0);
-  //       done();
-  //     });
-  // });
+  test('fires not api fatal error event when skipGlobalErrorHandler is set', async () => {
+    fetchMock.get('/api/profile', {
+      status: 500,
+    });
+
+    try {
+      await profileApi.getProfile({}, { skipGlobalErrorHandler: true });
+      expect(null, 'API call expected to fail')
+        .toBeDefined();
+    } catch (e) {
+      expect(e)
+        .to
+        .have
+        .nested
+        .property('response.status', 500);
+    }
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(0);
+  });
 
   beforeEach(async () => {
     vi.useFakeTimers();

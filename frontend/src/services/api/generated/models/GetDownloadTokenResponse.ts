@@ -27,6 +27,16 @@ export interface GetDownloadTokenResponse {
     token: string;
 }
 
+/**
+ * Check if a given object implements the GetDownloadTokenResponse interface.
+ */
+export function instanceOfGetDownloadTokenResponse(value: object): boolean {
+    let isInstance = true;
+    isInstance = isInstance && "token" in value;
+
+    return isInstance;
+}
+
 export function GetDownloadTokenResponseFromJSON(json: any): GetDownloadTokenResponse {
     return GetDownloadTokenResponseFromJSONTyped(json, false);
 }
