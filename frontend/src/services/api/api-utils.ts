@@ -49,3 +49,18 @@ export function requestTimeout(timeoutMs: number): RequestMetadata {
     requestTimeoutMs: timeoutMs,
   };
 }
+
+export interface CancellableRequest {
+  cancellableRequestConfig: RequestInit;
+  cancelRequest: () => void;
+}
+
+export function useCancellableRequest(): CancellableRequest {
+  const abortController = new AbortController();
+  return {
+    cancellableRequestConfig: {
+      signal: abortController.signal,
+    },
+    cancelRequest: () => abortController.abort(),
+  };
+}

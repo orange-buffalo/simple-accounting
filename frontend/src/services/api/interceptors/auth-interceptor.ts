@@ -3,7 +3,6 @@ import type { RequestMetadata } from '@/services/api/api-client';
 import { getAuthorizationHeader, tryAutoLogin } from '@/services/api/auth';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 
-// eslint-disable-next-line no-undef
 export function applyAuthorization(init: RequestInit): RequestInit {
   const authHeader = getAuthorizationHeader();
   if (!authHeader) return init;
