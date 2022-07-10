@@ -7,6 +7,7 @@ import type {
   Auth, FetchError, ProfileApiControllerApi, ResponseError,
 } from '@/services/api';
 import type { RequestMetadata } from '@/services/api/api-client';
+import type { CancellableRequest } from '@/services/api/api-utils';
 
 // eslint-disable-next-line max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
@@ -21,6 +22,7 @@ describe('API Client', () => {
   let profileApi: ProfileApiControllerApi<RequestMetadata>;
   let skipGlobalErrorHandler: () => RequestMetadata;
   let requestTimeout: (timeoutMs: number) => RequestMetadata;
+  let useCancellableRequest: () => CancellableRequest;
 
   test('does not set Authorization token when not logged in', async () => {
     fetchMock.get('/api/profile', {});
@@ -278,22 +280,22 @@ describe('API Client', () => {
     }
   });
 
-  test('should support AbortController', async () => {
+  test('should support request cancellation', async () => {
     vi.useRealTimers();
 
     fetchMock.get('/api/profile', 200, {
       delay: 20000,
     });
 
-    const abortController = new AbortController();
-    setTimeout(() => {
-      abortController.abort();
-    }, 500);
+    const {
+      cancellableRequestConfig,
+      cancelRequest,
+    } = useCancellableRequest();
+
+    setTimeout(cancelRequest, 500);
 
     try {
-      await profileApi.getProfile({
-        signal: abortController.signal,
-      });
+      await profileApi.getProfile(cancellableRequestConfig);
       expect(null, 'API call expected to fail')
         .toBeDefined();
     } catch (e) {
@@ -343,6 +345,7 @@ describe('API Client', () => {
       profileApi,
       skipGlobalErrorHandler,
       requestTimeout,
+      useCancellableRequest,
     } = await import('@/services/api'));
   });
 
@@ -354,7 +357,6 @@ describe('API Client', () => {
   });
 });
 
-// eslint-disable-next-line no-undef
 function safeGetCallOptions(filter?: InspectionFilter, options?: InspectionOptions): RequestInit {
   const calls = fetchMock.calls(filter, options);
   expect(calls)

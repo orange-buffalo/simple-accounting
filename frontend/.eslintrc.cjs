@@ -51,4 +51,7 @@ module.exports = {
     'vuejs-accessibility/click-events-have-key-events': 'off',
     'vue/multi-word-component-names': 'off',
   },
+  globals: {
+    RequestInit: 'readonly',
+  },
 };
