@@ -29,11 +29,11 @@ export interface GetContentRequest {
 /**
  * 
  */
-export class DownloadsApiControllerApi extends runtime.BaseAPI {
+export class DownloadsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async getContentRaw(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<Array<object>>> {
+    async getContentRaw<T extends RequestInit & RM>(requestParameters: GetContentRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<Array<object>>> {
         if (requestParameters.token === null || requestParameters.token === undefined) {
             throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling getContent.');
         }
@@ -51,15 +51,15 @@ export class DownloadsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<Array<object>> {
-        const response = await this.getContentRaw(requestParameters, initOverrides, metadata);
+    async getContent<T extends RequestInit & RM>(requestParameters: GetContentRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<Array<object>> {
+        const response = await this.getContentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

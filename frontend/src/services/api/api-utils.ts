@@ -1,5 +1,6 @@
 import type { ApiPage, ApiPageRequest } from '@/services/api/api-types';
 import { ResponseError } from '@/services/api/generated';
+import type { RequestMetadata } from '@/services/api/api-client';
 
 export function apiDateString(date: Date) {
   return `${date.getFullYear()}-${
@@ -7,6 +8,9 @@ export function apiDateString(date: Date) {
     (`0${date.getDate()}`).slice(-2)}`;
 }
 
+/**
+ * @deprecated TODO: rewrite and cover with tests
+ */
 export async function consumeAllPages<T>(
   requestExecutor: (pageRequest: ApiPageRequest) => Promise<ApiPage<T>>,
 ): Promise<T[]> {
@@ -32,4 +36,16 @@ export async function consumeAllPages<T>(
 export async function consumeApiErrorResponse<T>(e: unknown): Promise<T> {
   if (!(e instanceof ResponseError)) throw new Error(`Unknown error ${JSON.stringify(e)}`);
   return (await e.response.json()) as T;
+}
+
+export function skipGlobalErrorHandler(): RequestMetadata {
+  return {
+    skipGlobalErrorHandler: true,
+  };
+}
+
+export function requestTimeout(timeoutMs: number): RequestMetadata {
+  return {
+    requestTimeoutMs: timeoutMs,
+  };
 }

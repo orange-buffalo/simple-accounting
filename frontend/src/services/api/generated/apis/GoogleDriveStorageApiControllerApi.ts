@@ -28,11 +28,11 @@ import {
 /**
  * 
  */
-export class GoogleDriveStorageApiControllerApi extends runtime.BaseAPI {
+export class GoogleDriveStorageApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async getIntegrationStatusRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<GoogleDriveStorageIntegrationStatus>> {
+    async getIntegrationStatusRaw<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<GoogleDriveStorageIntegrationStatus>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -42,15 +42,15 @@ export class GoogleDriveStorageApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GoogleDriveStorageIntegrationStatusFromJSON(jsonValue));
     }
 
     /**
      */
-    async getIntegrationStatus(initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<GoogleDriveStorageIntegrationStatus> {
-        const response = await this.getIntegrationStatusRaw(initOverrides, metadata);
+    async getIntegrationStatus<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<GoogleDriveStorageIntegrationStatus> {
+        const response = await this.getIntegrationStatusRaw(initOverrides);
         return await response.value();
     }
 

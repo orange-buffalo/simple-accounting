@@ -32,11 +32,11 @@ export interface AuthCallbackRequest {
 /**
  * 
  */
-export class OAuth2CallbackControllerApi extends runtime.BaseAPI {
+export class OAuth2CallbackControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async authCallbackRaw(requestParameters: AuthCallbackRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<void>> {
+    async authCallbackRaw<T extends RequestInit & RM>(requestParameters: AuthCallbackRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.oAuth2AuthorizationCallbackRequest === null || requestParameters.oAuth2AuthorizationCallbackRequest === undefined) {
             throw new runtime.RequiredError('oAuth2AuthorizationCallbackRequest','Required parameter requestParameters.oAuth2AuthorizationCallbackRequest was null or undefined when calling authCallback.');
         }
@@ -53,15 +53,15 @@ export class OAuth2CallbackControllerApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
             body: OAuth2AuthorizationCallbackRequestToJSON(requestParameters.oAuth2AuthorizationCallbackRequest),
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
 
     /**
      */
-    async authCallback(requestParameters: AuthCallbackRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<void> {
-        await this.authCallbackRaw(requestParameters, initOverrides, metadata);
+    async authCallback<T extends RequestInit & RM>(requestParameters: AuthCallbackRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<void> {
+        await this.authCallbackRaw(requestParameters, initOverrides);
     }
 
 }
