@@ -54,11 +54,11 @@ export interface UpdateIncomeRequest {
 /**
  * 
  */
-export class IncomesApiControllerApi extends runtime.BaseAPI {
+export class IncomesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async createIncomeRaw(requestParameters: CreateIncomeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<IncomeDto>> {
+    async createIncomeRaw<T extends RequestInit & RM>(requestParameters: CreateIncomeRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<IncomeDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createIncome.');
         }
@@ -79,21 +79,21 @@ export class IncomesApiControllerApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
             body: EditIncomeDtoToJSON(requestParameters.editIncomeDto),
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomeDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createIncome(requestParameters: CreateIncomeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<IncomeDto> {
-        const response = await this.createIncomeRaw(requestParameters, initOverrides, metadata);
+    async createIncome<T extends RequestInit & RM>(requestParameters: CreateIncomeRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<IncomeDto> {
+        const response = await this.createIncomeRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getIncomeRaw(requestParameters: GetIncomeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<IncomeDto>> {
+    async getIncomeRaw<T extends RequestInit & RM>(requestParameters: GetIncomeRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<IncomeDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getIncome.');
         }
@@ -111,21 +111,21 @@ export class IncomesApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomeDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getIncome(requestParameters: GetIncomeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<IncomeDto> {
-        const response = await this.getIncomeRaw(requestParameters, initOverrides, metadata);
+    async getIncome<T extends RequestInit & RM>(requestParameters: GetIncomeRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<IncomeDto> {
+        const response = await this.getIncomeRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getIncomesRaw(requestParameters: GetIncomesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<ApiPageIncomeDto>> {
+    async getIncomesRaw<T extends RequestInit & RM>(requestParameters: GetIncomesRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<ApiPageIncomeDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getIncomes.');
         }
@@ -139,21 +139,21 @@ export class IncomesApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageIncomeDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getIncomes(requestParameters: GetIncomesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<ApiPageIncomeDto> {
-        const response = await this.getIncomesRaw(requestParameters, initOverrides, metadata);
+    async getIncomes<T extends RequestInit & RM>(requestParameters: GetIncomesRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<ApiPageIncomeDto> {
+        const response = await this.getIncomesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async updateIncomeRaw(requestParameters: UpdateIncomeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<IncomeDto>> {
+    async updateIncomeRaw<T extends RequestInit & RM>(requestParameters: UpdateIncomeRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<IncomeDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling updateIncome.');
         }
@@ -178,15 +178,15 @@ export class IncomesApiControllerApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
             body: EditIncomeDtoToJSON(requestParameters.editIncomeDto),
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomeDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async updateIncome(requestParameters: UpdateIncomeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<IncomeDto> {
-        const response = await this.updateIncomeRaw(requestParameters, initOverrides, metadata);
+    async updateIncome<T extends RequestInit & RM>(requestParameters: UpdateIncomeRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<IncomeDto> {
+        const response = await this.updateIncomeRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

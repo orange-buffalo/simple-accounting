@@ -1,21 +1,36 @@
 import {
-  describe, beforeEach, afterEach, test, expect, vi,
+  afterEach, beforeEach, describe, expect, test, vi,
 } from 'vitest';
 import type { InspectionFilter, InspectionOptions } from 'fetch-mock';
 import fetchMock from 'fetch-mock';
 import type {
-  Auth, ProfileApiControllerApi, ResponseError, FetchError,
+  Auth, FetchError, ProfileApiControllerApi, ResponseError,
 } from '@/services/api';
+import type { RequestMetadata } from '@/services/api/api-client';
 
 // eslint-disable-next-line max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
 const API_TIME = new Date('2020-01-04T00:00:00');
 
 describe('API Client', () => {
+  let loadingStartedEventMock: () => void;
+  let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
   let apiFatalErrorEventMock: (error: ResponseError | FetchError) => void;
   let useAuth: () => Auth;
-  let profileApi: ProfileApiControllerApi;
+  let profileApi: ProfileApiControllerApi<RequestMetadata>;
+  let skipGlobalErrorHandler: () => RequestMetadata;
+  let requestTimeout: (timeoutMs: number) => RequestMetadata;
+
+  test('does not set Authorization token when not logged in', async () => {
+    fetchMock.get('/api/profile', {});
+
+    await profileApi.getProfile();
+
+    const options = safeGetCallOptions();
+    expect(new Headers(options.headers).get('Authorization'))
+      .toBeNull();
+  });
 
   test('adds a token to headers after successful autologin', async () => {
     fetchMock.post('/api/auth/token', {
@@ -46,17 +61,43 @@ describe('API Client', () => {
       .toEqual('testUser');
   });
 
-  test('does not set Authorization token when not logged in', async () => {
-    fetchMock.get('/api/profile', {});
+  test('tries autologin when 401 is received for a request', async () => {
+    fetchMock.get('/api/profile', (_, request) => {
+      if (!request || !request.headers) throw new Error();
+      return new Headers(request.headers).get('Authorization')
+        ? {
+          status: 200,
+          body: {
+            userName: 'someUser',
+          },
+        } : {
+          status: 401,
+        };
+    });
+    fetchMock.post('/api/auth/token', {
+      token: TOKEN,
+    });
 
-    await profileApi.getProfile();
+    const { userName } = await profileApi.getProfile();
 
-    const options = safeGetCallOptions();
-    expect(new Headers(options.headers).get('Authorization'))
-      .toBeNull();
+    expect(userName)
+      .eq('someUser');
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(0);
+    const calls = fetchMock.calls();
+    expect(calls)
+      .length(3);
+    expect(calls[0][0])
+      .eq('/api/profile');
+    expect(calls[1][0])
+      .eq('/api/auth/token');
+    expect(calls[2][0])
+      .eq('/api/profile');
   });
 
-  test('fires login event when 401 is received', async () => {
+  test('fires events when 401 is received', async () => {
     fetchMock.get('/api/profile', {
       status: 401,
     });
@@ -64,33 +105,76 @@ describe('API Client', () => {
       status: 401,
     });
 
-    try {
+    await expectToFailWithResponseStatus(async () => {
       await profileApi.getProfile();
-      expect(null, 'API call expected to fail')
-        .toBeDefined();
-    } catch (e) {
-      expect(e)
-        .to
-        .have
-        .nested
-        .property('response.status', 401);
-    }
+    }, 401);
+
     expect(loginRequiredEventMock)
-      .toHaveBeenCalled();
+      .toHaveBeenCalledOnce();
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledTimes(2);
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledTimes(2);
   });
 
-  test('does not fire any events on successful responses', async () => {
+  test('fires events on successful responses', async () => {
     fetchMock.get('/api/profile', {});
 
     await profileApi.getProfile();
 
     expect(loginRequiredEventMock)
       .toBeCalledTimes(0);
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
   });
 
-  test('fires api fatal error event when 4xx or 5xx is received', async () => {
+  test('fires events when 4xx or 5xx is received', async () => {
     fetchMock.get('/api/profile', {
       status: 500,
+    });
+
+    await expectToFailWithResponseStatus(async () => {
+      await profileApi.getProfile();
+    }, 500);
+
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
+  });
+
+  test('fires events when 4xx or 5xx is received and skipGlobalErrorHandler is set', async () => {
+    fetchMock.get('/api/profile', {
+      status: 500,
+    });
+
+    await expectToFailWithResponseStatus(async () => {
+      await profileApi.getProfile(skipGlobalErrorHandler());
+    }, 500);
+
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
+  });
+
+  test('fires events when request fails', async () => {
+    fetchMock.get('/api/profile', {
+      throws: new Error('Request failed'),
     });
 
     try {
@@ -102,19 +186,26 @@ describe('API Client', () => {
         .to
         .have
         .nested
-        .property('response.status', 500);
+        .property('cause.message', 'Request failed');
     }
+
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalled();
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
   });
 
-  test('fires not api fatal error event when skipGlobalErrorHandler is set', async () => {
+  test('fires events when request fails and skipGlobalErrorHandler is set', async () => {
     fetchMock.get('/api/profile', {
-      status: 500,
+      throws: new Error('Request failed'),
     });
 
     try {
-      await profileApi.getProfile({}, { skipGlobalErrorHandler: true });
+      await profileApi.getProfile(skipGlobalErrorHandler());
       expect(null, 'API call expected to fail')
         .toBeDefined();
     } catch (e) {
@@ -122,10 +213,105 @@ describe('API Client', () => {
         .to
         .have
         .nested
-        .property('response.status', 500);
+        .property('cause.message', 'Request failed');
     }
+
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(0);
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
+  });
+
+  test('fails with timeout', async () => {
+    vi.useRealTimers();
+
+    fetchMock.get('/api/profile', 200, {
+      delay: 20000,
+    });
+
+    try {
+      await profileApi.getProfile(requestTimeout(200));
+      expect(null, 'API call expected to fail')
+        .toBeDefined();
+    } catch (e) {
+      expect(e)
+        .to
+        .have
+        .nested
+        .property('cause.message', 'The operation was aborted.');
+    }
+
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(1);
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
+  });
+
+  test('fails with timeout when custom abort signal is set', async () => {
+    vi.useRealTimers();
+
+    fetchMock.get('/api/profile', 200, {
+      delay: 20000,
+    });
+
+    try {
+      await profileApi.getProfile({
+        ...requestTimeout(200),
+        signal: new AbortController().signal,
+      });
+      expect(null, 'API call expected to fail')
+        .toBeDefined();
+    } catch (e) {
+      expect(e)
+        .to
+        .have
+        .nested
+        .property('cause.message', 'The operation was aborted.');
+    }
+  });
+
+  test('should support AbortController', async () => {
+    vi.useRealTimers();
+
+    fetchMock.get('/api/profile', 200, {
+      delay: 20000,
+    });
+
+    const abortController = new AbortController();
+    setTimeout(() => {
+      abortController.abort();
+    }, 500);
+
+    try {
+      await profileApi.getProfile({
+        signal: abortController.signal,
+      });
+      expect(null, 'API call expected to fail')
+        .toBeDefined();
+    } catch (e) {
+      expect(e)
+        .to
+        .have
+        .nested
+        .property('cause.message', 'The operation was aborted.');
+    }
+
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(1);
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
   });
 
   beforeEach(async () => {
@@ -148,11 +334,15 @@ describe('API Client', () => {
     }));
 
     const events = await import('@/services/events');
+    loadingStartedEventMock = events.LOADING_STARTED_EVENT.emit;
+    loadingFinishedEventMock = events.LOADING_FINISHED_EVENT.emit;
     loginRequiredEventMock = events.LOGIN_REQUIRED_EVENT.emit;
     apiFatalErrorEventMock = events.API_FATAL_ERROR_EVENT.emit;
     ({
       useAuth,
       profileApi,
+      skipGlobalErrorHandler,
+      requestTimeout,
     } = await import('@/services/api'));
   });
 
@@ -179,4 +369,18 @@ function safeGetCallOptions(filter?: InspectionFilter, options?: InspectionOptio
     .toBeDefined();
   // eslint-disable-next-line
   return callOptions!;
+}
+
+async function expectToFailWithResponseStatus(spec: () => Promise<void>, status: number) {
+  try {
+    await spec();
+    expect(null, 'API call expected to fail')
+      .toBeDefined();
+  } catch (e) {
+    expect(e)
+      .to
+      .have
+      .nested
+      .property('response.status', status);
+  }
 }

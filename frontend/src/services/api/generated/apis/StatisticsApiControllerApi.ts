@@ -53,11 +53,11 @@ export interface GetTaxPaymentsStatisticsRequest {
 /**
  * 
  */
-export class StatisticsApiControllerApi extends runtime.BaseAPI {
+export class StatisticsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async getCurrenciesShortlistRaw(requestParameters: GetCurrenciesShortlistRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<Array<string>>> {
+    async getCurrenciesShortlistRaw<T extends RequestInit & RM>(requestParameters: GetCurrenciesShortlistRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<Array<string>>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getCurrenciesShortlist.');
         }
@@ -71,21 +71,21 @@ export class StatisticsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async getCurrenciesShortlist(requestParameters: GetCurrenciesShortlistRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<Array<string>> {
-        const response = await this.getCurrenciesShortlistRaw(requestParameters, initOverrides, metadata);
+    async getCurrenciesShortlist<T extends RequestInit & RM>(requestParameters: GetCurrenciesShortlistRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<Array<string>> {
+        const response = await this.getCurrenciesShortlistRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getExpensesStatisticsRaw(requestParameters: GetExpensesStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<IncomesExpensesStatisticsDto>> {
+    async getExpensesStatisticsRaw<T extends RequestInit & RM>(requestParameters: GetExpensesStatisticsRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<IncomesExpensesStatisticsDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getExpensesStatistics.');
         }
@@ -115,21 +115,21 @@ export class StatisticsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomesExpensesStatisticsDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getExpensesStatistics(requestParameters: GetExpensesStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<IncomesExpensesStatisticsDto> {
-        const response = await this.getExpensesStatisticsRaw(requestParameters, initOverrides, metadata);
+    async getExpensesStatistics<T extends RequestInit & RM>(requestParameters: GetExpensesStatisticsRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<IncomesExpensesStatisticsDto> {
+        const response = await this.getExpensesStatisticsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getIncomesStatisticsRaw(requestParameters: GetIncomesStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<IncomesExpensesStatisticsDto>> {
+    async getIncomesStatisticsRaw<T extends RequestInit & RM>(requestParameters: GetIncomesStatisticsRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<IncomesExpensesStatisticsDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getIncomesStatistics.');
         }
@@ -159,21 +159,21 @@ export class StatisticsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomesExpensesStatisticsDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getIncomesStatistics(requestParameters: GetIncomesStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<IncomesExpensesStatisticsDto> {
-        const response = await this.getIncomesStatisticsRaw(requestParameters, initOverrides, metadata);
+    async getIncomesStatistics<T extends RequestInit & RM>(requestParameters: GetIncomesStatisticsRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<IncomesExpensesStatisticsDto> {
+        const response = await this.getIncomesStatisticsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getTaxPaymentsStatisticsRaw(requestParameters: GetTaxPaymentsStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<IncomeTaxPaymentsStatisticsDto>> {
+    async getTaxPaymentsStatisticsRaw<T extends RequestInit & RM>(requestParameters: GetTaxPaymentsStatisticsRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<IncomeTaxPaymentsStatisticsDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getTaxPaymentsStatistics.');
         }
@@ -203,15 +203,15 @@ export class StatisticsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomeTaxPaymentsStatisticsDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getTaxPaymentsStatistics(requestParameters: GetTaxPaymentsStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<IncomeTaxPaymentsStatisticsDto> {
-        const response = await this.getTaxPaymentsStatisticsRaw(requestParameters, initOverrides, metadata);
+    async getTaxPaymentsStatistics<T extends RequestInit & RM>(requestParameters: GetTaxPaymentsStatisticsRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<IncomeTaxPaymentsStatisticsDto> {
+        const response = await this.getTaxPaymentsStatisticsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

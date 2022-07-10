@@ -53,11 +53,11 @@ export interface UploadNewDocumentRequest {
 /**
  * 
  */
-export class DocumentsApiControllerApi extends runtime.BaseAPI {
+export class DocumentsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async getDocumentContentRaw(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<Array<object>>> {
+    async getDocumentContentRaw<T extends RequestInit & RM>(requestParameters: GetDocumentContentRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<Array<object>>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getDocumentContent.');
         }
@@ -75,21 +75,21 @@ export class DocumentsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async getDocumentContent(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<Array<object>> {
-        const response = await this.getDocumentContentRaw(requestParameters, initOverrides, metadata);
+    async getDocumentContent<T extends RequestInit & RM>(requestParameters: GetDocumentContentRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<Array<object>> {
+        const response = await this.getDocumentContentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getDocumentsRaw(requestParameters: GetDocumentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<ApiPageDocumentDto>> {
+    async getDocumentsRaw<T extends RequestInit & RM>(requestParameters: GetDocumentsRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<ApiPageDocumentDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getDocuments.');
         }
@@ -103,21 +103,21 @@ export class DocumentsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageDocumentDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getDocuments(requestParameters: GetDocumentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<ApiPageDocumentDto> {
-        const response = await this.getDocumentsRaw(requestParameters, initOverrides, metadata);
+    async getDocuments<T extends RequestInit & RM>(requestParameters: GetDocumentsRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<ApiPageDocumentDto> {
+        const response = await this.getDocumentsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getDownloadTokenRaw(requestParameters: GetDownloadTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<GetDownloadTokenResponse>> {
+    async getDownloadTokenRaw<T extends RequestInit & RM>(requestParameters: GetDownloadTokenRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<GetDownloadTokenResponse>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getDownloadToken.');
         }
@@ -135,21 +135,21 @@ export class DocumentsApiControllerApi extends runtime.BaseAPI {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GetDownloadTokenResponseFromJSON(jsonValue));
     }
 
     /**
      */
-    async getDownloadToken(requestParameters: GetDownloadTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<GetDownloadTokenResponse> {
-        const response = await this.getDownloadTokenRaw(requestParameters, initOverrides, metadata);
+    async getDownloadToken<T extends RequestInit & RM>(requestParameters: GetDownloadTokenRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<GetDownloadTokenResponse> {
+        const response = await this.getDownloadTokenRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async uploadNewDocumentRaw(requestParameters: UploadNewDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<runtime.ApiResponse<DocumentDto>> {
+    async uploadNewDocumentRaw<T extends RequestInit & RM>(requestParameters: UploadNewDocumentRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<DocumentDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling uploadNewDocument.');
         }
@@ -188,15 +188,15 @@ export class DocumentsApiControllerApi extends runtime.BaseAPI {
             headers: headerParameters,
             query: queryParameters,
             body: formParams,
-        }, initOverrides, metadata);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => DocumentDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async uploadNewDocument(requestParameters: UploadNewDocumentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction, metadata?: any): Promise<DocumentDto> {
-        const response = await this.uploadNewDocumentRaw(requestParameters, initOverrides, metadata);
+    async uploadNewDocument<T extends RequestInit & RM>(requestParameters: UploadNewDocumentRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<DocumentDto> {
+        const response = await this.uploadNewDocumentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

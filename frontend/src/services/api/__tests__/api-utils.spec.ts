@@ -1,19 +1,15 @@
-// import httpMock from 'xhr-mock';
-import { describe, it, expect } from 'vitest';
-// import type {
-//   ApiPage,
-// } from '@/services/api';
+import { describe, test, expect } from 'vitest';
 import {
   apiDateString,
 } from '@/services/api';
 
 describe('apiDateString', () => {
-  it('should convert date without zeros', () => {
+  test('should convert date without zeros', () => {
     expect(apiDateString(new Date('2030-10-13T00:00:00')))
       .toBe('2030-10-13');
   });
 
-  it('should convert date with zeros', () => {
+  test('should convert date with zeros', () => {
     expect(apiDateString(new Date('2030-02-06T00:00:00')))
       .toBe('2030-02-06');
   });
