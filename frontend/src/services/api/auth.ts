@@ -2,6 +2,7 @@ import jwtDecode from 'jwt-decode';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 import type { LoginRequest } from '@/services/api/api-types';
 import { authApi } from '@/services/api/api-client';
+import { skipGlobalErrorHandler } from '@/services/api/api-utils';
 
 interface ApiToken {
   jwtToken: string | null,
@@ -65,8 +66,7 @@ export async function tryAutoLogin() {
   try {
     const response = await authApi.refreshToken({}, {
       credentials: 'include',
-      // TODO
-      // skipGlobalErrorHandler: true,
+      ...skipGlobalErrorHandler(),
     });
 
     updateApiToken(response.token);
@@ -91,10 +91,7 @@ export function getAuthorizationHeader(): string | null {
 
 async function login(request: LoginRequest) {
   cancelTokenRefresh();
-  const response = await authApi.login({ loginRequest: request }, {
-    // TODO
-    // skipGlobalErrorHandler: true,
-  });
+  const response = await authApi.login({ loginRequest: request }, skipGlobalErrorHandler());
   updateApiToken(response.token);
   scheduleTokenRefresh();
 }
@@ -149,7 +146,7 @@ export interface Auth {
   loginBySharedToken: (sharedToken: string) => Promise<boolean>;
 }
 
-export function useAuth() : Auth {
+export function useAuth(): Auth {
   return {
     getToken(): string | null {
       return apiToken.jwtToken;
