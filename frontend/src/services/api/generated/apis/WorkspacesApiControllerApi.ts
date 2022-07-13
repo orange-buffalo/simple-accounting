@@ -33,6 +33,7 @@ import {
     WorkspaceDtoFromJSON,
     WorkspaceDtoToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface CreateWorkspaceRequest {
     createWorkspaceDto: CreateWorkspaceDto;
@@ -54,7 +55,7 @@ export class WorkspacesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async createWorkspaceRaw<T extends RequestInit & RM>(requestParameters: CreateWorkspaceRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<WorkspaceDto>> {
+    async createWorkspaceRaw(requestParameters: CreateWorkspaceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<WorkspaceDto>> {
         if (requestParameters.createWorkspaceDto === null || requestParameters.createWorkspaceDto === undefined) {
             throw new runtime.RequiredError('createWorkspaceDto','Required parameter requestParameters.createWorkspaceDto was null or undefined when calling createWorkspace.');
         }
@@ -71,21 +72,21 @@ export class WorkspacesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             headers: headerParameters,
             query: queryParameters,
             body: CreateWorkspaceDtoToJSON(requestParameters.createWorkspaceDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createWorkspace<T extends RequestInit & RM>(requestParameters: CreateWorkspaceRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<WorkspaceDto> {
-        const response = await this.createWorkspaceRaw(requestParameters, initOverrides);
+    async createWorkspace(requestParameters: CreateWorkspaceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<WorkspaceDto> {
+        const response = await this.createWorkspaceRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async editWorkspaceRaw<T extends RequestInit & RM>(requestParameters: EditWorkspaceRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<WorkspaceDto>> {
+    async editWorkspaceRaw(requestParameters: EditWorkspaceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<WorkspaceDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling editWorkspace.');
         }
@@ -106,21 +107,21 @@ export class WorkspacesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             headers: headerParameters,
             query: queryParameters,
             body: EditWorkspaceDtoToJSON(requestParameters.editWorkspaceDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async editWorkspace<T extends RequestInit & RM>(requestParameters: EditWorkspaceRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<WorkspaceDto> {
-        const response = await this.editWorkspaceRaw(requestParameters, initOverrides);
+    async editWorkspace(requestParameters: EditWorkspaceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<WorkspaceDto> {
+        const response = await this.editWorkspaceRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getSharedWorkspacesRaw<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<Array<WorkspaceDto>>> {
+    async getSharedWorkspacesRaw(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<Array<WorkspaceDto>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -130,21 +131,21 @@ export class WorkspacesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(WorkspaceDtoFromJSON));
     }
 
     /**
      */
-    async getSharedWorkspaces<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<Array<WorkspaceDto>> {
-        const response = await this.getSharedWorkspacesRaw(initOverrides);
+    async getSharedWorkspaces(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<Array<WorkspaceDto>> {
+        const response = await this.getSharedWorkspacesRaw(initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getWorkspacesRaw<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<Array<WorkspaceDto>>> {
+    async getWorkspacesRaw(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<Array<WorkspaceDto>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -154,21 +155,21 @@ export class WorkspacesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(WorkspaceDtoFromJSON));
     }
 
     /**
      */
-    async getWorkspaces<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<Array<WorkspaceDto>> {
-        const response = await this.getWorkspacesRaw(initOverrides);
+    async getWorkspaces(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<Array<WorkspaceDto>> {
+        const response = await this.getWorkspacesRaw(initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async saveSharedWorkspaceRaw<T extends RequestInit & RM>(requestParameters: SaveSharedWorkspaceRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<WorkspaceDto>> {
+    async saveSharedWorkspaceRaw(requestParameters: SaveSharedWorkspaceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<WorkspaceDto>> {
         if (requestParameters.saveSharedWorkspaceRequestDto === null || requestParameters.saveSharedWorkspaceRequestDto === undefined) {
             throw new runtime.RequiredError('saveSharedWorkspaceRequestDto','Required parameter requestParameters.saveSharedWorkspaceRequestDto was null or undefined when calling saveSharedWorkspace.');
         }
@@ -185,15 +186,15 @@ export class WorkspacesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             headers: headerParameters,
             query: queryParameters,
             body: SaveSharedWorkspaceRequestDtoToJSON(requestParameters.saveSharedWorkspaceRequestDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async saveSharedWorkspace<T extends RequestInit & RM>(requestParameters: SaveSharedWorkspaceRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<WorkspaceDto> {
-        const response = await this.saveSharedWorkspaceRaw(requestParameters, initOverrides);
+    async saveSharedWorkspace(requestParameters: SaveSharedWorkspaceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<WorkspaceDto> {
+        const response = await this.saveSharedWorkspaceRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 

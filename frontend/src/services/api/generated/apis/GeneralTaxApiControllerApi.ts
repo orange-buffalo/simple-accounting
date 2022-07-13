@@ -30,6 +30,7 @@ import {
     GeneralTaxDtoFromJSON,
     GeneralTaxDtoToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface CreateTaxRequest {
     workspaceId: number;
@@ -58,7 +59,7 @@ export class GeneralTaxApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async createTaxRaw<T extends RequestInit & RM>(requestParameters: CreateTaxRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<GeneralTaxDto>> {
+    async createTaxRaw(requestParameters: CreateTaxRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<GeneralTaxDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createTax.');
         }
@@ -79,21 +80,21 @@ export class GeneralTaxApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             headers: headerParameters,
             query: queryParameters,
             body: EditGeneralTaxDtoToJSON(requestParameters.editGeneralTaxDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GeneralTaxDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createTax<T extends RequestInit & RM>(requestParameters: CreateTaxRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<GeneralTaxDto> {
-        const response = await this.createTaxRaw(requestParameters, initOverrides);
+    async createTax(requestParameters: CreateTaxRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<GeneralTaxDto> {
+        const response = await this.createTaxRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getTaxRaw<T extends RequestInit & RM>(requestParameters: GetTaxRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<GeneralTaxDto>> {
+    async getTaxRaw(requestParameters: GetTaxRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<GeneralTaxDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getTax.');
         }
@@ -111,21 +112,21 @@ export class GeneralTaxApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GeneralTaxDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getTax<T extends RequestInit & RM>(requestParameters: GetTaxRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<GeneralTaxDto> {
-        const response = await this.getTaxRaw(requestParameters, initOverrides);
+    async getTax(requestParameters: GetTaxRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<GeneralTaxDto> {
+        const response = await this.getTaxRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getTaxesRaw<T extends RequestInit & RM>(requestParameters: GetTaxesRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<ApiPageGeneralTaxDto>> {
+    async getTaxesRaw(requestParameters: GetTaxesRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPageGeneralTaxDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getTaxes.');
         }
@@ -139,21 +140,21 @@ export class GeneralTaxApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageGeneralTaxDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getTaxes<T extends RequestInit & RM>(requestParameters: GetTaxesRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<ApiPageGeneralTaxDto> {
-        const response = await this.getTaxesRaw(requestParameters, initOverrides);
+    async getTaxes(requestParameters: GetTaxesRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPageGeneralTaxDto> {
+        const response = await this.getTaxesRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async updateTaxRaw<T extends RequestInit & RM>(requestParameters: UpdateTaxRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<GeneralTaxDto>> {
+    async updateTaxRaw(requestParameters: UpdateTaxRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<GeneralTaxDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling updateTax.');
         }
@@ -178,15 +179,15 @@ export class GeneralTaxApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             headers: headerParameters,
             query: queryParameters,
             body: EditGeneralTaxDtoToJSON(requestParameters.editGeneralTaxDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GeneralTaxDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async updateTax<T extends RequestInit & RM>(requestParameters: UpdateTaxRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<GeneralTaxDto> {
-        const response = await this.updateTaxRaw(requestParameters, initOverrides);
+    async updateTax(requestParameters: UpdateTaxRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<GeneralTaxDto> {
+        const response = await this.updateTaxRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 

@@ -21,6 +21,7 @@ import {
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface GetContentRequest {
     token: string;
@@ -33,7 +34,7 @@ export class DownloadsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async getContentRaw<T extends RequestInit & RM>(requestParameters: GetContentRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<Array<object>>> {
+    async getContentRaw(requestParameters: GetContentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<Array<object>>> {
         if (requestParameters.token === null || requestParameters.token === undefined) {
             throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling getContent.');
         }
@@ -51,15 +52,15 @@ export class DownloadsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async getContent<T extends RequestInit & RM>(requestParameters: GetContentRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<Array<object>> {
-        const response = await this.getContentRaw(requestParameters, initOverrides);
+    async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<Array<object>> {
+        const response = await this.getContentRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 

@@ -113,16 +113,16 @@ export class BaseAPI<RM = void> {
         return this.withMiddleware<T>(...middlewares);
     }
 
-    protected async request<T extends RequestInit & RM>(context: RequestOpts, initOverrides?: T | InitOverrideFunction<T, RM>): Promise<Response> {
-        const { url, init, metadata } = await this.createFetchParams(context, initOverrides);
-        const response = await this.fetchApi(url, init, metadata);
+    protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<Response> {
+        const { url, init } = await this.createFetchParams(context, initOverrides);
+        const response = await this.fetchApi(url, init, additionalParameters?.metadata);
         if (response.status >= 200 && response.status < 300) {
             return response;
         }
         throw new ResponseError(response, 'Response returned an error code');
     }
 
-    private async createFetchParams<T extends RequestInit & RM>(context: RequestOpts, initOverrides?: T | InitOverrideFunction<T, RM>) {
+    private async createFetchParams(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction) {
         let url = this.configuration.basePath + context.path;
         if (context.query !== undefined && Object.keys(context.query).length !== 0) {
             // only add the querystring to the URL if there are query parameters.
@@ -146,15 +146,13 @@ export class BaseAPI<RM = void> {
             credentials: this.configuration.credentials,
         };
 
-        const actualInitOverrides = await initOverrideFn({
-            init: initParams,
-            context,
-        });
-
         const overriddenInit: RequestInit = {
             ...initParams,
-            ...actualInitOverrides,
-        };
+            ...(await initOverrideFn({
+                init: initParams,
+                context,
+            }))
+        }
 
         const init: RequestInit = {
             ...overriddenInit,
@@ -166,9 +164,7 @@ export class BaseAPI<RM = void> {
                     : JSON.stringify(overriddenInit.body),
         };
 
-        const metadata: RM | undefined = actualInitOverrides;
-
-        return { url, init, metadata };
+        return { url, init };
     }
 
     private fetchApi = async (url: string, init: RequestInit, metadata?: RM) => {
@@ -274,7 +270,18 @@ export type HTTPBody = Json | FormData | URLSearchParams;
 export type HTTPRequestInit = { headers?: HTTPHeaders; method: HTTPMethod; credentials?: RequestCredentials; body?: HTTPBody }
 export type ModelPropertyNaming = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
 
-export type InitOverrideFunction<T extends RequestInit & RM, RM = void> = (requestContext: { init: HTTPRequestInit, context: RequestOpts }) => Promise<T>
+export type InitOverrideFunction = (requestContext: { init: HTTPRequestInit, context: RequestOpts }) => Promise<RequestInit>
+
+/**
+ * Configures additional request execution aspects (e.g. middleware behaviour).
+ */
+export interface AdditionalRequestParameters<RM = void> {
+  /**
+   * Request metadata to be passed to the middleware. Typical use case - configure middleware
+   * behaviour on per-request basis.
+   */
+  metadata?: RM;
+}
 
 export interface FetchParams {
     url: string;

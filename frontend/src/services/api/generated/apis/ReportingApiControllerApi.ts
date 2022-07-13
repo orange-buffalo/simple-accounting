@@ -24,6 +24,7 @@ import {
     GeneralTaxReportDtoFromJSON,
     GeneralTaxReportDtoToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface GetGeneralTaxReportRequest {
     workspaceId: number;
@@ -38,7 +39,7 @@ export class ReportingApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async getGeneralTaxReportRaw<T extends RequestInit & RM>(requestParameters: GetGeneralTaxReportRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<GeneralTaxReportDto>> {
+    async getGeneralTaxReportRaw(requestParameters: GetGeneralTaxReportRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<GeneralTaxReportDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getGeneralTaxReport.');
         }
@@ -68,15 +69,15 @@ export class ReportingApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GeneralTaxReportDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getGeneralTaxReport<T extends RequestInit & RM>(requestParameters: GetGeneralTaxReportRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<GeneralTaxReportDto> {
-        const response = await this.getGeneralTaxReportRaw(requestParameters, initOverrides);
+    async getGeneralTaxReport(requestParameters: GetGeneralTaxReportRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<GeneralTaxReportDto> {
+        const response = await this.getGeneralTaxReportRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 

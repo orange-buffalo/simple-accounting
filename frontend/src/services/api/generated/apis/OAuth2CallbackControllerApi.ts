@@ -24,6 +24,7 @@ import {
     OAuth2AuthorizationCallbackRequestFromJSON,
     OAuth2AuthorizationCallbackRequestToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface AuthCallbackRequest {
     oAuth2AuthorizationCallbackRequest: OAuth2AuthorizationCallbackRequest;
@@ -36,7 +37,7 @@ export class OAuth2CallbackControllerApi<RM = void> extends runtime.BaseAPI<RM> 
 
     /**
      */
-    async authCallbackRaw<T extends RequestInit & RM>(requestParameters: AuthCallbackRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<void>> {
+    async authCallbackRaw(requestParameters: AuthCallbackRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.oAuth2AuthorizationCallbackRequest === null || requestParameters.oAuth2AuthorizationCallbackRequest === undefined) {
             throw new runtime.RequiredError('oAuth2AuthorizationCallbackRequest','Required parameter requestParameters.oAuth2AuthorizationCallbackRequest was null or undefined when calling authCallback.');
         }
@@ -53,15 +54,15 @@ export class OAuth2CallbackControllerApi<RM = void> extends runtime.BaseAPI<RM> 
             headers: headerParameters,
             query: queryParameters,
             body: OAuth2AuthorizationCallbackRequestToJSON(requestParameters.oAuth2AuthorizationCallbackRequest),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.VoidApiResponse(response);
     }
 
     /**
      */
-    async authCallback<T extends RequestInit & RM>(requestParameters: AuthCallbackRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<void> {
-        await this.authCallbackRaw(requestParameters, initOverrides);
+    async authCallback(requestParameters: AuthCallbackRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<void> {
+        await this.authCallbackRaw(requestParameters, initOverrides, additionalParameters);
     }
 
 }

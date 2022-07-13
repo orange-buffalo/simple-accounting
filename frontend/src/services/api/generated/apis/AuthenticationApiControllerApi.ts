@@ -27,6 +27,7 @@ import {
     TokenResponseFromJSON,
     TokenResponseToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface LoginOperationRequest {
     loginRequest: LoginRequest;
@@ -47,7 +48,7 @@ export class AuthenticationApiControllerApi<RM = void> extends runtime.BaseAPI<R
 
     /**
      */
-    async loginRaw<T extends RequestInit & RM>(requestParameters: LoginOperationRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<TokenResponse>> {
+    async loginRaw(requestParameters: LoginOperationRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<TokenResponse>> {
         if (requestParameters.loginRequest === null || requestParameters.loginRequest === undefined) {
             throw new runtime.RequiredError('loginRequest','Required parameter requestParameters.loginRequest was null or undefined when calling login.');
         }
@@ -64,21 +65,21 @@ export class AuthenticationApiControllerApi<RM = void> extends runtime.BaseAPI<R
             headers: headerParameters,
             query: queryParameters,
             body: LoginRequestToJSON(requestParameters.loginRequest),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => TokenResponseFromJSON(jsonValue));
     }
 
     /**
      */
-    async login<T extends RequestInit & RM>(requestParameters: LoginOperationRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<TokenResponse> {
-        const response = await this.loginRaw(requestParameters, initOverrides);
+    async login(requestParameters: LoginOperationRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<TokenResponse> {
+        const response = await this.loginRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async loginBySharedWorkspaceTokenRaw<T extends RequestInit & RM>(requestParameters: LoginBySharedWorkspaceTokenRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<TokenResponse>> {
+    async loginBySharedWorkspaceTokenRaw(requestParameters: LoginBySharedWorkspaceTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<TokenResponse>> {
         if (requestParameters.sharedWorkspaceToken === null || requestParameters.sharedWorkspaceToken === undefined) {
             throw new runtime.RequiredError('sharedWorkspaceToken','Required parameter requestParameters.sharedWorkspaceToken was null or undefined when calling loginBySharedWorkspaceToken.');
         }
@@ -96,21 +97,21 @@ export class AuthenticationApiControllerApi<RM = void> extends runtime.BaseAPI<R
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => TokenResponseFromJSON(jsonValue));
     }
 
     /**
      */
-    async loginBySharedWorkspaceToken<T extends RequestInit & RM>(requestParameters: LoginBySharedWorkspaceTokenRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<TokenResponse> {
-        const response = await this.loginBySharedWorkspaceTokenRaw(requestParameters, initOverrides);
+    async loginBySharedWorkspaceToken(requestParameters: LoginBySharedWorkspaceTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<TokenResponse> {
+        const response = await this.loginBySharedWorkspaceTokenRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async logoutRaw<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<string>> {
+    async logoutRaw(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<string>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -120,21 +121,21 @@ export class AuthenticationApiControllerApi<RM = void> extends runtime.BaseAPI<R
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.TextApiResponse(response) as any;
     }
 
     /**
      */
-    async logout<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<string> {
-        const response = await this.logoutRaw(initOverrides);
+    async logout(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<string> {
+        const response = await this.logoutRaw(initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async refreshTokenRaw<T extends RequestInit & RM>(requestParameters: RefreshTokenRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<TokenResponse>> {
+    async refreshTokenRaw(requestParameters: RefreshTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<TokenResponse>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -144,15 +145,15 @@ export class AuthenticationApiControllerApi<RM = void> extends runtime.BaseAPI<R
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => TokenResponseFromJSON(jsonValue));
     }
 
     /**
      */
-    async refreshToken<T extends RequestInit & RM>(requestParameters: RefreshTokenRequest = {}, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<TokenResponse> {
-        const response = await this.refreshTokenRaw(requestParameters, initOverrides);
+    async refreshToken(requestParameters: RefreshTokenRequest = {}, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<TokenResponse> {
+        const response = await this.refreshTokenRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 

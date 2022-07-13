@@ -30,6 +30,7 @@ import {
     WorkspaceAccessTokenDtoFromJSON,
     WorkspaceAccessTokenDtoToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface CreateAccessTokenRequest {
     workspaceId: number;
@@ -47,7 +48,7 @@ export class WorkspaceAccessTokensApiControllerApi<RM = void> extends runtime.Ba
 
     /**
      */
-    async createAccessTokenRaw<T extends RequestInit & RM>(requestParameters: CreateAccessTokenRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<WorkspaceAccessTokenDto>> {
+    async createAccessTokenRaw(requestParameters: CreateAccessTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<WorkspaceAccessTokenDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createAccessToken.');
         }
@@ -68,21 +69,21 @@ export class WorkspaceAccessTokensApiControllerApi<RM = void> extends runtime.Ba
             headers: headerParameters,
             query: queryParameters,
             body: CreateWorkspaceAccessTokenDtoToJSON(requestParameters.createWorkspaceAccessTokenDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => WorkspaceAccessTokenDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createAccessToken<T extends RequestInit & RM>(requestParameters: CreateAccessTokenRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<WorkspaceAccessTokenDto> {
-        const response = await this.createAccessTokenRaw(requestParameters, initOverrides);
+    async createAccessToken(requestParameters: CreateAccessTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<WorkspaceAccessTokenDto> {
+        const response = await this.createAccessTokenRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getAccessTokensRaw<T extends RequestInit & RM>(requestParameters: GetAccessTokensRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<ApiPageWorkspaceAccessTokenDto>> {
+    async getAccessTokensRaw(requestParameters: GetAccessTokensRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPageWorkspaceAccessTokenDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getAccessTokens.');
         }
@@ -96,15 +97,15 @@ export class WorkspaceAccessTokensApiControllerApi<RM = void> extends runtime.Ba
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageWorkspaceAccessTokenDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getAccessTokens<T extends RequestInit & RM>(requestParameters: GetAccessTokensRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<ApiPageWorkspaceAccessTokenDto> {
-        const response = await this.getAccessTokensRaw(requestParameters, initOverrides);
+    async getAccessTokens(requestParameters: GetAccessTokensRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPageWorkspaceAccessTokenDto> {
+        const response = await this.getAccessTokensRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 

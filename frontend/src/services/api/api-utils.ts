@@ -1,5 +1,6 @@
 import type { ApiPage, ApiPageRequest } from '@/services/api/api-types';
 import { ResponseError } from '@/services/api/generated';
+import type { AdditionalRequestParameters } from '@/services/api/generated/runtime';
 import type { RequestMetadata } from '@/services/api/api-client';
 
 export function apiDateString(date: Date) {
@@ -33,20 +34,29 @@ export async function consumeAllPages<T>(
   return result;
 }
 
-export async function consumeApiErrorResponse<T>(e: unknown): Promise<T> {
-  if (!(e instanceof ResponseError)) throw new Error(`Unknown error ${JSON.stringify(e)}`);
-  return (await e.response.json()) as T;
+/**
+ * Consumes exception and returns the response body, if exception is caused by non-successful response.
+ * @param e exception caught during API request execution.
+ */
+export async function consumeApiErrorResponse<T>(e: unknown): Promise<T | undefined> {
+  if (e instanceof ResponseError) {
+    return (await e.response.json()) as T;
+  }
 }
 
-export function skipGlobalErrorHandler(): RequestMetadata {
+export function skipGlobalErrorHandler(): AdditionalRequestParameters<RequestMetadata> {
   return {
-    skipGlobalErrorHandler: true,
+    metadata: {
+      skipGlobalErrorHandler: true,
+    },
   };
 }
 
-export function requestTimeout(timeoutMs: number): RequestMetadata {
+export function requestTimeout(timeoutMs: number): AdditionalRequestParameters<RequestMetadata> {
   return {
-    requestTimeoutMs: timeoutMs,
+    metadata: {
+      requestTimeoutMs: timeoutMs,
+    },
   };
 }
 
@@ -63,4 +73,8 @@ export function useCancellableRequest(): CancellableRequest {
     },
     cancelRequest: () => abortController.abort(),
   };
+}
+
+export function defaultRequestSettings(): RequestInit {
+  return {};
 }
