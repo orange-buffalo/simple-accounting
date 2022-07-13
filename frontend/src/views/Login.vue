@@ -159,9 +159,9 @@
 
   const onLoginError = async (apiResponseError: unknown) => {
     const apiResponse = await consumeApiErrorResponse<LoginErrorResponse>(apiResponseError);
-    if (apiResponse && apiResponse.error === 'AccountLocked' && apiResponse.lockExpiresInSec !== undefined) {
+    if (apiResponse?.error === 'AccountLocked' && apiResponse?.lockExpiresInSec !== undefined) {
       accountLockTimer.start(apiResponse.lockExpiresInSec);
-    } else if (apiResponse && apiResponse.error === 'LoginNotAvailable') {
+    } else if (apiResponse?.error === 'LoginNotAvailable') {
       uiState.loginError = i18n.t('loginPage.loginError.underAttack');
     } else {
       uiState.loginError = i18n.t('loginPage.loginError.generalFailure');

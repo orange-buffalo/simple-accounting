@@ -30,6 +30,7 @@ import {
     UserDtoFromJSON,
     UserDtoToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface CreateUserRequest {
     createUserDto: CreateUserDto;
@@ -42,7 +43,7 @@ export class UsersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async createUserRaw<T extends RequestInit & RM>(requestParameters: CreateUserRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<UserDto>> {
+    async createUserRaw(requestParameters: CreateUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<UserDto>> {
         if (requestParameters.createUserDto === null || requestParameters.createUserDto === undefined) {
             throw new runtime.RequiredError('createUserDto','Required parameter requestParameters.createUserDto was null or undefined when calling createUser.');
         }
@@ -59,21 +60,21 @@ export class UsersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             headers: headerParameters,
             query: queryParameters,
             body: CreateUserDtoToJSON(requestParameters.createUserDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UserDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createUser<T extends RequestInit & RM>(requestParameters: CreateUserRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<UserDto> {
-        const response = await this.createUserRaw(requestParameters, initOverrides);
+    async createUser(requestParameters: CreateUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<UserDto> {
+        const response = await this.createUserRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getUsersRaw<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<ApiPageUserDto>> {
+    async getUsersRaw(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPageUserDto>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -83,15 +84,15 @@ export class UsersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageUserDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getUsers<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<ApiPageUserDto> {
-        const response = await this.getUsersRaw(initOverrides);
+    async getUsers(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPageUserDto> {
+        const response = await this.getUsersRaw(initOverrides, additionalParameters);
         return await response.value();
     }
 

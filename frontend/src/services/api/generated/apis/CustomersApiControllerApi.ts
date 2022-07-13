@@ -30,6 +30,7 @@ import {
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface CreateCustomerRequest {
     workspaceId: number;
@@ -58,7 +59,7 @@ export class CustomersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async createCustomerRaw<T extends RequestInit & RM>(requestParameters: CreateCustomerRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<CustomerDto>> {
+    async createCustomerRaw(requestParameters: CreateCustomerRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<CustomerDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createCustomer.');
         }
@@ -79,21 +80,21 @@ export class CustomersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             headers: headerParameters,
             query: queryParameters,
             body: EditCustomerDtoToJSON(requestParameters.editCustomerDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CustomerDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createCustomer<T extends RequestInit & RM>(requestParameters: CreateCustomerRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<CustomerDto> {
-        const response = await this.createCustomerRaw(requestParameters, initOverrides);
+    async createCustomer(requestParameters: CreateCustomerRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<CustomerDto> {
+        const response = await this.createCustomerRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getCustomerRaw<T extends RequestInit & RM>(requestParameters: GetCustomerRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<CustomerDto>> {
+    async getCustomerRaw(requestParameters: GetCustomerRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<CustomerDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getCustomer.');
         }
@@ -111,21 +112,21 @@ export class CustomersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CustomerDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getCustomer<T extends RequestInit & RM>(requestParameters: GetCustomerRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<CustomerDto> {
-        const response = await this.getCustomerRaw(requestParameters, initOverrides);
+    async getCustomer(requestParameters: GetCustomerRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<CustomerDto> {
+        const response = await this.getCustomerRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getCustomersRaw<T extends RequestInit & RM>(requestParameters: GetCustomersRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<ApiPageCustomerDto>> {
+    async getCustomersRaw(requestParameters: GetCustomersRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPageCustomerDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getCustomers.');
         }
@@ -139,21 +140,21 @@ export class CustomersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageCustomerDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getCustomers<T extends RequestInit & RM>(requestParameters: GetCustomersRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<ApiPageCustomerDto> {
-        const response = await this.getCustomersRaw(requestParameters, initOverrides);
+    async getCustomers(requestParameters: GetCustomersRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPageCustomerDto> {
+        const response = await this.getCustomersRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async updateCustomerRaw<T extends RequestInit & RM>(requestParameters: UpdateCustomerRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<CustomerDto>> {
+    async updateCustomerRaw(requestParameters: UpdateCustomerRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<CustomerDto>> {
         if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
             throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling updateCustomer.');
         }
@@ -178,15 +179,15 @@ export class CustomersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             headers: headerParameters,
             query: queryParameters,
             body: EditCustomerDtoToJSON(requestParameters.editCustomerDto),
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CustomerDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async updateCustomer<T extends RequestInit & RM>(requestParameters: UpdateCustomerRequest, initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<CustomerDto> {
-        const response = await this.updateCustomerRaw(requestParameters, initOverrides);
+    async updateCustomer(requestParameters: UpdateCustomerRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<CustomerDto> {
+        const response = await this.updateCustomerRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 

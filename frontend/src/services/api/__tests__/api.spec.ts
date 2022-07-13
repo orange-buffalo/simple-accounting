@@ -8,6 +8,7 @@ import type {
 } from '@/services/api';
 import type { RequestMetadata } from '@/services/api/api-client';
 import type { CancellableRequest } from '@/services/api/api-utils';
+import type { AdditionalRequestParameters } from '@/services/api/generated/runtime';
 
 // eslint-disable-next-line max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
@@ -20,9 +21,11 @@ describe('API Client', () => {
   let apiFatalErrorEventMock: (error: ResponseError | FetchError) => void;
   let useAuth: () => Auth;
   let profileApi: ProfileApiControllerApi<RequestMetadata>;
-  let skipGlobalErrorHandler: () => RequestMetadata;
-  let requestTimeout: (timeoutMs: number) => RequestMetadata;
+  let skipGlobalErrorHandler: () => AdditionalRequestParameters<RequestMetadata>;
+  let requestTimeout: (timeoutMs: number) => AdditionalRequestParameters<RequestMetadata>;
   let useCancellableRequest: () => CancellableRequest;
+  let defaultRequestSettings: () => RequestInit;
+  let consumeApiErrorResponse: (e: unknown) => Promise<unknown>;
 
   test('does not set Authorization token when not logged in', async () => {
     fetchMock.get('/api/profile', {});
@@ -161,7 +164,7 @@ describe('API Client', () => {
     });
 
     await expectToFailWithResponseStatus(async () => {
-      await profileApi.getProfile(skipGlobalErrorHandler());
+      await profileApi.getProfile(defaultRequestSettings(), skipGlobalErrorHandler());
     }, 500);
 
     expect(apiFatalErrorEventMock)
@@ -207,7 +210,7 @@ describe('API Client', () => {
     });
 
     try {
-      await profileApi.getProfile(skipGlobalErrorHandler());
+      await profileApi.getProfile(defaultRequestSettings(), skipGlobalErrorHandler());
       expect(null, 'API call expected to fail')
         .toBeDefined();
     } catch (e) {
@@ -236,7 +239,7 @@ describe('API Client', () => {
     });
 
     try {
-      await profileApi.getProfile(requestTimeout(200));
+      await profileApi.getProfile(defaultRequestSettings(), requestTimeout(200));
       expect(null, 'API call expected to fail')
         .toBeDefined();
     } catch (e) {
@@ -266,9 +269,8 @@ describe('API Client', () => {
 
     try {
       await profileApi.getProfile({
-        ...requestTimeout(200),
         signal: new AbortController().signal,
-      });
+      }, requestTimeout(200));
       expect(null, 'API call expected to fail')
         .toBeDefined();
     } catch (e) {
@@ -316,6 +318,45 @@ describe('API Client', () => {
       .toHaveBeenCalledOnce();
   });
 
+  test('should consume API error response', async () => {
+    fetchMock.get('/api/profile', {
+      status: 409,
+      body: {
+        responseField: 42,
+      },
+    });
+
+    interface ErrorResponse {
+      responseField: number;
+    }
+
+    try {
+      await profileApi.getProfile();
+      expect(null, 'API call expected to fail')
+        .toBeDefined();
+    } catch (e) {
+      const response = await consumeApiErrorResponse(e) as ErrorResponse;
+      expect(response)
+        .toEqual({ responseField: 42 });
+    }
+  });
+
+  test('should consume API error response as undefined on fetch error', async () => {
+    fetchMock.get('/api/profile', {
+      throws: new Error(),
+    });
+
+    try {
+      await profileApi.getProfile();
+      expect(null, 'API call expected to fail')
+        .toBeDefined();
+    } catch (e) {
+      const response = await consumeApiErrorResponse(e);
+      expect(response)
+        .toBeUndefined();
+    }
+  });
+
   beforeEach(async () => {
     vi.useFakeTimers();
     vi.setSystemTime(API_TIME);
@@ -346,6 +387,8 @@ describe('API Client', () => {
       skipGlobalErrorHandler,
       requestTimeout,
       useCancellableRequest,
+      defaultRequestSettings,
+      consumeApiErrorResponse,
     } = await import('@/services/api'));
   });
 

@@ -24,6 +24,7 @@ import {
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
 } from '../models';
+import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 /**
  * 
@@ -32,7 +33,7 @@ export class PushNotificationsApiControllerApi<RM = void> extends runtime.BaseAP
 
     /**
      */
-    async getPushNotificationMessagesRaw<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<runtime.ApiResponse<Array<CurrentUserPushNotificationMessage>>> {
+    async getPushNotificationMessagesRaw(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<Array<CurrentUserPushNotificationMessage>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -42,15 +43,15 @@ export class PushNotificationsApiControllerApi<RM = void> extends runtime.BaseAP
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        }, initOverrides, additionalParameters);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CurrentUserPushNotificationMessageFromJSON));
     }
 
     /**
      */
-    async getPushNotificationMessages<T extends RequestInit & RM>(initOverrides?: T | runtime.InitOverrideFunction<T, RM>): Promise<Array<CurrentUserPushNotificationMessage>> {
-        const response = await this.getPushNotificationMessagesRaw(initOverrides);
+    async getPushNotificationMessages(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<Array<CurrentUserPushNotificationMessage>> {
+        const response = await this.getPushNotificationMessagesRaw(initOverrides, additionalParameters);
         return await response.value();
     }
 
