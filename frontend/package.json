@@ -4,7 +4,7 @@
   "scripts": {
     "postinstall": "node build-config/npm-post-install/post-install.js",
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "npm run typecheck && vite build",
     "preview": "vite preview --port 5050",
     "test:unit": "vitest --run",
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
@@ -59,6 +59,6 @@
     "vite": "^2.9.13",
     "vite-svg-loader": "^3.4.0",
     "vitest": "^0.16.0",
-    "vue-tsc": "^0.38.2"
+    "vue-tsc": "^0.38.5"
   }
 }

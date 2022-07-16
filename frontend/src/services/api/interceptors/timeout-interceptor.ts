@@ -11,7 +11,7 @@ export const requestTimeoutInterceptor: Middleware<RequestMetadata> = {
   async pre(context: RequestContext<RequestMetadata>) {
     const timeoutMs = context.metadata?.requestTimeoutMs || DEFAULT_TIMEOUT;
     let finalSignal: AbortSignal;
-    let timerHandler: number | null = null;
+    let timerHandler: ReturnType<typeof setTimeout> | null = null;
     if (context.init.signal) {
       if (context.init.signal.aborted) {
         finalSignal = context.init.signal;

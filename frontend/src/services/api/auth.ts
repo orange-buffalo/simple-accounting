@@ -33,7 +33,7 @@ function updateApiToken(jwtToken: string | null) {
   }
 }
 
-let refreshTokenTimer: number;
+let refreshTokenTimer: ReturnType<typeof setTimeout>;
 
 function cancelTokenRefresh() {
   if (refreshTokenTimer) {
