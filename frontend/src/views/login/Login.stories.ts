@@ -1,4 +1,4 @@
-import Login from '@/views/Login.vue';
+import Login from '@/views/login/Login.vue';
 
 // noinspection JSUnusedGlobalSymbols
 export default {

@@ -62,6 +62,7 @@
 </template>
 
 <script lang="ts" setup>
+  /// <reference types="vite-svg-loader" />
   import type { Ref } from 'vue';
   import {
     computed,
@@ -72,7 +73,6 @@
 
   import { initWorkspace, useCurrentWorkspace } from '@/services/workspaces';
   import { i18n } from '@/services/i18n';
-  /// <reference types="vite-svg-loader" />
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
@@ -84,7 +84,7 @@
 
     private $remainingDurationInSec: Ref<number | null>;
 
-    private $timerRef: number | null;
+    private $timerRef: ReturnType<typeof setTimeout> | null;
 
     constructor(onTimerUpdate: (remainingDurationInSec: number) => void) {
       this.$remainingDurationInSec = ref(null);

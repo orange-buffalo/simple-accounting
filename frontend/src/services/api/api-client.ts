@@ -12,7 +12,7 @@ import { errorHandlingInterceptor } from '@/services/api/interceptors/error-hand
 export interface RequestMetadata {
   readonly skipGlobalErrorHandler?: boolean;
   readonly requestTimeoutMs?: number,
-  requestTimeoutHandler?: number
+  requestTimeoutHandler?: ReturnType<typeof setTimeout>
 }
 
 const defaultConfigParameters: ConfigurationParameters<RequestMetadata> = {
