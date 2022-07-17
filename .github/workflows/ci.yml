@@ -52,6 +52,7 @@ jobs:
     - name: "Build"
       env:
         DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
+        NODE_OPTIONS: "--max_old_space_size=4096"
       run: |
           ./gradlew assemble buildDockerImage \
             --scan --console=plain \
@@ -62,6 +63,8 @@ jobs:
       run: ./gradlew check --scan --console=plain
 
     - name: "Test (storybook)"
+      env:
+        NODE_OPTIONS: "--max_old_space_size=4096"
       run: |
           ./gradlew npmBuildStorybook --scan --console=plain
           ./gradlew storybookTest --scan --console=plain

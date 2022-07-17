@@ -1,5 +1,4 @@
 import { fileURLToPath, URL } from 'url';
-/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { vitePlugins } from './build-config/vite-plugins';
@@ -19,7 +18,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      // cannot use import.meta.url, storybook fails
+      '@': fileURLToPath(new URL('./src', `file://${ __filename}`)),
     },
   },
   server: {

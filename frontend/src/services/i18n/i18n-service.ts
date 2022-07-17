@@ -75,8 +75,8 @@ export class I18nService {
   private messageCache: Record<string, MessageFunction<'string' | 'values'>> = {};
 
   private async loadLanguage(language: string) {
-    const { default: objectMessages } = await translationFilesDeferred[language]();
-    this.currentMessages = flatten(objectMessages);
+    const translations = await translationFilesDeferred[language]();
+    this.currentMessages = flatten(translations);
     this.currentLanguage = language;
     this.supportedLocales = (await import(`./l10n/locales-display-names-${language}.json`)).default;
   }
