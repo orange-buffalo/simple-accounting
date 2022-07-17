@@ -1,10 +1,15 @@
-const translationFilesDeferred = import.meta.glob('./*.ts');
-for (const path in translationFilesDeferred) {
-  if (Object.prototype.hasOwnProperty.call(translationFilesDeferred, path)) {
-    translationFilesDeferred[path.replace('./', '')
-      .replace('.ts', '')] = translationFilesDeferred[path];
-    delete translationFilesDeferred[path];
+type Translations = Record<string, unknown>;
+type Language = string;
+type TranslationsDeferred = Record<Language, () => Promise<Translations>>;
+const translationDeferred: TranslationsDeferred = {};
+
+const asyncModules = import.meta.glob<Translations>('./*.ts', { import: 'default' });
+for (const path in asyncModules) {
+  if (Object.prototype.hasOwnProperty.call(asyncModules, path)) {
+    const language: Language = path.replace('./', '')
+      .replace('.ts', '');
+    translationDeferred[language] = asyncModules[path];
   }
 }
 
-export default translationFilesDeferred;
+export default translationDeferred;
