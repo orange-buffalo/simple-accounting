@@ -12,78 +12,78 @@
     <template v-if="isUser">
       <TheSideMenuLink
           to="/"
-          :title="$t('navigationMenu.dashboard')"
+          :title="$t.navigationMenu.dashboard()"
           icon="dashboard"
       />
       <TheSideMenuLink
           to="/expenses"
-          :title="$t('navigationMenu.expenses')"
+          :title="$t.navigationMenu.expenses()"
           icon="expense"
       />
       <TheSideMenuLink
           to="/incomes"
-          :title="$t('navigationMenu.incomes')"
+          :title="$t.navigationMenu.incomes()"
           icon="income"
       />
       <TheSideMenuLink
           to="/invoices"
-          :title="$t('navigationMenu.invoices')"
+          :title="$t.navigationMenu.invoices()"
           icon="invoices-overview"
       />
       <TheSideMenuLink
           to="/income-tax-payments"
-          :title="$t('navigationMenu.taxPayments')"
+          :title="$t.navigationMenu.taxPayments()"
           icon="income-tax-payments-overview"
       />
       <TheSideMenuLink
           to="/reporting"
-          :title="$t('navigationMenu.reporting')"
+          :title="$t.navigationMenu.reporting()"
           icon="reporting"
       />
 
       <template v-if="isCurrentUserRegular()">
-        <span class="side-menu__category">{{ $t('navigationMenu.settings.header') }}</span>
+        <span class="side-menu__category">{{ $t.navigationMenu.settings.header() }}</span>
 
         <TheSideMenuLink
             v-if="currentWorkspace.editable"
             to="/settings/customers"
-            :title="$t('navigationMenu.settings.customers')"
+            :title="$t.navigationMenu.settings.customers()"
             icon="customers-overview"
         />
 
         <TheSideMenuLink
             v-if="currentWorkspace.editable"
             to="/settings/categories"
-            :title="$t('navigationMenu.settings.categories')"
+            :title="$t.navigationMenu.settings.categories()"
             icon="category"
         />
 
         <TheSideMenuLink
             v-if="currentWorkspace.editable"
             to="/settings/general-taxes"
-            :title="$t('navigationMenu.settings.generalTaxes')"
+            :title="$t.navigationMenu.settings.generalTaxes()"
             icon="taxes-overview"
         />
 
         <TheSideMenuLink
             to="/settings/workspaces"
-            :title="$t('navigationMenu.settings.workspaces')"
+            :title="$t.navigationMenu.settings.workspaces()"
             icon="workspaces"
         />
       </template>
     </template>
 
-    <span class="side-menu__category">{{ $t('navigationMenu.user.header') }}</span>
+    <span class="side-menu__category">{{ $t.navigationMenu.user.header() }}</span>
 
     <TheSideMenuLink
         v-if="isCurrentUserRegular()"
         to="/my-profile"
-        :title="$t('navigationMenu.user.profile')"
+        :title="$t.navigationMenu.user.profile()"
         icon="profile"
     />
     <TheSideMenuLink
         to="/logout"
-        :title="$t('navigationMenu.user.logout')"
+        :title="$t.navigationMenu.user.logout()"
         icon="logout"
     />
   </ElAside>
@@ -98,6 +98,7 @@
   import type { WorkspaceDto } from '@/services/api';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
+  import { $t } from '@/services/i18n';
 
   const {
     isAdmin,

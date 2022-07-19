@@ -6,7 +6,7 @@
 
 <script lang="ts">
   import { ref, computed, defineComponent } from 'vue';
-  import mainConfig from '@/setup/setup-app';
+  import { setLocaleFromProfile } from '@/setup/setup-app';
 
   export default defineComponent({
     props: {
@@ -20,7 +20,7 @@
       const loaded = ref(false);
 
       async function loadI18n() {
-        await mainConfig.app.i18n.setLocaleFromProfile('en-AU', 'en');
+        await setLocaleFromProfile('en-AU', 'en');
         loaded.value = true;
       }
 

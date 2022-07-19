@@ -1,39 +1,29 @@
+import type { App } from 'vue';
 import { createApp } from 'vue';
+import type { Router } from 'vue-router';
 import SimpleAccounting from '@/SimpleAccounting.vue';
 import setupRouter from '@/setup/setup-router';
-import { app, AppServices } from '@/services/app-services';
-import { i18n } from '@/services/i18n';
-import { i18nPlugin } from '@/setup/i18n-plugin';
 import '@/styles/main.scss';
 
-function setupApp() {
-  const vue = createApp(SimpleAccounting);
+export { setLocaleFromProfile, setLocaleFromBrowser } from '@/services/i18n';
 
-  const router = setupRouter();
-  vue.use(router);
-  vue.use(i18nPlugin);
+let vueApp: App | null = null;
 
-  app.init(
-    vue,
-    router,
-    i18n,
-  );
+let vueRouter: Router | null = null;
+
+export function setupApp() {
+  vueApp = createApp(SimpleAccounting);
+
+  vueRouter = setupRouter();
+  vueApp.use(vueRouter);
 }
 
-function mountApp() {
-  app.vue.mount('#simple-accounting');
+export function mountApp() {
+  if (!vueApp) throw new Error('Vue app was not setup');
+  vueApp.mount('#simple-accounting');
 }
 
-export interface SimpleAccountingInitializer {
-  setupApp: () => void;
-  app: AppServices;
-  mountApp: () => void;
+export function router(): Router {
+  if (!vueRouter) throw Error('Vue app was not setup');
+  return vueRouter;
 }
-
-const initializer: SimpleAccountingInitializer = {
-  app,
-  mountApp,
-  setupApp,
-};
-
-export default initializer;

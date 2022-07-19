@@ -1,8 +1,8 @@
 import type { RouteParamsRaw } from 'vue-router';
-import { app } from '@/services/app-services';
+import { useRouter } from 'vue-router';
 
 export default function useNavigation() {
-  const { router } = app;
+  const router = useRouter();
 
   const navigateByViewName = async (name: string) => router.push({ name });
 

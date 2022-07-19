@@ -1,2 +1,2 @@
-export { I18nService } from './i18n-service';
-export { i18n } from './i18n-service';
+export * from './i18n-services';
+export type { Translations } from './t9n';

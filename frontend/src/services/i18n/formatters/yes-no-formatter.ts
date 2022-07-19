@@ -1,11 +1,11 @@
-import { i18n } from '@/services/i18n';
+import { $t } from '@/services/i18n';
 
 export function yesNoFormatter() {
   return function yesNoFormatterImpl(value: unknown) {
     const booleanValue = value as boolean;
     if (booleanValue) {
-      return i18n.t('common.yesNo.yes');
+      return $t.value.common.yesNo.yes();
     }
-    return i18n.t('common.yesNo.no');
+    return $t.value.common.yesNo.no();
   };
 }

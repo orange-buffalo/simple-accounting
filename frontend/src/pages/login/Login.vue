@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-page__signup">
-      {{ $t('loginPage.announcement') }}
+      {{ $t.loginPage.announcement() }}
     </div>
     <div class="login-page__login">
       <LogoLogin class="login-page__login__logo" />
@@ -14,7 +14,7 @@
         <ElFormItem>
           <ElInput
               v-model="form.userName"
-              :placeholder="$t('loginPage.userName.placeholder')"
+              :placeholder="$t.loginPage.userName.placeholder()"
           >
             <template #prefix>
               <SaIcon icon="login" />
@@ -26,7 +26,7 @@
           <ElInput
               v-model="form.password"
               type="password"
-              :placeholder="$t('loginPage.password.placeholder')"
+              :placeholder="$t.loginPage.password.placeholder()"
           >
             <template #prefix>
               <SaIcon icon="password" />
@@ -37,7 +37,7 @@
         <!--suppress HtmlDeprecatedAttribute -->
         <ElFormItem align="center">
           <ElCheckbox v-model="form.rememberMe">
-            {{ $t('loginPage.rememberMe.label') }}
+            {{ $t.loginPage.rememberMe.label() }}
           </ElCheckbox>
         </ElFormItem>
 
@@ -50,7 +50,7 @@
               v-if="uiState.loginInProgress"
               class="el-icon-loading"
           />
-          <span v-else>{{ $t('loginPage.login') }}</span>
+          <span v-else>{{ $t.loginPage.login() }}</span>
         </ElButton>
 
         <div class="login-page__login-error">
@@ -72,7 +72,7 @@
   } from 'vue';
 
   import { initWorkspace, useCurrentWorkspace } from '@/services/workspaces';
-  import { i18n } from '@/services/i18n';
+  import { $t, setLocaleFromProfile } from '@/services/i18n';
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
@@ -140,7 +140,7 @@
     if (lockDurationInSec === 0) {
       uiState.loginError = null;
     } else {
-      uiState.loginError = i18n.t('loginPage.loginError.accountLocked', [lockDurationInSec]);
+      uiState.loginError = $t.value.loginPage.loginError.accountLocked(lockDurationInSec);
     }
   });
 
@@ -157,14 +157,15 @@
     lockExpiresInSec?: number
   }
 
-  const onLoginError = async (apiResponseError: unknown) => {
-    const apiResponse = await consumeApiErrorResponse<LoginErrorResponse>(apiResponseError);
+  const onLoginError = async (processingError: unknown) => {
+    const apiResponse = await consumeApiErrorResponse<LoginErrorResponse>(processingError);
     if (apiResponse?.error === 'AccountLocked' && apiResponse?.lockExpiresInSec !== undefined) {
       accountLockTimer.start(apiResponse.lockExpiresInSec);
     } else if (apiResponse?.error === 'LoginNotAvailable') {
-      uiState.loginError = i18n.t('loginPage.loginError.underAttack');
+      uiState.loginError = $t.value.loginPage.loginError.underAttack();
     } else {
-      uiState.loginError = i18n.t('loginPage.loginError.generalFailure');
+      console.error('Login failure', processingError);
+      uiState.loginError = $t.value.loginPage.loginError.generalFailure();
     }
   };
 
@@ -208,7 +209,7 @@
     try {
       await login({ ...form });
       const profile = await profileApi.getProfile();
-      await i18n.setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
+      await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
 
       if (isAdmin()) {
         await onAdminLogin();
