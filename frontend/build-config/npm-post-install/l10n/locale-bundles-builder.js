@@ -74,7 +74,8 @@ function generateLocalesBundlesJsons() {
 function generateLocalesDisplayNames() {
   const messagesDir = 'src/services/i18n/t9n';
   const messagesFiles = fs.readdirSync(messagesDir)
-    .filter((it) => it !== 'index.ts');
+    .filter((it) => it !== 'index.ts')
+    .filter((it) => it !== 'formatter.ts');
 
   const { localesCodes } = getSupportedLocalesCodes();
 

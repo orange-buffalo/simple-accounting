@@ -1,14 +1,20 @@
 import {
-  afterEach,
-  beforeEach, describe, expect, vi, test,
+  afterEach, describe, expect, vi, test,
 } from 'vitest';
-import { I18nService } from '@/services/i18n';
+import {
+  formatMessage,
+  getSupportedLanguages,
+  getSupportedLocales,
+  getCurrentLanguage,
+  getCurrentLocale,
+  setLocaleFromProfile,
+  setLocaleFromBrowser,
+  $t,
+} from '@/services/i18n';
 
 describe('i18n', () => {
-  let i18n: I18nService;
-
   test('should provide supported languages', () => {
-    expect(I18nService.getSupportedLanguages())
+    expect(getSupportedLanguages())
       .toContainEqual({
         languageCode: 'en',
         displayName: 'English',
@@ -16,11 +22,11 @@ describe('i18n', () => {
   });
 
   test('should fail on supported locales if not initialized', () => {
-    expect(() => i18n.getSupportedLocales())
+    expect(() => getSupportedLocales())
       .toThrow('i18n has not been initialized');
-    expect(() => i18n.getCurrentLanguage())
+    expect(() => getCurrentLanguage())
       .toThrow('i18n has not been initialized');
-    expect(() => i18n.getCurrentLocale())
+    expect(() => getCurrentLocale())
       .toThrow('i18n has not been initialized');
   });
 
@@ -30,58 +36,54 @@ describe('i18n', () => {
       configurable: true,
     });
 
-    await i18n.setLocaleFromBrowser();
+    await setLocaleFromBrowser();
 
-    expect(i18n.getSupportedLocales())
+    expect(getSupportedLocales())
       .toContainEqual({
         locale: 'en',
         displayName: 'English',
       });
-    expect(i18n.getCurrentLanguage())
+    expect(getCurrentLanguage())
       .toBe('en');
-    expect(i18n.getCurrentLocale())
+    expect(getCurrentLocale())
       .toBe('fr');
   });
 
-  test('should fallback to message key if not found in message file', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
+  test('should render template without parameters', async () => {
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('unknown.message'))
-      .toBe('unknown.message');
-  });
-
-  test('should render messages with nested key', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
-
-    expect(i18n.t('test.message'))
+    expect(formatMessage('Test message'))
       .toBe('Test message');
   });
 
   test('should render named params', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('namedParam', { param: 'value' }))
+    expect(formatMessage('{param}', { param: 'value' }))
       .toBe('value');
   });
 
   test('should render indexed params', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('indexedParam', ['value']))
+    expect(formatMessage('{0}', ['value']))
       .toBe('value');
   });
 
-  test('should support yesNo format', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
+  test.each([
+    [true, 'Yes'],
+    [false, 'No'],
+  ])('should support yesNo format (%b -> %s)', async (value, expectedInterpolation) => {
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('yesNoFormatter', [true]))
-      .toBe('common.yesNo.yes');
+    expect(formatMessage('{0, yesNo}', [value]))
+      .toBe(expectedInterpolation);
   });
 
   test('should support amount format', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('amountFormatter', [{
+    expect(formatMessage('{0, amount, withCurrency}', [{
       currency: 'AUD',
       amount: 1234,
     }]))
@@ -89,24 +91,31 @@ describe('i18n', () => {
   });
 
   test('should support bps format', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('bpsFormatter', [123]))
+    expect(formatMessage('{0, bps, percent}', [123]))
       .toBe('1.23%');
   });
 
   test('should support date format', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('dateFormatter', [new Date('2021-10-21 14:23')]))
+    expect(formatMessage('{0, date, medium}', [new Date('2021-10-21 14:23')]))
       .toBe('Oct 21, 2021');
   });
 
   test('should support date-time format', async () => {
-    await i18n.setLocaleFromProfile('en', 'en');
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('dateTimeFormatter', [new Date('2021-10-21 14:23')]))
+    expect(formatMessage('{0, saDateTime, medium}', [new Date('2021-10-21 14:23')]))
       .toBe('Oct 21, 2021, 2:23 PM');
+  });
+
+  test('should support $t', async () => {
+    await setLocaleFromProfile('en', 'en');
+
+    expect($t.value.common.yesNo.yes())
+      .toBe('Yes');
   });
 
   test.each([
@@ -126,32 +135,10 @@ describe('i18n', () => {
     [1024 * 1024 * 1000, '1,000 MB'],
     [1024 * 1024 * 2000, '2,000 MB'],
   ])('should support file size format (%i -> %s)', async (value, expectedInterpolation) => {
-    await i18n.setLocaleFromProfile('en', 'en');
+    await setLocaleFromProfile('en', 'en');
 
-    expect(i18n.t('fileSizeFormatter', [value]))
+    expect(formatMessage('{0, fileSize, pretty}', [value]))
       .toBe(expectedInterpolation);
-  });
-
-  beforeEach(async () => {
-    vi.mock('../t9n/en', () => ({
-      default: {
-        test: {
-          message: 'Test message',
-        },
-        common: {
-          percent: '{0, number, :: percent scale/100 .00}',
-        },
-        namedParam: '{param}',
-        indexedParam: '{0}',
-        yesNoFormatter: '{0, yesNo}',
-        amountFormatter: '{0, amount, withCurrency}',
-        bpsFormatter: '{0, bps, percent}',
-        dateFormatter: '{0, date, medium}',
-        dateTimeFormatter: '{0, saDateTime, medium}',
-        fileSizeFormatter: '{0, fileSize, pretty}',
-      },
-    }));
-    i18n = (await import('@/services/i18n')).i18n;
   });
 
   afterEach(() => {

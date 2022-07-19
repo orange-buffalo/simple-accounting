@@ -1,4 +1,4 @@
-type Translations = Record<string, unknown>;
+export type Translations = typeof import('./en').default;
 type Language = string;
 type TranslationsDeferred = Record<Language, () => Promise<Translations>>;
 const translationDeferred: TranslationsDeferred = {};

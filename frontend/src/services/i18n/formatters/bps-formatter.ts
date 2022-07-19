@@ -1,4 +1,4 @@
-import { i18n } from '@/services/i18n';
+import { formatMessage } from '@/services/i18n';
 
 export function bpsFormatter() {
   return function bpsFormatterImpl(value: unknown, locale: string, arg: string | null) {
@@ -9,6 +9,6 @@ export function bpsFormatter() {
     if (bpsValue == null) {
       return null;
     }
-    return i18n.t('common.percent', [bpsValue / 10000]);
+    return formatMessage('{0, number, :: percent scale/100 .00}', [bpsValue / 10000]);
   };
 }

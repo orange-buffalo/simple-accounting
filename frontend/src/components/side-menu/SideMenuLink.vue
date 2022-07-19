@@ -10,8 +10,10 @@
 
 <script setup lang="ts">
   import { computed } from 'vue';
+  import { useRouter } from 'vue-router';
   import SaIcon from '@/components/SaIcon.vue';
-  import { app } from '@/services/app-services';
+
+  const router = useRouter();
 
   const props = defineProps<{
     to: string,
@@ -21,6 +23,6 @@
 
   const styleClass = computed(() => ({
     'side-menu__link': true,
-    'side-menu__link--active': app.router.currentRoute.value.path === props.to,
+    'side-menu__link--active': router.currentRoute.value.path === props.to,
   }));
 </script>
