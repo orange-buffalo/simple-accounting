@@ -11,7 +11,7 @@ function getMergedCldrJson(baseDir, jsonFiles) {
 
     return totalJson ? `${totalJson}, ${jsonContent}` : jsonContent;
   }, '');
-  return `[${mergedJson}]`;
+  return JSON.stringify(JSON.parse(`[${mergedJson}]`));
 }
 
 function mergeAndSaveCldrJsonFiles(baseDir, jsonFiles, outputFile) {
