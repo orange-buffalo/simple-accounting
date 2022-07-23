@@ -1,39 +1,33 @@
 <template>
   <ElContainer>
-    <TheSideMenu />
+    <SideMenu />
 
     <ElContainer>
-      <TheLoadingProgress />
+      <AuthenticatedPageLoadingProgress />
       <ElMain>
         <div class="content-panel">
-          <Transition
-            name="authenticated-page-transition"
-            mode="out-in"
-          >
-            <RouterView />
-          </Transition>
+          <RouterView v-slot="{ Component : rv }">
+            <Transition
+                name="authenticated-page-transition"
+                mode="out-in"
+            >
+              <Component :is="rv" />
+            </Transition>
+          </RouterView>
         </div>
       </ElMain>
     </ElContainer>
   </ElContainer>
 </template>
 
-<script>
-  import TheSideMenu from '@/components/TheSideMenu';
-  import TheLoadingProgress from '@/components/loaders/TheLoadingProgress';
+<script lang="ts" setup>
+  import SideMenu from '@/components/side-menu/SideMenu.vue';
+  import AuthenticatedPageLoadingProgress from '@/components/authenticated-page/AuthenticatedPageLoadingProgress.vue';
 
-  export default {
-    name: 'TheAuthenticatedPage',
-
-    components: {
-      TheSideMenu,
-      TheLoadingProgress,
-    },
-  };
 </script>
 
 <style lang="scss">
-  @import "~@/styles/vars.scss";
+  @use "@/styles/vars.scss" as *;
 
   .el-container {
     height: 100vh;

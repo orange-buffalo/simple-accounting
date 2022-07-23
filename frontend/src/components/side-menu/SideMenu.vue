@@ -116,8 +116,8 @@
 </script>
 
 <style lang="scss">
-  @use "~@/styles/vars.scss" as *;
-  @use "~@/styles/mixins.scss"as *;
+  @use "@/styles/vars.scss" as *;
+  @use "@/styles/mixins.scss"as *;
 
   $menu-breakpoint: lg;
 
@@ -135,6 +135,7 @@
       margin: 10px 0 10px 0;
       display: inline-block;
       width: 100%;
+      color: $accent-contrast-color;
 
       @include respond-above($menu-breakpoint) {
         height: 120px;
@@ -182,8 +183,6 @@
 
       .sa-icon {
         margin-right: 0;
-        height: 30px;
-        width: 30px;
         margin-left: 17px;
 
         @include respond-above($menu-breakpoint) {

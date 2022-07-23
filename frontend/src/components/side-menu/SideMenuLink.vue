@@ -3,7 +3,7 @@
       :to="to"
       :class="styleClass"
   >
-    <SaIcon :icon="icon" />
+    <SaIcon :icon="icon" :size="27" />
     {{ title }}
   </RouterLink>
 </template>
