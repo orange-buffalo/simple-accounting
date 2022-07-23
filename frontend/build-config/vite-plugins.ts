@@ -14,13 +14,17 @@ export const vitePlugins = [
   }),
   svgLoader({
     svgoConfig: {
-      plugins: [{
-        name: 'removeDimensions',
-        active: true,
-      }, {
-        name: 'removeViewBox',
-        active: false,
-      }],
+      plugins: [
+        {
+          name: 'preset-default',
+          params: {
+            overrides: {
+              removeViewBox: false,
+            },
+          },
+        },
+        'removeDimensions',
+      ],
     },
   }),
 ];

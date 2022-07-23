@@ -24,12 +24,50 @@ export const AllIcons = () => ({
   data() {
     return {
       supportedIcons: iconNames(),
+      configs: [{
+        text: 'Default',
+        style: {
+          'margin-right': '10px',
+          'margin-top': '10px',
+        },
+      },
+      {
+        text: 'Default size, custom color',
+        style: {
+          'margin-right': '10px',
+          'margin-top': '10px',
+          color: '#3fa7ad',
+        },
+      },
+      {
+        text: 'Size 30px',
+        size: 30,
+        style: {
+          'margin-right': '15px',
+          'margin-top': '15px',
+        },
+      },
+      {
+        text: 'Size 50px',
+        size: 50,
+        style: {
+          'margin-right': '25px',
+          'margin-top': '25px',
+        },
+      }],
     };
   },
-  template: `<div>
-      <SaIcon style="width: 30px; margin-right: 10px; margin-top: 10px;"
+  template: `
+    <div>
+    <template v-for="config in configs" :key="config.text">
+      <h3 style="margin-bottom: 0">{{ config.text }}</h3>
+      <SaIcon :style="config.style"
+              :size="config.size"
               v-for="supportedIcon in supportedIcons"
               :key="supportedIcon"
-              :icon="supportedIcon" />
-      </div>`,
+              :icon="supportedIcon"
+              :title="supportedIcon"
+      />
+    </template>
+    </div>`,
 });

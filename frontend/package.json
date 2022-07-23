@@ -10,8 +10,7 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "storybook": "start-storybook -p 6006 -c build-config/storybook",
-    "build-storybook": "build-storybook -c build-config/storybook -o build/storybook",
-    "build-svgs": "svgo -f src/icons/svg -o src/icons/svg --config build-config/svgo.config.js"
+    "build-storybook": "build-storybook -c build-config/storybook -o build/storybook"
   },
   "dependencies": {
     "@messageformat/core": "^3.0.1",

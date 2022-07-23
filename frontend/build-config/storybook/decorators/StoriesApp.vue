@@ -4,39 +4,31 @@
   </div>
 </template>
 
-<script lang="ts">
-  import { ref, computed, defineComponent } from 'vue';
+<script lang="ts" setup>
+  import { ref, computed } from 'vue';
   import { setLocaleFromProfile } from '@/setup/setup-app';
 
-  export default defineComponent({
-    props: {
-      fullScreen: {
-        type: Boolean,
-        default: false,
-      },
-    },
-
-    setup(props) {
-      const loaded = ref(false);
-
-      async function loadI18n() {
-        await setLocaleFromProfile('en-AU', 'en');
-        loaded.value = true;
-      }
-
-      loadI18n();
-
-      const classes = computed(() => ({
-        'stories-app--full-width': !props.fullScreen,
-        'stories-app--full-screen': props.fullScreen,
-      }));
-
-      return {
-        loaded,
-        classes,
-      };
+  const props = defineProps({
+    fullScreen: {
+      type: Boolean,
+      default: false,
+      required: false,
     },
   });
+
+  const loaded = ref(false);
+
+  async function loadI18n() {
+    await setLocaleFromProfile('en-AU', 'en');
+    loaded.value = true;
+  }
+
+  loadI18n();
+
+  const classes = computed(() => ({
+    'stories-app--full-width': !props.fullScreen,
+    'stories-app--full-screen': props.fullScreen,
+  }));
 </script>
 
 <style lang="scss">
