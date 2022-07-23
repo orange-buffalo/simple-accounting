@@ -11,14 +11,16 @@ fun waitForStoryToBeVisible() {
     `$x`("//*[@id='root']/*").shouldBe(Condition.visible)
 }
 
+fun waitForTextToBeVisible(text: String) {
+    `$x`("//*[text()='$text']").shouldBe(Condition.visible)
+}
+
 fun disableIconsSvgAnimations() {
     //language=JavaScript
     jsExecutor().executeScript(
         """
-          const animations = document.getElementsByTagName('animateTransform');
-          for (let animation of animations) { 
-            animation.parentNode.removeChild(animation); 
-          }
+          const animations = document.querySelectorAll('animateTransform');
+          animations.forEach(animation => animation.remove());
         """
     )
 }

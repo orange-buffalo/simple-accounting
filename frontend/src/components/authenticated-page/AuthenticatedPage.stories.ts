@@ -23,7 +23,7 @@ export const Default = () => ({
   components: { AuthenticatedPage },
   template: `
     <component is="style">
-    .el-container, .el-container .el-container { height: auto; }
+    .el-container, .el-container .el-container { height: 900px; }
     </component>
     <AuthenticatedPage />
   `,

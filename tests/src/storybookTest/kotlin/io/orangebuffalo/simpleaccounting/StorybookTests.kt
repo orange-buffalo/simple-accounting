@@ -7,18 +7,12 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.file.shouldExist
-import io.orangebuffalo.simpleaccounting.utils.StopWatch
-import io.orangebuffalo.simpleaccounting.utils.disableIconsSvgAnimations
-import io.orangebuffalo.simpleaccounting.utils.logger
-import io.orangebuffalo.simpleaccounting.utils.waitForStoryToBeVisible
+import io.orangebuffalo.simpleaccounting.utils.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.awt.image.BufferedImage
 import java.io.File
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 
 @ExtendWith(StorybookExtension::class)
@@ -41,62 +35,56 @@ class StorybookTests {
         val failedScreenshots = CopyOnWriteArrayList<String>()
 
         val (generatedScreenshotsDirectory, diffDirectory) = getGeneratedScreenshotsDirectories()
-        val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
-        val futures = mutableListOf<CompletableFuture<*>>()
 
         env.stories.forEach { story ->
-            futures.add(submitAsync(executor) {
-                logger.info { "Processing story $story" }
-                val stopWatch = StopWatch()
+            logger.info { "Processing story $story" }
+            val stopWatch = StopWatch()
 
-                Selenide.open(story.storybookUrl())
+            Selenide.open(story.storybookUrl())
 
-                val preparation = storiesPreparations[story.id] ?: defaultStoryPreparation
-                preparation.invoke()
+            val preparation = storiesPreparations[story.id] ?: defaultStoryPreparation
+            preparation.invoke()
 
-                logger.info { "Story was loaded ${stopWatch.tick()}ms" }
+            logger.info { "Story was loaded ${stopWatch.tick()}ms" }
 
-                val generatedScreenshot = Screenshoter().makeScreenshot()
+            val generatedScreenshot = Screenshoter().makeScreenshot()
 
-                logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
+            logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
 
-                val committedScreenshotFile = File(committedScreenshotsDir, story.screenshotFileName())
-                val generatedScreenshotFile = File(generatedScreenshotsDirectory, story.screenshotFileName())
-                if (newStories.contains(story.screenshotFileName())) {
+            val committedScreenshotFile = File(committedScreenshotsDir, story.screenshotFileName())
+            val generatedScreenshotFile = File(generatedScreenshotsDirectory, story.screenshotFileName())
+            if (newStories.contains(story.screenshotFileName())) {
+                generatedScreenshot.write(generatedScreenshotFile)
+                logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
+                if (env.shouldUpdateCommittedScreenshots) {
+                    generatedScreenshot.write(committedScreenshotFile)
+                    logger.info { "Updated committed file ${stopWatch.tick()}ms" }
+                }
+            } else {
+                val committedScreenshot = ImageIO.read(committedScreenshotFile)
+                logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
+
+                val imageComparison = ImageComparison(committedScreenshot, generatedScreenshot).compareImages()
+                logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
+
+                if (imageComparison.imageComparisonState != ImageComparisonState.MATCH) {
+                    logger.info { "Screenshots differ by ${imageComparison.differencePercent}%" }
+
+                    failedScreenshots.add(story.screenshotFileName())
+                    imageComparison.result.write(File(diffDirectory, "${story.id}-diff.png"))
+                    logger.info { "Saved diff ${stopWatch.tick()}ms" }
+
                     generatedScreenshot.write(generatedScreenshotFile)
-                    logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
+                    logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
+
                     if (env.shouldUpdateCommittedScreenshots) {
                         generatedScreenshot.write(committedScreenshotFile)
-                        logger.info { "Updated committed file ${stopWatch.tick()}ms" }
-                    }
-                } else {
-                    val committedScreenshot = ImageIO.read(committedScreenshotFile)
-                    logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
-
-                    val imageComparison = ImageComparison(committedScreenshot, generatedScreenshot).compareImages()
-                    logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
-
-                    if (imageComparison.imageComparisonState != ImageComparisonState.MATCH) {
-                        logger.info { "Screenshots differ by ${imageComparison.differencePercent}%" }
-
-                        failedScreenshots.add(story.screenshotFileName())
-                        imageComparison.result.write(File(diffDirectory, "${story.id}-diff.png"))
-                        logger.info { "Saved diff ${stopWatch.tick()}ms" }
-
-                        generatedScreenshot.write(generatedScreenshotFile)
-                        logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
-
-                        if (env.shouldUpdateCommittedScreenshots) {
-                            generatedScreenshot.write(committedScreenshotFile)
-                            logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
-                        }
+                        logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
                     }
                 }
-                logger.info { "Story processed ${story.id} in  ${stopWatch.fromStart()}ms" }
-            })
+            }
+            logger.info { "Story processed ${story.id} in  ${stopWatch.fromStart()}ms" }
         }
-        CompletableFuture.allOf(*futures.toTypedArray()).get()
-        executor.shutdown()
 
         val deletedStories = committedScreenshots.subtract(expectedScreenshots)
         if (env.shouldUpdateCommittedScreenshots) {
@@ -143,14 +131,17 @@ class StorybookTests {
 private fun StorybookStory.screenshotFileName() = "$id.png"
 private fun StorybookStory.storybookUrl() = "iframe.html?id=${id}&viewMode=story"
 private fun BufferedImage.write(file: File) = ImageIO.write(this, "png", file)
-private fun submitAsync(executor: Executor, runnable: Runnable) :CompletableFuture<*> {
-    return CompletableFuture.runAsync(runnable, executor)
-}
 
 private val defaultStoryPreparation = ::waitForStoryToBeVisible
 private val storiesPreparations = mapOf<String, () -> Any>(
     "components-saicon--all-icons" to {
         waitForStoryToBeVisible()
         disableIconsSvgAnimations()
+    },
+    "pages-login--default" to {
+        waitForTextToBeVisible("New here? We are launching public access soon.")
+    },
+    "components-authenticatedpage--default" to {
+        waitForTextToBeVisible("Workspace")
     }
 )
