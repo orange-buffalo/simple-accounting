@@ -85,7 +85,7 @@ describe('i18n', () => {
 
     expect(formatMessage('{0, amount, withCurrency}', [{
       currency: 'AUD',
-      amount: 1234,
+      amountInCents: 1234,
     }]))
       .toBe('A$12.34');
   });

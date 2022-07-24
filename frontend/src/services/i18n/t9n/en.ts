@@ -10,7 +10,10 @@ export default {
       medium: (dateTime: Date | string) => format('{0, saDateTime, medium}', [dateTime]),
     },
     amount: {
-      withCurrency: (amountInCents: number) => format('{0, amount, withCurrency}', [amountInCents]),
+      withCurrency: (amountInCents: number, currency: string) => format('{0, amount, withCurrency}', [{
+        currency,
+        amountInCents,
+      }]),
     },
     yesNo: {
       yes: () => 'Yes',
