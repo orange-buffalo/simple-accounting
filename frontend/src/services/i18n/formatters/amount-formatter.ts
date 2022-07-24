@@ -2,7 +2,7 @@ import { getCldr, getCurrencyInfo } from '@/services/i18n/cldr-data';
 
 interface CurrencyAmount {
   currency: string,
-  amount: number;
+  amountInCents: number;
 }
 
 export function amountFormatter() {
@@ -14,7 +14,7 @@ export function amountFormatter() {
     }
     const {
       currency,
-      amount,
+      amountInCents,
     } = value as CurrencyAmount;
 
     let currencyFormatter = currencyFormatters[currency];
@@ -24,6 +24,6 @@ export function amountFormatter() {
       currencyFormatters[currency] = currencyFormatter;
     }
 
-    return currencyFormatter(amount / (10 ** getCurrencyInfo(currency).digits));
+    return currencyFormatter(amountInCents / (10 ** getCurrencyInfo(currency).digits));
   };
 }
