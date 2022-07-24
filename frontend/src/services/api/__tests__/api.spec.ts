@@ -25,7 +25,6 @@ describe('API Client', () => {
   let requestTimeout: (timeoutMs: number) => AdditionalRequestParameters<RequestMetadata>;
   let useCancellableRequest: () => CancellableRequest;
   let defaultRequestSettings: () => RequestInit;
-  let consumeApiErrorResponse: (e: unknown) => Promise<unknown>;
 
   test('does not set Authorization token when not logged in', async () => {
     fetchMock.get('/api/profile', {});
@@ -318,45 +317,6 @@ describe('API Client', () => {
       .toHaveBeenCalledOnce();
   });
 
-  test('should consume API error response', async () => {
-    fetchMock.get('/api/profile', {
-      status: 409,
-      body: {
-        responseField: 42,
-      },
-    });
-
-    interface ErrorResponse {
-      responseField: number;
-    }
-
-    try {
-      await profileApi.getProfile();
-      expect(null, 'API call expected to fail')
-        .toBeDefined();
-    } catch (e) {
-      const response = await consumeApiErrorResponse(e) as ErrorResponse;
-      expect(response)
-        .toEqual({ responseField: 42 });
-    }
-  });
-
-  test('should consume API error response as undefined on fetch error', async () => {
-    fetchMock.get('/api/profile', {
-      throws: new Error(),
-    });
-
-    try {
-      await profileApi.getProfile();
-      expect(null, 'API call expected to fail')
-        .toBeDefined();
-    } catch (e) {
-      const response = await consumeApiErrorResponse(e);
-      expect(response)
-        .toBeUndefined();
-    }
-  });
-
   beforeEach(async () => {
     vi.useFakeTimers();
     vi.setSystemTime(API_TIME);
@@ -388,7 +348,6 @@ describe('API Client', () => {
       requestTimeout,
       useCancellableRequest,
       defaultRequestSettings,
-      consumeApiErrorResponse,
     } = await import('@/services/api'));
   });
 

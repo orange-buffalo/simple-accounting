@@ -9,29 +9,24 @@ export function apiDateString(date: Date) {
     (`0${date.getDate()}`).slice(-2)}`;
 }
 
-/**
- * @deprecated TODO: rewrite and cover with tests
- */
 export async function consumeAllPages<T>(
   requestExecutor: (pageRequest: ApiPageRequest) => Promise<ApiPage<T>>,
 ): Promise<T[]> {
-  let result: T[] = [];
-  const request: ApiPageRequest = {
-    pageNumber: 1,
-    pageSize: 100,
-  };
+  let allPagesData: T[] = [];
+  let pageNumber = 1;
+  const pageSize = 100;
   let totalElements = 1000;
-  // eslint-disable-next-line
-  while ((request.pageNumber! - 1) * request.pageSize! < totalElements) {
+  while ((pageNumber - 1) * pageSize < totalElements) {
     // eslint-disable-next-line no-await-in-loop
-    const response = await requestExecutor(request);
-    result = result.concat(response.data);
-    // TODO
-    // eslint-disable-next-line
-    request.pageNumber! += 1;
+    const response = await requestExecutor({
+      pageSize,
+      pageNumber,
+    });
+    allPagesData = allPagesData.concat(response.data);
+    pageNumber += 1;
     totalElements = response.totalElements;
   }
-  return result;
+  return allPagesData;
 }
 
 /**
