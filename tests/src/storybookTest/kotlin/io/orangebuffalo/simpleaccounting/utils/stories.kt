@@ -24,3 +24,18 @@ fun disableIconsSvgAnimations() {
         """
     )
 }
+
+fun disableOutputLoaderAnimations() {
+    disableCssAnimations(".sa-output-loader__placeholder")
+}
+
+fun disableCssAnimations(querySelector: String) {
+    `$`(querySelector).shouldBe(Condition.visible)
+    //language=JavaScript
+    jsExecutor().executeScript(
+        """
+          document.querySelectorAll('$querySelector').forEach(it => it.style.animation = 'none');
+        """
+    )
+}
+
