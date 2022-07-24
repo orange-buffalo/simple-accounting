@@ -1,29 +1,25 @@
 <template>
   <div class="sa-output-loader">
     <div
-      v-if="loading"
-      class="sa-output-loader__placeholder"
+        v-if="loading"
+        class="sa-output-loader__placeholder"
     />
 
     <slot v-else />
   </div>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from '@vue/composition-api';
-
-  export default defineComponent({
-    props: {
-      loading: {
-        type: Boolean,
-        required: true,
-      },
+<script lang="ts" setup>
+  defineProps({
+    loading: {
+      type: Boolean,
+      required: true,
     },
   });
 </script>
 
 <style lang="scss">
-  @import "~@/styles/mixins.scss";
+  @use "@/styles/mixins.scss" as *;
 
   .sa-output-loader {
     display: inline-flex;

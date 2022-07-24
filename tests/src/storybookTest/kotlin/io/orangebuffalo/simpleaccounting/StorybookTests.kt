@@ -143,5 +143,8 @@ private val storiesPreparations = mapOf<String, () -> Any>(
     },
     "components-authenticatedpage--default" to {
         waitForTextToBeVisible("Workspace")
+    },
+    "components-saoutputloader--loading" to {
+        disableOutputLoaderAnimations()
     }
 )

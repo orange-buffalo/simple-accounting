@@ -49,33 +49,33 @@ jobs:
           echo "Repo state after new tag:"
           ./gradlew -q showInfo
 
+    - name: Gradle Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: gradle-caches
+
     - name: "Build"
       env:
         DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
         NODE_OPTIONS: "--max_old_space_size=4096"
       run: |
           ./gradlew assemble buildDockerImage \
-            --scan --console=plain \
+            --scan --console=plain --info --build-cache \
             -Pdocker.hub.username=orangebuffalo \
             -Pdocker.hub.password="$DOCKERHUB_TOKEN"
 
     - name: "Test"
-      run: ./gradlew check --scan --console=plain
+      run: ./gradlew check --scan --console=plain --info --build-cache
 
     - name: "Test (storybook)"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
       run: |
-          ./gradlew npmBuildStorybook --scan --console=plain
-          ./gradlew storybookTest --scan --console=plain
-
-    - name: "Save Failed Screenshots"
-      uses: actions/upload-artifact@v2
-      if: ${{ always() }}
-      with:
-        name: Storyshots Diff Files
-        path: tests/build/storybookTest
-        if-no-files-found: "ignore"
+          ./gradlew npmBuildStorybook --scan --console=plain --info --build-cache
+          ./gradlew storybookTest --scan --console=plain --info --build-cache
 
     - name: "Test (end-to-end)"
       env:
@@ -84,7 +84,23 @@ jobs:
           ./gradlew e2eTest \
             -Pdocker.hub.username=orangebuffalo \
             -Pdocker.hub.password="$DOCKERHUB_TOKEN" \
-            --scan --console=plain
+            --scan --console=plain --build-cache --info
+
+    - name: "Save Tests Results"
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: Tests Results
+        path: "**/build/reports/tests/**/"
+        if-no-files-found: "ignore"
+
+    - name: "Save Failed Screenshots"
+      uses: actions/upload-artifact@v3
+      if: ${{ failure() }}
+      with:
+        name: Storyshots Diff Files
+        path: tests/build/storybookTest
+        if-no-files-found: "ignore"
 
     - name: "Report Test Coverage"
       uses: codecov/codecov-action@v1
