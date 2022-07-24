@@ -1,6 +1,10 @@
-import { describe, test, expect } from 'vitest';
 import {
-  apiDateString,
+  describe, test, expect, vi, afterEach,
+} from 'vitest';
+import fetchMock from 'fetch-mock';
+import type { ApiPageRequest } from '@/services/api';
+import {
+  apiDateString, consumeAllPages, consumeApiErrorResponse, profileApi,
 } from '@/services/api';
 
 describe('apiDateString', () => {
@@ -15,101 +19,128 @@ describe('apiDateString', () => {
   });
 });
 
-// todo
-// interface FakeEntity {
-//   name: string,
-// }
+describe('consumeAllPage', () => {
+  test('should invoke API only once if total size is less then page size', async () => {
+    let executions = 0;
+    const mockExecutor = async (pageRequest: ApiPageRequest) => {
+      executions += 1;
+      expect(executions)
+        .eq(1);
+      expect(pageRequest.pageNumber)
+        .toEqual(1);
+      expect(pageRequest.pageSize)
+        .toEqual(100);
+      return {
+        data: ['a'],
+        totalElements: 99,
+        pageNumber: 1,
+        pageSize: 100,
+      };
+    };
 
-// describe('consumeAllPages', () => {
-//   let apiClient: SimpleAccountingClient;
-//
-//   beforeEach(() => {
-//     jest.resetModules();
-//     httpMock.setup();
-//     ({ apiClient } = require('@/services/api'));
-//   });
-//
-//   afterEach(() => {
-//     httpMock.reset();
-//   });
-//
-//   it('invokes page request with proper page parameters', async () => {
-//     expect.assertions(1);
-//
-//     httpMock.get('/api-call?pageNumber=1&pageSize=100', (req, res) => res.status(200)
-//       .body({
-//         pageNumber: 1,
-//         pageSize: 100,
-//         totalElements: 0,
-//         data: [],
-//       } as ApiPage<FakeEntity>));
-//
-//     const entities = await consumeAllPages<FakeEntity>((pageRequest) => apiClient.get('/api-call', {
-//       params: pageRequest,
-//     }));
-//     expect(entities)
-//       .toHaveLength(0);
-//   });
-//
-//   it('returns data for single page', async () => {
-//     expect.assertions(1);
-//
-//     const data = [{
-//       name: 'name1',
-//     }, {
-//       name: 'name2',
-//     }];
-//
-//     httpMock.get('/api-call?pageNumber=1&pageSize=100', (req, res) => res.status(200)
-//       .body({
-//         pageNumber: 1,
-//         pageSize: 100,
-//         totalElements: 2,
-//         data,
-//       } as ApiPage<FakeEntity>));
-//
-//     const entities = await consumeAllPages<FakeEntity>((pageRequest) => apiClient.get('/api-call', {
-//       params: pageRequest,
-//     }));
-//     expect(entities)
-//       .toStrictEqual(data);
-//   });
-//
-//   it('merges multiple pages', async () => {
-//     expect.assertions(1);
-//
-//     httpMock.get('/api-call?pageNumber=1&pageSize=100', (req, res) => res.status(200)
-//       .body({
-//         pageNumber: 1,
-//         pageSize: 100,
-//         totalElements: 200,
-//         data: [{
-//           name: 'name1',
-//         }, {
-//           name: 'name2',
-//         }],
-//       } as ApiPage<FakeEntity>));
-//
-//     httpMock.get('/api-call?pageNumber=2&pageSize=100', (req, res) => res.status(200)
-//       .body({
-//         pageNumber: 2,
-//         pageSize: 100,
-//         totalElements: 200,
-//         data: [{
-//           name: 'name3',
-//         }],
-//       } as ApiPage<FakeEntity>));
-//
-//     const entities = await consumeAllPages<FakeEntity>((pageRequest) => apiClient.get('/api-call', {
-//       params: pageRequest,
-//     }));
-//     expect(entities)
-//       .toStrictEqual([{
-//         name: 'name1',
-//       }, {
-//         name: 'name2',
-//       }, {
-//         name: 'name3',
-//       }]);
-//   });
-// });
+    const requestExecutor = vi.fn(mockExecutor);
+
+    const data = await consumeAllPages(requestExecutor);
+    expect(data)
+      .to
+      .eql(['a']);
+  });
+
+  test('should invoke API only once if total size is equal to page size', async () => {
+    let executions = 0;
+    const mockExecutor = async (pageRequest: ApiPageRequest) => {
+      executions += 1;
+      expect(executions)
+        .eq(1);
+      expect(pageRequest.pageNumber)
+        .toEqual(1);
+      expect(pageRequest.pageSize)
+        .toEqual(100);
+      return {
+        data: ['a'],
+        totalElements: 100,
+        pageNumber: 1,
+        pageSize: 100,
+      };
+    };
+
+    const requestExecutor = vi.fn(mockExecutor);
+
+    const data = await consumeAllPages(requestExecutor);
+    expect(data)
+      .to
+      .eql(['a']);
+  });
+
+  test('should invoke API multiple times and concat results, if total size is greater then page size', async () => {
+    let executions = 0;
+    const mockExecutor = async (pageRequest: ApiPageRequest) => {
+      executions += 1;
+      expect(pageRequest.pageNumber)
+        .toEqual(executions);
+      expect(pageRequest.pageSize)
+        .toEqual(100);
+      return {
+        data: [executions === 1 ? 'a' : 'b'],
+        totalElements: 101,
+        pageNumber: executions,
+        pageSize: 100,
+      };
+    };
+
+    const requestExecutor = vi.fn(mockExecutor);
+
+    const data = await consumeAllPages(requestExecutor);
+    expect(data)
+      .to
+      .eql(['a', 'b']);
+    expect(executions)
+      .toEqual(2);
+  });
+});
+
+describe('consumeApiErrorResponse', () => {
+  test('should consume API error response', async () => {
+    fetchMock.get('/api/profile', {
+      status: 409,
+      body: {
+        responseField: 42,
+      },
+    });
+
+    interface ErrorResponse {
+      responseField: number;
+    }
+
+    try {
+      await profileApi.getProfile();
+      expect(null, 'API call expected to fail')
+        .toBeDefined();
+    } catch (e) {
+      const response = await consumeApiErrorResponse<ErrorResponse>(e);
+      expect(response)
+        .toEqual({ responseField: 42 });
+    }
+  });
+
+  test('should consume API error response as undefined on fetch error', async () => {
+    fetchMock.get('/api/profile', {
+      throws: new Error(),
+    });
+
+    try {
+      await profileApi.getProfile();
+      expect(null, 'API call expected to fail')
+        .toBeDefined();
+    } catch (e) {
+      const response = await consumeApiErrorResponse(e);
+      expect(response)
+        .toBeUndefined();
+    }
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+    fetchMock.restore();
+  });
+});
