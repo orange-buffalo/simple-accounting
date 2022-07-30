@@ -1,6 +1,8 @@
 import { action } from '@storybook/addon-actions';
 import SaIcon from '@/components/SaIcon.vue';
 import { iconNames } from '@/icons';
+import { defineStory } from '@/__storybook__/sa-storybook';
+import { disableIconsSvgAnimations } from '@/__storybook__/screenshots';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
@@ -19,7 +21,7 @@ export const Default = () => ({
 });
 
 // noinspection JSUnusedGlobalSymbols
-export const AllIcons = () => ({
+export const AllIcons = defineStory(() => ({
   components: { SaIcon },
   data() {
     return {
@@ -70,4 +72,6 @@ export const AllIcons = () => ({
       />
     </template>
     </div>`,
+}), {
+  screenshotPreparation: disableIconsSvgAnimations(),
 });

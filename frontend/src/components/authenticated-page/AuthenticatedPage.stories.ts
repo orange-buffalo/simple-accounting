@@ -1,5 +1,6 @@
 import AuthenticatedPage from '@/components/authenticated-page/AuthenticatedPage.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
+import { waitForText } from '@/__storybook__/screenshots';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
@@ -20,4 +21,5 @@ export const Default = defineStory(() => ({
     name: 'Workspace',
   },
   fullScreen: true,
+  screenshotPreparation: waitForText('Workspace'),
 });
