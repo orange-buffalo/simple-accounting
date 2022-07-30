@@ -5,11 +5,17 @@ import type {
 } from '@/services/api/generated';
 import type { RequestMetadata } from '@/services/api/api-client';
 
-const DEFAULT_TIMEOUT = 10000;
+const DEFAULT_TIMEOUT_MS = 10000;
+
+let currentTimeoutMs = DEFAULT_TIMEOUT_MS;
+
+export function setRequestTimeout(requestTimeoutMs: number) {
+  currentTimeoutMs = requestTimeoutMs;
+}
 
 export const requestTimeoutInterceptor: Middleware<RequestMetadata> = {
   async pre(context: RequestContext<RequestMetadata>) {
-    const timeoutMs = context.metadata?.requestTimeoutMs || DEFAULT_TIMEOUT;
+    const timeoutMs = context.metadata?.requestTimeoutMs || currentTimeoutMs;
     let finalSignal: AbortSignal;
     let timerHandler: ReturnType<typeof setTimeout> | null = null;
     if (context.init.signal) {

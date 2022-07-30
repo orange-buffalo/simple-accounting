@@ -34,8 +34,14 @@
 <style lang="scss">
   @use "@/styles/vars.scss" as *;
 
+  .sb-show-main.sb-main-padded {
+    padding: 0;
+  }
+
   .stories-app--full-width {
     width: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
   }
 
   .stories-app--full-screen {

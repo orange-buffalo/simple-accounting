@@ -1,4 +1,5 @@
 import Login from '@/pages/login/Login.vue';
+import { defineStory } from '@/__storybook__/sa-storybook';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
@@ -6,10 +7,9 @@ export default {
 };
 
 // noinspection JSUnusedGlobalSymbols
-export const Default = () => ({
+export const Default = defineStory(() => ({
   components: { Login },
   template: '<Login/>',
-});
-Default.parameters = {
+}), {
   fullScreen: true,
-};
+});
