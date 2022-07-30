@@ -3,9 +3,12 @@ import type { WorkspaceDto } from '@/services/api';
 
 export type SaStoryComponent = ComponentOptionsMixin;
 
+export type SaStoryScreenshotPreparation = () => boolean;
+
 export interface SaStoryParameters {
   fullScreen?: boolean,
-  workspace?: Partial<WorkspaceDto>
+  workspace?: Partial<WorkspaceDto>,
+  screenshotPreparation?: SaStoryScreenshotPreparation
 }
 
 export function defineStory(storyComponent: () => SaStoryComponent, parameters?: SaStoryParameters) {

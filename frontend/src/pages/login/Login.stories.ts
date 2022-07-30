@@ -1,5 +1,6 @@
 import Login from '@/pages/login/Login.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
+import { waitForText } from '@/__storybook__/screenshots';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
@@ -12,4 +13,5 @@ export const Default = defineStory(() => ({
   template: '<Login/>',
 }), {
   fullScreen: true,
+  screenshotPreparation: waitForText('Remember me for 30 days'),
 });

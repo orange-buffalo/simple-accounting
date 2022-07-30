@@ -1,15 +1,18 @@
 package io.orangebuffalo.simpleaccounting
 
 import com.codeborne.selenide.Selenide
+import com.codeborne.selenide.WebDriverRunner
 import com.github.romankh3.image.comparison.ImageComparison
 import com.github.romankh3.image.comparison.model.ImageComparisonState
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.file.shouldExist
-import io.orangebuffalo.simpleaccounting.utils.*
+import io.orangebuffalo.simpleaccounting.utils.StopWatch
+import io.orangebuffalo.simpleaccounting.utils.logger
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.openqa.selenium.JavascriptExecutor
 import java.awt.image.BufferedImage
 import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
@@ -22,11 +25,6 @@ class StorybookTests {
     fun `should have all stories screenshots valid`(env: StorybookEnvironment) {
         val committedScreenshotsDir = File("src/storybookTest/resources/__images")
         committedScreenshotsDir.shouldExist()
-
-        val currentStoriesIds = env.stories.asSequence().map { it.id }.toSet()
-        withClue("Preparations should only be defined for existing stories") {
-            storiesPreparations.keys.subtract(currentStoriesIds).shouldBeEmpty()
-        }
 
         val committedScreenshots = getRelativeFilePathsByBaseDir(committedScreenshotsDir)
         val expectedScreenshots = env.stories.asSequence().map { it.screenshotFileName() }.toSet()
@@ -42,8 +40,10 @@ class StorybookTests {
 
             Selenide.open(story.storybookUrl())
 
-            val preparation = storiesPreparations[story.id] ?: defaultStoryPreparation
-            preparation.invoke()
+            notifyStorybookAboutScreenshotPreparation()
+            Selenide.Wait().until {
+                isStorybookReadyForTakingScreenshot() ?: false
+            }
 
             logger.info { "Story was loaded ${stopWatch.tick()}ms" }
 
@@ -132,25 +132,22 @@ private fun StorybookStory.screenshotFileName() = "$id.png"
 private fun StorybookStory.storybookUrl() = "iframe.html?id=${id}&viewMode=story"
 private fun BufferedImage.write(file: File) = ImageIO.write(this, "png", file)
 
-private val defaultStoryPreparation = ::waitForStoryToBeVisible
-private val storiesPreparations = mapOf<String, () -> Any>(
-    "components-saicon--all-icons" to {
-        waitForStoryToBeVisible()
-        disableIconsSvgAnimations()
-    },
-    "pages-login--default" to {
-        waitForTextToBeVisible("New here? We are launching public access soon.")
-    },
-    "components-authenticatedpage--default" to {
-        waitForTextToBeVisible("Workspace")
-    },
-    "components-saoutputloader--loading" to {
-        disableOutputLoaderAnimations()
-    },
-    "components-sacustomeroutput--loading" to {
-        disableOutputLoaderAnimations()
-    },
-    "components-sacustomeroutput--loaded" to {
-        waitForTextToBeVisible("Customer Name")
-    },
-)
+private fun notifyStorybookAboutScreenshotPreparation() {
+    //language=JavaScript
+    jsExecutor().executeScript(
+        """
+          window.saScreenshotRequired = true;
+        """
+    )
+}
+
+private fun isStorybookReadyForTakingScreenshot(): Boolean? {
+    //language=JavaScript
+    return jsExecutor().executeScript(
+        """
+          return window.saReadyForScreenshot
+        """
+    ) as Boolean?
+}
+
+private fun jsExecutor() = WebDriverRunner.getWebDriver() as JavascriptExecutor

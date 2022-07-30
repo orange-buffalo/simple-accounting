@@ -15,7 +15,7 @@ import org.openqa.selenium.chrome.ChromeOptions
 import org.testcontainers.containers.BrowserWebDriverContainer
 import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy
-import yamlObjectMapper
+import io.orangebuffalo.simpleaccounting.utils.yamlObjectMapper
 import java.io.File
 
 private val testConfig = loadTestConfig()
