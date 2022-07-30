@@ -146,5 +146,11 @@ private val storiesPreparations = mapOf<String, () -> Any>(
     },
     "components-saoutputloader--loading" to {
         disableOutputLoaderAnimations()
-    }
+    },
+    "components-sacustomeroutput--loading" to {
+        disableOutputLoaderAnimations()
+    },
+    "components-sacustomeroutput--loaded" to {
+        waitForTextToBeVisible("Customer Name")
+    },
 )

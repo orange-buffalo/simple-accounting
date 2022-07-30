@@ -1,5 +1,5 @@
 import AuthenticatedPage from '@/components/authenticated-page/AuthenticatedPage.vue';
-import { useWorkspaces } from '@/services/workspaces';
+import { defineStory } from '@/__storybook__/sa-storybook';
 
 // noinspection JSUnusedGlobalSymbols
 export default {
@@ -7,19 +7,7 @@ export default {
 };
 
 // noinspection JSUnusedGlobalSymbols
-export const Default = () => ({
-  beforeMount: () => {
-    const { setCurrentWorkspace } = useWorkspaces();
-    setCurrentWorkspace({
-      id: 42,
-      defaultCurrency: 'AUD',
-      editable: true,
-      multiCurrencyEnabled: true,
-      name: 'Workspace',
-      taxEnabled: true,
-      version: 1,
-    });
-  },
+export const Default = defineStory(() => ({
   components: { AuthenticatedPage },
   template: `
     <component is="style">
@@ -27,4 +15,9 @@ export const Default = () => ({
     </component>
     <AuthenticatedPage />
   `,
+}), {
+  workspace: {
+    name: 'Workspace',
+  },
+  fullScreen: true,
 });

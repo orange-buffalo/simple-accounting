@@ -2,6 +2,7 @@ import qs from 'qs';
 import {
   AuthenticationApiControllerApi,
   Configuration, ProfileApiControllerApi, WorkspacesApiControllerApi,
+  CustomersApiControllerApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -40,3 +41,4 @@ export const authApi = new AuthenticationApiControllerApi<RequestMetadata>(new C
 
 export const workspacesApi = new WorkspacesApiControllerApi<RequestMetadata>(defaultConfig);
 export const profileApi = new ProfileApiControllerApi<RequestMetadata>(defaultConfig);
+export const customerApi = new CustomersApiControllerApi<RequestMetadata>(defaultConfig);
