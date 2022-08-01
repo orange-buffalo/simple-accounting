@@ -39,3 +39,7 @@ export function disableCssAnimations(querySelector: string): SaStoryScreenshotPr
 export function disableOutputLoaderAnimations() {
   return disableCssAnimations('.sa-output-loader__placeholder');
 }
+
+export function allOf(...steps: SaStoryScreenshotPreparation[]): SaStoryScreenshotPreparation {
+  return () => steps.every((step) => step());
+}

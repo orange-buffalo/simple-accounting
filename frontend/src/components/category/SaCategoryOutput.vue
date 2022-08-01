@@ -14,17 +14,29 @@
       type: Number,
       default: null,
     },
+    unspecifiedCategory: {
+      type: Boolean,
+      default: false,
+    },
   });
 
   const {
     loading,
     value: categoryName,
-  } = useValueLoadedByCurrentWorkspaceAndProp(() => props.categoryId, async (categoryId, workspaceId) => {
-    // TODO support GET by id
-    const categories = await categoryApi.getCategories({
-      workspaceId,
-    });
-    const category = findByIdOrEmpty(categories.data, categoryId);
-    return category?.name;
-  });
+  } = useValueLoadedByCurrentWorkspaceAndProp(
+    () => [props.categoryId, props.unspecifiedCategory],
+    async (_, workspaceId) => {
+      if (props.unspecifiedCategory) {
+        // todo i18n
+        return 'Not specified';
+      }
+
+      // TODO support GET by id
+      const categories = await categoryApi.getCategories({
+        workspaceId,
+      });
+      const category = findByIdOrEmpty(categories.data, props.categoryId);
+      return category?.name;
+    },
+  );
 </script>
