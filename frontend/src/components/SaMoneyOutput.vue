@@ -1,6 +1,8 @@
 <template>
   <span>{{
-      amountInCents === null ? '' : $t.common.amount.withCurrency(amountInCents, currency)
+      (amountInCents === null || amountInCents === undefined)
+        ? ''
+        : $t.common.amount.withCurrency(amountInCents, currency)
     }}</span>
 </template>
 

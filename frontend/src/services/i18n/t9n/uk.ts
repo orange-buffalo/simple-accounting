@@ -4,10 +4,10 @@ import { format } from '@/services/i18n/t9n/formatter';
 export default {
   common: {
     date: {
-      medium: (date: Date | string) => format('{0, date, medium}', [date]),
+      medium: (date?: Date | string) => format('{0, date, medium}', [date]),
     },
     dateTime: {
-      medium: (dateTime: Date | string) => format('{0, saDateTime, medium}', [dateTime]),
+      medium: (dateTime?: Date | string) => format('{0, saDateTime, medium}', [dateTime]),
     },
     amount: {
       withCurrency: (amountInCents: number, currency: string) => format('{0, amount, withCurrency}', [{

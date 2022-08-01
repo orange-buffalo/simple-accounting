@@ -1,8 +1,13 @@
 import qs from 'qs';
 import {
   AuthenticationApiControllerApi,
-  Configuration, ProfileApiControllerApi, WorkspacesApiControllerApi,
-  CustomersApiControllerApi, CategoriesApiControllerApi,
+  Configuration,
+  ProfileApiControllerApi,
+  WorkspacesApiControllerApi,
+  CustomersApiControllerApi,
+  CategoriesApiControllerApi,
+  StatisticsApiControllerApi,
+  InvoicesApiControllerApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -43,3 +48,5 @@ export const workspacesApi = new WorkspacesApiControllerApi<RequestMetadata>(def
 export const profileApi = new ProfileApiControllerApi<RequestMetadata>(defaultConfig);
 export const customerApi = new CustomersApiControllerApi<RequestMetadata>(defaultConfig);
 export const categoryApi = new CategoriesApiControllerApi<RequestMetadata>(defaultConfig);
+export const statisticsApi = new StatisticsApiControllerApi<RequestMetadata>(defaultConfig);
+export const invoicesApi = new InvoicesApiControllerApi<RequestMetadata>(defaultConfig);
