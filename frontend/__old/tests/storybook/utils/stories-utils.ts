@@ -16,10 +16,3 @@ export async function pauseAndResetDocumentLoaderAnimation(page: Page) {
   await pauseAndResetAnimation(page, '.sa-document__loader__file-description__link');
   await pauseAndResetAnimation(page, '.sa-document__loader__file-description__size');
 }
-
-export async function setViewportHeight(page: Page, height: number) {
-  await page.setViewport({
-    width: 1200,
-    height,
-  });
-}

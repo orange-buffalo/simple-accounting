@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/pages/login/Login.vue';
 import AuthenticatedPage from '@/components/authenticated-page/AuthenticatedPage.vue';
+import Dashboard from '@/pages/dashboard/Dashboard.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -74,11 +75,11 @@ export default function setupRouter() {
         path: '/',
         component: AuthenticatedPage,
         children: [
-      //     {
-      //       path: '',
-      //       name: 'dashboard',
-      //       component: Dashboard,
-      //     },
+          {
+            path: '',
+            name: 'dashboard',
+            component: Dashboard,
+          },
       //     {
       //       path: 'settings/categories',
       //       name: 'settings-categories',
@@ -225,13 +226,13 @@ export default function setupRouter() {
       //     },
         ],
       },
-      //
-      // {
-      //   path: '*',
-      //   redirect: {
-      //     name: 'dashboard',
-      //   },
-      // },
+
+      {
+        path: '/:catchAll(.*)',
+        redirect: {
+          name: 'dashboard',
+        },
+      },
     ],
   });
 
