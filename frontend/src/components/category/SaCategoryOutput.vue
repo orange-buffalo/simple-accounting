@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
   import SaOutputLoader from '@/components/SaOutputLoader.vue';
-  import { categoryApi } from '@/services/api';
+  import { categoryApi, consumeAllPages } from '@/services/api';
   import { findByIdOrEmpty, useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
 
   const props = defineProps({
@@ -32,10 +32,11 @@
       }
 
       // TODO support GET by id
-      const categories = await categoryApi.getCategories({
+      const categories = await consumeAllPages(((pageRequest) => categoryApi.getCategories({
         workspaceId,
-      });
-      const category = findByIdOrEmpty(categories.data, props.categoryId);
+        ...pageRequest,
+      })));
+      const category = findByIdOrEmpty(categories, props.categoryId);
       return category?.name;
     },
   );

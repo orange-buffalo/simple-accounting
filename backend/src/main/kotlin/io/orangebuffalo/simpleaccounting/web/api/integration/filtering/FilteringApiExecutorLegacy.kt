@@ -43,6 +43,7 @@ class FilteringApiExecutorLegacy<E : Any, DTO : Any>(
 }
 
 @Component
+@Deprecated("Define filter parameters explicitly for proper schema generation, use FilteringApiExecutorBuilder")
 class FilteringApiExecutorBuilderLegacy(
     private val dslContext: DSLContext,
     private val conversionService: ConversionService,

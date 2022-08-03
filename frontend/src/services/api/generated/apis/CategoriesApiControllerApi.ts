@@ -39,6 +39,10 @@ export interface CreateCategoryRequest {
 
 export interface GetCategoriesRequest {
     workspaceId: number;
+    sortBy?: GetCategoriesSortByEnum;
+    pageNumber?: number;
+    pageSize?: number;
+    sortOrder?: GetCategoriesSortOrderEnum;
 }
 
 /**
@@ -90,6 +94,22 @@ export class CategoriesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
         const queryParameters: any = {};
 
+        if (requestParameters.sortBy !== undefined) {
+            queryParameters['sortBy'] = requestParameters.sortBy;
+        }
+
+        if (requestParameters.pageNumber !== undefined) {
+            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        if (requestParameters.sortOrder !== undefined) {
+            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
@@ -110,3 +130,19 @@ export class CategoriesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetCategoriesSortByEnum = {
+    NotSupported: '_NOT_SUPPORTED'
+} as const;
+export type GetCategoriesSortByEnum = typeof GetCategoriesSortByEnum[keyof typeof GetCategoriesSortByEnum];
+/**
+ * @export
+ */
+export const GetCategoriesSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type GetCategoriesSortOrderEnum = typeof GetCategoriesSortOrderEnum[keyof typeof GetCategoriesSortOrderEnum];
