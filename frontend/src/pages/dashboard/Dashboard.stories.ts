@@ -56,7 +56,7 @@ export const Loaded = defineStory(() => ({
     fetchMock.get(`path:${defaultWorkspacePath('/statistics/income-tax-payments')}`, {
       totalTaxPayments: 63839,
     });
-    fetchMock.get(defaultWorkspacePath('/categories'), {
+    fetchMock.get(`path:${defaultWorkspacePath('/categories')}`, {
       body: {
         data: [{
           id: 1,

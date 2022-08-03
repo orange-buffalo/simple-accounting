@@ -13,6 +13,7 @@ import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -46,6 +47,7 @@ class ApiSpecIT(
     private lateinit var spaWebFilter: SpaWebFilter
 
     @Test
+    @Order(1)
     fun `should be up-to-date in VCS`() {
         // disable SPA - otherwise docs are not rendered
         whenever(spaWebFilter.filter(any(), any())) doAnswer {
@@ -84,6 +86,7 @@ class ApiSpecIT(
     }
 
     @Test
+    @Order(2)
     fun `should have TS API client up to date`() {
         val baseCommittedDirectory = File("../frontend/src/services/api/generated")
         val committedFiles = getRelativeFilePathsByBaseDir(baseCommittedDirectory)

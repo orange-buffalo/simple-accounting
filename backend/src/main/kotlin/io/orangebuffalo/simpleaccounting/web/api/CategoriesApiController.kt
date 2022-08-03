@@ -3,8 +3,8 @@ package io.orangebuffalo.simpleaccounting.web.api
 import io.orangebuffalo.simpleaccounting.services.business.CategoryService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
+import org.springdoc.api.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -14,12 +14,15 @@ import javax.validation.constraints.NotNull
 @RequestMapping("/api/workspaces/{workspaceId}/categories")
 class CategoriesApiController(
     private val categoryService: CategoryService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @GetMapping
-    suspend fun getCategories(@PathVariable workspaceId: Long): ApiPage<CategoryDto> =
-        filteringApiExecutor.executeFiltering(workspaceId)
+    suspend fun getCategories(
+        @PathVariable workspaceId: Long,
+        @ParameterObject request: CategoriesFilteringRequest
+    ): ApiPage<CategoryDto> =
+        filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @PostMapping
     suspend fun createCategory(
@@ -37,13 +40,14 @@ class CategoriesApiController(
         )
         .mapToCategoryDto()
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Category, CategoryDto> {
-        query(Tables.CATEGORY) {
-            addDefaultSorting { root.id.desc() }
-            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+    private val filteringApiExecutor = filteringApiExecutorBuilder
+        .executor<Category, CategoryDto, NoOpSorting, CategoriesFilteringRequest> {
+            query(Tables.CATEGORY) {
+                addDefaultSorting { root.name.asc() }
+                workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+            }
+            mapper { mapToCategoryDto() }
         }
-        mapper { mapToCategoryDto() }
-    }
 }
 
 data class CategoryDto(
@@ -70,3 +74,7 @@ private fun Category.mapToCategoryDto() = CategoryDto(
     income = income,
     expense = expense
 )
+
+class CategoriesFilteringRequest : ApiPageRequest<NoOpSorting>() {
+    override var sortBy: NoOpSorting? = null
+}

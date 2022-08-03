@@ -28,7 +28,7 @@ abstract class ApiPageRequest<SF : Enum<SF>> {
 /**
  * Indicator that sorting is not supported by the filtering API
  */
-enum class NoOpFiltering {
+enum class NoOpSorting {
     @Suppress("EnumEntryName", "unused")
     _NOT_SUPPORTED
 }

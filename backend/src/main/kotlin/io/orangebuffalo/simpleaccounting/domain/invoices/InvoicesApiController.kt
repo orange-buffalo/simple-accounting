@@ -113,7 +113,7 @@ class InvoicesApiController(
     }
 
     private val filteringApiExecutor = filteringApiExecutorBuilder
-        .executor<Invoice, InvoiceDto, NoOpFiltering, InvoicesFilteringRequest> {
+        .executor<Invoice, InvoiceDto, NoOpSorting, InvoicesFilteringRequest> {
             query(Tables.INVOICE) {
                 val customer = Tables.CUSTOMER.`as`("filterCustomer")
 
@@ -139,8 +139,8 @@ class InvoicesApiController(
         }
 }
 
-class InvoicesFilteringRequest : ApiPageRequest<NoOpFiltering>() {
-    override var sortBy: NoOpFiltering? = null
+class InvoicesFilteringRequest : ApiPageRequest<NoOpSorting>() {
+    override var sortBy: NoOpSorting? = null
 
     @field:Parameter(name = "freeSearchText[eq]")
     var freeSearchText: String? = null

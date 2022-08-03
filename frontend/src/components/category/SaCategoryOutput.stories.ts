@@ -13,7 +13,7 @@ export const Loaded = defineStory(() => ({
   components: { SaCategoryOutput },
   template: '<SaCategoryOutput :category-id="42"/>',
   beforeCreate() {
-    fetchMock.get(defaultWorkspacePath('/categories'), {
+    fetchMock.get(`path:${defaultWorkspacePath('/categories')}`, {
       data: [{
         id: 42,
         name: 'Category 42',
@@ -28,7 +28,7 @@ export const Loading = defineStory(() => ({
   components: { SaCategoryOutput },
   template: '<SaCategoryOutput :category-id="42"/>',
   beforeCreate() {
-    fetchMock.get(defaultWorkspacePath('/categories'), {}, neverEndingGetRequest);
+    fetchMock.get(`path:${defaultWorkspacePath('/categories')}`, {}, neverEndingGetRequest);
   },
 }), {
   screenshotPreparation: disableOutputLoaderAnimations(),
