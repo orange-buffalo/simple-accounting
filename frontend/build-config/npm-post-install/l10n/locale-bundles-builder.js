@@ -20,7 +20,7 @@ function mergeAndSaveCldrJsonFiles(baseDir, jsonFiles, outputFile) {
 }
 
 const baseCodeGenDir = 'src/services/i18n/l10n';
-const baseCldrDataDir = 'node_modules/cldr-data';
+const baseCldrDataDir = path.dirname(require.resolve('cldr-data'));
 
 function prepareCodeGenDir() {
   fs.mkdirSync(baseCodeGenDir, { recursive: true });

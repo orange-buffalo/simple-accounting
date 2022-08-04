@@ -38,9 +38,11 @@ class SaJooqCodeGenPlugin : Plugin<Project> {
     }
 }
 
+@CacheableTask
 open class SaJooqCodeGenTask : DefaultTask() {
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     val flywayMigrations: ConfigurableFileCollection = project.objects.fileCollection()
 
     @OutputDirectory
