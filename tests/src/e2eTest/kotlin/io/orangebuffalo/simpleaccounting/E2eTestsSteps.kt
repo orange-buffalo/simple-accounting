@@ -12,7 +12,7 @@ fun loginWithFry() {
 }
 
 fun sideMenuItem(text: String) =
-    element(byXpath("//*[contains(@class, 'the-side-menu__link') and contains(text(), '$text')]"))
+    element(byXpath("//*[contains(@class, 'side-menu__link') and contains(text(), '$text')]"))
 
 fun overviewItemByTitle(title: String) =
     element(byXpath("//*[contains(@class, 'overview-item__title') and contains(text(), '$title')]"))

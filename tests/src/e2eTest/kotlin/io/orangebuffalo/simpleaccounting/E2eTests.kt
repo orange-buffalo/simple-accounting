@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(E2eTestsEnvironment::class)
-// TODO enable back
-@Disabled("Disabling temporary until frontend code is migrated")
 class E2eTests {
 
     @Test
@@ -17,6 +15,8 @@ class E2eTests {
     }
 
     @Test
+    // TODO enable back
+    @Disabled("Disabling temporary until frontend code is migrated")
     fun `should load invoices`() {
         loginWithFry()
         sideMenuItem("Invoice").click()
