@@ -55,7 +55,12 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: gradle-caches
+        # workaround for https://github.com/actions/cache/issues/342
+        # generate new key for each build to force cache push
+        key: gradle-cache-${{ github.run_id }}
+        # but use restore key to restore the latest pushed cache
+        restore-keys: |
+          gradle-cache-
 
     - name: "Build"
       env:

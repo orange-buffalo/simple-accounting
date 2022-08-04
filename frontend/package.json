@@ -3,14 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "postinstall": "node build-config/npm-post-install/post-install.js",
-    "dev": "vite",
-    "build": "npm run typecheck && vite build",
-    "preview": "vite preview --port 5050",
-    "test:unit": "vitest --run",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "storybook": "start-storybook -p 6006 -c build-config/storybook",
-    "build-storybook": "build-storybook -c build-config/storybook -o build/storybook"
+    "dev": "node_modules/vite/bin/vite.js",
+    "build": "npm run typecheck && node_modules/vite/bin/vite.js build",
+    "preview": "node_modules/vite/bin/vite.js preview --port 5050",
+    "test:unit": "node_modules/vitest/vitest.mjs --run",
+    "typecheck": "node_modules/vue-tsc/bin/vue-tsc.js --noEmit -p tsconfig.vitest.json --composite false",
+    "lint": "node_modules/eslint/bin/eslint.js . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "storybook": "node_modules/@storybook/vue3/bin/index.js -p 6006 -c build-config/storybook",
+    "build-storybook": "node_modules/@storybook/vue3/bin/build.js -c build-config/storybook -o build/storybook"
   },
   "dependencies": {
     "@messageformat/core": "^3.0.1",

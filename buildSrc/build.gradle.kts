@@ -1,5 +1,6 @@
 object Versions {
     const val jooq = "3.15.10"
+    const val kotlinSerialization = "1.2.2"
 }
 
 repositories {
@@ -8,6 +9,7 @@ repositories {
 
 plugins {
     `kotlin-dsl`
+    kotlin("plugin.serialization") version "1.5.31"
 }
 
 dependencies {
@@ -16,4 +18,9 @@ dependencies {
         exclude(group = "org.springframework")
     }
     implementation("org.jooq:jooq-codegen:${Versions.jooq}")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinSerialization}")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
 }
