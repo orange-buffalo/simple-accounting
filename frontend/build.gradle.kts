@@ -1,6 +1,6 @@
 val prodConfigs = arrayOf(
     ".eslintignore", ".eslintrc.cjs", "package.json",
-    "package-lock.json", "build-config/vite-plugins.ts"
+    "package-lock.json", "build-config/vite-plugins.ts", "vite.config.ts"
 )
 val storybookConfigs = arrayOf(".babelrc", "build-config/storybook/**")
 
@@ -75,4 +75,14 @@ tasks.register("clean") {
     dependsOn(npmClean)
 }
 
+val frontendBuild by configurations.creating {
+    isCanBeConsumed = true
+    isCanBeResolved = false
+}
+
+artifacts {
+    add("frontendBuild", file("dist")) {
+        builtBy(npmBuild)
+    }
+}
 

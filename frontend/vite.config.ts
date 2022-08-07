@@ -39,6 +39,7 @@ export default defineConfig({
   },
   build: {
     sourcemap: 'inline',
+    outDir: 'dist/META-INF/resources',
   },
   optimizeDeps: {
     include: ['jwt-decode'],
