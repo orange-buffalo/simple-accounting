@@ -46,6 +46,10 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
     implementation("org.springdoc:springdoc-openapi-common:${Versions.springdocOpenapi}")
 
+    runtimeOnly(project(mapOf(
+        "path" to ":frontend",
+        "configuration" to "frontendBuild")))
+
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")
@@ -79,11 +83,6 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
-val copyFrontend = task<Copy>("copyFrontend") {
-    from(tasks.getByPath(":frontend:npmBuild"))
-    into("${sourceSets.getByName("main").output.resourcesDir}/META-INF/resources")
-}
-
 docker {
     registryCredentials {
         username.set(project.properties["docker.hub.username"] as String?)
@@ -113,20 +112,8 @@ task<DockerPushImage>("pushDockerImage") {
 }
 
 tasks {
-    compileTestKotlin {
-        dependsOn(copyFrontend)
-    }
-
     build {
         dependsOn(buildDockerImage)
-    }
-
-    bootJarMainClassName {
-        dependsOn(copyFrontend)
-    }
-
-    jar {
-        dependsOn(copyFrontend)
     }
 }
 
