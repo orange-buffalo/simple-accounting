@@ -14,7 +14,6 @@ import Dashboard from '@/pages/dashboard/Dashboard.vue';
 //   router.beforeEach(async (to, from, next) => {
 //     const { setLastView } = useLastView();
 //     if (to.name !== 'login'
-//       && to.name !== 'logout'
 //       && to.name !== 'login-by-link'
 //       && to.name !== 'oauth-callback'
 //       && !isLoggedIn()) {
@@ -54,15 +53,6 @@ export default function setupRouter() {
       //   path: '/workspace-setup',
       //   name: 'workspace-setup',
       //   component: WorkspaceSetup,
-      // },
-      //
-      // {
-      //   path: '/logout',
-      //   name: 'logout',
-      //   beforeEnter: (to, from, next) => {
-      //     api.logout()
-      //       .then(() => next('login'));
-      //   },
       // },
       //
       // {

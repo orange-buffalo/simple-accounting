@@ -3,72 +3,72 @@
     <MenuLogo class="side-menu__logo" />
 
     <div
-        v-if="isUser"
-        class="side-menu__workspace-name"
+      v-if="isUser"
+      class="side-menu__workspace-name"
     >
       {{ currentWorkspace.name }}
     </div>
 
     <template v-if="isUser">
       <TheSideMenuLink
-          to="/"
-          :title="$t.navigationMenu.dashboard()"
-          icon="dashboard"
+        to="/"
+        :title="$t.navigationMenu.dashboard()"
+        icon="dashboard"
       />
       <TheSideMenuLink
-          to="/expenses"
-          :title="$t.navigationMenu.expenses()"
-          icon="expense"
+        to="/expenses"
+        :title="$t.navigationMenu.expenses()"
+        icon="expense"
       />
       <TheSideMenuLink
-          to="/incomes"
-          :title="$t.navigationMenu.incomes()"
-          icon="income"
+        to="/incomes"
+        :title="$t.navigationMenu.incomes()"
+        icon="income"
       />
       <TheSideMenuLink
-          to="/invoices"
-          :title="$t.navigationMenu.invoices()"
-          icon="invoices-overview"
+        to="/invoices"
+        :title="$t.navigationMenu.invoices()"
+        icon="invoices-overview"
       />
       <TheSideMenuLink
-          to="/income-tax-payments"
-          :title="$t.navigationMenu.taxPayments()"
-          icon="income-tax-payments-overview"
+        to="/income-tax-payments"
+        :title="$t.navigationMenu.taxPayments()"
+        icon="income-tax-payments-overview"
       />
       <TheSideMenuLink
-          to="/reporting"
-          :title="$t.navigationMenu.reporting()"
-          icon="reporting"
+        to="/reporting"
+        :title="$t.navigationMenu.reporting()"
+        icon="reporting"
       />
 
       <template v-if="isCurrentUserRegular()">
         <span class="side-menu__category">{{ $t.navigationMenu.settings.header() }}</span>
 
         <TheSideMenuLink
-            v-if="currentWorkspace.editable"
-            to="/settings/customers"
-            :title="$t.navigationMenu.settings.customers()"
-            icon="customers-overview"
+          v-if="currentWorkspace.editable"
+          to="/settings/customers"
+          :title="$t.navigationMenu.settings.customers()"
+          icon="customers-overview"
         />
 
         <TheSideMenuLink
-            v-if="currentWorkspace.editable"
-            to="/settings/categories"
-            :title="$t.navigationMenu.settings.categories()"
-            icon="category"
+          v-if="currentWorkspace.editable"
+          to="/settings/categories"
+          :title="$t.navigationMenu.settings.categories()"
+          icon="category"
         />
 
         <TheSideMenuLink
-            v-if="currentWorkspace.editable"
-            to="/settings/general-taxes"
-            :title="$t.navigationMenu.settings.generalTaxes()"
-            icon="taxes-overview"
+          v-if="currentWorkspace.editable"
+          to="/settings/general-taxes"
+          :title="$t.navigationMenu.settings.generalTaxes()"
+          icon="taxes-overview"
         />
 
         <TheSideMenuLink
-            to="/settings/workspaces"
-            :title="$t.navigationMenu.settings.workspaces()"
-            icon="workspaces"
+          to="/settings/workspaces"
+          :title="$t.navigationMenu.settings.workspaces()"
+          icon="workspaces"
         />
       </template>
     </template>
@@ -76,16 +76,12 @@
     <span class="side-menu__category">{{ $t.navigationMenu.user.header() }}</span>
 
     <TheSideMenuLink
-        v-if="isCurrentUserRegular()"
-        to="/my-profile"
-        :title="$t.navigationMenu.user.profile()"
-        icon="profile"
+      v-if="isCurrentUserRegular()"
+      to="/my-profile"
+      :title="$t.navigationMenu.user.profile()"
+      icon="profile"
     />
-    <TheSideMenuLink
-        to="/logout"
-        :title="$t.navigationMenu.user.logout()"
-        icon="logout"
-    />
+    <SideMenuLogoutButton />
   </ElAside>
 </template>
 
@@ -93,6 +89,7 @@
   /// <reference types="vite-svg-loader" />
   import { onUnmounted, ref } from 'vue';
   import TheSideMenuLink from '@/components/side-menu/SideMenuLink.vue';
+  import SideMenuLogoutButton from '@/components/side-menu/SideMenuLogoutButton.vue';
   import MenuLogo from '@/assets/logo-menu.svg?component';
   import { useAuth } from '@/services/api';
   import type { WorkspaceDto } from '@/services/api';
@@ -162,6 +159,7 @@
       border-left: 3px solid transparent;
       transition: all 0.1s ease-out;
       font-size: 0;
+      cursor: pointer;
 
       @include respond-above($menu-breakpoint) {
         border-left: 5px solid transparent;
