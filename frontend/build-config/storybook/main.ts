@@ -33,6 +33,10 @@ const storybookConfig: StorybookViteConfig = {
       ...userConfig,
       // manually specify plugins to avoid conflict
       plugins: [...vitePlugins],
+      // override as storybook uses 'outDir' from main config
+      build: {
+        outDir: '../build/storybook',
+      },
     });
   },
 };
