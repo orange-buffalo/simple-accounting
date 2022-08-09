@@ -4,19 +4,15 @@ import com.codeborne.selenide.Configuration
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.kotest.matchers.file.shouldExist
-import io.orangebuffalo.simpleaccounting.utils.KBrowserWebDriverContainer
-import io.orangebuffalo.simpleaccounting.utils.KNginxContainer
-import io.orangebuffalo.simpleaccounting.utils.ReusableNetwork
-import io.orangebuffalo.simpleaccounting.utils.logger
+import io.orangebuffalo.simpleaccounting.utils.*
 import mu.KotlinLogging
 import org.junit.jupiter.api.extension.*
 import org.openqa.selenium.chrome.ChromeOptions
 import org.testcontainers.containers.BrowserWebDriverContainer
 import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy
-import io.orangebuffalo.simpleaccounting.utils.yamlObjectMapper
 import java.io.File
+import java.net.URI
 
 private val testConfig = loadTestConfig()
 
@@ -89,11 +85,12 @@ class StorybookEnvironment {
         get() = testConfig.replaceCommittedFiles
 
     init {
-        val storiesFile = File(storybookDirectory, "stories.json")
-        storiesFile.shouldExist()
+        val storiesJsonUri = if (testConfig.useCompliedStorybook)
+            File(storybookDirectory, "stories.json").toURI()
+        else URI("http://localhost:6006/stories.json")
 
         val data: StorybookStoriesFileData = jacksonObjectMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).readValue(storiesFile)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).readValue(storiesJsonUri.toURL())
         stories = data.stories.values
     }
 }
