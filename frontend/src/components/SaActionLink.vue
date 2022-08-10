@@ -4,6 +4,7 @@
       :icon="icon"
       class="sa-action-link__icon"
     />
+<!--    TODO type=text is deprecated, need to replace with text attribute and style-->
     <ElButton
       type="text"
       @click="click"
@@ -13,33 +14,22 @@
   </div>
 </template>
 
-<script>
-  import SaIcon from '@/components/SaIcon';
+<script lang="ts" setup>
+  import SaIcon from '@/components/SaIcon.vue';
 
-  export default {
-    name: 'SaActionLink',
+  defineProps<{
+    icon: string
+  }>();
 
-    components: {
-      SaIcon,
-    },
+  const emits = defineEmits<{(e: 'click'): void}>();
 
-    props: {
-      icon: {
-        type: String,
-        required: true,
-      },
-    },
-
-    methods: {
-      click() {
-        this.$emit('click');
-      },
-    },
+  const click = () => {
+    emits('click');
   };
 </script>
 
 <style lang="scss">
-  @import "~@/styles/vars.scss";
+  @use "@/styles/vars.scss" as *;
 
   .sa-action-link {
     display: inline-flex;
@@ -52,5 +42,4 @@
       width: 13px;
     }
   }
-
 </style>
