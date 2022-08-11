@@ -8,6 +8,7 @@ import {
   CategoriesApiControllerApi,
   StatisticsApiControllerApi,
   InvoicesApiControllerApi,
+  GeneralTaxApiControllerApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -50,3 +51,4 @@ export const customerApi = new CustomersApiControllerApi<RequestMetadata>(defaul
 export const categoryApi = new CategoriesApiControllerApi<RequestMetadata>(defaultConfig);
 export const statisticsApi = new StatisticsApiControllerApi<RequestMetadata>(defaultConfig);
 export const invoicesApi = new InvoicesApiControllerApi<RequestMetadata>(defaultConfig);
+export const generalTaxApi = new GeneralTaxApiControllerApi<RequestMetadata>(defaultConfig);

@@ -1,26 +1,26 @@
 <template>
   <SaOutputLoader :loading="loading">
-    {{ customerName }}
+    {{ generalTaxTitle }}
   </SaOutputLoader>
 </template>
 
 <script lang="ts" setup>
   import SaOutputLoader from '@/components/SaOutputLoader.vue';
-  import { customerApi } from '@/services/api';
   import { useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
+  import { generalTaxApi } from '@/services/api';
 
   const props = defineProps<{
-    customerId?: number
+    generalTaxId?: number;
   }>();
 
   const {
     loading,
-    value: customerName,
-  } = useValueLoadedByCurrentWorkspaceAndProp(() => props.customerId, async (customerId, workspaceId) => {
-    const customer = await customerApi.getCustomer({
-      customerId,
+    value: generalTaxTitle,
+  } = useValueLoadedByCurrentWorkspaceAndProp(() => props.generalTaxId, async (taxId, workspaceId) => {
+    const customer = await generalTaxApi.getTax({
+      taxId,
       workspaceId,
     });
-    return customer.name;
+    return customer.title;
   });
 </script>
