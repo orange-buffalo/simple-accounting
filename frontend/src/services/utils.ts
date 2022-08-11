@@ -9,7 +9,7 @@ export function findByIdOrEmpty<T extends HasOptionalId>(list: T[], targetItemId
 }
 
 export function useValueLoadedByCurrentWorkspaceAndProp<T, P>(
-  propGetter: () => P,
+  propGetter: () => P | null | undefined,
   valueLoader: (propValue: P, currentWorkspaceId: number) => Promise<UnwrapRef<T>>,
 ) {
   const value = ref<T | null>(null);

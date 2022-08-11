@@ -1,6 +1,6 @@
 export * from './api-types';
 export {
- workspacesApi, profileApi, customerApi, categoryApi, statisticsApi, invoicesApi,
+ workspacesApi, profileApi, customerApi, categoryApi, statisticsApi, invoicesApi, generalTaxApi,
 } from './api-client';
 export { useAuth } from './auth';
 export type { Auth } from './auth';
