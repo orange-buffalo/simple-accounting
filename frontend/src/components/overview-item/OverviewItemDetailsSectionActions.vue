@@ -4,12 +4,6 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: 'OverviewItemDetailsSectionActions',
-  };
-</script>
-
 <style lang="scss">
   .overview-item-details-section-actions {
     padding-bottom: 10px;

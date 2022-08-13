@@ -1,0 +1,9 @@
+@use "vars" as *;
+
+// TODO uses deprecated SASS and is no longer maintained - should be replaced
+@forward '@drewbot/sass-flexbox-grid/public/sass-flexbox/scss/main' with (
+    $xs-max: $xs-screen,
+    $sm-max: $md-screen - 1,
+    $md-max: $lg-screen - 1,
+    $lg-max: $xl-screen - 1
+);

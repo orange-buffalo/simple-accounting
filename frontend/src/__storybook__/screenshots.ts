@@ -31,6 +31,8 @@ export function disableCssAnimations(querySelector: string): SaStoryScreenshotPr
         result = true;
         // eslint-disable-next-line no-param-reassign
         element.style.animation = 'none';
+        // eslint-disable-next-line no-param-reassign
+        element.style.transition = 'none';
       });
     return result;
   };
@@ -38,6 +40,14 @@ export function disableCssAnimations(querySelector: string): SaStoryScreenshotPr
 
 export function disableOutputLoaderAnimations() {
   return disableCssAnimations('.sa-output-loader__placeholder');
+}
+
+export function disableOverviewPanelAnimations() {
+  return allOf(
+    disableCssAnimations('.overview-item__panel'),
+    disableCssAnimations('.overview-item__details-trigger'),
+    disableCssAnimations('.overview-item__details-transition-enter-active'),
+  );
 }
 
 export function allOf(...steps: SaStoryScreenshotPreparation[]): SaStoryScreenshotPreparation {

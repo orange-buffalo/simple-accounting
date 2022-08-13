@@ -9,7 +9,8 @@ export const createStoriesAppDecorator = decoratorFactory((parameters) => ({
   data() {
     return {
       fullScreen: parameters.fullScreen,
+      asPage: parameters.asPage,
     };
   },
-  template: '<StoriesApp :full-screen="fullScreen"><story /></StoriesApp>',
+  template: '<StoriesApp :full-screen="fullScreen" :as-page="asPage"><story /></StoriesApp>',
 }));

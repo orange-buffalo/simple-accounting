@@ -7,6 +7,7 @@ export type SaStoryScreenshotPreparation = () => boolean;
 
 export interface SaStoryParameters {
   fullScreen?: boolean,
+  asPage?: boolean,
   workspace?: Partial<WorkspaceDto>,
   screenshotPreparation?: SaStoryScreenshotPreparation
 }
