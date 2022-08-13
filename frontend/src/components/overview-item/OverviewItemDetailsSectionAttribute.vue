@@ -9,21 +9,14 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: 'OverviewItemDetailsSectionAttribute',
-
-    props: {
-      label: {
-        type: String,
-        required: true,
-      },
-    },
-  };
+<script lang="ts" setup>
+  defineProps<{
+    label: string
+  }>();
 </script>
 
 <style lang="scss">
-  @import "~@/styles/vars.scss";
+  @use "@/styles/vars.scss" as *;
 
   .overview-item-details-section-attribute {
     &__label {

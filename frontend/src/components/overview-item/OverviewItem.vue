@@ -26,7 +26,7 @@
       <ElButton
         v-if="detailsAvailable"
         circle
-        icon="el-icon-arrow-down"
+        :icon="ArrowDown"
         class="overview-item__details-trigger"
         :class="{ 'overview-item__details-trigger_open' : detailsVisible }"
         @click="toggleDetailsVisibility"
@@ -44,40 +44,40 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: 'OverviewItem',
+<script lang="ts" setup>
+  import { onMounted, ref, useSlots } from 'vue';
+  import { ArrowDown } from '@element-plus/icons-vue';
 
-    props: {
-      title: {
-        type: String,
-        required: true,
-      },
-    },
+  defineProps<{
+    title: string
+  }>();
 
-    data() {
-      return {
-        detailsAvailable: false,
-        detailsVisible: false,
-      };
-    },
+  const detailsAvailable = ref(false);
+  const detailsVisible = ref(false);
 
-    mounted() {
-      this.detailsAvailable = this.$slots.details !== undefined;
-    },
+  const slots = useSlots();
 
-    methods: {
-      toggleDetailsVisibility() {
-        this.detailsVisible = !this.detailsVisible;
-        this.$emit(this.detailsVisible ? 'details-shown' : 'details-closed');
-      },
-    },
+  onMounted(() => {
+    detailsAvailable.value = slots.details !== undefined;
+  });
+
+  const emit = defineEmits<{(e: 'details-shown'): void;
+                            (e: 'details-closed'): void;
+  }>();
+
+  const toggleDetailsVisibility = () => {
+    detailsVisible.value = !detailsVisible.value;
+    if (detailsVisible.value) {
+      emit('details-shown');
+    } else {
+      emit('details-closed');
+    }
   };
 </script>
 
 <style lang="scss">
   /*todo #73: common component refers to app styles - redesign dependencies  */
-  @import "~@/styles/vars.scss";
+  @use "@/styles/vars.scss" as *;
 
   .overview-item {
     &__panel {
@@ -130,6 +130,8 @@
       transform: translateX(-50%) translateY(50%);
       background: $white;
       transition: all 250ms cubic-bezier(.1, .82, .47, .94);
+      width: 40px;
+      height: 40px;
 
       &_open {
         transform: translateX(-50%) translateY(50%) rotate(180deg);

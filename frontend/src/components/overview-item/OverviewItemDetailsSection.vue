@@ -7,21 +7,14 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: 'OverviewItemDetailsSection',
-
-    props: {
-      title: {
-        type: String,
-        required: true,
-      },
-    },
-  };
+<script lang="ts" setup>
+  defineProps<{
+    title: string,
+  }>();
 </script>
 
 <style lang="scss">
-  @import "~@/styles/vars.scss";
+  @use "@/styles/vars.scss" as *;
 
   .overview-item-details-section {
     margin-bottom: 15px;

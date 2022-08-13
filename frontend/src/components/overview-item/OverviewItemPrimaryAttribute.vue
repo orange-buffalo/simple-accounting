@@ -14,26 +14,13 @@
   </ElTooltip>
 </template>
 
-<script>
-  import SaIcon from '@/components/SaIcon';
+<script lang="ts" setup>
+  import SaIcon from '@/components/SaIcon.vue';
 
-  export default {
-    name: 'OverviewItemPrimaryAttribute',
-
-    components: {
-      SaIcon,
-    },
-
-    props: {
-      icon: {
-        type: String,
-        required: true,
-      },
-      tooltip: {
-        type: String,
-      },
-    },
-  };
+  defineProps<{
+    icon: string,
+    tooltip?: string
+  }>();
 </script>
 
 <style lang="scss">

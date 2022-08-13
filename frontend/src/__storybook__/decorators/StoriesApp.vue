@@ -8,12 +8,12 @@
   import { ref, computed } from 'vue';
   import { setLocaleFromProfile } from '@/setup/setup-app';
 
-  const props = defineProps({
-    fullScreen: {
-      type: Boolean,
-      default: false,
-      required: false,
-    },
+  const props = withDefaults(defineProps<{
+    fullScreen?: boolean;
+    asPage?: boolean,
+  }>(), {
+    fullScreen: false,
+    asPage: false,
   });
 
   const loaded = ref(false);
@@ -26,7 +26,8 @@
   loadI18n();
 
   const classes = computed(() => ({
-    'stories-app--full-width': !props.fullScreen,
+    'stories-app--full-width': !props.fullScreen && !props.asPage,
+    'stories-app--as-page': props.asPage,
     'stories-app--full-screen': props.fullScreen,
   }));
 </script>
@@ -47,5 +48,13 @@
   .stories-app--full-screen {
     width: 100%;
     height: 100vh;
+  }
+
+  .stories-app--as-page {
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 1rem;
+    background-color: $primary-grey;
   }
 </style>
