@@ -11,7 +11,15 @@ plugins {
 
 sourceSets {
     create("e2eTest")
-    create("storybookTest")
+    create("storybookTest") {
+        // do not add this dependency in dev to avoid storybook rebuild on each change,
+        // as we recommend to run tests against running storybook locally
+        if (System.getenv("CI") == "true") {
+            resources {
+                srcDirs(tasks.getByPath(":frontend:npmBuildStorybook"))
+            }
+        }
+    }
 }
 
 val e2eTestImplementation: Configuration by configurations.getting
@@ -61,6 +69,8 @@ val e2eTest = task<Test>("e2eTest") {
 
     testClassesDirs = sourceSets["e2eTest"].output.classesDirs
     classpath = sourceSets["e2eTest"].runtimeClasspath
+
+    inputs.files(tasks.getByPath(":backend:prepareDockerBuild").outputs.files)
 
     dependsOn(":backend:buildDockerImage")
 }

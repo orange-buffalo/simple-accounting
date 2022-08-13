@@ -74,15 +74,3 @@ val npmClean by tasks.register("npmClean") {
 tasks.register("clean") {
     dependsOn(npmClean)
 }
-
-val frontendBuild by configurations.creating {
-    isCanBeConsumed = true
-    isCanBeResolved = false
-}
-
-artifacts {
-    add("frontendBuild", file("dist")) {
-        builtBy(npmBuild)
-    }
-}
-

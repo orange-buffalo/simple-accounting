@@ -46,10 +46,6 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
     implementation("org.springdoc:springdoc-openapi-common:${Versions.springdocOpenapi}")
 
-    runtimeOnly(project(mapOf(
-        "path" to ":frontend",
-        "configuration" to "frontendBuild")))
-
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")
@@ -81,6 +77,14 @@ dependencies {
     testRuntimeOnly("org.springdoc:springdoc-openapi-kotlin:${Versions.springdocOpenapi}")
     testRuntimeOnly("org.springdoc:springdoc-openapi-webflux-core:${Versions.springdocOpenapi}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs(tasks.getByPath(":frontend:npmBuild"))
+        }
+    }
 }
 
 docker {
