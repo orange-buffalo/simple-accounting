@@ -79,7 +79,6 @@ jobs:
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
       run: |
-          ./gradlew npmBuildStorybook --scan --console=plain --info --build-cache
           ./gradlew storybookTest --scan --console=plain --info --build-cache
 
     - name: "Test (end-to-end)"
