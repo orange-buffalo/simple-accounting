@@ -70,9 +70,10 @@ val e2eTest = task<Test>("e2eTest") {
     testClassesDirs = sourceSets["e2eTest"].output.classesDirs
     classpath = sourceSets["e2eTest"].runtimeClasspath
 
-    inputs.files(tasks.getByPath(":backend:prepareDockerBuild").outputs.files)
-
-    dependsOn(":backend:buildDockerImage")
+    dependsOn(":backend:jibDockerBuild")
+    // jibDockerBuild does not have outputs, so we cannot make this task cache based on jibDockerBuild;
+    // workaround this via a fake property
+    inputs.property("cacheIgnoreProperty", System.currentTimeMillis())
 }
 
 val storybookTest = task<Test>("storybookTest") {

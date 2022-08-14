@@ -49,28 +49,25 @@ jobs:
           echo "Repo state after new tag:"
           ./gradlew -q showInfo
 
-    - name: Gradle Cache
+    - name: Build Cache
       uses: actions/cache@v3
       with:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
+          ~/.cache/google-cloud-tools-java/jib
+          backend/build/jib-cache
         # workaround for https://github.com/actions/cache/issues/342
         # generate new key for each build to force cache push
-        key: gradle-cache-${{ github.run_id }}
+        key: build-cache-${{ github.run_id }}
         # but use restore key to restore the latest pushed cache
         restore-keys: |
-          gradle-cache-
+          build-cache-
 
     - name: "Build"
       env:
-        DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
         NODE_OPTIONS: "--max_old_space_size=4096"
-      run: |
-          ./gradlew assemble buildDockerImage \
-            --scan --console=plain --info --build-cache \
-            -Pdocker.hub.username=orangebuffalo \
-            -Pdocker.hub.password="$DOCKERHUB_TOKEN"
+      run: ./gradlew assemble --scan --console=plain --info --build-cache
 
     - name: "Test"
       run: ./gradlew check --scan --console=plain --info --build-cache
@@ -78,17 +75,10 @@ jobs:
     - name: "Test (storybook)"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
-      run: |
-          ./gradlew storybookTest --scan --console=plain --info --build-cache
+      run: ./gradlew storybookTest --scan --console=plain --info --build-cache
 
     - name: "Test (end-to-end)"
-      env:
-        DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
-      run: |
-          ./gradlew e2eTest \
-            -Pdocker.hub.username=orangebuffalo \
-            -Pdocker.hub.password="$DOCKERHUB_TOKEN" \
-            --scan --console=plain --build-cache --info
+      run: ./gradlew e2eTest --scan --console=plain --build-cache --info
 
     - name: "Save Tests Results"
       uses: actions/upload-artifact@v3
@@ -111,13 +101,11 @@ jobs:
 
     - name: "Publish"
       if: github.ref == 'refs/heads/master'
-      env:
-        DOCKERHUB_TOKEN: ${{ secrets.dockerhub_token }}
       run: |
-          ./gradlew pushDockerImage \
+          ./gradlew jib \
             --scan --console=plain \
-            -Pdocker.hub.username=orangebuffalo \
-            -Pdocker.hub.password="$DOCKERHUB_TOKEN"
+            -Djib.to.auth.username=orangebuffalo \
+            -Djib.to.auth.password="${{ secrets.dockerhub_token }}"
 
     - name: "Push Version Tag"
       if: github.ref == 'refs/heads/master'
