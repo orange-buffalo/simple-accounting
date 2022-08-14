@@ -1,7 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
-
 buildscript {
     repositories {
         mavenCentral()
@@ -18,12 +14,11 @@ plugins {
     id("io.spring.dependency-management")
     id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlin
     id("org.springframework.boot") version Versions.springBoot
-    id("com.bmuschko.docker-remote-api") version Versions.dockerPlugin
     jacoco
+    id("com.google.cloud.tools.jib") version "3.2.1"
 }
 
 apply<SaJooqCodeGenPlugin>()
-apply<SaDockerPlugin>()
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
@@ -81,43 +76,34 @@ dependencies {
 
 sourceSets {
     main {
+        // add frontend application build results
         resources {
             srcDirs(tasks.getByPath(":frontend:npmBuild"))
         }
     }
 }
 
-docker {
-    registryCredentials {
-        username.set(project.properties["docker.hub.username"] as String?)
-        password.set(project.properties["docker.hub.password"] as String?)
+// disable extra artifacts as we do not need them (including container image)
+tasks.jar {
+    enabled = false
+}
+
+tasks.bootJar {
+    enabled = false
+}
+
+tasks.bootJarMainClassName {
+    enabled = false
+}
+
+jib {
+    to {
+        image = "orangebuffalo/simple-accounting:${project.version}"
+        tags = setOf("latest")
     }
-}
-
-val saDockerImageExtension = the<SaDockerImageExtension>()
-
-configure<SaDockerImageExtension> {
-    image.set("orangebuffalo/simple-accounting:${project.version}")
-    dockerBuildDir.set(project.layout.buildDirectory.map { projectBuildDir ->
-        projectBuildDir.dir("docker-build")
-    })
-}
-
-val buildDockerImage = task<DockerBuildImage>("buildDockerImage") {
-    inputDir.set(saDockerImageExtension.dockerBuildDir)
-    images.add(saDockerImageExtension.image)
-    images.add("orangebuffalo/simple-accounting:latest")
-    dependsOn("prepareDockerBuild")
-}
-
-task<DockerPushImage>("pushDockerImage") {
-    images.add(saDockerImageExtension.image)
-    dependsOn(buildDockerImage)
-}
-
-tasks {
-    build {
-        dependsOn(buildDockerImage)
+    container {
+        ports = listOf("9393")
+        jvmFlags = listOf("-Xmx128m")
     }
 }
 

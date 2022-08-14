@@ -27,7 +27,7 @@ private val simpleAccounting: SimpleAccountingApp = SimpleAccountingApp()
     .withNetworkAliases("simple-accounting")
     .withEnv("spring_profiles_active", "ci-tests")
     .withLogConsumer { frame -> simpleAccountingLogger.info(frame.utf8String) }
-    .waitingFor(Wait.forHealthcheck())
+    .waitingFor(Wait.forLogMessage(".*Started SimpleAccountingApplicationKt.*", 1))
 
 class E2eTestsEnvironment : BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback, Extension {
     override fun beforeAll(context: ExtensionContext) {

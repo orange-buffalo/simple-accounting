@@ -22,7 +22,6 @@ object Versions {
     const val zjsonpatch = "0.4.12"
     const val springdocOpenapi = "1.6.9"
 
-    const val dockerPlugin = "7.4.0"
     const val semverGitPlugin = "1.2.1"
     const val versionsPlugin = "0.42.0"
 }
