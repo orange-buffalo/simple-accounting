@@ -32,6 +32,7 @@
   }));
 </script>
 
+<!--suppress CssUnknownTarget, SassScssResolvedByNameOnly -->
 <style lang="scss">
   @use "@/styles/vars.scss" as *;
 
@@ -52,7 +53,7 @@
 
   .stories-app--as-page {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     box-sizing: border-box;
     padding: 1rem;
     background-color: $primary-grey;

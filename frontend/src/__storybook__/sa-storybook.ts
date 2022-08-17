@@ -9,7 +9,8 @@ export interface SaStoryParameters {
   fullScreen?: boolean,
   asPage?: boolean,
   workspace?: Partial<WorkspaceDto>,
-  screenshotPreparation?: SaStoryScreenshotPreparation
+  screenshotPreparation?: SaStoryScreenshotPreparation,
+  useRealTime?: boolean,
 }
 
 export function defineStory(storyComponent: () => SaStoryComponent, parameters?: SaStoryParameters) {

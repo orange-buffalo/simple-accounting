@@ -17,6 +17,12 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    // override Vue default by changing 2016 to 2017
+    "lib": [
+      "ES2017",
+      "DOM",
+      "DOM.Iterable"
+    ]
   }
 }
