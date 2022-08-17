@@ -1,11 +1,5 @@
 import { Page } from 'puppeteer';
 
-export function timeout(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 export async function pauseAndResetInputLoaderAnimation(page: Page) {
   await pauseAndResetAnimation(page, '.sa-input-loader__indicator');
 }

@@ -8,16 +8,11 @@
   import { computed } from 'vue';
   import { iconByName } from '@/icons';
 
-  const props = defineProps({
-    icon: {
-      type: String,
-      required: true,
-    },
-    size: {
-      type: Number,
-      required: false,
-      default: 16,
-    },
+  const props = withDefaults(defineProps<{
+    icon: string,
+    size?: number,
+  }>(), {
+    size: 16,
   });
 
   const style = {
