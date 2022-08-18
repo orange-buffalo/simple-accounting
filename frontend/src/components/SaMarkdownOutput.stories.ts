@@ -1,5 +1,8 @@
-import SaMarkdownOutput from '@/components/SaMarkdownOutput';
-import { setViewportHeight } from '../utils/stories-utils';
+// noinspection JSUnusedGlobalSymbols
+
+import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
+import { defineStory } from '@/__storybook__/sa-storybook';
+import { waitForText } from '@/__storybook__/screenshots';
 
 export default {
   title: 'Components/SaMarkdownOutput',
@@ -29,29 +32,28 @@ _This is italic text_
 3. Integer molestie lorem at massa
 `;
 
-export const Default = () => ({
+export const Default = defineStory(() => ({
   components: { SaMarkdownOutput },
-  data() {
+  setup() {
     return {
       markdownSource,
     };
   },
   template: '<SaMarkdownOutput :source="markdownSource" style="width: 400px" />',
+}), {
+  screenshotPreparation: waitForText('This is bold text'),
+  useRealTime: true,
 });
 
-export const Preview = () => ({
+export const Preview = defineStory(() => ({
   components: { SaMarkdownOutput },
-  data() {
+  setup() {
     return {
       markdownSource,
     };
   },
   template: '<SaMarkdownOutput :source="markdownSource" preview style="width: 400px" />',
+}), {
+  screenshotPreparation: waitForText('This is bold text'),
+  useRealTime: true,
 });
-Preview.parameters = {
-  storyshots: {
-    async setup(page) {
-      await setViewportHeight(page, 450);
-    },
-  },
-};
