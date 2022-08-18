@@ -14,57 +14,38 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
   import DOMPurify from 'dompurify';
   import { marked } from 'marked';
-  import debounce from 'lodash/debounce';
+  import { debounce } from 'lodash';
+  import { computed, ref, watch } from 'vue';
 
-  function renderMarkdown(source) {
+  function renderMarkdown(source?: string) {
     return source ? DOMPurify.sanitize(marked(source)) : '';
   }
 
-  export default {
-    name: 'SaMarkdownOutput',
+  const props = withDefaults(defineProps<{
+    source?: string,
+    preview?: boolean;
+  }>(), {
+    preview: false,
+  });
 
-    props: {
-      source: {
-        type: String,
-        default: null,
-      },
-      preview: {
-        type: Boolean,
-        default: false,
-      },
-    },
+  const renderedMarkdown = ref<string | undefined>();
+  const updateMarkdown = debounce(() => {
+    renderedMarkdown.value = renderMarkdown(props.source);
+  }, 300);
 
-    data() {
-      return {
-        renderedMarkdown: renderMarkdown(this.source),
-        updateMarkdown: debounce(() => {
-          this.renderedMarkdown = renderMarkdown(this.source);
-        }, 300),
-      };
-    },
+  const panelClass = computed(() => ({
+    'markdown-output_preview': props.preview,
+  }));
 
-    computed: {
-      panelClass() {
-        return {
-          'markdown-output_preview': this.preview,
-        };
-      },
-    },
-
-    watch: {
-      source() {
-        this.updateMarkdown();
-      },
-    },
-  };
+  watch(() => props.source, updateMarkdown, { immediate: true });
 </script>
 
 <style lang="scss">
   /*todo #73: common component refers to app styles - redesign dependencies  */
-  @import "~@/styles/vars.scss";
+  @use "@/styles/vars.scss" as *;
 
   .markdown-output {
     p {
