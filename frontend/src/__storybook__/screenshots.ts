@@ -5,7 +5,7 @@ export function waitForText(text: string): SaStoryScreenshotPreparation {
     const elements = document.querySelectorAll('div,span,p,h1,h2,h3,h4');
     let result = false;
     elements.forEach((element) => {
-      result = result || (element.innerText === text);
+      result = result || (element.innerText.indexOf(text) >= 0);
     });
     return result;
   };
