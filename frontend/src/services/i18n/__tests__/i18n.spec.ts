@@ -3,6 +3,7 @@ import {
 } from 'vitest';
 import {
   formatMessage,
+  parseMessage,
   getSupportedLanguages,
   getSupportedLocales,
   getCurrentLanguage,
@@ -139,6 +140,22 @@ describe('i18n', () => {
 
     expect(formatMessage('{0, fileSize, pretty}', [value]))
       .toBe(expectedInterpolation);
+  });
+
+  test('should parse messages', async () => {
+    await setLocaleFromProfile('en', 'en');
+
+    expect(parseMessage('Test then {0} and then done.'))
+      .toEqual([{
+        type: 'content',
+        value: 'Test then ',
+      }, {
+        type: 'arg',
+        value: '0',
+      }, {
+        type: 'content',
+        value: ' and then done.',
+      }]);
   });
 
   afterEach(() => {

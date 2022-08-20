@@ -1,5 +1,6 @@
 import type { MessageFunction } from '@messageformat/core';
 import MessageFormat from '@messageformat/core';
+import { parse } from '@messageformat/parser';
 import { computed, ref } from 'vue';
 import { lookupClosestLocale } from '@/services/i18n/locale-utils';
 import supportedLocaleCodesJson from '@/services/i18n/l10n/supported-locales.json?raw';
@@ -30,6 +31,11 @@ export interface SupportedLanguage {
   displayName: string,
 }
 
+interface ParsedToken {
+  type: 'content' | 'arg',
+  value: string,
+}
+
 const supportedLanguages: SupportedLanguage[] = [{
   languageCode: 'en',
   displayName: 'English',
@@ -37,20 +43,6 @@ const supportedLanguages: SupportedLanguage[] = [{
   languageCode: 'uk',
   displayName: 'Українська',
 }];
-
-// function isVNode(node) {
-//   return node !== null && typeof node === 'object' && Object.prototype.hasOwnProperty.call(node, 'componentOptions');
-// }
-//
-// // messageformat does not (obviously) support vue component, so component interpolation does not work
-// function shouldDelegateToDefaultFormatter(values) {
-//   if (values != null) {
-//     return Object.values(values)
-//       .find((it) => it != null && (isVNode(it) || Object.values(it)
-//         .find((nested) => isVNode(nested))));
-//   }
-//   return false;
-// }
 
 function getValidLocale(requestedLocales: readonly string[]) {
   return requestedLocales
@@ -74,6 +66,7 @@ let supportedLocales: SupportedLocale[] = [];
 let formatter: MessageFormat | null = null;
 
 let messageCache: Record<string, MessageFunction<'string' | 'values'>> = {};
+let parsedMessagesCache: Record<string, ParsedToken[]> = {};
 
 const currentTranslationsRef = ref<Translations | null>(null);
 
@@ -107,6 +100,7 @@ function initializeFormatter() {
     },
   });
   messageCache = {};
+  parsedMessagesCache = {};
 }
 
 async function setupI18n(locale: string, language: string) {
@@ -182,6 +176,30 @@ export const $t = computed<Translations>(() => {
   if (!translations) throw new Error('i18n is not yet initialized');
   return translations;
 });
+
+export function parseMessage(messageTemplate: string): ParsedToken[] {
+  let parsedMessage = parsedMessagesCache[messageTemplate];
+  if (!parsedMessage) {
+    parsedMessage = parse(messageTemplate)
+      .map((it) => {
+        if (it.type === 'content') {
+          return {
+            type: 'content',
+            value: it.value,
+          };
+        }
+        if (it.type === 'argument') {
+          return {
+            type: 'arg',
+            value: it.arg,
+          };
+        }
+        throw new Error(`Not supported token ${it}`);
+      });
+    parsedMessagesCache[messageTemplate] = parsedMessage;
+  }
+  return parsedMessage;
+}
 
 // i18n.languageTagToLocaleId = function languageTagToLocaleId(localeId) {
 //   return localeId.replace(/-/g, '_');
