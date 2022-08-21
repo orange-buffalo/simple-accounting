@@ -11,6 +11,7 @@
 
     <template v-else>
       <SaIcon
+        :size="40"
         :icon="documentTypeIcon"
         class="sa-document__file-icon"
       />
@@ -32,14 +33,14 @@
 
         <div class="sa-document__file-description__file-extras">
           <slot name="extras">
-            <SaDocumentDownloadLink
+            <DocumentDownloadLink
               v-if="documentId"
               :document-name="documentName"
               :document-id="documentId"
               class="sa-document__file-description__file-extras__download-link"
             />
           </slot>
-          <span v-if="documentSizeInBytes">{{ $t('saDocument.size.label', [documentSizeInBytes]) }}</span>
+          <span v-if="documentSizeInBytes">{{ $t.saDocument.size.label(documentSizeInBytes) }}</span>
         </div>
 
         <ElProgress
@@ -52,11 +53,11 @@
   </div>
 </template>
 
-<script lang="ts">
-  import { watch, ref, defineComponent } from '@vue/composition-api';
-  import SaIcon from '@/components/SaIcon';
-  import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink';
-  import i18n from '@/services/i18n';
+<script lang="ts" setup>
+  import { computed } from 'vue';
+  import SaIcon from '@/components/SaIcon.vue';
+  import DocumentDownloadLink from '@/components/documents/DocumentDownloadLink.vue';
+  import { $t } from '@/services/i18n';
 
   function getDocumentTypeIcon(documentName: string) {
     const fileName = documentName.toLowerCase();
@@ -75,71 +76,33 @@
     return 'file';
   }
 
-  export default defineComponent({
-    components: {
-      SaDocumentDownloadLink,
-      SaIcon,
-    },
-
-    props: {
-      documentName: {
-        type: String,
-        default: '',
-      },
-
-      documentId: {
-        type: Number,
-        default: null,
-      },
-
-      removable: {
-        type: Boolean,
-        default: false,
-      },
-
-      inProgress: {
-        type: Boolean,
-        default: false,
-      },
-
-      progress: {
-        type: Number,
-        default: null,
-      },
-
-      documentSizeInBytes: {
-        type: Number,
-        default: null,
-      },
-
-      loading: {
-        type: Boolean,
-        default: false,
-      },
-    },
-
-    setup(props, { emit }) {
-      const documentTypeIcon = ref('');
-      watch(() => props.documentName, (documentName) => {
-        documentTypeIcon.value = getDocumentTypeIcon(documentName);
-      }, { immediate: true });
-
-      const onRemove = () => emit('removed');
-
-      const progressFormat = (percent: number) => i18n.t('common.percent', [percent / 100]);
-
-      return {
-        documentTypeIcon,
-        onRemove,
-        progressFormat,
-      };
-    },
+  const props = withDefaults(defineProps<{
+    documentName?: string,
+    documentId?: number,
+    removable?: boolean,
+    inProgress?: boolean
+    progress?: number,
+    documentSizeInBytes?: number,
+    loading?: boolean
+  }>(), {
+    documentName: '',
+    removable: false,
+    inProgress: false,
+    loading: false,
   });
+
+  const emit = defineEmits<{(e: 'removed'): void }>();
+
+  const documentTypeIcon = computed(() => getDocumentTypeIcon(props.documentName));
+
+  const onRemove = () => emit('removed');
+
+  const progressFormat = (percent: number) => $t.value.common.percent(percent / 100);
 </script>
 
 <style lang="scss">
-  @import "~@/styles/vars.scss";
-  @import "~@/styles/mixins.scss";
+  @use "@/styles/vars.scss" as *;
+  @use "@/styles/mixins.scss" as *;
 
   .sa-document {
     display: flex;
@@ -161,8 +124,6 @@
 
     &__file-icon {
       margin-right: 5px;
-      width: 40px;
-      height: 40px;
       flex-shrink: 0;
     }
 
@@ -205,6 +166,7 @@
         &__download-link {
           .el-button {
             padding: 0 5px 0 0 !important;
+            height: auto;
           }
         }
       }
