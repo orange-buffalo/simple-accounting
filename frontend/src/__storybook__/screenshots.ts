@@ -42,6 +42,15 @@ export function disableOutputLoaderAnimations() {
   return disableCssAnimations('.sa-output-loader__placeholder');
 }
 
+export function disableDocumentLoaderAnimation() {
+  return allOf(
+    disableCssAnimations('.sa-document__loader__file-icon'),
+    disableCssAnimations('.sa-document__loader__file-description__header'),
+    disableCssAnimations('.sa-document__loader__file-description__link'),
+    disableCssAnimations('.sa-document__loader__file-description__size'),
+  );
+}
+
 export function disableOverviewPanelAnimations() {
   return allOf(
     disableCssAnimations('.overview-item__panel'),

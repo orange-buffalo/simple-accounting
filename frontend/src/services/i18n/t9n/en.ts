@@ -19,7 +19,7 @@ export default {
       yes: () => 'Yes',
       no: () => 'No',
     },
-    percent: (value: number) => format('{0, number, :: percent scale/100 .00}', [value]),
+    percent: (value: number) => format('{0, number, :: percent scale/100}', [value]),
   },
 
   loginPage: {
@@ -771,7 +771,7 @@ export default {
 
   saFailedDocumentsStorageMessage: {
     title: () => 'Documents storage is not active',
-    message: () => 'Please navigate to your {0} and complete the configuration.',
+    message: () => 'Please navigate to your {default} and complete the configuration.',
     profileLink: () => 'profile settings',
   },
 

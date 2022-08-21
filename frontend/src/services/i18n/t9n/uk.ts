@@ -19,7 +19,7 @@ export default {
       yes: () => 'Так',
       no: () => 'Ні',
     },
-    percent: (value: number) => format('{0, number, :: percent scale/100 .00}', [value]),
+    percent: (value: number) => format('{0, number, :: percent scale/100}', [value]),
   },
 
   loginPage: {
@@ -770,7 +770,7 @@ export default {
 
   saFailedDocumentsStorageMessage: {
     title: () => 'Налаштування збереження документів не активні',
-    message: () => 'Будь ласка, перейдіть до Ваших {0} та виправте конфігурацію.',
+    message: () => 'Будь ласка, перейдіть до Ваших {default} та виправте конфігурацію.',
     profileLink: () => 'налаштуваннь профілю',
   },
 
