@@ -39,6 +39,12 @@ export interface GetDocumentContentRequest {
 
 export interface GetDocumentsRequest {
     workspaceId: number;
+    sortBy?: GetDocumentsSortByEnum;
+    idIn?: Array<number>;
+    idEq?: number;
+    pageNumber?: number;
+    pageSize?: number;
+    sortOrder?: GetDocumentsSortOrderEnum;
 }
 
 export interface GetDownloadTokenRequest {
@@ -96,6 +102,30 @@ export class DocumentsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
         }
 
         const queryParameters: any = {};
+
+        if (requestParameters.sortBy !== undefined) {
+            queryParameters['sortBy'] = requestParameters.sortBy;
+        }
+
+        if (requestParameters.idIn) {
+            queryParameters['id[in]'] = requestParameters.idIn;
+        }
+
+        if (requestParameters.idEq !== undefined) {
+            queryParameters['id[eq]'] = requestParameters.idEq;
+        }
+
+        if (requestParameters.pageNumber !== undefined) {
+            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        if (requestParameters.sortOrder !== undefined) {
+            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -202,3 +232,19 @@ export class DocumentsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetDocumentsSortByEnum = {
+    NotSupported: '_NOT_SUPPORTED'
+} as const;
+export type GetDocumentsSortByEnum = typeof GetDocumentsSortByEnum[keyof typeof GetDocumentsSortByEnum];
+/**
+ * @export
+ */
+export const GetDocumentsSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type GetDocumentsSortOrderEnum = typeof GetDocumentsSortOrderEnum[keyof typeof GetDocumentsSortOrderEnum];

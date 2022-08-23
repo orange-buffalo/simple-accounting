@@ -31,7 +31,7 @@ class DocumentsFilteringApiIT : AbstractFilteringApiTest() {
                 val invoicePlaceholder = "{INVOICE}"
                 val receiptPlaceholder = "{RECEIPT}"
                 val idEqInvoiceFilter = "$idApiField[eq]=$invoicePlaceholder"
-                val idInInvoiceReceiptFilter = "$idApiField[in]=$invoicePlaceholder,$receiptPlaceholder"
+                val idInInvoiceReceiptFilter = "$idApiField[in]=$invoicePlaceholder&$idApiField[in]=$receiptPlaceholder"
 
                 filtering {
                     entity {

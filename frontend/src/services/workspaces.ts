@@ -59,6 +59,10 @@ export function useCurrentWorkspace() {
   return {
     currentWorkspace,
     currentWorkspaceId,
+    /**
+     * TODO: remove usage
+     * @deprecated
+     */
     currentWorkspaceApiUrl,
     defaultCurrency,
   };

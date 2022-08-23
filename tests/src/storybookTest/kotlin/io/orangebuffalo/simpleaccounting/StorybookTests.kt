@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.openqa.selenium.JavascriptExecutor
 import java.awt.image.BufferedImage
 import java.io.File
-import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
 
 @ExtendWith(StorybookExtension::class)
@@ -30,7 +29,7 @@ class StorybookTests {
         val expectedScreenshots = env.stories.asSequence().map { it.screenshotFileName() }.toSet()
 
         val newStories = expectedScreenshots.subtract(committedScreenshots)
-        val failedScreenshots = CopyOnWriteArrayList<String>()
+        val failedScreenshots = mutableListOf<String>()
 
         val (generatedScreenshotsDirectory, diffDirectory) = getGeneratedScreenshotsDirectories()
 
