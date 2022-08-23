@@ -5,10 +5,10 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
+import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.flow.Flow
+import org.springdoc.api.annotations.ParameterObject
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -22,7 +22,7 @@ import java.time.Instant
 class DocumentsApiController(
     private val documentsService: DocumentsService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -43,8 +43,11 @@ class DocumentsApiController(
     }
 
     @GetMapping
-    suspend fun getDocuments(@PathVariable workspaceId: Long): ApiPage<DocumentDto> =
-        filteringApiExecutor.executeFiltering(workspaceId)
+    suspend fun getDocuments(
+        @PathVariable workspaceId: Long,
+        @ParameterObject request: DocumentsFilteringRequest
+    ): ApiPage<DocumentDto> =
+        filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @GetMapping("{documentId}/content")
     suspend fun getDocumentContent(
@@ -72,21 +75,20 @@ class DocumentsApiController(
         token = documentsService.getDownloadToken(workspaceId, documentId)
     )
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Document, DocumentDto> {
-        query(Tables.DOCUMENT) {
-            filterByField("id", Long::class) {
-                onPredicate(FilteringApiPredicateOperator.EQ) { documentId ->
-                    root.id.eq(documentId)
+    private val filteringApiExecutor = filteringApiExecutorBuilder
+        .executor<Document, DocumentDto, NoOpSorting, DocumentsFilteringRequest> {
+            query(Tables.DOCUMENT) {
+                onFilter(DocumentsFilteringRequest::idIn) { ids ->
+                    root.id.`in`(ids)
                 }
-                onPredicate(FilteringApiPredicateOperator.IN) { documentIds ->
-                    root.id.`in`(documentIds)
+                onFilter(DocumentsFilteringRequest::idEq) { id ->
+                    root.id.eq(id)
                 }
+                workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+                addDefaultSorting { root.id.desc() }
             }
-            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
-            addDefaultSorting { root.id.desc() }
+            mapper { mapDocumentDto(this) }
         }
-        mapper { mapDocumentDto(this) }
-    }
 }
 
 data class DocumentDto(
@@ -107,3 +109,13 @@ private fun mapDocumentDto(source: Document) =
     )
 
 data class GetDownloadTokenResponse(val token: String)
+
+class DocumentsFilteringRequest : ApiPageRequest<NoOpSorting>() {
+    override var sortBy: NoOpSorting? = null
+
+    @field:Parameter(name = "id[in]")
+    var idIn: List<Long>? = null
+
+    @field:Parameter(name = "id[eq]")
+    var idEq: Long? = null
+}

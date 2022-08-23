@@ -55,6 +55,7 @@ export const createScreenshotTestsDecorator = decoratorFactory((parameters) => {
 });
 
 declare global {
+  // noinspection JSUnusedGlobalSymbols
   interface Window {
     saScreenshotRequired?: boolean,
     saReadyForScreenshot?: boolean
