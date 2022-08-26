@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { allOf, disableOverviewPanelAnimations, waitForText } from '@/__storybook__/screenshots';
+import { allOf, openOverviewPanelDetailsAndDisableAnimations, waitForText } from '@/__storybook__/screenshots';
 import OverviewItem from '@/components/overview-item/OverviewItem.vue';
 import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute.vue';
 import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon.vue';
@@ -158,15 +158,7 @@ export const WithDetails = defineStory(() => ({
   `,
 }), {
   screenshotPreparation: allOf(
-    () => {
-      const detailsTrigger = document.querySelector('.overview-item__details-trigger') as HTMLElement;
-      if (!detailsTrigger) return false;
-      if (detailsTrigger.className.indexOf('overview-item__details-trigger_open') < 0) {
-        detailsTrigger.click();
-      }
-      return true;
-    },
-    disableOverviewPanelAnimations(),
+    openOverviewPanelDetailsAndDisableAnimations(),
     waitForText('Attribute 1 Value'),
   ),
   asPage: true,

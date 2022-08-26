@@ -21,10 +21,10 @@
     icon: string
   }>();
 
-  const emits = defineEmits<{(e: 'click'): void}>();
+  const emit = defineEmits<{(e: 'click'): void}>();
 
   const click = () => {
-    emits('click');
+    emit('click');
   };
 </script>
 

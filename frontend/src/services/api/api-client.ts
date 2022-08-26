@@ -54,3 +54,4 @@ export const statisticsApi = new StatisticsApiControllerApi<RequestMetadata>(def
 export const invoicesApi = new InvoicesApiControllerApi<RequestMetadata>(defaultConfig);
 export const generalTaxApi = new GeneralTaxApiControllerApi<RequestMetadata>(defaultConfig);
 export const documentsApi = new DocumentsApiControllerApi<RequestMetadata>(defaultConfig);
+export const generalTaxesApi = new GeneralTaxApiControllerApi<RequestMetadata>(defaultConfig);

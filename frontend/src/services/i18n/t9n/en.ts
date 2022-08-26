@@ -169,7 +169,7 @@ export default {
     },
     generalTaxRate: {
       label: () => 'Applicable General Tax Rate',
-      value: () => '{0, bps, percent}',
+      value: (bps: number) => format('{0, bps, percent}', [bps]),
     },
     generalTaxAmount: {
       label: () => 'Applicable General Tax Amount',
@@ -416,7 +416,7 @@ export default {
     },
     generalTaxRate: {
       label: () => 'Applicable General Tax Rate',
-      value: () => '{0, bps, percent}',
+      value: (bps: number) => format('{0, bps, percent}', [bps]),
     },
     generalTaxAmount: {
       label: () => 'Applicable General Tax Amount',
@@ -610,7 +610,7 @@ export default {
     },
     generalTaxRate: {
       label: () => 'Applicable General Tax Rate',
-      value: () => '{0, bps, percent}',
+      value: (bps: number) => format('{0, bps, percent}', [bps]),
     },
     foreignCurrency: {
       tooltip: () => 'In foreign currency',
