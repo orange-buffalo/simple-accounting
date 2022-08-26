@@ -169,7 +169,7 @@ export default {
     },
     generalTaxRate: {
       label: () => 'Застосовується Загальна Податкова Ставка',
-      value: () => '{0, bps, percent}',
+      value: (bps: number) => format('{0, bps, percent}', [bps]),
     },
     generalTaxAmount: {
       label: () => 'Застосовні Загальні Сума Податку ',
@@ -415,7 +415,7 @@ export default {
     },
     generalTaxRate: {
       label: () => 'Застосовується Загальна Податкова Ставка',
-      value: () => '{0, БПС, відсотків}',
+      value: (bps: number) => format('{0, bps, percent}', [bps]),
     },
     generalTaxAmount: {
       label: () => 'Застосовні Загальні Сума Податку ',
@@ -609,7 +609,7 @@ export default {
     },
     generalTaxRate: {
       label: () => 'Застосовується Загальна Податкова Ставка',
-      value: () => '{0, bps, percent}',
+      value: (bps: number) => format('{0, bps, percent}', [bps]),
     },
     foreignCurrency: {
       tooltip: () => 'В іноземній валюті',

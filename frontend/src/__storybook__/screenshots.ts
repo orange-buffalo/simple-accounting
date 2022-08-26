@@ -1,14 +1,18 @@
 import type { SaStoryScreenshotPreparation } from '@/__storybook__/sa-storybook';
 
-export function waitForText(text: string): SaStoryScreenshotPreparation {
+export function waitForText(text: string, selector?: string): SaStoryScreenshotPreparation {
   return () => {
-    const elements = document.querySelectorAll('div,span,p,h1,h2,h3,h4');
+    const elements = document.querySelectorAll(selector || 'div,span,p,h1,h2,h3,h4');
     let result = false;
     elements.forEach((element) => {
       result = result || (element.innerText.indexOf(text) >= 0);
     });
     return result;
   };
+}
+
+export function waitForOutputLoaderText(text: string): SaStoryScreenshotPreparation {
+  return waitForText(text, '.sa-output-loader');
 }
 
 export function disableIconsSvgAnimations(): SaStoryScreenshotPreparation {
@@ -51,12 +55,27 @@ export function disableDocumentLoaderAnimation() {
   );
 }
 
+export function openOverviewPanelDetails(): SaStoryScreenshotPreparation {
+  return () => {
+    const detailsTrigger = document.querySelector('.overview-item__details-trigger') as HTMLElement;
+    if (!detailsTrigger) return false;
+    if (detailsTrigger.className.indexOf('overview-item__details-trigger_open') < 0) {
+      detailsTrigger.click();
+    }
+    return true;
+  };
+}
+
 export function disableOverviewPanelAnimations() {
   return allOf(
     disableCssAnimations('.overview-item__panel'),
     disableCssAnimations('.overview-item__details-trigger'),
     disableCssAnimations('.overview-item__details-transition-enter-active'),
   );
+}
+
+export function openOverviewPanelDetailsAndDisableAnimations(): SaStoryScreenshotPreparation {
+  return allOf(openOverviewPanelDetails(), disableOverviewPanelAnimations());
 }
 
 export function allOf(...steps: SaStoryScreenshotPreparation[]): SaStoryScreenshotPreparation {
