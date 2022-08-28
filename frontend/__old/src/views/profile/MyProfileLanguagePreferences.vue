@@ -1,16 +1,16 @@
 <template>
   <div>
-    <h2>{{ $t('myProfile.languagePreferences.header') }}</h2>
+    <h2>{{ $t.myProfile.languagePreferences.header() }}</h2>
 
     <div class="row">
       <div class="col col-xs-12 col-lg-6">
         <ElFormItem
-          :label="$t('myProfile.languagePreferences.language.label')"
+          :label="$t.myProfile.languagePreferences.language.label()"
           prop="language"
         >
           <ElSelect
             v-model="inputLanguage"
-            :placeholder="$t('myProfile.languagePreferences.language.placeholder')"
+            :placeholder="$t.myProfile.languagePreferences.language.placeholder()"
             @change="updateLanguage"
           >
             <ElOption
@@ -25,13 +25,13 @@
 
       <div class="col col-xs-12 col-lg-6">
         <ElFormItem
-          :label="$t('myProfile.languagePreferences.locale.label')"
+          :label="$t.myProfile.languagePreferences.locale.label()"
           prop="locale"
         >
           <ElSelect
             v-model="inputLocale"
             :filterable="true"
-            :placeholder="$t('myProfile.languagePreferences.locale.placeholder')"
+            :placeholder="$t.myProfile.languagePreferences.locale.placeholder()"
             @change="updateLocale"
           >
             <ElOption

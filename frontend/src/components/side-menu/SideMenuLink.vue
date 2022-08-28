@@ -1,7 +1,7 @@
 <template>
   <RouterLink
-      :to="to"
-      :class="styleClass"
+    :to="to"
+    :class="styleClass"
   >
     <SaIcon :icon="icon" :size="27" />
     {{ title }}

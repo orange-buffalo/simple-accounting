@@ -31,7 +31,7 @@
         :size="48"
         class="sa-pageable-items__empty-results__icon"
       />
-<!--      TODO i18n -->
+      <!--      TODO i18n -->
       <span>No results here</span>
     </div>
 

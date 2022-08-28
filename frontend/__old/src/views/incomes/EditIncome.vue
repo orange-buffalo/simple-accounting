@@ -13,37 +13,37 @@
       <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
-            <h2>{{ $t('editIncome.generalInformation.header') }}</h2>
+            <h2>{{ $t.editIncome.generalInformation.header() }}</h2>
 
             <ElFormItem
-              :label="$t('editIncome.generalInformation.category.label')"
+              :label="$t.editIncome.generalInformation.category.label()"
               prop="category"
             >
               <SaCategoryInput
                 v-model="income.category"
-                :placeholder="$t('editIncome.generalInformation.category.placeholder')"
+                :placeholder="$t.editIncome.generalInformation.category.placeholder()"
               />
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editIncome.generalInformation.title.label')"
+              :label="$t.editIncome.generalInformation.title.label()"
               prop="title"
             >
               <ElInput
                 v-model="income.title"
-                :placeholder="$t('editIncome.generalInformation.title.placeholder')"
+                :placeholder="$t.editIncome.generalInformation.title.placeholder()"
               />
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editIncome.generalInformation.currency.label')"
+              :label="$t.editIncome.generalInformation.currency.label()"
               prop="currency"
             >
               <SaCurrencyInput v-model="income.currency" />
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editIncome.generalInformation.originalAmount.label')"
+              :label="$t.editIncome.generalInformation.originalAmount.label()"
               prop="originalAmount"
             >
               <MoneyInput
@@ -53,14 +53,14 @@
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editIncome.generalInformation.dateReceived.label')"
+              :label="$t.editIncome.generalInformation.dateReceived.label()"
               prop="dateReceived"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="income.dateReceived"
                 type="date"
-                :placeholder="$t('editIncome.generalInformation.dateReceived.placeholder')"
+                :placeholder="$t.editIncome.generalInformation.dateReceived.placeholder()"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
@@ -78,7 +78,7 @@
 
             <ElFormItem v-if="isInForeignCurrency">
               <ElCheckbox v-model="income.useDifferentExchangeRateForIncomeTaxPurposes">
-                {{ $t('editIncome.generalInformation.useDifferentExchangeRateForIncomeTaxPurposes.label') }}
+                {{ $t.editIncome.generalInformation.useDifferentExchangeRateForIncomeTaxPurposes.label() }}
               </ElCheckbox>
             </ElFormItem>
 
@@ -94,38 +94,38 @@
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editIncome.generalInformation.generalTax.label')"
+              :label="$t.editIncome.generalInformation.generalTax.label()"
               prop="generalTax"
             >
               <SaGeneralTaxInput
                 v-model="income.generalTax"
                 clearable
-                :placeholder="$t('editIncome.generalInformation.generalTax.placeholder')"
+                :placeholder="$t.editIncome.generalInformation.generalTax.placeholder()"
               />
             </ElFormItem>
           </div>
 
           <div class="col col-xs-12 col-lg-6">
-            <h2>{{ $t('editIncome.additionalInformation.header') }}</h2>
+            <h2>{{ $t.editIncome.additionalInformation.header() }}</h2>
 
             <ElFormItem
-              :label="$t('editIncome.additionalInformation.linkedInvoice.label')"
+              :label="$t.editIncome.additionalInformation.linkedInvoice.label()"
               prop="reportedAmountInDefaultCurrency"
             >
               <SaInvoiceSelect v-model="income.linkedInvoice" />
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editIncome.additionalInformation.notes.label')"
+              :label="$t.editIncome.additionalInformation.notes.label()"
               prop="notes"
             >
               <SaNotesInput
                 v-model="income.notes"
-                :placeholder="$t('editIncome.additionalInformation.notes.placeholder')"
+                :placeholder="$t.editIncome.additionalInformation.notes.placeholder()"
               />
             </ElFormItem>
 
-            <h2>{{ $t('editIncome.attachments.header') }}</h2>
+            <h2>{{ $t.editIncome.attachments.header() }}</h2>
 
             <ElFormItem>
               <SaDocumentsUpload
@@ -142,13 +142,13 @@
 
       <template #buttons-bar>
         <ElButton @click="navigateToIncomesOverview">
-          {{ $t('editIncome.cancel') }}
+          {{ $t.editIncome.cancel() }}
         </ElButton>
         <ElButton
           type="primary"
           @click="submitForm"
         >
-          {{ $t('editIncome.save') }}
+          {{ $t.editIncome.save() }}
         </ElButton>
       </template>
     </SaForm>

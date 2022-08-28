@@ -21,17 +21,21 @@
     </div>
 
     <div class="sa-dashboard__row">
-      <DashboardCardExpenses :from-date="selectedFromDate"
-                             :to-date="selectedToDate"
+      <DashboardCardExpenses
+        :from-date="selectedFromDate"
+        :to-date="selectedToDate"
       />
-      <DashboardCardIncomes :from-date="selectedFromDate"
-                            :to-date="selectedToDate"
+      <DashboardCardIncomes
+        :from-date="selectedFromDate"
+        :to-date="selectedToDate"
       />
-      <DashboardCardProfit :from-date="selectedFromDate"
-                           :to-date="selectedToDate"
+      <DashboardCardProfit
+        :from-date="selectedFromDate"
+        :to-date="selectedToDate"
       />
-      <DashboardInvoices :from-date="selectedFromDate"
-                         :to-date="selectedToDate"
+      <DashboardInvoices
+        :from-date="selectedFromDate"
+        :to-date="selectedToDate"
       />
     </div>
   </div>

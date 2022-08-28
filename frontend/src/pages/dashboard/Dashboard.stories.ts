@@ -4,8 +4,9 @@ import Dashboard from '@/pages/dashboard/Dashboard.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import { allOf, disableIconsSvgAnimations, waitForText } from '@/__storybook__/screenshots';
 import {
-  defaultWorkspacePath, fetchMock, neverEndingGetRequest, pageResponse,
+  neverEndingGetRequest, onGetToDefaultWorkspacePath, pageResponse,
 } from '@/__storybook__/api-mocks';
+import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
   title: 'Pages/Dashboard',
@@ -15,10 +16,10 @@ export const Loading = defineStory(() => ({
   components: { Dashboard },
   template: '<Dashboard/>',
   beforeCreate() {
-    fetchMock.get(`path:${defaultWorkspacePath('/statistics/expenses')}`, {}, neverEndingGetRequest);
-    fetchMock.get(`path:${defaultWorkspacePath('/statistics/incomes')}`, {}, neverEndingGetRequest);
-    fetchMock.get(`path:${defaultWorkspacePath('/statistics/income-tax-payments')}`, {}, neverEndingGetRequest);
-    fetchMock.get(`path:${defaultWorkspacePath('/invoices')}`, {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/statistics/expenses', {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/statistics/incomes', {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/statistics/income-tax-payments', {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/invoices', {}, neverEndingGetRequest);
   },
 }), {
   screenshotPreparation: disableIconsSvgAnimations(),
@@ -28,13 +29,13 @@ export const Loaded = defineStory(() => ({
   components: { Dashboard },
   template: '<Dashboard/>',
   beforeCreate() {
-    fetchMock.get(`path:${defaultWorkspacePath('/statistics/expenses')}`, {
+    onGetToDefaultWorkspacePath('/statistics/expenses', {
       totalAmount: 26182,
       finalizedCount: 42,
       pendingCount: 10,
       currencyExchangeDifference: 0,
       items: [{
-        categoryId: 1,
+        categoryId: storybookData.categories.slurmCategory.id,
         totalAmount: 2232,
       },
         {
@@ -42,34 +43,23 @@ export const Loaded = defineStory(() => ({
         },
       ],
     });
-    fetchMock.get(`path:${defaultWorkspacePath('/statistics/incomes')}`, {
+    onGetToDefaultWorkspacePath('/statistics/incomes', {
       totalAmount: 388838,
       finalizedCount: 19,
       pendingCount: 2,
       currencyExchangeDifference: 82422,
       items: [{
-        categoryId: 2,
+        categoryId: storybookData.categories.planetExpressCategory.id,
         totalAmount: 382929,
       },
       ],
     });
-    fetchMock.get(`path:${defaultWorkspacePath('/statistics/income-tax-payments')}`, {
+    onGetToDefaultWorkspacePath('/statistics/income-tax-payments', {
       totalTaxPayments: 63839,
     });
-    fetchMock.get(`path:${defaultWorkspacePath('/categories')}`, {
-      body: {
-        data: [{
-          id: 1,
-          name: 'Category 1',
-        }, {
-          id: 2,
-          name: 'Category 2',
-        }],
-      },
-    });
-    fetchMock.get(`path:${defaultWorkspacePath('/invoices')}`, pageResponse({
+    onGetToDefaultWorkspacePath('/invoices', pageResponse({
       title: 'Overdue Invoice #1234',
-      customer: 7,
+      customer: storybookData.customers.governmentOfEarth.id,
       dateIssued: new Date('2021-02-12'),
       dateSent: new Date('2021-02-15'),
       dueDate: new Date('2021-02-15'),
@@ -78,7 +68,7 @@ export const Loaded = defineStory(() => ({
       amount: 3923,
     }, {
       title: 'Pending Invoice #09876',
-      customer: 8,
+      customer: storybookData.customers.democraticOrderOfPlanets.id,
       dateIssued: new Date('2021-04-01'),
       dateSent: new Date('2021-04-02'),
       dueDate: new Date('2021-05-30'),
@@ -86,21 +76,14 @@ export const Loaded = defineStory(() => ({
       currency: 'USD',
       amount: 37242,
     }));
-    fetchMock.get(defaultWorkspacePath('/customers/7'), {
-      id: 7,
-      name: 'Customer A',
-    });
-    fetchMock.get(defaultWorkspacePath('/customers/8'), {
-      id: 8,
-      name: 'Customer B',
-    });
+    storybookData.mockApi();
   },
 }), {
   screenshotPreparation: allOf(
-    waitForText('Category 1'),
-    waitForText('Category 2'),
+    waitForText(storybookData.categories.planetExpressCategory.name),
+    waitForText(storybookData.categories.slurmCategory.name),
     waitForText('Profit'),
-    waitForText('Customer A'),
-    waitForText('Customer B'),
+    waitForText(storybookData.customers.democraticOrderOfPlanets.name),
+    waitForText(storybookData.customers.governmentOfEarth.name),
   ),
 });

@@ -91,11 +91,23 @@ describe('i18n', () => {
       .toBe('A$12.34');
   });
 
-  test('should support bps format', async () => {
+  test.each([
+    [0, '0%'],
+    [1, '0.01%'],
+    [2, '0.02%'],
+    [10, '0.1%'],
+    [11, '0.11%'],
+    [100, '1%'],
+    [101, '1.01%'],
+    [110, '1.1%'],
+    [123, '1.23%'],
+    [1230, '12.3%'],
+    [1234, '12.34%'],
+  ])('should support bps format (%i -> %s)', async (bps, expectedValue) => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, bps, percent}', [123]))
-      .toBe('1.23%');
+    expect(formatMessage('{0, bps, percent}', [bps]))
+      .toBe(expectedValue);
   });
 
   test('should support date format', async () => {

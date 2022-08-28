@@ -1,6 +1,7 @@
 <template>
-  <DashboardCard header-icon="invoices-overview"
-                 :loaded="true"
+  <DashboardCard
+    header-icon="invoices-overview"
+    :loaded="true"
   >
     <template #header>
       <SaMoneyOutput

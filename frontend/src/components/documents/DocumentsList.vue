@@ -44,8 +44,11 @@
   const documentsLoading = ref(false);
   const { documentsStorageStatus } = useDocumentsStorageStatus();
 
-  watch(() => props.documentsIds, async (documentsIds, _, onCleanup) => {
-    if (documentsIds.length) {
+  watch(() => [props.documentsIds, documentsStorageStatus.value], async (_, __, onCleanup) => {
+    if (documentsStorageStatus.value.loading || !documentsStorageStatus.value.active) {
+      return;
+    }
+    if (props.documentsIds.length) {
       documentsLoading.value = true;
 
       const {

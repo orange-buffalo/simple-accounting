@@ -92,7 +92,7 @@ class DocumentsApiController(
 }
 
 data class DocumentDto(
-    var id: Long?,
+    var id: Long,
     var version: Int,
     var name: String,
     var timeUploaded: Instant,
@@ -103,7 +103,7 @@ private fun mapDocumentDto(source: Document) =
     DocumentDto(
         name = source.name,
         timeUploaded = source.timeUploaded,
-        id = source.id,
+        id = source.id!!,
         version = source.version!!,
         sizeInBytes = source.sizeInBytes
     )

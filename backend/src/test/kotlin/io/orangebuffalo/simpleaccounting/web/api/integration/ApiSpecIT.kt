@@ -12,9 +12,7 @@ import io.orangebuffalo.simpleaccounting.web.ui.SpaWebFilter
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.TestPropertySource
@@ -39,6 +37,7 @@ private val logger = KotlinLogging.logger {}
     ]
 )
 @DisplayName("API Spec")
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ApiSpecIT(
     @Autowired val client: WebTestClient
 ) {

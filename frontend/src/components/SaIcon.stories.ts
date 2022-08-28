@@ -1,15 +1,15 @@
+// noinspection JSUnusedGlobalSymbols
+
 import { action } from '@storybook/addon-actions';
 import SaIcon from '@/components/SaIcon.vue';
 import { iconNames } from '@/icons';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import { disableIconsSvgAnimations } from '@/__storybook__/screenshots';
 
-// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Components/SaIcon',
 };
 
-// noinspection JSUnusedGlobalSymbols
 export const Default = () => ({
   components: { SaIcon },
   methods: {
@@ -20,7 +20,6 @@ export const Default = () => ({
   template: '<SaIcon icon="hourglass" @click="onClick" />',
 });
 
-// noinspection JSUnusedGlobalSymbols
 export const AllIcons = defineStory(() => ({
   components: { SaIcon },
   data() {

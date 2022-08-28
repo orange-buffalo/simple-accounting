@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+/* eslint-disable vue/max-len */
 import { format } from '@/services/i18n/t9n/formatter';
 
 export default {

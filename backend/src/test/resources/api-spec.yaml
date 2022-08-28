@@ -2281,6 +2281,7 @@ components:
           format: int32
     DocumentDto:
       required:
+      - id
       - name
       - timeUploaded
       - version

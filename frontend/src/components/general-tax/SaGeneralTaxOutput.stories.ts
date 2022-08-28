@@ -1,9 +1,13 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { fetchMock, defaultWorkspacePath, neverEndingGetRequest } from '@/__storybook__/api-mocks';
+import {
+  neverEndingGetRequest,
+  onGetToDefaultWorkspacePath,
+} from '@/__storybook__/api-mocks';
 import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import { disableOutputLoaderAnimations, waitForText } from '@/__storybook__/screenshots';
+import { waitForText } from '@/__storybook__/screenshots';
+import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
   title: 'Components/SaGeneralTaxOutput',
@@ -11,22 +15,16 @@ export default {
 
 export const Loaded = defineStory(() => ({
   components: { SaGeneralTaxOutput },
-  template: '<SaGeneralTaxOutput :general-tax-id="7"/>',
-  beforeCreate() {
-    fetchMock.get(defaultWorkspacePath('/general-taxes/7'), {
-      title: 'Tax Name',
-    });
-  },
+  ...storybookData.storyComponentConfig,
+  template: '<SaGeneralTaxOutput :general-tax-id="storybookData.generalTaxes.planetExpressTax.id"/>',
 }), {
-  screenshotPreparation: waitForText('Tax Name'),
+  screenshotPreparation: waitForText(storybookData.generalTaxes.planetExpressTax.title),
 });
 
 export const Loading = defineStory(() => ({
   components: { SaGeneralTaxOutput },
   template: '<SaGeneralTaxOutput :general-tax-id="7"/>',
   beforeCreate() {
-    fetchMock.get(defaultWorkspacePath('/general-taxes/7'), {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/general-taxes/7', {}, neverEndingGetRequest);
   },
-}), {
-  screenshotPreparation: disableOutputLoaderAnimations(),
-});
+}));

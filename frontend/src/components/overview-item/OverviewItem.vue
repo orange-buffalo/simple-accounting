@@ -2,7 +2,7 @@
   <div>
     <div
       class="row overview-item__panel"
-      :class="{'row overview-item__panel_with-details': detailsVisible}"
+      :class="{ 'row overview-item__panel_with-details': detailsVisible }"
     >
       <div class="col col-xs-6 col-lg-8">
         <span class="overview-item__title">{{ title }}</span>
@@ -28,7 +28,7 @@
         circle
         :icon="ArrowDown"
         class="overview-item__details-trigger"
-        :class="{ 'overview-item__details-trigger_open' : detailsVisible }"
+        :class="{ 'overview-item__details-trigger_open': detailsVisible }"
         @click="toggleDetailsVisibility"
       />
     </div>

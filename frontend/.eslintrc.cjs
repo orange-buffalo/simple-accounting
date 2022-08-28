@@ -17,7 +17,7 @@ module.exports = {
     'import/extensions': 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'max-len': ['error', {
+    'vue/max-len': ['error', {
       code: 120,
     }],
     'vue/script-indent': ['error', 2, {
@@ -51,6 +51,7 @@ module.exports = {
     'no-restricted-syntax': 'off',
     'vuejs-accessibility/click-events-have-key-events': 'off',
     'vue/multi-word-component-names': 'off',
+    'vue/require-default-prop': 'off',
   },
   globals: {
     RequestInit: 'readonly',

@@ -1,9 +1,9 @@
 <template>
   <span>{{
-      (amountInCents === null || amountInCents === undefined)
-        ? ''
-        : $t.common.amount.withCurrency(amountInCents, currency)
-    }}</span>
+    (amountInCents === null || amountInCents === undefined)
+      ? ''
+      : $t.common.amount.withCurrency(amountInCents, currency)
+  }}</span>
 </template>
 
 <script lang="ts" setup>

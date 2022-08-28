@@ -3,7 +3,7 @@
     #default="{ entity: invoice }"
     v-bind="props"
     entity-path="invoices"
-    :placeholder="$t('saInvoiceSelect.placeholder')"
+    :placeholder="$t.saInvoiceSelect.placeholder()"
     :label-provider="invoiceLabelProvider"
     class="sa-invoice-select"
     v-on="listeners"

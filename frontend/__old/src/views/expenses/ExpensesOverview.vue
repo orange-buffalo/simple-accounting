@@ -1,17 +1,17 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>{{ $t('expensesOverview.header') }}</h1>
+      <h1>{{ $t.expensesOverview.header() }}</h1>
 
       <div class="sa-header-options">
         <div>
-          <span>{{ $t('expensesOverview.filters.announcement') }}</span>
+          <span>{{ $t.expensesOverview.filters.announcement() }}</span>
         </div>
 
         <div>
           <ElInput
             v-model="freeSearchText"
-            :placeholder="$t('expensesOverview.filters.input.placeholder')"
+            :placeholder="$t.expensesOverview.filters.input.placeholder()"
             clearable
           >
             <template #prefix>
@@ -26,7 +26,7 @@
           @click="navigateToCreateExpenseView"
         >
           <SaIcon icon="plus-thin" />
-          {{ $t('expensesOverview.create') }}
+          {{ $t.expensesOverview.create() }}
         </ElButton>
       </div>
     </div>

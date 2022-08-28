@@ -9,6 +9,6 @@ export function bpsFormatter() {
     if (bpsValue == null) {
       return null;
     }
-    return formatMessage('{0, number, :: percent scale/100 .00}', [bpsValue / 10000]);
+    return formatMessage('{0, number, :: percent scale/100 .##}', [bpsValue / 10000]);
   };
 }

@@ -1,10 +1,9 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { action } from '@storybook/addon-actions';
-import { defaultWorkspacePath, fetchMock } from '@/__storybook__/api-mocks';
+import { onGetToDefaultWorkspacePath } from '@/__storybook__/api-mocks';
 import Document from '@/components/documents/Document.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import { disableDocumentLoaderAnimation } from '@/__storybook__/screenshots';
 
 export default {
   title: 'Components/Document',
@@ -13,14 +12,12 @@ export default {
 export const Loading = defineStory(() => ({
   components: { Document },
   template: '<Document loading style="width: 400px" />',
-}), {
-  screenshotPreparation: disableDocumentLoaderAnimation(),
-});
+}));
 
 export const Loaded = () => ({
   components: { Document },
   beforeCreate() {
-    fetchMock.get(defaultWorkspacePath('/documents/42/download-token'), {
+    onGetToDefaultWorkspacePath('/documents/42/download-token', {
       token: 'token66',
     });
   },
