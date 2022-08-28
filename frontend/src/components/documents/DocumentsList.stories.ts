@@ -1,29 +1,12 @@
 // noinspection JSUnusedGlobalSymbols
 
-import type { DocumentDto } from 'src/services/api';
+import { storybookData } from '@/__storybook__/storybook-data';
 import DocumentsList from '@/components/documents/DocumentsList.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
-  defaultWorkspacePath, fetchMock, neverEndingGetRequest, pageResponse,
+  fetchMock, neverEndingGetRequest, onGetToDefaultWorkspacePath, pageResponse,
 } from '@/__storybook__/api-mocks';
-import { disableCssAnimations, disableDocumentLoaderAnimation, waitForText } from '@/__storybook__/screenshots';
-
-let currentDocumentId = 100500;
-
-function nextDocumentId() {
-  currentDocumentId += 1;
-  return currentDocumentId;
-}
-
-function document(fileName: string, sizeInBytes: number): DocumentDto {
-  return {
-    id: nextDocumentId(),
-    version: 0,
-    name: fileName,
-    timeUploaded: new Date(),
-    sizeInBytes,
-  };
-}
+import { waitForText } from '@/__storybook__/screenshots';
 
 function mockFileDownload() {
   fetchMock.get(/\/api\/workspaces\/42\/documents\/.*\/download-token/, {
@@ -57,21 +40,29 @@ export const NoDocuments = defineStory(() => ({
 
 export const WithDocuments = defineStory(() => ({
   components: { DocumentsList },
-  template: '<DocumentsList :documents-ids="[77, 78, 79]"  style="width: 400px" />',
+  setup: () => ({
+    documentsIds: [
+      storybookData.documents.lunaParkDeliveryAgreement.id,
+      storybookData.documents.cheesePizzaAndALargeSodaReceipt.id,
+      storybookData.documents.coffeeReceipt.id,
+    ],
+  }),
+  template: '<DocumentsList :documents-ids="documentsIds"  style="width: 400px" />',
   beforeCreate() {
     mockSuccessStorageStatus();
-    fetchMock.get(
-      `path:${defaultWorkspacePath('/documents')}`,
+    onGetToDefaultWorkspacePath(
+      '/documents',
       pageResponse(
-        document('Service Agreement.pdf', 64422),
-        document('Invoice #22.doc', 8222),
-        document('Payment for Services.xlsx', 984843),
+        storybookData.documents.lunaParkDeliveryAgreement,
+        storybookData.documents.cheesePizzaAndALargeSodaReceipt,
+        storybookData.documents.coffeeReceipt,
       ),
     );
     mockFileDownload();
   },
 }), {
-  screenshotPreparation: waitForText('Payment for Services.xlsx'),
+  screenshotPreparation: waitForText(storybookData.documents.coffeeReceipt.name),
+  useRealTime: true,
 });
 
 export const WithLoadingDocuments = defineStory(() => ({
@@ -79,23 +70,27 @@ export const WithLoadingDocuments = defineStory(() => ({
   template: '<DocumentsList :documents-ids="[77, 78]" style="width: 400px"/>',
   beforeCreate() {
     mockSuccessStorageStatus();
-    fetchMock.get(`path:${defaultWorkspacePath('/documents')}`, {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/documents', {}, neverEndingGetRequest);
   },
-}), {
-  screenshotPreparation: disableDocumentLoaderAnimation(),
-});
+}));
 
 // screenshot is skipped for this case
 export const WithDeferredDocuments = defineStory(() => ({
   components: { DocumentsList },
-  template: '<DocumentsList :documents-ids="[77, 78]" style="width: 400px"/>',
+  setup: () => ({
+    documentsIds: [
+      storybookData.documents.lunaParkDeliveryAgreement.id,
+      storybookData.documents.coffeeReceipt.id,
+    ],
+  }),
+  template: '<DocumentsList :documents-ids="documentsIds" style="width: 400px"/>',
   beforeCreate() {
     mockSuccessStorageStatus();
-    fetchMock.get(
-      `path:${defaultWorkspacePath('/documents')}`,
+    onGetToDefaultWorkspacePath(
+      '/documents',
       pageResponse(
-        document('Service Agreement.pdf', 64422),
-        document('Invoice #22.pdf', 8222),
+        storybookData.documents.lunaParkDeliveryAgreement,
+        storybookData.documents.coffeeReceipt,
       ),
       { delay: 1000 },
     );
@@ -109,13 +104,11 @@ export const LoadingStorageStatus = defineStory(() => ({
   beforeCreate() {
     mockLoadingStorageStatus();
   },
-}), {
-  screenshotPreparation: disableCssAnimations('.sa-documents-list__loading-placeholder'),
-});
+}));
 
 export const FailedStorageStatus = defineStory(() => ({
   components: { DocumentsList },
-  template: '<DocumentsList :documents-ids="[]" style="width: 400px"/>',
+  template: '<DocumentsList :documents-ids="[42]" style="width: 400px"/>',
   beforeCreate() {
     mockFailedStorageStatus();
   },

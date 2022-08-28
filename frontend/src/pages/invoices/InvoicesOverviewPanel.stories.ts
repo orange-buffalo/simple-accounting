@@ -3,28 +3,36 @@
 import { action } from '@storybook/addon-actions';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
-  allOf,
-  openOverviewPanelDetailsAndDisableAnimations,
-  waitForOutputLoaderText,
+  allOf, openOverviewPanelDetails, waitForText,
 } from '@/__storybook__/screenshots';
 import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
-import type { CustomerDto, InvoiceDto } from '@/services/api';
-import { defaultWorkspacePath, fetchMock, pageResponse } from '@/__storybook__/api-mocks';
+import type { InvoiceDto } from '@/services/api';
+import {
+  defaultWorkspacePath,
+  fetchMock,
+  onGetToDefaultWorkspacePath,
+  pageResponse,
+  pathOnlyMatcher,
+} from '@/__storybook__/api-mocks';
+import { storybookData } from '@/__storybook__/storybook-data';
 
-const customer: CustomerDto = {
-  id: 77,
-  name: 'Favourite Customer Ltd',
-  version: 0,
-};
-
-function mockTaxesAndCustomers() {
-  fetchMock.get(defaultWorkspacePath(`/customers/${customer.id}`), customer);
-  fetchMock.get(defaultWorkspacePath('/general-taxes'), pageResponse());
+function mockApi() {
+  storybookData.mockApi();
+  fetchMock.get('/api/profile/documents-storage', {
+    active: true,
+  });
+  onGetToDefaultWorkspacePath(
+    '/documents',
+    pageResponse(
+      storybookData.documents.cheesePizzaAndALargeSodaReceipt,
+      storybookData.documents.lunaParkDeliveryAgreement,
+    ),
+  );
 }
 
 const invoicePrototype: InvoiceDto = {
   title: 'Invoice #22041',
-  customer: customer.id,
+  customer: storybookData.customers.governmentOfEarth.id,
   timeRecorded: new Date('2020-01-04T00:00:00'),
   dateIssued: new Date('2020-05-03'),
   dueDate: new Date('2030-01-01'),
@@ -49,7 +57,11 @@ function createStory(invoice: InvoiceDto) {
     },
     template: '<InvoicesOverviewPanel :invoice="invoice" @invoice-update="onInvoiceUpdate" />',
     beforeCreate() {
-      mockTaxesAndCustomers();
+      mockApi();
+      fetchMock.put(pathOnlyMatcher(defaultWorkspacePath(`/invoices/${invoicePrototype.id}`)), (_, req) => {
+        action('PUT Invoice API')(req.body);
+        return {};
+      });
     },
   };
 }
@@ -58,9 +70,10 @@ export default {
   title: 'Pages/Invoices/InvoicesOverviewPanel',
   parameters: {
     asPage: true,
+    useRealTime: true,
     screenshotPreparation: allOf(
-      openOverviewPanelDetailsAndDisableAnimations(),
-      waitForOutputLoaderText(customer.name),
+      openOverviewPanelDetails(),
+      waitForText(storybookData.customers.governmentOfEarth.name),
     ),
   },
 };
@@ -70,13 +83,6 @@ export const Draft = defineStory(() => ({
     ...invoicePrototype,
     status: 'DRAFT',
   }),
-  beforeCreate() {
-    mockTaxesAndCustomers();
-    fetchMock.put(`path:${defaultWorkspacePath(`/invoices/${invoicePrototype.id}`)}`, (_, req) => {
-      action('PUT Invoice API')(req.body);
-      return {};
-    });
-  },
 }));
 
 export const Sent = defineStory(() => ({
@@ -120,4 +126,25 @@ export const ReadOnlyWorkspace = defineStory(() => ({
   workspace: {
     editable: false,
   },
+});
+
+export const WithAllDetails = defineStory(() => ({
+  ...createStory({
+    ...invoicePrototype,
+    status: 'DRAFT',
+    generalTax: storybookData.generalTaxes.planetExpressTax.id,
+    attachments: [
+      storybookData.documents.cheesePizzaAndALargeSodaReceipt.id,
+      storybookData.documents.lunaParkDeliveryAgreement.id,
+    ],
+    notes: 'Some notes _with formatting_',
+  }),
+}), {
+  screenshotPreparation: allOf(
+    openOverviewPanelDetails(),
+    waitForText(storybookData.customers.governmentOfEarth.name),
+    waitForText(storybookData.generalTaxes.planetExpressTax.title),
+    waitForText(storybookData.documents.cheesePizzaAndALargeSodaReceipt.name),
+    waitForText('with formatting'),
+  ),
 });

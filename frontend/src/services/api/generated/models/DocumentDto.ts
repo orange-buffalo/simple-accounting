@@ -24,7 +24,7 @@ export interface DocumentDto {
      * @type {number}
      * @memberof DocumentDto
      */
-    id?: number;
+    id: number;
     /**
      * 
      * @type {number}
@@ -56,6 +56,7 @@ export interface DocumentDto {
  */
 export function instanceOfDocumentDto(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "version" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "timeUploaded" in value;
@@ -73,7 +74,7 @@ export function DocumentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'id': !exists(json, 'id') ? undefined : json['id'],
+        'id': json['id'],
         'version': json['version'],
         'name': json['name'],
         'timeUploaded': (new Date(json['timeUploaded'])),

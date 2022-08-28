@@ -13,37 +13,37 @@
       <template #default>
         <div class="row">
           <div class="col col-xs-12 col-lg-6">
-            <h2>{{ $t('editExpense.generalInformation.header') }}</h2>
+            <h2>{{ $t.editExpense.generalInformation.header() }}</h2>
 
             <ElFormItem
-              :label="$t('editExpense.generalInformation.category.label')"
+              :label="$t.editExpense.generalInformation.category.label()"
               prop="category"
             >
               <SaCategoryInput
                 v-model="expense.category"
-                :placeholder="$t('editExpense.generalInformation.category.placeholder')"
+                :placeholder="$t.editExpense.generalInformation.category.placeholder()"
               />
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editExpense.generalInformation.title.label')"
+              :label="$t.editExpense.generalInformation.title.label()"
               prop="title"
             >
               <ElInput
                 v-model="expense.title"
-                :placeholder="$t('editExpense.generalInformation.title.placeholder')"
+                :placeholder="$t.editExpense.generalInformation.title.placeholder()"
               />
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editExpense.generalInformation.currency.label')"
+              :label="$t.editExpense.generalInformation.currency.label()"
               prop="currency"
             >
               <SaCurrencyInput v-model="expense.currency" />
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editExpense.generalInformation.originalAmount.label')"
+              :label="$t.editExpense.generalInformation.originalAmount.label()"
               prop="originalAmount"
             >
               <MoneyInput
@@ -53,14 +53,14 @@
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editExpense.generalInformation.datePaid.label')"
+              :label="$t.editExpense.generalInformation.datePaid.label()"
               prop="datePaid"
             >
               <!-- todo #78: format from cldr https://github.com/ElemeFE/element/issues/11353 -->
               <ElDatePicker
                 v-model="expense.datePaid"
                 type="date"
-                :placeholder="$t('editExpense.generalInformation.datePaid.placeholder')"
+                :placeholder="$t.editExpense.generalInformation.datePaid.placeholder()"
                 value-format="yyyy-MM-dd"
               />
             </ElFormItem>
@@ -78,7 +78,7 @@
 
             <ElFormItem v-if="isInForeignCurrency">
               <ElCheckbox v-model="expense.useDifferentExchangeRateForIncomeTaxPurposes">
-                {{ $t('editExpense.generalInformation.useDifferentExchangeRateForIncomeTaxPurposes.label') }}
+                {{ $t.editExpense.generalInformation.useDifferentExchangeRateForIncomeTaxPurposes.label() }}
               </ElCheckbox>
             </ElFormItem>
 
@@ -95,25 +95,25 @@
             </ElFormItem>
 
             <ElFormItem
-              :label="$t('editExpense.generalInformation.generalTax.label')"
+              :label="$t.editExpense.generalInformation.generalTax.label()"
               prop="generalTax"
             >
               <SaGeneralTaxInput
                 v-model="expense.generalTax"
                 clearable
-                :placeholder="$t('editExpense.generalInformation.generalTax.placeholder')"
+                :placeholder="$t.editExpense.generalInformation.generalTax.placeholder()"
               />
             </ElFormItem>
 
             <ElFormItem>
               <ElCheckbox v-model="partialForBusiness">
-                {{ $t('editExpense.generalInformation.partialForBusiness.label') }}
+                {{ $t.editExpense.generalInformation.partialForBusiness.label() }}
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
               v-if="partialForBusiness"
-              :label="$t('editExpense.generalInformation.percentOnBusiness.label')"
+              :label="$t.editExpense.generalInformation.percentOnBusiness.label()"
               prop="percentOnBusiness"
             >
               <ElInputNumber
@@ -125,19 +125,19 @@
           </div>
 
           <div class="col col-xs-12 col-lg-6">
-            <h2>{{ $t('editExpense.additionalInformation.header') }}</h2>
+            <h2>{{ $t.editExpense.additionalInformation.header() }}</h2>
 
             <ElFormItem
-              :label="$t('editExpense.additionalInformation.notes.label')"
+              :label="$t.editExpense.additionalInformation.notes.label()"
               prop="notes"
             >
               <SaNotesInput
                 v-model="expense.notes"
-                :placeholder="$t('editExpense.additionalInformation.notes.placeholder')"
+                :placeholder="$t.editExpense.additionalInformation.notes.placeholder()"
               />
             </ElFormItem>
 
-            <h2>{{ $t('editExpense.attachments.header') }}</h2>
+            <h2>{{ $t.editExpense.attachments.header() }}</h2>
 
             <ElFormItem>
               <SaDocumentsUpload
@@ -154,13 +154,13 @@
 
       <template #buttons-bar>
         <ElButton @click="navigateToExpensesOverview">
-          {{ $t('editExpense.cancel') }}
+          {{ $t.editExpense.cancel() }}
         </ElButton>
         <ElButton
           type="primary"
           @click="submitForm"
         >
-          {{ $t('editExpense.save') }}
+          {{ $t.editExpense.save() }}
         </ElButton>
       </template>
     </SaForm>

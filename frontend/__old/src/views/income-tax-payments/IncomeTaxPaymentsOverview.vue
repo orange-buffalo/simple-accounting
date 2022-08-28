@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>{{ $t('incomeTaxPaymentsOverview.header') }}</h1>
+      <h1>{{ $t.incomeTaxPaymentsOverview.header() }}</h1>
 
       <div class="sa-header-options">
         <div>
-          <span>{{ $t('incomeTaxPaymentsOverview.filters.announcement') }}</span>
+          <span>{{ $t.incomeTaxPaymentsOverview.filters.announcement() }}</span>
         </div>
 
         <ElButton
@@ -14,7 +14,7 @@
           @click="navigateToCreateTaxPaymentView"
         >
           <SaIcon icon="plus-thin" />
-          {{ $t('incomeTaxPaymentsOverview.create') }}
+          {{ $t.incomeTaxPaymentsOverview.create() }}
         </ElButton>
       </div>
     </div>

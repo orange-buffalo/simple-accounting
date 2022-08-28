@@ -1,6 +1,10 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { allOf, openOverviewPanelDetailsAndDisableAnimations, waitForText } from '@/__storybook__/screenshots';
+import {
+  allOf,
+  openOverviewPanelDetails,
+  waitForText,
+} from '@/__storybook__/screenshots';
 import OverviewItem from '@/components/overview-item/OverviewItem.vue';
 import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute.vue';
 import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon.vue';
@@ -158,7 +162,7 @@ export const WithDetails = defineStory(() => ({
   `,
 }), {
   screenshotPreparation: allOf(
-    openOverviewPanelDetailsAndDisableAnimations(),
+    openOverviewPanelDetails(),
     waitForText('Attribute 1 Value'),
   ),
   asPage: true,

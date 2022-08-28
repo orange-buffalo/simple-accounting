@@ -3,7 +3,7 @@
 import { action } from '@storybook/addon-actions';
 import { defineComponent, ref } from 'vue';
 import { ElInput } from 'element-plus';
-import { disableCssAnimations, waitForText } from '@/__storybook__/screenshots';
+import { waitForText } from '@/__storybook__/screenshots';
 import PageableItems from '@/components/pageable-items/PageableItems.vue';
 import type { ApiPage, ApiPageRequest, HasOptionalId } from '@/services/api';
 import { delay } from '@/__storybook__/stories-utils';
@@ -77,9 +77,7 @@ function setupStory(requestExecutor: (request: ResourceRequest) => Promise<ApiPa
 
 export const InitialLoading = defineStory(() => ({
   ...setupStory(async () => delay(999999999)),
-}), {
-   screenshotPreparation: disableCssAnimations('.sa-pageable-items__loader-item'),
-});
+}));
 
 export const EmptyData = defineStory(() => ({
   ...setupStory(async (request) => resourceEntities(request, 0)),

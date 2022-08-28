@@ -5,7 +5,7 @@
         ref="dropPanel"
         class="sa-document-upload__file-selector"
       >
-        <span>{{ $t('saDocumentUpload.fileSelector.message') }}</span>
+        <span>{{ $t.saDocumentUpload.fileSelector.message() }}</span>
         <span
           v-if="uploadingFailed"
           class="sa-document-upload__file-selector-error"

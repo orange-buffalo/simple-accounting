@@ -7,14 +7,14 @@
       <LogoLogin class="login-page__login__logo" />
 
       <ElForm
-          class="login-page__login-form"
-          :model="form"
-          label-width="0px"
+        class="login-page__login-form"
+        :model="form"
+        label-width="0px"
       >
         <ElFormItem>
           <ElInput
-              v-model="form.userName"
-              :placeholder="$t.loginPage.userName.placeholder()"
+            v-model="form.userName"
+            :placeholder="$t.loginPage.userName.placeholder()"
           >
             <template #prefix>
               <SaIcon icon="login" />
@@ -24,9 +24,9 @@
 
         <ElFormItem>
           <ElInput
-              v-model="form.password"
-              type="password"
-              :placeholder="$t.loginPage.password.placeholder()"
+            v-model="form.password"
+            type="password"
+            :placeholder="$t.loginPage.password.placeholder()"
           >
             <template #prefix>
               <SaIcon icon="password" />
@@ -42,13 +42,13 @@
         </ElFormItem>
 
         <ElButton
-            type="primary"
-            :disabled="!loginEnabled"
-            @click="executeLogin"
+          type="primary"
+          :disabled="!loginEnabled"
+          @click="executeLogin"
         >
           <i
-              v-if="uiState.loginInProgress"
-              class="el-icon-loading"
+            v-if="uiState.loginInProgress"
+            class="el-icon-loading"
           />
           <span v-else>{{ $t.loginPage.login() }}</span>
         </ElButton>

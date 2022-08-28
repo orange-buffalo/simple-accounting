@@ -1,9 +1,13 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { fetchMock, defaultWorkspacePath, neverEndingGetRequest } from '@/__storybook__/api-mocks';
+import {
+  neverEndingGetRequest,
+  onGetToDefaultWorkspacePath,
+} from '@/__storybook__/api-mocks';
 import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import { disableOutputLoaderAnimations, waitForText } from '@/__storybook__/screenshots';
+import { waitForText } from '@/__storybook__/screenshots';
+import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
   title: 'Components/SaCustomerOutput',
@@ -11,22 +15,16 @@ export default {
 
 export const Loaded = defineStory(() => ({
   components: { SaCustomerOutput },
-  template: '<SaCustomerOutput :customer-id="7"/>',
-  beforeCreate() {
-    fetchMock.get(defaultWorkspacePath('/customers/7'), {
-      name: 'Customer Name',
-    });
-  },
+  template: '<SaCustomerOutput :customer-id="storybookData.customers.governmentOfEarth.id"/>',
+  ...storybookData.storyComponentConfig,
 }), {
-  screenshotPreparation: waitForText('Customer Name'),
+  screenshotPreparation: waitForText(storybookData.customers.governmentOfEarth.name),
 });
 
 export const Loading = defineStory(() => ({
   components: { SaCustomerOutput },
   template: '<SaCustomerOutput :customer-id="7"/>',
   beforeCreate() {
-    fetchMock.get(defaultWorkspacePath('/customers/7'), {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/customers/7', {}, neverEndingGetRequest);
   },
-}), {
-  screenshotPreparation: disableOutputLoaderAnimations(),
-});
+}));

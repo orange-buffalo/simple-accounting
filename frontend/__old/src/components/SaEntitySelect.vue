@@ -39,7 +39,7 @@
             simplified
             custom-icon="loading"
           >
-            {{ $t('saEntitySelect.loading.text') }}
+            {{ $t.saEntitySelect.loading.text() }}
           </SaStatusLabel>
         </div>
 
@@ -47,7 +47,7 @@
           v-else-if="availableValues.length === 0"
           class="sa-entity-select__list-footer"
         >
-          {{ $t('saEntitySelect.noData.text') }}
+          {{ $t.saEntitySelect.noData.text() }}
         </div>
 
         <div

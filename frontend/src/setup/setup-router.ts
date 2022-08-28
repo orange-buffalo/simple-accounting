@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/pages/login/Login.vue';
 import AuthenticatedPage from '@/components/authenticated-page/AuthenticatedPage.vue';
 import Dashboard from '@/pages/dashboard/Dashboard.vue';
+import InvoicesOverview from '@/pages/invoices/InvoicesOverview.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -114,11 +115,11 @@ export default function setupRouter() {
       //       props: ID_ROUTER_PARAM_PROCESSOR,
       //       component: EditIncome,
       //     },
-      //     {
-      //       path: 'invoices',
-      //       name: 'invoices-overview',
-      //       component: InvoicesOverview,
-      //     },
+          {
+            path: 'invoices',
+            name: 'invoices-overview',
+            component: InvoicesOverview,
+          },
       //     {
       //       path: 'invoices/create',
       //       name: 'create-new-invoice',

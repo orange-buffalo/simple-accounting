@@ -1,8 +1,8 @@
 <template>
   <div class="sa-output-loader">
     <div
-        v-if="loading"
-        class="sa-output-loader__placeholder"
+      v-if="loading"
+      class="sa-output-loader__placeholder"
     />
 
     <slot v-else />

@@ -1,6 +1,7 @@
 <template>
-  <DashboardCard header-icon="income"
-                 :loaded="!loading"
+  <DashboardCard
+    header-icon="income"
+    :loaded="!loading"
   >
     <template #header>
       <SaMoneyOutput
@@ -28,8 +29,9 @@
         :key="item.categoryId || 'fake'"
         class="sa-dashboard__card__details__item"
       >
-        <span><SaCategoryOutput :category-id="item.categoryId"
-                                :unspecified-category="!item.categoryId"
+        <span><SaCategoryOutput
+          :category-id="item.categoryId"
+          :unspecified-category="!item.categoryId"
         /></span>
         <SaMoneyOutput
           :currency="defaultCurrency"

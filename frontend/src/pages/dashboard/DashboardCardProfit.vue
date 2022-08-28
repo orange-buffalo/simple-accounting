@@ -1,6 +1,7 @@
 <template>
-  <DashboardCard header-icon="profit"
-                 :loaded="loaded"
+  <DashboardCard
+    header-icon="profit"
+    :loaded="loaded"
   >
     <template #header>
       <SaMoneyOutput

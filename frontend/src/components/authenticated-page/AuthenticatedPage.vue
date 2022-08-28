@@ -6,10 +6,10 @@
       <AuthenticatedPageLoadingProgress />
       <ElMain>
         <div class="content-panel">
-          <RouterView v-slot="{ Component : rv }">
+          <RouterView v-slot="{ Component: rv }">
             <Transition
-                name="authenticated-page-transition"
-                mode="out-in"
+              name="authenticated-page-transition"
+              mode="out-in"
             >
               <Component :is="rv" />
             </Transition>

@@ -21,7 +21,7 @@
       </SaStatusLabel>
       <div class="sa-gdrive-integration__status__details">
         <div v-if="integrationStatus.unknown">
-          {{ $t('saGoogleDriveIntegrationSetup.unknown.details') }}
+          {{ $t.saGoogleDriveIntegrationSetup.unknown.details() }}
         </div>
         <div v-else-if="integrationStatus.successful">
           <I18n
@@ -49,15 +49,15 @@
                 type="text"
                 @click="startAuthorization"
               >
-                {{ $t('saGoogleDriveIntegrationSetup.authorizationRequired.details.startAction') }}
+                {{ $t.saGoogleDriveIntegrationSetup.authorizationRequired.details.startAction() }}
               </ElButton>
             </template>
           </I18n>
         </div>
         <div v-else-if="integrationStatus.authorizationInProgress">
-          {{ $t('saGoogleDriveIntegrationSetup.authorizationInProgress.details.line1') }}
+          {{ $t.saGoogleDriveIntegrationSetup.authorizationInProgress.details.line1() }}
           <br>
-          {{ $t('saGoogleDriveIntegrationSetup.authorizationInProgress.details.line2') }}
+          {{ $t.saGoogleDriveIntegrationSetup.authorizationInProgress.details.line2() }}
         </div>
         <div v-else-if="integrationStatus.authorizationFailed">
           <I18n
@@ -70,7 +70,7 @@
                 type="text"
                 @click="startAuthorization"
               >
-                {{ $t('saGoogleDriveIntegrationSetup.authorizationFailed.details.retryAction') }}
+                {{ $t.saGoogleDriveIntegrationSetup.authorizationFailed.details.retryAction() }}
               </ElButton>
             </template>
           </I18n>

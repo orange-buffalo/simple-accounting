@@ -1,9 +1,10 @@
 // noinspection JSUnusedGlobalSymbols
 
-import { fetchMock, defaultWorkspacePath, neverEndingGetRequest } from '@/__storybook__/api-mocks';
+import { neverEndingGetRequest, onGetToDefaultWorkspacePath } from '@/__storybook__/api-mocks';
 import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import { disableOutputLoaderAnimations, waitForText } from '@/__storybook__/screenshots';
+import { waitForText } from '@/__storybook__/screenshots';
+import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
   title: 'Components/SaCategoryOutput',
@@ -11,25 +12,16 @@ export default {
 
 export const Loaded = defineStory(() => ({
   components: { SaCategoryOutput },
-  template: '<SaCategoryOutput :category-id="42"/>',
-  beforeCreate() {
-    fetchMock.get(`path:${defaultWorkspacePath('/categories')}`, {
-      data: [{
-        id: 42,
-        name: 'Category 42',
-      }],
-    });
-  },
+  template: '<SaCategoryOutput :category-id="storybookData.categories.planetExpressCategory.id"/>',
+  ...storybookData.storyComponentConfig,
 }), {
-  screenshotPreparation: waitForText('Category 42'),
+  screenshotPreparation: waitForText(storybookData.categories.planetExpressCategory.name),
 });
 
 export const Loading = defineStory(() => ({
   components: { SaCategoryOutput },
   template: '<SaCategoryOutput :category-id="42"/>',
   beforeCreate() {
-    fetchMock.get(`path:${defaultWorkspacePath('/categories')}`, {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/categories', {}, neverEndingGetRequest);
   },
-}), {
-  screenshotPreparation: disableOutputLoaderAnimations(),
-});
+}));

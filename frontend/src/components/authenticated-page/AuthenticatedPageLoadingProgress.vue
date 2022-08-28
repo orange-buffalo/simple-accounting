@@ -1,8 +1,8 @@
 <template>
   <div class="loading-progress">
     <div
-        v-if="loading"
-        class="loading-progress__container"
+      v-if="loading"
+      class="loading-progress__container"
     >
       <div class="loading-progress__bar" />
     </div>

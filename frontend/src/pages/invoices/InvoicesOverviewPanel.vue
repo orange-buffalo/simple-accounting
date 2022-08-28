@@ -318,7 +318,7 @@
         statusText: $t.value.invoicesOverviewPanel.status.overdue(),
       };
     default:
-      throw new Error(`Unknown invoice status ${ props.invoice.status}`);
+      throw new Error(`Unknown invoice status ${props.invoice.status}`);
     }
   });
 
@@ -334,5 +334,5 @@
       });
       generalTaxRate.value = generalTax.rateInBps;
     }
-  });
+  }, { immediate: true });
 </script>

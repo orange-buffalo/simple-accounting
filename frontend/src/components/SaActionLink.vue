@@ -4,7 +4,7 @@
       :icon="icon"
       class="sa-action-link__icon"
     />
-<!--    TODO type=text is deprecated, need to replace with text attribute and style-->
+    <!--    TODO type=text is deprecated, need to replace with text attribute and style-->
     <ElButton
       type="text"
       @click="click"
