@@ -38,30 +38,3 @@ $lg-screen: 1200px;
 $xl-screen: 1920px;
 
 $sa-input-height: 40px;
-
-@forward 'element-plus/theme-chalk/src/common/var.scss' with (
-  $colors: (
-    'primary': (
-      'base': $components-color,
-    ),
-    'danger': (
-      'base': $danger-color,
-    ),
-  ),
-  $border-radius: (
-    'base': $components-border-radius,
-  ),
-  $common-component-size: (
-   'default': $sa-input-height,
-  ),
-  $text-color: (
-    'primary': $primary-color,
-    'regular': $primary-color-lighter-i,
-    'secondary': $secondary-text-color,
-    'placeholder': $primary-color-lighter-iii,
-  ),
-  $alert: (
-    'title-font-size': 100%,
-    'description-font-size': 90%,
-  ),
-);

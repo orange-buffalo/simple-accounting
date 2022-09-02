@@ -52,6 +52,7 @@ module.exports = {
     'vuejs-accessibility/click-events-have-key-events': 'off',
     'vue/multi-word-component-names': 'off',
     'vue/require-default-prop': 'off',
+    'vuejs-accessibility/form-control-has-label': 'off',
   },
   globals: {
     RequestInit: 'readonly',

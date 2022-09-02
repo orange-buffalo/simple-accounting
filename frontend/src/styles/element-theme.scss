@@ -1,5 +1,22 @@
 @use "vars" as *;
 
+:root {
+  --el-component-size: #{$sa-input-height} !important;
+  --el-color-danger: #{$danger-color} !important;
+  --el-color-error: #{$danger-color} !important;
+  --el-border-radius-base: #{$components-border-radius} !important;
+  --el-color-primary: #{$components-color} !important;
+  --el-border-color-hover: #{$primary-color-lighter-iii} !important;
+  --el-text-color-regular: #{$primary-color-lighter-i} !important;
+  --el-text-color-primary: #{$primary-color} !important;
+  --el-text-color-placeholder: #{$primary-color-lighter-iii} !important;
+}
+
+.el-alert {
+  --el-alert-title-font-size: 100% !important;
+  --el-alert-description-font-size: 90% !important;
+}
+
 .el-form-item.is-success .el-input__inner:focus,
 .el-form-item.is-success .el-textarea__inner:focus {
   // todo
@@ -27,7 +44,7 @@
 
   &__title {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
 
     .sa-icon {
       margin-right: 5px;

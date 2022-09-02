@@ -70,29 +70,31 @@ export function getCurrencyInfo(currency: string) {
   return currencyInfo;
 }
 
+// TODO remove all unused commented code
 // function getCurrenciesInfo() {
 //   return currenciesInfo;
 // }
 
-// interface NumbersInfo {
-//   decimalSymbol: string,
-//   thousandsSeparator: string,
-// }
+interface NumbersInfo {
+  decimalSymbol: string,
+  thousandsSeparator: string,
+}
 
-// let numbersInfo: NumbersInfo;
+let numbersInfo: NumbersInfo;
+
 // let numberParser: (value: string) => number;
 
-// function buildNumberInfo(cldr: CldrStatic) {
-//   const data = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
-//   numbersInfo = {
-//     decimalSymbol: data.decimal,
-//     thousandsSeparator: data.group,
-//   };
-// }
+function buildNumberInfo(cldr: CldrStatic) {
+  const data = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
+  numbersInfo = {
+    decimalSymbol: data.decimal,
+    thousandsSeparator: data.group,
+  };
+}
 
-// function getNumbersInfo():NumbersInfo {
-//   return numbersInfo;
-// }
+export function getNumbersInfo(): NumbersInfo {
+  return numbersInfo;
+}
 
 // function parseNumber(input: unknown): number | null {
 //   if (typeof input === 'number') {
@@ -110,9 +112,6 @@ async function loadCldrData(locale: string) {
   const localeDataJsonModule = await import(`./l10n/locale-${locale}.json?raw`);
   const localeDataJson: string = localeDataJsonModule.default;
   const localeCldrData = JSON.parse(localeDataJson);
-  // TODO remove or enable back if dynamic raw import is not fixed
-  //  if we transpile, need to add NODE_OPTIONS: --max_old_space_size=5000
-  // const { default: localeCldrData } = await import(`./l10n/locale-${locale}.json`);
   return [...baseCldrData, ...localeCldrData];
 }
 
@@ -124,7 +123,7 @@ export async function updateLocale(locale: string) {
   const { cldr } = globalize;
 
   buildCurrenciesInfo(cldr);
-  // buildNumberInfo(cldr);
+  buildNumberInfo(cldr);
   // numberParser = Globalize.numberParser();
 }
 
