@@ -1,11 +1,11 @@
+// noinspection JSUnusedGlobalSymbols
+
 import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
 
-// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Components/SaMoneyOutput',
 };
 
-// noinspection JSUnusedGlobalSymbols
 export const Default = () => ({
   components: { SaMoneyOutput },
   template: `
