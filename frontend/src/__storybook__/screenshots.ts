@@ -11,6 +11,15 @@ export function waitForText(text: string, selector?: string): SaStoryScreenshotP
   });
 }
 
+export function clickOnElement(selector: string): SaStoryScreenshotPreparation {
+  return skipWhenSucceededOnce(() => {
+    const element = document.querySelector(selector);
+    if (!element) return false;
+    element.click();
+    return true;
+  });
+}
+
 export function disableIconsSvgAnimations(): SaStoryScreenshotPreparation {
   return skipWhenSucceededOnce(() => {
     // noinspection CssInvalidHtmlTagReference

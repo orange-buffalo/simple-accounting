@@ -650,7 +650,7 @@ export default {
       recent: () => 'Нещодавно Використовуваних Валют',
       all: () => 'Всі Валюти',
     },
-    currencyLabel: () => '{code} - {displayName}',
+    currencyLabel: ({ code, displayName } : {code: string, displayName: string}) => `${code} - ${displayName}`,
   },
 
   el: {
