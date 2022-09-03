@@ -651,7 +651,7 @@ export default {
       recent: () => 'Recently Used Currencies',
       all: () => 'All Currencies',
     },
-    currencyLabel: () => '{code} - {displayName}',
+    currencyLabel: ({ code, displayName } : {code: string, displayName: string}) => `${code} - ${displayName}`,
   },
 
   el: {

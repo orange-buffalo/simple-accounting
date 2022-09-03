@@ -5,7 +5,7 @@ import baseCldrDataJson from '@/services/i18n/l10n/base.json?raw';
 // do not transpile runtime data
 const baseCldrData = JSON.parse(baseCldrDataJson);
 
-interface CurrencyInfo {
+export interface CurrencyInfo {
   code: string,
   displayName: string,
   symbol: string,
@@ -71,9 +71,10 @@ export function getCurrencyInfo(currency: string) {
 }
 
 // TODO remove all unused commented code
-// function getCurrenciesInfo() {
-//   return currenciesInfo;
-// }
+
+export function getCurrenciesInfo() {
+  return currenciesInfo;
+}
 
 interface NumbersInfo {
   decimalSymbol: string,

@@ -26,7 +26,8 @@
     "marked": "^4.0.19",
     "qs": "^6.11.0",
     "vue": "^3.2.37",
-    "vue-router": "^4.1.5"
+    "vue-router": "^4.1.5",
+    "vue-select": "^4.0.0-beta.5"
   },
   "devDependencies": {
     "@babel/core": "^7.18.13",
@@ -47,6 +48,7 @@
     "@types/node": "^18.7.13",
     "@types/qs": "^6.9.7",
     "@types/sinonjs__fake-timers": "^8.1.2",
+    "@types/vue-select": "^3.16.2",
     "@vitejs/plugin-vue": "^3.0.3",
     "@vue/eslint-config-airbnb": "^7.0.0",
     "@vue/eslint-config-typescript": "^11.0.0",
