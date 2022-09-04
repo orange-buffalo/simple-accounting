@@ -92,7 +92,12 @@ class StorybookEnvironment {
         val data: StorybookStoriesFileData = jacksonObjectMapper()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).readValue(storiesJsonUri.toURL())
 
-        val excludedStories = setOf("components-documentslist--with-deferred-documents")
+        val excludedStories = setOf(
+            "components-documentslist--with-deferred-documents",
+            "components-documentsupload--with-deferred-documents",
+            "components-documentsupload--initial-loading-with-no-documents",
+            "components-documentsupload--all-uploads-failing",
+        )
         excludedStories.forEach { skippedStoryId ->
             if (data.stories.values.firstOrNull { story -> story.id == skippedStoryId } == null) {
                 throw IllegalStateException("Skipped story $skippedStoryId does not exist")
