@@ -20,6 +20,13 @@ export function clickOnElement(selector: string): SaStoryScreenshotPreparation {
   });
 }
 
+export function waitForElementToBeVisible(selector: string): SaStoryScreenshotPreparation {
+  return skipWhenSucceededOnce(() => {
+    const elements = document.querySelectorAll(selector);
+    return elements.length > 0;
+  });
+}
+
 export function disableIconsSvgAnimations(): SaStoryScreenshotPreparation {
   return skipWhenSucceededOnce(() => {
     // noinspection CssInvalidHtmlTagReference
