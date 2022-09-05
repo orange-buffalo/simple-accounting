@@ -1,7 +1,6 @@
 import type { App } from 'vue';
 import { createApp } from 'vue';
 import type { Router } from 'vue-router';
-import vSelect from 'vue-select';
 import SimpleAccounting from '@/SimpleAccounting.vue';
 import setupRouter from '@/setup/setup-router';
 import '@/styles/main.scss';
@@ -17,7 +16,6 @@ export function setupApp() {
 
   vueRouter = setupRouter();
   vueApp.use(vueRouter);
-  vueApp.component('ElSelect', vSelect);
 }
 
 export function mountApp() {
