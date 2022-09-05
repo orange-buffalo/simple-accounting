@@ -10,32 +10,32 @@
     </div>
 
     <template v-if="isUser">
-      <TheSideMenuLink
+      <SaSideMenuLink
         to="/"
         :title="$t.navigationMenu.dashboard()"
         icon="dashboard"
       />
-      <TheSideMenuLink
+      <SaSideMenuLink
         to="/expenses"
         :title="$t.navigationMenu.expenses()"
         icon="expense"
       />
-      <TheSideMenuLink
+      <SaSideMenuLink
         to="/incomes"
         :title="$t.navigationMenu.incomes()"
         icon="income"
       />
-      <TheSideMenuLink
+      <SaSideMenuLink
         to="/invoices"
         :title="$t.navigationMenu.invoices()"
         icon="invoices-overview"
       />
-      <TheSideMenuLink
+      <SaSideMenuLink
         to="/income-tax-payments"
         :title="$t.navigationMenu.taxPayments()"
         icon="income-tax-payments-overview"
       />
-      <TheSideMenuLink
+      <SaSideMenuLink
         to="/reporting"
         :title="$t.navigationMenu.reporting()"
         icon="reporting"
@@ -44,28 +44,28 @@
       <template v-if="isCurrentUserRegular()">
         <span class="side-menu__category">{{ $t.navigationMenu.settings.header() }}</span>
 
-        <TheSideMenuLink
+        <SaSideMenuLink
           v-if="currentWorkspace.editable"
           to="/settings/customers"
           :title="$t.navigationMenu.settings.customers()"
           icon="customers-overview"
         />
 
-        <TheSideMenuLink
+        <SaSideMenuLink
           v-if="currentWorkspace.editable"
           to="/settings/categories"
           :title="$t.navigationMenu.settings.categories()"
           icon="category"
         />
 
-        <TheSideMenuLink
+        <SaSideMenuLink
           v-if="currentWorkspace.editable"
           to="/settings/general-taxes"
           :title="$t.navigationMenu.settings.generalTaxes()"
           icon="taxes-overview"
         />
 
-        <TheSideMenuLink
+        <SaSideMenuLink
           to="/settings/workspaces"
           :title="$t.navigationMenu.settings.workspaces()"
           icon="workspaces"
@@ -75,21 +75,21 @@
 
     <span class="side-menu__category">{{ $t.navigationMenu.user.header() }}</span>
 
-    <TheSideMenuLink
+    <SaSideMenuLink
       v-if="isCurrentUserRegular()"
       to="/my-profile"
       :title="$t.navigationMenu.user.profile()"
       icon="profile"
     />
-    <SideMenuLogoutButton />
+    <SaSideMenuLogoutButton />
   </ElAside>
 </template>
 
 <script lang="ts" setup>
   /// <reference types="vite-svg-loader" />
   import { onUnmounted, ref } from 'vue';
-  import TheSideMenuLink from '@/components/side-menu/SideMenuLink.vue';
-  import SideMenuLogoutButton from '@/components/side-menu/SideMenuLogoutButton.vue';
+  import SaSideMenuLink from '@/components/side-menu/SaSideMenuLink.vue';
+  import SaSideMenuLogoutButton from '@/components/side-menu/SaSideMenuLogoutButton.vue';
   import MenuLogo from '@/assets/logo-menu.svg?component';
   import { useAuth } from '@/services/api';
   import type { WorkspaceDto } from '@/services/api';

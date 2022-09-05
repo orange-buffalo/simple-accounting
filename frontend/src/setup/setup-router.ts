@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/pages/login/Login.vue';
-import AuthenticatedPage from '@/components/authenticated-page/AuthenticatedPage.vue';
+import SaAuthenticatedPage from '@/components/authenticated-page/SaAuthenticatedPage.vue';
 import Dashboard from '@/pages/dashboard/Dashboard.vue';
 import InvoicesOverview from '@/pages/invoices/InvoicesOverview.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
@@ -64,7 +64,7 @@ export default function setupRouter() {
       //
       {
         path: '/',
-        component: AuthenticatedPage,
+        component: SaAuthenticatedPage,
         children: [
           {
             path: '',

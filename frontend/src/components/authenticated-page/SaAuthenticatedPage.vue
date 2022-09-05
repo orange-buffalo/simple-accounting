@@ -1,9 +1,9 @@
 <template>
   <ElContainer>
-    <SideMenu />
+    <SaSideMenu />
 
     <ElContainer>
-      <AuthenticatedPageLoadingProgress />
+      <SaAuthenticatedPageLoadingProgress />
       <ElMain>
         <div class="content-panel">
           <RouterView v-slot="{ Component: rv }">
@@ -21,9 +21,9 @@
 </template>
 
 <script lang="ts" setup>
-  import SideMenu from '@/components/side-menu/SideMenu.vue';
-  import AuthenticatedPageLoadingProgress from '@/components/authenticated-page/AuthenticatedPageLoadingProgress.vue';
-
+  import SaSideMenu from '@/components/side-menu/SaSideMenu.vue';
+  import SaAuthenticatedPageLoadingProgress
+    from '@/components/authenticated-page/SaAuthenticatedPageLoadingProgress.vue';
 </script>
 
 <style lang="scss">

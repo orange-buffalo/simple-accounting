@@ -33,7 +33,7 @@
 
         <div class="sa-document__file-description__file-extras">
           <slot name="extras">
-            <DocumentDownloadLink
+            <SaDocumentDownloadLink
               v-if="documentId"
               :document-name="documentName"
               :document-id="documentId"
@@ -56,7 +56,7 @@
 <script lang="ts" setup>
   import { computed } from 'vue';
   import SaIcon from '@/components/SaIcon.vue';
-  import DocumentDownloadLink from '@/components/documents/DocumentDownloadLink.vue';
+  import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
   import { $t } from '@/services/i18n';
 
   function getDocumentTypeIcon(documentName: string) {

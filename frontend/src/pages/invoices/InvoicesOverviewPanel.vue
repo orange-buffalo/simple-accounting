@@ -1,42 +1,42 @@
 <template>
-  <OverviewItem :title="invoice.title">
+  <SaOverviewItem :title="invoice.title">
     <template #primary-attributes>
-      <OverviewItemPrimaryAttribute
+      <SaOverviewItemPrimaryAttribute
         :tooltip="$t.invoicesOverviewPanel.customer.tooltip()"
         icon="customer"
       >
         <SaCustomerOutput :customer-id="invoice.customer" />
-      </OverviewItemPrimaryAttribute>
+      </SaOverviewItemPrimaryAttribute>
 
-      <OverviewItemPrimaryAttribute
+      <SaOverviewItemPrimaryAttribute
         v-if="invoice.datePaid"
         :tooltip="$t.invoicesOverviewPanel.datePaid.tooltip()"
         icon="calendar"
       >
         {{ $t.common.date.medium(invoice.datePaid) }}
-      </OverviewItemPrimaryAttribute>
+      </SaOverviewItemPrimaryAttribute>
     </template>
 
     <template #attributes-preview>
-      <OverviewItemAttributePreviewIcon
+      <SaOverviewItemAttributePreviewIcon
         v-if="invoice.notes"
         icon="notes"
         :tooltip="$t.invoicesOverviewPanel.notes.tooltip()"
       />
 
-      <OverviewItemAttributePreviewIcon
+      <SaOverviewItemAttributePreviewIcon
         v-if="invoice.attachments.length"
         :tooltip="$t.invoicesOverviewPanel.attachments.tooltip()"
         icon="attachment"
       />
 
-      <OverviewItemAttributePreviewIcon
+      <SaOverviewItemAttributePreviewIcon
         v-if="isGeneralTaxApplicable"
         :tooltip="$t.invoicesOverviewPanel.generalTax.tooltip()"
         icon="tax"
       />
 
-      <OverviewItemAttributePreviewIcon
+      <SaOverviewItemAttributePreviewIcon
         v-if="isForeignCurrency"
         :tooltip="$t.invoicesOverviewPanel.foreignCurrency.tooltip()"
         icon="multi-currency"
@@ -53,14 +53,14 @@
     </template>
 
     <template #last-column>
-      <OverviewItemAmountPanel
+      <SaOverviewItemAmountPanel
         :currency="invoice.currency"
         :amount="invoice.amount"
       />
     </template>
 
     <template #details>
-      <OverviewItemDetailsSectionActions>
+      <SaOverviewItemDetailsSectionActions>
         <SaActionLink
           v-if="currentWorkspace.editable"
           icon="pencil-solid"
@@ -84,13 +84,13 @@
         >
           {{ $t.invoicesOverviewPanel.markAsPaid() }}
         </SaActionLink>
-      </OverviewItemDetailsSectionActions>
+      </SaOverviewItemDetailsSectionActions>
 
-      <OverviewItemDetailsSection
+      <SaOverviewItemDetailsSection
         :title="$t.invoicesOverviewPanel.generalInformation.header()"
       >
         <div class="row">
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             :label="$t.invoicesOverviewPanel.status.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
@@ -101,24 +101,24 @@
             >
               {{ statusInfo.statusText }}
             </SaStatusLabel>
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             :label="$t.invoicesOverviewPanel.customer.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <SaCustomerOutput :customer-id="invoice.customer" />
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             v-if="isForeignCurrency"
             :label="$t.invoicesOverviewPanel.currency.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ invoice.currency }}
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             :label="$t.invoicesOverviewPanel.amount.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
@@ -126,77 +126,77 @@
               :currency="invoice.currency"
               :amount-in-cents="invoice.amount"
             />
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
         </div>
 
         <div class="row">
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             :label="$t.invoicesOverviewPanel.dateIssued.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t.common.date.medium(invoice.dateIssued) }}
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             :label="$t.invoicesOverviewPanel.dueDate.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t.common.date.medium(invoice.dueDate) }}
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
         </div>
 
         <div
           v-if="invoice.dateSent || invoice.datePaid"
           class="row"
         >
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             v-if="invoice.dateSent"
             :label="$t.invoicesOverviewPanel.dateSent.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t.common.date.medium(invoice.dateSent) }}
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             v-if="invoice.datePaid"
             :label="$t.invoicesOverviewPanel.datePaid.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             {{ $t.common.date.medium(invoice.datePaid) }}
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
         </div>
 
         <template v-if="isGeneralTaxApplicable">
           <div class="row">
-            <OverviewItemDetailsSectionAttribute
+            <SaOverviewItemDetailsSectionAttribute
               :label="$t.invoicesOverviewPanel.generalTax.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               <SaGeneralTaxOutput :general-tax-id="invoice.generalTax" />
-            </OverviewItemDetailsSectionAttribute>
+            </SaOverviewItemDetailsSectionAttribute>
 
-            <OverviewItemDetailsSectionAttribute
+            <SaOverviewItemDetailsSectionAttribute
               :label="$t.invoicesOverviewPanel.generalTaxRate.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
               {{ $t.invoicesOverviewPanel.generalTaxRate.value(generalTaxRate) }}
-            </OverviewItemDetailsSectionAttribute>
+            </SaOverviewItemDetailsSectionAttribute>
           </div>
         </template>
-      </OverviewItemDetailsSection>
+      </SaOverviewItemDetailsSection>
 
-      <OverviewItemDetailsSection
+      <SaOverviewItemDetailsSection
         v-if="invoice.attachments.length"
         :title="$t.invoicesOverviewPanel.attachments.header()"
       >
         <div class="row">
           <div class="col col-xs-12">
-            <DocumentsList :documents-ids="invoice.attachments" />
+            <SaDocumentsList :documents-ids="invoice.attachments" />
           </div>
         </div>
-      </OverviewItemDetailsSection>
+      </SaOverviewItemDetailsSection>
 
-      <OverviewItemDetailsSection
+      <SaOverviewItemDetailsSection
         v-if="invoice.notes"
         :title="$t.invoicesOverviewPanel.notes.header()"
       >
@@ -205,23 +205,24 @@
             <SaMarkdownOutput :source="invoice.notes" />
           </div>
         </div>
-      </OverviewItemDetailsSection>
+      </SaOverviewItemDetailsSection>
     </template>
-  </OverviewItem>
+  </SaOverviewItem>
 </template>
 
 <script lang="ts" setup>
   import { watch, computed, ref } from 'vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import OverviewItem from '@/components/overview-item/OverviewItem.vue';
-  import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel.vue';
-  import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon.vue';
-  import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection.vue';
-  import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions.vue';
-  import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute.vue';
-  import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute.vue';
+  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+  import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
+  import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
+  import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
+  import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
+  import SaOverviewItemDetailsSectionAttribute
+    from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
+  import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
   import SaActionLink from '@/components/SaActionLink.vue';
-  import DocumentsList from '@/components/documents/DocumentsList.vue';
+  import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';

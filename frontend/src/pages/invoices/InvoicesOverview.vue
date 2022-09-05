@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <PageableItems
+    <SaPageableItems
       #default="{ item: invoice }"
       :reload-on="[invoicesFilter, invoiceUpdateTrigger]"
       :page-provider="invoicesProvider"
@@ -41,14 +41,14 @@
         :invoice="invoice as InvoiceDto"
         @invoice-update="onInvoiceUpdate"
       />
-    </PageableItems>
+    </SaPageableItems>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { Search } from '@element-plus/icons-vue';
-  import PageableItems from '@/components/pageable-items/PageableItems.vue';
+  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
   import type { ApiPageRequest, InvoiceDto } from '@/services/api';

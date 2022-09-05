@@ -1,21 +1,22 @@
+// noinspection JSUnusedGlobalSymbols
+
 import SaOutputLoader from '@/components/SaOutputLoader.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import { waitForText } from '@/__storybook__/screenshots';
 
-// noinspection JSUnusedGlobalSymbols
 export default {
   title: 'Components/SaOutputLoader',
 };
 
-export const Loading = defineStory(() => ({
+export const Default = defineStory(() => ({
   components: { SaOutputLoader },
-  template: '<SaOutputLoader loading>Content</SaOutputLoader>',
-}));
+  template: `
+    <h4>Loading</h4>
+    <SaOutputLoader loading>Content</SaOutputLoader>
 
-// noinspection JSUnusedGlobalSymbols
-export const Loaded = defineStory(() => ({
-  components: { SaOutputLoader },
-  template: '<SaOutputLoader :loading="false">Content</SaOutputLoader>',
+    <h4>Loaded</h4>
+    <SaOutputLoader :loading="false">Content</SaOutputLoader>
+  `,
 }), {
   screenshotPreparation: waitForText('Content'),
 });

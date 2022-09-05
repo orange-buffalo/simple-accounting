@@ -5,54 +5,55 @@ import {
   openOverviewPanelDetails,
   waitForText,
 } from '@/__storybook__/screenshots';
-import OverviewItem from '@/components/overview-item/OverviewItem.vue';
-import OverviewItemPrimaryAttribute from '@/components/overview-item/OverviewItemPrimaryAttribute.vue';
-import OverviewItemAttributePreviewIcon from '@/components/overview-item/OverviewItemAttributePreviewIcon.vue';
-import OverviewItemAmountPanel from '@/components/overview-item/OverviewItemAmountPanel.vue';
-import OverviewItemDetailsSectionActions from '@/components/overview-item/OverviewItemDetailsSectionActions.vue';
-import OverviewItemDetailsSection from '@/components/overview-item/OverviewItemDetailsSection.vue';
-import OverviewItemDetailsSectionAttribute from '@/components/overview-item/OverviewItemDetailsSectionAttribute.vue';
+import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
+import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
+import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
+import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
+import SaOverviewItemDetailsSectionAttribute
+  from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
 import SaStatusLabel from '@/components/SaStatusLabel.vue';
 import SaActionLink from '@/components/SaActionLink.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 
 export default {
-  title: 'Components/OverviewItem',
+  title: 'Components/SaOverviewItem',
 };
 
 export const NoDetails = defineStory(() => ({
   components: {
-    OverviewItem,
+    SaOverviewItem,
     SaStatusLabel,
-    OverviewItemPrimaryAttribute,
-    OverviewItemAttributePreviewIcon,
-    OverviewItemAmountPanel,
+    SaOverviewItemPrimaryAttribute,
+    SaOverviewItemAttributePreviewIcon,
+    SaOverviewItemAmountPanel,
   },
   template: `
-    <OverviewItem title="Entity Name">
+    <SaOverviewItem title="Entity Name">
     <template #primary-attributes>
-      <OverviewItemPrimaryAttribute
+      <SaOverviewItemPrimaryAttribute
         tooltip="Customer"
         icon="customer"
       >
         Customer Name
-      </OverviewItemPrimaryAttribute>
+      </SaOverviewItemPrimaryAttribute>
 
-      <OverviewItemPrimaryAttribute
+      <SaOverviewItemPrimaryAttribute
         tooltip="Date"
         icon="calendar"
       >
         2017-09-28
-      </OverviewItemPrimaryAttribute>
+      </SaOverviewItemPrimaryAttribute>
     </template>
 
     <template #attributes-preview>
-      <OverviewItemAttributePreviewIcon
+      <SaOverviewItemAttributePreviewIcon
         icon="notes"
         tooltip="Notes"
       />
 
-      <OverviewItemAttributePreviewIcon
+      <SaOverviewItemAttributePreviewIcon
         icon="attachment"
       />
     </template>
@@ -66,12 +67,12 @@ export const NoDetails = defineStory(() => ({
     </template>
 
     <template #last-column>
-      <OverviewItemAmountPanel
+      <SaOverviewItemAmountPanel
         currency="EUR"
         :amount="749327"
       />
     </template>
-    </OverviewItem>
+    </SaOverviewItem>
   `,
 }), {
   screenshotPreparation: waitForText('Entity Name'),
@@ -80,29 +81,29 @@ export const NoDetails = defineStory(() => ({
 
 export const WithDetails = defineStory(() => ({
   components: {
-    OverviewItem,
+    SaOverviewItem,
     SaStatusLabel,
-    OverviewItemPrimaryAttribute,
-    OverviewItemAttributePreviewIcon,
-    OverviewItemAmountPanel,
-    OverviewItemDetailsSectionActions,
+    SaOverviewItemPrimaryAttribute,
+    SaOverviewItemAttributePreviewIcon,
+    SaOverviewItemAmountPanel,
+    SaOverviewItemDetailsSectionActions,
     SaActionLink,
-    OverviewItemDetailsSection,
-    OverviewItemDetailsSectionAttribute,
+    SaOverviewItemDetailsSection,
+    SaOverviewItemDetailsSectionAttribute,
   },
   template: `
-    <OverviewItem title="Entity Name">
+    <SaOverviewItem title="Entity Name">
     <template #primary-attributes>
-      <OverviewItemPrimaryAttribute
+      <SaOverviewItemPrimaryAttribute
         tooltip="Customer"
         icon="customer"
       >
         Customer Name
-      </OverviewItemPrimaryAttribute>
+      </SaOverviewItemPrimaryAttribute>
     </template>
 
     <template #attributes-preview>
-      <OverviewItemAttributePreviewIcon
+      <SaOverviewItemAttributePreviewIcon
         icon="notes"
         tooltip="Notes"
       />
@@ -117,14 +118,14 @@ export const WithDetails = defineStory(() => ({
     </template>
 
     <template #last-column>
-      <OverviewItemAmountPanel
+      <SaOverviewItemAmountPanel
         currency="USD"
         :amount="939423"
       />
     </template>
 
     <template #details>
-      <OverviewItemDetailsSectionActions>
+      <SaOverviewItemDetailsSectionActions>
         <SaActionLink
           icon="pencil-solid"
         >
@@ -136,29 +137,29 @@ export const WithDetails = defineStory(() => ({
         >
           Second Action
         </SaActionLink>
-      </OverviewItemDetailsSectionActions>
+      </SaOverviewItemDetailsSectionActions>
 
-      <OverviewItemDetailsSection
+      <SaOverviewItemDetailsSection
         title="Section"
       >
         <div class="row">
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             label="Attribute 1"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             Attribute 1 Value
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
 
-          <OverviewItemDetailsSectionAttribute
+          <SaOverviewItemDetailsSectionAttribute
             label="Attribute 2"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             Attribute 2 Value
-          </OverviewItemDetailsSectionAttribute>
+          </SaOverviewItemDetailsSectionAttribute>
         </div>
-      </OverviewItemDetailsSection>
+      </SaOverviewItemDetailsSection>
     </template>
-    </OverviewItem>
+    </SaOverviewItem>
   `,
 }), {
   screenshotPreparation: allOf(

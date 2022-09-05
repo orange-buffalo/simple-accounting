@@ -93,10 +93,10 @@ class StorybookEnvironment {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).readValue(storiesJsonUri.toURL())
 
         val excludedStories = setOf(
-            "components-documentslist--with-deferred-documents",
-            "components-documentsupload--with-deferred-documents",
-            "components-documentsupload--initial-loading-with-no-documents",
-            "components-documentsupload--all-uploads-failing",
+            "components-sadocumentslist--with-deferred-documents",
+            "components-sadocumentsupload--with-deferred-documents",
+            "components-sadocumentsupload--initial-loading-with-no-documents",
+            "components-sadocumentsupload--all-uploads-failing",
         )
         excludedStories.forEach { skippedStoryId ->
             if (data.stories.values.firstOrNull { story -> story.id == skippedStoryId } == null) {
