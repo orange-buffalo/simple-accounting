@@ -10,18 +10,13 @@ export default {
   title: 'Components/SaIcon',
 };
 
-export const Default = () => ({
+export const Default = defineStory(() => ({
   components: { SaIcon },
   methods: {
     onClick() {
       action('on-click')();
     },
   },
-  template: '<SaIcon icon="hourglass" @click="onClick" />',
-});
-
-export const AllIcons = defineStory(() => ({
-  components: { SaIcon },
   data() {
     return {
       supportedIcons: iconNames(),
@@ -68,6 +63,7 @@ export const AllIcons = defineStory(() => ({
               :key="supportedIcon"
               :icon="supportedIcon"
               :title="supportedIcon"
+              @click="onClick"
       />
     </template>
     </div>`,

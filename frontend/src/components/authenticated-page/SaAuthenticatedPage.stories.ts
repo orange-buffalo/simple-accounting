@@ -1,20 +1,20 @@
-import AuthenticatedPage from '@/components/authenticated-page/AuthenticatedPage.vue';
+// noinspection JSUnusedGlobalSymbols
+
+import SaAuthenticatedPage from '@/components/authenticated-page/SaAuthenticatedPage.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import { waitForText } from '@/__storybook__/screenshots';
 
-// noinspection JSUnusedGlobalSymbols
 export default {
-  title: 'Components/AuthenticatedPage',
+  title: 'Components/SaAuthenticatedPage',
 };
 
-// noinspection JSUnusedGlobalSymbols
 export const Default = defineStory(() => ({
-  components: { AuthenticatedPage },
+  components: { SaAuthenticatedPage },
   template: `
     <component is="style">
     .el-container, .el-container .el-container { height: 900px; }
     </component>
-    <AuthenticatedPage />
+    <SaAuthenticatedPage />
   `,
 }), {
   workspace: {

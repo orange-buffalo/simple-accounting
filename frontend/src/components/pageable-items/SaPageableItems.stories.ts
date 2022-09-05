@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import { defineComponent, ref } from 'vue';
 import { ElInput } from 'element-plus';
 import { waitForText } from '@/__storybook__/screenshots';
-import PageableItems from '@/components/pageable-items/PageableItems.vue';
+import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
 import type { ApiPage, ApiPageRequest, HasOptionalId } from '@/services/api';
 import { delay } from '@/__storybook__/stories-utils';
 import { defineStory } from '@/__storybook__/sa-storybook';
@@ -14,7 +14,7 @@ interface ResourceResponse extends HasOptionalId {
 }
 
 export default {
-  title: 'Components/PageableItems',
+  title: 'Components/SaPageableItems',
   parameters: {
     useRealTime: true,
     asPage: true,
@@ -46,7 +46,7 @@ function resourceEntities(request: ApiPageRequest, totalElements: number): ApiPa
 
 function setupStory(requestExecutor: (request: ResourceRequest) => Promise<ApiPage<ResourceResponse> | void>) {
   return defineComponent({
-    components: { PageableItems, ElInput },
+    components: { SaPageableItems, ElInput },
     setup() {
       const filter = ref<string | undefined>();
 
@@ -66,12 +66,12 @@ function setupStory(requestExecutor: (request: ResourceRequest) => Promise<ApiPa
     },
 
     template: `
-      <PageableItems
+      <SaPageableItems
         :page-provider="pageProvider"
         v-slot="{item: entity}"
       >
       {{ entity.title }}
-      </PageableItems>`,
+      </SaPageableItems>`,
   });
 }
 
@@ -102,13 +102,13 @@ export const WithFilter = defineStory(() => ({
   template: `
     <div>
       <ElInput v-model="filter"/>
-      <PageableItems
+      <SaPageableItems
         :page-provider="pageProvider"
         :reload-on="[filter]"
         v-slot="{item: entity}"
       >
       {{ entity.title }}
-      </PageableItems>
+      </SaPageableItems>
     </div>`,
 }), {
    screenshotPreparation: waitForText('Entity #1'),

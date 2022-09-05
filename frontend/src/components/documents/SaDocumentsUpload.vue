@@ -5,10 +5,10 @@
       class="sa-documents-upload__loading-placeholder"
     />
 
-    <FailedDocumentsStorageMessage v-else-if="!uiState.storageActive" />
+    <SaFailedDocumentsStorageMessage v-else-if="!uiState.storageActive" />
 
     <template v-else-if="uiState.documentsLoading">
-      <Document
+      <SaDocument
         v-for="documentId in documentsIds"
         :key="documentId"
         :loading="true"
@@ -16,7 +16,7 @@
       />
     </template>
 
-    <DocumentUpload
+    <SaDocumentUpload
       v-for="documentAggregate in documentsAggregates"
       v-else
       :key="documentAggregate.key"
@@ -35,10 +35,10 @@
 
 <script lang="ts" setup>
   import { computed, ref, watch } from 'vue';
-  import DocumentUpload from '@/components/documents/DocumentUpload.vue';
-  import Document from '@/components/documents/Document.vue';
+  import SaDocumentUpload from '@/components/documents/SaDocumentUpload.vue';
+  import SaDocument from '@/components/documents/SaDocument.vue';
   import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
-  import FailedDocumentsStorageMessage from '@/components/documents/storage/FailedDocumentsStorageMessage.vue';
+  import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { DocumentDto } from '@/services/api';
   import { consumeAllPages, documentsApi } from '@/services/api';
@@ -135,7 +135,7 @@
     emit('uploads-completed', documentsIds);
   };
 
-  const uploadControls = ref<Array<typeof DocumentUpload> | undefined>(undefined);
+  const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
   const submitUploads = function submitUploads() {
     if (uploadControls.value !== undefined) {
       uploadControls.value.forEach((upload) => upload.submitUpload());

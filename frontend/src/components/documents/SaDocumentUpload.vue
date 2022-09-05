@@ -14,7 +14,7 @@
     </template>
 
     <template v-else>
-      <Document
+      <SaDocument
         :document-id="document.id"
         :document-name="document.name"
         :document-size-in-bytes="displayedSize"
@@ -36,7 +36,7 @@
             <span>{{ status.text }}</span>
           </div>
         </template>
-      </Document>
+      </SaDocument>
     </template>
   </div>
 </template>
@@ -48,7 +48,7 @@
   import type { DropzoneFile } from 'dropzone';
   import Dropzone from 'dropzone';
   import SaIcon from '@/components/SaIcon.vue';
-  import Document from '@/components/documents/Document.vue';
+  import SaDocument from '@/components/documents/SaDocument.vue';
   import type { DocumentDto } from '@/services/api';
   import { useAuth } from '@/services/api';
   import { $t } from '@/services/i18n';

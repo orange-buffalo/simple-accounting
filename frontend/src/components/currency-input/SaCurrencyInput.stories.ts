@@ -1,16 +1,16 @@
 // noinspection JSUnusedGlobalSymbols
 
-import CurrencyInput from '@/components/currency-input/CurrencyInput.vue';
+import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import { allOf, clickOnElement, waitForText } from '@/__storybook__/screenshots';
 import { defaultWorkspacePath, fetchMock } from '@/__storybook__/api-mocks';
 
 export default {
-  title: 'Components/CurrencyInput',
+  title: 'Components/SaCurrencyInput',
 };
 
 export const Default = defineStory(() => ({
-  components: { CurrencyInput },
+  components: { SaCurrencyInput },
   data: () => ({
     selectedCurrency: undefined,
   }),
@@ -23,13 +23,13 @@ export const Default = defineStory(() => ({
     <div class="row">
     <div class="col-lg-4">
       <h4>Default</h4>
-      <CurrencyInput v-model="selectedCurrency" />
+      <SaCurrencyInput v-model="selectedCurrency" />
       <br /><br />
       {{ selectedCurrency }}
     </div>
     <div class="col-lg-4">
       <h4>Disabled</h4>
-      <CurrencyInput model-value="USD" disabled />
+      <SaCurrencyInput model-value="USD" disabled />
     </div>
     </div>
   `,

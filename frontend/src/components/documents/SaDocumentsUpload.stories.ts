@@ -6,7 +6,7 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import {
   defaultWorkspacePath, fetchMock, neverEndingGetRequest, pageResponse, pathOnlyMatcher,
 } from '@/__storybook__/api-mocks';
-import DocumentsUpload from '@/components/documents/DocumentsUpload.vue';
+import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
 import { storybookData } from '@/__storybook__/storybook-data';
 import { waitForElementToBeVisible, waitForText } from '@/__storybook__/screenshots';
 
@@ -23,7 +23,7 @@ function mockLoadingStorageStatus() {
 }
 
 export default {
-  title: 'Components/DocumentsUpload',
+  title: 'Components/SaDocumentsUpload',
   parameters: {
     useRealTime: true,
   },
@@ -31,7 +31,7 @@ export default {
 
 const DocumentsUploadStories = defineComponent({
   components: {
-    DocumentsUpload,
+    SaDocumentsUpload,
   },
 
   props: {
@@ -50,7 +50,7 @@ const DocumentsUploadStories = defineComponent({
   },
 
   setup() {
-    const documentsUpload = ref<DocumentsUpload | null>(null);
+    const documentsUpload = ref<SaDocumentsUpload | null>(null);
 
     return {
       startUpload() {
@@ -68,7 +68,7 @@ const DocumentsUploadStories = defineComponent({
   },
   template: `
     <div>
-    <DocumentsUpload
+    <SaDocumentsUpload
       ref="documentsUpload"
       :documents-ids="documentsIds"
       :loading-on-create="loadingOnCreate"

@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { storybookData } from '@/__storybook__/storybook-data';
-import DocumentsList from '@/components/documents/DocumentsList.vue';
+import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
   fetchMock, neverEndingGetRequest, onGetToDefaultWorkspacePath, pageResponse,
@@ -27,19 +27,19 @@ function mockLoadingStorageStatus() {
 }
 
 export default {
-  title: 'Components/DocumentsList',
+  title: 'Components/SaDocumentsList',
 };
 
 export const NoDocuments = defineStory(() => ({
-  components: { DocumentsList },
-  template: '<DocumentsList :documents-ids="[]" style="width: 400px"/>',
+  components: { SaDocumentsList },
+  template: '<SaDocumentsList :documents-ids="[]" style="width: 400px"/>',
   beforeCreate() {
     mockSuccessStorageStatus();
   },
 }));
 
 export const WithDocuments = defineStory(() => ({
-  components: { DocumentsList },
+  components: { SaDocumentsList },
   setup: () => ({
     documentsIds: [
       storybookData.documents.lunaParkDeliveryAgreement.id,
@@ -47,7 +47,7 @@ export const WithDocuments = defineStory(() => ({
       storybookData.documents.coffeeReceipt.id,
     ],
   }),
-  template: '<DocumentsList :documents-ids="documentsIds"  style="width: 400px" />',
+  template: '<SaDocumentsList :documents-ids="documentsIds"  style="width: 400px" />',
   beforeCreate() {
     mockSuccessStorageStatus();
     onGetToDefaultWorkspacePath(
@@ -66,8 +66,8 @@ export const WithDocuments = defineStory(() => ({
 });
 
 export const WithLoadingDocuments = defineStory(() => ({
-  components: { DocumentsList },
-  template: '<DocumentsList :documents-ids="[77, 78]" style="width: 400px"/>',
+  components: { SaDocumentsList },
+  template: '<SaDocumentsList :documents-ids="[77, 78]" style="width: 400px"/>',
   beforeCreate() {
     mockSuccessStorageStatus();
     onGetToDefaultWorkspacePath('/documents', {}, neverEndingGetRequest);
@@ -76,14 +76,14 @@ export const WithLoadingDocuments = defineStory(() => ({
 
 // screenshot is skipped for this case
 export const WithDeferredDocuments = defineStory(() => ({
-  components: { DocumentsList },
+  components: { SaDocumentsList },
   setup: () => ({
     documentsIds: [
       storybookData.documents.lunaParkDeliveryAgreement.id,
       storybookData.documents.coffeeReceipt.id,
     ],
   }),
-  template: '<DocumentsList :documents-ids="documentsIds" style="width: 400px"/>',
+  template: '<SaDocumentsList :documents-ids="documentsIds" style="width: 400px"/>',
   beforeCreate() {
     mockSuccessStorageStatus();
     onGetToDefaultWorkspacePath(
@@ -99,16 +99,16 @@ export const WithDeferredDocuments = defineStory(() => ({
 }));
 
 export const LoadingStorageStatus = defineStory(() => ({
-  components: { DocumentsList },
-  template: '<DocumentsList :documents-ids="[]" style="width: 400px"/>',
+  components: { SaDocumentsList },
+  template: '<SaDocumentsList :documents-ids="[]" style="width: 400px"/>',
   beforeCreate() {
     mockLoadingStorageStatus();
   },
 }));
 
 export const FailedStorageStatus = defineStory(() => ({
-  components: { DocumentsList },
-  template: '<DocumentsList :documents-ids="[42]" style="width: 400px"/>',
+  components: { SaDocumentsList },
+  template: '<SaDocumentsList :documents-ids="[42]" style="width: 400px"/>',
   beforeCreate() {
     mockFailedStorageStatus();
   },

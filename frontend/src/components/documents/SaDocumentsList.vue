@@ -5,10 +5,10 @@
       class="sa-documents-list__loading-placeholder"
     />
 
-    <FailedDocumentsStorageMessage v-else-if="!documentsStorageStatus.active" />
+    <SaFailedDocumentsStorageMessage v-else-if="!documentsStorageStatus.active" />
 
     <template v-else-if="documentsLoading">
-      <Document
+      <SaDocument
         v-for="documentId in documentsIds"
         :key="documentId"
         :loading="true"
@@ -17,7 +17,7 @@
     </template>
 
     <template v-else>
-      <Document
+      <SaDocument
         v-for="document in documents"
         :key="document.id"
         :document-name="document.name"
@@ -31,9 +31,9 @@
 
 <script lang="ts" setup>
   import { ref, watch } from 'vue';
-  import Document from '@/components/documents/Document.vue';
+  import SaDocument from '@/components/documents/SaDocument.vue';
   import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
-  import FailedDocumentsStorageMessage from '@/components/documents/storage/FailedDocumentsStorageMessage.vue';
+  import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { DocumentDto } from '@/services/api';
   import { consumeAllPages, documentsApi, useCancellableRequest } from '@/services/api';
