@@ -1,5 +1,5 @@
 import type {
- CategoryDto, CustomerDto, DocumentDto, GeneralTaxDto,
+  CategoryDto, CustomerDto, DocumentDto, GeneralTaxDto,
 } from '@/services/api';
 import { onGetToDefaultWorkspacePath, pageResponseRaw } from '@/__storybook__/api-mocks';
 
@@ -71,6 +71,7 @@ export const storybookData = {
       .forEach((generalTax) => onGetToDefaultWorkspacePath(`/general-taxes/${generalTax.id}`, generalTax));
     Object.values(customers)
       .forEach((customer) => onGetToDefaultWorkspacePath(`/customers/${customer.id}`, customer));
+    onGetToDefaultWorkspacePath('/customers', pageResponseRaw(Object.values(customers)));
     onGetToDefaultWorkspacePath('/categories', pageResponseRaw(Object.values(categories)));
   },
   storyComponentConfig: {
