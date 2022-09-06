@@ -1,5 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
+import { ElButton } from 'element-plus';
 import { defineComponent, ref } from 'vue';
 import { action } from '@storybook/addon-actions';
 import { defineStory } from '@/__storybook__/sa-storybook';
@@ -32,6 +33,7 @@ export default {
 const DocumentsUploadStories = defineComponent({
   components: {
     SaDocumentsUpload,
+    ElButton,
   },
 
   props: {
