@@ -9,6 +9,11 @@ const generalTaxes = {
     title: 'Planet Express Tax',
     rateInBps: 1100,
   } as GeneralTaxDto,
+  warTax: {
+    id: 14,
+    title: 'War Tax',
+    rateInBps: 550,
+  } as GeneralTaxDto,
 };
 
 const customers = {
@@ -73,6 +78,7 @@ export const storybookData = {
       .forEach((customer) => onGetToDefaultWorkspacePath(`/customers/${customer.id}`, customer));
     onGetToDefaultWorkspacePath('/customers', pageResponseRaw(Object.values(customers)));
     onGetToDefaultWorkspacePath('/categories', pageResponseRaw(Object.values(categories)));
+    onGetToDefaultWorkspacePath('/general-taxes', pageResponseRaw(Object.values(generalTaxes)));
   },
   storyComponentConfig: {
     setup: () => ({
