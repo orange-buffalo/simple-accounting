@@ -10,6 +10,7 @@
   --el-text-color-regular: #{$primary-color-lighter-i} !important;
   --el-text-color-primary: #{$primary-color} !important;
   --el-text-color-placeholder: #{$primary-color-lighter-iii} !important;
+  --el-mask-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .el-alert {
@@ -59,4 +60,9 @@
       height: auto;
     }
   }
+}
+
+.el-button {
+  padding: 12px 20px;
+  height: $sa-input-height;
 }
