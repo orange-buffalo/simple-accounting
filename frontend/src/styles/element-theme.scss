@@ -1,21 +1,42 @@
 @use "vars" as *;
+@use 'element-plus/theme-chalk/base.css';
+@use 'element-plus/theme-chalk/el-button.css';
+@use 'element-plus/theme-chalk/el-date-picker.css';
+@use 'element-plus/theme-chalk/el-input.css';
+@use 'element-plus/theme-chalk/el-form-item.css';
+@use 'element-plus/theme-chalk/el-form.css';
+@use 'element-plus/theme-chalk/el-checkbox.css';
+@use 'element-plus/theme-chalk/el-message-box.css';
+@use 'element-plus/theme-chalk/el-pagination.css';
+@use 'element-plus/theme-chalk/el-tooltip.css';
+@use 'element-plus/theme-chalk/el-main.css';
+@use 'element-plus/theme-chalk/el-container.css';
+@use 'element-plus/theme-chalk/el-aside.css';
+@use 'element-plus/theme-chalk/el-option.css';
+@use 'element-plus/theme-chalk/el-option-group.css';
+@use 'element-plus/theme-chalk/el-select.css';
+@use 'element-plus/theme-chalk/el-popper.css';
+@use 'element-plus/theme-chalk/el-scrollbar.css';
+@use 'element-plus/theme-chalk/el-progress.css';
+@use 'element-plus/theme-chalk/el-loading.css';
+@use 'element-plus/theme-chalk/el-alert.css';
 
 :root {
-  --el-component-size: #{$sa-input-height} !important;
-  --el-color-danger: #{$danger-color} !important;
-  --el-color-error: #{$danger-color} !important;
-  --el-border-radius-base: #{$components-border-radius} !important;
-  --el-color-primary: #{$components-color} !important;
-  --el-border-color-hover: #{$primary-color-lighter-iii} !important;
-  --el-text-color-regular: #{$primary-color-lighter-i} !important;
-  --el-text-color-primary: #{$primary-color} !important;
-  --el-text-color-placeholder: #{$primary-color-lighter-iii} !important;
-  --el-mask-color: rgba(255, 255, 255, 0.3) !important;
+  --el-component-size: #{$sa-input-height};
+  --el-color-danger: #{$danger-color};
+  --el-color-error: #{$danger-color};
+  --el-border-radius-base: #{$components-border-radius};
+  --el-color-primary: #{$components-color};
+  --el-border-color-hover: #{$primary-color-lighter-iii};
+  --el-text-color-regular: #{$primary-color-lighter-i};
+  --el-text-color-primary: #{$primary-color};
+  --el-text-color-placeholder: #{$primary-color-lighter-iii};
+  --el-mask-color: rgba(255, 255, 255, 0.3);
 }
 
 .el-alert {
-  --el-alert-title-font-size: 100% !important;
-  --el-alert-description-font-size: 90% !important;
+  --el-alert-title-font-size: 100%;
+  --el-alert-description-font-size: 90%;
 }
 
 .el-form-item.is-success .el-input__inner:focus,
