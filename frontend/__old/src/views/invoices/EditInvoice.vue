@@ -211,7 +211,7 @@
   import SaStatusLabel from '@/components/SaStatusLabel';
   import { useCurrentWorkspace } from '@/services/workspaces';
 
-  function useInvoiceApi(invoice, uiState) {
+  function useInvoiceApi( invoice, uiState) {
     const {
       loadEntity,
       loading,

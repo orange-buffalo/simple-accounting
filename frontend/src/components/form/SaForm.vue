@@ -4,8 +4,8 @@
       ref="elForm"
       v-loading="loading"
       label-position="top"
-      v-bind="formProps"
-      v-on="$listeners"
+      :model="model"
+      :rules="rules"
     >
       <slot />
 
@@ -18,37 +18,45 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: 'SaForm',
+<script lang="ts" setup>
+  import { ElForm } from 'element-plus';
+  import type { FormRules } from 'element-plus';
+  import { ref } from 'vue';
 
-    props: {
-      loading: {
-        type: Boolean,
-        default: false,
-      },
-    },
+  defineProps<{
+    model: ObjectConstructor,
+    rules?: FormRules,
+  }>();
 
-    computed: {
-      formProps() {
-        const { ...props } = this.$attrs;
-        delete props.labelPosition;
-        return props;
-      },
-    },
+  const elForm = ref<typeof ElForm | undefined>(undefined);
+  const loading = ref(true);
 
-    methods: {
-      validate(formItem) {
-        return this.$refs.elForm.validate(formItem);
-      },
-    },
+  const validate = async (): Promise<boolean> => {
+    if (elForm.value) {
+      return elForm.value.validate();
+    }
+    return false;
   };
+
+  const startLoading = () => {
+    loading.value = true;
+  };
+
+  const stopLoading = () => {
+    loading.value = false;
+  };
+
+  defineExpose({
+    validate,
+    startLoading,
+    stopLoading,
+  });
 </script>
 
 <style lang="scss">
   /*todo #73: common component refers to app styles - redesign dependencies  */
-  @import "~@/styles/vars.scss";
-  @import "~@/styles/mixins.scss";
+  @use "@/styles/vars.scss" as *;
+  @use "@/styles/mixins.scss" as *;
 
   .sa-form {
     padding: 20px;

@@ -59,8 +59,7 @@
       document?: DocumentDto,
     ) {
       this.document = document || {};
-      this.key = document ? document.id.toString() : new Date().getTime()
-        .toString();
+      this.key = document ? document.id.toString() : Math.random().toString(36).slice(2);
       this.state = document ? 'upload-completed' : 'empty';
       this.onDocumentAggregateChange = onChange;
     }
@@ -82,12 +81,10 @@
     }
   }
 
-  const props = withDefaults(defineProps<{
+  const props = defineProps<{
     documentsIds: number[],
-    loadingOnCreate: boolean
-  }>(), {
-    loadingOnCreate: false,
-  });
+    loadingOnCreate?: boolean
+  }>();
 
   const emit = defineEmits<{(e: 'uploads-failed'): void,
                             (e: 'uploads-completed', documentIds: number[]): void,
@@ -136,7 +133,7 @@
   };
 
   const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
-  const submitUploads = function submitUploads() {
+  const submitUploads = () => {
     if (uploadControls.value !== undefined) {
       uploadControls.value.forEach((upload) => upload.submitUpload());
     }
