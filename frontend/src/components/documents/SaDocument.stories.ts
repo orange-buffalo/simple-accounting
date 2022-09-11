@@ -31,7 +31,7 @@ export const Loaded = () => ({
 });
 
 export const Removable = () => ({
-  components: { Document },
+  components: { SaDocument },
   data() {
     return {
       onRemoved: action('removed'),

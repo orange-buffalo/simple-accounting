@@ -41,5 +41,10 @@
       height: 13px;
       width: 13px;
     }
+
+    .el-button {
+      padding: 0;
+      height: 32px;
+    }
   }
 </style>

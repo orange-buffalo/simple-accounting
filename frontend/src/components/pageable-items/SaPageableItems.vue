@@ -183,8 +183,7 @@
     }
 
     &__loader-item {
-      height: 90px;
-      box-sizing: content-box;
+      height: 120px;
       margin-bottom: 20px;
       border-radius: 5px;
       border: $secondary-grey solid 1px;
