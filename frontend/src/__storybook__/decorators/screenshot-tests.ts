@@ -27,6 +27,7 @@ const disableCssAnimations: SaStoryScreenshotPreparation = () => {
       *, *:before, *:after {
         transition: none !important;
         animation: none !important;
+        caret-color: transparent !important;
       }
       `));
   return true;
