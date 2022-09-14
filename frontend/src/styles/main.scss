@@ -2,10 +2,10 @@
 @use "vars" as *;
 @use "grid" as *;
 @use "mixins" as *;
-@import "vue-select/dist/vue-select.css";
+@use "vue-select/dist/vue-select.css";
 // TODO
 //@import "notifications";
-@import url("https://fonts.googleapis.com/css?family=Muli");
+@use "fonts";
 
 body {
   margin: 0;
