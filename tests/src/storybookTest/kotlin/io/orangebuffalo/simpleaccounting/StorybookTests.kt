@@ -15,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.openqa.selenium.JavascriptExecutor
 import java.awt.image.BufferedImage
 import java.io.File
+import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.imageio.ImageIO
 
 @ExtendWith(StorybookExtension::class)
@@ -33,6 +37,55 @@ class StorybookTests {
 
         val (generatedScreenshotsDirectory, diffDirectory) = getGeneratedScreenshotsDirectories()
 
+        val allScreenshotsTaken = AtomicBoolean(false)
+        val screenshotsTaken = LinkedBlockingQueue<Pair<StorybookStory, BufferedImage>>()
+
+        // offload comparison to the background thread to improve test performance
+        // concurrent execution of screenshots by Selenium is extremely unstable, so we only do it in a single thread
+        val comparisonWorker = Executors.newSingleThreadExecutor()
+        comparisonWorker.submit {
+            while (true) {
+                val storyAndScreenshot = screenshotsTaken.poll(100, TimeUnit.MILLISECONDS)
+                    ?: if (allScreenshotsTaken.get()) return@submit else continue
+
+                val stopWatch = StopWatch()
+                val (story, generatedScreenshot) = storyAndScreenshot
+
+                val committedScreenshotFile = File(committedScreenshotsDir, story.screenshotFileName())
+                val generatedScreenshotFile = File(generatedScreenshotsDirectory, story.screenshotFileName())
+                if (newStories.contains(story.screenshotFileName())) {
+                    generatedScreenshot.write(generatedScreenshotFile)
+                    logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
+                    if (env.shouldUpdateCommittedScreenshots) {
+                        generatedScreenshot.write(committedScreenshotFile)
+                        logger.info { "Updated committed file ${stopWatch.tick()}ms" }
+                    }
+                } else {
+                    val committedScreenshot = ImageIO.read(committedScreenshotFile)
+                    logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
+
+                    val imageComparison = ImageComparison(committedScreenshot, generatedScreenshot).compareImages()
+                    logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
+
+                    if (imageComparison.imageComparisonState != ImageComparisonState.MATCH) {
+                        logger.info { "Screenshots differ by ${imageComparison.differencePercent}%" }
+
+                        failedScreenshots.add(story.screenshotFileName())
+                        imageComparison.result.write(File(diffDirectory, "${story.id}-diff.png"))
+                        logger.info { "Saved diff ${stopWatch.tick()}ms" }
+
+                        generatedScreenshot.write(generatedScreenshotFile)
+                        logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
+
+                        if (env.shouldUpdateCommittedScreenshots) {
+                            generatedScreenshot.write(committedScreenshotFile)
+                            logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
+                        }
+                    }
+                }
+            }
+        }
+
         env.stories.forEach { story ->
             logger.info { "Processing story $story" }
             val stopWatch = StopWatch()
@@ -50,40 +103,11 @@ class StorybookTests {
 
             logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
 
-            val committedScreenshotFile = File(committedScreenshotsDir, story.screenshotFileName())
-            val generatedScreenshotFile = File(generatedScreenshotsDirectory, story.screenshotFileName())
-            if (newStories.contains(story.screenshotFileName())) {
-                generatedScreenshot.write(generatedScreenshotFile)
-                logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
-                if (env.shouldUpdateCommittedScreenshots) {
-                    generatedScreenshot.write(committedScreenshotFile)
-                    logger.info { "Updated committed file ${stopWatch.tick()}ms" }
-                }
-            } else {
-                val committedScreenshot = ImageIO.read(committedScreenshotFile)
-                logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
-
-                val imageComparison = ImageComparison(committedScreenshot, generatedScreenshot).compareImages()
-                logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
-
-                if (imageComparison.imageComparisonState != ImageComparisonState.MATCH) {
-                    logger.info { "Screenshots differ by ${imageComparison.differencePercent}%" }
-
-                    failedScreenshots.add(story.screenshotFileName())
-                    imageComparison.result.write(File(diffDirectory, "${story.id}-diff.png"))
-                    logger.info { "Saved diff ${stopWatch.tick()}ms" }
-
-                    generatedScreenshot.write(generatedScreenshotFile)
-                    logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
-
-                    if (env.shouldUpdateCommittedScreenshots) {
-                        generatedScreenshot.write(committedScreenshotFile)
-                        logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
-                    }
-                }
-            }
-            logger.info { "Story processed ${story.id} in  ${stopWatch.fromStart()}ms" }
+            screenshotsTaken.offer(story to generatedScreenshot)
         }
+        allScreenshotsTaken.set(true)
+        comparisonWorker.shutdown()
+        comparisonWorker.awaitTermination(10, TimeUnit.MINUTES)
 
         val deletedStories = committedScreenshots.subtract(expectedScreenshots)
         if (env.shouldUpdateCommittedScreenshots) {
