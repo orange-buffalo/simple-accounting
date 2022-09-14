@@ -18,9 +18,7 @@ private val testConfig = loadTestConfig()
 
 private val chromeLogger = KotlinLogging.logger("chrome")
 
-private val network: Network = if (testConfig.reuseContainers)
-    ReusableNetwork("simple-accounting-storybook-tests")
-else Network.newNetwork()
+private val network: Network = Network.newNetwork()
 
 private val storybookEnvironment = StorybookEnvironment()
 
@@ -30,7 +28,6 @@ private val nginx = KNginxContainer("nginx:1.22")
     .withCustomContent(storybookDirectory)
     .waitingFor(HttpWaitStrategy())
     .withNetwork(network)
-    .withReuse(testConfig.reuseContainers)
     .withNetworkAliases("storybook")
 
 private val chrome: KBrowserWebDriverContainer = KBrowserWebDriverContainer()
@@ -45,7 +42,6 @@ private val chrome: KBrowserWebDriverContainer = KBrowserWebDriverContainer()
     .withEnv("SE_NODE_MAX_SESSIONS", Runtime.getRuntime().availableProcessors().toString())
     .withNetwork(network)
     .withExtraHost("host.docker.internal", "host-gateway")
-    .withReuse(testConfig.reuseContainers)
     .withRecordingMode(BrowserWebDriverContainer.VncRecordingMode.SKIP, null)
 
 class StorybookExtension : BeforeAllCallback, BeforeEachCallback, Extension, ParameterResolver {
@@ -118,7 +114,6 @@ private data class StorybookStoriesFileData(
 )
 
 private data class TestConfig(
-    val reuseContainers: Boolean = false,
     val replaceCommittedFiles: Boolean = false,
     val useCompliedStorybook: Boolean = true,
 )
