@@ -9,7 +9,7 @@ import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
 import type { InvoiceDto } from '@/services/api';
 import {
   defaultWorkspacePath,
-  fetchMock,
+  fetchMock, mockSuccessStorageStatus,
   onGetToDefaultWorkspacePath,
   pageResponse,
   pathOnlyMatcher,
@@ -18,9 +18,7 @@ import { storybookData } from '@/__storybook__/storybook-data';
 
 function mockApi() {
   storybookData.mockApi();
-  fetchMock.get('/api/profile/documents-storage', {
-    active: true,
-  });
+  mockSuccessStorageStatus();
   onGetToDefaultWorkspacePath(
     '/documents',
     pageResponse(

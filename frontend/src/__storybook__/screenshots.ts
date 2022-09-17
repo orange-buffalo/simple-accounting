@@ -27,6 +27,17 @@ export function waitForElementToBeVisible(selector: string): SaStoryScreenshotPr
   });
 }
 
+export function waitForElementsToBeHidden(selector: string): SaStoryScreenshotPreparation {
+  return skipWhenSucceededOnce(() => {
+    const elements = document.querySelectorAll(selector);
+    return elements.length === 0;
+  });
+}
+
+export function waitForInputLoadersToLoad(): SaStoryScreenshotPreparation {
+  return waitForElementsToBeHidden('.sa-input-loader__indicator');
+}
+
 export function disableIconsSvgAnimations(): SaStoryScreenshotPreparation {
   return skipWhenSucceededOnce(() => {
     // noinspection CssInvalidHtmlTagReference

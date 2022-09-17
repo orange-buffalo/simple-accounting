@@ -11,15 +11,11 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import {
   allOf, clickOnElement, waitForText,
 } from '@/__storybook__/screenshots';
-import { fetchMock } from '@/__storybook__/api-mocks';
+import { mockSuccessStorageStatus } from '@/__storybook__/api-mocks';
 
 export default {
   title: 'Components/SaForm',
 };
-
-function mockSuccessStorageStatus() {
-  fetchMock.get('api/profile/documents-storage', { active: true });
-}
 
 const StoryForm = defineComponent({
   props: {

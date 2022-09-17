@@ -308,17 +308,17 @@
       const status = computed(() => (props.expense.status === 'FINALIZED' ? 'success' : 'pending'));
 
       const shortStatusText = computed(() => (props.expense.status === 'FINALIZED'
-        ? i18n.t('expensesOverviewPanel.status.short.finalized')
-        : i18n.t('expensesOverviewPanel.status.short.pending')));
+        ? $t.value.expensesOverviewPanel.status.short.finalized()
+        : $t.value.expensesOverviewPanel.status.short.pending()));
 
       const fullStatusText = computed(() => {
         if (props.expense.status === 'FINALIZED') {
-          return i18n.t('expensesOverviewPanel.status.full.finalized');
+          return $t.value.expensesOverviewPanel.status.full.finalized();
         }
         if (props.expense.status === 'PENDING_CONVERSION') {
           return i18n.t('expensesOverviewPanel.status.full.pendingConversion', [defaultCurrency]);
         }
-        return i18n.t('expensesOverviewPanel.status.full.waitingExchangeRate');
+        return $t.value.expensesOverviewPanel.status.full.waitingExchangeRate();
       });
 
       const totalAmount = computed(() => {

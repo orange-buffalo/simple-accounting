@@ -282,15 +282,15 @@
       const statusProto = {
         isSuccess: false,
         value: 'pending',
-        shortText: i18n.t('incomesOverviewPanel.status.short.pending'),
+        shortText: $t.value.incomesOverviewPanel.status.short.pending(),
       };
       if (income.value.status === 'FINALIZED') {
         return {
           ...statusProto,
           isSuccess: true,
           value: 'success',
-          shortText: i18n.t('incomesOverviewPanel.status.short.finalized'),
-          fullText: i18n.t('incomesOverviewPanel.status.full.finalized'),
+          shortText: $t.value.incomesOverviewPanel.status.short.finalized(),
+          fullText: $t.value.incomesOverviewPanel.status.full.finalized(),
         };
       }
       if (income.value.status === 'PENDING_CONVERSION') {
@@ -301,7 +301,7 @@
       }
       return {
         ...statusProto,
-        fullText: i18n.t('incomesOverviewPanel.status.full.waitingExchangeRate'),
+        fullText: $t.value.incomesOverviewPanel.status.full.waitingExchangeRate(),
       };
     });
     return { incomeStatus };

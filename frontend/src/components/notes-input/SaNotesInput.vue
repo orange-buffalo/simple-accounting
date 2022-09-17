@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="sa-notes-input">
     <ElInput
       :model-value="modelValue"
       @update:modelValue="emit('update:modelValue', $event)"

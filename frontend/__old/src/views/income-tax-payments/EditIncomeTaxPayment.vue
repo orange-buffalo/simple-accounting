@@ -122,15 +122,15 @@
     const taxPaymentValidationRules = {
       title: {
         required: true,
-        message: i18n.t('editIncomeTaxPayment.validations.title'),
+        message: $t.value.editIncomeTaxPayment.validations.title(),
       },
       datePaid: {
         required: true,
-        message: i18n.t('editIncomeTaxPayment.validations.datePaid'),
+        message: $t.value.editIncomeTaxPayment.validations.datePaid(),
       },
       amount: {
         required: true,
-        message: i18n.t('editIncomeTaxPayment.validations.amount'),
+        message: $t.value.editIncomeTaxPayment.validations.amount(),
       },
     };
 
@@ -197,8 +197,8 @@
       });
 
       const pageHeader = props.id
-        ? i18n.t('editIncomeTaxPayment.header.edit')
-        : i18n.t('editIncomeTaxPayment.header.create');
+        ? $t.value.editIncomeTaxPayment.header.edit()
+        : $t.value.editIncomeTaxPayment.header.create();
 
       const {
         loading,

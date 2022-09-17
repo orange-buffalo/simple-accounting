@@ -35,3 +35,19 @@ export function pageResponseRaw<T>(items: T[]): ApiPage<T> {
 export function pageResponse<T>(...items: T[]): ApiPage<T> {
   return pageResponseRaw(items);
 }
+
+export function mockFailedStorageStatus() {
+  fetchMock.get('api/profile/documents-storage', { active: false });
+}
+
+export function mockSuccessStorageStatus() {
+  fetchMock.get('api/profile/documents-storage', { active: true });
+}
+
+export function mockLoadingStorageStatus() {
+  fetchMock.get('api/profile/documents-storage', {}, neverEndingGetRequest);
+}
+
+export function mockDefaultWorkspaceCurrenciesShortlist() {
+  fetchMock.get(defaultWorkspacePath('/statistics/currencies-shortlist'), ['USD', 'EUR']);
+}
