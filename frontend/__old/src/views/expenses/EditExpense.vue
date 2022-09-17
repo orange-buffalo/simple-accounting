@@ -242,19 +242,19 @@
     const expenseValidationRules = {
       currency: {
         required: true,
-        message: i18n.t('editExpense.validations.currency'),
+        message: $t.value.editExpense.validations.currency(),
       },
       title: {
         required: true,
-        message: i18n.t('editExpense.validations.title'),
+        message: $t.value.editExpense.validations.title(),
       },
       datePaid: {
         required: true,
-        message: i18n.t('editExpense.validations.datePaid'),
+        message: $t.value.editExpense.validations.datePaid(),
       },
       originalAmount: {
         required: true,
-        message: i18n.t('editExpense.validations.originalAmount'),
+        message: $t.value.editExpense.validations.originalAmount(),
       },
     };
 
@@ -310,8 +310,8 @@
       });
 
       const pageHeader = props.id
-        ? i18n.t('editExpense.pageHeader.edit')
-        : i18n.t('editExpense.pageHeader.create');
+        ? $t.value.editExpense.pageHeader.edit()
+        : $t.value.editExpense.pageHeader.create();
 
       if (props.prototype) {
         copyExpenseProperties(expense, props.prototype, {

@@ -24,7 +24,8 @@
   import { ref } from 'vue';
 
   defineProps<{
-    model: ObjectConstructor,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: Record<string, any>,
     rules?: FormRules,
   }>();
 

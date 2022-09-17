@@ -87,3 +87,9 @@
   padding: 12px 20px;
   height: $sa-input-height;
 }
+
+.el-form-item__content {
+  .sa-documents-upload, .sa-notes-input, .sa-input-loader {
+    width: 100%;
+  }
+}

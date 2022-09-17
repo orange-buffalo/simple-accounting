@@ -224,19 +224,19 @@
     const incomeValidationRules = {
       currency: {
         required: true,
-        message: i18n.t('editIncome.validations.currency'),
+        message: $t.value.editIncome.validations.currency(),
       },
       title: {
         required: true,
-        message: i18n.t('editIncome.validations.title'),
+        message: $t.value.editIncome.validations.title(),
       },
       dateReceived: {
         required: true,
-        message: i18n.t('editIncome.validations.dateReceived'),
+        message: $t.value.editIncome.validations.dateReceived(),
       },
       originalAmount: {
         required: true,
-        message: i18n.t('editIncome.validations.originalAmount'),
+        message: $t.value.editIncome.validations.originalAmount(),
       },
     };
     return {
@@ -293,8 +293,8 @@
       const isInForeignCurrency = computed(() => income.currency !== defaultCurrency);
 
       const pageHeader = props.id
-        ? i18n.t('editIncome.pageHeader.edit')
-        : i18n.t('editIncome.pageHeader.create');
+        ? $t.value.editIncome.pageHeader.edit()
+        : $t.value.editIncome.pageHeader.create();
 
       const {
         loading,

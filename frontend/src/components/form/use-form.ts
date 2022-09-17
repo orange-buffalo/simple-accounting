@@ -29,16 +29,28 @@ function useFormInternal(
   const submitForm = async () => {
     startLoading();
     try {
-      if (await form()
-        .validate()) {
-        await saveFormData();
-      } else {
-        stopLoading();
-      }
+      await form()
+        .validate();
+    } catch (e) {
+      stopLoading();
+      return;
+    }
+
+    try {
+      await saveFormData();
     } finally {
       if (!continueLoadingAfterSubmit) {
         stopLoading();
       }
+    }
+  };
+
+  const executeWithFormBlocked = async (spec: () => Promise<unknown>) => {
+    startLoading();
+    try {
+      await spec();
+    } finally {
+      stopLoading();
     }
   };
 
@@ -49,6 +61,7 @@ function useFormInternal(
     formRef,
     submitForm,
     stopLoading,
+    executeWithFormBlocked,
   };
 }
 
@@ -59,10 +72,12 @@ export function useForm(
   const {
     formRef,
     submitForm,
+    executeWithFormBlocked,
   } = useFormInternal(loadFormData, saveFormData, false);
   return {
     formRef,
     submitForm,
+    executeWithFormBlocked,
   };
 }
 
@@ -86,6 +101,7 @@ export function useFormWithDocumentsUpload(
     formRef,
     stopLoading,
     submitForm,
+    executeWithFormBlocked,
   } = useFormInternal(loadFormData, onFormSubmit, true);
 
   const onDocumentsUploadFailure = () => {
@@ -111,5 +127,6 @@ export function useFormWithDocumentsUpload(
     documentsUploadRef,
     onDocumentsUploadFailure,
     onDocumentsUploadComplete,
+    executeWithFormBlocked,
   };
 }

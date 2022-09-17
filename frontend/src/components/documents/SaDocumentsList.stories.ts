@@ -4,7 +4,12 @@ import { storybookData } from '@/__storybook__/storybook-data';
 import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
-  fetchMock, neverEndingGetRequest, onGetToDefaultWorkspacePath, pageResponse,
+  fetchMock, mockFailedStorageStatus,
+  mockLoadingStorageStatus,
+  mockSuccessStorageStatus,
+  neverEndingGetRequest,
+  onGetToDefaultWorkspacePath,
+  pageResponse,
 } from '@/__storybook__/api-mocks';
 import { waitForText } from '@/__storybook__/screenshots';
 
@@ -12,18 +17,6 @@ function mockFileDownload() {
   fetchMock.get(/\/api\/workspaces\/42\/documents\/.*\/download-token/, {
     token: 'xxx',
   });
-}
-
-function mockFailedStorageStatus() {
-  fetchMock.get('api/profile/documents-storage', { active: false });
-}
-
-function mockSuccessStorageStatus() {
-  fetchMock.get('api/profile/documents-storage', { active: true });
-}
-
-function mockLoadingStorageStatus() {
-  fetchMock.get('api/profile/documents-storage', {}, neverEndingGetRequest);
 }
 
 export default {

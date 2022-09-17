@@ -9,7 +9,7 @@ export default function useDocumentsUpload(loading) {
     loading.value = false;
     Message({
       showClose: true,
-      message: i18n.t('useDocumentsUpload.documentsUploadFailure'),
+      message: $t.value.useDocumentsUpload.documentsUploadFailure(),
       type: 'error',
     });
   };

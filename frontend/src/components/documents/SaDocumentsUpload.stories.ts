@@ -5,23 +5,17 @@ import { defineComponent, ref } from 'vue';
 import { action } from '@storybook/addon-actions';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
-  defaultWorkspacePath, fetchMock, neverEndingGetRequest, pageResponse, pathOnlyMatcher,
+  defaultWorkspacePath,
+  fetchMock, mockFailedStorageStatus,
+  mockLoadingStorageStatus,
+  mockSuccessStorageStatus,
+  neverEndingGetRequest,
+  pageResponse,
+  pathOnlyMatcher,
 } from '@/__storybook__/api-mocks';
 import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
 import { storybookData } from '@/__storybook__/storybook-data';
 import { waitForElementToBeVisible, waitForText } from '@/__storybook__/screenshots';
-
-function mockFailedStorageStatus() {
-  fetchMock.get('api/profile/documents-storage', { active: false });
-}
-
-function mockSuccessStorageStatus() {
-  fetchMock.get('api/profile/documents-storage', { active: true });
-}
-
-function mockLoadingStorageStatus() {
-  fetchMock.get('api/profile/documents-storage', {}, neverEndingGetRequest);
-}
 
 export default {
   title: 'Components/SaDocumentsUpload',

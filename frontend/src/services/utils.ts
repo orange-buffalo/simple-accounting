@@ -54,3 +54,12 @@ export function useValueLoadedByCurrentWorkspace<T>(
 export function wrapNullable<T extends object>(target: Ref<T | null>): ComputedRef<Partial<T>> {
   return computed(() => target.value || {});
 }
+
+export function ensureDefined<T>(value: T | undefined | null): T {
+  if (value === null || value === undefined) {
+    throw new Error('Value undefined');
+  }
+  return value;
+}
+
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
