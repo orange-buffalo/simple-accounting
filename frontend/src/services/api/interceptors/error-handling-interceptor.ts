@@ -23,7 +23,11 @@ export const errorHandlingInterceptor: Middleware<RequestMetadata> = {
     metadata,
   }): Promise<Response | void> {
     if (!response && !shouldSkipGlobalErrorHandler(metadata)) {
-      API_FATAL_ERROR_EVENT.emit(new FetchError(error));
+      if (error instanceof Error) {
+        API_FATAL_ERROR_EVENT.emit(new FetchError(error));
+      } else {
+        API_FATAL_ERROR_EVENT.emit(new Error('Request execution failed'));
+      }
     }
   },
 };

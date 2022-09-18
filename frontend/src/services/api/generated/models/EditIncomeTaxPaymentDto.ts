@@ -97,8 +97,8 @@ export function EditIncomeTaxPaymentDtoToJSON(value?: EditIncomeTaxPaymentDto | 
     }
     return {
         
-        'datePaid': (value.datePaid.toISOString().substr(0,10)),
-        'reportingDate': value.reportingDate === undefined ? undefined : (value.reportingDate.toISOString().substr(0,10)),
+        'datePaid': (new Date(value.datePaid.getTime() - value.datePaid.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
+        'reportingDate': value.reportingDate === undefined ? undefined : (new Date(value.reportingDate.getTime() - value.reportingDate.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
         'amount': value.amount,
         'attachments': value.attachments,
         'notes': value.notes,

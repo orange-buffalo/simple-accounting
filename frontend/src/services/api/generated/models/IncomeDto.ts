@@ -212,7 +212,7 @@ export function IncomeDtoToJSON(value?: IncomeDto | null): any {
         'category': value.category,
         'title': value.title,
         'timeRecorded': (value.timeRecorded.toISOString()),
-        'dateReceived': (value.dateReceived.toISOString().substr(0,10)),
+        'dateReceived': (new Date(value.dateReceived.getTime() - value.dateReceived.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
         'currency': value.currency,
         'originalAmount': value.originalAmount,
         'attachments': value.attachments,

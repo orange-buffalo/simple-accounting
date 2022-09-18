@@ -142,7 +142,7 @@ export function EditIncomeDtoToJSON(value?: EditIncomeDto | null): any {
     return {
         
         'category': value.category,
-        'dateReceived': (value.dateReceived.toISOString().substr(0,10)),
+        'dateReceived': (new Date(value.dateReceived.getTime() - value.dateReceived.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
         'title': value.title,
         'currency': value.currency,
         'originalAmount': value.originalAmount,

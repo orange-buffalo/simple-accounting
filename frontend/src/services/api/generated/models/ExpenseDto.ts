@@ -213,7 +213,7 @@ export function ExpenseDtoToJSON(value?: ExpenseDto | null): any {
         'category': value.category,
         'title': value.title,
         'timeRecorded': (value.timeRecorded.toISOString()),
-        'datePaid': (value.datePaid.toISOString().substr(0,10)),
+        'datePaid': (new Date(value.datePaid.getTime() - value.datePaid.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
         'currency': value.currency,
         'originalAmount': value.originalAmount,
         'attachments': value.attachments,
