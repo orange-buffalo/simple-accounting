@@ -237,17 +237,9 @@ describe('API Client', () => {
       delay: 20000,
     });
 
-    try {
-      await profileApi.getProfile(defaultRequestSettings(), requestTimeout(200));
-      expect(null, 'API call expected to fail')
-        .toBeDefined();
-    } catch (e) {
-      expect(e)
-        .to
-        .have
-        .nested
-        .property('cause.message', 'The operation was aborted.');
-    }
+    await expect(profileApi.getProfile(defaultRequestSettings(), requestTimeout(200)))
+      .rejects
+      .toThrow();
 
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(1);
@@ -266,19 +258,11 @@ describe('API Client', () => {
       delay: 20000,
     });
 
-    try {
-      await profileApi.getProfile({
-        signal: new AbortController().signal,
-      }, requestTimeout(200));
-      expect(null, 'API call expected to fail')
-        .toBeDefined();
-    } catch (e) {
-      expect(e)
-        .to
-        .have
-        .nested
-        .property('cause.message', 'The operation was aborted.');
-    }
+    await expect(profileApi.getProfile({
+      signal: new AbortController().signal,
+    }, requestTimeout(200)))
+      .rejects
+      .toThrow();
   });
 
   test('should support request cancellation', async () => {
@@ -295,17 +279,9 @@ describe('API Client', () => {
 
     setTimeout(cancelRequest, 500);
 
-    try {
-      await profileApi.getProfile(cancellableRequestConfig);
-      expect(null, 'API call expected to fail')
-        .toBeDefined();
-    } catch (e) {
-      expect(e)
-        .to
-        .have
-        .nested
-        .property('cause.message', 'The operation was aborted.');
-    }
+    await expect(profileApi.getProfile(cancellableRequestConfig))
+      .rejects
+      .toThrow();
 
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(1);

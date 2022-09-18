@@ -142,7 +142,7 @@ export function EditExpenseDtoToJSON(value?: EditExpenseDto | null): any {
     return {
         
         'category': value.category,
-        'datePaid': (value.datePaid.toISOString().substr(0,10)),
+        'datePaid': (new Date(value.datePaid.getTime() - value.datePaid.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
         'title': value.title,
         'currency': value.currency,
         'originalAmount': value.originalAmount,
