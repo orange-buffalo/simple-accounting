@@ -38,7 +38,6 @@ export const Create = defineStory(() => ({
   },
 }), {
   asPage: true,
-  useRealTime: true,
   screenshotPreparation: allOf(
     waitForText('Drop file here or click to upload'),
     waitForInputLoadersToLoad(),
