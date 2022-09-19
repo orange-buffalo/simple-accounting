@@ -93,3 +93,8 @@
     width: 100%;
   }
 }
+
+// workaround for ordering issues in Vite
+.el-date-editor.el-input, .el-date-editor.el-input__wrapper {
+  width: var(--el-date-editor-width) !important;
+}

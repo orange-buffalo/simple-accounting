@@ -14,9 +14,3 @@ export function safeAssign(target, source) {
   Object.keys(source)
     .forEach((key) => Vue.set(target, key, source[key]));
 }
-
-
-
-
-
-export const ID_ROUTER_PARAM_PROCESSOR = (route) => ({ id: Number(route.params.id) });
