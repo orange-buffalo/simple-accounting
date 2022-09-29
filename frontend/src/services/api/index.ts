@@ -9,6 +9,7 @@ export {
   generalTaxApi,
   documentsApi,
   generalTaxesApi,
+  googleDriveStorageApi,
 } from './api-client';
 export { useAuth } from './auth';
 export type { Auth } from './auth';
