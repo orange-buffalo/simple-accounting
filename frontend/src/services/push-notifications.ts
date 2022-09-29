@@ -1,4 +1,4 @@
-import EventSource from 'eventsource';
+import { EventSourcePolyfill } from 'event-source-polyfill';
 import type { CurrentUserPushNotificationMessage } from '@/services/api';
 import { useAuth } from '@/services/api';
 
@@ -9,7 +9,7 @@ interface PushNotificationListener<T = undefined> {
   readonly callback: PushNotificationListenerCallback<T>,
 }
 
-let eventSource: EventSource | undefined;
+let eventSource: EventSourcePolyfill | undefined;
 let eventListeners: Array<PushNotificationListener<unknown>> = [];
 
 function notifyListeners(eventName: string, data: unknown) {
@@ -24,43 +24,41 @@ const {
 } = useAuth();
 
 function init() {
-  // eslint-disable-next-line no-undef
-  eventSource = new EventSource('/api/push-notifications', {
+  eventSource = new EventSourcePolyfill('/api/push-notifications', {
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },
   });
 
-  eventSource.onmessage = (event) => {
+  eventSource.addEventListener('message', (event) => {
     const message: CurrentUserPushNotificationMessage = JSON.parse(event.data);
     notifyListeners(message.eventName, message.data);
-  };
+  });
 
-  // TODO remove any when https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/62401 is resolved
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  eventSource.onerror = async (event: any) => {
+  eventSource.addEventListener('error', async (event: any) => {
     if (event.status && event.status === 401 && eventSource) {
       eventSource.close();
       if (await tryAutoLogin()) {
         init();
       }
-    } else if (eventSource && eventSource.readyState === EventSource.ReadyState.CLOSED) {
+    } else if (eventSource && eventSource.readyState === EventSource.CLOSED) {
       eventSource = undefined;
     }
-  };
+  });
 }
 
-export function subscribeToPushNotifications(eventName: string, callback: PushNotificationListenerCallback) {
+export function subscribeToPushNotifications<T>(eventName: string, callback: PushNotificationListenerCallback<T>) {
   if (!eventSource) {
     init();
   }
   eventListeners.push({
     eventName,
-    callback,
+    callback: callback as PushNotificationListenerCallback,
   });
 }
 
-export function unsubscribeFromPushNotifications(eventName: string, callback: PushNotificationListenerCallback) {
+export function unsubscribeFromPushNotifications<T>(eventName: string, callback: PushNotificationListenerCallback<T>) {
   eventListeners = eventListeners
     .filter((it) => it.eventName !== eventName && it.callback !== callback);
 
