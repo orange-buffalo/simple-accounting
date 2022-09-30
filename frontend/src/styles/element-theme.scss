@@ -20,6 +20,7 @@
 @use 'element-plus/theme-chalk/el-progress.css';
 @use 'element-plus/theme-chalk/el-loading.css';
 @use 'element-plus/theme-chalk/el-alert.css';
+@use 'element-plus/theme-chalk/el-switch.css  ';
 
 :root {
   --el-component-size: #{$sa-input-height};
