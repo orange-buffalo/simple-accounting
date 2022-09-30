@@ -152,16 +152,12 @@ export function getCurrentLanguage(): string {
   return currentLanguage;
 }
 
-function localeIdToLanguageTag(localeId: string): string {
+export function localeIdToLanguageTag(localeId: string): string {
   return localeId.replace(/_/g, '-');
 }
 
 export function formatMessage(messageTemplate: string, values?: Record<string, unknown> | unknown[]): string {
   if (!formatter) throw new Error('i18n has not been initialized');
-
-  // if (shouldDelegateToDefaultFormatter(values)) {
-  //   return null;
-  // }
 
   let messageFunction = messageCache[messageTemplate];
   if (!messageFunction) {
@@ -201,6 +197,6 @@ export function parseMessage(messageTemplate: string): ParsedToken[] {
   return parsedMessage;
 }
 
-// i18n.languageTagToLocaleId = function languageTagToLocaleId(localeId) {
-//   return localeId.replace(/-/g, '_');
-// };
+export function languageTagToLocaleId(localeId: string) {
+  return localeId.replace(/-/g, '_');
+}
