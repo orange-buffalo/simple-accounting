@@ -5,6 +5,7 @@ import SaAuthenticatedPage from '@/components/authenticated-page/SaAuthenticated
 import Dashboard from '@/pages/dashboard/Dashboard.vue';
 import InvoicesOverview from '@/pages/invoices/InvoicesOverview.vue';
 import EditInvoice from '@/pages/invoices/EditInvoice.vue';
+import MyProfile from '@/pages/my-profile/MyProfile.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -199,11 +200,11 @@ export default function setupRouter() {
           //       component: TheWorkspaceEditor,
           //       props: ID_ROUTER_PARAM_PROCESSOR,
           //     },
-          //     {
-          //       path: 'my-profile',
-          //       name: 'my-profile',
-          //       component: MyProfile,
-          //     },
+              {
+                path: 'my-profile',
+                name: 'my-profile',
+                component: MyProfile,
+              },
           //     {
           //       path: 'reporting',
           //       name: 'reporting',
