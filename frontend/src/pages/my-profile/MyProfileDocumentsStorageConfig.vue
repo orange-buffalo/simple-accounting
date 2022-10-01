@@ -17,7 +17,7 @@
   const props = defineProps<{
     storageName: string,
     storageId: string,
-    userDocumentsStorage: string,
+    userDocumentsStorage?: string,
   }>();
 
   const emit = defineEmits<{(e: 'storage-enabled', storageId: string): void,

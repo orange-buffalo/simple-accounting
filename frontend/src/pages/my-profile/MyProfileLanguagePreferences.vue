@@ -68,8 +68,12 @@
   const inputLanguage = ref<string>(localeIdToLanguageTag(props.language));
   const inputLocale = ref<string>(localeIdToLanguageTag(props.locale));
 
-  watch(() => props.language, () => localeIdToLanguageTag(props.language));
-  watch(() => props.locale, () => localeIdToLanguageTag(props.locale));
+  watch(() => props.language, () => {
+    inputLanguage.value = localeIdToLanguageTag(props.language);
+  });
+  watch(() => props.locale, () => {
+    inputLocale.value = localeIdToLanguageTag(props.locale);
+  });
 
   const updateLanguage = async () => {
     // todo #204: loading indicator while locale/language is loaded and applied
