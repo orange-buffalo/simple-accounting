@@ -4,8 +4,9 @@ import {
 import type { InspectionFilter, InspectionOptions } from 'fetch-mock';
 import fetchMock from 'fetch-mock';
 import type {
-  Auth, FetchError, ProfileApiControllerApi, ResponseError,
+  Auth, FetchError, ResponseError,
 } from '@/services/api';
+import type { ProfileApiControllerApi } from '@/services/api/generated/apis/ProfileApiControllerApi';
 import type { RequestMetadata } from '@/services/api/api-client';
 import type { CancellableRequest } from '@/services/api/api-utils';
 import type { AdditionalRequestParameters } from '@/services/api/generated/runtime';

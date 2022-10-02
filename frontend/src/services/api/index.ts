@@ -10,9 +10,10 @@ export {
   documentsApi,
   generalTaxesApi,
   googleDriveStorageApi,
+  oAuth2CallbackApi,
 } from './api-client';
 export { useAuth } from './auth';
 export type { Auth } from './auth';
 export * from './api-utils';
 export type { CancellableRequest } from './api-utils';
-export type { ProfileApiControllerApi, ResponseError, FetchError } from './generated';
+export { ResponseError, FetchError } from './generated';

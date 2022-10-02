@@ -1,5 +1,7 @@
 import fetchMockClient from 'fetch-mock/esm/client';
-import type { MockOptionsMethodGet, MockResponse, MockResponseFunction } from 'fetch-mock';
+import type {
+ MockOptionsMethodGet, MockOptionsMethodPost, MockResponse, MockResponseFunction,
+} from 'fetch-mock';
 import { DEFAULT_STORIES_WORKSPACE_ID } from '@/__storybook__/decorators/stories-workspace-mocks';
 import type { ApiPage } from '@/services/api';
 
@@ -20,6 +22,10 @@ export function onGetToDefaultWorkspacePath(
 }
 
 export const neverEndingGetRequest: MockOptionsMethodGet = {
+  delay: 999999,
+};
+
+export const neverEndingPostRequest: MockOptionsMethodPost = {
   delay: 999999,
 };
 
