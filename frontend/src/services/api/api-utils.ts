@@ -1,5 +1,5 @@
 import type { ApiPage, ApiPageRequest } from '@/services/api/api-types';
-import { ResponseError } from '@/services/api/generated';
+import { ResponseError } from '@/services/api';
 import type { AdditionalRequestParameters } from '@/services/api/generated/runtime';
 import type { RequestMetadata } from '@/services/api/api-client';
 
