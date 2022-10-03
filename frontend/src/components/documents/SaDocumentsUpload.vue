@@ -87,7 +87,8 @@
   }>();
 
   const emit = defineEmits<{(e: 'uploads-failed'): void,
-                            (e: 'uploads-completed', documentIds: number[]): void,
+                            (e: 'update:documentsIds', documentIds: number[]): void,
+                            (e: 'uploads-completed'): void,
   }>();
 
   const { documentsStorageStatus } = useDocumentsStorageStatus();
@@ -129,7 +130,8 @@
         if (it.document.id === undefined) throw new Error('Inconsistent state');
         return it.document.id;
       });
-    emit('uploads-completed', documentsIds);
+    emit('update:documentsIds', documentsIds);
+    emit('uploads-completed');
   };
 
   const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
