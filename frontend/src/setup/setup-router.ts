@@ -6,6 +6,7 @@ import Dashboard from '@/pages/dashboard/Dashboard.vue';
 import InvoicesOverview from '@/pages/invoices/InvoicesOverview.vue';
 import EditInvoice from '@/pages/invoices/EditInvoice.vue';
 import MyProfile from '@/pages/my-profile/MyProfile.vue';
+import OAuthCallbackPage from '@/pages/oauth-callback/OAuthCallbackPage.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -61,12 +62,11 @@ export default function setupRouter() {
       //   component: WorkspaceSetup,
       // },
       //
-      // {
-      //   path: '/oauth-callback',
-      //   name: 'oauth-callback',
-      //   component: OAuthCallbackPage,
-      // },
-      //
+      {
+        path: '/oauth-callback',
+        name: 'oauth-callback',
+        component: OAuthCallbackPage,
+      },
       {
         path: '/',
         component: SaAuthenticatedPage,

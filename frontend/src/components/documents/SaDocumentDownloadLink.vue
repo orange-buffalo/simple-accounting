@@ -32,7 +32,10 @@
         workspaceId: currentWorkspaceId,
         documentId,
       });
-      creatingDownloadLink.value = false;
+      // let it hang for some time to look nicer
+      setTimeout(() => {
+        creatingDownloadLink.value = false;
+      }, 3000);
       return tokenResponse.token;
     }
 

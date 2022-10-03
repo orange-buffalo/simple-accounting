@@ -163,7 +163,7 @@
             <ElFormItem>
               <SaDocumentsUpload
                 ref="documentsUploadRef"
-                :documents-ids="invoice.attachments"
+                v-model:documents-ids="invoice.attachments"
                 :loading-on-create="id !== undefined"
                 @uploads-completed="onDocumentsUploadComplete"
                 @uploads-failed="onDocumentsUploadFailure"

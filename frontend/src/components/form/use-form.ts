@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import type SaForm from '@/components/form/SaForm.vue';
 import type SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
@@ -54,8 +54,11 @@ function useFormInternal(
     }
   };
 
-  loadFormData()
-    .then(stopLoading);
+  // ensure ref is populated
+  onMounted(async () => {
+    await loadFormData();
+    stopLoading();
+  });
 
   return {
     formRef,
@@ -117,7 +120,10 @@ export function useFormWithDocumentsUpload(
     try {
       await saveFormData();
     } finally {
-      stopLoading();
+      // in case we navigated away from the form page
+      if (formRef.value) {
+        stopLoading();
+      }
     }
   };
 
