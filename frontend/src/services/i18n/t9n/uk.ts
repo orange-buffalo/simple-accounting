@@ -186,7 +186,7 @@ export default {
     partialBusinessPurpose: {
       tooltip: () => 'Часткове ділової мети',
       label: () => 'Часткове Ділової Мети',
-      value: () => '{0, number, percent}, пов\'язаних з підприємницькою діяльністю',
+      value: (value: number) => format('{0, number, percent}, пов\'язаних з підприємницькою діяльністю', [value]),
     },
     copy: () => 'Копія',
     edit: () => 'Редагувати',
@@ -201,7 +201,7 @@ export default {
       },
       full: {
         finalized: () => 'Завершено',
-        pendingConversion: () => 'Перетворення {0} до',
+        pendingConversion: (currency: string) => format('Чекаємо на конверсію до {0}', [currency]),
         waitingExchangeRate: () => 'Чекаючи курсом',
       },
     },
@@ -210,7 +210,7 @@ export default {
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {
-        label: () => 'Сума {0} для цілей оподаткування ',
+        label: (currency: string) => format('Сума {0} для цілей оподаткування', [currency]),
         notProvided: () => 'Поки не доступний',
       },
       adjustedAmountInDefaultCurrency: {
@@ -220,7 +220,7 @@ export default {
     },
     convertedAmounts: {
       originalAmountInDefaultCurrency: {
-        label: () => 'Сума {0}',
+        label: (currency: string) => format('Сума в {0}', [currency]),
         notProvided: () => 'Поки не доступний',
       },
     },
@@ -235,7 +235,7 @@ export default {
     },
     differentExchangeRate: {
       label: () => 'Використовуючи різні обмінного курсу для цілей оподаткування?',
-      value: () => '{0, yesNo}',
+      value: (value: boolean) => format('{0, yesNo}', [value]),
     },
   },
 
@@ -650,7 +650,10 @@ export default {
       recent: () => 'Нещодавно Використовуваних Валют',
       all: () => 'Всі Валюти',
     },
-    currencyLabel: ({ code, displayName } : {code: string, displayName: string}) => `${code} - ${displayName}`,
+    currencyLabel: ({
+      code,
+      displayName,
+    }: { code: string, displayName: string }) => `${code} - ${displayName}`,
   },
 
   el: {

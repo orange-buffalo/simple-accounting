@@ -14,7 +14,7 @@
       </div>
       <div class="sa-invoice-select__option__date">
         <SaIcon icon="calendar" />
-        {{ $t('common.date.medium', [invoice.dateIssued]) }}
+        {{ $t.common.date.medium(invoice.dateIssued) }}
       </div>
       <MoneyOutput
         :amount="invoice.amount"

@@ -19,6 +19,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'vue/max-len': ['error', {
       code: 120,
+      template: 200,
     }],
     'vue/script-indent': ['error', 2, {
       baseIndent: 1,

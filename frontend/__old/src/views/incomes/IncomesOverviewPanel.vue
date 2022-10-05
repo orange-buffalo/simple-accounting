@@ -6,7 +6,7 @@
         :tooltip="$t.incomesOverviewPanel.dateReceived.tooltip()"
         icon="calendar"
       >
-        {{ $t('common.date.medium', [income.dateReceived]) }}
+        {{ $t.common.date.medium(income.dateReceived) }}
       </OverviewItemPrimaryAttribute>
     </template>
 
@@ -99,7 +99,7 @@
             :label="$t.incomesOverviewPanel.dateReceived.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ $t('common.date.medium', [income.dateReceived]) }}
+            {{ $t.common.date.medium(income.dateReceived) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
@@ -129,7 +129,7 @@
               :label="$t.incomesOverviewPanel.generalTaxRate.label()"
               class="col col-xs-12 col-md-6 col-lg-4"
             >
-              {{ $t('incomesOverviewPanel.generalTaxRate.value', [income.generalTaxRateInBps]) }}
+              {{ $t.incomesOverviewPanel.generalTaxRate.value(income.generalTaxRateInBps) }}
             </OverviewItemDetailsSectionAttribute>
 
             <OverviewItemDetailsSectionAttribute
@@ -189,7 +189,7 @@
         <div class="row">
           <!-- eslint-disable -->
           <OverviewItemDetailsSectionAttribute
-            :label="$t('incomesOverviewPanel.convertedAmounts.originalAmountInDefaultCurrency.label', [defaultCurrency])"
+            :label="$t.incomesOverviewPanel.convertedAmounts.originalAmountInDefaultCurrency.label(defaultCurrency)"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput
@@ -207,11 +207,11 @@
             :label="$t.incomesOverviewPanel.differentExchangeRate.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ $t('incomesOverviewPanel.differentExchangeRate.value', [income.useDifferentExchangeRateForIncomeTaxPurposes]) }}
+            {{ $t.incomesOverviewPanel.differentExchangeRate.value(income.useDifferentExchangeRateForIncomeTaxPurposes) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
-            :label="$t('incomesOverviewPanel.incomeTaxableAmounts.originalAmountInDefaultCurrency.label', [defaultCurrency])"
+            :label="$t.incomesOverviewPanel.incomeTaxableAmounts.originalAmountInDefaultCurrency.label(defaultCurrency)"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
             <MoneyOutput

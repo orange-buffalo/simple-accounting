@@ -6,7 +6,7 @@
         :tooltip="$t.incomeTaxPaymentsOverviewPanel.datePaid.label()"
         icon="calendar"
       >
-        {{ $t('common.date.medium', [taxPayment.datePaid]) }}
+        {{ $t.common.date.medium(taxPayment.datePaid) }}
       </OverviewItemPrimaryAttribute>
     </template>
 
@@ -50,14 +50,14 @@
             :label="$t.incomeTaxPaymentsOverviewPanel.datePaid.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ $t('common.date.medium', [taxPayment.datePaid]) }}
+            {{ $t.common.date.medium(taxPayment.datePaid) }}
           </OverviewItemDetailsSectionAttribute>
 
           <OverviewItemDetailsSectionAttribute
             :label="$t.incomeTaxPaymentsOverviewPanel.reportingDate.label()"
             class="col col-xs-12 col-md-6 col-lg-4"
           >
-            {{ $t('common.date.medium', [taxPayment.reportingDate]) }}
+            {{ $t.common.date.medium(taxPayment.reportingDate) }}
           </OverviewItemDetailsSectionAttribute>
         </div>
       </OverviewItemDetailsSection>
