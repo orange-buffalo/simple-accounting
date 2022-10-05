@@ -186,7 +186,7 @@ export default {
     partialBusinessPurpose: {
       tooltip: () => 'Partial business purpose',
       label: () => 'Partial Business Purpose',
-      value: () => '{0, number, percent} related to business activities',
+      value: (value: number) => format('{0, number, percent} related to business activities', [value]),
     },
     copy: () => 'Copy',
     edit: () => 'Edit',
@@ -201,7 +201,7 @@ export default {
       },
       full: {
         finalized: () => 'Finalized',
-        pendingConversion: () => 'Conversion to {0} pending',
+        pendingConversion: (currency: string) => format('Conversion to {0} pending', [currency]),
         waitingExchangeRate: () => 'Waiting for exchange rate',
       },
     },
@@ -210,7 +210,7 @@ export default {
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {
-        label: () => 'Amount in {0} for taxation purposes',
+        label: (currency: string) => format('Amount in {0} for taxation purposes', [currency]),
         notProvided: () => 'Not yet available',
       },
       adjustedAmountInDefaultCurrency: {
@@ -220,7 +220,7 @@ export default {
     },
     convertedAmounts: {
       originalAmountInDefaultCurrency: {
-        label: () => 'Amount in {0}',
+        label: (currency: string) => format('Amount in {0}', [currency]),
         notProvided: () => 'Not yet available',
       },
     },
@@ -235,7 +235,7 @@ export default {
     },
     differentExchangeRate: {
       label: () => 'Using different exchange rate for taxation purposes?',
-      value: () => '{0, yesNo}',
+      value: (value: boolean) => format('{0, yesNo}', [value]),
     },
   },
 
@@ -651,7 +651,10 @@ export default {
       recent: () => 'Recently Used Currencies',
       all: () => 'All Currencies',
     },
-    currencyLabel: ({ code, displayName } : {code: string, displayName: string}) => `${code} - ${displayName}`,
+    currencyLabel: ({
+      code,
+      displayName,
+    }: { code: string, displayName: string }) => `${code} - ${displayName}`,
   },
 
   el: {

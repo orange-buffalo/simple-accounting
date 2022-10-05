@@ -54,7 +54,7 @@
           v-else-if="totalSearchResultsCount > availableValues.length"
           class="sa-entity-select__list-footer sa-entity-select__list-footer--dimmed"
         >
-          {{ $t('saEntitySelect.moreElements.text', [totalSearchResultsCount - availableValues.length]) }}
+          {{ $t.saEntitySelect.moreElements.text(totalSearchResultsCount - availableValues.length) }}
         </div>
       </template>
 

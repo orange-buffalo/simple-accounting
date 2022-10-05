@@ -35,7 +35,7 @@
               label="Valid Till"
               #default="{row}"
             >
-              {{ $t('common.dateTime.medium', [row.validTill]) }}
+              {{ $t.common.dateTime.medium(row.validTill) }}
             </ElTableColumn>
             <ElTableColumn align="right" #default="{row}">
               <div class="workspace-panel__share-link-panel">

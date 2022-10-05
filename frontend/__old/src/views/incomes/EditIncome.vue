@@ -67,7 +67,7 @@
 
             <ElFormItem
               v-if="isInForeignCurrency"
-              :label="$t('editIncome.generalInformation.convertedAmountInDefaultCurrency.label', [defaultCurrency])"
+              :label="$t.editIncome.generalInformation.convertedAmountInDefaultCurrency.label(defaultCurrency)"
               prop="convertedAmountInDefaultCurrency"
             >
               <MoneyInput
@@ -84,7 +84,7 @@
 
             <ElFormItem
               v-if="income.useDifferentExchangeRateForIncomeTaxPurposes"
-              :label="$t('editIncome.generalInformation.incomeTaxableAmountInDefaultCurrency.label', [defaultCurrency])"
+              :label="$t.editIncome.generalInformation.incomeTaxableAmountInDefaultCurrency.label(defaultCurrency)"
               prop="incomeTaxableAmountInDefaultCurrency"
             >
               <MoneyInput
