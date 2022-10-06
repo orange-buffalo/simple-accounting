@@ -11,6 +11,7 @@ export {
   generalTaxesApi,
   googleDriveStorageApi,
   oAuth2CallbackApi,
+  expensesApi,
 } from './api-client';
 export { useAuth } from './auth';
 export type { Auth } from './auth';

@@ -11,10 +11,10 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseAttachment
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
+import io.swagger.v3.oas.annotations.Parameter
 import org.jooq.impl.DSL.or
+import org.springdoc.api.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -28,7 +28,7 @@ class ExpensesApiController(
     private val expenseService: ExpenseService,
     private val timeService: TimeService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
@@ -67,8 +67,10 @@ class ExpensesApiController(
         documentIds?.asSequence()?.map(::ExpenseAttachment)?.toSet() ?: emptySet()
 
     @GetMapping
-    suspend fun getExpenses(@PathVariable workspaceId: Long): ApiPage<ExpenseDto> =
-        filteringApiExecutor.executeFiltering(workspaceId)
+    suspend fun getExpenses(
+        @PathVariable workspaceId: Long,
+        @ParameterObject request: ExpensesFilteringRequest
+    ): ApiPage<ExpenseDto> = filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @GetMapping("{expenseId}")
     suspend fun getExpense(
@@ -113,26 +115,34 @@ class ExpensesApiController(
             .mapToExpenseDto()
     }
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Expense, ExpenseDto> {
-        query(Tables.EXPENSE) {
-            filterByField("freeSearchText", String::class) {
-                val category = Tables.CATEGORY
-                query.leftJoin(category).on(category.id.eq(root.categoryId))
+    private val filteringApiExecutor =
+        filteringApiExecutorBuilder.executor<Expense, ExpenseDto, NoOpSorting, ExpensesFilteringRequest> {
+            query(Tables.EXPENSE) {
+                val category = Tables.CATEGORY.`as`("filterCategory")
+                configure {
+                    query.leftJoin(category).on(category.id.eq(root.categoryId))
+                }
 
-                onPredicate(FilteringApiPredicateOperator.EQ) { searchString ->
+                onFilter(ExpensesFilteringRequest::freeSearchText) { searchString ->
                     or(
                         root.notes.containsIgnoreCase(searchString),
                         root.title.containsIgnoreCase(searchString),
                         category.name.containsIgnoreCase(searchString)
                     )
                 }
+                addDefaultSorting { root.datePaid.desc() }
+                addDefaultSorting { root.timeRecorded.asc() }
+                workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
             }
-            addDefaultSorting { root.datePaid.desc() }
-            addDefaultSorting { root.timeRecorded.asc() }
-            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+            mapper { mapToExpenseDto() }
         }
-        mapper { mapToExpenseDto() }
-    }
+}
+
+class ExpensesFilteringRequest : ApiPageRequest<NoOpSorting>() {
+    override var sortBy: NoOpSorting? = null
+
+    @field:Parameter(name = "freeSearchText[eq]")
+    var freeSearchText: String? = null
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
