@@ -9,7 +9,7 @@ import {
   StatisticsApiControllerApi,
   InvoicesApiControllerApi,
   GeneralTaxApiControllerApi,
-  DocumentsApiControllerApi, GoogleDriveStorageApiControllerApi, OAuth2CallbackControllerApi,
+  DocumentsApiControllerApi, GoogleDriveStorageApiControllerApi, OAuth2CallbackControllerApi, ExpensesApiControllerApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -52,6 +52,7 @@ export const customerApi = new CustomersApiControllerApi<RequestMetadata>(defaul
 export const categoryApi = new CategoriesApiControllerApi<RequestMetadata>(defaultConfig);
 export const statisticsApi = new StatisticsApiControllerApi<RequestMetadata>(defaultConfig);
 export const invoicesApi = new InvoicesApiControllerApi<RequestMetadata>(defaultConfig);
+export const expensesApi = new ExpensesApiControllerApi<RequestMetadata>(defaultConfig);
 export const generalTaxApi = new GeneralTaxApiControllerApi<RequestMetadata>(defaultConfig);
 export const documentsApi = new DocumentsApiControllerApi<RequestMetadata>(defaultConfig);
 export const generalTaxesApi = new GeneralTaxApiControllerApi<RequestMetadata>(defaultConfig);

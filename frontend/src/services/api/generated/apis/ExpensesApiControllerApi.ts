@@ -44,6 +44,11 @@ export interface GetExpenseRequest {
 
 export interface GetExpensesRequest {
     workspaceId: number;
+    sortBy?: GetExpensesSortByEnum;
+    freeSearchTextEq?: string;
+    pageNumber?: number;
+    pageSize?: number;
+    sortOrder?: GetExpensesSortOrderEnum;
 }
 
 export interface UpdateExpenseRequest {
@@ -133,6 +138,26 @@ export class ExpensesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
         const queryParameters: any = {};
 
+        if (requestParameters.sortBy !== undefined) {
+            queryParameters['sortBy'] = requestParameters.sortBy;
+        }
+
+        if (requestParameters.freeSearchTextEq !== undefined) {
+            queryParameters['freeSearchText[eq]'] = requestParameters.freeSearchTextEq;
+        }
+
+        if (requestParameters.pageNumber !== undefined) {
+            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        if (requestParameters.sortOrder !== undefined) {
+            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
@@ -192,3 +217,19 @@ export class ExpensesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetExpensesSortByEnum = {
+    NotSupported: '_NOT_SUPPORTED'
+} as const;
+export type GetExpensesSortByEnum = typeof GetExpensesSortByEnum[keyof typeof GetExpensesSortByEnum];
+/**
+ * @export
+ */
+export const GetExpensesSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type GetExpensesSortOrderEnum = typeof GetExpensesSortOrderEnum[keyof typeof GetExpensesSortOrderEnum];

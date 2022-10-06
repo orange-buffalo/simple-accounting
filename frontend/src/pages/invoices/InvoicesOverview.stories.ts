@@ -5,20 +5,11 @@ import { allOf, waitForText } from '@/__storybook__/screenshots';
 import InvoicesOverview from '@/pages/invoices/InvoicesOverview.vue';
 import type { InvoiceDto } from '@/services/api';
 import { onGetToDefaultWorkspacePath, pageResponse } from '@/__storybook__/api-mocks';
-import type { SaStoryParameters } from '@/__storybook__/sa-storybook';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
   title: 'Pages/Invoices/InvoicesOverview',
-  parameters: {
-    asPage: true,
-    useRealTime: true,
-    screenshotPreparation: allOf(
-      waitForText(storybookData.customers.governmentOfEarth.name),
-      waitForText(storybookData.customers.democraticOrderOfPlanets.name),
-    ),
-  } as SaStoryParameters,
 };
 
 function mockApiResponses() {
@@ -60,7 +51,14 @@ export const Default = defineStory(() => ({
   beforeCreate() {
     mockApiResponses();
   },
-}));
+}), {
+  asPage: true,
+  useRealTime: true,
+  screenshotPreparation: allOf(
+    waitForText(storybookData.customers.governmentOfEarth.name),
+    waitForText(storybookData.customers.democraticOrderOfPlanets.name),
+  ),
+});
 
 export const ReadOnly = defineStory(() => ({
   components: { InvoicesOverview },
@@ -72,4 +70,10 @@ export const ReadOnly = defineStory(() => ({
   workspace: {
     editable: false,
   },
+  asPage: true,
+  useRealTime: true,
+  screenshotPreparation: allOf(
+    waitForText(storybookData.customers.governmentOfEarth.name),
+    waitForText(storybookData.customers.democraticOrderOfPlanets.name),
+  ),
 });
