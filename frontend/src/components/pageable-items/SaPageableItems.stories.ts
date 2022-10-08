@@ -14,7 +14,7 @@ interface ResourceResponse extends HasOptionalId {
 }
 
 export default {
-  title: 'Components/SaPageableItems',
+  title: 'Components/Basic/SaPageableItems',
   parameters: {
     useRealTime: true,
     asPage: true,

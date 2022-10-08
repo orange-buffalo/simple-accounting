@@ -3,7 +3,7 @@
 import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
 
 export default {
-  title: 'Components/SaMoneyOutput',
+  title: 'Components/Basic/SaMoneyOutput',
 };
 
 export const Default = () => ({

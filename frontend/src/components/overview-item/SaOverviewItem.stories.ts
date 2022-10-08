@@ -18,7 +18,7 @@ import SaActionLink from '@/components/SaActionLink.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 
 export default {
-  title: 'Components/SaOverviewItem',
+  title: 'Components/Basic/SaOverviewItem',
 };
 
 export const NoDetails = defineStory(() => ({

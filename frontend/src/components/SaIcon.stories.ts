@@ -7,7 +7,7 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import { disableIconsSvgAnimations } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/SaIcon',
+  title: 'Components/Basic/SaIcon',
 };
 
 export const Default = defineStory(() => ({

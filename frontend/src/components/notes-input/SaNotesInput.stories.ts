@@ -5,7 +5,7 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import { allOf, waitForText } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/SaNotesInput',
+  title: 'Components/Basic/SaNotesInput',
 };
 
 export const Default = defineStory(() => ({

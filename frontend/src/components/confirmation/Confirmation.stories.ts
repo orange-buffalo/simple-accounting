@@ -7,7 +7,7 @@ import { useConfirmation } from '@/components/confirmation/use-confirmation';
 import { allOf, clickOnElement, waitForText } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/Confirmation',
+  title: 'Components/Basic/Confirmation',
 };
 
 export const Default = defineStory(() => ({

@@ -18,7 +18,7 @@ import { storybookData } from '@/__storybook__/storybook-data';
 import { waitForElementToBeVisible, waitForText } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/SaDocumentsUpload',
+  title: 'Components/Basic/Documents/SaDocumentsUpload',
   parameters: {
     useRealTime: true,
   },

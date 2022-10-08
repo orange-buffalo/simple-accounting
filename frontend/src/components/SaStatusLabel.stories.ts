@@ -5,7 +5,7 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import { waitForText } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/SaStatusLabel',
+  title: 'Components/Basic/SaStatusLabel',
 };
 
 export const All = defineStory(() => ({

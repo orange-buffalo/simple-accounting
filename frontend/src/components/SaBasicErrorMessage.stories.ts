@@ -3,7 +3,7 @@
 import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
 
 export default {
-  title: 'Components/SaBasicErrorMessage',
+  title: 'Components/Basic/SaBasicErrorMessage',
 };
 
 export const Default = () => ({

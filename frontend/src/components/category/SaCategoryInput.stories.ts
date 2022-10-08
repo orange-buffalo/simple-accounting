@@ -4,7 +4,7 @@ import {
   neverEndingGetRequest,
   onGetToDefaultWorkspacePath,
 } from '@/__storybook__/api-mocks';
-import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
+import SaCategoryInput from '@/components/category/SaCategoryInput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
   allOf, clickOnElement, waitForElementToBeVisible,
@@ -12,31 +12,31 @@ import {
 import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
-  title: 'Components/Domain/GeneralTax/SaGeneralTaxInput',
+  title: 'Components/Domain/Category/SaCategoryInput',
 };
 
 export const Default = defineStory(() => ({
-  components: { SaGeneralTaxInput },
+  components: { SaCategoryInput },
   data: () => ({
-    presetTaxId: storybookData.generalTaxes.planetExpressTax.id,
-    initiallyEmptyTaxId: undefined,
+    presetCategoryId: storybookData.categories.planetExpressCategory.id,
+    initiallyEmptyCategoryId: undefined,
   }),
   template: `
     <h4>Empty value</h4>
-    <SaGeneralTaxInput v-model="initiallyEmptyTaxId"
-                       placeholder="Please select tax"
-                       clearable
-                       id="initially-empty-select"
+    <SaCategoryInput v-model="initiallyEmptyCategoryId"
+                     placeholder="Please select category"
+                     clearable
+                     id="initially-empty-select"
     />
     <br />
-    {{ initiallyEmptyTaxId }}
+    {{ initiallyEmptyCategoryId }}
 
     <h4>Preset value</h4>
-    <SaGeneralTaxInput v-model="presetTaxId"
-                       id="preset-select"
+    <SaCategoryInput v-model="presetCategoryId"
+                     id="preset-select"
     />
     <br />
-    {{ presetTaxId }}
+    {{ presetCategoryId }}
   `,
   ...storybookData.storyComponentConfig,
 }), {
@@ -48,9 +48,9 @@ export const Default = defineStory(() => ({
 });
 
 export const Loading = defineStory(() => ({
-  components: { SaGeneralTaxInput },
-  template: '<SaGeneralTaxInput />',
+  components: { SaCategoryInput },
+  template: '<SaCategoryInput />',
   beforeCreate() {
-    onGetToDefaultWorkspacePath('/general-taxes', {}, neverEndingGetRequest);
+    onGetToDefaultWorkspacePath('/categories', {}, neverEndingGetRequest);
   },
 }));

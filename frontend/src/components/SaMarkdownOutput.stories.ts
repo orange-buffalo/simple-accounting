@@ -5,7 +5,7 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import { waitForText } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/SaMarkdownOutput',
+  title: 'Components/Basic/SaMarkdownOutput',
 };
 
 const markdownSource = `

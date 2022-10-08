@@ -10,7 +10,7 @@ import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoog
 import { defineStory } from '@/__storybook__/sa-storybook';
 
 export default {
-  title: 'Components/SaGoogleDriveIntegrationSetup',
+  title: 'Components/Basic/Documents/SaGoogleDriveIntegrationSetup',
 };
 
 export const AuthorizationRequired = defineStory(() => ({

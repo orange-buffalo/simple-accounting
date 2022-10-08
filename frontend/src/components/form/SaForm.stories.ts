@@ -14,7 +14,7 @@ import {
 import { mockSuccessStorageStatus } from '@/__storybook__/api-mocks';
 
 export default {
-  title: 'Components/SaForm',
+  title: 'Components/Basic/SaForm',
 };
 
 const StoryForm = defineComponent({
