@@ -20,7 +20,7 @@ function mockFileDownload() {
 }
 
 export default {
-  title: 'Components/SaDocumentsList',
+  title: 'Components/Basic/Documents/SaDocumentsList',
 };
 
 export const NoDocuments = defineStory(() => ({

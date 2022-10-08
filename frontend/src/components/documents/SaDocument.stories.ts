@@ -6,7 +6,7 @@ import SaDocument from '@/components/documents/SaDocument.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 
 export default {
-  title: 'Components/SaDocument',
+  title: 'Components/Basic/Documents/SaDocument',
 };
 
 export const Loading = defineStory(() => ({

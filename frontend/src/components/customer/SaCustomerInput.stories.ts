@@ -12,7 +12,7 @@ import {
 import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
-  title: 'Components/SaCustomerInput',
+  title: 'Components/Domain/Customer/SaCustomerInput',
 };
 
 export const Default = defineStory(() => ({

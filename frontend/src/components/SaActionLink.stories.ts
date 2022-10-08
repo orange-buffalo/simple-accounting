@@ -6,7 +6,7 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import { waitForText } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/SaActionLink',
+  title: 'Components/Basic/SaActionLink',
 };
 
 export const Default = defineStory(() => ({

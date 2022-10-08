@@ -5,7 +5,7 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import { waitForText } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/SaAuthenticatedPage',
+  title: 'Components/PageTemplates/SaAuthenticatedPage',
 };
 
 export const Default = defineStory(() => ({

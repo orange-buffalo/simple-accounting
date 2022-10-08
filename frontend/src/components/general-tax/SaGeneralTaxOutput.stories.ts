@@ -10,7 +10,7 @@ import { waitForText } from '@/__storybook__/screenshots';
 import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
-  title: 'Components/SaGeneralTaxOutput',
+  title: 'Components/Domain/GeneralTax/SaGeneralTaxOutput',
 };
 
 export const Loaded = defineStory(() => ({

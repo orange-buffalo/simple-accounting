@@ -7,7 +7,7 @@ import { waitForText } from '@/__storybook__/screenshots';
 import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
-  title: 'Components/SaCategoryOutput',
+  title: 'Components/Domain/Category/SaCategoryOutput',
 };
 
 export const Loaded = defineStory(() => ({

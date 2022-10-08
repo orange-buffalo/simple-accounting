@@ -6,7 +6,7 @@ import { defineStory } from '@/__storybook__/sa-storybook';
 import { allOf, waitForText } from '@/__storybook__/screenshots';
 
 export default {
-  title: 'Components/SaI18n',
+  title: 'Components/Basic/SaI18n',
 };
 
 export const Default = defineStory(() => ({

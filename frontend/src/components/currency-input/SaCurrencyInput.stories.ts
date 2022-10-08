@@ -6,7 +6,7 @@ import { allOf, clickOnElement, waitForText } from '@/__storybook__/screenshots'
 import { defaultWorkspacePath, fetchMock } from '@/__storybook__/api-mocks';
 
 export default {
-  title: 'Components/SaCurrencyInput',
+  title: 'Components/Basic/SaCurrencyInput',
 };
 
 export const Default = defineStory(() => ({
