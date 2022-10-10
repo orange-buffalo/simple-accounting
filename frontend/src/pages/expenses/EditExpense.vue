@@ -5,8 +5,7 @@
     </div>
 
     <SaForm
-      ref="form"
-      :loading="loading"
+      ref="formRef"
       :model="expense"
       :rules="expenseValidationRules"
     >
@@ -46,7 +45,7 @@
               :label="$t.editExpense.generalInformation.originalAmount.label()"
               prop="originalAmount"
             >
-              <MoneyInput
+              <SaMoneyInput
                 v-model="expense.originalAmount"
                 :currency="expense.currency"
               />
@@ -61,7 +60,6 @@
                 v-model="expense.datePaid"
                 type="date"
                 :placeholder="$t.editExpense.generalInformation.datePaid.placeholder()"
-                value-format="yyyy-MM-dd"
               />
             </ElFormItem>
 
@@ -70,7 +68,7 @@
               :label="$t.editExpense.generalInformation.convertedAmountInDefaultCurrency.label(defaultCurrency)"
               prop="convertedAmountInDefaultCurrency"
             >
-              <MoneyInput
+              <SaMoneyInput
                 v-model="expense.convertedAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
@@ -88,7 +86,7 @@
               :label="$t.editExpense.generalInformation.incomeTaxableAmountInDefaultCurrency.label(defaultCurrency)"
               prop="incomeTaxableAmountInDefaultCurrency"
             >
-              <MoneyInput
+              <SaMoneyInput
                 v-model="expense.incomeTaxableAmountInDefaultCurrency"
                 :currency="defaultCurrency"
               />
@@ -106,13 +104,13 @@
             </ElFormItem>
 
             <ElFormItem>
-              <ElCheckbox v-model="partialForBusiness">
+              <ElCheckbox v-model="uiState.partialForBusiness">
                 {{ $t.editExpense.generalInformation.partialForBusiness.label() }}
               </ElCheckbox>
             </ElFormItem>
 
             <ElFormItem
-              v-if="partialForBusiness"
+              v-if="uiState.partialForBusiness"
               :label="$t.editExpense.generalInformation.percentOnBusiness.label()"
               prop="percentOnBusiness"
             >
@@ -141,10 +139,10 @@
 
             <ElFormItem>
               <SaDocumentsUpload
-                ref="documentsUpload"
-                :documents-ids="expense.attachments"
-                :loading-on-create="expense.id != null"
-                @uploads-completed="saveExpense"
+                ref="documentsUploadRef"
+                v-model:documents-ids="expense.attachments"
+                :loading-on-create="id !== undefined"
+                @uploads-completed="onDocumentsUploadComplete"
                 @uploads-failed="onDocumentsUploadFailure"
               />
             </ElFormItem>
@@ -167,176 +165,127 @@
   </div>
 </template>
 
-<script>
-  import { computed, reactive, toRefs } from '@vue/composition-api';
-  import MoneyInput from '@/components/MoneyInput';
-  import SaCurrencyInput from '@/components/SaCurrencyInput';
-  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
-  import SaNotesInput from '@/components/SaNotesInput';
-  import SaForm from '@/components/SaForm';
-  import SaCategoryInput from '@/components/category/SaCategoryInput';
-  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput';
-  import i18n from '@/services/i18n';
-  import { safeAssign, useLoading } from '@/components/utils/utils';
-  import useNavigation from '@/components/navigation/useNavigation';
-  import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
-  import { useApiCrud } from '@/components/utils/api-utils';
+<script lang="ts" setup>
+  import { computed, ref } from 'vue';
+  import SaMoneyInput from '@/components/SaMoneyInput.vue';
+  import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
+  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
+  import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaCategoryInput from '@/components/category/SaCategoryInput.vue';
+  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
+  import { $t } from '@/services/i18n';
+  import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
+  import type { EditExpenseDto } from '@/services/api';
+  import type { PartialBy } from '@/services/utils';
+  import { expensesApi } from '@/services/api';
+  import { ensureDefined } from '@/services/utils';
+  import { useFormWithDocumentsUpload } from '@/components/form/use-form';
 
-  function copyExpenseProperties(targetExpense, sourceExpense, overrides) {
-    const {
-      convertedAmounts,
-      incomeTaxableAmounts,
-      ...expenseEditProperties
-    } = sourceExpense;
-    delete expenseEditProperties.generalTaxRateInBps;
-    delete expenseEditProperties.generalTaxAmount;
-    delete expenseEditProperties.status;
-    delete expenseEditProperties.version;
-    delete expenseEditProperties.timeRecorded;
-    safeAssign(targetExpense, {
-      ...expenseEditProperties,
-      convertedAmountInDefaultCurrency: convertedAmounts.originalAmountInDefaultCurrency,
-      incomeTaxableAmountInDefaultCurrency: incomeTaxableAmounts.originalAmountInDefaultCurrency,
-      ...overrides,
-    });
-  }
+  const props = defineProps<{
+    id?: number,
+    prototype?: number,
+  }>();
 
-  function setupUiState(expense, uiState) {
-    // eslint-disable-next-line no-param-reassign
-    uiState.partialForBusiness = expense.percentOnBusiness !== 100;
-  }
-
-  function useExpenseApi(expense, uiState) {
-    const {
-      loading,
-      saveEntity,
-      loadEntity,
-    } = useApiCrud({
-      apiEntityPath: 'expenses',
-      entity: expense,
-      ...useLoading(),
-    });
-
-    const saveExpense = async (documentsIds) => {
-      await saveEntity({
-        ...expense,
-        percentOnBusiness: uiState.partialForBusiness ? expense.percentOnBusiness : null,
-        attachments: documentsIds,
-      });
-      await navigateToExpensesOverview();
-    };
-
-    loadEntity((expenseResponse) => {
-      copyExpenseProperties(expense, expenseResponse);
-      setupUiState(expense, uiState);
-    });
-
-    return {
-      saveExpense,
-      loading,
-    };
-  }
-
-  function useExpenseForm(loading) {
-    const expenseValidationRules = {
-      currency: {
-        required: true,
-        message: $t.value.editExpense.validations.currency(),
-      },
-      title: {
-        required: true,
-        message: $t.value.editExpense.validations.title(),
-      },
-      datePaid: {
-        required: true,
-        message: $t.value.editExpense.validations.datePaid(),
-      },
-      originalAmount: {
-        required: true,
-        message: $t.value.editExpense.validations.originalAmount(),
-      },
-    };
-
-    return {
-      expenseValidationRules,
-      ...useDocumentsUpload(loading),
-    };
-  }
-
-  async function navigateToExpensesOverview() {
-    const { navigateByViewName } = useNavigation();
-    await navigateByViewName('expenses-overview');
-  }
-
-  export default {
-    components: {
-      SaGeneralTaxInput,
-      SaCurrencyInput,
-      SaForm,
-      SaNotesInput,
-      SaDocumentsUpload,
-      MoneyInput,
-      SaCategoryInput,
+  const expenseValidationRules = {
+    currency: {
+      required: true,
+      message: $t.value.editExpense.validations.currency(),
     },
-
-    props: {
-      id: {
-        type: Number,
-        default: null,
-      },
-      prototype: {
-        type: Object,
-        default: null,
-      },
+    title: {
+      required: true,
+      message: $t.value.editExpense.validations.title(),
     },
-
-    setup(props) {
-      const { defaultCurrency } = useCurrentWorkspace();
-
-      const expense = reactive({
-        attachments: [],
-        percentOnBusiness: 100,
-        datePaid: new Date(),
-        currency: defaultCurrency,
-        id: props.id,
-        useDifferentExchangeRateForIncomeTaxPurposes: false,
-      });
-
-      const isInForeignCurrency = computed(() => expense.currency !== defaultCurrency);
-
-      const uiState = reactive({
-        partialForBusiness: false,
-      });
-
-      const pageHeader = props.id
-        ? $t.value.editExpense.pageHeader.edit()
-        : $t.value.editExpense.pageHeader.create();
-
-      if (props.prototype) {
-        copyExpenseProperties(expense, props.prototype, {
-          datePaid: null,
-          id: null,
-        });
-        setupUiState(expense, uiState);
-      }
-
-      const {
-        loading,
-        saveExpense,
-      } = useExpenseApi(expense, uiState);
-
-      return {
-        expense,
-        defaultCurrency,
-        isInForeignCurrency,
-        ...toRefs(uiState),
-        pageHeader,
-        navigateToExpensesOverview,
-        ...useExpenseForm(loading),
-        loading,
-        saveExpense,
-      };
+    datePaid: {
+      required: true,
+      message: $t.value.editExpense.validations.datePaid(),
+    },
+    originalAmount: {
+      required: true,
+      message: $t.value.editExpense.validations.originalAmount(),
     },
   };
+
+  const { navigateByViewName } = useNavigation();
+  const navigateToExpensesOverview = async () => {
+    await navigateByViewName('expenses-overview');
+  };
+
+  const {
+    currentWorkspaceId,
+    defaultCurrency,
+  } = useCurrentWorkspace();
+
+  type ExpenseFormValues = PartialBy<EditExpenseDto, 'datePaid' | 'title' | 'originalAmount'> & {
+    attachments: Array<number>,
+  };
+
+  const expense = ref<ExpenseFormValues>({
+    attachments: [],
+    percentOnBusiness: 100,
+    datePaid: new Date(),
+    currency: defaultCurrency,
+    useDifferentExchangeRateForIncomeTaxPurposes: false,
+  });
+
+  const uiState = ref<{
+    partialForBusiness: boolean,
+  }>({
+    partialForBusiness: false,
+  });
+
+  const loadExpense = async () => {
+    if (props.id !== undefined) {
+      const fullExpense = await expensesApi.getExpense({
+        expenseId: props.id,
+        workspaceId: currentWorkspaceId,
+      });
+      expense.value = fullExpense;
+      uiState.value.partialForBusiness = fullExpense.percentOnBusiness !== 100;
+    } else if (props.prototype !== undefined) {
+      const prototypeExpense = await expensesApi.getExpense({
+        expenseId: props.prototype,
+        workspaceId: currentWorkspaceId,
+      });
+      expense.value = prototypeExpense;
+      expense.value.datePaid = undefined;
+      uiState.value.partialForBusiness = prototypeExpense.percentOnBusiness !== 100;
+    }
+  };
+
+  const saveExpense = async () => {
+    const request: EditExpenseDto = {
+      ...(expense.value as EditExpenseDto),
+      percentOnBusiness: uiState.value.partialForBusiness ? expense.value.percentOnBusiness : undefined,
+    };
+    if (props.id) {
+      await expensesApi.updateExpense({
+        workspaceId: currentWorkspaceId,
+        editExpenseDto: request,
+        expenseId: ensureDefined(props.id),
+      });
+    } else {
+      await expensesApi.createExpense({
+        workspaceId: currentWorkspaceId,
+        editExpenseDto: request,
+      });
+    }
+    await navigateToExpensesOverview();
+  };
+
+  const {
+    formRef,
+    submitForm,
+    documentsUploadRef,
+    onDocumentsUploadComplete,
+    onDocumentsUploadFailure,
+  } = useFormWithDocumentsUpload(loadExpense, saveExpense);
+
+  const isInForeignCurrency = computed(() => expense.value.currency !== defaultCurrency);
+
+  const pageHeader = props.id
+    ? $t.value.editExpense.pageHeader.edit()
+    : $t.value.editExpense.pageHeader.create();
+
 </script>

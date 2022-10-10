@@ -1,7 +1,7 @@
 import {
   ElButton, ElDatePicker, ElInput, ElFormItem, ElCheckbox, ElForm, ElPagination,
   ElTooltip, ElMain, ElContainer, ElAside, ElOption, ElOptionGroup, ElSelect,
-  ElProgress, ElLoadingDirective, ElAlert, ElSwitch,
+  ElProgress, ElLoadingDirective, ElAlert, ElSwitch, ElInputNumber,
 } from 'element-plus';
 import type { App } from 'vue';
 import { createApp } from 'vue';
@@ -34,6 +34,7 @@ export function setupElPlus(app: App) {
   app.component('ElProgress', ElProgress);
   app.component('ElAlert', ElAlert);
   app.component('ElSwitch', ElSwitch);
+  app.component('ElInputNumber', ElInputNumber);
 
   app.directive('loading', ElLoadingDirective);
 }

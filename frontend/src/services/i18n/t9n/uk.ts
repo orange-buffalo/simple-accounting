@@ -121,7 +121,7 @@ export default {
         label: () => 'Використовати інший обмінний курс для цілей оподаткування',
       },
       incomeTaxableAmountInDefaultCurrency: {
-        label: () => 'Сума в {0} для цілей оподаткування',
+        label: (currency: string) => format('Сума в {0} для цілей оподаткування', [currency]),
       },
       generalTax: {
         label: () => 'Включений Загальний Податок',
