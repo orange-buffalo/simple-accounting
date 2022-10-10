@@ -5,6 +5,8 @@ import SaAuthenticatedPage from '@/components/authenticated-page/SaAuthenticated
 import Dashboard from '@/pages/dashboard/Dashboard.vue';
 import InvoicesOverview from '@/pages/invoices/InvoicesOverview.vue';
 import EditInvoice from '@/pages/invoices/EditInvoice.vue';
+import EditExpense from '@/pages/expenses/EditExpense.vue';
+import ExpensesOverview from '@/pages/expenses/ExpensesOverview.vue';
 import MyProfile from '@/pages/my-profile/MyProfile.vue';
 import OAuthCallbackPage from '@/pages/oauth-callback/OAuthCallbackPage.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
@@ -86,23 +88,23 @@ export default function setupRouter() {
           //       name: 'create-new-category',
           //       component: CreateCategory,
           //     },
-          //     {
-          //       path: 'expenses',
-          //       name: 'expenses-overview',
-          //       component: ExpensesOverview,
-          //     },
-          //     {
-          //       path: 'expenses/create',
-          //       name: 'create-new-expense',
-          //       props: true,
-          //       component: EditExpense,
-          //     },
-          //     {
-          //       path: 'expenses/:id/edit',
-          //       name: 'edit-expense',
-          //       props: ID_ROUTER_PARAM_PROCESSOR,
-          //       component: EditExpense,
-          //     },
+              {
+                path: 'expenses',
+                name: 'expenses-overview',
+                component: ExpensesOverview,
+              },
+              {
+                path: 'expenses/create',
+                name: 'create-new-expense',
+                props: true,
+                component: EditExpense,
+              },
+              {
+                path: 'expenses/:id/edit',
+                name: 'edit-expense',
+                props: ID_ROUTER_PARAM_PROCESSOR,
+                component: EditExpense,
+              },
           //     {
           //       path: 'incomes',
           //       name: 'incomes-overview',

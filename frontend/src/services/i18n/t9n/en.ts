@@ -121,7 +121,7 @@ export default {
         label: () => 'Using different exchange rate for taxation purposes',
       },
       incomeTaxableAmountInDefaultCurrency: {
-        label: () => 'Amount in {0} for taxation purposes',
+        label: (currency: string) => format('Amount in {0} for taxation purposes', [currency]),
       },
       generalTax: {
         label: () => 'Included General Tax',
