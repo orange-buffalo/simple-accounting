@@ -445,8 +445,8 @@ export default {
       },
       full: {
         finalized: () => 'Завершено',
-        pendingConversion: () => 'Перетворення {0} до',
-        waitingExchangeRate: () => 'Чекаючи курсом',
+        pendingConversion: (currency:string) => format('Чекаємо на конверсію до {0}', [currency]),
+        waitingExchangeRate: () => 'Чекаємо на обмінний курс',
       },
     },
     category: {
@@ -454,7 +454,7 @@ export default {
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {
-        label: () => 'Сума {0} для цілей оподаткування ',
+        label: (currency: string) => format('Сума в {0} для цілей оподаткування', [currency]),
         notProvided: () => 'Поки не доступний',
       },
       adjustedAmountInDefaultCurrency: {
@@ -464,7 +464,7 @@ export default {
     },
     convertedAmounts: {
       originalAmountInDefaultCurrency: {
-        label: () => 'Сума {0}',
+        label: (currency: string) => format('Сума в {0}', [currency]),
         notProvided: () => 'Поки не доступний',
       },
     },
@@ -479,7 +479,7 @@ export default {
     },
     differentExchangeRate: {
       label: () => 'Використовуючи різні обмінного курсу для цілей оподаткування?',
-      value: () => '{0, yesNo}',
+      value: (value: boolean) => format('{0, yesNo}', [value]),
     },
   },
 
