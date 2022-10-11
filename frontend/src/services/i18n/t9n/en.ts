@@ -446,7 +446,7 @@ export default {
       },
       full: {
         finalized: () => 'Finalized',
-        pendingConversion: () => 'Conversion to {0} pending',
+        pendingConversion: (currency: string) => format('Conversion to {0} pending', [currency]),
         waitingExchangeRate: () => 'Waiting for exchange rate',
       },
     },
@@ -455,7 +455,7 @@ export default {
     },
     incomeTaxableAmounts: {
       originalAmountInDefaultCurrency: {
-        label: () => 'Amount in {0} for taxation purposes',
+        label: (currency: string) => format('Amount in {0} for taxation purposes', [currency]),
         notProvided: () => 'Not yet available',
       },
       adjustedAmountInDefaultCurrency: {
@@ -465,7 +465,7 @@ export default {
     },
     convertedAmounts: {
       originalAmountInDefaultCurrency: {
-        label: () => 'Amount in {0}',
+        label: (currency: string) => format('Amount in {0}', [currency]),
         notProvided: () => 'Not yet available',
       },
     },
@@ -480,7 +480,7 @@ export default {
     },
     differentExchangeRate: {
       label: () => 'Using different exchange rate for taxation purposes?',
-      value: () => '{0, yesNo}',
+      value: (value: boolean) => format('{0, yesNo}', [value]),
     },
   },
 
