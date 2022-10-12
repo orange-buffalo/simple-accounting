@@ -5,10 +5,10 @@ import io.orangebuffalo.simpleaccounting.services.business.*
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
+import io.swagger.v3.oas.annotations.Parameter
 import org.jooq.impl.DSL.or
+import org.springdoc.api.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -22,7 +22,7 @@ class IncomesApiController(
     private val incomeService: IncomeService,
     private val timeService: TimeService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
@@ -58,8 +58,10 @@ class IncomesApiController(
         .mapToIncomeDto()
 
     @GetMapping
-    suspend fun getIncomes(@PathVariable workspaceId: Long): ApiPage<IncomeDto> =
-        filteringApiExecutor.executeFiltering(workspaceId)
+    suspend fun getIncomes(
+        @PathVariable workspaceId: Long,
+        @ParameterObject request: IncomesFilteringRequest
+    ): ApiPage<IncomeDto> = filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @GetMapping("{incomeId}")
     suspend fun getIncome(
@@ -102,28 +104,35 @@ class IncomesApiController(
             .mapToIncomeDto()
     }
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Income, IncomeDto> {
-        query(Tables.INCOME) {
-            filterByField("freeSearchText", String::class) {
+    private val filteringApiExecutor =
+        filteringApiExecutorBuilder.executor<Income, IncomeDto, NoOpSorting, IncomesFilteringRequest> {
+            query(Tables.INCOME) {
                 val category = Tables.CATEGORY
-                query.leftJoin(category).on(root.categoryId.eq(category.id))
+                configure {
+                    query.leftJoin(category).on(root.categoryId.eq(category.id))
+                }
 
-                onPredicate(FilteringApiPredicateOperator.EQ) { searchText ->
-                    val token = searchText.lowercase()
+                onFilter(IncomesFilteringRequest::freeSearchText) { searchText ->
                     or(
-                        category.name.containsIgnoreCase(token),
-                        root.notes.containsIgnoreCase(token),
-                        root.title.containsIgnoreCase(token)
+                        category.name.containsIgnoreCase(searchText),
+                        root.notes.containsIgnoreCase(searchText),
+                        root.title.containsIgnoreCase(searchText)
                     )
                 }
+                addDefaultSorting { root.dateReceived.desc() }
+                addDefaultSorting { root.timeRecorded.asc() }
+                workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
             }
-            addDefaultSorting { root.dateReceived.desc() }
-            addDefaultSorting { root.timeRecorded.asc() }
-            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
-        }
 
-        mapper { mapToIncomeDto() }
-    }
+            mapper { mapToIncomeDto() }
+        }
+}
+
+class IncomesFilteringRequest : ApiPageRequest<NoOpSorting>() {
+    override var sortBy: NoOpSorting? = null
+
+    @field:Parameter(name = "freeSearchText[eq]")
+    var freeSearchText: String? = null
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
