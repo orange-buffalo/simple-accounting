@@ -44,6 +44,11 @@ export interface GetIncomeRequest {
 
 export interface GetIncomesRequest {
     workspaceId: number;
+    sortBy?: GetIncomesSortByEnum;
+    freeSearchTextEq?: string;
+    pageNumber?: number;
+    pageSize?: number;
+    sortOrder?: GetIncomesSortOrderEnum;
 }
 
 export interface UpdateIncomeRequest {
@@ -133,6 +138,26 @@ export class IncomesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
         const queryParameters: any = {};
 
+        if (requestParameters.sortBy !== undefined) {
+            queryParameters['sortBy'] = requestParameters.sortBy;
+        }
+
+        if (requestParameters.freeSearchTextEq !== undefined) {
+            queryParameters['freeSearchText[eq]'] = requestParameters.freeSearchTextEq;
+        }
+
+        if (requestParameters.pageNumber !== undefined) {
+            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        if (requestParameters.sortOrder !== undefined) {
+            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
@@ -192,3 +217,19 @@ export class IncomesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetIncomesSortByEnum = {
+    NotSupported: '_NOT_SUPPORTED'
+} as const;
+export type GetIncomesSortByEnum = typeof GetIncomesSortByEnum[keyof typeof GetIncomesSortByEnum];
+/**
+ * @export
+ */
+export const GetIncomesSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type GetIncomesSortOrderEnum = typeof GetIncomesSortOrderEnum[keyof typeof GetIncomesSortOrderEnum];
