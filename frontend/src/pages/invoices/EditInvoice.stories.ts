@@ -84,7 +84,7 @@ export const Edit = defineStory(() => ({
   useRealTime: true,
   screenshotPreparation: allOf(
     waitForText('Drop file here or click to upload'),
-    waitForText('Notes formatted'),
+    waitForText('Notes formatted', 'em'),
     waitForInputLoadersToLoad(),
   ),
 });

@@ -16,7 +16,7 @@ let vueApp: App | null = null;
 
 let vueRouter: Router | null = null;
 
-export function setupElPlus(app: App) {
+export function setupComponents(app: App) {
   app.component('ElButton', ElButton);
   app.component('ElDatePicker', ElDatePicker);
   app.component('ElInput', ElInput);
@@ -45,7 +45,7 @@ export function setupApp() {
   vueRouter = setupRouter();
   vueApp.use(vueRouter);
 
-  setupElPlus(vueApp);
+  setupComponents(vueApp);
 }
 
 export function mountApp() {

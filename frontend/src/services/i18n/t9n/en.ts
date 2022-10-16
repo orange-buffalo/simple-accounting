@@ -794,7 +794,7 @@ export default {
       text: () => 'No data found',
     },
     moreElements: {
-      text: () => '{0} more items..',
+      text: (count: number) => format('{0} more items..', [count]),
     },
   },
 

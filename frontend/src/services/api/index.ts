@@ -14,6 +14,9 @@ export {
   expensesApi,
   incomesApi,
 } from './api-client';
+export type {
+  RequestMetadata,
+} from './api-client';
 export { useAuth } from './auth';
 export type { Auth } from './auth';
 export * from './api-utils';

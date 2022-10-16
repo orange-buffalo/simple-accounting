@@ -143,6 +143,6 @@ export const WithAllDetails = defineStory(() => ({
     waitForText(storybookData.customers.governmentOfEarth.name),
     waitForText(storybookData.generalTaxes.planetExpressTax.title),
     waitForText(storybookData.documents.cheesePizzaAndALargeSodaReceipt.name),
-    waitForText('with formatting'),
+    waitForText('with formatting', 'em'),
   ),
 });
