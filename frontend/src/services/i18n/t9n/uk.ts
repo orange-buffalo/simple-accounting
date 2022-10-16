@@ -793,7 +793,7 @@ export default {
       text: () => 'Результатів не знайдено',
     },
     moreElements: {
-      text: () => 'Іще {0} елементів..',
+      text: (count: number) => format('Іще {0} елементів..', [count]),
     },
   },
 

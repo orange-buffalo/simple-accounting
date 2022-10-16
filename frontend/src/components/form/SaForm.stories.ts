@@ -9,7 +9,7 @@ import SaForm from '@/components/form/SaForm.vue';
 import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
-  allOf, clickOnElement, waitForText,
+  allOf, clickOnElement, waitForInputValue,
 } from '@/__storybook__/screenshots';
 import { mockSuccessStorageStatus } from '@/__storybook__/api-mocks';
 
@@ -174,8 +174,8 @@ export const Default = defineStory(() => ({
   screenshotPreparation: allOf(
     clickOnElement('#activeForm .el-button--primary'),
     clickOnElement('#documentsForm .el-button--primary'),
-    waitForText('Zoidberg', '#activeForm'),
-    waitForText('Fry', '#documentsForm'),
+    waitForInputValue('Zoidberg', '#activeForm input'),
+    waitForInputValue('Fry', '#documentsForm input'),
   ),
   asPage: true,
 });

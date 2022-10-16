@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import LogoLogin from '@/assets/logo-login.svg';
+  import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import { consumeApiErrorResponse, oAuth2CallbackApi, skipGlobalErrorHandler } from '@/services/api';

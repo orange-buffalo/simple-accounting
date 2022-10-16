@@ -41,7 +41,7 @@ export const Default = defineStory(() => ({
   },
   template: '<SaMarkdownOutput :source="markdownSource" style="width: 400px" />',
 }), {
-  screenshotPreparation: waitForText('This is bold text'),
+  screenshotPreparation: waitForText('This is bold text', 'strong'),
   useRealTime: true,
 });
 
@@ -54,6 +54,6 @@ export const Preview = defineStory(() => ({
   },
   template: '<SaMarkdownOutput :source="markdownSource" preview style="width: 400px" />',
 }), {
-  screenshotPreparation: waitForText('This is bold text'),
+  screenshotPreparation: waitForText('This is bold text', 'strong'),
   useRealTime: true,
 });

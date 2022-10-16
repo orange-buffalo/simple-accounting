@@ -2,7 +2,7 @@
 
 import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import { allOf, clickOnElement, waitForText } from '@/__storybook__/screenshots';
+import { allOf, openSelectDropdown, waitForText } from '@/__storybook__/screenshots';
 import { defaultWorkspacePath, fetchMock } from '@/__storybook__/api-mocks';
 
 export default {
@@ -35,7 +35,7 @@ export const Default = defineStory(() => ({
   `,
 }), {
   screenshotPreparation: allOf(
-    clickOnElement('.select-trigger'),
+    openSelectDropdown('.el-select'),
     waitForText('Recently Used Currencies'),
   ),
 });

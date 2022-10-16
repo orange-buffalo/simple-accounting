@@ -7,7 +7,7 @@ import {
 import SaCustomerInput from '@/components/customer/SaCustomerInput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
-  allOf, clickOnElement, waitForElementToBeVisible,
+  allOf, openSelectDropdown, waitForElementToBeVisible, waitForText,
 } from '@/__storybook__/screenshots';
 import { storybookData } from '@/__storybook__/storybook-data';
 
@@ -42,8 +42,8 @@ export const Default = defineStory(() => ({
 }), {
   screenshotPreparation: allOf(
     waitForElementToBeVisible('#preset-select > .el-select'),
-    clickOnElement('#initially-empty-select > .el-select'),
-    waitForElementToBeVisible('.el-select-dropdown'),
+    openSelectDropdown('#initially-empty-select > .el-select'),
+    waitForText(storybookData.customers.democraticOrderOfPlanets.name),
   ),
 });
 
