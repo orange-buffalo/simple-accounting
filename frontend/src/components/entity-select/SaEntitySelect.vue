@@ -15,6 +15,8 @@
       :no-data-text="$t.saEntitySelect.noData.text()"
       :no-match-text="$t.saEntitySelect.noData.text()"
       remote-show-suffix
+      :teleported="false"
+      :clearable="clearable"
     >
       <ElOption
         v-for="availableValue in availableValues"
@@ -23,7 +25,11 @@
         :value="availableValue.key"
         :disabled="availableValue.isInfo"
       >
-        <span v-if="!availableValue.isInfo">{{ availableValue.label }}</span>
+        <div v-if="!availableValue.isInfo">
+          <slot :entity="ensureDefined(availableValue.entity)">
+            <div class="sa-entity-select__simple-option">{{ availableValue.label }}</div>
+          </slot>
+        </div>
 
         <div
           v-else-if="availableValue.error"
@@ -70,7 +76,8 @@
                       requestConfig: AdditionalRequestParameters<RequestMetadata>) => Promise<ApiPage<HasOptionalId>>,
     optionProvider: (id: number,
                      requestInit: RequestInit,
-                     requestConfig: AdditionalRequestParameters<RequestMetadata>) => Promise<HasOptionalId>
+                     requestConfig: AdditionalRequestParameters<RequestMetadata>) => Promise<HasOptionalId>,
+    clearable?: boolean
   }>();
 
   const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
@@ -184,6 +191,17 @@
   .sa-entity-select {
     .el-select {
       width: 100%;
+    }
+
+    .el-select-dropdown__item {
+      height: auto;
+      min-height: 34px;
+      line-height: inherit;
+    }
+
+    &__simple-option {
+      height: 34px;
+      line-height: 34px;
     }
 
     &__list-footer {
