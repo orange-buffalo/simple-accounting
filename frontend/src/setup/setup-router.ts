@@ -9,6 +9,8 @@ import EditExpense from '@/pages/expenses/EditExpense.vue';
 import ExpensesOverview from '@/pages/expenses/ExpensesOverview.vue';
 import MyProfile from '@/pages/my-profile/MyProfile.vue';
 import OAuthCallbackPage from '@/pages/oauth-callback/OAuthCallbackPage.vue';
+import IncomesOverview from '@/pages/incomes/IncomesOverview.vue';
+import EditIncome from '@/pages/incomes/EditIncome.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -88,40 +90,40 @@ export default function setupRouter() {
           //       name: 'create-new-category',
           //       component: CreateCategory,
           //     },
-              {
-                path: 'expenses',
-                name: 'expenses-overview',
-                component: ExpensesOverview,
-              },
-              {
-                path: 'expenses/create',
-                name: 'create-new-expense',
-                props: true,
-                component: EditExpense,
-              },
-              {
-                path: 'expenses/:id/edit',
-                name: 'edit-expense',
-                props: ID_ROUTER_PARAM_PROCESSOR,
-                component: EditExpense,
-              },
-          //     {
-          //       path: 'incomes',
-          //       name: 'incomes-overview',
-          //       component: IncomesOverview,
-          //     },
-          //     {
-          //       path: 'incomes/create',
-          //       name: 'create-new-income',
-          //       component: EditIncome,
-          //       props: true,
-          //     },
-          //     {
-          //       path: 'incomes/:id/edit',
-          //       name: 'edit-income',
-          //       props: ID_ROUTER_PARAM_PROCESSOR,
-          //       component: EditIncome,
-          //     },
+          {
+            path: 'expenses',
+            name: 'expenses-overview',
+            component: ExpensesOverview,
+          },
+          {
+            path: 'expenses/create',
+            name: 'create-new-expense',
+            props: true,
+            component: EditExpense,
+          },
+          {
+            path: 'expenses/:id/edit',
+            name: 'edit-expense',
+            props: ID_ROUTER_PARAM_PROCESSOR,
+            component: EditExpense,
+          },
+          {
+            path: 'incomes',
+            name: 'incomes-overview',
+            component: IncomesOverview,
+          },
+          {
+            path: 'incomes/create',
+            name: 'create-new-income',
+            component: EditIncome,
+            props: true,
+          },
+          {
+            path: 'incomes/:id/edit',
+            name: 'edit-income',
+            props: ID_ROUTER_PARAM_PROCESSOR,
+            component: EditIncome,
+          },
           {
             path: 'invoices',
             name: 'invoices-overview',
@@ -202,11 +204,11 @@ export default function setupRouter() {
           //       component: TheWorkspaceEditor,
           //       props: ID_ROUTER_PARAM_PROCESSOR,
           //     },
-              {
-                path: 'my-profile',
-                name: 'my-profile',
-                component: MyProfile,
-              },
+          {
+            path: 'my-profile',
+            name: 'my-profile',
+            component: MyProfile,
+          },
           //     {
           //       path: 'reporting',
           //       name: 'reporting',

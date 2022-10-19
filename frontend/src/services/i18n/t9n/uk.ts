@@ -361,13 +361,13 @@ export default {
         placeholder: () => 'Дата отримання доходу',
       },
       convertedAmountInDefaultCurrency: {
-        label: () => 'Сума {0}',
+        label: (currency: string) => format('Сума в {0}', [currency]),
       },
       useDifferentExchangeRateForIncomeTaxPurposes: {
         label: () => 'Використовуючи різні обмінного курсу для цілей оподаткування ',
       },
       incomeTaxableAmountInDefaultCurrency: {
-        label: () => 'Сума {0} для цілей оподаткування ',
+        label: (currency: string) => format('Сума в {0} для цілей оподаткування', [currency]),
       },
       generalTax: {
         label: () => 'Включений Загальний Податок',
@@ -396,7 +396,7 @@ export default {
       originalAmount: () => 'Будь ласка, вкажіть суму доходу ',
     },
     fromInvoice: {
-      title: () => 'Платіж за {0}',
+      title: (invoiceTitle: string) => format('Платіж за {0}', [invoiceTitle]),
     },
   },
 
@@ -445,7 +445,7 @@ export default {
       },
       full: {
         finalized: () => 'Завершено',
-        pendingConversion: (currency:string) => format('Чекаємо на конверсію до {0}', [currency]),
+        pendingConversion: (currency: string) => format('Чекаємо на конверсію до {0}', [currency]),
         waitingExchangeRate: () => 'Чекаємо на обмінний курс',
       },
     },
