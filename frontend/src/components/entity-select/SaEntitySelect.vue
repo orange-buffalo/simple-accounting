@@ -209,6 +209,7 @@
       align-items: center;
       justify-content: center;
       font-size: 90%;
+      height: 34px;
 
       &--dimmed {
         color: $secondary-grey-darker-i;

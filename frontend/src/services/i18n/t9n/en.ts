@@ -362,13 +362,13 @@ export default {
         placeholder: () => 'Date income is received',
       },
       convertedAmountInDefaultCurrency: {
-        label: () => 'Amount in {0}',
+        label: (currency: string) => format('Amount in {0}', [currency]),
       },
       useDifferentExchangeRateForIncomeTaxPurposes: {
         label: () => 'Using different exchange rate for taxation purposes',
       },
       incomeTaxableAmountInDefaultCurrency: {
-        label: () => 'Amount in {0} for taxation purposes',
+        label: (currency: string) => format('Amount in {0} for taxation purposes', [currency]),
       },
       generalTax: {
         label: () => 'Included General Tax',
@@ -397,7 +397,7 @@ export default {
       originalAmount: () => 'Please provide income amount',
     },
     fromInvoice: {
-      title: () => 'Payment for {0}',
+      title: (invoiceTitle: string) => format('Payment for {0}', [invoiceTitle]),
     },
   },
 
