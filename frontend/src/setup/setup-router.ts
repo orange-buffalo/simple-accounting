@@ -11,6 +11,7 @@ import MyProfile from '@/pages/my-profile/MyProfile.vue';
 import OAuthCallbackPage from '@/pages/oauth-callback/OAuthCallbackPage.vue';
 import IncomesOverview from '@/pages/incomes/IncomesOverview.vue';
 import EditIncome from '@/pages/incomes/EditIncome.vue';
+import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaymentsOverview.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -140,11 +141,11 @@ export default function setupRouter() {
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditInvoice,
           },
-          //     {
-          //       path: 'income-tax-payments',
-          //       name: 'income-tax-payments-overview',
-          //       component: IncomeTaxPaymentsOverview,
-          //     },
+          {
+            path: 'income-tax-payments',
+            name: 'income-tax-payments-overview',
+            component: IncomeTaxPaymentsOverview,
+          },
           //     {
           //       path: 'income-tax-payments/create',
           //       name: 'create-new-income-tax-payment',
