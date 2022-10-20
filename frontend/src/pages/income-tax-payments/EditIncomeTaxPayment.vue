@@ -5,8 +5,7 @@
     </div>
 
     <SaForm
-      ref="form"
-      :loading="loading"
+      ref="formRef"
       :model="taxPayment"
       :rules="taxPaymentValidationRules"
     >
@@ -29,7 +28,7 @@
               :label="$t.editIncomeTaxPayment.generalInformation.amount.label()"
               prop="amount"
             >
-              <MoneyInput
+              <SaMoneyInput
                 v-model="taxPayment.amount"
                 :currency="defaultCurrency"
               />
@@ -44,7 +43,6 @@
                 v-model="taxPayment.datePaid"
                 type="date"
                 :placeholder="$t.editIncomeTaxPayment.generalInformation.datePaid.placeholder()"
-                value-format="yyyy-MM-dd"
               />
             </ElFormItem>
 
@@ -57,7 +55,6 @@
                 v-model="taxPayment.reportingDate"
                 type="date"
                 :placeholder="$t.editIncomeTaxPayment.generalInformation.reportingDate.placeholder()"
-                value-format="yyyy-MM-dd"
               />
             </ElFormItem>
           </div>
@@ -79,10 +76,10 @@
 
             <ElFormItem>
               <SaDocumentsUpload
-                ref="documentsUpload"
-                :documents-ids="taxPayment.attachments"
-                :loading-on-create="taxPayment.id != null"
-                @uploads-completed="saveTaxPayment"
+                ref="documentsUploadRef"
+                v-model:documents-ids="taxPayment.attachments"
+                :loading-on-create="id !== undefined"
+                @uploads-completed="onDocumentsUploadComplete"
                 @uploads-failed="onDocumentsUploadFailure"
               />
             </ElFormItem>
@@ -105,115 +102,94 @@
   </div>
 </template>
 
-<script>
-  import { reactive } from '@vue/composition-api';
-  import i18n from '@/services/i18n';
-  import MoneyInput from '@/components/MoneyInput';
-  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload';
-  import SaNotesInput from '@/components/SaNotesInput';
-  import SaForm from '@/components/SaForm';
-  import useDocumentsUpload from '@/components/documents/useDocumentsUpload';
-  import { useLoading } from '@/components/utils/utils';
-  import useNavigation from '@/components/navigation/useNavigation';
-  import { useApiCrud } from '@/components/utils/api-utils';
+<script lang="ts" setup>
+  import { ref } from 'vue';
+  import { $t } from '@/services/i18n';
+  import SaMoneyInput from '@/components/SaMoneyInput.vue';
+  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
+  import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
+  import SaForm from '@/components/form//SaForm.vue';
+  import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
+  import type { EditIncomeTaxPaymentDto } from '@/services/api';
+  import type { PartialBy } from '@/services/utils';
+  import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { incomeTaxPaymentsApi } from '@/services/api';
+  import { ensureDefined } from '@/services/utils';
 
-  function useTaxPaymentForm(loading) {
-    const taxPaymentValidationRules = {
-      title: {
-        required: true,
-        message: $t.value.editIncomeTaxPayment.validations.title(),
-      },
-      datePaid: {
-        required: true,
-        message: $t.value.editIncomeTaxPayment.validations.datePaid(),
-      },
-      amount: {
-        required: true,
-        message: $t.value.editIncomeTaxPayment.validations.amount(),
-      },
-    };
+  const props = defineProps<{
+    id?: number,
+  }>();
 
-    return {
-      taxPaymentValidationRules,
-      ...useDocumentsUpload(loading),
-    };
-  }
-
-  function useTaxPaymentApi(taxPayment) {
-    const {
-      loading,
-      saveEntity,
-      loadEntity,
-    } = useApiCrud({
-      apiEntityPath: 'income-tax-payments',
-      entity: taxPayment,
-      ...useLoading(),
-    });
-
-    const saveTaxPayment = async (attachments) => {
-      await saveEntity({
-        ...taxPayment,
-        attachments,
-      });
-      await navigateToTaxPaymentsOverview();
-    };
-
-    loadEntity();
-
-    return {
-      loading,
-      saveTaxPayment,
-    };
-  }
-
-  function navigateToTaxPaymentsOverview() {
-    const { navigateByViewName } = useNavigation();
-    navigateByViewName('income-tax-payments-overview');
-  }
-
-  export default {
-    components: {
-      SaForm,
-      SaNotesInput,
-      SaDocumentsUpload,
-      MoneyInput,
+  const taxPaymentValidationRules = {
+    title: {
+      required: true,
+      message: $t.value.editIncomeTaxPayment.validations.title(),
     },
-
-    props: {
-      id: {
-        type: Number,
-        default: null,
-      },
+    datePaid: {
+      required: true,
+      message: $t.value.editIncomeTaxPayment.validations.datePaid(),
     },
-
-    setup(props) {
-      const { defaultCurrency } = useCurrentWorkspace();
-
-      const taxPayment = reactive({
-        id: props.id,
-        attachments: [],
-        datePaid: new Date(),
-      });
-
-      const pageHeader = props.id
-        ? $t.value.editIncomeTaxPayment.header.edit()
-        : $t.value.editIncomeTaxPayment.header.create();
-
-      const {
-        loading,
-        saveTaxPayment,
-      } = useTaxPaymentApi(taxPayment);
-
-      return {
-        taxPayment,
-        defaultCurrency,
-        ...useTaxPaymentForm(loading),
-        pageHeader,
-        loading,
-        saveTaxPayment,
-        navigateToTaxPaymentsOverview,
-      };
+    amount: {
+      required: true,
+      message: $t.value.editIncomeTaxPayment.validations.amount(),
     },
   };
+
+  const { navigateByViewName } = useNavigation();
+  const navigateToTaxPaymentsOverview = async () => navigateByViewName('income-tax-payments-overview');
+
+  const {
+    defaultCurrency,
+    currentWorkspaceId,
+  } = useCurrentWorkspace();
+
+  type TaxPaymentFormValues = PartialBy<EditIncomeTaxPaymentDto, 'amount' | 'title'> & {
+    attachments: Array<number>,
+  };
+
+  const taxPayment = ref<TaxPaymentFormValues>({
+    datePaid: new Date(),
+    attachments: [],
+  });
+
+  const loadTaxPayment = async () => {
+    if (props.id !== undefined) {
+      taxPayment.value = await incomeTaxPaymentsApi.getTaxPayment({
+        taxPaymentId: props.id,
+        workspaceId: currentWorkspaceId,
+      });
+    }
+  };
+
+  const saveTaxPayment = async () => {
+    const request: EditIncomeTaxPaymentDto = {
+      ...(taxPayment.value as EditIncomeTaxPaymentDto),
+    };
+    if (props.id) {
+      await incomeTaxPaymentsApi.updateTaxPayment({
+        workspaceId: currentWorkspaceId,
+        editIncomeTaxPaymentDto: request,
+        taxPaymentId: ensureDefined(props.id),
+      });
+    } else {
+      await incomeTaxPaymentsApi.createTaxPayment({
+        workspaceId: currentWorkspaceId,
+        editIncomeTaxPaymentDto: request,
+      });
+    }
+    await navigateToTaxPaymentsOverview();
+  };
+
+  const {
+    formRef,
+    submitForm,
+    documentsUploadRef,
+    onDocumentsUploadComplete,
+    onDocumentsUploadFailure,
+  } = useFormWithDocumentsUpload(loadTaxPayment, saveTaxPayment);
+
+  const pageHeader = props.id
+    ? $t.value.editIncomeTaxPayment.header.edit()
+    : $t.value.editIncomeTaxPayment.header.create();
 </script>

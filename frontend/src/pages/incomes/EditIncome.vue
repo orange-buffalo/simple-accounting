@@ -129,7 +129,7 @@
               <SaDocumentsUpload
                 ref="documentsUploadRef"
                 v-model:documents-ids="income.attachments"
-                :loading-on-create="id != null"
+                :loading-on-create="id !== undefined"
                 @uploads-completed="onDocumentsUploadComplete"
                 @uploads-failed="onDocumentsUploadFailure"
               />
