@@ -12,6 +12,7 @@ import OAuthCallbackPage from '@/pages/oauth-callback/OAuthCallbackPage.vue';
 import IncomesOverview from '@/pages/incomes/IncomesOverview.vue';
 import EditIncome from '@/pages/incomes/EditIncome.vue';
 import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaymentsOverview.vue';
+import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayment.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -146,17 +147,17 @@ export default function setupRouter() {
             name: 'income-tax-payments-overview',
             component: IncomeTaxPaymentsOverview,
           },
-          //     {
-          //       path: 'income-tax-payments/create',
-          //       name: 'create-new-income-tax-payment',
-          //       component: EditIncomeTaxPayment,
-          //     },
-          //     {
-          //       path: 'income-tax-payments/:id/edit',
-          //       name: 'edit-income-tax-payment',
-          //       props: ID_ROUTER_PARAM_PROCESSOR,
-          //       component: EditIncomeTaxPayment,
-          //     },
+          {
+            path: 'income-tax-payments/create',
+            name: 'create-new-income-tax-payment',
+            component: EditIncomeTaxPayment,
+          },
+          {
+            path: 'income-tax-payments/:id/edit',
+            name: 'edit-income-tax-payment',
+            props: ID_ROUTER_PARAM_PROCESSOR,
+            component: EditIncomeTaxPayment,
+          },
           //     {
           //       path: 'settings/customers',
           //       name: 'customers-overview',
