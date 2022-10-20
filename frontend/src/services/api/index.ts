@@ -13,6 +13,7 @@ export {
   oAuth2CallbackApi,
   expensesApi,
   incomesApi,
+  incomeTaxPaymentsApi,
 } from './api-client';
 export type {
   RequestMetadata,
