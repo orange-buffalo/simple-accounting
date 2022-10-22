@@ -15,6 +15,7 @@ import {
   ExpensesApiControllerApi,
   IncomesApiControllerApi,
   IncomeTaxPaymentsApiControllerApi,
+  ReportingApiControllerApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -65,3 +66,4 @@ export const generalTaxesApi = new GeneralTaxApiControllerApi<RequestMetadata>(d
 export const googleDriveStorageApi = new GoogleDriveStorageApiControllerApi<RequestMetadata>(defaultConfig);
 export const oAuth2CallbackApi = new OAuth2CallbackControllerApi<RequestMetadata>(defaultConfig);
 export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiControllerApi<RequestMetadata>(defaultConfig);
+export const reportingApi = new ReportingApiControllerApi<RequestMetadata>(defaultConfig);

@@ -1,4 +1,4 @@
-export type ReportTax = {
+export type GeneralTaxReportItem = {
   taxId: number;
   taxAmount: number;
   finalized: boolean;

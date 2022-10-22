@@ -80,6 +80,10 @@ export function waitForInputLoadersToLoad(): SaStoryScreenshotPreparation {
   return waitForElementsToBeHidden('.sa-input-loader__indicator');
 }
 
+export function waitForOutputLoadersToLoad(): SaStoryScreenshotPreparation {
+  return waitForElementsToBeHidden('.sa-output-loader__placeholder');
+}
+
 export function disableIconsSvgAnimations(): SaStoryScreenshotPreparation {
   return skipWhenSucceededOnce(() => {
     // noinspection CssInvalidHtmlTagReference
