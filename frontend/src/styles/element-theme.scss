@@ -24,6 +24,8 @@
 @use 'element-plus/theme-chalk/el-input-number.css';
 @use 'element-plus/theme-chalk/el-table.css';
 @use 'element-plus/theme-chalk/el-table-column.css';
+@use 'element-plus/theme-chalk/el-step.css';
+@use 'element-plus/theme-chalk/el-steps.css';
 
 :root {
   --el-component-size: #{$sa-input-height};

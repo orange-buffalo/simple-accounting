@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!--    TODO: translations-->
     <div class="sa-page-header">
       <h1>Reporting</h1>
     </div>
@@ -73,7 +74,7 @@
         v-if="viewReportActive"
         class="reporting-panel--content"
       >
-        <TheGeneralTaxReport
+        <GeneralTaxReport
           :date-range="selectedDateRange"
           @report-loaded="reportGenerationInProgress = false"
         />
@@ -82,10 +83,11 @@
   </div>
 </template>
 
-<script>
-  import { api } from '@/services/api-legacy';
-  import TheGeneralTaxReport from '@/views/reporting/TheGeneralTaxReport';
-  import SaIcon from '@/components/SaIcon';
+<script lang="ts" setup>
+  import { computed, ref } from 'vue';
+  import GeneralTaxReport from '@/pages/reporting/GeneralTaxReport.vue';
+  import SaIcon from '@/components/SaIcon.vue';
+  import { apiDateString } from '@/services/api';
 
   const SELECT_REPORT_STEP = 0;
   const SELECT_DATES_STEP = 1;
@@ -94,106 +96,75 @@
   const TAX_REPORT = 'taxReport';
 
   // todo #64: cleanup
-  export default {
-    name: 'Reporting',
+  const activeWizardStep = ref(SELECT_REPORT_STEP);
+  const selectedDateRange = ref<Array<Date>>([]);
+  const selectedReport = ref<string | undefined>();
+  const reportGenerationInProgress = ref(false);
 
-    components: {
-      SaIcon,
-      TheGeneralTaxReport,
-    },
+  const reportSelectionActive = computed(() => activeWizardStep.value === SELECT_REPORT_STEP);
 
-    data() {
-      return {
-        activeWizardStep: SELECT_REPORT_STEP,
-        selectedDateRange: [],
-        selectedReport: null,
-        reportGenerationInProgress: false,
-      };
-    },
+  const datesSelectionActive = computed(() => activeWizardStep.value === SELECT_DATES_STEP);
 
-    computed: {
-      reportSelectionActive() {
-        return this.activeWizardStep === SELECT_REPORT_STEP;
-      },
+  const viewReportActive = computed(() => activeWizardStep.value === VIEW_REPORT_STEP);
 
-      datesSelectionActive() {
-        return this.activeWizardStep === SELECT_DATES_STEP;
-      },
+  const reportSelectionStepDescription = computed(() => {
+    if (reportSelectionActive.value) {
+      return 'Please select a report';
+    }
+    if (selectedReport.value === TAX_REPORT) {
+      return 'Tax Report';
+    }
+    return 'Unknown Report o_O';
+  });
 
-      viewReportActive() {
-        return this.activeWizardStep === VIEW_REPORT_STEP;
-      },
+  const datesSelectionStepDescription = computed(() => {
+    if (datesSelectionActive.value) {
+      return 'Please select reporting date range';
+    }
+    if (viewReportActive.value) {
+      // todo #64: localize
+      return `${apiDateString(selectedDateRange.value[0])} to ${apiDateString(selectedDateRange.value[1])}`;
+    }
+    return null;
+  });
 
-      taxReportSelected() {
-        return this.selectedReport === TAX_REPORT;
-      },
+  const viewReportStepStatus = computed(() => {
+    if (activeWizardStep.value === VIEW_REPORT_STEP && reportGenerationInProgress.value) {
+      return 'process';
+    }
+    if (activeWizardStep.value === VIEW_REPORT_STEP) {
+      return 'success';
+    }
+    return null;
+  });
 
-      reportSelectionStepDescription() {
-        if (this.reportSelectionActive) {
-          return 'Please select a report';
-        }
-        if (this.selectedReport === TAX_REPORT) {
-          return 'Tax Report';
-        }
-        return 'Unknown Report o_O';
-      },
+  const viewReportStepDescription = computed(() => {
+    if (activeWizardStep.value === VIEW_REPORT_STEP && reportGenerationInProgress.value) {
+      return 'Loading..';
+    }
+    if (activeWizardStep.value === VIEW_REPORT_STEP) {
+      return 'Ready';
+    }
+    return null;
+  });
 
-      datesSelectionStepDescription() {
-        if (this.datesSelectionActive) {
-          return 'Please select reporting date range';
-        }
-        if (this.viewReportActive) {
-          // todo #64: localize
-          return `${api.dateToString(this.selectedDateRange[0])} to ${api.dateToString(this.selectedDateRange[1])}`;
-        }
-        return null;
-      },
+  const navigateToSelectDatesStep = () => {
+    activeWizardStep.value = SELECT_DATES_STEP;
+  };
 
-      viewReportStepStatus() {
-        if (this.activeWizardStep === VIEW_REPORT_STEP && this.reportGenerationInProgress) {
-          return 'process';
-        }
-        if (this.activeWizardStep === VIEW_REPORT_STEP) {
-          return 'success';
-        }
-        return null;
-      },
+  const selectTaxReport = () => {
+    selectedReport.value = TAX_REPORT;
+    navigateToSelectDatesStep();
+  };
 
-      viewReportStepDescription() {
-        if (this.activeWizardStep === VIEW_REPORT_STEP && this.reportGenerationInProgress) {
-          return 'Loading..';
-        }
-        if (this.activeWizardStep === VIEW_REPORT_STEP) {
-          return 'Ready';
-        }
-        return null;
-      },
-    },
-
-    methods: {
-      selectTaxReport() {
-        this.selectedReport = TAX_REPORT;
-        this.navigateToSelectDatesStep();
-      },
-
-      navigateToSelectDatesStep() {
-        this.activeWizardStep = SELECT_DATES_STEP;
-      },
-
-      navigateToSelectReportStep() {
-        this.activeWizardStep = SELECT_REPORT_STEP;
-      },
-
-      navigateToViewReportStep() {
-        this.activeWizardStep = VIEW_REPORT_STEP;
-        this.reportGenerationInProgress = true;
-      },
-    },
+  const navigateToViewReportStep = () => {
+    activeWizardStep.value = VIEW_REPORT_STEP;
+    reportGenerationInProgress.value = true;
   };
 </script>
 
 <style lang="scss">
-  @import "~@/styles/main.scss";
+  @use "@/styles/vars.scss" as *;
 
   .reporting-panel {
     padding: 20px;
@@ -237,8 +208,8 @@
 
       .sa-icon {
         margin: 0 10px 0 0;
-        width: 45px;
-        height: 45px;
+        min-width: 45px;
+        min-height: 45px;
       }
 
       &:hover {
