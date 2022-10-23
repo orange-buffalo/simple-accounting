@@ -2,7 +2,7 @@ import {
   ElButton, ElDatePicker, ElInput, ElFormItem, ElCheckbox, ElForm, ElPagination,
   ElTooltip, ElMain, ElContainer, ElAside, ElOption, ElOptionGroup, ElSelect,
   ElProgress, ElLoadingDirective, ElAlert, ElSwitch, ElInputNumber, ElTable,
-  ElTableColumn,
+  ElTableColumn, ElSteps, ElStep,
 } from 'element-plus';
 import type { App } from 'vue';
 import { createApp } from 'vue';
@@ -38,6 +38,8 @@ export function setupComponents(app: App) {
   app.component('ElInputNumber', ElInputNumber);
   app.component('ElTable', ElTable);
   app.component('ElTableColumn', ElTableColumn);
+  app.component('ElSteps', ElSteps);
+  app.component('ElStep', ElStep);
 
   app.directive('loading', ElLoadingDirective);
 }
