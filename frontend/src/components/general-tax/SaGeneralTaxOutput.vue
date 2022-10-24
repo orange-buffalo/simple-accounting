@@ -7,7 +7,7 @@
 <script lang="ts" setup>
   import SaOutputLoader from '@/components/SaOutputLoader.vue';
   import { useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
-  import { generalTaxApi } from '@/services/api';
+  import { generalTaxesApi } from '@/services/api';
 
   const props = defineProps<{
     generalTaxId?: number;
@@ -17,7 +17,7 @@
     loading,
     value: generalTaxTitle,
   } = useValueLoadedByCurrentWorkspaceAndProp(() => props.generalTaxId, async (taxId, workspaceId) => {
-    const customer = await generalTaxApi.getTax({
+    const customer = await generalTaxesApi.getTax({
       taxId,
       workspaceId,
     });

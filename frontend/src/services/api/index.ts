@@ -2,11 +2,10 @@ export * from './api-types';
 export {
   workspacesApi,
   profileApi,
-  customerApi,
-  categoryApi,
+  customersApi,
+  categoriesApi,
   statisticsApi,
   invoicesApi,
-  generalTaxApi,
   documentsApi,
   generalTaxesApi,
   googleDriveStorageApi,
