@@ -19,7 +19,7 @@
 <script lang="ts" setup>
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
-  import { categoryApi, consumeAllPages } from '@/services/api';
+  import { categoriesApi, consumeAllPages } from '@/services/api';
 
   defineProps<{
     modelValue?: number,
@@ -32,7 +32,7 @@
   const {
     value: categories,
     loading,
-  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => categoryApi.getCategories({
+  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => categoriesApi.getCategories({
     ...pageRequest,
     workspaceId,
   })));

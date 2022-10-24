@@ -19,7 +19,7 @@
 <script lang="ts" setup>
   import SaInputLoader from '@/components/SaInputLoader.vue';
   import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
-  import { consumeAllPages, customerApi } from '@/services/api';
+  import { consumeAllPages, customersApi } from '@/services/api';
 
   defineProps<{
     modelValue?: number,
@@ -32,7 +32,7 @@
   const {
     value: customers,
     loading,
-  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => customerApi.getCustomers({
+  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => customersApi.getCustomers({
     ...pageRequest,
     workspaceId,
   })));

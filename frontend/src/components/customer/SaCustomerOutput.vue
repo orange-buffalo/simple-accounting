@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
   import SaOutputLoader from '@/components/SaOutputLoader.vue';
-  import { customerApi } from '@/services/api';
+  import { customersApi } from '@/services/api';
   import { useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
 
   const props = defineProps<{
@@ -17,7 +17,7 @@
     loading,
     value: customerName,
   } = useValueLoadedByCurrentWorkspaceAndProp(() => props.customerId, async (customerId, workspaceId) => {
-    const customer = await customerApi.getCustomer({
+    const customer = await customersApi.getCustomer({
       customerId,
       workspaceId,
     });

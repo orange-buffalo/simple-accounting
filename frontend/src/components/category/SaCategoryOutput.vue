@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
   import SaOutputLoader from '@/components/SaOutputLoader.vue';
-  import { categoryApi, consumeAllPages } from '@/services/api';
+  import { categoriesApi, consumeAllPages } from '@/services/api';
   import { findByIdOrEmpty, useValueLoadedByCurrentWorkspaceAndProp } from '@/services/utils';
 
   const props = defineProps<{
@@ -25,7 +25,7 @@
       }
 
       // TODO support GET by id
-      const categories = await consumeAllPages(((pageRequest) => categoryApi.getCategories({
+      const categories = await consumeAllPages(((pageRequest) => categoriesApi.getCategories({
         workspaceId,
         ...pageRequest,
       })));

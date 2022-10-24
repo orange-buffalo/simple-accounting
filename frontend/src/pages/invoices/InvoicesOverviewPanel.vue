@@ -230,7 +230,7 @@
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { InvoiceDto } from '@/services/api';
-  import { generalTaxApi, invoicesApi } from '@/services/api';
+  import { generalTaxesApi, invoicesApi } from '@/services/api';
   import { $t } from '@/services/i18n';
 
   const props = defineProps<{
@@ -329,7 +329,7 @@
   const generalTaxRate = ref(0);
   watch(() => props.invoice.generalTax, async (taxId) => {
     if (taxId !== undefined) {
-      const generalTax = await generalTaxApi.getTax({
+      const generalTax = await generalTaxesApi.getTax({
         workspaceId: currentWorkspaceId,
         taxId,
       });
