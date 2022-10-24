@@ -15,6 +15,7 @@ import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaym
 import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayment.vue';
 import Reporting from '@/pages/reporting/Reporting.vue';
 import Categories from '@/pages/settings/categories/Categories.vue';
+import CreateCategory from '@/pages/settings/categories/CreateCategory.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -89,11 +90,11 @@ export default function setupRouter() {
             name: 'settings-categories',
             component: Categories,
           },
-          //     {
-          //       path: 'settings/categories/create',
-          //       name: 'create-new-category',
-          //       component: CreateCategory,
-          //     },
+          {
+            path: 'settings/categories/create',
+            name: 'create-new-category',
+            component: CreateCategory,
+          },
           {
             path: 'expenses',
             name: 'expenses-overview',
