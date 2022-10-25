@@ -44,6 +44,10 @@ export interface GetCustomerRequest {
 
 export interface GetCustomersRequest {
     workspaceId: number;
+    sortBy?: GetCustomersSortByEnum;
+    pageNumber?: number;
+    pageSize?: number;
+    sortOrder?: GetCustomersSortOrderEnum;
 }
 
 export interface UpdateCustomerRequest {
@@ -133,6 +137,22 @@ export class CustomersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
         const queryParameters: any = {};
 
+        if (requestParameters.sortBy !== undefined) {
+            queryParameters['sortBy'] = requestParameters.sortBy;
+        }
+
+        if (requestParameters.pageNumber !== undefined) {
+            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        if (requestParameters.sortOrder !== undefined) {
+            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
@@ -192,3 +212,19 @@ export class CustomersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetCustomersSortByEnum = {
+    NotSupported: '_NOT_SUPPORTED'
+} as const;
+export type GetCustomersSortByEnum = typeof GetCustomersSortByEnum[keyof typeof GetCustomersSortByEnum];
+/**
+ * @export
+ */
+export const GetCustomersSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type GetCustomersSortOrderEnum = typeof GetCustomersSortOrderEnum[keyof typeof GetCustomersSortOrderEnum];

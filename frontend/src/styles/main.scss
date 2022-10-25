@@ -95,11 +95,18 @@ textarea {
 
     .sa-item-edit-link {
       color: $components-color;
+      display: flex;
+      align-items: center;
 
       .sa-icon {
         margin-right: 3px;
-        height: 13px;
-        width: 13px;
+        max-height: 13px;
+        max-width: 13px;
+      }
+
+      .el-button {
+        padding: 0;
+        height: auto;
       }
     }
   }
