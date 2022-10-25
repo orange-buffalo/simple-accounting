@@ -7,9 +7,9 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import org.hibernate.validator.constraints.Length
+import org.springdoc.api.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -19,7 +19,7 @@ import javax.validation.constraints.NotBlank
 class CustomersApiController(
     private val customerService: CustomerService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
@@ -36,8 +36,10 @@ class CustomersApiController(
         .mapToCustomerDto()
 
     @GetMapping
-    suspend fun getCustomers(@PathVariable workspaceId: Long): ApiPage<CustomerDto> =
-        filteringApiExecutor.executeFiltering(workspaceId)
+    suspend fun getCustomers(
+        @PathVariable workspaceId: Long,
+        @ParameterObject request: CustomersFilteringRequest
+    ): ApiPage<CustomerDto> = filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @GetMapping("{customerId}")
     suspend fun getCustomer(
@@ -66,13 +68,18 @@ class CustomersApiController(
             .mapToCustomerDto()
     }
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<Customer, CustomerDto> {
-        query(Tables.CUSTOMER) {
-            addDefaultSorting { root.id.desc() }
-            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+    private val filteringApiExecutor =
+        filteringApiExecutorBuilder.executor<Customer, CustomerDto, NoOpSorting, CustomersFilteringRequest> {
+            query(Tables.CUSTOMER) {
+                addDefaultSorting { root.id.desc() }
+                workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+            }
+            mapper { mapToCustomerDto() }
         }
-        mapper { mapToCustomerDto() }
-    }
+}
+
+class CustomersFilteringRequest : ApiPageRequest<NoOpSorting>() {
+    override var sortBy: NoOpSorting? = null
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
