@@ -44,6 +44,10 @@ export interface GetTaxRequest {
 
 export interface GetTaxesRequest {
     workspaceId: number;
+    sortBy?: GetTaxesSortByEnum;
+    pageNumber?: number;
+    pageSize?: number;
+    sortOrder?: GetTaxesSortOrderEnum;
 }
 
 export interface UpdateTaxRequest {
@@ -133,6 +137,22 @@ export class GeneralTaxApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
         const queryParameters: any = {};
 
+        if (requestParameters.sortBy !== undefined) {
+            queryParameters['sortBy'] = requestParameters.sortBy;
+        }
+
+        if (requestParameters.pageNumber !== undefined) {
+            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        if (requestParameters.sortOrder !== undefined) {
+            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
@@ -192,3 +212,19 @@ export class GeneralTaxApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetTaxesSortByEnum = {
+    NotSupported: '_NOT_SUPPORTED'
+} as const;
+export type GetTaxesSortByEnum = typeof GetTaxesSortByEnum[keyof typeof GetTaxesSortByEnum];
+/**
+ * @export
+ */
+export const GetTaxesSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type GetTaxesSortOrderEnum = typeof GetTaxesSortOrderEnum[keyof typeof GetTaxesSortOrderEnum];

@@ -7,9 +7,9 @@ import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
+import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import org.hibernate.validator.constraints.Length
+import org.springdoc.api.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 import javax.validation.constraints.Max
@@ -21,7 +21,7 @@ import javax.validation.constraints.NotBlank
 class GeneralTaxApiController(
     private val taxService: GeneralTaxService,
     private val workspaceService: WorkspaceService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
@@ -40,8 +40,10 @@ class GeneralTaxApiController(
         .mapToTaxDto()
 
     @GetMapping
-    suspend fun getTaxes(@PathVariable workspaceId: Long): ApiPage<GeneralTaxDto> =
-        filteringApiExecutor.executeFiltering(workspaceId)
+    suspend fun getTaxes(
+        @PathVariable workspaceId: Long,
+        @ParameterObject request: GeneralTaxFilteringRequest
+    ): ApiPage<GeneralTaxDto> = filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @GetMapping("{taxId}")
     suspend fun getTax(
@@ -74,13 +76,18 @@ class GeneralTaxApiController(
             .mapToTaxDto()
     }
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<GeneralTax, GeneralTaxDto> {
-        query(Tables.GENERAL_TAX) {
-            addDefaultSorting { root.id.desc() }
-            workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+    private val filteringApiExecutor =
+        filteringApiExecutorBuilder.executor<GeneralTax, GeneralTaxDto, NoOpSorting, GeneralTaxFilteringRequest> {
+            query(Tables.GENERAL_TAX) {
+                addDefaultSorting { root.id.desc() }
+                workspaceFilter { workspaceId -> root.workspaceId.eq(workspaceId) }
+            }
+            mapper { mapToTaxDto() }
         }
-        mapper { mapToTaxDto() }
-    }
+}
+
+class GeneralTaxFilteringRequest : ApiPageRequest<NoOpSorting>() {
+    override var sortBy: NoOpSorting? = null
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

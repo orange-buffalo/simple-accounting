@@ -92,7 +92,7 @@ class ApiSpecIT(
 
         val tmpDir = Files.createTempDir()
         val generator = OpenApiGenerator()
-            .withClasspathResourceMapping("/api-spec.yaml", "/api-spec.yaml", BindMode.READ_ONLY)
+            .withFileSystemBind("src/test/resources/api-spec.yaml", "/api-spec.yaml", BindMode.READ_ONLY)
             .withFileSystemBind(tmpDir.absolutePath, "/out", BindMode.READ_WRITE)
             .withCommand("generate", "-g", "typescript-fetch", "-o", "/out", "-i", "/api-spec.yaml")
             .withLogConsumer { logger.info { it.utf8String } }
