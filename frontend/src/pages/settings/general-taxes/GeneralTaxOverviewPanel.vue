@@ -24,32 +24,24 @@
   </div>
 </template>
 
-<script>
-  import SaIcon from '@/components/SaIcon';
+<script lang="ts" setup>
+  import SaIcon from '@/components/SaIcon.vue';
+  import type { GeneralTaxDto } from '@/services/api';
+  import useNavigation from '@/services/use-navigation';
 
-  export default {
-    name: 'GeneralTaxOverviewPanel',
-    components: { SaIcon },
-    props: {
-      tax: {
-        type: Object,
-        required: true,
-      },
-    },
+  const props = defineProps<{
+    tax: GeneralTaxDto,
+  }>();
 
-    methods: {
-      navigateToTaxEdit() {
-        this.$router.push({
-          name: 'edit-general-tax',
-          params: { id: this.tax.id },
-        });
-      },
-    },
-  };
+  const { navigateToView } = useNavigation();
+  const navigateToTaxEdit = () => navigateToView({
+    name: 'edit-general-tax',
+    params: { id: props.tax.id },
+  });
 </script>
 
 <style lang="scss">
-  @import "~@/styles/main.scss";
+  @use "@/styles/main.scss" as *;
 
   .tax-panel {
     display: flex;
