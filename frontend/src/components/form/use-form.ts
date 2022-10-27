@@ -22,8 +22,10 @@ function useFormInternal(
   };
 
   const stopLoading = () => {
-    form()
-      .stopLoading();
+    // use might navigate away from the form
+    if (formRef.value) {
+      formRef.value.stopLoading();
+    }
   };
 
   const submitForm = async () => {
