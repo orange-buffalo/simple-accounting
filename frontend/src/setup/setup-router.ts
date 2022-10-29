@@ -21,6 +21,7 @@ import EditCustomer from '@/pages/settings/customers/EditCustomer.vue';
 import GeneralTaxesOverview from '@/pages/settings/general-taxes/GeneralTaxesOverview.vue';
 import EditGeneralTax from '@/pages/settings/general-taxes/EditGeneralTax.vue';
 import WorkspacesOverview from '@/pages/settings/workspaces/WorkspacesOverview.vue';
+import WorkspaceEditor from '@/pages/settings/workspaces/WorkspaceEditor.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -203,17 +204,17 @@ export default function setupRouter() {
             name: 'workspaces-overview',
             component: WorkspacesOverview,
           },
-          //     {
-          //       path: 'settings/workspaces/create',
-          //       name: 'create-new-workspace',
-          //       component: TheWorkspaceEditor,
-          //     },
-          //     {
-          //       path: 'settings/workspaces/:id/edit',
-          //       name: 'edit-workspace',
-          //       component: TheWorkspaceEditor,
-          //       props: ID_ROUTER_PARAM_PROCESSOR,
-          //     },
+          {
+            path: 'settings/workspaces/create',
+            name: 'create-new-workspace',
+            component: WorkspaceEditor,
+          },
+          {
+            path: 'settings/workspaces/:id/edit',
+            name: 'edit-workspace',
+            component: WorkspaceEditor,
+            props: ID_ROUTER_PARAM_PROCESSOR,
+          },
           {
             path: 'my-profile',
             name: 'my-profile',
