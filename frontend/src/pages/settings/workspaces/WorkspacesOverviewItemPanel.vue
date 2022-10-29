@@ -22,22 +22,22 @@
       </div>
 
       <div class="sa-item-attributes">
-        <SaAttributeValue label="Default Currency">
+        <WorkspacesAttributeValue label="Default Currency">
           {{ workspace.defaultCurrency }}
-        </SaAttributeValue>
+        </WorkspacesAttributeValue>
         <br>
-        <SaAttributeValue label="Workspace Shares">
+        <WorkspacesAttributeValue label="Workspace Shares">
           <ElTable
             v-if="hasAccessTokens"
             :data="accessTokens"
           >
             <ElTableColumn
               label="Valid Till"
-              #default="{row}"
+              #default="{ row }"
             >
               {{ $t.common.dateTime.medium(row.validTill) }}
             </ElTableColumn>
-            <ElTableColumn align="right" #default="{row}">
+            <ElTableColumn align="right" #default="{ row }">
               <div class="workspace-panel__share-link-panel">
                 <SaIcon icon="copy" />
                 <ElButton
@@ -65,96 +65,79 @@
               Create share link
             </ElButton>
           </div>
-        </SaAttributeValue>
+        </WorkspacesAttributeValue>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
   import copy from 'copy-to-clipboard';
-  import {
-    computed, defineComponent, PropType, ref,
-  } from '@vue/composition-api';
-  import SaAttributeValue from '@/components/SaAttributeValue';
-  import SaIcon from '@/components/SaIcon';
+  import { computed, ref } from 'vue';
+  import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
+  import SaIcon from '@/components/SaIcon.vue';
   import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
-  import { apiClient, WorkspaceAccessTokenDto, WorkspaceDto } from '@/services/api';
-  import useNavigation from '@/components/navigation/useNavigation';
+  import type { WorkspaceAccessTokenDto, WorkspaceDto } from '@/services/api';
+  import useNavigation from '@/services/use-navigation';
+  import { workspaceAccessTokensApi } from '@/services/api';
+  import { ensureDefined } from '@/services/utils';
+  import { $t } from '@/services/i18n';
 
-  export default defineComponent({
-    components: {
-      SaIcon,
-      SaAttributeValue,
-    },
+  const props = defineProps<{
+    workspace: WorkspaceDto,
+  }>();
 
-    props: {
-      workspace: {
-        type: Object as PropType<WorkspaceDto>,
-        required: true,
-      },
-    },
+  const accessTokens = ref<WorkspaceAccessTokenDto[]>([]);
+  const newShareValidTill = ref(new Date());
 
-    setup(props) {
-      const accessTokens = ref<WorkspaceAccessTokenDto[]>([]);
-      const newShareValidTill = ref(new Date());
+  const hasAccessTokens = computed(() => accessTokens.value.length);
 
-      const hasAccessTokens = computed(() => accessTokens.value.length);
+  const { currentWorkspaceId } = useCurrentWorkspace();
+  const isCurrent = computed(() => props.workspace.id === currentWorkspaceId);
 
-      const { currentWorkspaceId } = useCurrentWorkspace();
-      const isCurrent = computed(() => props.workspace.id === currentWorkspaceId);
+  const reloadAccessTokens = async () => {
+    // TODO consumeAllPages
+    const response = await workspaceAccessTokensApi.getAccessTokens({
+      workspaceId: ensureDefined(props.workspace.id),
+    });
+    accessTokens.value = response.data;
+  };
+  reloadAccessTokens();
 
-      const reloadAccessTokens = async () => {
-        const response = await apiClient.getAccessTokens({
-          workspaceId: props.workspace.id!,
-        });
-        accessTokens.value = response.data.data;
-      };
-      reloadAccessTokens();
-
-      const { navigateToView, navigateByPath } = useNavigation();
-      const navigateToWorkspaceEdit = () => navigateToView({
-        name: 'edit-workspace',
-        params: { id: props.workspace.id },
-      });
-
-      const switchToWorkspace = () => {
-        useWorkspaces()
-          .setCurrentWorkspace(props.workspace);
-        navigateByPath('/');
-      };
-
-      const shareWorkspace = async () => {
-        await apiClient.createAccessToken({
-          workspaceId: props.workspace.id!,
-        }, {
-          validTill: newShareValidTill.value.toISOString(),
-        });
-        await reloadAccessTokens();
-      };
-
-      const copyShareLink = (token: string) => {
-        const shareLink = `${window.location.origin}/login-by-link/${token}`;
-        copy(shareLink);
-      };
-
-      return {
-        accessTokens,
-        newShareValidTill,
-        hasAccessTokens,
-        isCurrent,
-        navigateToWorkspaceEdit,
-        switchToWorkspace,
-        shareWorkspace,
-        copyShareLink,
-      };
-    },
+  const {
+    navigateToView,
+    navigateByPath,
+  } = useNavigation();
+  const navigateToWorkspaceEdit = () => navigateToView({
+    name: 'edit-workspace',
+    params: { id: props.workspace.id },
   });
+
+  const switchToWorkspace = () => {
+    useWorkspaces()
+      .setCurrentWorkspace(props.workspace);
+    navigateByPath('/');
+  };
+
+  const shareWorkspace = async () => {
+    await workspaceAccessTokensApi.createAccessToken({
+      workspaceId: ensureDefined(props.workspace.id),
+      createWorkspaceAccessTokenDto: {
+        validTill: newShareValidTill.value,
+      },
+    });
+    await reloadAccessTokens();
+  };
+
+  const copyShareLink = (token: string) => {
+    const shareLink = `${window.location.origin}/login-by-link/${token}`;
+    copy(shareLink);
+  };
 </script>
 
 <style lang="scss">
-  @import "~@/styles/main.scss";
-  @import "~@/styles/vars.scss";
+  @use "@/styles/main.scss" as *;
+  @use "@/styles/vars.scss" as *;
 
   .workspace-panel {
     display: flex;
@@ -198,9 +181,16 @@
     }
 
     &__share-link-panel {
+      display: inline-flex;
+      align-items: center;
+
       .sa-icon {
         margin-right: 3px;
         color: $components-color;
+      }
+
+      .el-button {
+        padding: 0;
       }
     }
   }

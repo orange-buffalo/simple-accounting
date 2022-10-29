@@ -9,15 +9,10 @@
   </div>
 </template>
 
-<script>
-
-  export default {
-    name: 'SaAttributeValue',
-
-    props: {
-      label: String,
-    },
-  };
+<script lang="ts" setup>
+  defineProps<{
+    label: string
+  }>();
 </script>
 
 <style lang="scss">
@@ -27,5 +22,4 @@
       font-weight: bold;
     }
   }
-
 </style>

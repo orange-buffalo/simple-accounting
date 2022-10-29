@@ -14,6 +14,7 @@ export {
   incomesApi,
   incomeTaxPaymentsApi,
   reportingApi,
+  workspaceAccessTokensApi,
 } from './api-client';
 export type {
   RequestMetadata,
