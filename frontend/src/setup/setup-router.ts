@@ -19,6 +19,7 @@ import CreateCategory from '@/pages/settings/categories/CreateCategory.vue';
 import CustomersOverview from '@/pages/settings/customers/CustomersOverview.vue';
 import EditCustomer from '@/pages/settings/customers/EditCustomer.vue';
 import GeneralTaxesOverview from '@/pages/settings/general-taxes/GeneralTaxesOverview.vue';
+import EditGeneralTax from '@/pages/settings/general-taxes/EditGeneralTax.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -185,17 +186,17 @@ export default function setupRouter() {
             name: 'general-taxes-overview',
             component: GeneralTaxesOverview,
           },
-          //     {
-          //       path: 'settings/general-taxes/create',
-          //       name: 'create-new-general-tax',
-          //       component: EditGeneralTax,
-          //     },
-          //     {
-          //       path: 'setting/general-taxes/:id/edit',
-          //       name: 'edit-general-tax',
-          //       props: ID_ROUTER_PARAM_PROCESSOR,
-          //       component: EditGeneralTax,
-          //     },
+          {
+            path: 'settings/general-taxes/create',
+            name: 'create-new-general-tax',
+            component: EditGeneralTax,
+          },
+          {
+            path: 'setting/general-taxes/:id/edit',
+            name: 'edit-general-tax',
+            props: ID_ROUTER_PARAM_PROCESSOR,
+            component: EditGeneralTax,
+          },
           //     {
           //       path: 'settings/workspaces',
           //       name: 'workspaces-overview',
