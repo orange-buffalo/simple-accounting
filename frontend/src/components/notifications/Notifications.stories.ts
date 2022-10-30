@@ -2,7 +2,6 @@
 
 import useNotifications from '@/components/notifications/use-notifications';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import { allOf, clickOnElement, waitForText } from '@/__storybook__/screenshots';
 
 export default {
   title: 'Components/Other/Notifications',

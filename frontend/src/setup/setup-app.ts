@@ -10,6 +10,7 @@ import type { Router } from 'vue-router';
 import SimpleAccounting from '@/SimpleAccounting.vue';
 import setupRouter from '@/setup/setup-router';
 import '@/styles/main.scss';
+import setupErrorHandler from '@/setup/setup-error-handler';
 
 export { setLocaleFromProfile, setLocaleFromBrowser } from '@/services/i18n';
 
@@ -51,6 +52,7 @@ export function setupApp() {
   vueApp.use(vueRouter);
 
   setupComponents(vueApp);
+  setupErrorHandler();
 }
 
 export function mountApp() {
