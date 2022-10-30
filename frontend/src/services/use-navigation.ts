@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 export default function useNavigation() {
   const router = useRouter();
 
-  const navigateByViewName = async (name: string) => router.push({ name });
+  const navigateByViewName = async (name: string | symbol) => router.push({ name });
 
   const navigateByPath = async (path: string) => router.push(path);
 
