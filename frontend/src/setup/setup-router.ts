@@ -23,6 +23,7 @@ import EditGeneralTax from '@/pages/settings/general-taxes/EditGeneralTax.vue';
 import WorkspacesOverview from '@/pages/settings/workspaces/WorkspacesOverview.vue';
 import WorkspaceEditor from '@/pages/settings/workspaces/WorkspaceEditor.vue';
 import LoginByLink from '@/pages/LoginByLink.vue';
+import WorkspaceSetup from '@/pages/settings/workspaces/WorkspaceSetup.vue';
 // import { SUCCESSFUL_LOGIN_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 // import { useLastView } from '@/services/use-last-view';
 // import router from './routes-definitions';
@@ -70,13 +71,11 @@ export default function setupRouter() {
         component: LoginByLink,
         props: true,
       },
-      //
-      // {
-      //   path: '/workspace-setup',
-      //   name: 'workspace-setup',
-      //   component: WorkspaceSetup,
-      // },
-      //
+      {
+        path: '/workspace-setup',
+        name: 'workspace-setup',
+        component: WorkspaceSetup,
+      },
       {
         path: '/oauth-callback',
         name: 'oauth-callback',
