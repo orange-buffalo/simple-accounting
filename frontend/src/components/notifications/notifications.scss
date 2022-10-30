@@ -1,0 +1,15 @@
+@use "@/styles/vars.scss" as * ;
+@use 'element-plus/theme-chalk/el-message.css';
+
+.sa-notification {
+  .el-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  &--error {
+    border-color: $danger-color-lighter-iii;
+    background-color: $danger-color-bg;
+    color: $danger-color;
+  }
+}

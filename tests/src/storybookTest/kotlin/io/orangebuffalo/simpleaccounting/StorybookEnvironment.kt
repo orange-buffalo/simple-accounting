@@ -93,6 +93,7 @@ class StorybookEnvironment {
             "components-basic-documents-sadocumentsupload--with-deferred-documents",
             "components-basic-documents-sadocumentsupload--initial-loading-with-no-documents",
             "components-basic-documents-sadocumentsupload--all-uploads-failing",
+            "components-other-notifications--error",
         )
         excludedStories.forEach { skippedStoryId ->
             if (data.stories.values.firstOrNull { story -> story.id == skippedStoryId } == null) {
