@@ -26,7 +26,7 @@ subprojects {
     }
     tasks {
         withType<KotlinCompile> {
-            kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict", "-Xopt-in=kotlin.RequiresOptIn")
+            kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
             kotlinOptions.jvmTarget = "11"
             // a workaround for https://github.com/assertj/assertj-core/issues/2357
             // to be removed with upgrade to kotlin 7
