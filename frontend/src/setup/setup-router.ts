@@ -106,7 +106,7 @@ export default function setupRouter() {
             component: ExpensesOverview,
           },
           {
-            path: 'expenses/create',
+            path: 'expenses/create/:prototype?',
             name: 'create-new-expense',
             props: true,
             component: EditExpense,

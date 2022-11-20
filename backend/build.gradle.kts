@@ -76,9 +76,13 @@ dependencies {
 
 sourceSets {
     main {
-        // add frontend application build results
-        resources {
-            srcDirs(tasks.getByPath(":frontend:npmBuild"))
+        // add frontend application build results;
+        // do not add this dependency in dev environment to avoid npm rebuild on each change,
+        // as running against the dev server is a typical use case
+        if (System.getenv("CI") == "true") {
+            resources {
+                srcDirs(tasks.getByPath(":frontend:npmBuild"))
+            }
         }
     }
 }
