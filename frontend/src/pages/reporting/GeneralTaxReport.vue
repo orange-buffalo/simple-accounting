@@ -1,5 +1,5 @@
 <template>
-  <!--  TODO: translations-->
+  <!--  TODO #459: translations-->
   <div>
     <h2>Collected</h2>
     <GeneralTaxReportTable :data="collectedTaxes" />

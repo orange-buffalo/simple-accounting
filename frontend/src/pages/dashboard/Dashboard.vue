@@ -7,7 +7,7 @@
         <span>&nbsp;</span>
 
         <!--suppress HtmlDeprecatedAttribute -->
-        <!-- TODO translations -->
+        <!-- TODO #459: translations -->
         <ElDatePicker
           v-model="selectedDateRange"
           type="daterange"

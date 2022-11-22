@@ -16,7 +16,7 @@
     </template>
 
     <template #content>
-      <!--      TODO translations-->
+      <!--      TODO #459: translations-->
       <div class="sa-dashboard__card__details__item">
         <span>To</span>
         <span><SaCustomerOutput :customer-id="invoice.customer" /></span>
@@ -52,7 +52,7 @@
     invoice: InvoiceDto,
   }>();
 
-  // TODO translations
+  // TODO #459: translations
   const invoiceStatus = computed(() => {
     if (props.invoice.status === 'OVERDUE') {
       return 'Overdue';

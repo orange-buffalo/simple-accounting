@@ -281,7 +281,7 @@
     isSent?: boolean,
     isOverdue?: boolean,
     statusIcon?: string,
-    // TODO export type from status label
+    // TODO #461: export type from status label
     statusValue: 'success' | 'pending' | 'regular' | 'failure',
     statusText?: string
   }>(() => {

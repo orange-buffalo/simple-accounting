@@ -67,14 +67,14 @@
   }>();
 
   const isEditing = props.id !== undefined;
-  // todo i18n
+  // todo #459: i18n
   const pageHeader = isEditing ? 'Edit Workspace' : 'Create New Workspace';
 
   const workspaceData = ref<WorkspaceForm>({});
 
   const loadWorkspace = async () => {
     if (isEditing) {
-      // todo get by id
+      // todo #462: get by id
       const response = await workspacesApi.getWorkspaces();
       const workspace = response.find((it) => it.id === props.id);
       workspaceData.value = { ...workspace };
@@ -84,7 +84,7 @@
   const { navigateByViewName } = useNavigation();
   const navigateToWorkspacesOverview = () => navigateByViewName('workspaces-overview');
 
-  // todo i18n
+  // todo #459: i18n
   const workspaceValidationRules = {
     name: [
       {

@@ -54,16 +54,10 @@ export function useWorkspaces() {
 export function useCurrentWorkspace() {
   if (currentWorkspace == null || currentWorkspace.id == null) throw new Error('Workspace has not been set');
   const currentWorkspaceId = currentWorkspace.id;
-  const currentWorkspaceApiUrl = (url: string) => `/workspaces/${currentWorkspaceId}/${url}`;
   const { defaultCurrency } = currentWorkspace;
   return {
     currentWorkspace,
     currentWorkspaceId,
-    /**
-     * TODO: remove usage
-     * @deprecated
-     */
-    currentWorkspaceApiUrl,
     defaultCurrency,
   };
 }

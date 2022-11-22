@@ -96,7 +96,7 @@
   const isCurrent = computed(() => props.workspace.id === currentWorkspaceId);
 
   const reloadAccessTokens = async () => {
-    // TODO consumeAllPages
+    // TODO #463: consumeAllPages
     const response = await workspaceAccessTokensApi.getAccessTokens({
       workspaceId: ensureDefined(props.workspace.id),
     });

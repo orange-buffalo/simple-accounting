@@ -70,8 +70,6 @@ export function getCurrencyInfo(currency: string) {
   return currencyInfo;
 }
 
-// TODO remove all unused commented code
-
 export function getCurrenciesInfo() {
   return currenciesInfo;
 }
@@ -82,8 +80,6 @@ interface NumbersInfo {
 }
 
 let numbersInfo: NumbersInfo;
-
-// let numberParser: (value: string) => number;
 
 function buildNumberInfo(cldr: CldrStatic) {
   const data = cldr.get('/main/{bundle}/numbers/symbols-numberSystem-latn');
@@ -96,16 +92,6 @@ function buildNumberInfo(cldr: CldrStatic) {
 export function getNumbersInfo(): NumbersInfo {
   return numbersInfo;
 }
-
-// function parseNumber(input: unknown): number | null {
-//   if (typeof input === 'number') {
-//     return input;
-//   }
-//   if (typeof input === 'string') {
-//     return numberParser(input);
-//   }
-//   return null;
-// }
 
 let globalize: Globalize;
 
@@ -125,7 +111,6 @@ export async function updateLocale(locale: string) {
 
   buildCurrenciesInfo(cldr);
   buildNumberInfo(cldr);
-  // numberParser = Globalize.numberParser();
 }
 
 export function getCldr() {

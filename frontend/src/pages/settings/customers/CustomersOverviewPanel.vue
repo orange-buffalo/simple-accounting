@@ -1,5 +1,5 @@
 <template>
-  <!--  TODO translations-->
+  <!--  TODO #459: translations-->
   <div class="customer-panel">
     <div class="customer-info">
       <div class="sa-item-title-panel">

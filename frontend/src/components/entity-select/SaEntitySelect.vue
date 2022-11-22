@@ -120,7 +120,7 @@
         });
       }
     } catch (thrown) {
-      // TODO cancellation
+      // TODO #458 cancellation
       // if (!api.isCancel(thrown)) {
       //   availableValues.value = [];
       //   searchRequestState.value.error = true;

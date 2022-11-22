@@ -290,7 +290,7 @@
 
   type IncomeStatus = {
     isSuccess: boolean,
-    // TODO use StatusLabel type
+    // TODO #461: use StatusLabel type
     value: 'success' | 'pending' | 'regular' | 'failure',
     shortText: string,
     fullText: string

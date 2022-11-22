@@ -10,7 +10,7 @@
         :amount-in-cents="Math.max(incomeTaxableAmount, 0)"
       />
 
-      <!--      TODO: translations -->
+      <!--      TODO #459: translations -->
       <span class="sa-dashboard__card__header__finalized">Taxable Amount</span>
       <span class="sa-dashboard__card__header__pending">&nbsp;</span>
     </template>

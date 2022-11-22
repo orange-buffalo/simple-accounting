@@ -2,6 +2,3 @@ src/services/api/generated/**
 components.d.ts
 dist/*
 build/*
-# todo
-__old/*
-

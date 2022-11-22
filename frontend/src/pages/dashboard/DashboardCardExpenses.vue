@@ -10,7 +10,7 @@
         :amountInCents="expenses.totalAmount"
       />
 
-      <!--      TODO: translations -->
+      <!--      TODO #459: translations -->
       <span class="sa-dashboard__card__header__finalized">Total of {{ expenses.finalizedCount }} expenses</span>
 
       <span
