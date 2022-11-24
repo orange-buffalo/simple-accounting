@@ -1,5 +1,5 @@
 object Versions {
-    const val springBoot = "2.7.5"
+    const val springBoot = "3.0.0"
     const val springDependencyManagement = "1.0.11.RELEASE"
     const val kotlin = "1.7.10"
     const val kotlinCoroutines = "1.6.4"
@@ -20,7 +20,7 @@ object Versions {
     const val selenium = "4.2.0"
     const val testContainers = "1.17.6"
     const val zjsonpatch = "0.4.13"
-    const val springdocOpenapi = "1.6.12"
+    const val springdocOpenapi = "1.6.13"
 
     const val semverGitPlugin = "1.2.1"
     const val versionsPlugin = "0.44.0"
