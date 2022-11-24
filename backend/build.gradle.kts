@@ -122,3 +122,9 @@ tasks.jacocoTestReport {
         html.required.set(false)
     }
 }
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(Config.JVM_VERSION))
+    }
+}
