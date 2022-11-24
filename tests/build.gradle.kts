@@ -83,3 +83,9 @@ val storybookTest = task<Test>("storybookTest") {
     testClassesDirs = sourceSets["storybookTest"].output.classesDirs
     classpath = sourceSets["storybookTest"].runtimeClasspath
 }
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(Config.JVM_VERSION))
+    }
+}
