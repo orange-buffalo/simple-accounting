@@ -1,1 +1,0 @@
-update document set notes = null where notes = 'null';

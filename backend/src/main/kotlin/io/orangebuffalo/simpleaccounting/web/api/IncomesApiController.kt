@@ -8,13 +8,13 @@ import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import io.swagger.v3.oas.annotations.Parameter
 import org.jooq.impl.DSL.or
-import org.springdoc.api.annotations.ParameterObject
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Size
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/incomes")

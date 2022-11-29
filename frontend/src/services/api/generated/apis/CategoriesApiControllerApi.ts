@@ -18,7 +18,6 @@ import type {
   ApiPageCategoryDto,
   CategoryDto,
   CreateCategoryDto,
-  ErrorResponse,
 } from '../models';
 import {
     ApiPageCategoryDtoFromJSON,
@@ -27,8 +26,6 @@ import {
     CategoryDtoToJSON,
     CreateCategoryDtoFromJSON,
     CreateCategoryDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
 } from '../models';
 import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 

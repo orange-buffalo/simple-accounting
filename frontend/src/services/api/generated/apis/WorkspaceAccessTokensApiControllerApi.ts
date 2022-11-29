@@ -17,7 +17,6 @@ import * as runtime from '../runtime';
 import type {
   ApiPageWorkspaceAccessTokenDto,
   CreateWorkspaceAccessTokenDto,
-  ErrorResponse,
   WorkspaceAccessTokenDto,
 } from '../models';
 import {
@@ -25,8 +24,6 @@ import {
     ApiPageWorkspaceAccessTokenDtoToJSON,
     CreateWorkspaceAccessTokenDtoFromJSON,
     CreateWorkspaceAccessTokenDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     WorkspaceAccessTokenDtoFromJSON,
     WorkspaceAccessTokenDtoToJSON,
 } from '../models';

@@ -16,15 +16,12 @@
 import * as runtime from '../runtime';
 import type {
   DocumentsStorageStatus,
-  ErrorResponse,
   ProfileDto,
   UpdateProfileRequestDto,
 } from '../models';
 import {
     DocumentsStorageStatusFromJSON,
     DocumentsStorageStatusToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     ProfileDtoFromJSON,
     ProfileDtoToJSON,
     UpdateProfileRequestDtoFromJSON,

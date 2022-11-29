@@ -15,12 +15,9 @@
 
 import * as runtime from '../runtime';
 import type {
-  ErrorResponse,
   GoogleDriveStorageIntegrationStatus,
 } from '../models';
 import {
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     GoogleDriveStorageIntegrationStatusFromJSON,
     GoogleDriveStorageIntegrationStatusToJSON,
 } from '../models';

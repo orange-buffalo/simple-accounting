@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
 import io.swagger.v3.oas.annotations.Parameter
-import org.springdoc.api.annotations.ParameterObject
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.beans.PropertyAccessorFactory
 import org.springframework.core.MethodParameter
 import org.springframework.core.ResolvableType

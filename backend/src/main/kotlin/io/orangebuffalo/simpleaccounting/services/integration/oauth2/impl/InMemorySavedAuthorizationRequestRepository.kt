@@ -7,7 +7,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Repository
 import java.time.Duration
-import javax.annotation.PreDestroy
+import jakarta.annotation.PreDestroy
 
 @Repository
 class InMemorySavedAuthorizationRequestRepository : SavedAuthorizationRequestRepository {

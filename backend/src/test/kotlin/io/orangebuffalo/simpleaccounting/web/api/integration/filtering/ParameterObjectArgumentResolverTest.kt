@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 import io.swagger.v3.oas.annotations.Parameter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springdoc.api.annotations.ParameterObject
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.boot.convert.ApplicationConversionService
 import org.springframework.core.MethodParameter
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest

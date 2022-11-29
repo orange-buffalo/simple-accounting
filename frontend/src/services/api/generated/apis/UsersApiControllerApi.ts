@@ -17,7 +17,6 @@ import * as runtime from '../runtime';
 import type {
   ApiPageUserDto,
   CreateUserDto,
-  ErrorResponse,
   UserDto,
 } from '../models';
 import {
@@ -25,8 +24,6 @@ import {
     ApiPageUserDtoToJSON,
     CreateUserDtoFromJSON,
     CreateUserDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     UserDtoFromJSON,
     UserDtoToJSON,
 } from '../models';

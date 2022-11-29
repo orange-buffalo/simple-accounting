@@ -18,3 +18,5 @@ out/
 
 ### Jest coverage files
 frontend/coverage
+
+.java-version

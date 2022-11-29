@@ -39,13 +39,12 @@ dependencies {
     implementation("org.jooq:jooq:${Versions.jooq}")
     implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
     implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
-    implementation("org.springdoc:springdoc-openapi-common:${Versions.springdocOpenapi}")
+    implementation("org.springdoc:springdoc-openapi-starter-common:${Versions.springdocOpenapi}")
 
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")
-    // todo #453: remove specific version
-    runtimeOnly("com.h2database:h2:1.4.199")
+    runtimeOnly("com.h2database:h2")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:${Versions.jjwt}")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:${Versions.jjwt}")
     runtimeOnly("org.glassfish:javax.el:${Versions.javaxEl}")
@@ -69,8 +68,7 @@ dependencies {
     testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     testImplementation("org.testcontainers:testcontainers:${Versions.testContainers}")
 
-    testRuntimeOnly("org.springdoc:springdoc-openapi-kotlin:${Versions.springdocOpenapi}")
-    testRuntimeOnly("org.springdoc:springdoc-openapi-webflux-core:${Versions.springdocOpenapi}")
+    testRuntimeOnly("org.springdoc:springdoc-openapi-starter-webflux-api:${Versions.springdocOpenapi}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
@@ -96,7 +94,7 @@ tasks.bootJar {
     enabled = false
 }
 
-tasks.bootJarMainClassName {
+tasks.resolveMainClassName {
     enabled = false
 }
 

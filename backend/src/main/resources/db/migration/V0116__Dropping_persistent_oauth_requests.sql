@@ -1,1 +1,0 @@
-drop table persistent_oauth2_authorization_request;

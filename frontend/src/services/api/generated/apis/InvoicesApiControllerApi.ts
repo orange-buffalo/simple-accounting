@@ -17,7 +17,6 @@ import * as runtime from '../runtime';
 import type {
   ApiPageInvoiceDto,
   EditInvoiceDto,
-  ErrorResponse,
   InvoiceDto,
 } from '../models';
 import {
@@ -25,8 +24,6 @@ import {
     ApiPageInvoiceDtoToJSON,
     EditInvoiceDtoFromJSON,
     EditInvoiceDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     InvoiceDtoFromJSON,
     InvoiceDtoToJSON,
 } from '../models';

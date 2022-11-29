@@ -15,12 +15,9 @@
 
 import * as runtime from '../runtime';
 import type {
-  ErrorResponse,
   GeneralTaxReportDto,
 } from '../models';
 import {
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     GeneralTaxReportDtoFromJSON,
     GeneralTaxReportDtoToJSON,
 } from '../models';

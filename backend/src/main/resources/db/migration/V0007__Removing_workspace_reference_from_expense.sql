@@ -1,1 +1,0 @@
-alter table expense drop column workspace_id;

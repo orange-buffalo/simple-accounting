@@ -17,7 +17,6 @@ import * as runtime from '../runtime';
 import type {
   ApiPageExpenseDto,
   EditExpenseDto,
-  ErrorResponse,
   ExpenseDto,
 } from '../models';
 import {
@@ -25,8 +24,6 @@ import {
     ApiPageExpenseDtoToJSON,
     EditExpenseDtoFromJSON,
     EditExpenseDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     ExpenseDtoFromJSON,
     ExpenseDtoToJSON,
 } from '../models';
