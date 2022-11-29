@@ -16,13 +16,10 @@
 import * as runtime from '../runtime';
 import type {
   CurrentUserPushNotificationMessage,
-  ErrorResponse,
 } from '../models';
 import {
     CurrentUserPushNotificationMessageFromJSON,
     CurrentUserPushNotificationMessageToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
 } from '../models';
 import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 

@@ -25,12 +25,6 @@ paths:
               $ref: '#/components/schemas/EditWorkspaceDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -56,12 +50,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -92,12 +80,6 @@ paths:
               $ref: '#/components/schemas/EditInvoiceDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -123,12 +105,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -159,12 +135,6 @@ paths:
               $ref: '#/components/schemas/EditIncomeDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -190,12 +160,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -226,12 +190,6 @@ paths:
               $ref: '#/components/schemas/EditIncomeTaxPaymentDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -257,12 +215,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -293,12 +245,6 @@ paths:
               $ref: '#/components/schemas/EditGeneralTaxDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -324,12 +270,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -360,12 +300,6 @@ paths:
               $ref: '#/components/schemas/EditExpenseDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -391,12 +325,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -427,12 +355,6 @@ paths:
               $ref: '#/components/schemas/EditCustomerDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -445,12 +367,6 @@ paths:
       - profile-api-controller
       operationId: getProfile
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -468,12 +384,6 @@ paths:
               $ref: '#/components/schemas/UpdateProfileRequestDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -486,12 +396,6 @@ paths:
       - workspaces-api-controller
       operationId: getWorkspaces
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -511,12 +415,6 @@ paths:
               $ref: '#/components/schemas/CreateWorkspaceDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -536,12 +434,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -566,12 +458,6 @@ paths:
               $ref: '#/components/schemas/CreateWorkspaceAccessTokenDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -636,12 +522,6 @@ paths:
           - asc
           - desc
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -666,12 +546,6 @@ paths:
               $ref: '#/components/schemas/EditInvoiceDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -697,12 +571,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -754,12 +622,6 @@ paths:
           - asc
           - desc
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -784,12 +646,6 @@ paths:
               $ref: '#/components/schemas/EditIncomeDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -809,12 +665,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -839,12 +689,6 @@ paths:
               $ref: '#/components/schemas/EditIncomeTaxPaymentDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -891,12 +735,6 @@ paths:
           - asc
           - desc
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -921,12 +759,6 @@ paths:
               $ref: '#/components/schemas/EditGeneralTaxDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -978,12 +810,6 @@ paths:
           - asc
           - desc
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1008,12 +834,6 @@ paths:
               $ref: '#/components/schemas/EditExpenseDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1074,12 +894,6 @@ paths:
           - asc
           - desc
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1109,12 +923,6 @@ paths:
                   type: string
                   format: binary
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1161,12 +969,6 @@ paths:
           - asc
           - desc
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1191,12 +993,6 @@ paths:
               $ref: '#/components/schemas/EditCustomerDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1243,12 +1039,6 @@ paths:
           - asc
           - desc
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1273,12 +1063,6 @@ paths:
               $ref: '#/components/schemas/CreateCategoryDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1291,12 +1075,6 @@ paths:
       - users-api-controller
       operationId: getUsers
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1314,12 +1092,6 @@ paths:
               $ref: '#/components/schemas/CreateUserDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1332,12 +1104,6 @@ paths:
       - workspaces-api-controller
       operationId: getSharedWorkspaces
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1357,12 +1123,6 @@ paths:
               $ref: '#/components/schemas/SaveSharedWorkspaceRequestDto'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1381,12 +1141,6 @@ paths:
         schema:
           type: string
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1419,12 +1173,6 @@ paths:
       - authentication-api-controller
       operationId: logout
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1443,12 +1191,6 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1467,12 +1209,6 @@ paths:
         schema:
           type: string
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1504,12 +1240,6 @@ paths:
           type: string
           format: date
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1541,12 +1271,6 @@ paths:
           type: string
           format: date
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1578,12 +1302,6 @@ paths:
           type: string
           format: date
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1603,12 +1321,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1642,12 +1354,6 @@ paths:
           type: string
           format: date
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1673,12 +1379,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1704,12 +1404,6 @@ paths:
           type: integer
           format: int64
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1724,12 +1418,6 @@ paths:
       - google-drive-storage-api-controller
       operationId: getIntegrationStatus
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1742,12 +1430,6 @@ paths:
       - push-notifications-api-controller
       operationId: getPushNotificationMessages
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1762,12 +1444,6 @@ paths:
       - profile-api-controller
       operationId: getDocumentsStorageStatus
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:
@@ -1786,12 +1462,6 @@ paths:
         schema:
           type: string
       responses:
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         "200":
           description: OK
           content:

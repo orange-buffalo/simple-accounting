@@ -15,13 +15,10 @@
 
 import * as runtime from '../runtime';
 import type {
-  ErrorResponse,
   LoginRequest,
   TokenResponse,
 } from '../models';
 import {
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     LoginRequestFromJSON,
     LoginRequestToJSON,
     TokenResponseFromJSON,

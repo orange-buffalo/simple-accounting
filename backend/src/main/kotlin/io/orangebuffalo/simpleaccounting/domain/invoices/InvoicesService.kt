@@ -10,7 +10,7 @@ import mu.KotlinLogging
 import org.springframework.core.task.AsyncTaskExecutor
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger {}
 

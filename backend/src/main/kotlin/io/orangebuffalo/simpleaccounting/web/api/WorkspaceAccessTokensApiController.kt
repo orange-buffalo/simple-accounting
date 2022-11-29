@@ -10,7 +10,7 @@ import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
-import javax.validation.Valid
+import jakarta.validation.Valid
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/workspace-access-tokens")

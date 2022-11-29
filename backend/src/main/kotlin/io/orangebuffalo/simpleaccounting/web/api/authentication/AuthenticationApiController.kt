@@ -18,8 +18,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping("api/auth")

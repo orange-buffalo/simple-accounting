@@ -17,7 +17,6 @@ import * as runtime from '../runtime';
 import type {
   ApiPageDocumentDto,
   DocumentDto,
-  ErrorResponse,
   GetDownloadTokenResponse,
 } from '../models';
 import {
@@ -25,8 +24,6 @@ import {
     ApiPageDocumentDtoToJSON,
     DocumentDtoFromJSON,
     DocumentDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     GetDownloadTokenResponseFromJSON,
     GetDownloadTokenResponseToJSON,
 } from '../models';

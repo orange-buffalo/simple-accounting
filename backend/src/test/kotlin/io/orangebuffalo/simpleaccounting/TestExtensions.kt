@@ -8,7 +8,6 @@ import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.http.MediaType
-import org.springframework.test.web.reactive.server.KotlinBodySpec
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import reactor.test.StepVerifier
@@ -19,42 +18,38 @@ import java.time.ZonedDateTime
 
 fun WebTestClient.ResponseSpec.expectThatJsonBody(
     spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
-): KotlinBodySpec<String> =
-    expectBody<String>()
-        .consumeWith { body ->
-            val responseJson = body.responseBody
-            assertThat(responseJson).isNotBlank()
+) = expectBody<String>()
+    .consumeWith { body ->
+        val responseJson = body.responseBody
+        assertThat(responseJson).isNotBlank()
 
-            val jsonAssert = assertThatJson(responseJson!!)
-            jsonAssert.spec()
-        }
+        val jsonAssert = assertThatJson(responseJson!!)
+        jsonAssert.spec()
+    }
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyUnauthorized(): WebTestClient.ResponseSpec =
     exchange().expectStatus().isUnauthorized
 
-fun WebTestClient.RequestHeadersSpec<*>.verifyNotFound(errorMessage: String): KotlinBodySpec<String> =
-    exchange()
-        .expectStatus().isNotFound
-        .expectBody<String>().isEqualTo(errorMessage)
+fun WebTestClient.RequestHeadersSpec<*>.verifyNotFound(errorMessage: String) = exchange()
+    .expectStatus().isNotFound
+    .expectBody<String>().isEqualTo(errorMessage)
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
     spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
-): KotlinBodySpec<String> =
-    exchange()
-        .expectStatus().isOk
-        .expectThatJsonBody(spec)
+) = exchange()
+    .expectStatus().isOk
+    .expectThatJsonBody(spec)
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
     spec: (body: String) -> Unit
-): KotlinBodySpec<String> =
-    exchange()
-        .expectStatus().isOk
-        .expectBody<String>()
-        .consumeWith { response ->
-            val body = response.responseBody
-            assertThat(body).isNotBlank()
-            spec(body!!)
-        }
+) = exchange()
+    .expectStatus().isOk
+    .expectBody<String>()
+    .consumeWith { response ->
+        val body = response.responseBody
+        assertThat(body).isNotBlank()
+        spec(body!!)
+    }
 
 fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
     contentType(MediaType.APPLICATION_JSON).bodyValue(json)

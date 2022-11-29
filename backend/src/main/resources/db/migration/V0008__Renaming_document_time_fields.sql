@@ -1,1 +1,0 @@
-alter table document alter column date_uploaded rename to time_uploaded;

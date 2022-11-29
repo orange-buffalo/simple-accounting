@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.extension.*
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.annotation.MergedAnnotations
@@ -54,6 +55,8 @@ fun MappingBuilder.willReturnResponse(spec: ResponseDefinitionBuilder.() -> Unit
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @ExtendWith(WireMockExtension::class)
+// TODO #468: enable once wiremock supports Jetty 11
+@Disabled("Disabled as Wiremock does not support Jetty 11 yet")
 annotation class NeedsWireMock
 
 /**

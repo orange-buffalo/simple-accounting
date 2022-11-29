@@ -15,8 +15,8 @@ import org.hibernate.validator.constraints.Length
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/income-tax-payments")

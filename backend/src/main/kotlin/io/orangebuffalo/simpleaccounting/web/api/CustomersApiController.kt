@@ -9,10 +9,10 @@ import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundExce
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import org.hibernate.validator.constraints.Length
-import org.springdoc.api.annotations.ParameterObject
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/customers")

@@ -14,13 +14,6 @@
 
 
 import * as runtime from '../runtime';
-import type {
-  ErrorResponse,
-} from '../models';
-import {
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
-} from '../models';
 import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface GetContentRequest {

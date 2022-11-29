@@ -4,11 +4,11 @@ import io.orangebuffalo.simpleaccounting.services.business.CategoryService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
-import org.springdoc.api.annotations.ParameterObject
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotNull
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/categories")

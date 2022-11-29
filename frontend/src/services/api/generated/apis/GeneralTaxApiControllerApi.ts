@@ -17,7 +17,6 @@ import * as runtime from '../runtime';
 import type {
   ApiPageGeneralTaxDto,
   EditGeneralTaxDto,
-  ErrorResponse,
   GeneralTaxDto,
 } from '../models';
 import {
@@ -25,8 +24,6 @@ import {
     ApiPageGeneralTaxDtoToJSON,
     EditGeneralTaxDtoFromJSON,
     EditGeneralTaxDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     GeneralTaxDtoFromJSON,
     GeneralTaxDtoToJSON,
 } from '../models';

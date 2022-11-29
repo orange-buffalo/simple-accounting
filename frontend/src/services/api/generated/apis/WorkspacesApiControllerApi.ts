@@ -17,7 +17,6 @@ import * as runtime from '../runtime';
 import type {
   CreateWorkspaceDto,
   EditWorkspaceDto,
-  ErrorResponse,
   SaveSharedWorkspaceRequestDto,
   WorkspaceDto,
 } from '../models';
@@ -26,8 +25,6 @@ import {
     CreateWorkspaceDtoToJSON,
     EditWorkspaceDtoFromJSON,
     EditWorkspaceDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     SaveSharedWorkspaceRequestDtoFromJSON,
     SaveSharedWorkspaceRequestDtoToJSON,
     WorkspaceDtoFromJSON,

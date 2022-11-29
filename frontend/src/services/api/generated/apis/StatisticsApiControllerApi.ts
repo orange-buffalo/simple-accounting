@@ -15,13 +15,10 @@
 
 import * as runtime from '../runtime';
 import type {
-  ErrorResponse,
   IncomeTaxPaymentsStatisticsDto,
   IncomesExpensesStatisticsDto,
 } from '../models';
 import {
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
     IncomeTaxPaymentsStatisticsDtoFromJSON,
     IncomeTaxPaymentsStatisticsDtoToJSON,
     IncomesExpensesStatisticsDtoFromJSON,

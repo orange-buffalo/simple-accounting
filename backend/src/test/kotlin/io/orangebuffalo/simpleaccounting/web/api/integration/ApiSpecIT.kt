@@ -13,7 +13,10 @@ import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.*
+import org.springdoc.core.configuration.SpringDocKotlinConfiguration
+import org.springdoc.core.configuration.SpringDocKotlinxConfiguration
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -38,6 +41,12 @@ private val logger = KotlinLogging.logger {}
 )
 @DisplayName("API Spec")
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+// workaround for https://github.com/springdoc/springdoc-openapi/issues/1961;
+// can be removed after upgrade to >2.0.0
+@ImportAutoConfiguration(
+    SpringDocKotlinxConfiguration::class,
+    SpringDocKotlinConfiguration::class
+)
 class ApiSpecIT(
     @Autowired val client: WebTestClient
 ) {

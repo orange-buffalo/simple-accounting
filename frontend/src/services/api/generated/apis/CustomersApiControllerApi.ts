@@ -18,7 +18,6 @@ import type {
   ApiPageCustomerDto,
   CustomerDto,
   EditCustomerDto,
-  ErrorResponse,
 } from '../models';
 import {
     ApiPageCustomerDtoFromJSON,
@@ -27,8 +26,6 @@ import {
     CustomerDtoToJSON,
     EditCustomerDtoFromJSON,
     EditCustomerDtoToJSON,
-    ErrorResponseFromJSON,
-    ErrorResponseToJSON,
 } from '../models';
 import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 

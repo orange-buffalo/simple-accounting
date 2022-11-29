@@ -5,7 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.springframework.stereotype.Component
-import javax.annotation.PreDestroy
+import jakarta.annotation.PreDestroy
 
 private const val tokenLifetimeInMs = 120_000L
 

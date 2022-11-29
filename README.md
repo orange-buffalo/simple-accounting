@@ -38,3 +38,20 @@ To run the load tests, follow these steps:
 `jdbc:h2:<path-to-database-file>`.
 1. Start JMeter and open `load-tests/jmeter-load-tests.jmx` project.
 1. Launch the tests in JMeter.
+
+### Squashing Flyway migrations
+1. Migrate target database to the latest version.
+2. Delete old migrations from `<root>/backend/src/main/resources/db/migration`.
+3. Get current schema:
+   ```sql
+   script nodata nopasswords nosettings
+     to '<root>/backend/src/main/resources/db/migration/V0001__Baseline.sql'
+     schema public;
+   ```
+4. Cleanup the script (remove users, remove sequences initialization, remove selectivity).
+5. Drop Flyway table on target database:
+   ```sql
+   drop table "flyway_schema_history";
+   ```                               
+6. Enable `spring.flyway.baseline-on-migrate=true` in `application.yml`.
+7. Once application started on the target database, set `spring.flyway.baseline-on-migrate` back to `false` in `application.yml`.
