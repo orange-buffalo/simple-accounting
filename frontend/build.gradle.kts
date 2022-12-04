@@ -4,17 +4,17 @@ val prodConfigs = arrayOf(
 )
 val storybookConfigs = arrayOf(".babelrc", "build-config/storybook/**")
 
-val npmInstall by tasks.register<SaCacheableNpmTask>("npmInstall") {
-    args.set("ci --no-bin-links")
+val installFrontendDependencies by tasks.register<SaCacheableFrontendTask>("installFrontendDependencies") {
+    args.set("install --immutable")
     inputFiles {
-        include("package-lock.json")
-        include("build-config/npm-post-install/**")
+        include("yarn.lock")
+        include("build-config/post-install/**")
     }
-    outputDirectories.set(files("node_modules", "src/services/i18n/l10n"))
+    outputDirectories.set(files(".yarn/install-stage.gz", "src/services/i18n/l10n"))
 }
 
-val npmBuild by tasks.register<SaCacheableNpmTask>("npmBuild") {
-    args.set("run-script build")
+val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
+    args.set("build")
     inputFiles {
         prodConfigs.forEach { include(it) }
         readTsConfig(file("tsconfig.app.json")).applyIncludesExcludes(this)
@@ -22,49 +22,49 @@ val npmBuild by tasks.register<SaCacheableNpmTask>("npmBuild") {
         include("index.html")
     }
     outputDirectories.set(files("dist"))
-    dependsOn(npmInstall)
+    dependsOn(installFrontendDependencies)
 }
 
-val npmTest by tasks.register<SaCacheableNpmTask>("npmTest") {
-    args.set("run-script test:unit")
+val testFrontend by tasks.register<SaCacheableFrontendTask>("testFrontend") {
+    args.set("test:unit")
     inputFiles {
         prodConfigs.forEach { include(it) }
         readTsConfig(file("tsconfig.vitest.json")).applyIncludesExcludes(this)
     }
-    dependsOn(npmInstall)
+    dependsOn(installFrontendDependencies)
 }
 
-val npmLint by tasks.register<SaCacheableNpmTask>("npmLint") {
-    args.set("run-script lint")
+val lint by tasks.register<SaCacheableFrontendTask>("lint") {
+    args.set("lint")
     inputFiles {
         prodConfigs.forEach { include(it) }
         storybookConfigs.forEach { include(it) }
         readTsConfig(file("tsconfig.storybook-config.json")).applyIncludesExcludes(this)
     }
-    dependsOn(npmInstall)
+    dependsOn(installFrontendDependencies)
 }
 
-val npmBuildStorybook by tasks.register<SaCacheableNpmTask>("npmBuildStorybook") {
-    args.set("run-script build-storybook")
+val buildStorybook by tasks.register<SaCacheableFrontendTask>("buildStorybook") {
+    args.set("build-storybook")
     inputFiles {
         prodConfigs.forEach { include(it) }
         storybookConfigs.forEach { include(it) }
         readTsConfig(file("tsconfig.storybook-config.json")).applyIncludesExcludes(this)
     }
     outputDirectories.set(files("build/storybook"))
-    dependsOn(npmInstall)
+    dependsOn(installFrontendDependencies)
 }
 
 
 tasks.register("check") {
-    dependsOn(npmTest)
-    dependsOn(npmLint)
+    dependsOn(testFrontend)
+    dependsOn(lint)
 }
 
-val npmClean by tasks.register("npmClean") {
+val cleanFrontend by tasks.register("cleanFrontend") {
     group = "Frontend"
     doLast {
-        delete(project.files("node_modules"))
+        delete(project.files(".yarn/install-stage.gz"))
         delete(project.files("src/services/i18n/l10n"))
         delete(project.files("dist"))
         delete(project.files("build/storybook"))
@@ -72,5 +72,5 @@ val npmClean by tasks.register("npmClean") {
 }
 
 tasks.register("clean") {
-    dependsOn(npmClean)
+    dependsOn(cleanFrontend)
 }

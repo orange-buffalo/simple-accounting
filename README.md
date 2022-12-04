@@ -6,23 +6,23 @@
 
 1. Start Storybook:
     ```shell script
-   npm run storybook:serve
+   =yarn storybook:serve
     ```
 1. Run the tests:
     ```shell script
-   npm run test:screenshot
+   =yarn test:screenshot
     ```
 
 To accept the changes and override Git-manages screenshots:
 ```shell script
-npm run test:screenshot -- -u
+=yarn test:screenshot -- -u
 ```
 
 To run a particular story or kind:
 ```shell script
 export STORYSHOTS_STORY_NAME="Initial Loading"
 export STORYSHOTS_STORY_KIND="EditIncome"
-npm run test:screenshot
+=yarn test:screenshot
 ```
 
 ### Load Tests

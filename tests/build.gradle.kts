@@ -16,7 +16,7 @@ sourceSets {
         // as we recommend to run tests against running storybook locally
         if (System.getenv("CI") == "true") {
             resources {
-                srcDirs(tasks.getByPath(":frontend:npmBuildStorybook"))
+                srcDirs(tasks.getByPath(":frontend:buildStorybook"))
             }
         }
     }

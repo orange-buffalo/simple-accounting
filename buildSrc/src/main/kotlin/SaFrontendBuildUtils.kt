@@ -13,14 +13,14 @@ import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 import java.io.File
 
-abstract class SaNpmTask : DefaultTask() {
+abstract class SaFrontendTask : DefaultTask() {
 
     @Input
     val args: Property<String> = project.objects.property(String::class.java)
 
     private val fullCommandLine = args.map { userInput ->
         listOf(
-            "npm",
+            "yarn",
             *(userInput.split(" ").map { it.trim() }.toTypedArray())
         )
     }
@@ -30,7 +30,7 @@ abstract class SaNpmTask : DefaultTask() {
     }
 
     @TaskAction
-    fun executeNpm() {
+    fun executeFrontentTask() {
         project.exec {
             commandLine(fullCommandLine.get())
         }
@@ -38,7 +38,7 @@ abstract class SaNpmTask : DefaultTask() {
 }
 
 @CacheableTask
-abstract class SaCacheableNpmTask : SaNpmTask() {
+abstract class SaCacheableFrontendTask : SaFrontendTask() {
 
     private val inputFilesPatterns: PatternSet = PatternSet()
     private val outputFilesPatterns: PatternSet = PatternSet()
