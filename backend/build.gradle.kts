@@ -79,7 +79,7 @@ sourceSets {
         // as running against the dev server is a typical use case
         if (System.getenv("CI") == "true") {
             resources {
-                srcDirs(tasks.getByPath(":frontend:npmBuild"))
+                srcDirs(tasks.getByPath(":frontend:buildFrontend"))
             }
         }
     }

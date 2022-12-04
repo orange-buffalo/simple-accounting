@@ -38,3 +38,6 @@ src/services/i18n/l10n
 
 auto-imports.d.ts
 components.d.ts
+
+.yarn/cache
+.yarn/install-state.gz
