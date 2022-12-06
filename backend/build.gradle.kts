@@ -62,7 +62,7 @@ dependencies {
     testImplementation("org.flywaydb:flyway-core")
     testImplementation("com.google.guava:guava:${Versions.guava}")
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
-    testImplementation("com.github.tomakehurst:wiremock-jre8:${Versions.wireMock}")
+    testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:${Versions.wireMock}")
     testImplementation("org.awaitility:awaitility:${Versions.awaitility}")
     testImplementation("com.flipkart.zjsonpatch:zjsonpatch:${Versions.zjsonpatch}")
     testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
