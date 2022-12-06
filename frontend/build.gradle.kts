@@ -10,7 +10,7 @@ val installFrontendDependencies by tasks.register<SaCacheableFrontendTask>("inst
         include("yarn.lock")
         include("build-config/post-install/**")
     }
-    outputDirectories.set(files(".yarn/install-stage.gz", "src/services/i18n/l10n"))
+    outputDirectories.set(files(".yarn/.cache", ".yarn/unplugged", "src/services/i18n/l10n"))
 }
 
 val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
