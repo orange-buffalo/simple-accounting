@@ -55,8 +55,6 @@ fun MappingBuilder.willReturnResponse(spec: ResponseDefinitionBuilder.() -> Unit
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @ExtendWith(WireMockExtension::class)
-// TODO #468: enable once wiremock supports Jetty 11
-@Disabled("Disabled as Wiremock does not support Jetty 11 yet")
 annotation class NeedsWireMock
 
 /**
