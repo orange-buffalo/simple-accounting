@@ -1,6 +1,7 @@
 import {
   describe, test, expect, vi, afterEach,
 } from 'vitest';
+import 'whatwg-fetch';
 import fetchMock from 'fetch-mock/esm/client';
 import type { ApiPageRequest } from '@/services/api';
 import {
@@ -19,8 +20,7 @@ describe('apiDateString', () => {
   });
 });
 
-// TODO #478: enable once fixed
-describe.skip('consumeAllPage', () => {
+describe('consumeAllPage', () => {
   test('should invoke API only once if total size is less then page size', async () => {
     let executions = 0;
     const mockExecutor = async (pageRequest: ApiPageRequest) => {
@@ -100,8 +100,7 @@ describe.skip('consumeAllPage', () => {
   });
 });
 
-// TODO #478: enable once fixed
-describe.skip('consumeApiErrorResponse', () => {
+describe('consumeApiErrorResponse', () => {
   test('should consume API error response', async () => {
     fetchMock.get('/api/profile', {
       status: 409,

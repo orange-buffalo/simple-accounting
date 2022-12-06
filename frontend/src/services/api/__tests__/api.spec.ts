@@ -2,6 +2,7 @@ import {
   afterEach, beforeEach, describe, expect, test, vi,
 } from 'vitest';
 import type { InspectionFilter, InspectionOptions } from 'fetch-mock';
+import 'whatwg-fetch';
 import fetchMock from 'fetch-mock/esm/client';
 import type {
   Auth, FetchError, ResponseError,
@@ -15,8 +16,7 @@ import type { AdditionalRequestParameters } from '@/services/api/generated/runti
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
 const API_TIME = new Date('2020-01-04T00:00:00');
 
-// TODO #478: enable once fixed
-describe.skip('API Client', () => {
+describe('API Client', () => {
   let loadingStartedEventMock: () => void;
   let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
