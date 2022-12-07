@@ -89,3 +89,12 @@ java {
         languageVersion.set(JavaLanguageVersion.of(Config.JVM_VERSION))
     }
 }
+
+// disable extra artifacts as we do not need them (including container image)
+tasks.jar {
+    enabled = false
+}
+
+tasks.assemble {
+    dependsOn(tasks.classes)
+}
