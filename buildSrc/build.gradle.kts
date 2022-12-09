@@ -9,7 +9,7 @@ repositories {
 
 plugins {
     `kotlin-dsl`
-    kotlin("plugin.serialization") version "1.5.31"
+    kotlin("plugin.serialization") version "1.7.22"
 }
 
 dependencies {
