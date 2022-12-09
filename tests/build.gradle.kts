@@ -54,7 +54,7 @@ dependencies {
     storybookTestImplementation("io.github.microutils:kotlin-logging:${Versions.kotlinLogging}")
     // add version explicitly to manage upgrades by sa-deppy
     storybookTestImplementation("org.seleniumhq.selenium:selenium-java:${Versions.selenium}")
-    storybookTestImplementation("io.kotest:kotest-assertions-core-jvm:5.3.1")
+    storybookTestImplementation("io.kotest:kotest-assertions-core-jvm:5.5.4")
     storybookTestImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     storybookTestImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     storybookTestImplementation("com.github.romankh3:image-comparison:4.4.0")
