@@ -9,7 +9,7 @@ buildscript {
 plugins {
     id("io.wusa.semver-git-plugin") version Versions.semverGitPlugin
     id("com.github.ben-manes.versions") version Versions.versionsPlugin
-    kotlin("jvm") version Versions.kotlin apply false
+    kotlin("jvm") version 1.7.22 apply false
     kotlin("kapt") version Versions.kotlin apply false
     id("io.spring.dependency-management") version Versions.springDependencyManagement apply false
 }
