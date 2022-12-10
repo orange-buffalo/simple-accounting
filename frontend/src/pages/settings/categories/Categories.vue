@@ -25,7 +25,7 @@
 
           <span class="sa-item-edit-link">
             <!--<pencil-solid-icon/>-->
-            <ElButton type="text">Edit</ElButton>
+            <ElButton link>Edit</ElButton>
           </span>
         </div>
         <p>

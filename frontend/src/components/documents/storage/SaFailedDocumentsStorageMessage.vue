@@ -10,7 +10,7 @@
     <template #default>
       <SaI18n :message="$t.saFailedDocumentsStorageMessage.message()">
         <ElButton
-          type="text"
+          link
           @click="navigateToProfileSettings"
         >
           {{ $t.saFailedDocumentsStorageMessage.profileLink() }}

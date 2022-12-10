@@ -7,7 +7,7 @@
         <span class="sa-item-edit-link">
           <SaIcon icon="pencil-solid" />
           <ElButton
-            type="text"
+            link
             @click="navigateToTaxEdit"
           >Edit</ElButton>
         </span>

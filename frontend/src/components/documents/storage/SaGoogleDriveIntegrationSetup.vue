@@ -41,7 +41,7 @@
             <template #action>
               <br>
               <ElButton
-                type="text"
+                link
                 @click="startAuthorization"
               >
                 {{ $t.saGoogleDriveIntegrationSetup.authorizationRequired.details.startAction() }}
@@ -59,7 +59,7 @@
             <template #action>
               <br>
               <ElButton
-                type="text"
+                link
                 @click="startAuthorization"
               >
                 {{ $t.saGoogleDriveIntegrationSetup.authorizationFailed.details.retryAction() }}

@@ -74,6 +74,19 @@
 .el-button {
   padding: 12px 20px;
   height: $sa-input-height;
+
+  &.is-link {
+    color: $components-color;
+    padding: 0;
+
+    &:hover {
+      color: lighten($components-color, 7%);
+    }
+
+    &:focus, &:active, &:visited, &:focus:active {
+      color: darken($components-color, 7%);
+    }
+  }
 }
 
 .el-form-item__content {

@@ -8,7 +8,7 @@
     </span>
     <ElButton
       v-else
-      type="text"
+      link
       @click="startDownload"
     >
       {{ $t.saDocumentDownloadLink.label() }}

@@ -6,7 +6,7 @@
           <h3>{{ workspace.name }}</h3>
           <ElButton
             v-if="!isCurrent"
-            type="text"
+            link
             @click="switchToWorkspace"
           >
             Switch to this workspace
@@ -15,7 +15,7 @@
         <span class="sa-item-edit-link">
           <SaIcon icon="pencil-solid" />
           <ElButton
-            type="text"
+            link
             @click="navigateToWorkspaceEdit"
           >Edit</ElButton>
         </span>
@@ -41,7 +41,7 @@
               <div class="workspace-panel__share-link-panel">
                 <SaIcon icon="copy" />
                 <ElButton
-                  type="text"
+                  link
                   @click="copyShareLink(row.token)"
                 >
                   Copy link
@@ -59,7 +59,7 @@
             />
             <SaIcon icon="share" />
             <ElButton
-              type="text"
+              link
               @click="shareWorkspace"
             >
               Create share link
