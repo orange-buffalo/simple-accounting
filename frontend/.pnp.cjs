@@ -55,7 +55,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/js-yaml", "npm:4.0.5"],\
             ["@types/jsdom", "npm:20.0.1"],\
             ["@types/lodash", "npm:4.14.191"],\
-            ["@types/marked", "npm:4.0.7"],\
+            ["@types/marked", "npm:4.0.8"],\
             ["@types/node", "npm:18.11.10"],\
             ["@types/qs", "npm:6.9.7"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.2"],\
@@ -85,7 +85,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jsdom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:20.0.3"],\
             ["jwt-decode", "npm:3.1.2"],\
             ["lodash", "npm:4.17.21"],\
-            ["marked", "npm:4.2.3"],\
+            ["marked", "npm:4.2.4"],\
             ["qs", "npm:6.11.0"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:18.2.0"],\
@@ -6432,10 +6432,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/marked", [\
-        ["npm:4.0.7", {\
-          "packageLocation": "./.yarn/cache/@types-marked-npm-4.0.7-9766a6e6d5-4907b6a606.zip/node_modules/@types/marked/",\
+        ["npm:4.0.8", {\
+          "packageLocation": "./.yarn/cache/@types-marked-npm-4.0.8-ecccac0208-68278fa7ac.zip/node_modules/@types/marked/",\
           "packageDependencies": [\
-            ["@types/marked", "npm:4.0.7"]\
+            ["@types/marked", "npm:4.0.8"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -12679,7 +12679,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/js-yaml", "npm:4.0.5"],\
             ["@types/jsdom", "npm:20.0.1"],\
             ["@types/lodash", "npm:4.14.191"],\
-            ["@types/marked", "npm:4.0.7"],\
+            ["@types/marked", "npm:4.0.8"],\
             ["@types/node", "npm:18.11.10"],\
             ["@types/qs", "npm:6.9.7"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.2"],\
@@ -12709,7 +12709,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jsdom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:20.0.3"],\
             ["jwt-decode", "npm:3.1.2"],\
             ["lodash", "npm:4.17.21"],\
-            ["marked", "npm:4.2.3"],\
+            ["marked", "npm:4.2.4"],\
             ["qs", "npm:6.11.0"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:18.2.0"],\
@@ -15338,10 +15338,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["marked", [\
-        ["npm:4.2.3", {\
-          "packageLocation": "./.yarn/cache/marked-npm-4.2.3-8e14562a38-21b9f6cc4e.zip/node_modules/marked/",\
+        ["npm:4.2.4", {\
+          "packageLocation": "./.yarn/cache/marked-npm-4.2.4-27c37fa825-5eb5bfa6ee.zip/node_modules/marked/",\
           "packageDependencies": [\
-            ["marked", "npm:4.2.3"]\
+            ["marked", "npm:4.2.4"]\
           ],\
           "linkType": "HARD"\
         }]\

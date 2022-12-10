@@ -3069,10 +3069,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/marked@npm:^4.0.7":
-  version: 4.0.7
-  resolution: "@types/marked@npm:4.0.7"
-  checksum: 4907b6a606578cd864bad429aca3c234591e6ed56bd141c575140487269b825a480ace9a85e4d003d1de1f007004c9d9b2fe600038ded5bba75aef59118e58d5
+"@types/marked@npm:^4.0.8":
+  version: 4.0.8
+  resolution: "@types/marked@npm:4.0.8"
+  checksum: 68278fa7acaa5d920cdc239d675b5daf842e0ad4779e4848cd617d9baf2ac1afccb5a264c331e37d80031d647e1640cb983cd31e73d45b28552670b4853fad8e
   languageName: node
   linkType: hard
 
@@ -8172,7 +8172,7 @@ __metadata:
     "@types/js-yaml": ^4.0.5
     "@types/jsdom": ^20.0.1
     "@types/lodash": ^4.14.191
-    "@types/marked": ^4.0.7
+    "@types/marked": ^4.0.8
     "@types/node": 18.11.10
     "@types/qs": ^6.9.7
     "@types/sinonjs__fake-timers": ^8.1.2
@@ -8202,7 +8202,7 @@ __metadata:
     jsdom: ^20.0.3
     jwt-decode: ^3.1.2
     lodash: ^4.17.21
-    marked: ^4.2.3
+    marked: ^4.2.4
     qs: ^6.11.0
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -10537,12 +10537,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^4.2.3":
-  version: 4.2.3
-  resolution: "marked@npm:4.2.3"
+"marked@npm:^4.2.4":
+  version: 4.2.4
+  resolution: "marked@npm:4.2.4"
   bin:
     marked: bin/marked.js
-  checksum: 21b9f6cc4e7695b5e1f251b7b6c98fdc29c25f7ee6c8f4d5c51654856ea36d6222e9a5a227a9b89ccba717dcf7a722022f099aa0dc7caad8e041c996906c23d0
+  checksum: 5eb5bfa6ee4cf85712a3ccbe2a549c397e8886f5d18312a02696c7e3817625a6b91a8ad27a6ed43b06ddbdfb812f471b1270517c4b8fb068a6a9e5b4d555a5aa
   languageName: node
   linkType: hard
 
