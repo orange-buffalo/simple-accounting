@@ -3096,7 +3096,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:6.5.14, @storybook/theming@npm:^6.5.14":
+"@storybook/theming@npm:6.5.14":
   version: 6.5.14
   resolution: "@storybook/theming@npm:6.5.14"
   dependencies:
@@ -3111,7 +3111,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:6.5.15":
+"@storybook/theming@npm:6.5.15, @storybook/theming@npm:^6.5.15":
   version: 6.5.15
   resolution: "@storybook/theming@npm:6.5.15"
   dependencies:
@@ -8425,7 +8425,7 @@ __metadata:
     "@storybook/channel-websocket": ^6.5.15
     "@storybook/client-api": ^6.5.15
     "@storybook/preview-web": ^6.5.15
-    "@storybook/theming": ^6.5.14
+    "@storybook/theming": ^6.5.15
     "@storybook/vue3": ^6.5.15
     "@types/cldrjs": ^0.4.22
     "@types/dompurify": ^2.4.0
