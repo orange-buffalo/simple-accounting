@@ -2200,7 +2200,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addons@npm:6.5.14, @storybook/addons@npm:^6.5.14":
+"@storybook/addons@npm:6.5.14":
   version: 6.5.14
   resolution: "@storybook/addons@npm:6.5.14"
   dependencies:
@@ -2222,7 +2222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addons@npm:6.5.15":
+"@storybook/addons@npm:6.5.15, @storybook/addons@npm:^6.5.15":
   version: 6.5.15
   resolution: "@storybook/addons@npm:6.5.15"
   dependencies:
@@ -8433,7 +8433,7 @@ __metadata:
     "@rushstack/eslint-patch": ^1.2.0
     "@sinonjs/fake-timers": ^10.0.2
     "@storybook/addon-actions": ^6.5.15
-    "@storybook/addons": ^6.5.14
+    "@storybook/addons": ^6.5.15
     "@storybook/builder-vite": ^0.2.6
     "@storybook/channel-postmessage": ^6.5.14
     "@storybook/channel-websocket": ^6.5.14
