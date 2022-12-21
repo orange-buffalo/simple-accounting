@@ -2429,7 +2429,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/channel-websocket@npm:6.5.15":
+"@storybook/channel-websocket@npm:6.5.15, @storybook/channel-websocket@npm:^6.5.15":
   version: 6.5.15
   resolution: "@storybook/channel-websocket@npm:6.5.15"
   dependencies:
@@ -2439,19 +2439,6 @@ __metadata:
     global: ^4.4.0
     telejson: ^6.0.8
   checksum: c482b18b28f06644f684ed2b88ab53d6c5853925343e60a50a9bcfb2888123c4accfe30b51743905693e4d73c32c77e30d6dbaba377b486bee6e51faae39cf85
-  languageName: node
-  linkType: hard
-
-"@storybook/channel-websocket@npm:^6.5.14":
-  version: 6.5.14
-  resolution: "@storybook/channel-websocket@npm:6.5.14"
-  dependencies:
-    "@storybook/channels": 6.5.14
-    "@storybook/client-logger": 6.5.14
-    core-js: ^3.8.2
-    global: ^4.4.0
-    telejson: ^6.0.8
-  checksum: 76bd5734890836d6d7af8fd619015067db4680ae4336fdf86ee1c612e0060412c14cfcba22faee02534a63079af0864323370409730c7f3ee16af8fc3014e758
   languageName: node
   linkType: hard
 
@@ -8503,7 +8490,7 @@ __metadata:
     "@storybook/addons": ^6.5.15
     "@storybook/builder-vite": ^0.2.6
     "@storybook/channel-postmessage": ^6.5.15
-    "@storybook/channel-websocket": ^6.5.14
+    "@storybook/channel-websocket": ^6.5.15
     "@storybook/client-api": ^6.5.15
     "@storybook/preview-web": ^6.5.14
     "@storybook/theming": ^6.5.14
