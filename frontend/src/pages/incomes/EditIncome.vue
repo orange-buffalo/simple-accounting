@@ -174,7 +174,7 @@
 
   const props = defineProps<{
     id?: number,
-    sourceInvoiceId?: number,
+    sourceInvoiceId?: string,
   }>();
 
   const { navigateByViewName } = useNavigation();
@@ -215,7 +215,7 @@
     dateReceived: new Date(),
     currency: defaultCurrency,
     useDifferentExchangeRateForIncomeTaxPurposes: false,
-    linkedInvoice: props.sourceInvoiceId,
+    linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
   });
 
   const loadIncome = async () => {
@@ -226,7 +226,7 @@
       });
     } else if (props.sourceInvoiceId !== undefined) {
       const sourceInvoice = await invoicesApi.getInvoice({
-        invoiceId: props.sourceInvoiceId,
+        invoiceId: Number(props.sourceInvoiceId),
         workspaceId: currentWorkspaceId,
       });
       income.value.title = $t.value.editIncome.fromInvoice.title(sourceInvoice.title);

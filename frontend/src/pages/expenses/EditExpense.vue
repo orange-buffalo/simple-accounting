@@ -185,7 +185,7 @@
 
   const props = defineProps<{
     id?: number,
-    prototype?: number,
+    prototype?: string,
   }>();
 
   const expenseValidationRules = {
@@ -245,7 +245,7 @@
       uiState.value.partialForBusiness = fullExpense.percentOnBusiness !== 100;
     } else if (props.prototype !== undefined) {
       const prototypeExpense = await expensesApi.getExpense({
-        expenseId: props.prototype,
+        expenseId: Number(props.prototype),
         workspaceId: currentWorkspaceId,
       });
       expense.value = prototypeExpense;

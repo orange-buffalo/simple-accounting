@@ -123,7 +123,7 @@ export default function setupRouter() {
             component: IncomesOverview,
           },
           {
-            path: 'incomes/create',
+            path: 'incomes/create/:sourceInvoiceId?',
             name: 'create-new-income',
             component: EditIncome,
             props: true,
