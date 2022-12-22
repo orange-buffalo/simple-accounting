@@ -8477,7 +8477,7 @@ __metadata:
     vite-svg-loader: ^3.6.0
     vitest: ^0.26.2
     vue: ^3.2.45
-    vue-docgen-api: ^4.56.0
+    vue-docgen-api: ^4.56.2
     vue-router: ^4.1.6
     vue-tsc: ^1.0.16
     whatwg-fetch: ^3.6.2
@@ -15636,7 +15636,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-docgen-api@npm:^4.44.15, vue-docgen-api@npm:^4.56.0":
+"vue-docgen-api@npm:^4.44.15":
   version: 4.56.0
   resolution: "vue-docgen-api@npm:4.56.0"
   dependencies:
@@ -15652,6 +15652,25 @@ __metadata:
     ts-map: ^1.0.3
     vue-inbrowser-compiler-independent-utils: ^4.52.0
   checksum: cbfc1c52d71d616b79f0c97aa127aff2441c7616573260a6cdfd2da7517bf8168e9439cad1f02c9090646fe71e4de40220ddf2bc6f1da887212177fd3067e1b7
+  languageName: node
+  linkType: hard
+
+"vue-docgen-api@npm:^4.56.2":
+  version: 4.56.2
+  resolution: "vue-docgen-api@npm:4.56.2"
+  dependencies:
+    "@babel/parser": ^7.13.12
+    "@babel/types": ^7.18.8
+    "@vue/compiler-dom": ^3.2.0
+    "@vue/compiler-sfc": ^3.2.0
+    ast-types: 0.14.2
+    hash-sum: ^1.0.2
+    lru-cache: ^4.1.5
+    pug: ^3.0.2
+    recast: 0.21.5
+    ts-map: ^1.0.3
+    vue-inbrowser-compiler-independent-utils: ^4.56.2
+  checksum: 578342164c2f070e8227e86b84277f337809679a1589c2a716d76accdd35c82e2deccdf651ff2f7c8b21af813247f75c81820b9f26640bd75f5bbd0720b69a6b
   languageName: node
   linkType: hard
 
@@ -15693,6 +15712,15 @@ __metadata:
   peerDependencies:
     vue: ">=2"
   checksum: b8453fd46792eb215fb81950bce1c3d9f95d79fa924a1c8db456835605c213ac24faabf261c022d2132ff4e510e48010c831e869094aecfda8c895e37e6a4238
+  languageName: node
+  linkType: hard
+
+"vue-inbrowser-compiler-independent-utils@npm:^4.56.2":
+  version: 4.56.2
+  resolution: "vue-inbrowser-compiler-independent-utils@npm:4.56.2"
+  peerDependencies:
+    vue: ">=2"
+  checksum: cf9cf6f7407695f40ef0bc325983bdfedd6cc13aa200819c75138577357ad8218c8930ed4f1c034b3532e8f9d2e1a902672233adb1092ba040ee7d2fd64d721d
   languageName: node
   linkType: hard
 
