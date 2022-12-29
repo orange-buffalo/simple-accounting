@@ -1,7 +1,7 @@
 object Versions {
     const val springBoot = "3.0.1"
     const val springDependencyManagement = "1.0.11.RELEASE"
-    const val kotlin = "1.7.22"
+    const val kotlin = "1.8.0"
     const val kotlinCoroutines = "1.6.4"
     const val kotlinLogging = "3.0.4"
     const val arrow = "1.1.3"
@@ -11,7 +11,7 @@ object Versions {
     const val jooq = "3.16.12"
 
     const val assertk = "0.25"
-    const val mockito = "4.10.0"
+    const val mockito = "4.11.0"
     const val mockitoKotlin = "2.2.0"
     const val jsonUnit = "2.36.0"
     const val wireMock = "2.35.0"
