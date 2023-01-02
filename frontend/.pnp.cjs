@@ -89,7 +89,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["qs", "npm:6.11.0"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:18.2.0"],\
-            ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.8.3"],\
+            ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.9.0"],\
             ["sass", "npm:1.57.1"],\
             ["typescript", "patch:typescript@npm%3A4.8.4#~builtin<compat/typescript>::version=4.8.4&hash=0102e9"],\
             ["vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.0.3"],\
@@ -14452,7 +14452,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["qs", "npm:6.11.0"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:18.2.0"],\
-            ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.8.3"],\
+            ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.9.0"],\
             ["sass", "npm:1.57.1"],\
             ["typescript", "patch:typescript@npm%3A4.8.4#~builtin<compat/typescript>::version=4.8.4&hash=0102e9"],\
             ["vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.0.3"],\
@@ -20158,19 +20158,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["rollup-plugin-visualizer", [\
-        ["npm:5.8.3", {\
-          "packageLocation": "./.yarn/cache/rollup-plugin-visualizer-npm-5.8.3-7aab3ac46d-0ed4b4b49b.zip/node_modules/rollup-plugin-visualizer/",\
+        ["npm:5.9.0", {\
+          "packageLocation": "./.yarn/cache/rollup-plugin-visualizer-npm-5.9.0-9fe280ac22-362d4fac02.zip/node_modules/rollup-plugin-visualizer/",\
           "packageDependencies": [\
-            ["rollup-plugin-visualizer", "npm:5.8.3"]\
+            ["rollup-plugin-visualizer", "npm:5.9.0"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.8.3", {\
-          "packageLocation": "./.yarn/__virtual__/rollup-plugin-visualizer-virtual-7f9f1fe13a/0/cache/rollup-plugin-visualizer-npm-5.8.3-7aab3ac46d-0ed4b4b49b.zip/node_modules/rollup-plugin-visualizer/",\
+        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.9.0", {\
+          "packageLocation": "./.yarn/__virtual__/rollup-plugin-visualizer-virtual-3c39ee1524/0/cache/rollup-plugin-visualizer-npm-5.9.0-9fe280ac22-362d4fac02.zip/node_modules/rollup-plugin-visualizer/",\
           "packageDependencies": [\
-            ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.8.3"],\
+            ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.9.0"],\
             ["@types/rollup", null],\
             ["open", "npm:8.4.0"],\
+            ["picomatch", "npm:2.3.1"],\
             ["rollup", null],\
             ["source-map", "npm:0.7.4"],\
             ["yargs", "npm:17.6.2"]\
