@@ -64,7 +64,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@vue/eslint-config-typescript", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:11.0.2"],\
             ["@vue/reactivity", "npm:3.2.45"],\
             ["@vue/shared", "npm:3.2.45"],\
-            ["@vue/test-utils", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.6"],\
+            ["@vue/test-utils", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.7"],\
             ["@vue/tsconfig", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.1.3"],\
             ["babel-loader", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:8.3.0"],\
             ["cldr-data", "npm:36.0.1"],\
@@ -9088,17 +9088,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@vue/test-utils", [\
-        ["npm:2.2.6", {\
-          "packageLocation": "./.yarn/cache/@vue-test-utils-npm-2.2.6-39b9487605-046cac7e53.zip/node_modules/@vue/test-utils/",\
+        ["npm:2.2.7", {\
+          "packageLocation": "./.yarn/cache/@vue-test-utils-npm-2.2.7-67a6f9caa2-b6a0daadcc.zip/node_modules/@vue/test-utils/",\
           "packageDependencies": [\
-            ["@vue/test-utils", "npm:2.2.6"]\
+            ["@vue/test-utils", "npm:2.2.7"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.6", {\
-          "packageLocation": "./.yarn/__virtual__/@vue-test-utils-virtual-2e08accfab/0/cache/@vue-test-utils-npm-2.2.6-39b9487605-046cac7e53.zip/node_modules/@vue/test-utils/",\
+        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.7", {\
+          "packageLocation": "./.yarn/__virtual__/@vue-test-utils-virtual-582f354163/0/cache/@vue-test-utils-npm-2.2.7-67a6f9caa2-b6a0daadcc.zip/node_modules/@vue/test-utils/",\
           "packageDependencies": [\
-            ["@vue/test-utils", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.6"],\
+            ["@vue/test-utils", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.7"],\
             ["@types/vue", null],\
             ["vue", "npm:3.2.45"]\
           ],\
@@ -14426,7 +14426,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@vue/eslint-config-typescript", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:11.0.2"],\
             ["@vue/reactivity", "npm:3.2.45"],\
             ["@vue/shared", "npm:3.2.45"],\
-            ["@vue/test-utils", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.6"],\
+            ["@vue/test-utils", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.7"],\
             ["@vue/tsconfig", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.1.3"],\
             ["babel-loader", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:8.3.0"],\
             ["cldr-data", "npm:36.0.1"],\
