@@ -7153,10 +7153,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^2.4.1":
-  version: 2.4.1
-  resolution: "dompurify@npm:2.4.1"
-  checksum: 1169177465b3cbb25a44322937fba549f6c4e1a91b83245d144471be26619c835cccf0f8e20aa78c25ac11a06efd17cc1b9db9cacadceb78a4c08a1029eafee5
+"dompurify@npm:^2.4.2":
+  version: 2.4.2
+  resolution: "dompurify@npm:2.4.2"
+  checksum: 5b01e377755f8f3b5d4e30fc3292e060ece66874b50b35e19f601f1e671d6cefbf0fa71bcc0f863c0f7cbcea502349f67f72f8172223d4a9e963ba6bd335dce5
   languageName: node
   linkType: hard
 
@@ -8647,7 +8647,7 @@ __metadata:
     cldr-data: ^36.0.1
     cldrjs: ^0.5.5
     copy-to-clipboard: ^3.3.3
-    dompurify: ^2.4.1
+    dompurify: ^2.4.2
     dropzone: ^6.0.0-beta.2
     element-plus: ^2.2.28
     eslint: ^8.31.0
