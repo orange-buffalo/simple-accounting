@@ -19,7 +19,7 @@
     "@vue/reactivity": "^3.2.45",
     "@vue/shared": "^3.2.45",
     "copy-to-clipboard": "^3.3.3",
-    "dompurify": "^2.4.2",
+    "dompurify": "^2.4.3",
     "dropzone": "^6.0.0-beta.2",
     "element-plus": "^2.2.28",
     "event-source-polyfill": "^1.0.31",
