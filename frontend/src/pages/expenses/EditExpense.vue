@@ -241,7 +241,11 @@
         expenseId: props.id,
         workspaceId: currentWorkspaceId,
       });
-      expense.value = fullExpense;
+      expense.value = {
+        ...fullExpense,
+        convertedAmountInDefaultCurrency: fullExpense.convertedAmounts.originalAmountInDefaultCurrency,
+        incomeTaxableAmountInDefaultCurrency: fullExpense.incomeTaxableAmounts.originalAmountInDefaultCurrency,
+      };
       uiState.value.partialForBusiness = fullExpense.percentOnBusiness !== 100;
     } else if (props.prototype !== undefined) {
       const prototypeExpense = await expensesApi.getExpense({

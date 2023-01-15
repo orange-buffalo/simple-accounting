@@ -220,10 +220,15 @@
 
   const loadIncome = async () => {
     if (props.id !== undefined) {
-      income.value = await incomesApi.getIncome({
+      const loadedIncome = await incomesApi.getIncome({
         incomeId: props.id,
         workspaceId: currentWorkspaceId,
       });
+      income.value = {
+        ...loadedIncome,
+        convertedAmountInDefaultCurrency: loadedIncome.convertedAmounts.originalAmountInDefaultCurrency,
+        incomeTaxableAmountInDefaultCurrency: loadedIncome.incomeTaxableAmounts.originalAmountInDefaultCurrency,
+      };
     } else if (props.sourceInvoiceId !== undefined) {
       const sourceInvoice = await invoicesApi.getInvoice({
         invoiceId: Number(props.sourceInvoiceId),
