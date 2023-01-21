@@ -6,7 +6,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  dependabot:
+  sadeppy:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'sa-deppy[bot]' }}
     steps:
