@@ -1,4 +1,4 @@
-name: Dependabot auto-merge
+name: Dependencies upgrade auto-merge
 on: pull_request
 
 permissions:
@@ -11,6 +11,16 @@ jobs:
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --rebase "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  sadeppy:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'sa-deppy[bot]' }}
+    steps:
+      - name: Enable auto-merge for sa-deppy PRs
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
