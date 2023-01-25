@@ -51,7 +51,7 @@
     "@types/cldrjs": "^0.4.22",
     "@types/dompurify": "^2.4.0",
     "@types/dropzone": "^5.7.4",
-    "@types/event-source-polyfill": "^1.0.0",
+    "@types/event-source-polyfill": "^1.0.1",
     "@types/flat": "^5.0.2",
     "@types/globalize": "^1.5.2",
     "@types/js-yaml": "^4.0.5",
