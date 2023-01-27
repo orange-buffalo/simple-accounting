@@ -2549,7 +2549,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/channel-websocket@npm:6.5.15, @storybook/channel-websocket@npm:^6.5.15":
+"@storybook/channel-websocket@npm:6.5.15":
   version: 6.5.15
   resolution: "@storybook/channel-websocket@npm:6.5.15"
   dependencies:
@@ -2559,6 +2559,19 @@ __metadata:
     global: ^4.4.0
     telejson: ^6.0.8
   checksum: c482b18b28f06644f684ed2b88ab53d6c5853925343e60a50a9bcfb2888123c4accfe30b51743905693e4d73c32c77e30d6dbaba377b486bee6e51faae39cf85
+  languageName: node
+  linkType: hard
+
+"@storybook/channel-websocket@npm:^6.5.16":
+  version: 6.5.16
+  resolution: "@storybook/channel-websocket@npm:6.5.16"
+  dependencies:
+    "@storybook/channels": 6.5.16
+    "@storybook/client-logger": 6.5.16
+    core-js: ^3.8.2
+    global: ^4.4.0
+    telejson: ^6.0.8
+  checksum: 355c85f22d7cc65764871852debe347c43c3fe92d6a0caa64aecbe2dce78d4bf73b98e997099f9e4e7c204ad5821b979939b0700e446fa26478c1e1ba48e7380
   languageName: node
   linkType: hard
 
@@ -2581,6 +2594,17 @@ __metadata:
     ts-dedent: ^2.0.0
     util-deprecate: ^1.0.2
   checksum: 7963c34246b3cc84bb6fb0965834110d9b839a5c32cced0756948e4e88fb8bf23a0d584723abbab6d30a6282fa1023017bb82eba68c23389652c77d8d33cb4f9
+  languageName: node
+  linkType: hard
+
+"@storybook/channels@npm:6.5.16":
+  version: 6.5.16
+  resolution: "@storybook/channels@npm:6.5.16"
+  dependencies:
+    core-js: ^3.8.2
+    ts-dedent: ^2.0.0
+    util-deprecate: ^1.0.2
+  checksum: 3d7f7bc19ed7b250976e00e02ab544408806b439106bed18a5db9815612f6c5df9bdf7c1a97b5a40ba3194184ebe7e4c75e2bca5496025d6b26afefa95cfccbd
   languageName: node
   linkType: hard
 
@@ -2632,6 +2656,16 @@ __metadata:
     core-js: ^3.8.2
     global: ^4.4.0
   checksum: cee16aea089b60b33ad643bde5e0d62274230d38e2033f0bfd0780fc092bc24b5acff63a6c569c9db989e59b89518ec964d0665a51548450716c4c50d3a3e66e
+  languageName: node
+  linkType: hard
+
+"@storybook/client-logger@npm:6.5.16":
+  version: 6.5.16
+  resolution: "@storybook/client-logger@npm:6.5.16"
+  dependencies:
+    core-js: ^3.8.2
+    global: ^4.4.0
+  checksum: 0a86959b1bacb1b893e282173b48afe9c857b8cdc67a47ad87a7f11ba7dbc15ebc4f0d05c07dffb988e0cd3e1de0f09f300ee06c66afe4c50e9be83aaed75971
   languageName: node
   linkType: hard
 
@@ -8725,7 +8759,7 @@ __metadata:
     "@storybook/addons": ^6.5.15
     "@storybook/builder-vite": ^0.3.0
     "@storybook/channel-postmessage": ^6.5.15
-    "@storybook/channel-websocket": ^6.5.15
+    "@storybook/channel-websocket": ^6.5.16
     "@storybook/client-api": ^6.5.15
     "@storybook/preview-web": ^6.5.15
     "@storybook/theming": ^6.5.15
