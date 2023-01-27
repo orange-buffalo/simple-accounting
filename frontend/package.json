@@ -40,7 +40,7 @@
     "@rushstack/eslint-patch": "^1.2.0",
     "@sinonjs/fake-timers": "^10.0.2",
     "@storybook/addon-actions": "^6.5.15",
-    "@storybook/addons": "^6.5.15",
+    "@storybook/addons": "^6.5.16",
     "@storybook/builder-vite": "^0.3.0",
     "@storybook/channel-postmessage": "^6.5.15",
     "@storybook/channel-websocket": "^6.5.16",
