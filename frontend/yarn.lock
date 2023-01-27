@@ -2584,7 +2584,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/channel-postmessage@npm:6.5.15, @storybook/channel-postmessage@npm:^6.5.15":
+"@storybook/channel-postmessage@npm:6.5.15":
   version: 6.5.15
   resolution: "@storybook/channel-postmessage@npm:6.5.15"
   dependencies:
@@ -2599,7 +2599,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/channel-postmessage@npm:6.5.16":
+"@storybook/channel-postmessage@npm:6.5.16, @storybook/channel-postmessage@npm:^6.5.16":
   version: 6.5.16
   resolution: "@storybook/channel-postmessage@npm:6.5.16"
   dependencies:
@@ -8916,7 +8916,7 @@ __metadata:
     "@storybook/addon-actions": ^6.5.15
     "@storybook/addons": ^6.5.16
     "@storybook/builder-vite": ^0.3.0
-    "@storybook/channel-postmessage": ^6.5.15
+    "@storybook/channel-postmessage": ^6.5.16
     "@storybook/channel-websocket": ^6.5.16
     "@storybook/client-api": ^6.5.15
     "@storybook/preview-web": ^6.5.16
