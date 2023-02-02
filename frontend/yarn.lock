@@ -4196,6 +4196,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vue/shared@npm:^3.2.46":
+  version: 3.2.46
+  resolution: "@vue/shared@npm:3.2.46"
+  checksum: afd106c5378e1aa75143b7453c731ba3c3181f6582b83d4070c6344901c8b16fed38f3e97a72cbdce9137121345f38770a23e23d6248ef0a6654fdb1d2b0d674
+  languageName: node
+  linkType: hard
+
 "@vue/test-utils@npm:^2.2.8":
   version: 2.2.8
   resolution: "@vue/test-utils@npm:2.2.8"
@@ -8725,7 +8732,7 @@ __metadata:
     "@vue/eslint-config-airbnb": ^7.0.0
     "@vue/eslint-config-typescript": ^11.0.2
     "@vue/reactivity": ^3.2.45
-    "@vue/shared": ^3.2.45
+    "@vue/shared": ^3.2.46
     "@vue/test-utils": ^2.2.8
     "@vue/tsconfig": ^0.1.3
     babel-loader: ^8.2.5
