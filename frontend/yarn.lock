@@ -4156,6 +4156,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vue/reactivity@npm:^3.2.46":
+  version: 3.2.46
+  resolution: "@vue/reactivity@npm:3.2.46"
+  dependencies:
+    "@vue/shared": 3.2.46
+  checksum: 8ed7fcf8a5bab67a1d4c081d239c645eb3ad5369a02f7956a04d723ac3977383fb90e95ea2dbb48927be6cb1708d613061f569ab06ebdb47863777423646f2c4
+  languageName: node
+  linkType: hard
+
 "@vue/runtime-core@npm:3.2.45":
   version: 3.2.45
   resolution: "@vue/runtime-core@npm:3.2.45"
@@ -4193,6 +4202,13 @@ __metadata:
   version: 3.2.45
   resolution: "@vue/shared@npm:3.2.45"
   checksum: ff3205056caed2a965aa0980e21319515ce13c859a9b269fdab0ee8b3c9f3d8eec7eefdb7fd6c6b47c12acdc7bf23c6c187b6191054221b4a29108139b20c221
+  languageName: node
+  linkType: hard
+
+"@vue/shared@npm:3.2.46":
+  version: 3.2.46
+  resolution: "@vue/shared@npm:3.2.46"
+  checksum: afd106c5378e1aa75143b7453c731ba3c3181f6582b83d4070c6344901c8b16fed38f3e97a72cbdce9137121345f38770a23e23d6248ef0a6654fdb1d2b0d674
   languageName: node
   linkType: hard
 
@@ -8724,7 +8740,7 @@ __metadata:
     "@vitejs/plugin-vue": ^4.0.0
     "@vue/eslint-config-airbnb": ^7.0.0
     "@vue/eslint-config-typescript": ^11.0.2
-    "@vue/reactivity": ^3.2.45
+    "@vue/reactivity": ^3.2.46
     "@vue/shared": ^3.2.45
     "@vue/test-utils": ^2.2.8
     "@vue/tsconfig": ^0.1.3
