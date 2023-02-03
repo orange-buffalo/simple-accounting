@@ -4232,9 +4232,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/test-utils@npm:^2.2.9":
-  version: 2.2.9
-  resolution: "@vue/test-utils@npm:2.2.9"
+"@vue/test-utils@npm:^2.2.10":
+  version: 2.2.10
+  resolution: "@vue/test-utils@npm:2.2.10"
   dependencies:
     "@vue/compiler-dom": ^3.0.1
     js-beautify: 1.14.6
@@ -4244,7 +4244,7 @@ __metadata:
   dependenciesMeta:
     "@vue/compiler-dom":
       optional: true
-  checksum: 8b9cb23c4c7d86945757e2be04261be5de5eb66a2613e9192cec4bc65a81ec16195b1392a942d43bc4773d4945b49db9f8f141ec8a66d6e8549b2c70949c5ae9
+  checksum: f16a912765c44655063ee6eee19a85b22410d2668dc3df3c560ce6a9344b96e03b3a2eb4daa70c2745c395e654d5a790902f20f5600b42c56fbc6927f4ec71d5
   languageName: node
   linkType: hard
 
@@ -8766,7 +8766,7 @@ __metadata:
     "@vue/eslint-config-typescript": ^11.0.2
     "@vue/reactivity": ^3.2.45
     "@vue/shared": ^3.2.46
-    "@vue/test-utils": ^2.2.9
+    "@vue/test-utils": ^2.2.10
     "@vue/tsconfig": ^0.1.3
     babel-loader: ^8.2.5
     cldr-data: ^36.0.1
