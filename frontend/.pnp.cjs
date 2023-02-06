@@ -56,7 +56,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/jsdom", "npm:20.0.1"],\
             ["@types/lodash", "npm:4.14.191"],\
             ["@types/marked", "npm:4.0.8"],\
-            ["@types/node", "npm:18.11.18"],\
+            ["@types/node", "npm:18.11.19"],\
             ["@types/qs", "npm:6.9.7"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.2"],\
             ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.0.0"],\
@@ -8350,10 +8350,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["npm:18.11.18", {\
-          "packageLocation": "./.yarn/cache/@types-node-npm-18.11.18-d61e8a4a20-03f17f9480.zip/node_modules/@types/node/",\
+        ["npm:18.11.19", {\
+          "packageLocation": "./.yarn/cache/@types-node-npm-18.11.19-dd4a5b3ed6-d7cd19fcfc.zip/node_modules/@types/node/",\
           "packageDependencies": [\
-            ["@types/node", "npm:18.11.18"]\
+            ["@types/node", "npm:18.11.19"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -9277,7 +9277,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/__virtual__/@vue-tsconfig-virtual-4bdac2ddd6/0/cache/@vue-tsconfig-npm-0.1.3-07ae9b676e-8150a24497.zip/node_modules/@vue/tsconfig/",\
           "packageDependencies": [\
             ["@vue/tsconfig", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.1.3"],\
-            ["@types/node", "npm:18.11.18"]\
+            ["@types/node", "npm:18.11.19"]\
           ],\
           "packagePeers": [\
             "@types/node"\
@@ -14706,7 +14706,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/jsdom", "npm:20.0.1"],\
             ["@types/lodash", "npm:4.14.191"],\
             ["@types/marked", "npm:4.0.8"],\
-            ["@types/node", "npm:18.11.18"],\
+            ["@types/node", "npm:18.11.19"],\
             ["@types/qs", "npm:6.9.7"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.2"],\
             ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.0.0"],\
@@ -22947,7 +22947,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.1.1"],\
             ["@types/less", null],\
-            ["@types/node", "npm:18.11.18"],\
+            ["@types/node", "npm:18.11.19"],\
             ["@types/sass", null],\
             ["@types/stylus", null],\
             ["@types/sugarss", null],\
