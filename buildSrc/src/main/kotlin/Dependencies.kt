@@ -8,7 +8,7 @@ object Versions {
     const val jjwt = "0.11.5"
     const val javaxEl = "3.0.1-b12"
     const val guava = "31.1-jre"
-    const val jooq = "3.16.13"
+    const val jooq = "3.16.14"
 
     const val assertk = "0.25"
     const val mockito = "5.1.1"
