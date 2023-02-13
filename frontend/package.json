@@ -21,7 +21,7 @@
     "copy-to-clipboard": "^3.3.3",
     "dompurify": "^2.4.3",
     "dropzone": "^6.0.0-beta.2",
-    "element-plus": "^2.2.28",
+    "element-plus": "^2.2.30",
     "event-source-polyfill": "^1.0.31",
     "globalize": "^1.7.0",
     "imask": "^6.4.3",
