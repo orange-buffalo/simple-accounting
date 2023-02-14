@@ -70,7 +70,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["cldr-data", "npm:36.0.1"],\
             ["cldrjs", "npm:0.5.5"],\
             ["copy-to-clipboard", "npm:3.3.3"],\
-            ["dompurify", "npm:2.4.3"],\
+            ["dompurify", "npm:3.0.0"],\
             ["dropzone", "npm:6.0.0-beta.2"],\
             ["element-plus", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.30"],\
             ["eslint", "npm:8.34.0"],\
@@ -12880,10 +12880,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["dompurify", [\
-        ["npm:2.4.3", {\
-          "packageLocation": "./.yarn/cache/dompurify-npm-2.4.3-de4e3be286-b440981f2a.zip/node_modules/dompurify/",\
+        ["npm:3.0.0", {\
+          "packageLocation": "./.yarn/cache/dompurify-npm-3.0.0-9a61a3acad-f5dfa0727e.zip/node_modules/dompurify/",\
           "packageDependencies": [\
-            ["dompurify", "npm:2.4.3"]\
+            ["dompurify", "npm:3.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -14724,7 +14724,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["cldr-data", "npm:36.0.1"],\
             ["cldrjs", "npm:0.5.5"],\
             ["copy-to-clipboard", "npm:3.3.3"],\
-            ["dompurify", "npm:2.4.3"],\
+            ["dompurify", "npm:3.0.0"],\
             ["dropzone", "npm:6.0.0-beta.2"],\
             ["element-plus", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.30"],\
             ["eslint", "npm:8.34.0"],\
