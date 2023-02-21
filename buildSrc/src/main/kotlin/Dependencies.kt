@@ -23,5 +23,5 @@ object Versions {
     const val springdocOpenapi = "2.0.2"
 
     const val semverGitPlugin = "1.2.1"
-    const val versionsPlugin = "0.45.0"
+    const val versionsPlugin = "0.46.0"
 }
