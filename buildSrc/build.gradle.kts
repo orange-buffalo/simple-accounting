@@ -1,6 +1,6 @@
 object Versions {
     const val jooq = "3.16.14"
-    const val kotlinSerialization = "1.4.1"
+    const val kotlinSerialization = "1.5.0"
 }
 
 repositories {
