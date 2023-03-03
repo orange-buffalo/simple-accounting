@@ -7680,9 +7680,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"element-plus@npm:^2.2.30":
-  version: 2.2.30
-  resolution: "element-plus@npm:2.2.30"
+"element-plus@npm:^2.2.32":
+  version: 2.2.32
+  resolution: "element-plus@npm:2.2.32"
   dependencies:
     "@ctrl/tinycolor": ^3.4.1
     "@element-plus/icons-vue": ^2.0.6
@@ -7701,7 +7701,7 @@ __metadata:
     normalize-wheel-es: ^1.2.0
   peerDependencies:
     vue: ^3.2.0
-  checksum: 8f136ee5e19f15ad5d5c596f38dd4d730c693b394cc034b8078ffc1c5349b0fbb44bb952722b046ac60971f51c5727931ac82725c6f7f034c26bca8cb58b9cf1
+  checksum: 2942c720335b3ef2519edf9cb9341b49ce6c266755892d6aa27b9a06f31eae8756b26451504bf5498713f9783d49038080ebc6d479826e6d424a33befe688846
   languageName: node
   linkType: hard
 
@@ -9181,7 +9181,7 @@ __metadata:
     copy-to-clipboard: ^3.3.3
     dompurify: ^3.0.1
     dropzone: ^6.0.0-beta.2
-    element-plus: ^2.2.30
+    element-plus: ^2.2.32
     eslint: ^8.35.0
     eslint-plugin-storybook: ^0.6.11
     eslint-plugin-vue: ^9.9.0
