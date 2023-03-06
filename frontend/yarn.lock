@@ -1834,12 +1834,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@element-plus/icons-vue@npm:^2.0.10, @element-plus/icons-vue@npm:^2.0.6":
+"@element-plus/icons-vue@npm:^2.0.6":
   version: 2.0.10
   resolution: "@element-plus/icons-vue@npm:2.0.10"
   peerDependencies:
     vue: ^3.2.0
   checksum: 1ab628ab9558b010ff904444eb3609c9f043161e9fd398f9c583d038f5e91b9386e646e2fb38021d9762a30e2a0a580bc0afec3c39a8d327892d20f3576b12f4
+  languageName: node
+  linkType: hard
+
+"@element-plus/icons-vue@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@element-plus/icons-vue@npm:2.1.0"
+  peerDependencies:
+    vue: ^3.2.0
+  checksum: 5217a4f4289c424ab00e8366f8291ce528ffcabc806e1be87349c260587dee007e3f134ba9bcfb8833d3dfba9143b2c224446b6142f7201faa0c1c3de5a93ea3
   languageName: node
   linkType: hard
 
@@ -9140,7 +9149,7 @@ __metadata:
     "@babel/core": ^7.21.0
     "@babel/preset-env": ^7.20.2
     "@babel/preset-typescript": ^7.21.0
-    "@element-plus/icons-vue": ^2.0.10
+    "@element-plus/icons-vue": ^2.1.0
     "@mdx-js/react": ^2.3.0
     "@messageformat/core": ^3.0.1
     "@messageformat/parser": ^5.0.0
