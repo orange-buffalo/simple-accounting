@@ -31,7 +31,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/core", "npm:7.21.0"],\
             ["@babel/preset-env", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.20.2"],\
             ["@babel/preset-typescript", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.21.0"],\
-            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.0.10"],\
+            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0"],\
             ["@mdx-js/react", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.3.0"],\
             ["@messageformat/core", "npm:3.0.1"],\
             ["@messageformat/parser", "npm:5.0.0"],\
@@ -5423,10 +5423,30 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.0.10", {\
-          "packageLocation": "./.yarn/__virtual__/@element-plus-icons-vue-virtual-b69751bb19/0/cache/@element-plus-icons-vue-npm-2.0.10-41b72996f4-1ab628ab95.zip/node_modules/@element-plus/icons-vue/",\
+        ["npm:2.1.0", {\
+          "packageLocation": "./.yarn/cache/@element-plus-icons-vue-npm-2.1.0-7e670d5607-5217a4f428.zip/node_modules/@element-plus/icons-vue/",\
           "packageDependencies": [\
-            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.0.10"],\
+            ["@element-plus/icons-vue", "npm:2.1.0"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:439c9e41e9e317cb874c284bf0849229521d249a74e1d00a1833b3ca4a0e326ec65f378803442e3c56ac4bff9d7567715ca06c0581e1aa8f232f57f774a5dfb0#npm:2.0.10", {\
+          "packageLocation": "./.yarn/__virtual__/@element-plus-icons-vue-virtual-d85178e086/0/cache/@element-plus-icons-vue-npm-2.0.10-41b72996f4-1ab628ab95.zip/node_modules/@element-plus/icons-vue/",\
+          "packageDependencies": [\
+            ["@element-plus/icons-vue", "virtual:439c9e41e9e317cb874c284bf0849229521d249a74e1d00a1833b3ca4a0e326ec65f378803442e3c56ac4bff9d7567715ca06c0581e1aa8f232f57f774a5dfb0#npm:2.0.10"],\
+            ["@types/vue", null],\
+            ["vue", "npm:3.2.47"]\
+          ],\
+          "packagePeers": [\
+            "@types/vue",\
+            "vue"\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0", {\
+          "packageLocation": "./.yarn/__virtual__/@element-plus-icons-vue-virtual-3c8ccb1a51/0/cache/@element-plus-icons-vue-npm-2.1.0-7e670d5607-5217a4f428.zip/node_modules/@element-plus/icons-vue/",\
+          "packageDependencies": [\
+            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0"],\
             ["@types/vue", null],\
             ["vue", "npm:3.2.47"]\
           ],\
@@ -13174,7 +13194,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["element-plus", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.2.30"],\
             ["@ctrl/tinycolor", "npm:3.4.1"],\
-            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.0.10"],\
+            ["@element-plus/icons-vue", "virtual:439c9e41e9e317cb874c284bf0849229521d249a74e1d00a1833b3ca4a0e326ec65f378803442e3c56ac4bff9d7567715ca06c0581e1aa8f232f57f774a5dfb0#npm:2.0.10"],\
             ["@floating-ui/dom", "npm:1.0.7"],\
             ["@popperjs/core", [\
               "@sxzz/popperjs-es",\
@@ -14852,7 +14872,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/core", "npm:7.21.0"],\
             ["@babel/preset-env", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.20.2"],\
             ["@babel/preset-typescript", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.21.0"],\
-            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.0.10"],\
+            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0"],\
             ["@mdx-js/react", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.3.0"],\
             ["@messageformat/core", "npm:3.0.1"],\
             ["@messageformat/parser", "npm:5.0.0"],\
