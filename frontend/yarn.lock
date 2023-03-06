@@ -9205,7 +9205,7 @@ __metadata:
     vite-svg-loader: ^4.0.0
     vitest: ^0.29.2
     vue: ^3.2.47
-    vue-docgen-api: ^4.56.4
+    vue-docgen-api: ^4.60.0
     vue-router: ^4.1.6
     vue-tsc: ^1.2.0
     whatwg-fetch: ^3.6.2
@@ -16616,9 +16616,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-docgen-api@npm:^4.56.4":
-  version: 4.56.4
-  resolution: "vue-docgen-api@npm:4.56.4"
+"vue-docgen-api@npm:^4.60.0":
+  version: 4.60.0
+  resolution: "vue-docgen-api@npm:4.60.0"
   dependencies:
     "@babel/parser": ^7.13.12
     "@babel/types": ^7.18.8
@@ -16631,7 +16631,7 @@ __metadata:
     recast: 0.22.0
     ts-map: ^1.0.3
     vue-inbrowser-compiler-independent-utils: ^4.56.2
-  checksum: 3c25be31012a96b661f385d519fe2083fc5967b84308e2bc5c8fe81eebb30ec99a4ddedddccee489e414213ee60737d22ca3ad20cdfdf012d017384955d974cc
+  checksum: 078023b2ab61904c9b4001744c7739b2692d43ca383c7abe10309b0d66fd21320767e78b3dc76424f774873d2228eb24900f777ea27d5c6ea7b947035b6878f2
   languageName: node
   linkType: hard
 
