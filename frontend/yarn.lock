@@ -2420,9 +2420,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@messageformat/core@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@messageformat/core@npm:3.0.1"
+"@messageformat/core@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "@messageformat/core@npm:3.1.0"
   dependencies:
     "@messageformat/date-skeleton": ^1.0.0
     "@messageformat/number-skeleton": ^1.0.0
@@ -2430,7 +2430,7 @@ __metadata:
     "@messageformat/runtime": ^3.0.1
     make-plural: ^7.0.0
     safe-identifier: ^0.4.1
-  checksum: f08c982d54ef2ddf32de2a3425746e6efd37ce63154f97ff038edb1e02eb4e3e4c39f2aa42ef3d036e2f1b61eee0a2589e76158b0b91510355ef8348f2f8252f
+  checksum: ab991b38beca6c3d9b819379b249c7caa71e4632821479d99cbd4f6f1f7f959d44d6ad499b3dd06713f5e489a280a62956de635141f38ad71495ab9a6a5ebe31
   languageName: node
   linkType: hard
 
@@ -9180,7 +9180,7 @@ __metadata:
     "@babel/preset-typescript": ^7.21.0
     "@element-plus/icons-vue": ^2.1.0
     "@mdx-js/react": ^2.3.0
-    "@messageformat/core": ^3.0.1
+    "@messageformat/core": ^3.1.0
     "@messageformat/parser": ^5.0.0
     "@rushstack/eslint-patch": ^1.2.0
     "@sinonjs/fake-timers": ^10.0.2
