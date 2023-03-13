@@ -8,10 +8,10 @@ object Versions {
     const val jjwt = "0.11.5"
     const val javaxEl = "3.0.1-b12"
     const val guava = "31.1-jre"
-    const val jooq = "3.16.14"
+    const val jooq = "3.18.0"
 
     const val assertk = "0.25"
-    const val mockito = "5.1.1"
+    const val mockito = "5.2.0"
     const val mockitoKotlin = "2.2.0"
     const val jsonUnit = "2.36.1"
     const val wireMock = "2.35.0"
@@ -20,7 +20,7 @@ object Versions {
     const val selenium = "4.2.0"
     const val testContainers = "1.17.6"
     const val zjsonpatch = "0.4.14"
-    const val springdocOpenapi = "2.0.2"
+    const val springdocOpenapi = "2.0.3"
 
     const val semverGitPlugin = "1.2.1"
     const val versionsPlugin = "0.46.0"
