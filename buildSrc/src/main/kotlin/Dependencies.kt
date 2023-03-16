@@ -20,7 +20,7 @@ object Versions {
     const val selenium = "4.2.0"
     const val testContainers = "1.17.6"
     const val zjsonpatch = "0.4.14"
-    const val springdocOpenapi = "2.0.3"
+    const val springdocOpenapi = "2.0.4"
 
     const val semverGitPlugin = "1.2.1"
     const val versionsPlugin = "0.46.0"
