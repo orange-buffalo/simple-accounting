@@ -11,6 +11,7 @@
     "**/*.stories.ts"
   ],
   "compilerOptions": {
+    "ignoreDeprecations": "5.0",
     "composite": true,
     "baseUrl": ".",
     "paths": {
