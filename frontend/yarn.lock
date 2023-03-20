@@ -9287,7 +9287,7 @@ __metadata:
     vite-svg-loader: ^4.0.0
     vitest: ^0.29.3
     vue: ^3.2.47
-    vue-docgen-api: ^4.60.0
+    vue-docgen-api: ^4.64.1
     vue-router: ^4.1.6
     vue-tsc: ^1.2.0
     whatwg-fetch: ^3.6.2
@@ -11590,6 +11590,13 @@ __metadata:
   version: 7.14.1
   resolution: "lru-cache@npm:7.14.1"
   checksum: d72c6713c6a6d86836a7a6523b3f1ac6764768cca47ec99341c3e76db06aacd4764620e5e2cda719a36848785a52a70e531822dc2b33fb071fa709683746c104
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^8.0.3":
+  version: 8.0.4
+  resolution: "lru-cache@npm:8.0.4"
+  checksum: dee2b905a8cd688c5847faa46ba3cfeaa0766283b244bfd6177420e04e9d923fc901a9a578fc3963d70959631595240ead37abaf43e21968bb9805bbd9519856
   languageName: node
   linkType: hard
 
@@ -16721,22 +16728,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-docgen-api@npm:^4.60.0":
-  version: 4.60.0
-  resolution: "vue-docgen-api@npm:4.60.0"
+"vue-docgen-api@npm:^4.64.1":
+  version: 4.64.1
+  resolution: "vue-docgen-api@npm:4.64.1"
   dependencies:
     "@babel/parser": ^7.13.12
     "@babel/types": ^7.18.8
     "@vue/compiler-dom": ^3.2.0
     "@vue/compiler-sfc": ^3.2.0
     ast-types: 0.14.2
-    hash-sum: ^1.0.2
-    lru-cache: ^4.1.5
+    hash-sum: ^2.0.0
+    lru-cache: ^8.0.3
     pug: ^3.0.2
     recast: 0.22.0
     ts-map: ^1.0.3
-    vue-inbrowser-compiler-independent-utils: ^4.56.2
-  checksum: 078023b2ab61904c9b4001744c7739b2692d43ca383c7abe10309b0d66fd21320767e78b3dc76424f774873d2228eb24900f777ea27d5c6ea7b947035b6878f2
+    vue-inbrowser-compiler-independent-utils: ^4.64.1
+  checksum: d2653e429d2db920cecb81a2bf0eecd88283bb226fceec500ee50c67a7784ee7113d70b3b49793ca0ccf89010023f7ad730d22a67eea2a0b5948d41f5b417593
   languageName: node
   linkType: hard
 
@@ -16781,12 +16788,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-inbrowser-compiler-independent-utils@npm:^4.56.2":
-  version: 4.56.2
-  resolution: "vue-inbrowser-compiler-independent-utils@npm:4.56.2"
+"vue-inbrowser-compiler-independent-utils@npm:^4.64.1":
+  version: 4.64.1
+  resolution: "vue-inbrowser-compiler-independent-utils@npm:4.64.1"
   peerDependencies:
     vue: ">=2"
-  checksum: cf9cf6f7407695f40ef0bc325983bdfedd6cc13aa200819c75138577357ad8218c8930ed4f1c034b3532e8f9d2e1a902672233adb1092ba040ee7d2fd64d721d
+  checksum: e8adfc5e8e30b5bcf03ab58b23fe42e1738631c10e6fa8d029eecbf572c1696c0915a4112ff10300f85fb0a995b2fb2679dedd7099f1d32ef6f8cc3931e86806
   languageName: node
   linkType: hard
 
