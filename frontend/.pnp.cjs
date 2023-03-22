@@ -85,7 +85,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jsdom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:21.1.1"],\
             ["jwt-decode", "npm:3.1.2"],\
             ["lodash", "npm:4.17.21"],\
-            ["marked", "npm:4.2.12"],\
+            ["marked", "npm:4.3.0"],\
             ["qs", "npm:6.11.1"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:18.2.0"],\
@@ -15004,7 +15004,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jsdom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:21.1.1"],\
             ["jwt-decode", "npm:3.1.2"],\
             ["lodash", "npm:4.17.21"],\
-            ["marked", "npm:4.2.12"],\
+            ["marked", "npm:4.3.0"],\
             ["qs", "npm:6.11.1"],\
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:18.2.0"],\
@@ -17734,10 +17734,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["marked", [\
-        ["npm:4.2.12", {\
-          "packageLocation": "./.yarn/cache/marked-npm-4.2.12-59aaa5afdc-bd551cd610.zip/node_modules/marked/",\
+        ["npm:4.3.0", {\
+          "packageLocation": "./.yarn/cache/marked-npm-4.3.0-e7ef9e874f-0db6817893.zip/node_modules/marked/",\
           "packageDependencies": [\
-            ["marked", "npm:4.2.12"]\
+            ["marked", "npm:4.3.0"]\
           ],\
           "linkType": "HARD"\
         }]\
