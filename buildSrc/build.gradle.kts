@@ -1,5 +1,5 @@
 object Versions {
-    const val jooq = "3.18.0"
+    const val jooq = "3.16.16"
     const val kotlinSerialization = "1.5.0"
 }
 
