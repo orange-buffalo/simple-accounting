@@ -53,7 +53,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/flat", "npm:5.0.2"],\
             ["@types/globalize", "npm:1.5.2"],\
             ["@types/js-yaml", "npm:4.0.5"],\
-            ["@types/jsdom", "npm:21.1.0"],\
+            ["@types/jsdom", "npm:21.1.1"],\
             ["@types/lodash", "npm:4.14.191"],\
             ["@types/marked", "npm:4.0.8"],\
             ["@types/node", "npm:18.15.5"],\
@@ -8469,10 +8469,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/jsdom", [\
-        ["npm:21.1.0", {\
-          "packageLocation": "./.yarn/cache/@types-jsdom-npm-21.1.0-5c2abb5bb8-39d3c58028.zip/node_modules/@types/jsdom/",\
+        ["npm:21.1.1", {\
+          "packageLocation": "./.yarn/cache/@types-jsdom-npm-21.1.1-4175e6dd27-7450d6e23a.zip/node_modules/@types/jsdom/",\
           "packageDependencies": [\
-            ["@types/jsdom", "npm:21.1.0"],\
+            ["@types/jsdom", "npm:21.1.1"],\
             ["@types/node", "npm:18.11.10"],\
             ["@types/tough-cookie", "npm:4.0.2"],\
             ["parse5", "npm:7.1.2"]\
@@ -14972,7 +14972,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/flat", "npm:5.0.2"],\
             ["@types/globalize", "npm:1.5.2"],\
             ["@types/js-yaml", "npm:4.0.5"],\
-            ["@types/jsdom", "npm:21.1.0"],\
+            ["@types/jsdom", "npm:21.1.1"],\
             ["@types/lodash", "npm:4.14.191"],\
             ["@types/marked", "npm:4.0.8"],\
             ["@types/node", "npm:18.15.5"],\
@@ -23358,7 +23358,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/chai-subset", "npm:1.3.3"],\
             ["@types/edge-runtime__vm", null],\
             ["@types/happy-dom", null],\
-            ["@types/jsdom", "npm:21.1.0"],\
+            ["@types/jsdom", "npm:21.1.1"],\
             ["@types/node", "npm:18.11.10"],\
             ["@types/safaridriver", null],\
             ["@types/vitest__browser", null],\
