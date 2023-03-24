@@ -13,7 +13,7 @@ object Versions {
     const val assertk = "0.25"
     const val mockito = "5.2.0"
     const val mockitoKotlin = "2.2.0"
-    const val jsonUnit = "2.36.1"
+    const val jsonUnit = "2.37.0"
     const val wireMock = "2.35.0"
     const val awaitility = "4.2.0"
     const val selenide = "6.5.1"
