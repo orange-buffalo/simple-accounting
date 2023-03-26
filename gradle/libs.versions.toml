@@ -1,0 +1,76 @@
+[versions]
+arrow = "1.1.4"
+assertk = "0.25"
+awaitility = "4.2.0"
+guava = "31.1-jre"
+imageComparison = "4.4.0"
+javaxEl = "3.0.1-b12"
+jib = "3.2.1"
+jjwt = "0.11.5"
+jooq = "3.16.16"
+jsonUnit = "2.37.0"
+kotest = "5.3.1"
+kotlin = "1.8.10"
+kotlinCoroutines = "1.6.4"
+kotlinLogging = "3.0.5"
+kotlinSerialization = "1.5.0"
+kotlinSerializationPlugin = "1.5.31"
+mockito = "5.2.0"
+mockitoKotlin = "2.2.0"
+selenide = "6.5.1"
+selenium = "4.2.0"
+semverGitPlugin = "1.2.1"
+springBoot = "3.0.5"
+springDependencyManagement = "1.0.11.RELEASE"
+springdocOpenapi = "2.0.4"
+testContainers = "1.17.5"
+versionsPlugin = "0.46.0"
+wireMock = "2.35.0"
+zjsonpatch = "0.4.14"
+
+[libraries]
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+assertk = { module = "com.willowtreeapps.assertk:assertk-jvm", version.ref = "assertk" }
+awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+imageComparison = { module = "com.github.romankh3:image-comparison", version.ref = "imageComparison" }
+javax-el = { module = "org.glassfish:javax.el", version.ref = "javaxEl" }
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
+jooq-codegen = { module = "org.jooq:jooq-codegen", version.ref = "jooq" }
+jooq-metaExtensions = { module = "org.jooq:jooq-meta-extensions", version.ref = "jooq" }
+jsonUnit-assertj = { module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "jsonUnit" }
+kotest-assertionsCore = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
+kotlin-allopen = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-noarg = { module = "org.jetbrains.kotlin:kotlin-noarg", version.ref = "kotlin" }
+kotlinLogging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlinLogging" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlinCoroutines" }
+kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "kotlinCoroutines" }
+kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlinCoroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+mockito-junitJupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version.ref = "mockitoKotlin" }
+selenide = { module = "com.codeborne:selenide", version.ref = "selenide" }
+# add selenium version explicitly to manage automatic upgrades
+selenium-java = { module = "org.seleniumhq.selenium:selenium-java", version.ref = "selenium" }
+springdocOpenapi-starterCommon = { module = "org.springdoc:springdoc-openapi-starter-common", version.ref = "springdocOpenapi" }
+springdocOpenapi-webfluxApi = { module = "org.springdoc:springdoc-openapi-starter-webflux-api", version.ref = "springdocOpenapi" }
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
+testcontainers-nginx = { module = "org.testcontainers:nginx", version.ref = "testContainers" }
+testcontainers-selenium = { module = "org.testcontainers:selenium", version.ref = "testContainers" }
+wiremock-jre8Standalone = { module = "com.github.tomakehurst:wiremock-jre8-standalone", version.ref = "wireMock" }
+zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjsonpatch" }
+
+[plugins]
+jib = { id = "com.google.cloud.tools.jib", version.ref = "jib" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationPlugin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+semverGit = { id = "io.wusa.semver-git-plugin", version.ref = "semverGitPlugin" }
+spring-dependencyManagement = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
+springBoot = { id = "org.springframework.boot", version.ref = "springBoot" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "versionsPlugin" }

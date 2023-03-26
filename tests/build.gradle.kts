@@ -29,35 +29,31 @@ val storybookTestRuntimeOnly: Configuration by configurations.getting
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:${Versions.springBoot}") {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:${libs.versions.springBoot.get()}") {
             // spring boot comes with 3.x while selenide needs 4.x
-            bomProperty("selenium.version", Versions.selenium)
+            bomProperty("selenium.version", libs.versions.selenium.get())
         }
     }
 }
 
 dependencies {
     e2eTestImplementation("org.junit.jupiter:junit-jupiter-api")
-    e2eTestImplementation("com.codeborne:selenide:${Versions.selenide}")
-    e2eTestImplementation("org.testcontainers:selenium:${Versions.testContainers}")
-    e2eTestImplementation("io.github.microutils:kotlin-logging:${Versions.kotlinLogging}")
-    // add version explicitly to manage upgrades by sa-deppy
-    e2eTestImplementation("org.seleniumhq.selenium:selenium-java:${Versions.selenium}")
+    e2eTestImplementation(libs.selenide)
+    e2eTestImplementation(libs.testcontainers.selenium)
+    e2eTestImplementation(libs.kotlinLogging)
 
     e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     e2eTestRuntimeOnly("org.slf4j:slf4j-simple")
 
     storybookTestImplementation("org.junit.jupiter:junit-jupiter-api")
-    storybookTestImplementation("com.codeborne:selenide:${Versions.selenide}")
-    storybookTestImplementation("org.testcontainers:selenium:${Versions.testContainers}")
-    storybookTestImplementation("org.testcontainers:nginx:${Versions.testContainers}")
-    storybookTestImplementation("io.github.microutils:kotlin-logging:${Versions.kotlinLogging}")
-    // add version explicitly to manage upgrades by sa-deppy
-    storybookTestImplementation("org.seleniumhq.selenium:selenium-java:${Versions.selenium}")
-    storybookTestImplementation("io.kotest:kotest-assertions-core-jvm:5.3.1")
+    storybookTestImplementation(libs.selenide)
+    storybookTestImplementation(libs.testcontainers.selenium)
+    storybookTestImplementation(libs.testcontainers.nginx)
+    storybookTestImplementation(libs.kotlinLogging)
+    storybookTestImplementation(libs.kotest.assertionsCore)
     storybookTestImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     storybookTestImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-    storybookTestImplementation("com.github.romankh3:image-comparison:4.4.0")
+    storybookTestImplementation(libs.imageComparison)
 
     storybookTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     storybookTestRuntimeOnly("org.slf4j:slf4j-simple")
