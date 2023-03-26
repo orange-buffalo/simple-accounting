@@ -2,16 +2,16 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
+        classpath(libs.kotlin.gradlePlugin)
     }
 }
 
 plugins {
-    id("io.wusa.semver-git-plugin") version Versions.semverGitPlugin
-    id("com.github.ben-manes.versions") version Versions.versionsPlugin
-    kotlin("jvm") version Versions.kotlin apply false
-    kotlin("kapt") version Versions.kotlin apply false
-    id("io.spring.dependency-management") version Versions.springDependencyManagement apply false
+    alias(libs.plugins.semverGit)
+    alias(libs.plugins.versions)
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.spring.dependencyManagement) apply false
 }
 
 val semVersion = semver.info.version

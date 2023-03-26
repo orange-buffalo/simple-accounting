@@ -3,8 +3,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-allopen:${Versions.kotlin}")
-        classpath("org.jetbrains.kotlin:kotlin-noarg:${Versions.kotlin}")
+        classpath(libs.kotlin.allopen)
+        classpath(libs.kotlin.noarg)
     }
 }
 
@@ -12,10 +12,10 @@ plugins {
     kotlin("jvm")
     kotlin("kapt")
     id("io.spring.dependency-management")
-    id("org.jetbrains.kotlin.plugin.spring") version Versions.kotlin
-    id("org.springframework.boot") version Versions.springBoot
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.springBoot)
     jacoco
-    id("com.google.cloud.tools.jib") version "3.2.1"
+    alias(libs.plugins.jib)
 }
 
 apply<SaJooqCodeGenPlugin>()
@@ -30,24 +30,24 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("io.github.microutils:kotlin-logging:${Versions.kotlinLogging}")
+    implementation(libs.kotlinLogging)
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:${Versions.kotlinCoroutines}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:${Versions.kotlinCoroutines}")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${Versions.kotlinCoroutines}")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactive)
+    implementation(libs.kotlinx.coroutines.reactor)
 
-    implementation("org.jooq:jooq:${Versions.jooq}")
-    implementation("io.jsonwebtoken:jjwt-api:${Versions.jjwt}")
-    implementation("io.arrow-kt:arrow-core:${Versions.arrow}")
-    implementation("org.springdoc:springdoc-openapi-starter-common:${Versions.springdocOpenapi}")
+    implementation(libs.jooq)
+    implementation(libs.jjwt.api)
+    implementation(libs.arrow.core)
+    implementation(libs.springdocOpenapi.starterCommon)
 
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")
     runtimeOnly("com.h2database:h2")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:${Versions.jjwt}")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:${Versions.jjwt}")
-    runtimeOnly("org.glassfish:javax.el:${Versions.javaxEl}")
+    runtimeOnly(libs.jjwt.impl)
+    runtimeOnly(libs.jjwt.jackson)
+    runtimeOnly(libs.javax.el)
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
@@ -56,19 +56,19 @@ dependencies {
     }
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("net.javacrumbs.json-unit:json-unit-assertj:${Versions.jsonUnit}")
-    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}")
-    testImplementation("org.mockito:mockito-junit-jupiter:${Versions.mockito}")
+    testImplementation(libs.jsonUnit.assertj)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockito.junitJupiter)
     testImplementation("org.flywaydb:flyway-core")
-    testImplementation("com.google.guava:guava:${Versions.guava}")
-    testImplementation("com.willowtreeapps.assertk:assertk-jvm:${Versions.assertk}")
-    testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:${Versions.wireMock}")
-    testImplementation("org.awaitility:awaitility:${Versions.awaitility}")
-    testImplementation("com.flipkart.zjsonpatch:zjsonpatch:${Versions.zjsonpatch}")
+    testImplementation(libs.guava)
+    testImplementation(libs.assertk)
+    testImplementation(libs.wiremock.jre8Standalone)
+    testImplementation(libs.awaitility)
+    testImplementation(libs.zjsonpatch)
     testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-    testImplementation("org.testcontainers:testcontainers:${Versions.testContainers}")
+    testImplementation(libs.testcontainers)
 
-    testRuntimeOnly("org.springdoc:springdoc-openapi-starter-webflux-api:${Versions.springdocOpenapi}")
+    testRuntimeOnly(libs.springdocOpenapi.webfluxApi)
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 

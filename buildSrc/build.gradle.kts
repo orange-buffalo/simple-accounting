@@ -1,24 +1,19 @@
-object Versions {
-    const val jooq = "3.16.16"
-    const val kotlinSerialization = "1.5.0"
-}
-
 repositories {
     mavenCentral()
 }
 
 plugins {
     `kotlin-dsl`
-    kotlin("plugin.serialization") version "1.5.31"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    implementation("org.jooq:jooq-meta-extensions:${Versions.jooq}") {
+    implementation(libs.jooq.metaExtensions) {
         // causes conflicts with spring-boot plugin
         exclude(group = "org.springframework")
     }
-    implementation("org.jooq:jooq-codegen:${Versions.jooq}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.kotlinSerialization}")
+    implementation(libs.jooq.codegen)
+    implementation(libs.kotlinx.serialization.json)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
