@@ -2963,7 +2963,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/channel-websocket@npm:6.5.16, @storybook/channel-websocket@npm:^6.5.16":
+"@storybook/channel-websocket@npm:6.5.16":
   version: 6.5.16
   resolution: "@storybook/channel-websocket@npm:6.5.16"
   dependencies:
@@ -2973,6 +2973,18 @@ __metadata:
     global: ^4.4.0
     telejson: ^6.0.8
   checksum: 355c85f22d7cc65764871852debe347c43c3fe92d6a0caa64aecbe2dce78d4bf73b98e997099f9e4e7c204ad5821b979939b0700e446fa26478c1e1ba48e7380
+  languageName: node
+  linkType: hard
+
+"@storybook/channel-websocket@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@storybook/channel-websocket@npm:7.0.2"
+  dependencies:
+    "@storybook/channels": 7.0.2
+    "@storybook/client-logger": 7.0.2
+    "@storybook/global": ^5.0.0
+    telejson: ^7.0.3
+  checksum: 917058a887a17e57d980c92704b3483042dbd3acfe00eeeb35fa78e820b5f0ae1baf83ea3d061823aff770cdd02fe65405bbe795dea4582c988036c962256ce4
   languageName: node
   linkType: hard
 
@@ -2995,6 +3007,13 @@ __metadata:
     ts-dedent: ^2.0.0
     util-deprecate: ^1.0.2
   checksum: 3d7f7bc19ed7b250976e00e02ab544408806b439106bed18a5db9815612f6c5df9bdf7c1a97b5a40ba3194184ebe7e4c75e2bca5496025d6b26afefa95cfccbd
+  languageName: node
+  linkType: hard
+
+"@storybook/channels@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@storybook/channels@npm:7.0.2"
+  checksum: 34ff0481a7f8bf613a9b1c9ffc3db4e48e8c80fea29d66b68a9c3b74d52040d87a5ed002d0e3e287813f33ad607440d46078e5e96367bf98713c72efb587d4a3
   languageName: node
   linkType: hard
 
@@ -3046,6 +3065,15 @@ __metadata:
     core-js: ^3.8.2
     global: ^4.4.0
   checksum: 0a86959b1bacb1b893e282173b48afe9c857b8cdc67a47ad87a7f11ba7dbc15ebc4f0d05c07dffb988e0cd3e1de0f09f300ee06c66afe4c50e9be83aaed75971
+  languageName: node
+  linkType: hard
+
+"@storybook/client-logger@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@storybook/client-logger@npm:7.0.2"
+  dependencies:
+    "@storybook/global": ^5.0.0
+  checksum: 3deb50e8cde7777025753938e21318ee34c10237e29664cfb2dfd08f70d84b073961e1b546629e536ef53f26a91a9aed2c83223d7cfe1680787ecee7e39ce8a8
   languageName: node
   linkType: hard
 
@@ -3390,6 +3418,13 @@ __metadata:
     lodash: ^4.17.21
     regenerator-runtime: ^0.13.7
   checksum: 6351c5b1cbe5820f0f0dfcc3e4e7da8cca3c8d73a06c5803e65cb86e9e81ccbae53cec8e1b579af0ac9a5bbb6d4b6ac03ffe26af2220dc5dfe8f065067f0e2d7
+  languageName: node
+  linkType: hard
+
+"@storybook/global@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@storybook/global@npm:5.0.0"
+  checksum: ede0ad35ec411fe31c61150dbd118fef344d1d0e72bf5d3502368e35cf68126f6b7ae4a0ab5e2ffe2f0baa3b4286f03ad069ba3e098e1725449ef08b7e154ba8
   languageName: node
   linkType: hard
 
@@ -9323,7 +9358,7 @@ __metadata:
     "@storybook/addons": ^6.5.16
     "@storybook/builder-vite": ^0.4.2
     "@storybook/channel-postmessage": ^6.5.16
-    "@storybook/channel-websocket": ^6.5.16
+    "@storybook/channel-websocket": ^7.0.2
     "@storybook/client-api": ^6.5.16
     "@storybook/preview-web": ^6.5.16
     "@storybook/theming": ^6.5.16
@@ -15676,6 +15711,15 @@ __metadata:
     lodash: ^4.17.21
     memoizerific: ^1.11.3
   checksum: 7411a5e78a35720bd0654a544409d3ce467b1dbb2073c73f36476b4c0905d97dbf539d6cbae737bb1fd8c872c2058f2a5450163a15117ed3fa031b2a2b8b33f6
+  languageName: node
+  linkType: hard
+
+"telejson@npm:^7.0.3":
+  version: 7.1.0
+  resolution: "telejson@npm:7.1.0"
+  dependencies:
+    memoizerific: ^1.11.3
+  checksum: 8000e43dc862a87ab1ca342a2635641923d55c2585f85ea8c7c60293681d6f920e8b9570cc12d90ecef286f065c176da5f769f42f4828ba18a626627bed1ac07
   languageName: node
   linkType: hard
 
