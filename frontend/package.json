@@ -42,7 +42,7 @@
     "@storybook/addon-actions": "^6.5.16",
     "@storybook/addons": "^6.5.16",
     "@storybook/builder-vite": "^0.4.2",
-    "@storybook/channel-postmessage": "^6.5.16",
+    "@storybook/channel-postmessage": "^7.0.2",
     "@storybook/channel-websocket": "^7.0.2",
     "@storybook/client-api": "^6.5.16",
     "@storybook/preview-web": "^6.5.16",

@@ -40,7 +40,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/addon-actions", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:6.5.16"],\
             ["@storybook/addons", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:6.5.16"],\
             ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.4.2"],\
-            ["@storybook/channel-postmessage", "npm:6.5.16"],\
+            ["@storybook/channel-postmessage", "npm:7.0.2"],\
             ["@storybook/channel-websocket", "npm:7.0.2"],\
             ["@storybook/client-api", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:6.5.16"],\
             ["@storybook/preview-web", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:6.5.16"],\
@@ -6937,6 +6937,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["telejson", "npm:6.0.8"]\
           ],\
           "linkType": "HARD"\
+        }],\
+        ["npm:7.0.2", {\
+          "packageLocation": "./.yarn/cache/@storybook-channel-postmessage-npm-7.0.2-55e86f8227-ef175027b4.zip/node_modules/@storybook/channel-postmessage/",\
+          "packageDependencies": [\
+            ["@storybook/channel-postmessage", "npm:7.0.2"],\
+            ["@storybook/channels", "npm:7.0.2"],\
+            ["@storybook/client-logger", "npm:7.0.2"],\
+            ["@storybook/core-events", "npm:7.0.2"],\
+            ["@storybook/global", "npm:5.0.0"],\
+            ["qs", "npm:6.11.0"],\
+            ["telejson", "npm:7.1.0"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["@storybook/channel-websocket", [\
@@ -7549,6 +7562,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@storybook/core-events", "npm:6.5.16"],\
             ["core-js", "npm:3.26.1"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:7.0.2", {\
+          "packageLocation": "./.yarn/cache/@storybook-core-events-npm-7.0.2-c0a79349ca-5bca4db82f.zip/node_modules/@storybook/core-events/",\
+          "packageDependencies": [\
+            ["@storybook/core-events", "npm:7.0.2"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -15140,7 +15160,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/addon-actions", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:6.5.16"],\
             ["@storybook/addons", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:6.5.16"],\
             ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.4.2"],\
-            ["@storybook/channel-postmessage", "npm:6.5.16"],\
+            ["@storybook/channel-postmessage", "npm:7.0.2"],\
             ["@storybook/channel-websocket", "npm:7.0.2"],\
             ["@storybook/client-api", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:6.5.16"],\
             ["@storybook/preview-web", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:6.5.16"],\
