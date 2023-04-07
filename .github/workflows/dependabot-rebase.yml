@@ -1,16 +1,17 @@
 name: Rebase Dependabot stale PRs
 
 on:
-  workflow_dispatch:  
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
 
 jobs:
   rebase-dependabot:
     runs-on: ubuntu-latest
     steps:
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          pr_number=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}" "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open&head=dependabot&sort=created&direction=asc" | jq -r '.[] | select(.user.login == "dependabot[bot]") | select(all(.statuses[]; .state == "success")) | .number' | head -n 1)
-          if [ -n "${pr_number}" ]; then
-            curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}" -X POST "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${pr_number}/comments" -d '{"body":"@dependabot rebase"}'
-          fi
+    - name: rebase
+      uses: orange-buffalo/dependabot-auto-rebase@v1
+      with:
+        api-token: ${{ secrets.DEPENDABOT_AUTO_REBASE_TOKEN }}
+        repository: ${{ github.repository }}
