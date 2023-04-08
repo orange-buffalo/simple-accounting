@@ -9664,7 +9664,7 @@ __metadata:
     fetch-mock: ^9.11.0
     flat: ^5.0.2
     globalize: ^1.7.0
-    imask: ^6.4.3
+    imask: ^6.5.0
     js-yaml: ^4.1.0
     jsdom: ^21.1.1
     jwt-decode: ^3.1.2
@@ -10627,10 +10627,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"imask@npm:^6.4.3":
-  version: 6.4.3
-  resolution: "imask@npm:6.4.3"
-  checksum: 1a30b5f0339e61fecb313240db36c0483463b4085d5ec54292133ba2b473a5b3649b54f697a9042a6310c757b250d20eb2d9232f4c40c958b925334c89aeb3eb
+"imask@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "imask@npm:6.5.0"
+  checksum: fdc11a2a07231e365157d83d427e8534ee317992e499c81d392d691c9fb435193636ce4c759b47248a4c7cb6685d782b57ecf28de99a9074058cdf27dabcf803
   languageName: node
   linkType: hard
 
