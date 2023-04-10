@@ -1,9 +1,33 @@
-import { app as storybookApp } from '@storybook/vue3';
+import { setup } from '@storybook/vue3';
+import { defineComponent } from 'vue';
+import { createMemoryHistory, createRouter } from 'vue-router';
+import { action } from '@storybook/addon-actions';
 import { setupComponents } from '@/setup/setup-app';
 import StoriesApp from './StoriesApp.vue';
 import { decoratorFactory } from '@/__storybook__/decorators/decorator-utils';
 
-setupComponents(storybookApp);
+const EmptyView = defineComponent({
+  name: 'RouterMockEmptyView',
+  render: () => null,
+});
+
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [
+    {
+      path: '/:pathMatch(.*)*',
+      component: EmptyView,
+    },
+  ],
+});
+router.beforeEach((guard) => {
+  action('router-navigation')(guard.path);
+});
+
+setup((app) => {
+  setupComponents(app);
+  app.use(router);
+});
 
 export const createStoriesAppDecorator = decoratorFactory((parameters) => ({
   components: { StoriesApp },

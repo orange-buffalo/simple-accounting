@@ -15,7 +15,6 @@ export function waitForText(text: string, selector?: string): SaStoryScreenshotP
         .map((child) => child.textContent.trim())
         .filter((child) => child.length)
         .join('');
-
       const hasText = elementText.indexOf(text) >= 0;
       if (hasText && isVisible(element)) {
         return true;

@@ -16,7 +16,7 @@ function waitFor(condition: () => boolean, callback: () => void, delayMs: number
 }
 
 const waitForRootRenderedWithContent: SaStoryScreenshotPreparation = () => {
-  const storyRoot = document.querySelector('#root');
+  const storyRoot = document.querySelector('#storybook-root');
   return storyRoot !== null && storyRoot.childNodes.length > 0;
 };
 

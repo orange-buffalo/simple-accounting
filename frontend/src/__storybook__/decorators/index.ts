@@ -4,7 +4,6 @@ import { createApiMockDecorator } from '@/__storybook__/decorators/stories-api-m
 import { createScreenshotTestsDecorator } from '@/__storybook__/decorators/screenshot-tests';
 import { createStorageDecorator } from '@/__storybook__/decorators/stories-storage';
 import { createTimeMockDecorator } from '@/__storybook__/decorators/stories-time-mocks';
-import { createRouterDecorator } from '@/__storybook__/decorators/stories-router';
 // init API client
 import '@/services/api';
 
@@ -15,5 +14,4 @@ export const decorators = [
   createApiMockDecorator(),
   createStoriesAppDecorator(),
   createScreenshotTestsDecorator(),
-  createRouterDecorator(),
 ];
