@@ -1,18 +1,16 @@
-import type { StorybookViteConfig } from '@storybook/builder-vite';
+import type { StorybookConfig } from '@storybook/vue3-vite';
 import type { ConfigEnv } from 'vite';
 import { loadConfigFromFile, mergeConfig } from 'vite';
 import { vitePlugins } from '../vite-plugins';
 
-const storybookConfig: StorybookViteConfig = {
-  stories: [
-    '../../src/**/*.stories.@(js|jsx|ts|tsx)',
-  ],
-  addons: [
-    '@storybook/addon-actions',
-  ],
-  framework: '@storybook/vue3',
+const storybookConfig: StorybookConfig = {
+  stories: ['../../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  addons: ['@storybook/addon-actions'],
+  framework: {
+    name: '@storybook/vue3-vite',
+    options: {},
+  },
   core: {
-    builder: '@storybook/builder-vite',
     disableTelemetry: true,
   },
   features: {
