@@ -49,7 +49,7 @@
     "@storybook/theming": "^7.0.2",
     "@storybook/vue3": "^6.5.16",
     "@types/cldrjs": "^0.4.22",
-    "@types/dompurify": "^3.0.0",
+    "@types/dompurify": "^3.0.1",
     "@types/dropzone": "^5.7.4",
     "@types/event-source-polyfill": "^1.0.1",
     "@types/flat": "^5.0.2",
