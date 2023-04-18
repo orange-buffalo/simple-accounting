@@ -71,7 +71,7 @@
     "jsdom": "^21.1.1",
     "rollup-plugin-visualizer": "^5.9.0",
     "sass": "^1.61.0",
-    "storybook": "^7.0.4",
+    "storybook": "^7.0.5",
     "typescript": "~5.0.4",
     "vite": "^4.2.1",
     "vite-svg-loader": "^4.0.0",
