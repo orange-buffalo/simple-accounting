@@ -2988,20 +2988,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/builder-vite@npm:^7.0.5":
-  version: 7.0.5
-  resolution: "@storybook/builder-vite@npm:7.0.5"
+"@storybook/builder-vite@npm:^7.0.6":
+  version: 7.0.6
+  resolution: "@storybook/builder-vite@npm:7.0.6"
   dependencies:
-    "@storybook/channel-postmessage": 7.0.5
-    "@storybook/channel-websocket": 7.0.5
-    "@storybook/client-logger": 7.0.5
-    "@storybook/core-common": 7.0.5
-    "@storybook/csf-plugin": 7.0.5
+    "@storybook/channel-postmessage": 7.0.6
+    "@storybook/channel-websocket": 7.0.6
+    "@storybook/client-logger": 7.0.6
+    "@storybook/core-common": 7.0.6
+    "@storybook/csf-plugin": 7.0.6
     "@storybook/mdx2-csf": ^1.0.0
-    "@storybook/node-logger": 7.0.5
-    "@storybook/preview": 7.0.5
-    "@storybook/preview-api": 7.0.5
-    "@storybook/types": 7.0.5
+    "@storybook/node-logger": 7.0.6
+    "@storybook/preview": 7.0.6
+    "@storybook/preview-api": 7.0.6
+    "@storybook/types": 7.0.6
     browser-assert: ^1.2.1
     es-module-lexer: ^0.9.3
     express: ^4.17.3
@@ -3024,7 +3024,7 @@ __metadata:
       optional: true
     vite-plugin-glimmerx:
       optional: true
-  checksum: 57f460fab3afb81f55002741f51412b8da0f86e7361e645896b66706fe1cced6219aeb50dd5b3b468648647c8421371aafdc48746881f68ecfe3976f911f3aba
+  checksum: 09a348e0d92b2abcdb47da20c3458140ac637db479cab03836a6fbf00404eb26f49bcb32705f7132ec21fffc4ceb10c135908ebc701bb48744702b841b2b65a4
   languageName: node
   linkType: hard
 
@@ -3082,15 +3082,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/channel-websocket@npm:7.0.5":
-  version: 7.0.5
-  resolution: "@storybook/channel-websocket@npm:7.0.5"
+"@storybook/channel-websocket@npm:7.0.6":
+  version: 7.0.6
+  resolution: "@storybook/channel-websocket@npm:7.0.6"
   dependencies:
-    "@storybook/channels": 7.0.5
-    "@storybook/client-logger": 7.0.5
+    "@storybook/channels": 7.0.6
+    "@storybook/client-logger": 7.0.6
     "@storybook/global": ^5.0.0
     telejson: ^7.0.3
-  checksum: 32d135d2600dcd4f6e278d91aa14a6cbeae68db50e0d17bef5fd46479fb4c4d32b37a1423c1bbeb77f2e465c3af6d58f64ceb4cb638ac6375e15830e1f5a40e5
+  checksum: b195508984586a2a08ed5cb814ea056011676d44a3b37c6288780f55db0f32d3872b9f7a65a30fb10e4770020c5365e7a14671217d75e1def9ccbc314fa77fc8
   languageName: node
   linkType: hard
 
@@ -3463,13 +3463,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/csf-plugin@npm:7.0.5":
-  version: 7.0.5
-  resolution: "@storybook/csf-plugin@npm:7.0.5"
+"@storybook/csf-plugin@npm:7.0.6":
+  version: 7.0.6
+  resolution: "@storybook/csf-plugin@npm:7.0.6"
   dependencies:
-    "@storybook/csf-tools": 7.0.5
+    "@storybook/csf-tools": 7.0.6
     unplugin: ^0.10.2
-  checksum: b93fd530f5d12e3e9faa218a2a3fb3c6e142d81b1f10759ae2d0640b7ba59b451ed262a2771ea05d3e60baec0008b84f787c95d68059d6c3185d67215801748b
+  checksum: 3d750bdbd24b429bf8e4e93409a7eccc4dd3ecc552aa4cd9e9d1b58acf6df94a025c31b505c30c3f927e9ea95388a716a98374f7929d052fd4a72c020e828504
   languageName: node
   linkType: hard
 
@@ -3504,6 +3504,23 @@ __metadata:
     recast: ^0.23.1
     ts-dedent: ^2.0.0
   checksum: 066715c6c7f5aa84fdc3453cabd4e31d5b9da35f4e71e0ed9f74194af634b834546e2a173b77a65071863f3de51f435719b599e802160a1a9c51e511f0e34d2a
+  languageName: node
+  linkType: hard
+
+"@storybook/csf-tools@npm:7.0.6":
+  version: 7.0.6
+  resolution: "@storybook/csf-tools@npm:7.0.6"
+  dependencies:
+    "@babel/generator": ~7.21.1
+    "@babel/parser": ~7.21.2
+    "@babel/traverse": ~7.21.2
+    "@babel/types": ~7.21.2
+    "@storybook/csf": ^0.1.0
+    "@storybook/types": 7.0.6
+    fs-extra: ^11.1.0
+    recast: ^0.23.1
+    ts-dedent: ^2.0.0
+  checksum: 0a8dfef551123ce085ffb8913a779d7bd28c99d61f8db7abb47a1cbef02408e1ae60302ed35c49785dc2bfc34398ff978b02a061822b74e6172a7934859da2da
   languageName: node
   linkType: hard
 
@@ -3754,10 +3771,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/preview@npm:7.0.5":
-  version: 7.0.5
-  resolution: "@storybook/preview@npm:7.0.5"
-  checksum: cee441f9b7a047ecd4982506b89de5bca63ca6d9eb71c12f347db24920641043f51afd1f3e1514e13dc4ac091ded8e9dd82accaae158f85046886886eaf891ed
+"@storybook/preview@npm:7.0.6":
+  version: 7.0.6
+  resolution: "@storybook/preview@npm:7.0.6"
+  checksum: 672d797bdbb1479625e0a4e6b42b422598bdb00af2916e2fa02bda2ce555512c511299bac8c17452a3afaae57a2a0dd810fccb1827a6ee0c31db2ffcfdc163e2
   languageName: node
   linkType: hard
 
@@ -7848,7 +7865,7 @@ __metadata:
     "@sinonjs/fake-timers": ^10.0.2
     "@storybook/addon-actions": ^7.0.2
     "@storybook/addons": ^7.0.5
-    "@storybook/builder-vite": ^7.0.5
+    "@storybook/builder-vite": ^7.0.6
     "@storybook/manager-api": ^7.0.2
     "@storybook/theming": ^7.0.2
     "@storybook/vue3": ^7.0.6

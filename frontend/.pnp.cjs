@@ -35,7 +35,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@sinonjs/fake-timers", "npm:10.0.2"],\
             ["@storybook/addon-actions", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@storybook/addons", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
-            ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
+            ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.6"],\
             ["@storybook/manager-api", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@storybook/theming", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@storybook/vue3", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.6"],\
@@ -4510,10 +4510,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["npm:7.0.5", {\
-          "packageLocation": "./.yarn/cache/@storybook-builder-vite-npm-7.0.5-20238abe94-57f460fab3.zip/node_modules/@storybook/builder-vite/",\
+        ["npm:7.0.6", {\
+          "packageLocation": "./.yarn/cache/@storybook-builder-vite-npm-7.0.6-ddddab47e7-09a348e0d9.zip/node_modules/@storybook/builder-vite/",\
           "packageDependencies": [\
-            ["@storybook/builder-vite", "npm:7.0.5"]\
+            ["@storybook/builder-vite", "npm:7.0.6"]\
           ],\
           "linkType": "SOFT"\
         }],\
@@ -4566,21 +4566,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5", {\
-          "packageLocation": "./.yarn/__virtual__/@storybook-builder-vite-virtual-3dd6c1ab75/0/cache/@storybook-builder-vite-npm-7.0.5-20238abe94-57f460fab3.zip/node_modules/@storybook/builder-vite/",\
+        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.6", {\
+          "packageLocation": "./.yarn/__virtual__/@storybook-builder-vite-virtual-266447fc5b/0/cache/@storybook-builder-vite-npm-7.0.6-ddddab47e7-09a348e0d9.zip/node_modules/@storybook/builder-vite/",\
           "packageDependencies": [\
-            ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
+            ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.6"],\
             ["@preact/preset-vite", null],\
-            ["@storybook/channel-postmessage", "npm:7.0.5"],\
-            ["@storybook/channel-websocket", "npm:7.0.5"],\
-            ["@storybook/client-logger", "npm:7.0.5"],\
-            ["@storybook/core-common", "npm:7.0.5"],\
-            ["@storybook/csf-plugin", "npm:7.0.5"],\
+            ["@storybook/channel-postmessage", "npm:7.0.6"],\
+            ["@storybook/channel-websocket", "npm:7.0.6"],\
+            ["@storybook/client-logger", "npm:7.0.6"],\
+            ["@storybook/core-common", "npm:7.0.6"],\
+            ["@storybook/csf-plugin", "npm:7.0.6"],\
             ["@storybook/mdx2-csf", "npm:1.0.0"],\
-            ["@storybook/node-logger", "npm:7.0.5"],\
-            ["@storybook/preview", "npm:7.0.5"],\
-            ["@storybook/preview-api", "npm:7.0.5"],\
-            ["@storybook/types", "npm:7.0.5"],\
+            ["@storybook/node-logger", "npm:7.0.6"],\
+            ["@storybook/preview", "npm:7.0.6"],\
+            ["@storybook/preview-api", "npm:7.0.6"],\
+            ["@storybook/types", "npm:7.0.6"],\
             ["@types/preact__preset-vite", null],\
             ["@types/typescript", null],\
             ["@types/vite", null],\
@@ -4665,12 +4665,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["npm:7.0.5", {\
-          "packageLocation": "./.yarn/cache/@storybook-channel-websocket-npm-7.0.5-de4daece48-32d135d260.zip/node_modules/@storybook/channel-websocket/",\
+        ["npm:7.0.6", {\
+          "packageLocation": "./.yarn/cache/@storybook-channel-websocket-npm-7.0.6-12fa25fe4d-b195508984.zip/node_modules/@storybook/channel-websocket/",\
           "packageDependencies": [\
-            ["@storybook/channel-websocket", "npm:7.0.5"],\
-            ["@storybook/channels", "npm:7.0.5"],\
-            ["@storybook/client-logger", "npm:7.0.5"],\
+            ["@storybook/channel-websocket", "npm:7.0.6"],\
+            ["@storybook/channels", "npm:7.0.6"],\
+            ["@storybook/client-logger", "npm:7.0.6"],\
             ["@storybook/global", "npm:5.0.0"],\
             ["telejson", "npm:7.1.0"]\
           ],\
@@ -5080,11 +5080,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["npm:7.0.5", {\
-          "packageLocation": "./.yarn/cache/@storybook-csf-plugin-npm-7.0.5-c8ad85375a-b93fd530f5.zip/node_modules/@storybook/csf-plugin/",\
+        ["npm:7.0.6", {\
+          "packageLocation": "./.yarn/cache/@storybook-csf-plugin-npm-7.0.6-3a46634a6e-3d750bdbd2.zip/node_modules/@storybook/csf-plugin/",\
           "packageDependencies": [\
-            ["@storybook/csf-plugin", "npm:7.0.5"],\
-            ["@storybook/csf-tools", "npm:7.0.5"],\
+            ["@storybook/csf-plugin", "npm:7.0.6"],\
+            ["@storybook/csf-tools", "npm:7.0.6"],\
             ["unplugin", "npm:0.10.2"]\
           ],\
           "linkType": "HARD"\
@@ -5117,6 +5117,22 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/types", "npm:7.21.4"],\
             ["@storybook/csf", "npm:0.1.0"],\
             ["@storybook/types", "npm:7.0.5"],\
+            ["fs-extra", "npm:11.1.1"],\
+            ["recast", "npm:0.23.1"],\
+            ["ts-dedent", "npm:2.2.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:7.0.6", {\
+          "packageLocation": "./.yarn/cache/@storybook-csf-tools-npm-7.0.6-7ded3a4ae1-0a8dfef551.zip/node_modules/@storybook/csf-tools/",\
+          "packageDependencies": [\
+            ["@storybook/csf-tools", "npm:7.0.6"],\
+            ["@babel/generator", "npm:7.21.4"],\
+            ["@babel/parser", "npm:7.21.4"],\
+            ["@babel/traverse", "npm:7.21.4"],\
+            ["@babel/types", "npm:7.21.4"],\
+            ["@storybook/csf", "npm:0.1.0"],\
+            ["@storybook/types", "npm:7.0.6"],\
             ["fs-extra", "npm:11.1.1"],\
             ["recast", "npm:0.23.1"],\
             ["ts-dedent", "npm:2.2.0"]\
@@ -5320,10 +5336,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["npm:7.0.5", {\
-          "packageLocation": "./.yarn/cache/@storybook-preview-npm-7.0.5-0598b3ec64-cee441f9b7.zip/node_modules/@storybook/preview/",\
+        ["npm:7.0.6", {\
+          "packageLocation": "./.yarn/cache/@storybook-preview-npm-7.0.6-0fee2f3828-672d797bdb.zip/node_modules/@storybook/preview/",\
           "packageDependencies": [\
-            ["@storybook/preview", "npm:7.0.5"]\
+            ["@storybook/preview", "npm:7.0.6"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10308,7 +10324,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@sinonjs/fake-timers", "npm:10.0.2"],\
             ["@storybook/addon-actions", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@storybook/addons", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
-            ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
+            ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.6"],\
             ["@storybook/manager-api", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@storybook/theming", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@storybook/vue3", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.6"],\
