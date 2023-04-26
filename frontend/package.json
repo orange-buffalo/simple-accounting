@@ -40,7 +40,7 @@
     "@storybook/builder-vite": "^7.0.7",
     "@storybook/manager-api": "^7.0.2",
     "@storybook/theming": "^7.0.2",
-    "@storybook/vue3": "^7.0.6",
+    "@storybook/vue3": "^7.0.7",
     "@storybook/vue3-vite": "^7.0.2",
     "@types/cldrjs": "^0.4.23",
     "@types/dompurify": "^3.0.1",
