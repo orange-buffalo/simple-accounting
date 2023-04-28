@@ -41,7 +41,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/vue3", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.7"],\
             ["@storybook/vue3-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@types/cldrjs", "npm:0.4.23"],\
-            ["@types/dompurify", "npm:3.0.1"],\
+            ["@types/dompurify", "npm:3.0.2"],\
             ["@types/dropzone", "npm:5.7.4"],\
             ["@types/event-source-polyfill", "npm:1.0.1"],\
             ["@types/flat", "npm:5.0.2"],\
@@ -5843,11 +5843,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/dompurify", [\
-        ["npm:3.0.1", {\
-          "packageLocation": "./.yarn/cache/@types-dompurify-npm-3.0.1-5ab1e1878d-d4bf881845.zip/node_modules/@types/dompurify/",\
+        ["npm:3.0.2", {\
+          "packageLocation": "./.yarn/cache/@types-dompurify-npm-3.0.2-57e9f73fdf-dc017e16a4.zip/node_modules/@types/dompurify/",\
           "packageDependencies": [\
-            ["@types/dompurify", "npm:3.0.1"],\
-            ["@types/jsdom", "npm:21.1.1"],\
+            ["@types/dompurify", "npm:3.0.2"],\
             ["@types/trusted-types", "npm:2.0.2"]\
           ],\
           "linkType": "HARD"\
@@ -10356,7 +10355,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/vue3", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.7"],\
             ["@storybook/vue3-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@types/cldrjs", "npm:0.4.23"],\
-            ["@types/dompurify", "npm:3.0.1"],\
+            ["@types/dompurify", "npm:3.0.2"],\
             ["@types/dropzone", "npm:5.7.4"],\
             ["@types/event-source-polyfill", "npm:1.0.1"],\
             ["@types/flat", "npm:5.0.2"],\
