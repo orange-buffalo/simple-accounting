@@ -59,7 +59,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@vue/reactivity", "npm:3.2.47"],\
             ["@vue/shared", "npm:3.2.47"],\
             ["@vue/test-utils", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.3.2"],\
-            ["@vue/tsconfig", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.1.3"],\
+            ["@vue/tsconfig", "npm:0.4.0"],\
             ["cldr-data", "npm:36.0.1"],\
             ["cldrjs", "npm:0.5.5"],\
             ["copy-to-clipboard", "npm:3.3.3"],\
@@ -6977,21 +6977,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@vue/tsconfig", [\
-        ["npm:0.1.3", {\
-          "packageLocation": "./.yarn/cache/@vue-tsconfig-npm-0.1.3-07ae9b676e-8150a24497.zip/node_modules/@vue/tsconfig/",\
+        ["npm:0.4.0", {\
+          "packageLocation": "./.yarn/cache/@vue-tsconfig-npm-0.4.0-221979dfdc-1acdd0c570.zip/node_modules/@vue/tsconfig/",\
           "packageDependencies": [\
-            ["@vue/tsconfig", "npm:0.1.3"]\
-          ],\
-          "linkType": "SOFT"\
-        }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.1.3", {\
-          "packageLocation": "./.yarn/__virtual__/@vue-tsconfig-virtual-4bdac2ddd6/0/cache/@vue-tsconfig-npm-0.1.3-07ae9b676e-8150a24497.zip/node_modules/@vue/tsconfig/",\
-          "packageDependencies": [\
-            ["@vue/tsconfig", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.1.3"],\
-            ["@types/node", "npm:18.16.1"]\
-          ],\
-          "packagePeers": [\
-            "@types/node"\
+            ["@vue/tsconfig", "npm:0.4.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10373,7 +10362,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@vue/reactivity", "npm:3.2.47"],\
             ["@vue/shared", "npm:3.2.47"],\
             ["@vue/test-utils", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.3.2"],\
-            ["@vue/tsconfig", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.1.3"],\
+            ["@vue/tsconfig", "npm:0.4.0"],\
             ["cldr-data", "npm:36.0.1"],\
             ["cldrjs", "npm:0.5.5"],\
             ["copy-to-clipboard", "npm:3.3.3"],\
