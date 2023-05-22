@@ -4053,10 +4053,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cldrjs@npm:^0.4.23":
-  version: 0.4.23
-  resolution: "@types/cldrjs@npm:0.4.23"
-  checksum: 922334ffa594a30a463c31bd597c32b69e9017118317d2be2c90d98c2097628c29875eec06d517aee96b8e896a4ce297e135d91a657081f794202f57001d94e0
+"@types/cldrjs@npm:^0.4.24":
+  version: 0.4.24
+  resolution: "@types/cldrjs@npm:0.4.24"
+  checksum: b79114c2d52ae9d2bd5d0f4aaf49daddd93566a7d5e18a4f235dfbd1f209a33b889a8330c8a8fd4325eb777295c17bb6f34840a317fb241d80f77ab0b06d69aa
   languageName: node
   linkType: hard
 
@@ -7880,7 +7880,7 @@ __metadata:
     "@storybook/theming": ^7.0.2
     "@storybook/vue3": ^7.0.7
     "@storybook/vue3-vite": ^7.0.2
-    "@types/cldrjs": ^0.4.23
+    "@types/cldrjs": ^0.4.24
     "@types/dompurify": ^3.0.2
     "@types/dropzone": ^5.7.4
     "@types/event-source-polyfill": ^1.0.1
