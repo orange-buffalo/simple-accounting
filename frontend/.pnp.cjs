@@ -89,7 +89,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["vitest", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.31.1"],\
             ["vue", "npm:3.2.47"],\
             ["vue-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.1.6"],\
-            ["vue-tsc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.5.0"],\
+            ["vue-tsc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.8"],\
             ["whatwg-fetch", "npm:3.6.2"]\
           ],\
           "linkType": "SOFT"\
@@ -6622,86 +6622,31 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@volar/language-core", [\
-        ["npm:1.4.1", {\
-          "packageLocation": "./.yarn/cache/@volar-language-core-npm-1.4.1-62ca71beef-3b0834ab97.zip/node_modules/@volar/language-core/",\
+        ["npm:1.6.9", {\
+          "packageLocation": "./.yarn/cache/@volar-language-core-npm-1.6.9-b6cb9be6d1-bdcc04f49d.zip/node_modules/@volar/language-core/",\
           "packageDependencies": [\
-            ["@volar/language-core", "npm:1.4.1"],\
-            ["@volar/source-map", "npm:1.4.1"]\
+            ["@volar/language-core", "npm:1.6.9"],\
+            ["@volar/source-map", "npm:1.6.9"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@volar/source-map", [\
-        ["npm:1.4.1", {\
-          "packageLocation": "./.yarn/cache/@volar-source-map-npm-1.4.1-370a87fd37-43b46e3401.zip/node_modules/@volar/source-map/",\
+        ["npm:1.6.9", {\
+          "packageLocation": "./.yarn/cache/@volar-source-map-npm-1.6.9-19f9d28c6b-285b8015ad.zip/node_modules/@volar/source-map/",\
           "packageDependencies": [\
-            ["@volar/source-map", "npm:1.4.1"],\
-            ["muggle-string", "npm:0.2.2"]\
+            ["@volar/source-map", "npm:1.6.9"],\
+            ["muggle-string", "npm:0.3.1"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@volar/typescript", [\
-        ["npm:1.4.1", {\
-          "packageLocation": "./.yarn/cache/@volar-typescript-npm-1.4.1-684cb59446-cd06674bcd.zip/node_modules/@volar/typescript/",\
+        ["npm:1.6.9", {\
+          "packageLocation": "./.yarn/cache/@volar-typescript-npm-1.6.9-a7b67715d6-c68de4e0e2.zip/node_modules/@volar/typescript/",\
           "packageDependencies": [\
-            ["@volar/typescript", "npm:1.4.1"]\
-          ],\
-          "linkType": "SOFT"\
-        }],\
-        ["virtual:28c3e785347a38851d2af10441218f701f2b20e55e54826df886615e70bde49a2234b4c8b5390003cdccc12c0464f656c3087adb1c845771ff3a2bfdb4080e1d#npm:1.4.1", {\
-          "packageLocation": "./.yarn/__virtual__/@volar-typescript-virtual-0c9aa353bb/0/cache/@volar-typescript-npm-1.4.1-684cb59446-cd06674bcd.zip/node_modules/@volar/typescript/",\
-          "packageDependencies": [\
-            ["@volar/typescript", "virtual:28c3e785347a38851d2af10441218f701f2b20e55e54826df886615e70bde49a2234b4c8b5390003cdccc12c0464f656c3087adb1c845771ff3a2bfdb4080e1d#npm:1.4.1"],\
-            ["@types/typescript", null],\
-            ["@volar/language-core", "npm:1.4.1"],\
-            ["typescript", "patch:typescript@npm%3A5.0.4#~builtin<compat/typescript>::version=5.0.4&hash=85af82"]\
-          ],\
-          "packagePeers": [\
-            "@types/typescript",\
-            "typescript"\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["@volar/vue-language-core", [\
-        ["npm:1.5.0", {\
-          "packageLocation": "./.yarn/cache/@volar-vue-language-core-npm-1.5.0-f49195efe6-cb3cb1251c.zip/node_modules/@volar/vue-language-core/",\
-          "packageDependencies": [\
-            ["@volar/vue-language-core", "npm:1.5.0"],\
-            ["@volar/language-core", "npm:1.4.1"],\
-            ["@volar/source-map", "npm:1.4.1"],\
-            ["@vue/compiler-dom", "npm:3.2.45"],\
-            ["@vue/compiler-sfc", "npm:3.2.45"],\
-            ["@vue/reactivity", "npm:3.2.47"],\
-            ["@vue/shared", "npm:3.2.47"],\
-            ["minimatch", "npm:9.0.0"],\
-            ["muggle-string", "npm:0.2.2"],\
-            ["vue-template-compiler", "npm:2.7.14"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["@volar/vue-typescript", [\
-        ["npm:1.5.0", {\
-          "packageLocation": "./.yarn/cache/@volar-vue-typescript-npm-1.5.0-4ba5505f14-815b573639.zip/node_modules/@volar/vue-typescript/",\
-          "packageDependencies": [\
-            ["@volar/vue-typescript", "npm:1.5.0"]\
-          ],\
-          "linkType": "SOFT"\
-        }],\
-        ["virtual:eb0b7272cf883bb021eb26b996263678559eb1a2dc36156ec96a32f8a215d5fec8b37be7bd80b66ad0e34fabcc2c933289d092fe5cb4cf5185a8492955240b70#npm:1.5.0", {\
-          "packageLocation": "./.yarn/__virtual__/@volar-vue-typescript-virtual-28c3e78534/0/cache/@volar-vue-typescript-npm-1.5.0-4ba5505f14-815b573639.zip/node_modules/@volar/vue-typescript/",\
-          "packageDependencies": [\
-            ["@volar/vue-typescript", "virtual:eb0b7272cf883bb021eb26b996263678559eb1a2dc36156ec96a32f8a215d5fec8b37be7bd80b66ad0e34fabcc2c933289d092fe5cb4cf5185a8492955240b70#npm:1.5.0"],\
-            ["@types/typescript", null],\
-            ["@volar/typescript", "virtual:28c3e785347a38851d2af10441218f701f2b20e55e54826df886615e70bde49a2234b4c8b5390003cdccc12c0464f656c3087adb1c845771ff3a2bfdb4080e1d#npm:1.4.1"],\
-            ["@volar/vue-language-core", "npm:1.5.0"],\
-            ["typescript", "patch:typescript@npm%3A5.0.4#~builtin<compat/typescript>::version=5.0.4&hash=85af82"]\
-          ],\
-          "packagePeers": [\
-            "@types/typescript",\
-            "typescript"\
+            ["@volar/typescript", "npm:1.6.9"],\
+            ["@volar/language-core", "npm:1.6.9"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -6728,6 +6673,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["source-map", "npm:0.6.1"]\
           ],\
           "linkType": "HARD"\
+        }],\
+        ["npm:3.3.4", {\
+          "packageLocation": "./.yarn/cache/@vue-compiler-core-npm-3.3.4-e514bded25-5437942ea6.zip/node_modules/@vue/compiler-core/",\
+          "packageDependencies": [\
+            ["@vue/compiler-core", "npm:3.3.4"],\
+            ["@babel/parser", "npm:7.21.3"],\
+            ["@vue/shared", "npm:3.3.4"],\
+            ["estree-walker", "npm:2.0.2"],\
+            ["source-map-js", "npm:1.0.2"]\
+          ],\
+          "linkType": "HARD"\
         }]\
       ]],\
       ["@vue/compiler-dom", [\
@@ -6746,6 +6702,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@vue/compiler-dom", "npm:3.2.47"],\
             ["@vue/compiler-core", "npm:3.2.47"],\
             ["@vue/shared", "npm:3.2.47"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:3.3.4", {\
+          "packageLocation": "./.yarn/cache/@vue-compiler-dom-npm-3.3.4-029250af79-1c2ac0c89d.zip/node_modules/@vue/compiler-dom/",\
+          "packageDependencies": [\
+            ["@vue/compiler-dom", "npm:3.3.4"],\
+            ["@vue/compiler-core", "npm:3.3.4"],\
+            ["@vue/shared", "npm:3.3.4"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -6882,12 +6847,71 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@vue/language-core", [\
+        ["npm:1.7.8", {\
+          "packageLocation": "./.yarn/cache/@vue-language-core-npm-1.7.8-ae5dcc03c8-c50262b3fe.zip/node_modules/@vue/language-core/",\
+          "packageDependencies": [\
+            ["@vue/language-core", "npm:1.7.8"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:7e7ed53a5b6c2614b5a7ad6ebaaabf12b1d30956beb8720b67d82e0c8a13d086802d879e683797af95b7aa4002935aeefb74c06bddc7b225960fa28ba5f13ed0#npm:1.7.8", {\
+          "packageLocation": "./.yarn/__virtual__/@vue-language-core-virtual-452ee4ee3e/0/cache/@vue-language-core-npm-1.7.8-ae5dcc03c8-c50262b3fe.zip/node_modules/@vue/language-core/",\
+          "packageDependencies": [\
+            ["@vue/language-core", "virtual:7e7ed53a5b6c2614b5a7ad6ebaaabf12b1d30956beb8720b67d82e0c8a13d086802d879e683797af95b7aa4002935aeefb74c06bddc7b225960fa28ba5f13ed0#npm:1.7.8"],\
+            ["@types/typescript", null],\
+            ["@volar/language-core", "npm:1.6.9"],\
+            ["@volar/source-map", "npm:1.6.9"],\
+            ["@vue/compiler-dom", "npm:3.3.4"],\
+            ["@vue/reactivity", "npm:3.3.4"],\
+            ["@vue/shared", "npm:3.3.4"],\
+            ["minimatch", "npm:9.0.0"],\
+            ["muggle-string", "npm:0.3.1"],\
+            ["typescript", "patch:typescript@npm%3A5.0.4#~builtin<compat/typescript>::version=5.0.4&hash=85af82"],\
+            ["vue-template-compiler", "npm:2.7.14"]\
+          ],\
+          "packagePeers": [\
+            "@types/typescript",\
+            "typescript"\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["virtual:dbf3cbd24dabb531476cdb03e376e973faf62882a831662fb4082cb9e263fb522160de9d16daf2c552d016f9c058218d97a01edaf4de8d970989298350b325a3#npm:1.7.8", {\
+          "packageLocation": "./.yarn/__virtual__/@vue-language-core-virtual-665a6de3ff/0/cache/@vue-language-core-npm-1.7.8-ae5dcc03c8-c50262b3fe.zip/node_modules/@vue/language-core/",\
+          "packageDependencies": [\
+            ["@vue/language-core", "virtual:dbf3cbd24dabb531476cdb03e376e973faf62882a831662fb4082cb9e263fb522160de9d16daf2c552d016f9c058218d97a01edaf4de8d970989298350b325a3#npm:1.7.8"],\
+            ["@types/typescript", null],\
+            ["@volar/language-core", "npm:1.6.9"],\
+            ["@volar/source-map", "npm:1.6.9"],\
+            ["@vue/compiler-dom", "npm:3.3.4"],\
+            ["@vue/reactivity", "npm:3.3.4"],\
+            ["@vue/shared", "npm:3.3.4"],\
+            ["minimatch", "npm:9.0.0"],\
+            ["muggle-string", "npm:0.3.1"],\
+            ["typescript", null],\
+            ["vue-template-compiler", "npm:2.7.14"]\
+          ],\
+          "packagePeers": [\
+            "@types/typescript",\
+            "typescript"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@vue/reactivity", [\
         ["npm:3.2.47", {\
           "packageLocation": "./.yarn/cache/@vue-reactivity-npm-3.2.47-1182f7aa47-bd61134e4b.zip/node_modules/@vue/reactivity/",\
           "packageDependencies": [\
             ["@vue/reactivity", "npm:3.2.47"],\
             ["@vue/shared", "npm:3.2.47"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:3.3.4", {\
+          "packageLocation": "./.yarn/cache/@vue-reactivity-npm-3.3.4-4bb841d3a9-81c3d0c587.zip/node_modules/@vue/reactivity/",\
+          "packageDependencies": [\
+            ["@vue/reactivity", "npm:3.3.4"],\
+            ["@vue/shared", "npm:3.3.4"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -7033,6 +7057,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "packagePeers": [\
             "@types/node"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@vue/typescript", [\
+        ["npm:1.7.8", {\
+          "packageLocation": "./.yarn/cache/@vue-typescript-npm-1.7.8-dbf3cbd24d-1c6d1ffa65.zip/node_modules/@vue/typescript/",\
+          "packageDependencies": [\
+            ["@vue/typescript", "npm:1.7.8"],\
+            ["@volar/typescript", "npm:1.6.9"],\
+            ["@vue/language-core", "virtual:dbf3cbd24dabb531476cdb03e376e973faf62882a831662fb4082cb9e263fb522160de9d16daf2c552d016f9c058218d97a01edaf4de8d970989298350b325a3#npm:1.7.8"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10446,7 +10481,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["vitest", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.31.1"],\
             ["vue", "npm:3.2.47"],\
             ["vue-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.1.6"],\
-            ["vue-tsc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.5.0"],\
+            ["vue-tsc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.8"],\
             ["whatwg-fetch", "npm:3.6.2"]\
           ],\
           "linkType": "SOFT"\
@@ -12702,10 +12737,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["muggle-string", [\
-        ["npm:0.2.2", {\
-          "packageLocation": "./.yarn/cache/muggle-string-npm-0.2.2-d4f95f7d6a-ce025025a4.zip/node_modules/muggle-string/",\
+        ["npm:0.3.1", {\
+          "packageLocation": "./.yarn/cache/muggle-string-npm-0.3.1-417964904f-f2357f906e.zip/node_modules/muggle-string/",\
           "packageDependencies": [\
-            ["muggle-string", "npm:0.2.2"]\
+            ["muggle-string", "npm:0.3.1"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -16210,20 +16245,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["vue-tsc", [\
-        ["npm:1.5.0", {\
-          "packageLocation": "./.yarn/cache/vue-tsc-npm-1.5.0-4f67aa7661-3b870e422f.zip/node_modules/vue-tsc/",\
+        ["npm:1.7.8", {\
+          "packageLocation": "./.yarn/cache/vue-tsc-npm-1.7.8-5030aa1c83-bc76b5b099.zip/node_modules/vue-tsc/",\
           "packageDependencies": [\
-            ["vue-tsc", "npm:1.5.0"]\
+            ["vue-tsc", "npm:1.7.8"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.5.0", {\
-          "packageLocation": "./.yarn/__virtual__/vue-tsc-virtual-eb0b7272cf/0/cache/vue-tsc-npm-1.5.0-4f67aa7661-3b870e422f.zip/node_modules/vue-tsc/",\
+        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.8", {\
+          "packageLocation": "./.yarn/__virtual__/vue-tsc-virtual-7e7ed53a5b/0/cache/vue-tsc-npm-1.7.8-5030aa1c83-bc76b5b099.zip/node_modules/vue-tsc/",\
           "packageDependencies": [\
-            ["vue-tsc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.5.0"],\
+            ["vue-tsc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.8"],\
             ["@types/typescript", null],\
-            ["@volar/vue-language-core", "npm:1.5.0"],\
-            ["@volar/vue-typescript", "virtual:eb0b7272cf883bb021eb26b996263678559eb1a2dc36156ec96a32f8a215d5fec8b37be7bd80b66ad0e34fabcc2c933289d092fe5cb4cf5185a8492955240b70#npm:1.5.0"],\
+            ["@vue/language-core", "virtual:7e7ed53a5b6c2614b5a7ad6ebaaabf12b1d30956beb8720b67d82e0c8a13d086802d879e683797af95b7aa4002935aeefb74c06bddc7b225960fa28ba5f13ed0#npm:1.7.8"],\
+            ["@vue/typescript", "npm:1.7.8"],\
             ["semver", "npm:7.5.0"],\
             ["typescript", "patch:typescript@npm%3A5.0.4#~builtin<compat/typescript>::version=5.0.4&hash=85af82"]\
           ],\
