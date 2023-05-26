@@ -1,6 +1,6 @@
 [versions]
 arrow = "1.1.5"
-assertk = "0.25"
+assertk = "0.26.1"
 awaitility = "4.2.0"
 guava = "31.1-jre"
 imageComparison = "4.4.0"
