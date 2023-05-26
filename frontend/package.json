@@ -55,7 +55,7 @@
     "@types/node": "18.16.1",
     "@types/qs": "^6.9.7",
     "@types/sinonjs__fake-timers": "^8.1.2",
-    "@vitejs/plugin-vue": "^4.1.0",
+    "@vitejs/plugin-vue": "^4.2.3",
     "@vue/eslint-config-airbnb": "^7.0.0",
     "@vue/eslint-config-typescript": "^11.0.3",
     "@vue/test-utils": "^2.3.2",
