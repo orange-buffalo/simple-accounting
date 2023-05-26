@@ -4524,13 +4524,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitejs/plugin-vue@npm:^4.0.0, @vitejs/plugin-vue@npm:^4.1.0":
+"@vitejs/plugin-vue@npm:^4.0.0":
   version: 4.1.0
   resolution: "@vitejs/plugin-vue@npm:4.1.0"
   peerDependencies:
     vite: ^4.0.0
     vue: ^3.2.25
   checksum: 532192a3da39f3fd6ba9d4fa9de74533cf6e222785c26bcb75bde9f826c5c4a22ad6f0bb09fae83e3393f9d8d24b6982d547683b1967972a4350e8e76aecf3cb
+  languageName: node
+  linkType: hard
+
+"@vitejs/plugin-vue@npm:^4.2.3":
+  version: 4.2.3
+  resolution: "@vitejs/plugin-vue@npm:4.2.3"
+  peerDependencies:
+    vite: ^4.0.0
+    vue: ^3.2.25
+  checksum: 1c70c1cd18f6ba3ed6cdf1391a0d441dd8e9a89c728f7eb20d74c84e75fef1fdc651836cce9bf59a8a48e5b2caebf6ca60a908fdd8527a476a750afd2b458592
   languageName: node
   linkType: hard
 
@@ -7921,7 +7931,7 @@ __metadata:
     "@types/node": 18.16.1
     "@types/qs": ^6.9.7
     "@types/sinonjs__fake-timers": ^8.1.2
-    "@vitejs/plugin-vue": ^4.1.0
+    "@vitejs/plugin-vue": ^4.2.3
     "@vue/eslint-config-airbnb": ^7.0.0
     "@vue/eslint-config-typescript": ^11.0.3
     "@vue/reactivity": ^3.2.47
