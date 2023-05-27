@@ -24,6 +24,7 @@ springBoot = "3.1.0"
 springDependencyManagement = "1.1.0"
 springdocOpenapi = "2.1.0"
 testContainers = "1.18.1"
+testContainersPlaywirght = "0.10.3"
 versionsPlugin = "0.46.0"
 wireMock = "2.35.0"
 zjsonpatch = "0.4.14"
@@ -60,6 +61,7 @@ springdocOpenapi-starterCommon = { module = "org.springdoc:springdoc-openapi-sta
 springdocOpenapi-webfluxApi = { module = "org.springdoc:springdoc-openapi-starter-webflux-api", version.ref = "springdocOpenapi" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
 testcontainers-nginx = { module = "org.testcontainers:nginx", version.ref = "testContainers" }
+testcontainers-playwright = { module = "io.orange-buffalo:testcontainers-playwright", version.ref = "testContainersPlaywirght" }
 testcontainers-selenium = { module = "org.testcontainers:selenium", version.ref = "testContainers" }
 wiremock-jre8Standalone = { module = "com.github.tomakehurst:wiremock-jre8-standalone", version.ref = "wireMock" }
 zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjsonpatch" }

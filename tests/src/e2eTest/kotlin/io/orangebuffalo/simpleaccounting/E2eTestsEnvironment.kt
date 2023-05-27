@@ -1,26 +1,21 @@
 package io.orangebuffalo.simpleaccounting
 
-import com.codeborne.selenide.Configuration
-import com.codeborne.selenide.WebDriverRunner
+import com.microsoft.playwright.Browser
+import com.microsoft.playwright.BrowserContext
+import io.orangebuffalo.testcontainers.playwright.PlaywrightContainer
+import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfigurer
 import mu.KotlinLogging
-import org.junit.jupiter.api.extension.*
-import org.openqa.selenium.chrome.ChromeOptions
-import org.testcontainers.containers.BrowserWebDriverContainer
+import org.junit.jupiter.api.extension.BeforeEachCallback
+import org.junit.jupiter.api.extension.Extension
+import org.junit.jupiter.api.extension.ExtensionContext
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.Network
 import org.testcontainers.containers.wait.strategy.Wait
 
-private val chromeLogger = KotlinLogging.logger("chrome")
+private val browserContainerLogger = KotlinLogging.logger("browser")
 private val simpleAccountingLogger = KotlinLogging.logger("simple-accounting")
 
 private val network: Network = Network.newNetwork()
-
-private val chrome: KBrowserWebDriverContainer = KBrowserWebDriverContainer()
-    .withCapabilities(ChromeOptions())
-    .withNetwork(network)
-    .withLogConsumer { frame -> chromeLogger.info(frame.utf8String) }
-    .withEnv("SCREEN_WIDTH", "1920")
-    .withNetwork(network)
 
 private val simpleAccounting: SimpleAccountingApp = SimpleAccountingApp()
     .withNetwork(network)
@@ -29,34 +24,35 @@ private val simpleAccounting: SimpleAccountingApp = SimpleAccountingApp()
     .withLogConsumer { frame -> simpleAccountingLogger.info(frame.utf8String) }
     .waitingFor(Wait.forLogMessage(".*Started SimpleAccountingApplicationKt.*", 1))
 
-class E2eTestsEnvironment : BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback, Extension {
-    override fun beforeAll(context: ExtensionContext) {
-        Configuration.baseUrl = "http://simple-accounting:9393"
-        Configuration.timeout = 10_000
-    }
+class E2eTestsEnvironment : BeforeEachCallback, Extension {
 
     override fun beforeEach(context: ExtensionContext) {
         // lazy start the container for easier debugging in IDE
         // but keep singleton containers as they start slowly
         if (!simpleAccounting.isRunning) {
             simpleAccounting.start()
-
-            chrome.start()
-
-            Configuration.remote = chrome.seleniumAddress.toString()
         }
-    }
-
-    override fun afterEach(context: ExtensionContext) {
-        WebDriverRunner.closeWindow()
-    }
-
-    override fun afterAll(context: ExtensionContext) {
-        WebDriverRunner.closeWebDriver()
     }
 }
 
 private class SimpleAccountingApp
     : GenericContainer<SimpleAccountingApp>("orangebuffalo/simple-accounting:latest")
 
-private class KBrowserWebDriverContainer : BrowserWebDriverContainer<KBrowserWebDriverContainer>()
+class SaPlaywrightConfigurer : PlaywrightConfigurer {
+
+    override fun setupContainer(container: PlaywrightContainer) {
+        container
+            .withNetwork(network)
+            .withLogConsumer { frame -> browserContainerLogger.info(frame.utf8String) }
+    }
+
+    override fun createBrowserContextOptions(): Browser.NewContextOptions? {
+        return Browser.NewContextOptions()
+            .setBaseURL("http://simple-accounting:9393/")
+            .setViewportSize(1920, 1080)
+    }
+
+    override fun setupBrowserContext(context: BrowserContext) {
+        context.setDefaultTimeout(10_000.0)
+    }
+}
