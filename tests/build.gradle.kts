@@ -38,9 +38,8 @@ dependencyManagement {
 
 dependencies {
     e2eTestImplementation("org.junit.jupiter:junit-jupiter-api")
-    e2eTestImplementation(libs.selenide)
-    e2eTestImplementation(libs.testcontainers.selenium)
     e2eTestImplementation(libs.kotlinLogging)
+    e2eTestImplementation(libs.testcontainers.playwright)
 
     e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     e2eTestRuntimeOnly("org.slf4j:slf4j-simple")
@@ -66,7 +65,10 @@ val e2eTest = task<Test>("e2eTest") {
     testClassesDirs = sourceSets["e2eTest"].output.classesDirs
     classpath = sourceSets["e2eTest"].runtimeClasspath
 
-    dependsOn(":backend:jibDockerBuild")
+    // in local dev, docker build is broken as we do not build frontend
+    if (System.getenv("CI") == "true") {
+        dependsOn(":backend:jibDockerBuild")
+    }
     // jibDockerBuild does not have outputs, so we cannot make this task cache based on jibDockerBuild;
     // workaround this via a fake property
     inputs.property("cacheIgnoreProperty", System.currentTimeMillis())

@@ -1,23 +1,27 @@
 package io.orangebuffalo.simpleaccounting
 
-import com.codeborne.selenide.Condition.appear
+import com.microsoft.playwright.Page
+import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfig
+import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(E2eTestsEnvironment::class)
+@ExtendWith(PlaywrightExtension::class)
+@PlaywrightConfig(configurer = SaPlaywrightConfigurer::class)
 class E2eTests {
 
     @Test
-    fun `should login successfully`() {
-        loginWithFry()
-        sideMenuItem("Dashboard").should(appear)
+    fun `should login successfully`(page: Page) {
+        page.loginWithFry()
+        page.sideMenuItem("Dashboard").assertThat().isVisible()
     }
 
     @Test
-    fun `should load invoices`() {
-        loginWithFry()
-        sideMenuItem("Invoice").click()
-        overviewItemByTitle("Stuffed Toys").should(appear)
+    fun `should load invoices`(page: Page) {
+        page.loginWithFry()
+        page.sideMenuItem("Invoice").click()
+        page.overviewItemByTitle("Stuffed Toys").assertThat().isVisible()
     }
 }
 
