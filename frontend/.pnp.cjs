@@ -32,7 +32,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@messageformat/core", "npm:3.1.0"],\
             ["@messageformat/parser", "npm:5.0.0"],\
             ["@rushstack/eslint-patch", "npm:1.2.0"],\
-            ["@sinonjs/fake-timers", "npm:10.0.2"],\
+            ["@sinonjs/fake-timers", "npm:10.2.0"],\
             ["@storybook/addon-actions", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@storybook/addons", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
             ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.13"],\
@@ -4364,21 +4364,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@sinonjs/commons", [\
-        ["npm:2.0.0", {\
-          "packageLocation": "./.yarn/cache/@sinonjs-commons-npm-2.0.0-3716f24f20-5023ba17ed.zip/node_modules/@sinonjs/commons/",\
+        ["npm:3.0.0", {\
+          "packageLocation": "./.yarn/cache/@sinonjs-commons-npm-3.0.0-fa72ff71a1-b4b5b73d4d.zip/node_modules/@sinonjs/commons/",\
           "packageDependencies": [\
-            ["@sinonjs/commons", "npm:2.0.0"],\
+            ["@sinonjs/commons", "npm:3.0.0"],\
             ["type-detect", "npm:4.0.8"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@sinonjs/fake-timers", [\
-        ["npm:10.0.2", {\
-          "packageLocation": "./.yarn/cache/@sinonjs-fake-timers-npm-10.0.2-c5fa80f1cc-c62aa98e7c.zip/node_modules/@sinonjs/fake-timers/",\
+        ["npm:10.2.0", {\
+          "packageLocation": "./.yarn/cache/@sinonjs-fake-timers-npm-10.2.0-cc1159e8aa-586c76e1dd.zip/node_modules/@sinonjs/fake-timers/",\
           "packageDependencies": [\
-            ["@sinonjs/fake-timers", "npm:10.0.2"],\
-            ["@sinonjs/commons", "npm:2.0.0"]\
+            ["@sinonjs/fake-timers", "npm:10.2.0"],\
+            ["@sinonjs/commons", "npm:3.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10433,7 +10433,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@messageformat/core", "npm:3.1.0"],\
             ["@messageformat/parser", "npm:5.0.0"],\
             ["@rushstack/eslint-patch", "npm:1.2.0"],\
-            ["@sinonjs/fake-timers", "npm:10.0.2"],\
+            ["@sinonjs/fake-timers", "npm:10.2.0"],\
             ["@storybook/addon-actions", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.2"],\
             ["@storybook/addons", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
             ["@storybook/builder-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.13"],\
