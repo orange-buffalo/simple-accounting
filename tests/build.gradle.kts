@@ -49,6 +49,9 @@ dependencies {
     storybookTestImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     storybookTestImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     storybookTestImplementation(libs.imageComparison)
+    storybookTestImplementation("org.springframework.retry:spring-retry")
+    // required by spring retry
+    storybookTestImplementation("org.springframework:spring-core")
 
     storybookTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     storybookTestRuntimeOnly("org.slf4j:slf4j-simple")
