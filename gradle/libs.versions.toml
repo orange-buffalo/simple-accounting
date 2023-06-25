@@ -17,14 +17,12 @@ kotlinSerialization = "1.5.1"
 kotlinSerializationPlugin = "1.8.21"
 mockito = "5.3.1"
 mockitoKotlin = "2.2.0"
-selenide = "6.15.0"
-selenium = "4.9.1"
 semverGitPlugin = "1.2.1"
 springBoot = "3.1.0"
 springDependencyManagement = "1.1.0"
 springdocOpenapi = "2.1.0"
 testContainers = "1.18.3"
-testContainersPlaywirght = "0.10.3"
+testContainersPlaywirght = "0.10.4"
 versionsPlugin = "0.46.0"
 wireMock = "2.35.0"
 zjsonpatch = "0.4.14"
@@ -54,15 +52,11 @@ kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 mockito-junitJupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
 mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version.ref = "mockitoKotlin" }
-selenide = { module = "com.codeborne:selenide", version.ref = "selenide" }
-# add selenium version explicitly to manage automatic upgrades
-selenium-java = { module = "org.seleniumhq.selenium:selenium-java", version.ref = "selenium" }
 springdocOpenapi-starterCommon = { module = "org.springdoc:springdoc-openapi-starter-common", version.ref = "springdocOpenapi" }
 springdocOpenapi-webfluxApi = { module = "org.springdoc:springdoc-openapi-starter-webflux-api", version.ref = "springdocOpenapi" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
 testcontainers-nginx = { module = "org.testcontainers:nginx", version.ref = "testContainers" }
 testcontainers-playwright = { module = "io.orange-buffalo:testcontainers-playwright", version.ref = "testContainersPlaywirght" }
-testcontainers-selenium = { module = "org.testcontainers:selenium", version.ref = "testContainers" }
 wiremock-jre8Standalone = { module = "com.github.tomakehurst:wiremock-jre8-standalone", version.ref = "wireMock" }
 zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjsonpatch" }
 

@@ -29,10 +29,7 @@ val storybookTestRuntimeOnly: Configuration by configurations.getting
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:${libs.versions.springBoot.get()}") {
-            // spring boot comes with 3.x while selenide needs 4.x
-            bomProperty("selenium.version", libs.versions.selenium.get())
-        }
+        mavenBom("org.springframework.boot:spring-boot-dependencies:${libs.versions.springBoot.get()}")
     }
 }
 
@@ -45,8 +42,7 @@ dependencies {
     e2eTestRuntimeOnly("org.slf4j:slf4j-simple")
 
     storybookTestImplementation("org.junit.jupiter:junit-jupiter-api")
-    storybookTestImplementation(libs.selenide)
-    storybookTestImplementation(libs.testcontainers.selenium)
+    storybookTestImplementation(libs.testcontainers.playwright)
     storybookTestImplementation(libs.testcontainers.nginx)
     storybookTestImplementation(libs.kotlinLogging)
     storybookTestImplementation(libs.kotest.assertionsCore)
