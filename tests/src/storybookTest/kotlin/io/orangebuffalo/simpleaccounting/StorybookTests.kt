@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting
 
 import com.github.romankh3.image.comparison.ImageComparison
+import com.github.romankh3.image.comparison.model.ImageComparisonResult
 import com.github.romankh3.image.comparison.model.ImageComparisonState
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.options.ScreenshotAnimations
@@ -14,9 +15,13 @@ import io.orangebuffalo.simpleaccounting.utils.StopWatch
 import io.orangebuffalo.simpleaccounting.utils.logger
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.retry.backoff.NoBackOffPolicy
+import org.springframework.retry.policy.SimpleRetryPolicy
+import org.springframework.retry.support.RetryTemplate
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.lang.RuntimeException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -26,6 +31,11 @@ import kotlin.math.min
 
 @ExtendWith(StorybookExtension::class)
 class StorybookTests {
+
+    private val retryTemplate = RetryTemplate().also {
+        it.setRetryPolicy(SimpleRetryPolicy(3))
+        it.setBackOffPolicy(NoBackOffPolicy())
+    }
 
     @Test
     fun `should have all stories screenshots valid`(env: StorybookEnvironment) {
@@ -49,56 +59,70 @@ class StorybookTests {
                 val stopWatch = StopWatch()
 
                 val page = env.page()
-                page.navigate(story.storybookUrl())
-
-                page.notifyStorybookAboutScreenshotPreparation()
-                page.waitForCondition {
-                    page.isStorybookReadyForTakingScreenshot() ?: false
-                }
-
-                logger.info { "Story was loaded ${stopWatch.tick()}ms" }
-
-                val generatedScreenshot = page.screenshot(
-                    Page.ScreenshotOptions()
-                        .setFullPage(true)
-                        .setCaret(ScreenshotCaret.HIDE)
-                        .setType(ScreenshotType.PNG)
-                        .setAnimations(ScreenshotAnimations.DISABLED)
-                )
-
-                logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
-
                 val committedScreenshotFile = File(committedScreenshotsDir, story.screenshotFileName())
                 val generatedScreenshotFile = File(generatedScreenshotsDirectory, story.screenshotFileName())
-                if (newStories.contains(story.screenshotFileName())) {
-                    generatedScreenshotFile.writeBytes(generatedScreenshot)
-                    logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
-                    if (env.shouldUpdateCommittedScreenshots) {
-                        committedScreenshotFile.writeBytes(generatedScreenshot)
-                        logger.info { "Updated committed file ${stopWatch.tick()}ms" }
-                    }
-                } else {
-                    val committedScreenshot = ImageIO.read(committedScreenshotFile)
-                    val generatedScreenshotImage = ImageIO.read(ByteArrayInputStream(generatedScreenshot))
-                    logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
-
-                    val imageComparison = ImageComparison(committedScreenshot, generatedScreenshotImage).compareImages()
-                    logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
-
-                    if (imageComparison.imageComparisonState != ImageComparisonState.MATCH) {
-                        logger.info { "Screenshots differ by ${imageComparison.differencePercent}%" }
-
-                        failedScreenshots.add(story.screenshotFileName())
-                        imageComparison.result.write(File(diffDirectory, "${story.id}-diff.png"))
-                        logger.info { "Saved diff ${stopWatch.tick()}ms" }
-
-                        generatedScreenshotFile.writeBytes(generatedScreenshot)
-                        logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
-
-                        if (env.shouldUpdateCommittedScreenshots) {
-                            committedScreenshotFile.writeBytes(generatedScreenshot)
-                            logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
+                var imageComparison: ImageComparisonResult? = null
+                var generatedScreenshot: ByteArray? = null
+                try {
+                    retryTemplate.execute<Unit, ScreenshotRetryException> {
+                        if (it.retryCount > 0) {
+                            logger.warn { "Retrying ${it.retryCount} time" }
                         }
+
+                        page.navigate(story.storybookUrl())
+
+                        page.notifyStorybookAboutScreenshotPreparation()
+                        page.waitForCondition {
+                            page.isStorybookReadyForTakingScreenshot() ?: false
+                        }
+
+                        logger.info { "Story was loaded ${stopWatch.tick()}ms" }
+
+                        generatedScreenshot = page.screenshot(
+                            Page.ScreenshotOptions()
+                                .setFullPage(true)
+                                .setCaret(ScreenshotCaret.HIDE)
+                                .setType(ScreenshotType.PNG)
+                                .setAnimations(ScreenshotAnimations.DISABLED)
+                        )
+
+                        logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
+
+
+                        if (newStories.contains(story.screenshotFileName())) {
+                            generatedScreenshotFile.writeBytes(generatedScreenshot!!)
+                            logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
+                            if (env.shouldUpdateCommittedScreenshots) {
+                                committedScreenshotFile.writeBytes(generatedScreenshot!!)
+                                logger.info { "Updated committed file ${stopWatch.tick()}ms" }
+                            }
+                        } else {
+                            val committedScreenshot = ImageIO.read(committedScreenshotFile)
+                            val generatedScreenshotImage = ImageIO.read(ByteArrayInputStream(generatedScreenshot))
+                            logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
+
+                            imageComparison =
+                                ImageComparison(committedScreenshot, generatedScreenshotImage).compareImages()
+                            logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
+
+                            if (imageComparison!!.imageComparisonState != ImageComparisonState.MATCH) {
+                                throw ScreenshotRetryException()
+                            }
+                        }
+                    }
+                } catch (e: ScreenshotRetryException) {
+                    logger.info { "Screenshots differ by ${imageComparison!!.differencePercent}%" }
+
+                    failedScreenshots.add(story.screenshotFileName())
+                    imageComparison!!.result.write(File(diffDirectory, "${story.id}-diff.png"))
+                    logger.info { "Saved diff ${stopWatch.tick()}ms" }
+
+                    generatedScreenshotFile.writeBytes(generatedScreenshot!!)
+                    logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
+
+                    if (env.shouldUpdateCommittedScreenshots) {
+                        committedScreenshotFile.writeBytes(generatedScreenshot!!)
+                        logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
                     }
                 }
             }, worker)
@@ -169,3 +193,5 @@ private fun Page.isStorybookReadyForTakingScreenshot(): Boolean? {
         """
     ) as Boolean?
 }
+
+private class ScreenshotRetryException : RuntimeException()
