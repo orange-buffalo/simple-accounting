@@ -1,9 +1,11 @@
 package io.orangebuffalo.simpleaccounting
 
-import com.codeborne.selenide.Selenide
-import com.codeborne.selenide.WebDriverRunner
 import com.github.romankh3.image.comparison.ImageComparison
 import com.github.romankh3.image.comparison.model.ImageComparisonState
+import com.microsoft.playwright.Page
+import com.microsoft.playwright.options.ScreenshotAnimations
+import com.microsoft.playwright.options.ScreenshotCaret
+import com.microsoft.playwright.options.ScreenshotType
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -12,14 +14,15 @@ import io.orangebuffalo.simpleaccounting.utils.StopWatch
 import io.orangebuffalo.simpleaccounting.utils.logger
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.openqa.selenium.JavascriptExecutor
 import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.imageio.ImageIO
+import kotlin.math.max
+import kotlin.math.min
 
 @ExtendWith(StorybookExtension::class)
 class StorybookTests {
@@ -37,34 +40,49 @@ class StorybookTests {
 
         val (generatedScreenshotsDirectory, diffDirectory) = getGeneratedScreenshotsDirectories()
 
-        val allScreenshotsTaken = AtomicBoolean(false)
-        val screenshotsTaken = LinkedBlockingQueue<Pair<StorybookStory, BufferedImage>>()
+        // limiting the max number of threads - too many of them produce flaky results without significant boost in speed
+        val worker = Executors.newFixedThreadPool(min(4, max(Runtime.getRuntime().availableProcessors() - 1, 1)))
 
-        // offload comparison to the background thread to improve test performance
-        // concurrent execution of screenshots by Selenium is extremely unstable, so we only do it in a single thread
-        val comparisonWorker = Executors.newSingleThreadExecutor()
-        comparisonWorker.submit {
-            while (true) {
-                val storyAndScreenshot = screenshotsTaken.poll(100, TimeUnit.MILLISECONDS)
-                    ?: if (allScreenshotsTaken.get()) return@submit else continue
-
+        val futures = env.stories.map { story ->
+            CompletableFuture.runAsync({
+                logger.info { "Processing story $story" }
                 val stopWatch = StopWatch()
-                val (story, generatedScreenshot) = storyAndScreenshot
+
+                val page = env.page()
+                page.navigate(story.storybookUrl())
+
+                page.notifyStorybookAboutScreenshotPreparation()
+                page.waitForCondition {
+                    page.isStorybookReadyForTakingScreenshot() ?: false
+                }
+
+                logger.info { "Story was loaded ${stopWatch.tick()}ms" }
+
+                val generatedScreenshot = page.screenshot(
+                    Page.ScreenshotOptions()
+                        .setFullPage(true)
+                        .setCaret(ScreenshotCaret.HIDE)
+                        .setType(ScreenshotType.PNG)
+                        .setAnimations(ScreenshotAnimations.DISABLED)
+                )
+
+                logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
 
                 val committedScreenshotFile = File(committedScreenshotsDir, story.screenshotFileName())
                 val generatedScreenshotFile = File(generatedScreenshotsDirectory, story.screenshotFileName())
                 if (newStories.contains(story.screenshotFileName())) {
-                    generatedScreenshot.write(generatedScreenshotFile)
+                    generatedScreenshotFile.writeBytes(generatedScreenshot)
                     logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
                     if (env.shouldUpdateCommittedScreenshots) {
-                        generatedScreenshot.write(committedScreenshotFile)
+                        committedScreenshotFile.writeBytes(generatedScreenshot)
                         logger.info { "Updated committed file ${stopWatch.tick()}ms" }
                     }
                 } else {
                     val committedScreenshot = ImageIO.read(committedScreenshotFile)
+                    val generatedScreenshotImage = ImageIO.read(ByteArrayInputStream(generatedScreenshot))
                     logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
 
-                    val imageComparison = ImageComparison(committedScreenshot, generatedScreenshot).compareImages()
+                    val imageComparison = ImageComparison(committedScreenshot, generatedScreenshotImage).compareImages()
                     logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
 
                     if (imageComparison.imageComparisonState != ImageComparisonState.MATCH) {
@@ -74,40 +92,19 @@ class StorybookTests {
                         imageComparison.result.write(File(diffDirectory, "${story.id}-diff.png"))
                         logger.info { "Saved diff ${stopWatch.tick()}ms" }
 
-                        generatedScreenshot.write(generatedScreenshotFile)
+                        generatedScreenshotFile.writeBytes(generatedScreenshot)
                         logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
 
                         if (env.shouldUpdateCommittedScreenshots) {
-                            generatedScreenshot.write(committedScreenshotFile)
+                            committedScreenshotFile.writeBytes(generatedScreenshot)
                             logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
                         }
                     }
                 }
-            }
+            }, worker)
         }
-
-        env.stories.forEach { story ->
-            logger.info { "Processing story $story" }
-            val stopWatch = StopWatch()
-
-            Selenide.open(story.storybookUrl())
-
-            notifyStorybookAboutScreenshotPreparation()
-            Selenide.Wait().until {
-                isStorybookReadyForTakingScreenshot() ?: false
-            }
-
-            logger.info { "Story was loaded ${stopWatch.tick()}ms" }
-
-            val generatedScreenshot = Screenshoter().makeScreenshot()
-
-            logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
-
-            screenshotsTaken.offer(story to generatedScreenshot)
-        }
-        allScreenshotsTaken.set(true)
-        comparisonWorker.shutdown()
-        comparisonWorker.awaitTermination(10, TimeUnit.MINUTES)
+        CompletableFuture.allOf(*futures.toTypedArray()).get(10, TimeUnit.MINUTES)
+        worker.shutdown()
 
         val deletedStories = committedScreenshots.subtract(expectedScreenshots)
         if (env.shouldUpdateCommittedScreenshots) {
@@ -155,22 +152,20 @@ private fun StorybookStory.screenshotFileName() = "$id.png"
 private fun StorybookStory.storybookUrl() = "iframe.html?id=${id}&viewMode=story"
 private fun BufferedImage.write(file: File) = ImageIO.write(this, "png", file)
 
-private fun notifyStorybookAboutScreenshotPreparation() {
+private fun Page.notifyStorybookAboutScreenshotPreparation() {
     //language=JavaScript
-    jsExecutor().executeScript(
+    evaluate(
         """
           window.saScreenshotRequired = true;
         """
     )
 }
 
-private fun isStorybookReadyForTakingScreenshot(): Boolean? {
+private fun Page.isStorybookReadyForTakingScreenshot(): Boolean? {
     //language=JavaScript
-    return jsExecutor().executeScript(
+    return evaluate(
         """
-          return window.saReadyForScreenshot
+          window.saReadyForScreenshot
         """
     ) as Boolean?
 }
-
-private fun jsExecutor() = WebDriverRunner.getWebDriver() as JavascriptExecutor
