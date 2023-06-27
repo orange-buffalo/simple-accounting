@@ -23,7 +23,7 @@ springDependencyManagement = "1.1.0"
 springdocOpenapi = "2.1.0"
 testContainers = "1.18.3"
 testContainersPlaywirght = "0.10.4"
-versionsPlugin = "0.46.0"
+versionsPlugin = "0.47.0"
 wireMock = "2.35.0"
 zjsonpatch = "0.4.14"
 
