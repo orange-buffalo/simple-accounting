@@ -72,7 +72,7 @@
     "rollup-plugin-visualizer": "^5.9.0",
     "sass": "^1.62.0",
     "storybook": "^7.0.15",
-    "typescript": "~5.0.4",
+    "typescript": "~5.1.5",
     "vite": "^4.2.2",
     "vite-svg-loader": "^4.0.0",
     "vitest": "^0.31.1",
