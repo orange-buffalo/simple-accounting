@@ -66,7 +66,7 @@ val e2eTest = task<Test>("e2eTest") {
 
     // in local dev, docker build is broken as we do not build frontend
     if (System.getenv("CI") == "true") {
-        dependsOn(":backend:jibDockerBuild")
+        dependsOn(":app:jibDockerBuild")
     }
     // jibDockerBuild does not have outputs, so we cannot make this task cache based on jibDockerBuild;
     // workaround this via a fake property
