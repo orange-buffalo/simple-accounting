@@ -58,7 +58,7 @@ jobs:
           ~/.gradle/caches
           ~/.gradle/wrapper
           ~/.cache/google-cloud-tools-java/jib
-          backend/build/jib-cache
+          app/build/jib-cache
         # workaround for https://github.com/actions/cache/issues/342
         # generate new key for each build to force cache push
         key: build-cache-${{ github.run_id }}

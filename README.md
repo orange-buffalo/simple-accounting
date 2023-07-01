@@ -41,11 +41,11 @@ To run the load tests, follow these steps:
 
 ### Squashing Flyway migrations
 1. Migrate target database to the latest version.
-2. Delete old migrations from `<root>/backend/src/main/resources/db/migration`.
+2. Delete old migrations from `<root>/app/src/main/resources/db/migration`.
 3. Get current schema:
    ```sql
    script nodata nopasswords nosettings
-     to '<root>/backend/src/main/resources/db/migration/V0001__Baseline.sql'
+     to '<root>/app/src/main/resources/db/migration/V0001__Baseline.sql'
      schema public;
    ```
 4. Cleanup the script (remove users, remove sequences initialization, remove selectivity).

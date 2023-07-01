@@ -5,5 +5,5 @@ plugins {
 rootProject.name = "simple-accounting"
 
 include("frontend")
-include("backend")
+include("app")
 include("tests")
