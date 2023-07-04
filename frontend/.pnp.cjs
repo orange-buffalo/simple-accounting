@@ -88,7 +88,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["vite-svg-loader", "npm:4.0.0"],\
             ["vitest", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.31.1"],\
             ["vue", "npm:3.2.47"],\
-            ["vue-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.2.1"],\
+            ["vue-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.2.2"],\
             ["vue-tsc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.8"],\
             ["whatwg-fetch", "npm:3.6.2"]\
           ],\
@@ -10791,7 +10791,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["vite-svg-loader", "npm:4.0.0"],\
             ["vitest", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:0.31.1"],\
             ["vue", "npm:3.2.47"],\
-            ["vue-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.2.1"],\
+            ["vue-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.2.2"],\
             ["vue-tsc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.8"],\
             ["whatwg-fetch", "npm:3.6.2"]\
           ],\
@@ -16608,17 +16608,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["vue-router", [\
-        ["npm:4.2.1", {\
-          "packageLocation": "./.yarn/cache/vue-router-npm-4.2.1-4fe2fb33c6-99ac17d79d.zip/node_modules/vue-router/",\
+        ["npm:4.2.2", {\
+          "packageLocation": "./.yarn/cache/vue-router-npm-4.2.2-56d5f442c5-4181b3776a.zip/node_modules/vue-router/",\
           "packageDependencies": [\
-            ["vue-router", "npm:4.2.1"]\
+            ["vue-router", "npm:4.2.2"]\
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.2.1", {\
-          "packageLocation": "./.yarn/__virtual__/vue-router-virtual-b04eade09f/0/cache/vue-router-npm-4.2.1-4fe2fb33c6-99ac17d79d.zip/node_modules/vue-router/",\
+        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.2.2", {\
+          "packageLocation": "./.yarn/__virtual__/vue-router-virtual-5acb2ce9ab/0/cache/vue-router-npm-4.2.2-56d5f442c5-4181b3776a.zip/node_modules/vue-router/",\
           "packageDependencies": [\
-            ["vue-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.2.1"],\
+            ["vue-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.2.2"],\
             ["@types/vue", null],\
             ["@vue/devtools-api", "npm:6.5.0"],\
             ["vue", "npm:3.2.47"]\
