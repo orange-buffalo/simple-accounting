@@ -31,7 +31,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0"],\
             ["@messageformat/core", "npm:3.1.0"],\
             ["@messageformat/parser", "npm:5.0.0"],\
-            ["@rushstack/eslint-patch", "npm:1.2.0"],\
+            ["@rushstack/eslint-patch", "npm:1.3.2"],\
             ["@sinonjs/fake-timers", "npm:10.2.0"],\
             ["@storybook/addon-actions", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.18"],\
             ["@storybook/addons", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
@@ -4355,10 +4355,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@rushstack/eslint-patch", [\
-        ["npm:1.2.0", {\
-          "packageLocation": "./.yarn/cache/@rushstack-eslint-patch-npm-1.2.0-917f402e4e-faa749faae.zip/node_modules/@rushstack/eslint-patch/",\
+        ["npm:1.3.2", {\
+          "packageLocation": "./.yarn/cache/@rushstack-eslint-patch-npm-1.3.2-0939a1615d-010c87ef2d.zip/node_modules/@rushstack/eslint-patch/",\
           "packageDependencies": [\
-            ["@rushstack/eslint-patch", "npm:1.2.0"]\
+            ["@rushstack/eslint-patch", "npm:1.3.2"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10734,7 +10734,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0"],\
             ["@messageformat/core", "npm:3.1.0"],\
             ["@messageformat/parser", "npm:5.0.0"],\
-            ["@rushstack/eslint-patch", "npm:1.2.0"],\
+            ["@rushstack/eslint-patch", "npm:1.3.2"],\
             ["@sinonjs/fake-timers", "npm:10.2.0"],\
             ["@storybook/addon-actions", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.18"],\
             ["@storybook/addons", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.5"],\
