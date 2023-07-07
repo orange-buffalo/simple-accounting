@@ -69,7 +69,7 @@ class StorybookEnvironment {
         get() = testConfig.replaceCommittedFiles
 
     private val pages = ThreadLocal.withInitial {
-            val browser = chrome.playwrightApi.chromium()
+            val browser = chrome.getPlaywrightApi().chromium()
             val context = browser.newContext(
                 Browser.NewContextOptions()
                     .setBaseURL(
