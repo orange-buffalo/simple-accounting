@@ -125,10 +125,12 @@ jib {
 }
 
 val screenshotsTestPattern = "*UiComponentsScreenshotsIT"
+val e2eTestPattern = "*E2eTests"
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
     filter {
         excludeTestsMatching(screenshotsTestPattern)
+        excludeTestsMatching(e2eTestPattern)
     }
 }
 
@@ -141,8 +143,25 @@ tasks.jacocoTestReport {
 }
 
 tasks.register<Test>("screenshotsTest") {
+    description = "Runs screenshot tests for UI components"
     filter {
         includeTestsMatching(screenshotsTestPattern)
+    }
+}
+
+tasks.register<Test>("e2eTest") {
+    description = "Runs E2E tests."
+
+    // in local dev, docker build is broken as we do not build frontend
+    if (System.getenv("CI") == "true") {
+        dependsOn(":app:jibDockerBuild")
+    }
+    // jibDockerBuild does not have outputs, so we cannot make this task cache based on jibDockerBuild;
+    // workaround this via a fake property
+    inputs.property("cacheIgnoreProperty", System.currentTimeMillis())
+
+    filter {
+        includeTestsMatching(e2eTestPattern)
     }
 }
 

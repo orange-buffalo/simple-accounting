@@ -6,4 +6,3 @@ rootProject.name = "simple-accounting"
 
 include("frontend")
 include("app")
-include("tests")

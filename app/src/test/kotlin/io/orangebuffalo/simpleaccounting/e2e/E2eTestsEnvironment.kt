@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting
+package io.orangebuffalo.simpleaccounting.e2e
 
 import com.microsoft.playwright.Browser
 import com.microsoft.playwright.BrowserContext
