@@ -77,7 +77,7 @@ jobs:
     - name: "Test (storybook)"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
-      run: ./gradlew storybookTest --scan --console=plain --info --build-cache
+      run: ./gradlew screenshotsTest --scan --console=plain --info --build-cache
 
     - name: "Test (end-to-end)"
       run: ./gradlew e2eTest --scan --console=plain --build-cache --info
@@ -94,8 +94,8 @@ jobs:
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
       with:
-        name: Storyshots Diff Files
-        path: tests/build/storybookTest
+        name: Screenshots Diff Files
+        path: app/build/screenshotsTest
         if-no-files-found: "ignore"
 
     - name: "Report Test Coverage"

@@ -67,11 +67,17 @@ dependencies {
     testImplementation(libs.zjsonpatch)
     testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.nginx)
+    testImplementation(libs.testcontainers.playwright)
+    testImplementation(libs.imageComparison)
+    testImplementation("org.springframework.retry:spring-retry")
+    testImplementation(libs.kotest.assertionsCore)
 
     testRuntimeOnly(libs.springdocOpenapi.webfluxApi)
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
+val frontendBuildTaskName = ":frontend:buildFrontend"
 sourceSets {
     main {
         // add frontend application build results;
@@ -79,7 +85,16 @@ sourceSets {
         // as running against the dev server is a typical use case
         if (System.getenv("CI") == "true") {
             resources {
-                srcDirs(tasks.getByPath(":frontend:buildFrontend"))
+                srcDirs(tasks.getByPath(frontendBuildTaskName))
+            }
+        }
+    }
+    test {
+        // do not add this dependency in dev to avoid storybook rebuild on each change,
+        // as we recommend to run tests against running storybook locally
+        if (System.getenv("CI") == "true") {
+            resources {
+                srcDirs(tasks.getByPath(frontendBuildTaskName))
             }
         }
     }
@@ -109,8 +124,12 @@ jib {
     }
 }
 
+val screenshotsTestPattern = "*UiComponentsScreenshotsIT"
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
+    filter {
+        excludeTestsMatching(screenshotsTestPattern)
+    }
 }
 
 tasks.jacocoTestReport {
@@ -118,6 +137,12 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         csv.required.set(false)
         html.required.set(false)
+    }
+}
+
+tasks.register<Test>("screenshotsTest") {
+    filter {
+        includeTestsMatching(screenshotsTestPattern)
     }
 }
 

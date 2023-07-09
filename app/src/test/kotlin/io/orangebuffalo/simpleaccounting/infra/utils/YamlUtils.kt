@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.utils
+package io.orangebuffalo.simpleaccounting.infra.utils
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule

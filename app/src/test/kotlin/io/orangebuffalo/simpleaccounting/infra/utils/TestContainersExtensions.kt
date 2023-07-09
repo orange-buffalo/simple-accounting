@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.utils
+package io.orangebuffalo.simpleaccounting.infra.utils
 
 import org.testcontainers.containers.NginxContainer
 

@@ -7,20 +7,18 @@ import assertk.assertions.isTrue
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndBody
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.support.kotlinEquals
-import io.orangebuffalo.simpleaccounting.support.kotlinHashCode
+import io.orangebuffalo.simpleaccounting.infra.utils.combine
+import io.orangebuffalo.simpleaccounting.infra.utils.logger
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.infra.utils.combine
-import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndBody
-import mu.KotlinLogging
+import io.orangebuffalo.simpleaccounting.support.kotlinEquals
+import io.orangebuffalo.simpleaccounting.support.kotlinHashCode
 import org.springframework.test.web.reactive.server.WebTestClient
 import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
-
-val logger = KotlinLogging.logger {}
 
 class FilteringApiTestCasesBuilderImpl<T : Any>(
     entityType: KClass<T>
