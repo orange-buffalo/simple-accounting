@@ -74,7 +74,7 @@ jobs:
     - name: "Test"
       run: ./gradlew check --scan --console=plain --build-cache
 
-    - name: "Test (storybook)"
+    - name: "Test (screenshots)"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
       run: ./gradlew screenshotsTest --scan --console=plain --build-cache
