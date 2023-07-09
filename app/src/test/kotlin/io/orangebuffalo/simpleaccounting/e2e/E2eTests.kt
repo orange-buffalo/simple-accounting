@@ -6,9 +6,9 @@ import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(E2eTestsEnvironment::class)
+@ExtendWith(E2eTestsExtension::class)
 @ExtendWith(PlaywrightExtension::class)
-@PlaywrightConfig(configurer = SaPlaywrightConfigurer::class)
+@PlaywrightConfig(configurer = E2eTestsPlaywrightConfigurer::class)
 class E2eTests {
 
     @Test
