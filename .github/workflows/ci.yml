@@ -69,18 +69,18 @@ jobs:
     - name: "Build"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
-      run: ./gradlew assemble --scan --console=plain --info --build-cache
+      run: ./gradlew assemble --scan --console=plain --build-cache
 
     - name: "Test"
-      run: ./gradlew check --scan --console=plain --info --build-cache
+      run: ./gradlew check --scan --console=plain --build-cache
 
     - name: "Test (storybook)"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
-      run: ./gradlew screenshotsTest --scan --console=plain --info --build-cache
+      run: ./gradlew screenshotsTest --scan --console=plain --build-cache
 
     - name: "Test (end-to-end)"
-      run: ./gradlew e2eTest --scan --console=plain --build-cache --info
+      run: ./gradlew e2eTest --scan --console=plain --build-cache
 
     - name: "Save Tests Results"
       uses: actions/upload-artifact@v3
