@@ -1,8 +1,8 @@
-package io.orangebuffalo.simpleaccounting.utils
+package io.orangebuffalo.simpleaccounting.infra.utils
 
 import mu.KotlinLogging
 
-val logger = KotlinLogging.logger("storybook-tests")
+val logger = KotlinLogging.logger("tests")
 
 class StopWatch {
     private val startTime = System.currentTimeMillis()

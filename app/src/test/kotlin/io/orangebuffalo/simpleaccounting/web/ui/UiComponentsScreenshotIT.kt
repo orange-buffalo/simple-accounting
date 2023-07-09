@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting
+package io.orangebuffalo.simpleaccounting.web.ui
 
 import com.github.romankh3.image.comparison.ImageComparison
 import com.github.romankh3.image.comparison.model.ImageComparisonResult
@@ -11,8 +11,11 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.file.shouldExist
-import io.orangebuffalo.simpleaccounting.utils.StopWatch
-import io.orangebuffalo.simpleaccounting.utils.logger
+import io.orangebuffalo.simpleaccounting.infra.ui.StorybookEnvironment
+import io.orangebuffalo.simpleaccounting.infra.ui.StorybookExtension
+import io.orangebuffalo.simpleaccounting.infra.ui.StorybookStory
+import io.orangebuffalo.simpleaccounting.infra.utils.StopWatch
+import io.orangebuffalo.simpleaccounting.infra.utils.logger
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.retry.backoff.NoBackOffPolicy
@@ -21,7 +24,6 @@ import org.springframework.retry.support.RetryTemplate
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.File
-import java.lang.RuntimeException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -30,7 +32,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 @ExtendWith(StorybookExtension::class)
-class StorybookTests {
+class UiComponentsScreenshotsIT {
 
     private val retryTemplate = RetryTemplate().also {
         it.setRetryPolicy(SimpleRetryPolicy(3))
@@ -39,7 +41,7 @@ class StorybookTests {
 
     @Test
     fun `should have all stories screenshots valid`(env: StorybookEnvironment) {
-        val committedScreenshotsDir = File("src/storybookTest/resources/__images")
+        val committedScreenshotsDir = File("src/test/resources/__screenshots_test_images")
         committedScreenshotsDir.shouldExist()
 
         val committedScreenshots = getRelativeFilePathsByBaseDir(committedScreenshotsDir)
@@ -159,7 +161,7 @@ class StorybookTests {
         .toSet()
 
     private fun getGeneratedScreenshotsDirectories(): Pair<File, File> {
-        val generatedScreenshotsBaseDirectory = File("build/storybookTest/")
+        val generatedScreenshotsBaseDirectory = File("build/screenshotsTest/")
         generatedScreenshotsBaseDirectory.mkdirs()
 
         val diffDirectory = File(generatedScreenshotsBaseDirectory, "diff")

@@ -1,13 +1,13 @@
-package io.orangebuffalo.simpleaccounting
+package io.orangebuffalo.simpleaccounting.infra.ui
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.microsoft.playwright.Browser
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.utils.KNginxContainer
-import io.orangebuffalo.simpleaccounting.utils.logger
-import io.orangebuffalo.simpleaccounting.utils.yamlObjectMapper
+import io.orangebuffalo.simpleaccounting.infra.utils.KNginxContainer
+import io.orangebuffalo.simpleaccounting.infra.utils.logger
+import io.orangebuffalo.simpleaccounting.infra.utils.yamlObjectMapper
 import io.orangebuffalo.testcontainers.playwright.PlaywrightContainer
 import mu.KotlinLogging
 import org.junit.jupiter.api.extension.*
@@ -130,7 +130,7 @@ private data class TestConfig(
 )
 
 private fun loadTestConfig(): TestConfig {
-    val testConfigFile = File("src/storybookTest/.test-config.yaml")
+    val testConfigFile = File("src/test/.test-config.yaml")
     val config: TestConfig = if (testConfigFile.exists())
         yamlObjectMapper().readValue(testConfigFile)
     else TestConfig()

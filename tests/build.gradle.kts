@@ -11,21 +11,10 @@ plugins {
 
 sourceSets {
     create("e2eTest")
-    create("storybookTest") {
-        // do not add this dependency in dev to avoid storybook rebuild on each change,
-        // as we recommend to run tests against running storybook locally
-        if (System.getenv("CI") == "true") {
-            resources {
-                srcDirs(tasks.getByPath(":frontend:buildStorybook"))
-            }
-        }
-    }
 }
 
 val e2eTestImplementation: Configuration by configurations.getting
 val e2eTestRuntimeOnly: Configuration by configurations.getting
-val storybookTestImplementation: Configuration by configurations.getting
-val storybookTestRuntimeOnly: Configuration by configurations.getting
 
 dependencyManagement {
     imports {
@@ -40,21 +29,6 @@ dependencies {
 
     e2eTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     e2eTestRuntimeOnly("org.slf4j:slf4j-simple")
-
-    storybookTestImplementation("org.junit.jupiter:junit-jupiter-api")
-    storybookTestImplementation(libs.testcontainers.playwright)
-    storybookTestImplementation(libs.testcontainers.nginx)
-    storybookTestImplementation(libs.kotlinLogging)
-    storybookTestImplementation(libs.kotest.assertionsCore)
-    storybookTestImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    storybookTestImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-    storybookTestImplementation(libs.imageComparison)
-    storybookTestImplementation("org.springframework.retry:spring-retry")
-    // required by spring retry
-    storybookTestImplementation("org.springframework:spring-core")
-
-    storybookTestRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    storybookTestRuntimeOnly("org.slf4j:slf4j-simple")
 }
 
 val e2eTest = task<Test>("e2eTest") {
@@ -71,14 +45,6 @@ val e2eTest = task<Test>("e2eTest") {
     // jibDockerBuild does not have outputs, so we cannot make this task cache based on jibDockerBuild;
     // workaround this via a fake property
     inputs.property("cacheIgnoreProperty", System.currentTimeMillis())
-}
-
-val storybookTest = task<Test>("storybookTest") {
-    description = "Runs Storybook tests."
-    group = "verification"
-
-    testClassesDirs = sourceSets["storybookTest"].output.classesDirs
-    classpath = sourceSets["storybookTest"].runtimeClasspath
 }
 
 java {

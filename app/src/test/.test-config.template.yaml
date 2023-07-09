@@ -1,5 +1,3 @@
-# if Testcontainers should reuse created containers (speeds-up startup)
-reuseContainers: true
 # if failed screenshots should be automatically updated
 replaceCommittedFiles: true
 # if to use storybook dev server
