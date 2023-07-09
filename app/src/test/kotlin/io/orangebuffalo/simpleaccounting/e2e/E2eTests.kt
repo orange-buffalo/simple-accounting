@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting
+package io.orangebuffalo.simpleaccounting.e2e
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfig
