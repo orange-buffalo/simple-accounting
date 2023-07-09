@@ -83,16 +83,7 @@ sourceSets {
         // add frontend application build results;
         // do not add this dependency in dev environment to avoid npm rebuild on each change,
         // as running against the dev server is a typical use case
-        if (System.getenv("CI") == "true") {
-            resources {
-                srcDirs(tasks.getByPath(frontendBuildTaskName))
-            }
-        }
-    }
-    test {
-        // do not add this dependency in dev to avoid storybook rebuild on each change,
-        // as we recommend to run tests against running storybook locally
-        if (System.getenv("CI") == "true") {
+        ifCi {
             resources {
                 srcDirs(tasks.getByPath(frontendBuildTaskName))
             }
@@ -146,6 +137,11 @@ tasks.register<Test>("screenshotsTest") {
     description = "Runs screenshot tests for UI components"
     filter {
         includeTestsMatching(screenshotsTestPattern)
+    }
+    // do not add this dependency in dev to avoid storybook rebuild on each change,
+    // as we recommend to run tests against running storybook locally
+    if (System.getenv("CI") == "true") {
+        dependsOn(tasks.getByPath(":frontend:buildStorybook"))
     }
 }
 
