@@ -1,4 +1,5 @@
-# if failed screenshots should be automatically updated
-replaceCommittedFiles: true
-# if to use storybook dev server
-useCompliedStorybook: false
+screenshots:
+  # if failed screenshots should be automatically updated
+  replaceCommittedFiles: true
+  # if to use storybook dev server
+  useCompliedStorybook: false
