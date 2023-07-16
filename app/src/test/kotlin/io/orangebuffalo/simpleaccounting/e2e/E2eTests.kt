@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.e2e
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfig
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightExtension
 import org.junit.jupiter.api.Test

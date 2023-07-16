@@ -36,6 +36,7 @@ annotation class WithMockRobertoUser
 @Retention(AnnotationRetention.RUNTIME)
 @WithSaMockUser(roles = ["USER"], userName = "MafiaBot")
 annotation class WithMockMafiaBotUser
+
 class SaMockSecurityContextFactory : WithSecurityContextFactory<WithSaMockUser> {
     override fun createSecurityContext(withSaMockUser: WithSaMockUser): SecurityContext {
         val context = SecurityContextHolder.createEmptyContext()

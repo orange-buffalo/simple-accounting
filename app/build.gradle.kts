@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     repositories {
         mavenCentral()
@@ -78,18 +80,6 @@ dependencies {
 }
 
 val frontendBuildTaskName = ":frontend:buildFrontend"
-sourceSets {
-    main {
-        // add frontend application build results;
-        // do not add this dependency in dev environment to avoid npm rebuild on each change,
-        // as running against the dev server is a typical use case
-        ifCi {
-            resources {
-                srcDirs(tasks.getByPath(frontendBuildTaskName))
-            }
-        }
-    }
-}
 
 // disable extra artifacts as we do not need them (including container image)
 tasks.jar {
@@ -140,7 +130,7 @@ tasks.register<Test>("screenshotsTest") {
     }
     // do not add this dependency in dev to avoid storybook rebuild on each change,
     // as we recommend to run tests against running storybook locally
-    if (System.getenv("CI") == "true") {
+    ifCi {
         dependsOn(tasks.getByPath(":frontend:buildStorybook"))
     }
 }
@@ -149,7 +139,7 @@ tasks.register<Test>("e2eTest") {
     description = "Runs E2E tests."
 
     // in local dev, docker build is broken as we do not build frontend
-    if (System.getenv("CI") == "true") {
+    ifCi {
         dependsOn(":app:jibDockerBuild")
     }
     // jibDockerBuild does not have outputs, so we cannot make this task cache based on jibDockerBuild;
@@ -158,6 +148,17 @@ tasks.register<Test>("e2eTest") {
 
     filter {
         includeTestsMatching(e2eTestPattern)
+    }
+}
+
+val copyFrontendTask = tasks.register<Copy>("copyFrontend") {
+    from(tasks.getByPath(frontendBuildTaskName))
+    into("build/resources/main")
+}
+
+tasks.withType<KotlinCompile> {
+    ifCi {
+        dependsOn(copyFrontendTask)
     }
 }
 

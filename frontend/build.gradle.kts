@@ -64,7 +64,7 @@ tasks.register("check") {
 val cleanFrontend by tasks.register("cleanFrontend") {
     group = "Frontend"
     doLast {
-        delete(project.files(".yarn/install-stage.gz"))
+        delete(project.files(".yarn/install-state.gz"))
         delete(project.files("src/services/i18n/l10n"))
         delete(project.files("dist"))
         delete(project.files("build/storybook"))
