@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.e2e
 
 import com.microsoft.playwright.Browser
 import io.orangebuffalo.simpleaccounting.infra.environment.SaPlaywrightConfigurer
-import io.orangebuffalo.simpleaccounting.infra.environment.TestsEnvironment
+import io.orangebuffalo.simpleaccounting.infra.environment.TestEnvironment
 import mu.KotlinLogging
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension
@@ -14,7 +14,7 @@ private val simpleAccountingLogger = KotlinLogging.logger("simple-accounting")
 private class SimpleAccountingApp
     : GenericContainer<SimpleAccountingApp>("orangebuffalo/simple-accounting:latest")
 private val simpleAccounting: SimpleAccountingApp = SimpleAccountingApp()
-    .withNetwork(TestsEnvironment.network)
+    .withNetwork(TestEnvironment.network)
     .withNetworkAliases("simple-accounting")
     .withEnv("spring_profiles_active", "ci-tests")
     .withLogConsumer { frame -> simpleAccountingLogger.info(frame.utf8String) }

@@ -5,7 +5,7 @@ fun Project.printTestDescriptionDuringBuild(testDescriptor: TestDescriptor) {
     logger.lifecycle("Running test: $testDescriptor")
 }
 
-fun Project.ifCi(action: () -> Unit) {
+fun ifCi(action: () -> Unit) {
     if (System.getenv("CI") == "true") {
         action()
     }

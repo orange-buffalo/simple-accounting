@@ -3,6 +3,9 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { vitePlugins } from './build-config/vite-plugins';
+import { resolveProxyPort } from './build-config/proxy-port-resolver';
+
+const apiProxyPort = resolveProxyPort();
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -23,7 +26,7 @@ export default defineConfig({
   server: {
     proxy: {
       '^/api': {
-        target: 'http://localhost:9393',
+        target: `http://localhost:${apiProxyPort}`,
       },
     },
   },

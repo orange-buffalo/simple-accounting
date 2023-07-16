@@ -1,5 +1,16 @@
+# configuration for components screenshot tests
 screenshots:
   # if failed screenshots should be automatically updated
   replaceCommittedFiles: true
   # if to use storybook dev server
   useCompliedStorybook: false
+# configuration for full stack tests (UI + backend)
+fullStackTestsConfig:
+  # if true, Playwright will download the browser locally - useful to debug the tests
+  useLocalBrowser: false
+  # if true, the tests will open Vite Dev Server for UI which will delegate to tests Spring Boot for API -
+  # useful during frontend development
+  useViteDevServer: false
+  # to use when custom static port for tests is needed
+  viteDevServerSpringContextPort: 5174
+hostIpInDockerContainer: "172.17.0.1"

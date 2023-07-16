@@ -6,21 +6,23 @@ import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfigurer
 import mu.KotlinLogging
 import org.testcontainers.containers.Network
 
-private val testsNetwork: Network = Network.newNetwork()
+private val testNetwork: Network = Network.newNetwork()
 
 private val browserContainerLogger = KotlinLogging.logger("browser")
 
+private val testConfig = TestConfig.load()
+
 private val testBrowser: PlaywrightContainer = PlaywrightContainer()
     .withLogConsumer { frame -> browserContainerLogger.info(frame.utf8String) }
-    .withNetwork(testsNetwork)
-    .withExtraHost("host.docker.internal", "host-gateway")
+    .withNetwork(testNetwork)
+    .withExtraHost("host.docker.internal", testConfig.hostIpInDockerContainer)
 
-class TestsEnvironment {
+class TestEnvironment {
 
     companion object {
-        val network = testsNetwork
+        val network = testNetwork
         val browser = testBrowser
-        val config = TestConfig.load()
+        val config = testConfig
     }
 }
 
