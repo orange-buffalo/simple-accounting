@@ -7,16 +7,31 @@ buildscript {
 }
 
 plugins {
-    alias(libs.plugins.semverGit)
-    alias(libs.plugins.versions)
+    alias(libs.plugins.gitVersioning)
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.spring.dependencyManagement) apply false
 }
 
-val semVersion = semver.info.version
+version = "0.0.0-SNAPSHOT"
+gitVersioning.apply {
+    refs {
+        branch("master") {
+            version = "\${describe.tag.version}-SNAPSHOT"
+        }
+        branch(".+") {
+            version = "\${ref}-SNAPSHOT"
+        }
+        tag("v(?<version>.*)") {
+            version = "\${ref.version}"
+        }
+    }
+    rev {
+        version = "\${commit}"
+    }
+}
+
 allprojects {
-    version = semVersion
     group = "io.orangebuffalo.simpleaccounting"
 }
 
