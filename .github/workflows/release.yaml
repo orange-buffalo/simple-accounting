@@ -106,6 +106,13 @@ jobs:
           path: app/build/screenshotsTest
           if-no-files-found: "ignore"
 
+      - name: "Publish"
+        run: |
+            ./gradlew jib \
+              --scan --console=plain \
+              -Djib.to.auth.username=orangebuffalo \
+              -Djib.to.auth.password="${{ secrets.dockerhub_token }}"
+
       - name: "Push Version Tag"
         run: |
           echo "Pushing tags to remote"
@@ -113,9 +120,16 @@ jobs:
           git push "${remote_repo}" --tags
           echo -e "\nPushed"
 
-      - name: "Publish"
-        run: |
-            ./gradlew jib \
-              --scan --console=plain \
-              -Djib.to.auth.username=orangebuffalo \
-              -Djib.to.auth.password="${{ secrets.dockerhub_token }}"
+      - name: Create changelog text
+        id: changelog
+        uses: loopwerk/tag-changelog@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.calculate_new_version.outputs.new_version }}
+          name: ${{ steps.calculate_new_version.outputs.new_release }}
+          body: ${{ steps.changelog.outputs.changes }}
+          draft: true
