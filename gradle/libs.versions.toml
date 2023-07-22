@@ -17,15 +17,14 @@ kotlinSerialization = "1.5.1"
 kotlinSerializationPlugin = "1.9.0"
 mockito = "5.4.0"
 mockitoKotlin = "2.2.0"
-semverGitPlugin = "1.2.1"
 springBoot = "3.1.2"
 springDependencyManagement = "1.1.2"
 springdocOpenapi = "2.1.0"
 testContainers = "1.18.3"
 testContainersPlaywirght = "0.11.1"
-versionsPlugin = "0.47.0"
 wireMock = "2.35.0"
 zjsonpatch = "0.4.14"
+gitVersioningPlugin = "6.4.2"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -66,7 +65,6 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationPlugin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
-semverGit = { id = "io.wusa.semver-git-plugin", version.ref = "semverGitPlugin" }
 spring-dependencyManagement = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
 springBoot = { id = "org.springframework.boot", version.ref = "springBoot" }
-versions = { id = "com.github.ben-manes.versions", version.ref = "versionsPlugin" }
+gitVersioning = { id = "me.qoomon.git-versioning", version.ref = "gitVersioningPlugin" }

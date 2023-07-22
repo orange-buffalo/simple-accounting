@@ -30,27 +30,6 @@ jobs:
       with:
         node-version: 16
 
-    - name: "Set up Git"
-      run: |
-          gh_actor_profile="$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/users/${GITHUB_ACTOR}")"
-          git config --global user.name "$(printf '%s' "$gh_actor_profile" | jq -r .name)"
-          git config --global user.email "$(printf '%s' "$gh_actor_profile" | jq -r .email)"
-          git status
-
-    - name: "Create Version Tag"
-      if: github.ref == 'refs/heads/master'
-      run: |
-          echo "Creating a new version tag"
-          echo "Current repo state:"
-          ./gradlew -q showInfo
-        
-          PROJECT_VERSION=$(./gradlew showVersion | grep "Version:" | sed -e 's/^Version: //' | sed -e 's/-SNAPSHOT//')
-          echo -e "\nSetting $PROJECT_VERSION tag\n"
-          git tag "$PROJECT_VERSION" -m "v$PROJECT_VERSION"
-        
-          echo "Repo state after new tag:"
-          ./gradlew -q showInfo
-
     - name: Build Cache
       uses: actions/cache@v3
       with:
@@ -100,19 +79,3 @@ jobs:
 
     - name: "Report Test Coverage"
       uses: codecov/codecov-action@v3
-
-    - name: "Publish"
-      if: github.ref == 'refs/heads/master'
-      run: |
-          ./gradlew jib \
-            --scan --console=plain \
-            -Djib.to.auth.username=orangebuffalo \
-            -Djib.to.auth.password="${{ secrets.dockerhub_token }}"
-
-    - name: "Push Version Tag"
-      if: github.ref == 'refs/heads/master'
-      run: |
-        echo "Pushing tags to remote"
-        remote_repo="https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
-        git push "${remote_repo}" --tags
-        echo -e "\nPushed"
