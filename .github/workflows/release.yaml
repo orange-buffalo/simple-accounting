@@ -107,6 +107,8 @@ jobs:
           if-no-files-found: "ignore"
 
       - name: "Publish"
+        env:
+          VERSIONING_GIT_REF: "refs/tags/${{ steps.calculate_new_version.outputs.new_version }}"
         run: |
             ./gradlew jib \
               --scan --console=plain \

@@ -17,7 +17,7 @@ version = "0.0.0-SNAPSHOT"
 gitVersioning.apply {
     refs {
         branch("master") {
-            version = "\${describe.tag.version}-SNAPSHOT"
+            version = "\${describe.tag.version.major}.\${describe.tag.version.minor}.\${describe.tag.version.patch.next}-SNAPSHOT"
         }
         branch(".+") {
             version = "\${ref}-SNAPSHOT"
