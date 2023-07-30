@@ -14,7 +14,9 @@ kotlin = "1.8.22"
 kotlinCoroutines = "1.7.3"
 kotlinLogging = "3.0.5"
 kotlinSerialization = "1.5.1"
-kotlinSerializationPlugin = "1.9.0"
+kotlinSerializationPlugin = "1.8.22"
+kotlinxDatetime = "0.4.0"
+ktorVersion = "2.3.2"
 mockito = "5.4.0"
 mockitoKotlin = "2.2.0"
 springBoot = "3.1.2"
@@ -48,7 +50,13 @@ kotlinLogging = { module = "io.github.microutils:kotlin-logging", version.ref = 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm", version.ref = "kotlinCoroutines" }
 kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "kotlinCoroutines" }
 kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlinCoroutines" }
+kotlinx-dateTime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+ktor-clientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktorVersion" }
+ktor-clientCio = { module = "io.ktor:ktor-client-cio", version.ref = "ktorVersion" }
+ktor-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorVersion" }
+ktor-kotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
+ktor-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktorVersion" }
 mockito-junitJupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
 mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version.ref = "mockitoKotlin" }
 springdocOpenapi-starterCommon = { module = "org.springdoc:springdoc-openapi-starter-common", version.ref = "springdocOpenapi" }

@@ -12,6 +12,7 @@ buildscript {
 
 plugins {
     kotlin("jvm")
+    alias(libs.plugins.kotlin.serialization)
     kotlin("kapt")
     id("io.spring.dependency-management")
     alias(libs.plugins.kotlin.spring)
@@ -37,11 +38,19 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.reactive)
     implementation(libs.kotlinx.coroutines.reactor)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.dateTime)
 
     implementation(libs.jooq)
     implementation(libs.jjwt.api)
     implementation(libs.arrow.core)
     implementation(libs.springdocOpenapi.starterCommon)
+
+    implementation(libs.ktor.clientCore)
+    implementation(libs.ktor.clientCio)
+    implementation(libs.ktor.contentNegotiation)
+    implementation(libs.ktor.kotlinxJson)
+    implementation(libs.ktor.auth)
 
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
