@@ -6,7 +6,7 @@ import org.springframework.web.server.ServerWebExchange
 import reactor.util.context.Context
 import kotlin.coroutines.coroutineContext
 
-@Suppress("EXPERIMENTAL_API_USAGE")
+@OptIn(DelicateCoroutinesApi::class)
 private val dbContext = newFixedThreadPoolContext(20, "db-context")
 
 suspend fun <T> withDbContext(block: suspend CoroutineScope.() -> T): T = withContext(dbContext, block)

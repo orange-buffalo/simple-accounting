@@ -41,6 +41,11 @@ simpleaccounting:
         base-directory: /data/documents-storage/local
       google-drive:
         base-api-url: "https://www.googleapis.com"
+  backup:
+    enabled: false
+    scheduling-delay-in-hours: 12
+    dropbox:
+      active: false
 
 ---
 
