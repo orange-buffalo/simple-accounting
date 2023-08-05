@@ -11,7 +11,6 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.util.cio.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -22,6 +21,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonClassDiscriminator
 import mu.KotlinLogging
 import java.nio.file.Path
+import kotlin.io.path.readBytes
 
 private val json = Json {
     ignoreUnknownKeys = true
@@ -79,7 +79,8 @@ class DropboxApiClient(
                 "Dropbox-API-Arg", UploadArg(path = filePath).toJson()
             )
             contentType(ContentType.Application.OctetStream)
-            setBody(backupFile.toFile().readChannel())
+            // readChannel() does not work, the content size is 0
+            setBody(backupFile.readBytes())
         }.body<UploadResponse>()
 
         logger.debug { "File $filePath uploaded to Dropbox. Response: $response" }
