@@ -5137,7 +5137,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/reactivity@npm:3.2.47, @vue/reactivity@npm:^3.2.47":
+"@vue/reactivity@npm:3.2.47":
   version: 3.2.47
   resolution: "@vue/reactivity@npm:3.2.47"
   dependencies:
@@ -5146,7 +5146,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/reactivity@npm:^3.3.0":
+"@vue/reactivity@npm:^3.3.0, @vue/reactivity@npm:^3.3.4":
   version: 3.3.4
   resolution: "@vue/reactivity@npm:3.3.4"
   dependencies:
@@ -8243,7 +8243,7 @@ __metadata:
     "@vitejs/plugin-vue": ^4.2.3
     "@vue/eslint-config-airbnb": ^7.0.0
     "@vue/eslint-config-typescript": ^11.0.3
-    "@vue/reactivity": ^3.2.47
+    "@vue/reactivity": ^3.3.4
     "@vue/shared": ^3.3.4
     "@vue/test-utils": ^2.3.2
     "@vue/tsconfig": ^0.1.3
