@@ -7045,7 +7045,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-vue@npm:^9.10.0":
+"eslint-plugin-vue@npm:^9.17.0":
   version: 9.17.0
   resolution: "eslint-plugin-vue@npm:9.17.0"
   dependencies:
@@ -7697,7 +7697,7 @@ __metadata:
     element-plus: ^2.3.5
     eslint: ^8.37.0
     eslint-plugin-storybook: ^0.6.11
-    eslint-plugin-vue: ^9.10.0
+    eslint-plugin-vue: ^9.17.0
     event-source-polyfill: ^1.0.31
     fetch-mock: ^9.11.0
     flat: ^5.0.2
@@ -7713,7 +7713,7 @@ __metadata:
     sass: ^1.62.0
     storybook: ^7.0.15
     typescript: ~5.0.4
-    vite: ^4.2.2
+    vite: ^4.4.9
     vite-svg-loader: ^4.0.0
     vitest: ^0.31.1
     vue: ^3.3.4
@@ -12675,7 +12675,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.2.2":
+"vite@npm:^4.4.9":
   version: 4.4.9
   resolution: "vite@npm:4.4.9"
   dependencies:

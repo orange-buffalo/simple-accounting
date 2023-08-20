@@ -54,6 +54,7 @@ module.exports = {
     'vue/multi-word-component-names': 'off',
     'vue/require-default-prop': 'off',
     'vuejs-accessibility/form-control-has-label': 'off',
+    'vue/no-setup-props-destructure': 'off',
   },
   globals: {
     RequestInit: 'readonly',
