@@ -6,12 +6,16 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 2
     rebase-strategy: "disabled"
+    commit-message:
+      prefix: "chore(deps)"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     rebase-strategy: "disabled"
+    commit-message:
+      prefix: "chore(deps)"
 
   - package-ecosystem: "gradle"
     directory: "/"
@@ -22,3 +26,5 @@ updates:
     ignore:
       # ktor has a bug with broken file upload; disabling updates until it's fixed
       - dependency-name: "io.ktor:*"
+    commit-message:
+      prefix: "chore(deps)"
