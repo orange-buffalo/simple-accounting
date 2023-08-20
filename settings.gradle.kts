@@ -1,5 +1,5 @@
 plugins {
-    id("com.gradle.enterprise").version("3.10.2")
+    id("com.gradle.enterprise").version("3.14.1")
 }
 
 rootProject.name = "simple-accounting"

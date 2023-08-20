@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.Kapt
+import org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
@@ -101,6 +103,10 @@ tasks.bootJar {
 
 tasks.resolveMainClassName {
     enabled = false
+}
+
+tasks.withType<KaptGenerateStubs> {
+    dependsOn("jooqGenerateSources")
 }
 
 jib {
