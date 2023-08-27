@@ -1,6 +1,6 @@
 import jwtDecode from 'jwt-decode';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
-import type { LoginRequest } from '@/services/api/api-types';
+import type { LoginRequest } from '@/services/api/generated';
 import { authApi } from '@/services/api/api-client';
 import { defaultRequestSettings, skipGlobalErrorHandler } from '@/services/api/api-utils';
 

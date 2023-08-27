@@ -3,7 +3,7 @@ type Language = string;
 type TranslationsDeferred = Record<Language, () => Promise<Translations>>;
 const translationDeferred: TranslationsDeferred = {};
 
-const asyncModules = import.meta.glob<Translations>('./*.ts', { import: 'default' });
+const asyncModules = import.meta.glob<Translations>(['./*.ts', '!./formatter.ts'], { import: 'default' });
 for (const path in asyncModules) {
   if (Object.prototype.hasOwnProperty.call(asyncModules, path)) {
     const language: Language = path.replace('./', '')

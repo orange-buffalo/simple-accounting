@@ -13,7 +13,7 @@ export default defineConfig({
     vue(),
     visualizer({
       filename: './build/bundle-stats.html',
-      template: 'network',
+      template: 'sunburst',
     }),
     ...vitePlugins,
   ],
@@ -36,6 +36,7 @@ export default defineConfig({
   build: {
     sourcemap: 'inline',
     outDir: 'dist/META-INF/resources',
+    chunkSizeWarningLimit: 50000,
   },
   optimizeDeps: {
     include: ['jwt-decode'],
