@@ -15,9 +15,9 @@ export function resolveProxyPort(): number {
   const yamlObject = yaml.load(yamlString) as any;
 
   if (yamlObject?.fullStackTestsConfig?.useViteDevServer === true) {
-    const { viteDevServerSpringContextPort } = yamlObject.fullStackTestsConfig;
+    let { viteDevServerSpringContextPort } = yamlObject.fullStackTestsConfig;
     if (!viteDevServerSpringContextPort) {
-      throw new Error('viteDevServerSpringContextPort is not defined in the tests config file');
+      viteDevServerSpringContextPort = 5174;
     }
     console.log(`Using tests as API backed via port ${viteDevServerSpringContextPort}`);
     return viteDevServerSpringContextPort;

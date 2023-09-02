@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
 import io.orangebuffalo.simpleaccounting.web.ui.pages.DashboardPage
-import io.orangebuffalo.simpleaccounting.web.ui.pages.LoginPage
+import io.orangebuffalo.simpleaccounting.web.ui.pages.openLoginPage
 import org.junit.jupiter.api.Test
 
 @SimpleAccountingFullStackTest
@@ -13,14 +13,16 @@ class LoginFullStackTest {
 
     @Test
     fun `should login if credentials match`(page: Page, testData: LoginTestData) {
-        LoginPage(page)
-            .navigate()
-            .shouldHaveLoginButtonDisabled()
-            .fillLogin(testData.fry.userName)
-            .shouldHaveLoginButtonDisabled()
-            .fillPassword(testData.fry.passwordHash)
-            .shouldHaveLoginButtonEnabled()
-            .clickLoginButton()
+        page.openLoginPage()
+            .loginButton { shouldBeDisabled() }
+            .rememberMeCheckbox { shouldBeChecked() }
+            .loginInput { fill(testData.fry.userName) }
+            .loginButton { shouldBeDisabled() }
+            .passwordInput { fill(testData.fry.passwordHash) }
+            .loginButton {
+                shouldBeEnabled()
+                click()
+            }
         DashboardPage(page)
             .shouldBeOpen()
     }

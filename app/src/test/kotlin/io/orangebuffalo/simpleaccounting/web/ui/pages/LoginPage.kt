@@ -1,41 +1,17 @@
 package io.orangebuffalo.simpleaccounting.web.ui.pages
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
+import io.orangebuffalo.simpleaccounting.infra.ui.components.*
 
-class LoginPage(private val page: Page) {
+class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
 
-    private val loginInput = page.getByPlaceholder("Login")
-    private val passwordInput = page.getByPlaceholder("Password")
-    private val loginButton = page.getByText("LOGIN")
+    val loginInput = components.textInputByPlaceholder("Login")
+    val passwordInput = components.textInputByPlaceholder("Password")
+    val loginButton = components.buttonByText("LOGIN")
+    val rememberMeCheckbox = components.checkboxByOwnLabel("Remember me for 30 days")
+}
 
-    fun navigate() : LoginPage {
-        page.navigate("/")
-        return this
-    }
-
-    fun shouldHaveLoginButtonDisabled() : LoginPage {
-        loginButton.assertThat().isDisabled()
-        return this
-    }
-
-    fun shouldHaveLoginButtonEnabled() : LoginPage {
-        loginButton.assertThat().isEnabled()
-        return this
-    }
-
-    fun fillLogin(login: String) : LoginPage {
-        loginInput.fill(login)
-        return this
-    }
-
-    fun fillPassword(password: String) : LoginPage {
-        passwordInput.fill(password)
-        return this
-    }
-
-    fun clickLoginButton() : LoginPage {
-        loginButton.click()
-        return this
-    }
+fun Page.openLoginPage(): LoginPage {
+    navigate("/")
+    return LoginPage(this)
 }
