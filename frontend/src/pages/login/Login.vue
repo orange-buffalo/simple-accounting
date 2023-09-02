@@ -296,6 +296,9 @@
         &__inner {
           background-color: white !important;
           border-color: $primary-color-lighter-ii !important;
+          &:after {
+            border-color: $primary-color-lighter-ii !important;
+          }
 
           &::after {
             border-color: $primary-color-lighter-ii;

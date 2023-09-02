@@ -23,7 +23,7 @@ data class ScreenshotsConfig(
 data class FullStackTestsConfig(
     val useLocalBrowser: Boolean = false,
     val useViteDevServer: Boolean = false,
-    val viteDevServerSpringContextPort: Int = 0,
+    val viteDevServerSpringContextPort: Int = 5174,
 )
 
 private fun loadTestConfig(): TestConfig {
