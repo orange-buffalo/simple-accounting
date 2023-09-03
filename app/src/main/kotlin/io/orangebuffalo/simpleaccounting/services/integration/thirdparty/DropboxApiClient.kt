@@ -34,11 +34,13 @@ class DropboxApiClient(
     accessToken: String,
     refreshToken: String,
     clientId: String,
-    clientSecret: String
+    clientSecret: String,
+    apiBaseUrl : String = "https://api.dropboxapi.com",
+    private val contentBaseUrl: String = "https://content.dropboxapi.com",
 ) : AutoCloseable {
 
     private val client = HttpClient(CIO) {
-        dropboxClientConfig()
+        dropboxClientConfig(apiBaseUrl)
         install(Auth) {
             bearer {
                 loadTokens {
@@ -47,7 +49,7 @@ class DropboxApiClient(
                 refreshTokens {
                     // dedicated client to disable Auth plugin
                     HttpClient(CIO) {
-                        dropboxClientConfig()
+                        dropboxClientConfig(apiBaseUrl)
                     }.use { refreshTokenClient ->
                         val tokenResponse = refreshTokenClient.submitForm(
                             url = "/oauth2/token",
@@ -70,17 +72,17 @@ class DropboxApiClient(
         client.close()
     }
 
-    suspend fun uploadFile(backupFile: Path, filePath: String) = withContext(Dispatchers.IO) {
+    suspend fun uploadFile(fileToUpload: Path, filePath: String) = withContext(Dispatchers.IO) {
         logger.debug { "Uploading file $filePath to Dropbox" }
 
         val response = client.post {
-            url("https://content.dropboxapi.com/2/files/upload")
+            url("$contentBaseUrl/2/files/upload")
             header(
                 "Dropbox-API-Arg", UploadArg(path = filePath).toJson()
             )
             contentType(ContentType.Application.OctetStream)
             // readChannel() does not work, the content size is 0
-            setBody(backupFile.readBytes())
+            setBody(fileToUpload.readBytes())
         }.body<UploadResponse>()
 
         logger.debug { "File $filePath uploaded to Dropbox. Response: $response" }
@@ -257,13 +259,13 @@ private data class TokenResponse(
  * Dropbox requires /oauth2/token requests to be sent without Authorization, while Auth plugin cannot be disabled
  * on per-request basis. Thus, we need to use a different client when requesting short-lived access tokens.
  */
-private fun HttpClientConfig<CIOEngineConfig>.dropboxClientConfig() {
+private fun HttpClientConfig<CIOEngineConfig>.dropboxClientConfig(apiBaseUrl: String) {
     expectSuccess = true
     install(ContentNegotiation) {
         json(json)
     }
     defaultRequest {
-        url("https://api.dropboxapi.com")
+        url(apiBaseUrl)
         contentType(ContentType.Application.Json)
     }
 }
