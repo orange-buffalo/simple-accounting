@@ -1,5 +1,5 @@
 [versions]
-arrow = "1.2.0"
+arrow = "1.2.1"
 assertk = "0.26.1"
 awaitility = "4.2.0"
 guava = "32.1.2-jre"
