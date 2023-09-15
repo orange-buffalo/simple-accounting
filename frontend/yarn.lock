@@ -3423,6 +3423,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/core-client@npm:7.4.1":
+  version: 7.4.1
+  resolution: "@storybook/core-client@npm:7.4.1"
+  dependencies:
+    "@storybook/client-logger": 7.4.1
+    "@storybook/preview-api": 7.4.1
+  checksum: 7acd8e4aac0a7014cd18383572bb5e85dc5016c455a79ab6309e7e6737d7f90c5ea27b7b4df5d0baa4e78c924af490754ec3127e3a06abba72533d694807cc86
+  languageName: node
+  linkType: hard
+
 "@storybook/core-common@npm:7.4.0":
   version: 7.4.0
   resolution: "@storybook/core-common@npm:7.4.0"
@@ -3450,6 +3460,37 @@ __metadata:
     resolve-from: ^5.0.0
     ts-dedent: ^2.0.0
   checksum: f7e89a84825cfecb5246cc1003f34808491b9e77cb939adf1ff30afca26935a82cf0f6104661ad4b8e199c3a71829909494a919b90b26c26c6632f7207b343b4
+  languageName: node
+  linkType: hard
+
+"@storybook/core-common@npm:7.4.1":
+  version: 7.4.1
+  resolution: "@storybook/core-common@npm:7.4.1"
+  dependencies:
+    "@storybook/core-events": 7.4.1
+    "@storybook/node-logger": 7.4.1
+    "@storybook/types": 7.4.1
+    "@types/find-cache-dir": ^3.2.1
+    "@types/node": ^16.0.0
+    "@types/node-fetch": ^2.6.4
+    "@types/pretty-hrtime": ^1.0.0
+    chalk: ^4.1.0
+    esbuild: ^0.18.0
+    esbuild-register: ^3.4.0
+    file-system-cache: 2.3.0
+    find-cache-dir: ^3.0.0
+    find-up: ^5.0.0
+    fs-extra: ^11.1.0
+    glob: ^10.0.0
+    handlebars: ^4.7.7
+    lazy-universal-dotenv: ^4.0.0
+    node-fetch: ^2.0.0
+    picomatch: ^2.3.0
+    pkg-dir: ^5.0.0
+    pretty-hrtime: ^1.0.3
+    resolve-from: ^5.0.0
+    ts-dedent: ^2.0.0
+  checksum: 251a4be734c7c915af16808ea1a18a75e31a0e1a5e45c8cd2428aece0535f5711cfdf6af2377ea3b6dff911892688269d1870255ebbd027b1effce9f969a772a
   languageName: node
   linkType: hard
 
@@ -3587,6 +3628,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/docs-tools@npm:7.4.1":
+  version: 7.4.1
+  resolution: "@storybook/docs-tools@npm:7.4.1"
+  dependencies:
+    "@storybook/core-common": 7.4.1
+    "@storybook/preview-api": 7.4.1
+    "@storybook/types": 7.4.1
+    "@types/doctrine": ^0.0.3
+    doctrine: ^3.0.0
+    lodash: ^4.17.21
+  checksum: d450ee0d54c113aa798898d0be2ba60427d4e1802e5822a37cd17f95957473a44b923aad6bdcef7df1be21a368a7563df41c36741f870618536abad7e19398dc
+  languageName: node
+  linkType: hard
+
 "@storybook/global@npm:^5.0.0":
   version: 5.0.0
   resolution: "@storybook/global@npm:5.0.0"
@@ -3664,6 +3719,13 @@ __metadata:
   version: 7.4.0
   resolution: "@storybook/node-logger@npm:7.4.0"
   checksum: 665dcb5327c084a46392a90ae0f5a894ac3b2e8a9f382e5021b39ff72f12faa6682c0f9c3f1b49e114d9a7fc42e1d41d447ddddf04754dad6302261dac0adb75
+  languageName: node
+  linkType: hard
+
+"@storybook/node-logger@npm:7.4.1":
+  version: 7.4.1
+  resolution: "@storybook/node-logger@npm:7.4.1"
+  checksum: 1d75f688c4183418b215d50c0c1e4b5eaf191e936cc08975a2a2970b1811fd34cc227100c6f57697997c920a6902c862a4a860ebcbecc7e9e28a3d7be10914be
   languageName: node
   linkType: hard
 
@@ -3835,7 +3897,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/vue3@npm:7.4.0, @storybook/vue3@npm:^7.4.0":
+"@storybook/vue3@npm:7.4.0":
   version: 7.4.0
   resolution: "@storybook/vue3@npm:7.4.0"
   dependencies:
@@ -3852,6 +3914,26 @@ __metadata:
     "@vue/compiler-core": ^3.0.0
     vue: ^3.0.0
   checksum: a7a7de2fcbb620c68fd501913c0d8e3c931c79f02b670e91d8bbb243a2e4379728c5b67181d043da86d49e84c9fc81b4aacb658e835920437ef52335aa1ef5a1
+  languageName: node
+  linkType: hard
+
+"@storybook/vue3@npm:^7.4.1":
+  version: 7.4.1
+  resolution: "@storybook/vue3@npm:7.4.1"
+  dependencies:
+    "@storybook/core-client": 7.4.1
+    "@storybook/docs-tools": 7.4.1
+    "@storybook/global": ^5.0.0
+    "@storybook/preview-api": 7.4.1
+    "@storybook/types": 7.4.1
+    lodash: ^4.17.21
+    ts-dedent: ^2.0.0
+    type-fest: ~2.19
+    vue-component-type-helpers: latest
+  peerDependencies:
+    "@vue/compiler-core": ^3.0.0
+    vue: ^3.0.0
+  checksum: 5b69c94d63413c21f2a02d487bdc91c2d32496ebea0b3b444e1d92d566ac6d76717b93db78eda4b0b3975aa68b77c78dc971578815c581a64fef31953c6402ed
   languageName: node
   linkType: hard
 
@@ -7773,7 +7855,7 @@ __metadata:
     "@storybook/builder-vite": ^7.4.0
     "@storybook/manager-api": ^7.4.1
     "@storybook/theming": ^7.4.0
-    "@storybook/vue3": ^7.4.0
+    "@storybook/vue3": ^7.4.1
     "@storybook/vue3-vite": ^7.4.0
     "@types/cldrjs": ^0.4.25
     "@types/dompurify": ^3.0.2
