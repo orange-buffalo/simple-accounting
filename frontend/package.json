@@ -35,7 +35,7 @@
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.4.0",
     "@sinonjs/fake-timers": "^11.1.0",
-    "@storybook/addon-actions": "^7.4.2",
+    "@storybook/addon-actions": "^7.4.3",
     "@storybook/addons": "^7.4.0",
     "@storybook/builder-vite": "^7.4.2",
     "@storybook/manager-api": "^7.4.1",
