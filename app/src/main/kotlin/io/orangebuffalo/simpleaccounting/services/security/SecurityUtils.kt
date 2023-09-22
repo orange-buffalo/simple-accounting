@@ -27,6 +27,11 @@ suspend fun getCurrentPrincipal(): SecurityPrincipal {
     return authentication.principal as SecurityPrincipal
 }
 
+suspend fun getCurrentPrincipalOrNull(): SecurityPrincipal? {
+    val authentication = getAuthenticationOrNull()
+    return authentication?.principal as SecurityPrincipal?
+}
+
 inline fun <reified T : Authentication> Authentication.mono(
     crossinline block: suspend (T) -> Authentication
 ): Mono<Authentication> {

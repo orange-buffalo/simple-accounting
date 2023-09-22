@@ -37,12 +37,9 @@ private val CURRENT_TIME = Instant.ofEpochMilli(424242)
 class BruteForceDefenseIT(
     @Autowired val client: WebTestClient,
     @Autowired val transactionTemplate: TransactionTemplate,
-    @Autowired val platformUserRepository: PlatformUserRepository
+    @Autowired val platformUserRepository: PlatformUserRepository,
+    @Autowired val passwordEncoder: PasswordEncoder,
 ) {
-
-    @MockBean
-    lateinit var passwordEncoder: PasswordEncoder
-
     @MockBean
     lateinit var timeService: TimeService
 

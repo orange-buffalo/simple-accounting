@@ -8,9 +8,6 @@ import io.orangebuffalo.testcontainers.playwright.junit.LocalPlaywrightApiProvid
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightApiProvider
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Primary
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.support.TestPropertySourceUtils
 import org.springframework.test.util.TestSocketUtils
 
@@ -72,15 +69,3 @@ class FullStackTestsPlaywrightConfigurer : SaPlaywrightConfigurer() {
 
     override fun createPlaywrightApiProvider(): PlaywrightApiProvider? = browserStrategy.createPlaywrightApiProvider()
 }
-
-class FullStackTestsConfiguration {
-
-    @Bean
-    fun fullStackMock() = FullStackMocks()
-
-    @Bean
-    @Primary
-    fun testPasswordEncoder(): PasswordEncoder = TestPasswordEncoder()
-}
-
-class FullStackMocks

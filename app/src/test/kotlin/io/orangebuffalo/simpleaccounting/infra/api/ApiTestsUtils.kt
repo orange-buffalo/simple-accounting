@@ -10,8 +10,8 @@ import reactor.test.StepVerifier
 
 fun WebTestClient.ResponseSpec.expectThatJsonBody(
     spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
-) = expectBody<String>()
-    .consumeWith { body ->
+) = expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody<String>().consumeWith { body ->
         val responseJson = body.responseBody
         Assertions.assertThat(responseJson).isNotBlank()
 
@@ -32,6 +32,24 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
     .expectStatus().isOk
     .expectThatJsonBody(spec)
 
+fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
+    jsonBody: String
+) = verifyOkAndJsonBody {
+    isEqualTo(jsonBody)
+}
+
+fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBody(
+    spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
+) = exchange()
+    .expectStatus().isBadRequest
+    .expectThatJsonBody(spec)
+
+fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBody(
+    jsonBody: String
+) = verifyBadRequestAndJsonBody {
+    isEqualTo(jsonBody)
+}
+
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
     spec: (body: String) -> Unit
 ) = exchange()
@@ -42,6 +60,9 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
         Assertions.assertThat(body).isNotBlank()
         spec(body!!)
     }
+
+fun WebTestClient.RequestHeadersSpec<*>.verifyOkNoContent() = exchange()
+    .expectStatus().isNoContent
 
 fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
     contentType(MediaType.APPLICATION_JSON).bodyValue(json)

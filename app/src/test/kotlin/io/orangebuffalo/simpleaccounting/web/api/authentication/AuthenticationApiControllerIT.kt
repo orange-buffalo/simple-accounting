@@ -32,12 +32,9 @@ private const val TOKEN_PATH = "/api/auth/token"
 
 @SimpleAccountingIntegrationTest
 class AuthenticationApiControllerIT(
-    @Autowired val client: WebTestClient
+    @Autowired val client: WebTestClient,
+    @Autowired val passwordEncoder: PasswordEncoder
 ) {
-
-    @MockBean
-    lateinit var passwordEncoder: PasswordEncoder
-
     @MockBean
     lateinit var jwtService: JwtService
 
