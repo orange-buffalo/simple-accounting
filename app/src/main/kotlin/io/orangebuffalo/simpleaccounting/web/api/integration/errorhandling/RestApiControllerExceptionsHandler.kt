@@ -1,11 +1,11 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration
+package io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import io.orangebuffalo.simpleaccounting.services.business.InvalidWorkspaceAccessTokenException
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
-import io.orangebuffalo.simpleaccounting.services.security.login.AccountIsTemporaryLockedException
-import io.orangebuffalo.simpleaccounting.services.security.login.LoginUnavailableException
+import io.orangebuffalo.simpleaccounting.services.security.authentication.AccountIsTemporaryLockedException
+import io.orangebuffalo.simpleaccounting.services.security.authentication.LoginUnavailableException
 import mu.KotlinLogging
 import org.springframework.core.NestedRuntimeException
 import org.springframework.core.codec.CodecException
@@ -18,13 +18,19 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.support.WebExchangeBindException
+import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.ServerWebInputException
 import reactor.core.publisher.Mono
+import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 private val logger = KotlinLogging.logger {}
 
+// TODO #906: split this class
 @ControllerAdvice(basePackages = ["io.orangebuffalo.simpleaccounting"])
-class RestApiControllerAdvice {
+internal class RestApiControllerExceptionsHandler(
+    private val apiErrorsRegistry: ApiErrorsRegistry,
+) {
 
     @ExceptionHandler
     fun onException(exception: BadCredentialsException): Mono<ResponseEntity<GeneralErrorDto>> {
@@ -64,7 +70,20 @@ class RestApiControllerAdvice {
     }
 
     @ExceptionHandler
-    fun onException(exception: Throwable): Mono<ResponseEntity<GeneralErrorDto>> {
+    fun onException(exception: Throwable, webExchange: ServerWebExchange): Mono<ResponseEntity<*>> {
+        apiErrorsRegistry.errorDescriptors.forEach { errorDescriptor ->
+            if (errorDescriptor.patternsCondition.getMatchingCondition(webExchange) != null) {
+                val error = errorDescriptor.errorHandler.handleApiError(exception)
+                if (error != null) {
+                    return Mono.just(
+                        ResponseEntity.status(errorDescriptor.responseStatus)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(error)
+                    )
+                }
+            }
+        }
+
         logger.error(exception) { "Something bad happened" }
         return Mono.just(
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -174,6 +193,11 @@ data class GeneralErrorDto(
     val error: String
 )
 
+open class SaApiErrorDto<T : Enum<T>>(
+    val error: T,
+    val message: String? = null,
+)
+
 @Suppress("unused")
 class AccountIsTemporaryLockedErrorDto(
     val error: String = "AccountLocked",
@@ -185,3 +209,20 @@ private fun AccountIsTemporaryLockedException.toDto() =
         lockExpiresInSec = lockExpiresInSec
     )
 
+abstract class DefaultErrorHandler<E : Enum<E>, R : SaApiErrorDto<E>>(
+    private val responseType: KClass<R>,
+    private val exceptionMappings: Map<KClass<out Exception>, E>
+) : ApiErrorHandler<R> {
+
+    override fun getHttpStatus(): HttpStatus = HttpStatus.BAD_REQUEST
+
+    override fun getResponseType(): KClass<R> = responseType
+
+    override fun handleApiError(exception: Throwable): R? {
+        val error = exceptionMappings[exception::class]
+        return if (error == null) null else {
+            responseType.primaryConstructor?.call(error, exception.message)
+                ?: throw IllegalStateException("Cannot instantiate $responseType")
+        }
+    }
+}

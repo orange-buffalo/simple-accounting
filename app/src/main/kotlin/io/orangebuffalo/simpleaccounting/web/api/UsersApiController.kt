@@ -4,19 +4,19 @@ import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.services.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.bind.annotation.*
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/users")
 class UsersApiController(
     private val userService: PlatformUserService,
-    private val passwordEncoder: PasswordEncoder,
+    private val authenticationService: AuthenticationService,
     filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
 ) {
 
@@ -28,10 +28,12 @@ class UsersApiController(
         .save(
             PlatformUser(
                 userName = user.userName!!,
-                passwordHash = passwordEncoder.encode(user.password!!),
+                passwordHash = "",
                 isAdmin = user.admin!!,
                 i18nSettings = I18nSettings(locale = "en_AU", language = "en")
-            )
+            ).apply {
+                authenticationService.setUserPassword(this, user.password!!)
+            }
         )
         .mapToUserDto()
 

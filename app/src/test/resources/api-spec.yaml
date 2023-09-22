@@ -1129,6 +1129,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WorkspaceDto'
+  /api/profile/change-password:
+    post:
+      tags:
+      - profile-api-controller
+      operationId: changePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequestDto'
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileApiBadRequestErrors'
   /api/auth/token:
     post:
       tags:
@@ -2163,6 +2183,16 @@ components:
       properties:
         token:
           type: string
+    ChangePasswordRequestDto:
+      required:
+      - currentPassword
+      - newPassword
+      type: object
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
     TokenResponse:
       required:
       - token
@@ -2554,3 +2584,16 @@ components:
       properties:
         active:
           type: boolean
+    ProfileApiBadRequestErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - CurrentPasswordMismatch
+          - TransientUser
+          - NotAuthenticated
+        message:
+          type: string

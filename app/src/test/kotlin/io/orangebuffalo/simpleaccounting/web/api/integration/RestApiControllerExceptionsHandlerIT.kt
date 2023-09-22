@@ -4,6 +4,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
+import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiValidationException
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +21,7 @@ private const val PATH_INSUFFICIENT_USER_TYPE_EXCEPTION = "/api/auth/api-control
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Any API controller")
-internal class RestApiControllerAdviceIT(
+internal class RestApiControllerExceptionsHandlerIT(
     @Autowired val client: WebTestClient
 ) {
 

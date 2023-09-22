@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
 import arrow.core.getOrElse
 import io.orangebuffalo.simpleaccounting.support.Maybe
-import io.orangebuffalo.simpleaccounting.web.api.integration.ApiValidationException
+import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiValidationException
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
 import org.springframework.web.server.ServerWebExchange
