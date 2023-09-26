@@ -47,7 +47,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/flat", "npm:5.0.2"],\
             ["@types/globalize", "npm:1.5.2"],\
             ["@types/js-yaml", "npm:4.0.6"],\
-            ["@types/jsdom", "npm:21.1.2"],\
+            ["@types/jsdom", "npm:21.1.3"],\
             ["@types/lodash", "npm:4.14.198"],\
             ["@types/marked", "npm:5.0.1"],\
             ["@types/node", "npm:20.6.5"],\
@@ -6178,10 +6178,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/jsdom", [\
-        ["npm:21.1.2", {\
-          "packageLocation": "./.yarn/cache/@types-jsdom-npm-21.1.2-4de8d34f2c-62513fc82a.zip/node_modules/@types/jsdom/",\
+        ["npm:21.1.3", {\
+          "packageLocation": "./.yarn/cache/@types-jsdom-npm-21.1.3-d6dde6600f-be8e42eb2d.zip/node_modules/@types/jsdom/",\
           "packageDependencies": [\
-            ["@types/jsdom", "npm:21.1.2"],\
+            ["@types/jsdom", "npm:21.1.3"],\
             ["@types/node", "npm:18.11.10"],\
             ["@types/tough-cookie", "npm:4.0.2"],\
             ["parse5", "npm:7.1.2"]\
@@ -10641,7 +10641,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/flat", "npm:5.0.2"],\
             ["@types/globalize", "npm:1.5.2"],\
             ["@types/js-yaml", "npm:4.0.6"],\
-            ["@types/jsdom", "npm:21.1.2"],\
+            ["@types/jsdom", "npm:21.1.3"],\
             ["@types/lodash", "npm:4.14.198"],\
             ["@types/marked", "npm:5.0.1"],\
             ["@types/node", "npm:20.6.5"],\
@@ -16373,7 +16373,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/chai-subset", "npm:1.3.3"],\
             ["@types/edge-runtime__vm", null],\
             ["@types/happy-dom", null],\
-            ["@types/jsdom", "npm:21.1.2"],\
+            ["@types/jsdom", "npm:21.1.3"],\
             ["@types/node", "npm:18.11.10"],\
             ["@types/playwright", null],\
             ["@types/safaridriver", null],\
