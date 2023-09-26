@@ -3880,7 +3880,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:7.4.0, @storybook/theming@npm:^7.4.0":
+"@storybook/theming@npm:7.4.0":
   version: 7.4.0
   resolution: "@storybook/theming@npm:7.4.0"
   dependencies:
@@ -3907,6 +3907,21 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
   checksum: d75f6105daabe214938040c2d4a2a69319aa54da76e8833d04346f042a0a3ff498adb25e9ef8884cd7e918fac51c16b9b4ea872beb7611b410663887628c1772
+  languageName: node
+  linkType: hard
+
+"@storybook/theming@npm:^7.4.5":
+  version: 7.4.5
+  resolution: "@storybook/theming@npm:7.4.5"
+  dependencies:
+    "@emotion/use-insertion-effect-with-fallbacks": ^1.0.0
+    "@storybook/client-logger": 7.4.5
+    "@storybook/global": ^5.0.0
+    memoizerific: ^1.11.3
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: e2cfacbec35e11fcc7d0b66b85044abbde9d0f97e3150729c480a6b33bf4739ca46f501e6356cf9c961ba6268c0750a6da46bb97d857b1e35f3b123b1b22c9e8
   languageName: node
   linkType: hard
 
@@ -7922,7 +7937,7 @@ __metadata:
     "@storybook/addons": ^7.4.0
     "@storybook/builder-vite": ^7.4.3
     "@storybook/manager-api": ^7.4.3
-    "@storybook/theming": ^7.4.0
+    "@storybook/theming": ^7.4.5
     "@storybook/vue3": ^7.4.5
     "@storybook/vue3-vite": ^7.4.3
     "@types/cldrjs": ^0.4.25
