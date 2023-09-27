@@ -71,7 +71,7 @@
     "js-yaml": "^4.1.0",
     "jsdom": "^22.1.0",
     "rollup-plugin-visualizer": "^5.9.0",
-    "sass": "^1.62.0",
+    "sass": "^1.68.0",
     "storybook": "^7.4.3",
     "typescript": "~5.2.2",
     "vite": "^4.4.9",
