@@ -3776,7 +3776,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/manager-api@npm:7.4.3, @storybook/manager-api@npm:^7.4.3":
+"@storybook/manager-api@npm:7.4.3":
   version: 7.4.3
   resolution: "@storybook/manager-api@npm:7.4.3"
   dependencies:
@@ -3799,6 +3799,32 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
   checksum: 211289ba595c2cbb18dc2d6d993270f3cbae330ab359fb52898f776bace41cb4363bdac8feaa56f399bb3b048892eec932e620cc0fe7e50e2d9043e1de7a854d
+  languageName: node
+  linkType: hard
+
+"@storybook/manager-api@npm:^7.4.5":
+  version: 7.4.5
+  resolution: "@storybook/manager-api@npm:7.4.5"
+  dependencies:
+    "@storybook/channels": 7.4.5
+    "@storybook/client-logger": 7.4.5
+    "@storybook/core-events": 7.4.5
+    "@storybook/csf": ^0.1.0
+    "@storybook/global": ^5.0.0
+    "@storybook/router": 7.4.5
+    "@storybook/theming": 7.4.5
+    "@storybook/types": 7.4.5
+    dequal: ^2.0.2
+    lodash: ^4.17.21
+    memoizerific: ^1.11.3
+    semver: ^7.3.7
+    store2: ^2.14.2
+    telejson: ^7.2.0
+    ts-dedent: ^2.0.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 5b324ea7bcde44defa4a97e18ca8bd48257d9637a2a277f9f07b7f513392fe7e27502dc4677b2806352779668384d174b316ddaad4a757d6eddaaf4a2ef4e2ca
   languageName: node
   linkType: hard
 
@@ -3938,6 +3964,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/router@npm:7.4.5":
+  version: 7.4.5
+  resolution: "@storybook/router@npm:7.4.5"
+  dependencies:
+    "@storybook/client-logger": 7.4.5
+    memoizerific: ^1.11.3
+    qs: ^6.10.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: bbbbc0b4e39fe07c5ec9cdb7153ac177361b08131b027e3e7e6f5d0911f7f5323e25b0835c6e85204b66de598b038058612f4888f441fd8b9ff8935a987391ba
+  languageName: node
+  linkType: hard
+
 "@storybook/telemetry@npm:7.4.3":
   version: 7.4.3
   resolution: "@storybook/telemetry@npm:7.4.3"
@@ -4000,7 +4040,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:^7.4.5":
+"@storybook/theming@npm:7.4.5, @storybook/theming@npm:^7.4.5":
   version: 7.4.5
   resolution: "@storybook/theming@npm:7.4.5"
   dependencies:
@@ -8021,7 +8061,7 @@ __metadata:
     "@storybook/addon-actions": ^7.4.3
     "@storybook/addons": ^7.4.0
     "@storybook/builder-vite": ^7.4.5
-    "@storybook/manager-api": ^7.4.3
+    "@storybook/manager-api": ^7.4.5
     "@storybook/theming": ^7.4.5
     "@storybook/vue3": ^7.4.5
     "@storybook/vue3-vite": ^7.4.5

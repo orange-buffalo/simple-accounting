@@ -38,7 +38,7 @@
     "@storybook/addon-actions": "^7.4.3",
     "@storybook/addons": "^7.4.0",
     "@storybook/builder-vite": "^7.4.5",
-    "@storybook/manager-api": "^7.4.3",
+    "@storybook/manager-api": "^7.4.5",
     "@storybook/theming": "^7.4.5",
     "@storybook/vue3": "^7.4.5",
     "@storybook/vue3-vite": "^7.4.5",
