@@ -31,6 +31,8 @@
         @update:locale="updateLocale"
       />
     </SaForm>
+
+    <MyProfileChangePassword />
   </div>
 </template>
 
@@ -43,6 +45,7 @@
   import type { ProfileDto } from '@/services/api';
   import { profileApi } from '@/services/api';
   import { useForm } from '@/components/form/use-form';
+  import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
 
   const profile = ref<ProfileDto>({
     userName: '',

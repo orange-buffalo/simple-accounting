@@ -7,6 +7,7 @@
     "build": "run typecheck && vite build",
     "preview": "vite preview --port 5050",
     "test:unit": "vitest --run",
+    "test:unit:watch": "vitest",
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "storybook": "storybook dev -p 6006 -c build-config/storybook",

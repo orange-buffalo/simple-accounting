@@ -1,5 +1,6 @@
 import { onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
+import type { FormItemContext } from 'element-plus';
 import type SaForm from '@/components/form/SaForm.vue';
 import type SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
 import { $t } from '@/services/i18n';
@@ -136,5 +137,40 @@ export function useFormWithDocumentsUpload(
     onDocumentsUploadFailure,
     onDocumentsUploadComplete,
     executeWithFormBlocked,
+  };
+}
+
+/**
+ * Takes care about the boilerplate related to setting custom validation errors (e.g. from API response)
+ * on a particular form item. See [docs](https://element-plus.org/en-US/component/form.html#formitem-exposes).
+ * To use:
+ *  - add `const myFieldValidation = useFormItemValidation();`
+ *  - add `:ref="myFieldValidation.formItem"` to the form item
+ *  - call `myFieldValidation.setValidationError('My error message');` to set the error
+ *  - call `myFieldValidation.resetErrors();` to reset the error, e.g. in `@keyup` handler
+ */
+export function useFormItemValidation() {
+  const formItem = ref<FormItemContext | null>(null);
+
+  const resetErrors = () => {
+    if (formItem.value && formItem.value.validateState === 'error') {
+      formItem.value.validateState = '';
+      // @ts-ignore
+      formItem.value.validateMessage = '';
+    }
+  };
+
+  const setValidationError = (validationMessage: string) => {
+    if (formItem.value) {
+          formItem.value.validateState = 'error';
+          // @ts-ignore
+          formItem.value.validateMessage = validationMessage;
+        }
+  };
+
+  return {
+    formItem,
+    resetErrors,
+    setValidationError,
   };
 }

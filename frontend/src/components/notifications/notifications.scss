@@ -12,4 +12,16 @@
     background-color: $danger-color-bg;
     color: $danger-color;
   }
+
+  &--success {
+    border-color: $success-color-lighter-iii;
+    background-color: $success-color-bg;
+    color: $success-color;
+  }
+
+  &--warning {
+    border-color: $warning-color-lighter-iii;
+    background-color: $warning-color-bg;
+    color: $warning-color;
+  }
 }

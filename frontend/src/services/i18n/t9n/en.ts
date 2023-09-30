@@ -334,6 +334,31 @@ export default {
         placeholder: () => 'Please select formatting language',
       },
     },
+    changePassword: {
+      header: () => 'Change Password',
+      currentPassword: {
+        label: () => 'Current Password',
+        placeholder: () => 'Please provide your current password',
+      },
+      newPassword: {
+        label: () => 'New Password',
+        placeholder: () => 'Please provide your new password',
+      },
+      newPasswordConfirmation: {
+        label: () => 'New Password Confirmation',
+        placeholder: () => 'Please confirm your new password',
+      },
+      submit: {
+        label: () => 'Apply new password',
+      },
+      validations: {
+        confirmationDoesNotMatch: () => 'New password confirmation does not match',
+        currentPasswordMismatch: () => 'Current password does not match',
+      },
+      feedback: {
+        success: () => 'Password has been changed',
+      },
+    },
   },
 
   editIncome: {
@@ -780,6 +805,7 @@ export default {
 
   errorHandler: {
     fatalApiError: () => 'We encountered a server error. Please try again.',
+    badRequestError: () => 'Validation failed. Please correct your input and try again',
   },
 
   saBasicErrorMessage: {
