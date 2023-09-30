@@ -6,11 +6,25 @@ import '@/components/notifications/notifications.scss';
 interface NotificationType {
   icon: string,
   notificationClass: string,
+  duration: number,
 }
 
 const ERROR_NOTIFICATION: NotificationType = {
   icon: 'error',
   notificationClass: 'error',
+  duration: 0,
+};
+
+const SUCCESS_NOTIFICATION: NotificationType = {
+  icon: 'success',
+  notificationClass: 'success',
+  duration: 5000,
+};
+
+const WARNING_NOTIFICATION: NotificationType = {
+  icon: 'warning-circle',
+  notificationClass: 'warning',
+  duration: 10000,
 };
 
 function showNotification(
@@ -20,7 +34,7 @@ function showNotification(
   ElMessage({
     showClose: true,
     message,
-    duration: 0,
+    duration: type.duration,
     icon: h(SaIcon, {
       icon: type.icon,
       size: 18,
@@ -33,8 +47,18 @@ function showErrorNotification(message: string) {
   showNotification(message, ERROR_NOTIFICATION);
 }
 
+function showSuccessNotification(message: string) {
+  showNotification(message, SUCCESS_NOTIFICATION);
+}
+
+function showWarningNotification(message: string) {
+  showNotification(message, WARNING_NOTIFICATION);
+}
+
 export default function useNotifications() {
   return {
     showErrorNotification,
+    showSuccessNotification,
+    showWarningNotification,
   };
 }

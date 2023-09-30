@@ -10,7 +10,8 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import java.time.Instant
 import java.time.LocalDate
 
-internal var currentEntityId: Long = Long.MIN_VALUE
+// JavaScript min number value is -9007199254740991, so we need to reduce the magnitude of ids to avoid overflows
+internal var currentEntityId: Long = Long.MIN_VALUE / 10_000
 
 class Prototypes {
     companion object {

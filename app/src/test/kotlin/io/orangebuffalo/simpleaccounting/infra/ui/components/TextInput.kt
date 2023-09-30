@@ -1,12 +1,14 @@
 package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import io.orangebuffalo.simpleaccounting.infra.utils.XPath
 
 class TextInput<T : Any>(
-    private val locator: Locator,
+    rootLocator: Locator,
     private val parent: T,
 ) {
-    fun fill(text: String) = locator.fill(text)
+    private val input = rootLocator.locator("input")
+    fun fill(text: String) = input.fill(text)
 
     operator fun invoke(action: TextInput<*>.() -> Unit): T {
         this.action()
@@ -15,4 +17,8 @@ class TextInput<T : Any>(
 }
 
 fun <T : SaPageBase<T>> ComponentsAccessors<T>.textInputByPlaceholder(placeholder: String) =
-    TextInput(page.getByPlaceholder(placeholder), this.owner)
+    TextInput(
+        page.locator(
+            "//*[${XPath.hasClass("el-input")} and .//*[@placeholder='$placeholder']]"
+        ), this.owner
+    )

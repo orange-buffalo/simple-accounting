@@ -21,6 +21,7 @@ describe('API Client', () => {
   let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
   let apiFatalErrorEventMock: (error: ResponseError | FetchError) => void;
+  let apiBadRequestMock: (error: ResponseError) => void;
   let useAuth: () => Auth;
   let profileApi: ProfileApiControllerApi<RequestMetadata>;
   let skipGlobalErrorHandler: () => AdditionalRequestParameters<RequestMetadata>;
@@ -92,6 +93,8 @@ describe('API Client', () => {
       .toHaveBeenCalledTimes(0);
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(0);
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
     const calls = fetchMock.calls();
     expect(calls)
       .length(3);
@@ -119,6 +122,8 @@ describe('API Client', () => {
       .toHaveBeenCalledOnce();
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(0);
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
     expect(loadingStartedEventMock)
       .toHaveBeenCalledTimes(2);
     expect(loadingFinishedEventMock)
@@ -134,13 +139,15 @@ describe('API Client', () => {
       .toBeCalledTimes(0);
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(0);
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
     expect(loadingStartedEventMock)
       .toHaveBeenCalledOnce();
     expect(loadingFinishedEventMock)
       .toHaveBeenCalledOnce();
   });
 
-  test('fires events when 4xx or 5xx is received', async () => {
+  test('fires events when 5xx is received', async () => {
     fetchMock.get('/api/profile', {
       status: 500,
     });
@@ -151,6 +158,8 @@ describe('API Client', () => {
 
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledOnce();
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
     expect(loginRequiredEventMock)
       .toHaveBeenCalledTimes(0);
     expect(loadingStartedEventMock)
@@ -159,7 +168,28 @@ describe('API Client', () => {
       .toHaveBeenCalledOnce();
   });
 
-  test('fires events when 4xx or 5xx is received and skipGlobalErrorHandler is set', async () => {
+  test('fires events when 400 is received', async () => {
+    fetchMock.get('/api/profile', {
+      status: 400,
+    });
+
+    await expectToFailWithResponseStatus(async () => {
+      await profileApi.getProfile();
+    }, 400);
+
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledOnce();
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
+  });
+
+  test('fires events when 5xx is received and skipGlobalErrorHandler is set', async () => {
     fetchMock.get('/api/profile', {
       status: 500,
     });
@@ -169,6 +199,29 @@ describe('API Client', () => {
     }, 500);
 
     expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
+  });
+
+  test('fires events when 400 is received and skipGlobalErrorHandler is set', async () => {
+    fetchMock.get('/api/profile', {
+      status: 400,
+    });
+
+    await expectToFailWithResponseStatus(async () => {
+      await profileApi.getProfile(defaultRequestSettings(), skipGlobalErrorHandler());
+    }, 400);
+
+    expect(apiFatalErrorEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(apiBadRequestMock)
       .toHaveBeenCalledTimes(0);
     expect(loginRequiredEventMock)
       .toHaveBeenCalledTimes(0);
@@ -197,6 +250,8 @@ describe('API Client', () => {
 
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalled();
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
     expect(loadingStartedEventMock)
       .toHaveBeenCalledOnce();
     expect(loadingFinishedEventMock)
@@ -224,6 +279,8 @@ describe('API Client', () => {
 
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(0);
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
     expect(loginRequiredEventMock)
       .toHaveBeenCalledTimes(0);
     expect(loadingStartedEventMock)
@@ -245,6 +302,8 @@ describe('API Client', () => {
 
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(1);
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
     expect(loginRequiredEventMock)
       .toHaveBeenCalledTimes(0);
     expect(loadingStartedEventMock)
@@ -287,6 +346,8 @@ describe('API Client', () => {
 
     expect(apiFatalErrorEventMock)
       .toHaveBeenCalledTimes(1);
+    expect(apiBadRequestMock)
+      .toHaveBeenCalledTimes(0);
     expect(loginRequiredEventMock)
       .toHaveBeenCalledTimes(0);
     expect(loadingStartedEventMock)
@@ -312,6 +373,9 @@ describe('API Client', () => {
       API_FATAL_ERROR_EVENT: {
         emit: vi.fn<[], void>(),
       },
+      API_BAD_REQUEST_EVENT: {
+        emit: vi.fn<[], void>(),
+      },
     }));
 
     const events = await import('@/services/events');
@@ -319,6 +383,7 @@ describe('API Client', () => {
     loadingFinishedEventMock = events.LOADING_FINISHED_EVENT.emit;
     loginRequiredEventMock = events.LOGIN_REQUIRED_EVENT.emit;
     apiFatalErrorEventMock = events.API_FATAL_ERROR_EVENT.emit;
+    apiBadRequestMock = events.API_BAD_REQUEST_EVENT.emit;
     ({
       useAuth,
       profileApi,

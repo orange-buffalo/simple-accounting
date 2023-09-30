@@ -333,6 +333,31 @@ export default {
         placeholder: () => 'Будь ласка, виберіть мову форматування ',
       },
     },
+    changePassword: {
+      header: () => 'Зміна Пароля',
+      currentPassword: {
+        label: () => 'Поточний Пароль',
+        placeholder: () => 'Будь ласка, введіть ваш поточний пароль',
+      },
+      newPassword: {
+        label: () => 'Новий Пароль',
+        placeholder: () => 'Будь ласка, введіть новий пароль',
+      },
+      newPasswordConfirmation: {
+        label: () => 'Підтвердження Нового Пароля',
+        placeholder: () => 'Будь ласка, підтвердьте новий пароль',
+      },
+      submit: {
+        label: () => 'Змінити Пароль',
+      },
+      validations: {
+        confirmationDoesNotMatch: () => 'Підтвердження не збігається з новим паролем',
+        currentPasswordMismatch: () => 'Поточний пароль не відповідає вашому обліковому запису',
+      },
+      feedback: {
+        success: () => 'Ваш пароль був успішно змінений',
+      },
+    },
   },
 
   editIncome: {
@@ -779,6 +804,7 @@ export default {
 
   errorHandler: {
     fatalApiError: () => 'Сталася помилка на сервері. Будь-ласка, спробуйте ще раз.',
+    badRequestError: () => 'Валідація не пройшла. Будь-ласка, перевірте введені дані.',
   },
 
   saBasicErrorMessage: {

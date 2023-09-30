@@ -4,8 +4,8 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
-import io.orangebuffalo.simpleaccounting.web.ui.pages.DashboardPage
 import io.orangebuffalo.simpleaccounting.web.ui.pages.openLoginPage
+import io.orangebuffalo.simpleaccounting.web.ui.pages.shouldBeDashboardPage
 import org.junit.jupiter.api.Test
 
 @SimpleAccountingFullStackTest
@@ -23,8 +23,7 @@ class LoginFullStackTest {
                 shouldBeEnabled()
                 click()
             }
-        DashboardPage(page)
-            .shouldBeOpen()
+        page.shouldBeDashboardPage()
     }
 
     class LoginTestData : TestData {
