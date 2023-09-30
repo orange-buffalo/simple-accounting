@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.web.ui.pages
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.ui.components.*
+import io.orangebuffalo.simpleaccounting.infra.utils.openSimpleAccounting
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 
 class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
@@ -18,9 +19,6 @@ class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
     }
 }
 
-fun Page.openLoginPage(): LoginPage {
-    navigate("/")
-    return LoginPage(this)
-}
+fun Page.openLoginPage(): LoginPage = LoginPage(openSimpleAccounting())
 
 fun Page.loginAs(user: PlatformUser) = openLoginPage().loginAs(user)
