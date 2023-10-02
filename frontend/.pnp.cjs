@@ -72,7 +72,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:9.17.0"],\
             ["event-source-polyfill", "npm:1.0.31"],\
             ["fetch-mock", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:9.11.0"],\
-            ["flat", "npm:5.0.2"],\
+            ["flat", "npm:6.0.1"],\
             ["globalize", "npm:1.7.0"],\
             ["imask", "npm:6.6.3"],\
             ["js-yaml", "npm:4.1.0"],\
@@ -10565,10 +10565,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["flat", [\
-        ["npm:5.0.2", {\
-          "packageLocation": "./.yarn/cache/flat-npm-5.0.2-12748102a5-12a1536ac7.zip/node_modules/flat/",\
+        ["npm:6.0.1", {\
+          "packageLocation": "./.yarn/cache/flat-npm-6.0.1-833bb87255-c7a5f2e7e3.zip/node_modules/flat/",\
           "packageDependencies": [\
-            ["flat", "npm:5.0.2"]\
+            ["flat", "npm:6.0.1"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10734,7 +10734,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:9.17.0"],\
             ["event-source-polyfill", "npm:1.0.31"],\
             ["fetch-mock", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:9.11.0"],\
-            ["flat", "npm:5.0.2"],\
+            ["flat", "npm:6.0.1"],\
             ["globalize", "npm:1.7.0"],\
             ["imask", "npm:6.6.3"],\
             ["js-yaml", "npm:4.1.0"],\
