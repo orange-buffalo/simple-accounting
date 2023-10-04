@@ -4285,10 +4285,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/flat@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "@types/flat@npm:5.0.2"
-  checksum: e21d51d872e788bdb381887c2880f717ba4377beb4055078136127134858efd15044655610f1fce4832d9a103ded468a25335203fc53f36db08edd5ab5a8b3db
+"@types/flat@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "@types/flat@npm:5.0.3"
+  checksum: feb3aafb59ab759fa0c9173789c9909d1629cafb59b394d3b45ba67b7c1c059fe12f27b1f7c2e8f3f1c1e9edb9f01d6541e9e5478a4ab4ed054f01dfd16da9ff
   languageName: node
   linkType: hard
 
@@ -8014,7 +8014,7 @@ __metadata:
     "@types/dompurify": ^3.0.2
     "@types/dropzone": ^5.7.5
     "@types/event-source-polyfill": ^1.0.2
-    "@types/flat": ^5.0.2
+    "@types/flat": ^5.0.3
     "@types/globalize": ^1.5.2
     "@types/js-yaml": ^4.0.6
     "@types/jsdom": ^21.1.3
