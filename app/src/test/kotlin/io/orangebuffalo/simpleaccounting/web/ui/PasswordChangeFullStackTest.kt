@@ -120,8 +120,35 @@ class PasswordChangeFullStackTest(
         }
     }
 
+    @Test
+    fun `should change password for admin user`(page: Page, testData: PasswordChangeTestData) {
+        whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
+
+        page.loginAs(testData.farnsworth)
+        page.shouldHaveSideMenu().clickMyProfile()
+        page.shouldBeMyProfilePage()
+            .currentPassword {
+                fill("currentPassword")
+            }
+            .newPassword {
+                fill("newPassword")
+            }
+            .newPasswordConfirmation {
+                fill("newPassword")
+            }
+            .changePasswordButton { click() }
+            .shouldHaveNotifications {
+                success("Password has been changed")
+            }
+
+        repository.findByUserName(testData.farnsworth.userName)
+            .shouldNotBeNull()
+            .passwordHash.shouldBe("newPasswordHash")
+    }
+
     class PasswordChangeTestData : TestData {
         val fry = Prototypes.fry()
         val workspace = Prototypes.workspace(owner = fry)
+        val farnsworth = Prototypes.farnsworth()
     }
 }
