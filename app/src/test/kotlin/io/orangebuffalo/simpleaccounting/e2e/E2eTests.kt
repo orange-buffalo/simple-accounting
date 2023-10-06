@@ -29,8 +29,8 @@ class E2eTests {
 
 private fun Page.loginWithFry() {
     navigate("/")
-    getByPlaceholder("Login").type("Fry")
-    getByPlaceholder("Password").type("password")
+    getByPlaceholder("Login").fill("Fry")
+    getByPlaceholder("Password").fill("password")
     getByText("Login").click()
 }
 

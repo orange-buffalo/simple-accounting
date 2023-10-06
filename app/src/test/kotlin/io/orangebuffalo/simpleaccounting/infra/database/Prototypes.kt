@@ -15,12 +15,18 @@ internal var currentEntityId: Long = Long.MIN_VALUE / 10_000
 
 class Prototypes {
     companion object {
+        /**
+         * Regular user
+         */
         fun fry() = platformUser(
             userName = "Fry",
             passwordHash = "qwertyHash",
             isAdmin = false
         )
 
+        /**
+         * Admin user, not workspaces expected to be mapped
+         */
         fun farnsworth() = platformUser(
             userName = "Farnsworth",
             passwordHash = "scienceBasedHash",

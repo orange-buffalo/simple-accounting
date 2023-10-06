@@ -9,6 +9,8 @@ fun Locator.assertThat(): LocatorAssertions = PlaywrightAssertions.assertThat(th
 
 object XPath {
     fun hasClass(className: String): String = "contains(concat(' ', normalize-space(@class), ' '), ' $className ')"
+
+    fun h1WithText(text: String): String = "//h1[normalize-space(.) = '$text']"
 }
 
 fun Page.openSimpleAccounting(): Page {
