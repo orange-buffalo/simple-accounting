@@ -27,6 +27,7 @@ import WorkspaceSetup from '@/pages/settings/workspaces/WorkspaceSetup.vue';
 import { useAuth } from '@/services/api';
 import { useLastView } from '@/services/use-last-view';
 import { LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT } from '@/services/events';
+import UsersOverview from '@/pages/admin/users/UsersOverview.vue';
 
 const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: Number(route.params.id) });
 
@@ -224,11 +225,11 @@ export default function setupRouter() {
             name: 'reporting',
             component: Reporting,
           },
-          //     {
-          //       path: 'admin/users',
-          //       name: 'users-overview',
-          //       component: UsersOverview,
-          //     },
+          {
+            path: 'admin/users',
+            name: 'users-overview',
+            component: UsersOverview,
+          },
           //     {
           //       path: 'admin/users/create',
           //       name: 'create-new-user',

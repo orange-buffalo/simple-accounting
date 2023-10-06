@@ -4,10 +4,9 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.infra.ui.components.pageHeader
 
-class DashboardPage(page: Page) : SaPageBase<DashboardPage>(page) {
-    private val header = components.pageHeader("Dashboard")
-
+class UsersOverviewPage(page: Page) : SaPageBase<UsersOverviewPage>(page) {
+    private val header = components.pageHeader("Users")
     fun shouldBeOpen() = header.shouldBeVisible()
 }
 
-fun Page.shouldBeDashboardPage(): DashboardPage = DashboardPage(this).shouldBeOpen()
+fun Page.shouldBeUsersOverviewPage(): UsersOverviewPage = UsersOverviewPage(this).shouldBeOpen()

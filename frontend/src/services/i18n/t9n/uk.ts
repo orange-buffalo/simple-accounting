@@ -60,6 +60,9 @@ export default {
       profile: () => 'Мій Профіль',
       logout: () => 'Вихід',
     },
+    admin: {
+      users: () => 'Користувачі',
+    },
   },
 
   saDocumentDownloadLink: {
@@ -825,5 +828,9 @@ export default {
 
   saInvoiceSelect: {
     placeholder: () => 'Оберіть або знайдіть рахунок',
+  },
+
+  usersOverview: {
+    header: () => 'Користувачі',
   },
 };
