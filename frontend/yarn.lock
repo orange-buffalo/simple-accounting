@@ -3996,12 +3996,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dompurify@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "@types/dompurify@npm:3.0.2"
+"@types/dompurify@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "@types/dompurify@npm:3.0.3"
   dependencies:
     "@types/trusted-types": "*"
-  checksum: dc017e16a46bcc77086af7d4dc5d2bf4102f16bf1a11b2937e90380da50e77716a2a608ff52990b1293250fefc2ad7593a1378fe07e3a7e21f200d702f0a7878
+  checksum: ff629277db4d19d836b0d878e93efb27d876d1073db81507c39d44d509b30ee3bcdc9e951dbbf9574b1fc6c52e1eaa95abf4279fa45aca281868717f8a7298da
   languageName: node
   linkType: hard
 
@@ -6518,10 +6518,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.2":
-  version: 3.0.5
-  resolution: "dompurify@npm:3.0.5"
-  checksum: 2d9421570c833ce26ce7022955241749b646d41e8bf453f42ede9f22d0e98af482cedb7dfbf8129419eb48b351c1d677a08fc9f1cd91836ce7f6c1807a0676b2
+"dompurify@npm:^3.0.6":
+  version: 3.0.6
+  resolution: "dompurify@npm:3.0.6"
+  checksum: e5c6cdc5fe972a9d0859d939f1d86320de275be00bbef7bd5591c80b1e538935f6ce236624459a1b0c84ecd7c6a1e248684aa4637512659fccc0ce7c353828a6
   languageName: node
   linkType: hard
 
@@ -7768,7 +7768,7 @@ __metadata:
     "@storybook/vue3": ^7.4.6
     "@storybook/vue3-vite": ^7.4.6
     "@types/cldrjs": ^0.4.25
-    "@types/dompurify": ^3.0.2
+    "@types/dompurify": ^3.0.3
     "@types/dropzone": ^5.7.5
     "@types/event-source-polyfill": ^1.0.2
     "@types/flat": ^5.0.3
@@ -7791,7 +7791,7 @@ __metadata:
     cldr-data: ^36.0.1
     cldrjs: ^0.5.5
     copy-to-clipboard: ^3.3.3
-    dompurify: ^3.0.2
+    dompurify: ^3.0.6
     dropzone: ^6.0.0-beta.2
     element-plus: ^2.3.14
     eslint: ^8.49.0
