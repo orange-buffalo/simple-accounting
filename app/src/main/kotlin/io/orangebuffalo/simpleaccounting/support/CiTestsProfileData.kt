@@ -13,7 +13,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 /**
- * Generates data for CI Tests during application startup.
+ * Generates data for end-to-end Tests during application startup.
  */
 @Component
 @Profile("ci-tests")
