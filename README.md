@@ -1,57 +1,51 @@
-# simple-accounting
+# Simple Accounting
+
+![Docker Image Version (latest semver)](https://img.shields.io/docker/v/orangebuffalo/simple-accounting?style=flat-square&logo=docker&label=orangebuffalo%2Fsimple-accounting)
+
+Simple Accounting is a basic application for managing your small business finances. It is free to use and open source.
+
+It has the following features:
+* Tracking invoices, incomes and expenses.
+* Managing customers, categories and taxes.
+* Generating reports.
+* Storing related documents in the cloud (Google Drive).
+
+## Getting Started
+
+Simple Accounting can be deployed to any container environment (e.g. Docker or Kubernetes) via
+`orangebuffalo/simple-accounting` Docker image. See [Deployment docs](./docs/Deployment.md) for more details
+on possible configurations and persistence options.
 
 ## Development
 
-### Screenshot Tests
+If you like to contribute to Simple Accounting, be it a bug report, improvement idea or
+a pull request, please refer to [Contributing](./docs/CONTRIBUTING.md) and [Development](./docs/Development.md) docs.
 
-1. Start Storybook:
-    ```shell script
-   =yarn storybook:serve
-    ```
-1. Run the tests:
-    ```shell script
-   =yarn test:screenshot
-    ```
+## Credits
 
-To accept the changes and override Git-manages screenshots:
-```shell script
-=yarn test:screenshot -- -u
-```
+Simple Accounting is using icons from this talented creators:
+* [Smashicons](https://www.flaticon.com/authors/smashicons) from [Flaticon](https://www.flaticon.com/) 
+   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+* [Skyclick](https://www.flaticon.com/authors/skyclick) from [Flaticon](https://www.flaticon.com/) 
+   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+* [Freepik](https://www.freepik.com/) from [Flaticon](https://www.flaticon.com/) 
+   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+* [Gregor Cresnar](https://www.flaticon.com/authors/gregor-cresnar) from [Flaticon](https://www.flaticon.com/) 
+   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+* [Chris Veigt](https://www.flaticon.com/authors/chris-veigt) from [Flaticon](https://www.flaticon.com/) 
+   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+* [itim2101](https://www.flaticon.com/authors/itim2101) from [Flaticon](https://www.flaticon.com/) 
+   licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+* [Pixel perfect](https://www.flaticon.com/authors/pixel-perfect) from [Flaticon](https://www.flaticon.com/).
+* [I Putu Kharismayadi](https://thenounproject.com/putukharismayadi/) from [The Noun Project](https://thenounproject.com/).
+* [pictohaven](https://thenounproject.com/pictohaven/) from [The Noun Project](https://thenounproject.com/).
+* [Phonlaphat Thongsriphong](https://thenounproject.com/phonlaphat.thongsriphong/) from [The Noun Project](https://thenounproject.com/).
+* [Rafael Garcia Motta](https://thenounproject.com/rafaelgmotta/) from [The Noun Project](https://thenounproject.com/).
+* [Fahmi](https://thenounproject.com/fahmi/) from [The Noun Project](https://thenounproject.com/).
+* [supalerk laipawat](https://thenounproject.com/supalerk.laipawat/) from [The Noun Project](https://thenounproject.com/).
+* [Adrien Coquet](https://thenounproject.com/adriencoquet/) from [The Noun Project](https://thenounproject.com/).
+* [Tomas Knopp](https://thenounproject.com/tomas.knopp/) from [The Noun Project](https://thenounproject.com/).
+* [Jemis mali](https://thenounproject.com/jemismali/) from [The Noun Project](https://thenounproject.com/).
+* [AliWijaya](https://thenounproject.com/aliwijaya/) from [The Noun Project](https://thenounproject.com/).
 
-To run a particular story or kind:
-```shell script
-export STORYSHOTS_STORY_NAME="Initial Loading"
-export STORYSHOTS_STORY_KIND="EditIncome"
-=yarn test:screenshot
-```
-
-### Load Tests
-
-At this point we decided to not include load test into the CI pipeline. Load test are executed on demand locally.
-
-To run the load tests, follow these steps:
-1. Download the database snapshot with required data:
-  * [part 1](https://github.com/orange-buffalo/simple-accounting-load-tests-data/raw/master/load-tests-db-snapshot.7z.001)
-  * [part 2](https://github.com/orange-buffalo/simple-accounting-load-tests-data/raw/master/load-tests-db-snapshot.7z.002)
-1. Unzip the archives.
-1. Launch application with `load-tests` Spring Boot profile and `spring.datasource.url` set to 
-`jdbc:h2:<path-to-database-file>`.
-1. Start JMeter and open `load-tests/jmeter-load-tests.jmx` project.
-1. Launch the tests in JMeter.
-
-### Squashing Flyway migrations
-1. Migrate target database to the latest version.
-2. Delete old migrations from `<root>/app/src/main/resources/db/migration`.
-3. Get current schema:
-   ```sql
-   script nodata nopasswords nosettings
-     to '<root>/app/src/main/resources/db/migration/V0001__Baseline.sql'
-     schema public;
-   ```
-4. Cleanup the script (remove users, remove sequences initialization, remove selectivity).
-5. Drop Flyway table on target database:
-   ```sql
-   drop table "flyway_schema_history";
-   ```                               
-6. Enable `spring.flyway.baseline-on-migrate=true` in `application.yml`.
-7. Once application started on the target database, set `spring.flyway.baseline-on-migrate` back to `false` in `application.yml`.
+Many thanks to the authors for their great work! 
