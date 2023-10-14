@@ -16,6 +16,12 @@ Simple Accounting can be deployed to any container environment (e.g. Docker or K
 `orangebuffalo/simple-accounting` Docker image. See [Deployment docs](./docs/Deployment.md) for more details
 on possible configurations and persistence options.
 
+For a quick look into Simple Accounting, you can run the demo locally:
+1. `docker run --rm -e SA_DEMO_ENABLED=true -p 9393:9393 orangebuffalo/simple-accounting`
+2. Open http://localhost:9393 in your browser.
+3. Login with `Fry / password` for regular user.
+4. Login with `Hermes / password` for admin user.
+
 ## Development
 
 If you like to contribute to Simple Accounting, be it a bug report, improvement idea or
