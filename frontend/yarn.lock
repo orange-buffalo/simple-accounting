@@ -3857,7 +3857,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:7.4.6, @storybook/theming@npm:^7.4.6":
+"@storybook/theming@npm:7.4.6":
   version: 7.4.6
   resolution: "@storybook/theming@npm:7.4.6"
   dependencies:
@@ -3887,7 +3887,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:7.5.1":
+"@storybook/theming@npm:7.5.1, @storybook/theming@npm:^7.5.1":
   version: 7.5.1
   resolution: "@storybook/theming@npm:7.5.1"
   dependencies:
@@ -7887,7 +7887,7 @@ __metadata:
     "@storybook/addons": ^7.5.1
     "@storybook/builder-vite": ^7.4.6
     "@storybook/manager-api": ^7.4.6
-    "@storybook/theming": ^7.4.6
+    "@storybook/theming": ^7.5.1
     "@storybook/vue3": ^7.4.6
     "@storybook/vue3-vite": ^7.4.6
     "@types/cldrjs": ^0.4.25
