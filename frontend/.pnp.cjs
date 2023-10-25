@@ -46,7 +46,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/event-source-polyfill", "npm:1.0.3"],\
             ["@types/flat", "npm:5.0.4"],\
             ["@types/globalize", "npm:1.5.3"],\
-            ["@types/js-yaml", "npm:4.0.7"],\
+            ["@types/js-yaml", "npm:4.0.8"],\
             ["@types/jsdom", "npm:21.1.3"],\
             ["@types/lodash", "npm:4.14.199"],\
             ["@types/marked", "npm:5.0.1"],\
@@ -6240,10 +6240,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/js-yaml", [\
-        ["npm:4.0.7", {\
-          "packageLocation": "./.yarn/cache/@types-js-yaml-npm-4.0.7-06f1295a48-e02eca876f.zip/node_modules/@types/js-yaml/",\
+        ["npm:4.0.8", {\
+          "packageLocation": "./.yarn/cache/@types-js-yaml-npm-4.0.8-9956f51f10-a5a77a5a1e.zip/node_modules/@types/js-yaml/",\
           "packageDependencies": [\
-            ["@types/js-yaml", "npm:4.0.7"]\
+            ["@types/js-yaml", "npm:4.0.8"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10726,7 +10726,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/event-source-polyfill", "npm:1.0.3"],\
             ["@types/flat", "npm:5.0.4"],\
             ["@types/globalize", "npm:1.5.3"],\
-            ["@types/js-yaml", "npm:4.0.7"],\
+            ["@types/js-yaml", "npm:4.0.8"],\
             ["@types/jsdom", "npm:21.1.3"],\
             ["@types/lodash", "npm:4.14.199"],\
             ["@types/marked", "npm:5.0.1"],\
