@@ -130,8 +130,8 @@
       transform: translateX(-50%) translateY(50%);
       background: $white;
       transition: all 250ms cubic-bezier(.1, .82, .47, .94);
-      width: 40px;
-      height: 40px;
+      width: 40px !important;
+      height: 40px !important;
 
       &_open {
         transform: translateX(-50%) translateY(50%) rotate(180deg);

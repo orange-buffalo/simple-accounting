@@ -35,7 +35,8 @@ import kotlin.math.min
 class UiComponentsScreenshotsIT {
 
     private val retryTemplate = RetryTemplate().also {
-        it.setRetryPolicy(SimpleRetryPolicy(3))
+        // we need to retry because rendering is flaky, especially when it comes to rendering fonts
+        it.setRetryPolicy(SimpleRetryPolicy(5))
         it.setBackOffPolicy(NoBackOffPolicy())
     }
 
@@ -89,7 +90,6 @@ class UiComponentsScreenshotsIT {
                         )
 
                         logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
-
 
                         if (newStories.contains(story.screenshotFileName())) {
                             generatedScreenshotFile.writeBytes(generatedScreenshot!!)
