@@ -82,7 +82,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["marked", "npm:9.1.2"],\
             ["qs", "npm:6.11.2"],\
             ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.9.2"],\
-            ["sass", "npm:1.69.4"],\
+            ["sass", "npm:1.69.5"],\
             ["storybook", "npm:7.4.6"],\
             ["typescript", "patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=f3b441"],\
             ["vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.4.11"],\
@@ -10762,7 +10762,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["marked", "npm:9.1.2"],\
             ["qs", "npm:6.11.2"],\
             ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.9.2"],\
-            ["sass", "npm:1.69.4"],\
+            ["sass", "npm:1.69.5"],\
             ["storybook", "npm:7.4.6"],\
             ["typescript", "patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=f3b441"],\
             ["vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.4.11"],\
@@ -14854,10 +14854,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["sass", [\
-        ["npm:1.69.4", {\
-          "packageLocation": "./.yarn/cache/sass-npm-1.69.4-bea57e4b30-ed5558445b.zip/node_modules/sass/",\
+        ["npm:1.69.5", {\
+          "packageLocation": "./.yarn/cache/sass-npm-1.69.5-3f0210c9f9-c66f4f0288.zip/node_modules/sass/",\
           "packageDependencies": [\
-            ["sass", "npm:1.69.4"],\
+            ["sass", "npm:1.69.5"],\
             ["chokidar", "npm:3.5.3"],\
             ["immutable", "npm:4.1.0"],\
             ["source-map-js", "npm:1.0.2"]\
@@ -16357,7 +16357,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lightningcss", null],\
             ["postcss", "npm:8.4.28"],\
             ["rollup", "npm:3.28.0"],\
-            ["sass", "npm:1.69.4"],\
+            ["sass", "npm:1.69.5"],\
             ["stylus", null],\
             ["sugarss", null],\
             ["terser", null]\
