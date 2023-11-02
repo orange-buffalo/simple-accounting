@@ -66,7 +66,7 @@
     "cldrjs": "^0.5.5",
     "eslint": "^8.49.0",
     "eslint-plugin-storybook": "^0.6.15",
-    "eslint-plugin-vue": "^9.18.0",
+    "eslint-plugin-vue": "^9.18.1",
     "fetch-mock": "^9.11.0",
     "flat": "^6.0.1",
     "js-yaml": "^4.1.0",
