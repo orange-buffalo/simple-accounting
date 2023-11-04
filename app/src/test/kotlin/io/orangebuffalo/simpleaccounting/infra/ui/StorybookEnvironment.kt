@@ -52,25 +52,20 @@ class StorybookEnvironment {
     val shouldUpdateCommittedScreenshots: Boolean
         get() = TestEnvironment.config.screenshots.replaceCommittedFiles
 
-    private val pages = ThreadLocal.withInitial {
-            val browser = TestEnvironment.browser.getPlaywrightApi().chromium()
-            val context = browser.newContext(
-                Browser.NewContextOptions()
-                    .setBaseURL(
-                        if (TestEnvironment.config.screenshots.useCompliedStorybook)
-                            "http://storybook/"
-                        else "http://host.docker.internal:6006/"
-                    )
-                    .setViewportSize(1358, 687)
-            )
-            context.setDefaultTimeout(10_000.0)
-
-            Runtime.getRuntime().addShutdownHook(Thread {
-                browser.close()
-            })
-
-            context.newPage()
-        }
+    private val contexts = ThreadLocal.withInitial {
+        val browser = TestEnvironment.browser.getPlaywrightApi().chromium()
+        val context = browser.newContext(
+            Browser.NewContextOptions()
+                .setBaseURL(
+                    if (TestEnvironment.config.screenshots.useCompliedStorybook)
+                        "http://storybook/"
+                    else "http://host.docker.internal:6006/"
+                )
+                .setViewportSize(1358, 687)
+        )
+        context.setDefaultTimeout(10_000.0)
+        context
+    }
 
     init {
         val storiesJsonUri = if (TestEnvironment.config.screenshots.useCompliedStorybook)
@@ -95,7 +90,7 @@ class StorybookEnvironment {
         stories = data.stories.values.filter { story -> !excludedStories.contains(story.id) }
     }
 
-    fun page(): Page = pages.get()
+    fun page(): Page = contexts.get().newPage()
 }
 
 data class StorybookStory(
