@@ -61,54 +61,57 @@ class UiComponentsScreenshotsIT {
                 logger.info { "Processing story $story" }
                 val stopWatch = StopWatch()
 
-                val page = env.page()
                 val committedScreenshotFile = File(committedScreenshotsDir, story.screenshotFileName())
                 val generatedScreenshotFile = File(generatedScreenshotsDirectory, story.screenshotFileName())
                 var imageComparison: ImageComparisonResult? = null
                 var generatedScreenshot: ByteArray? = null
                 try {
-                    retryTemplate.execute<Unit, ScreenshotRetryException> {
-                        if (it.retryCount > 0) {
-                            logger.warn { "Retrying ${it.retryCount} time" }
-                        }
-
-                        page.navigate(story.storybookUrl())
-
-                        page.notifyStorybookAboutScreenshotPreparation()
-                        page.waitForCondition {
-                            page.isStorybookReadyForTakingScreenshot() ?: false
-                        }
-
-                        logger.info { "Story was loaded ${stopWatch.tick()}ms" }
-
-                        generatedScreenshot = page.screenshot(
-                            Page.ScreenshotOptions()
-                                .setFullPage(true)
-                                .setCaret(ScreenshotCaret.HIDE)
-                                .setType(ScreenshotType.PNG)
-                                .setAnimations(ScreenshotAnimations.DISABLED)
-                        )
-
-                        logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
-
-                        if (newStories.contains(story.screenshotFileName())) {
-                            generatedScreenshotFile.writeBytes(generatedScreenshot!!)
-                            logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
-                            if (env.shouldUpdateCommittedScreenshots) {
-                                committedScreenshotFile.writeBytes(generatedScreenshot!!)
-                                logger.info { "Updated committed file ${stopWatch.tick()}ms" }
+                    env.page().use { page ->
+                        retryTemplate.execute<Unit, ScreenshotRetryException> {
+                            if (it.retryCount > 0) {
+                                logger.warn { "Retrying ${it.retryCount} time" }
                             }
-                        } else {
-                            val committedScreenshot = ImageIO.read(committedScreenshotFile)
-                            val generatedScreenshotImage = ImageIO.read(ByteArrayInputStream(generatedScreenshot))
-                            logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
 
-                            imageComparison =
-                                ImageComparison(committedScreenshot, generatedScreenshotImage).compareImages()
-                            logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
 
-                            if (imageComparison!!.imageComparisonState != ImageComparisonState.MATCH) {
-                                throw ScreenshotRetryException()
+                            page.navigate(story.storybookUrl())
+
+                            page.notifyStorybookAboutScreenshotPreparation()
+                            page.waitForCondition {
+                                page.isStorybookReadyForTakingScreenshot() ?: false
+                            }
+
+                            logger.info { "Story was loaded ${stopWatch.tick()}ms" }
+
+                            generatedScreenshot = page.screenshot(
+                                Page.ScreenshotOptions()
+                                    .setFullPage(true)
+                                    .setCaret(ScreenshotCaret.HIDE)
+                                    .setType(ScreenshotType.PNG)
+                                    .setAnimations(ScreenshotAnimations.DISABLED)
+                            )
+
+                            logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
+
+                            if (newStories.contains(story.screenshotFileName())) {
+                                generatedScreenshotFile.writeBytes(generatedScreenshot!!)
+                                logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
+                                if (env.shouldUpdateCommittedScreenshots) {
+                                    committedScreenshotFile.writeBytes(generatedScreenshot!!)
+                                    logger.info { "Updated committed file ${stopWatch.tick()}ms" }
+                                }
+                            } else {
+                                val committedScreenshot = ImageIO.read(committedScreenshotFile)
+                                val generatedScreenshotImage =
+                                    ImageIO.read(ByteArrayInputStream(generatedScreenshot))
+                                logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
+
+                                imageComparison =
+                                    ImageComparison(committedScreenshot, generatedScreenshotImage).compareImages()
+                                logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
+
+                                if (imageComparison!!.imageComparisonState != ImageComparisonState.MATCH) {
+                                    throw ScreenshotRetryException()
+                                }
                             }
                         }
                     }
