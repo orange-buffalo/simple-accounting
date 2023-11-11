@@ -17,7 +17,7 @@
     "@element-plus/icons-vue": "^2.1.0",
     "@messageformat/core": "^3.1.0",
     "@messageformat/parser": "^5.0.0",
-    "@vue/reactivity": "^3.3.4",
+    "@vue/reactivity": "^3.3.8",
     "@vue/shared": "^3.3.8",
     "copy-to-clipboard": "^3.3.3",
     "dompurify": "^3.0.6",

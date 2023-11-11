@@ -122,7 +122,7 @@
   const { currentWorkspaceId } = useCurrentWorkspace();
   onMounted(() => {
     if (!dropzone && dropPanel.value) {
-      dropzone = new Dropzone(dropPanel.value, {
+      dropzone = new Dropzone(dropPanel.value as HTMLElement, {
         url: `/api/workspaces/${currentWorkspaceId}/documents`,
         paramName: 'file',
         createImageThumbnails: false,
