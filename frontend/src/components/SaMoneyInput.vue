@@ -49,7 +49,7 @@
 
   onMounted(() => {
     if (!inputEl.value) throw new Error('Could not mount input');
-    mask = IMask(inputEl.value, {
+    mask = IMask(inputEl.value as HTMLElement, {
       mask: Number,
       scale: currencyInfo.digits,
       signed: false,
