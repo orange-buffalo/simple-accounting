@@ -4544,12 +4544,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/globalize@npm:^1.5.3":
-  version: 1.5.3
-  resolution: "@types/globalize@npm:1.5.3"
+"@types/globalize@npm:^1.5.5":
+  version: 1.5.5
+  resolution: "@types/globalize@npm:1.5.5"
   dependencies:
     "@types/cldrjs": "*"
-  checksum: 4b5fe1bb937b6ab9cb126f17e182ebc19d23fc1c1d37e76cff29998b8a69bc7bb8f884ee18d4724b059fe7da8524ec63a626bcebc433ec6a4450a4ce22c0a362
+  checksum: ce745283adb2acf1550763b492679321a85341138bfe3053c9f407c41765fa8863c0ef8f67fd464d6883aef434f4c71dffdcd757fef1960bd95629e9979a0a05
   languageName: node
   linkType: hard
 
@@ -8291,7 +8291,7 @@ __metadata:
     "@types/dropzone": ^5.7.5
     "@types/event-source-polyfill": ^1.0.3
     "@types/flat": ^5.0.4
-    "@types/globalize": ^1.5.3
+    "@types/globalize": ^1.5.5
     "@types/js-yaml": ^4.0.8
     "@types/jsdom": ^21.1.4
     "@types/lodash": ^4.14.200
