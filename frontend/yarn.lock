@@ -8325,7 +8325,7 @@ __metadata:
     jsdom: ^22.1.0
     jwt-decode: ^3.1.2
     lodash: ^4.17.21
-    marked: ^9.1.2
+    marked: ^10.0.0
     qs: ^6.11.2
     rollup-plugin-visualizer: ^5.9.0
     sass: ^1.69.5
@@ -9971,12 +9971,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^9.1.2":
-  version: 9.1.2
-  resolution: "marked@npm:9.1.2"
+"marked@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "marked@npm:10.0.0"
   bin:
     marked: bin/marked.js
-  checksum: 8dd1b9e268f149d770397b5299e73dc6b5ae915f867acfaa166603eb5b137cfadaa40406048f424371729036abdf3b0bb629223520571534ec32e27746a798d2
+  checksum: 343c2c9a1cd66dacb59a269e93cea75901c98f4fb993078435628e5c79a76c9caaa9930de32bf30a5520f978a4c37098b7f557b2f45104d38a0d9d58dcc9bf9b
   languageName: node
   linkType: hard
 
