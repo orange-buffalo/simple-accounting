@@ -38,7 +38,7 @@
     "@sinonjs/fake-timers": "^11.1.0",
     "@storybook/addon-actions": "^7.5.3",
     "@storybook/addons": "^7.5.1",
-    "@storybook/builder-vite": "^7.5.1",
+    "@storybook/builder-vite": "^7.5.3",
     "@storybook/manager-api": "^7.5.3",
     "@storybook/theming": "^7.5.3",
     "@storybook/vue3": "^7.4.6",
