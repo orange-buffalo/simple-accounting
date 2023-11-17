@@ -43,7 +43,7 @@
     "@storybook/theming": "^7.5.3",
     "@storybook/vue3": "^7.4.6",
     "@storybook/vue3-vite": "^7.5.2",
-    "@types/cldrjs": "^0.4.25",
+    "@types/cldrjs": "^0.4.28",
     "@types/dompurify": "^3.0.3",
     "@types/dropzone": "^5.7.7",
     "@types/event-source-polyfill": "^1.0.4",
