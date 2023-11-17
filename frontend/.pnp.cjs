@@ -49,7 +49,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/js-yaml", "npm:4.0.9"],\
             ["@types/jsdom", "npm:21.1.4"],\
             ["@types/lodash", "npm:4.14.200"],\
-            ["@types/marked", "npm:5.0.1"],\
+            ["@types/marked", "npm:6.0.0"],\
             ["@types/node", "npm:20.8.6"],\
             ["@types/qs", "npm:6.9.9"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.3"],\
@@ -6434,10 +6434,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/marked", [\
-        ["npm:5.0.1", {\
-          "packageLocation": "./.yarn/cache/@types-marked-npm-5.0.1-a167f972c7-84323058e0.zip/node_modules/@types/marked/",\
+        ["npm:6.0.0", {\
+          "packageLocation": "./.yarn/cache/@types-marked-npm-6.0.0-d0fce99450-ad4cd5a405.zip/node_modules/@types/marked/",\
           "packageDependencies": [\
-            ["@types/marked", "npm:5.0.1"]\
+            ["@types/marked", "npm:6.0.0"],\
+            ["marked", "npm:10.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10854,7 +10855,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/js-yaml", "npm:4.0.9"],\
             ["@types/jsdom", "npm:21.1.4"],\
             ["@types/lodash", "npm:4.14.200"],\
-            ["@types/marked", "npm:5.0.1"],\
+            ["@types/marked", "npm:6.0.0"],\
             ["@types/node", "npm:20.8.6"],\
             ["@types/qs", "npm:6.9.9"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.3"],\
