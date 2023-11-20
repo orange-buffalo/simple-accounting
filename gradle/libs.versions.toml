@@ -26,7 +26,7 @@ testContainers = "1.19.2"
 testContainersPlaywirght = "0.11.4"
 wireMock = "3.0.1"
 zjsonpatch = "0.4.14"
-gitVersioningPlugin = "6.4.2"
+gitVersioningPlugin = "6.4.3"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
