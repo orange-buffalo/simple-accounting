@@ -77,7 +77,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["imask", "npm:6.6.3"],\
             ["js-yaml", "npm:4.1.0"],\
             ["jsdom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:22.1.0"],\
-            ["jwt-decode", "npm:3.1.2"],\
+            ["jwt-decode", "npm:4.0.0"],\
             ["lodash", "npm:4.17.21"],\
             ["marked", "npm:10.0.0"],\
             ["qs", "npm:6.11.2"],\
@@ -10883,7 +10883,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["imask", "npm:6.6.3"],\
             ["js-yaml", "npm:4.1.0"],\
             ["jsdom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:22.1.0"],\
-            ["jwt-decode", "npm:3.1.2"],\
+            ["jwt-decode", "npm:4.0.0"],\
             ["lodash", "npm:4.17.21"],\
             ["marked", "npm:10.0.0"],\
             ["qs", "npm:6.11.2"],\
@@ -12361,10 +12361,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["jwt-decode", [\
-        ["npm:3.1.2", {\
-          "packageLocation": "./.yarn/cache/jwt-decode-npm-3.1.2-bf3ab26591-20a4b072d4.zip/node_modules/jwt-decode/",\
+        ["npm:4.0.0", {\
+          "packageLocation": "./.yarn/cache/jwt-decode-npm-4.0.0-4cd8e89909-390e2edcb3.zip/node_modules/jwt-decode/",\
           "packageDependencies": [\
-            ["jwt-decode", "npm:3.1.2"]\
+            ["jwt-decode", "npm:4.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
