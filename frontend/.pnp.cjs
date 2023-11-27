@@ -51,7 +51,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/lodash", "npm:4.14.200"],\
             ["@types/marked", "npm:6.0.0"],\
             ["@types/node", "npm:20.9.3"],\
-            ["@types/qs", "npm:6.9.9"],\
+            ["@types/qs", "npm:6.9.10"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.3"],\
             ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.4.1"],\
             ["@vue/compiler-core", "npm:3.3.7"],\
@@ -6262,17 +6262,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/qs", [\
+        ["npm:6.9.10", {\
+          "packageLocation": "./.yarn/cache/@types-qs-npm-6.9.10-ce6b6e69f0-3e479ee056.zip/node_modules/@types/qs/",\
+          "packageDependencies": [\
+            ["@types/qs", "npm:6.9.10"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
         ["npm:6.9.7", {\
           "packageLocation": "./.yarn/cache/@types-qs-npm-6.9.7-4a3e6ca0d0-7fd6f9c250.zip/node_modules/@types/qs/",\
           "packageDependencies": [\
             ["@types/qs", "npm:6.9.7"]\
-          ],\
-          "linkType": "HARD"\
-        }],\
-        ["npm:6.9.9", {\
-          "packageLocation": "./.yarn/cache/@types-qs-npm-6.9.9-27a3cef18a-03ddbd032b.zip/node_modules/@types/qs/",\
-          "packageDependencies": [\
-            ["@types/qs", "npm:6.9.9"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10595,7 +10595,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/lodash", "npm:4.14.200"],\
             ["@types/marked", "npm:6.0.0"],\
             ["@types/node", "npm:20.9.3"],\
-            ["@types/qs", "npm:6.9.9"],\
+            ["@types/qs", "npm:6.9.10"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.3"],\
             ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.4.1"],\
             ["@vue/compiler-core", "npm:3.3.7"],\
