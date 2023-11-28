@@ -4206,12 +4206,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dropzone@npm:^5.7.7":
-  version: 5.7.7
-  resolution: "@types/dropzone@npm:5.7.7"
+"@types/dropzone@npm:^5.7.8":
+  version: 5.7.8
+  resolution: "@types/dropzone@npm:5.7.8"
   dependencies:
     "@types/jquery": "*"
-  checksum: 3aa404909768c2313c09279205642b1848ffdf99a804176213157e6bf8d88c2fb44b7ba658a8680b86f743d3ba4a4d46013a416e1af9004dfffd1a72fbff3886
+  checksum: 621680d6929b6b1113ef0e9f8fe07183d9ba8b2259de1d911ef80dac01ca3c860e775b6957d3ae98fcffe1192e0bbf2936ab3a3afb63eb9474452948372c71c5
   languageName: node
   linkType: hard
 
@@ -8037,7 +8037,7 @@ __metadata:
     "@storybook/vue3-vite": ^7.5.2
     "@types/cldrjs": ^0.4.28
     "@types/dompurify": ^3.0.5
-    "@types/dropzone": ^5.7.7
+    "@types/dropzone": ^5.7.8
     "@types/event-source-polyfill": ^1.0.4
     "@types/flat": ^5.0.4
     "@types/globalize": ^1.5.5
