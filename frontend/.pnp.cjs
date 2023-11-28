@@ -42,7 +42,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/vue3-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.5.2"],\
             ["@types/cldrjs", "npm:0.4.28"],\
             ["@types/dompurify", "npm:3.0.5"],\
-            ["@types/dropzone", "npm:5.7.7"],\
+            ["@types/dropzone", "npm:5.7.8"],\
             ["@types/event-source-polyfill", "npm:1.0.4"],\
             ["@types/flat", "npm:5.0.4"],\
             ["@types/globalize", "npm:1.5.5"],\
@@ -6017,10 +6017,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/dropzone", [\
-        ["npm:5.7.7", {\
-          "packageLocation": "./.yarn/cache/@types-dropzone-npm-5.7.7-0b71126525-3aa4049097.zip/node_modules/@types/dropzone/",\
+        ["npm:5.7.8", {\
+          "packageLocation": "./.yarn/cache/@types-dropzone-npm-5.7.8-5eadfa0424-621680d692.zip/node_modules/@types/dropzone/",\
           "packageDependencies": [\
-            ["@types/dropzone", "npm:5.7.7"],\
+            ["@types/dropzone", "npm:5.7.8"],\
             ["@types/jquery", "npm:3.5.14"]\
           ],\
           "linkType": "HARD"\
@@ -10609,7 +10609,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@storybook/vue3-vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.5.2"],\
             ["@types/cldrjs", "npm:0.4.28"],\
             ["@types/dompurify", "npm:3.0.5"],\
-            ["@types/dropzone", "npm:5.7.7"],\
+            ["@types/dropzone", "npm:5.7.8"],\
             ["@types/event-source-polyfill", "npm:1.0.4"],\
             ["@types/flat", "npm:5.0.4"],\
             ["@types/globalize", "npm:1.5.5"],\
