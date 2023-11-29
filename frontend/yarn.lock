@@ -1889,12 +1889,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@element-plus/icons-vue@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@element-plus/icons-vue@npm:2.1.0"
+"@element-plus/icons-vue@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@element-plus/icons-vue@npm:2.3.1"
   peerDependencies:
     vue: ^3.2.0
-  checksum: 5217a4f4289c424ab00e8366f8291ce528ffcabc806e1be87349c260587dee007e3f134ba9bcfb8833d3dfba9143b2c224446b6142f7201faa0c1c3de5a93ea3
+  checksum: 87d3400464d15294d850c354837b670c4c619aa7e0724de0b441c7de51fdc18d55e534338e92d5f6b30bce464da8593b8837d433e9eff9888ca21093de9fb703
   languageName: node
   linkType: hard
 
@@ -8023,7 +8023,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "frontend@workspace:."
   dependencies:
-    "@element-plus/icons-vue": ^2.1.0
+    "@element-plus/icons-vue": ^2.3.1
     "@messageformat/core": ^3.1.0
     "@messageformat/parser": ^5.0.0
     "@rushstack/eslint-patch": ^1.6.0

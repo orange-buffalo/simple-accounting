@@ -14,7 +14,7 @@
     "build-storybook": "storybook build -c build-config/storybook -o build/storybook"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.1.0",
+    "@element-plus/icons-vue": "^2.3.1",
     "@messageformat/core": "^3.1.0",
     "@messageformat/parser": "^5.0.0",
     "@vue/reactivity": "^3.3.8",
