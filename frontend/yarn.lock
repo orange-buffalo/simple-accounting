@@ -5093,14 +5093,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/shared@npm:3.3.8, @vue/shared@npm:^3.3.8":
+"@vue/shared@npm:3.3.8":
   version: 3.3.8
   resolution: "@vue/shared@npm:3.3.8"
   checksum: d5bd795977c885017498e839f5462bc2b046fb4a4c4bf925b82ac0eaf883c1cf9203d69f17160f7be7b3c1d9acb5513d57010b401407b63f3c36c7af87778fae
   languageName: node
   linkType: hard
 
-"@vue/shared@npm:3.3.9":
+"@vue/shared@npm:3.3.9, @vue/shared@npm:^3.3.9":
   version: 3.3.9
   resolution: "@vue/shared@npm:3.3.9"
   checksum: 6b6b62d7a36668da4eb0e31ef647caebeda0661f9146bcf056518b32f80d813e541da8cfee081dd516b578772b2f620fcf990c63b2f90c4eaa06ce91a0b7d855
@@ -8053,7 +8053,7 @@ __metadata:
     "@vue/eslint-config-airbnb": ^7.0.0
     "@vue/eslint-config-typescript": ^12.0.0
     "@vue/reactivity": ^3.3.8
-    "@vue/shared": ^3.3.8
+    "@vue/shared": ^3.3.9
     "@vue/test-utils": ^2.4.2
     "@vue/tsconfig": ^0.1.3
     cldr-data: ^36.0.1
