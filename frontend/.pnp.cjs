@@ -28,7 +28,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
-            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0"],\
+            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.3.1"],\
             ["@messageformat/core", "npm:3.2.0"],\
             ["@messageformat/parser", "npm:5.1.0"],\
             ["@rushstack/eslint-patch", "npm:1.6.0"],\
@@ -3109,10 +3109,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["npm:2.1.0", {\
-          "packageLocation": "./.yarn/cache/@element-plus-icons-vue-npm-2.1.0-7e670d5607-5217a4f428.zip/node_modules/@element-plus/icons-vue/",\
+        ["npm:2.3.1", {\
+          "packageLocation": "./.yarn/cache/@element-plus-icons-vue-npm-2.3.1-31da38e377-87d3400464.zip/node_modules/@element-plus/icons-vue/",\
           "packageDependencies": [\
-            ["@element-plus/icons-vue", "npm:2.1.0"]\
+            ["@element-plus/icons-vue", "npm:2.3.1"]\
           ],\
           "linkType": "SOFT"\
         }],\
@@ -3129,10 +3129,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0", {\
-          "packageLocation": "./.yarn/__virtual__/@element-plus-icons-vue-virtual-3c8ccb1a51/0/cache/@element-plus-icons-vue-npm-2.1.0-7e670d5607-5217a4f428.zip/node_modules/@element-plus/icons-vue/",\
+        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.3.1", {\
+          "packageLocation": "./.yarn/__virtual__/@element-plus-icons-vue-virtual-a98854d544/0/cache/@element-plus-icons-vue-npm-2.3.1-31da38e377-87d3400464.zip/node_modules/@element-plus/icons-vue/",\
           "packageDependencies": [\
-            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0"],\
+            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.3.1"],\
             ["@types/vue", null],\
             ["vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:3.3.9"]\
           ],\
@@ -10595,7 +10595,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["frontend", "workspace:."],\
-            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.1.0"],\
+            ["@element-plus/icons-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:2.3.1"],\
             ["@messageformat/core", "npm:3.2.0"],\
             ["@messageformat/parser", "npm:5.1.0"],\
             ["@rushstack/eslint-patch", "npm:1.6.0"],\
