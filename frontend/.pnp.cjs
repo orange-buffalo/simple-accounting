@@ -79,7 +79,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jsdom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:22.1.0"],\
             ["jwt-decode", "npm:3.1.2"],\
             ["lodash", "npm:4.17.21"],\
-            ["marked", "npm:10.0.0"],\
+            ["marked", "npm:11.0.0"],\
             ["qs", "npm:6.11.2"],\
             ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.9.3"],\
             ["sass", "npm:1.69.5"],\
@@ -10754,7 +10754,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["jsdom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:22.1.0"],\
             ["jwt-decode", "npm:3.1.2"],\
             ["lodash", "npm:4.17.21"],\
-            ["marked", "npm:10.0.0"],\
+            ["marked", "npm:11.0.0"],\
             ["qs", "npm:6.11.2"],\
             ["rollup-plugin-visualizer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:5.9.3"],\
             ["sass", "npm:1.69.5"],\
@@ -12612,6 +12612,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/marked-npm-10.0.0-c08f9d5b94-343c2c9a1c.zip/node_modules/marked/",\
           "packageDependencies": [\
             ["marked", "npm:10.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:11.0.0", {\
+          "packageLocation": "./.yarn/cache/marked-npm-11.0.0-b5ae48fe89-18d73767cc.zip/node_modules/marked/",\
+          "packageDependencies": [\
+            ["marked", "npm:11.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
