@@ -53,7 +53,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:20.9.3"],\
             ["@types/qs", "npm:6.9.10"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.3"],\
-            ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.0"],\
+            ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.1"],\
             ["@vue/compiler-core", "npm:3.3.7"],\
             ["@vue/eslint-config-airbnb", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.0"],\
             ["@vue/eslint-config-typescript", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:12.0.0"],\
@@ -6204,10 +6204,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["npm:4.5.0", {\
-          "packageLocation": "./.yarn/cache/@vitejs-plugin-vue-npm-4.5.0-1314dce78f-50b8300537.zip/node_modules/@vitejs/plugin-vue/",\
+        ["npm:4.5.1", {\
+          "packageLocation": "./.yarn/cache/@vitejs-plugin-vue-npm-4.5.1-a0946d97b2-5a31580622.zip/node_modules/@vitejs/plugin-vue/",\
           "packageDependencies": [\
-            ["@vitejs/plugin-vue", "npm:4.5.0"]\
+            ["@vitejs/plugin-vue", "npm:4.5.1"]\
           ],\
           "linkType": "SOFT"\
         }],\
@@ -6228,10 +6228,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.0", {\
-          "packageLocation": "./.yarn/__virtual__/@vitejs-plugin-vue-virtual-f519100287/0/cache/@vitejs-plugin-vue-npm-4.5.0-1314dce78f-50b8300537.zip/node_modules/@vitejs/plugin-vue/",\
+        ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.1", {\
+          "packageLocation": "./.yarn/__virtual__/@vitejs-plugin-vue-virtual-fb8bb58fcd/0/cache/@vitejs-plugin-vue-npm-4.5.1-a0946d97b2-5a31580622.zip/node_modules/@vitejs/plugin-vue/",\
           "packageDependencies": [\
-            ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.0"],\
+            ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.1"],\
             ["@types/vite", null],\
             ["@types/vue", null],\
             ["vite", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.0"],\
@@ -10172,7 +10172,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/node", "npm:20.9.3"],\
             ["@types/qs", "npm:6.9.10"],\
             ["@types/sinonjs__fake-timers", "npm:8.1.3"],\
-            ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.0"],\
+            ["@vitejs/plugin-vue", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.5.1"],\
             ["@vue/compiler-core", "npm:3.3.7"],\
             ["@vue/eslint-config-airbnb", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.0"],\
             ["@vue/eslint-config-typescript", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:12.0.0"],\
