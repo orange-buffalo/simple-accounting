@@ -4702,7 +4702,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/compiler-sfc@npm:^3.2.0, @vue/compiler-sfc@npm:^3.2.20":
+"@vue/compiler-sfc@npm:^3.2.0":
   version: 3.2.45
   resolution: "@vue/compiler-sfc@npm:3.2.45"
   dependencies:
@@ -7920,7 +7920,7 @@ __metadata:
     storybook: ^7.6.2
     typescript: ~5.2.2
     vite: ^4.5.0
-    vite-svg-loader: ^4.0.0
+    vite-svg-loader: ^5.1.0
     vitest: ^0.34.6
     vue: ^3.3.9
     vue-router: ^4.2.5
@@ -12686,13 +12686,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-svg-loader@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "vite-svg-loader@npm:4.0.0"
+"vite-svg-loader@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "vite-svg-loader@npm:5.1.0"
   dependencies:
-    "@vue/compiler-sfc": ^3.2.20
     svgo: ^3.0.2
-  checksum: 2363054b33ee26baf440a43bc9f301dec4c7a89b37f00539546b2cb75ef883ec311cdf990d9d3010870d776974f8c52961ca459cd90fdf3969501840ca631feb
+  peerDependencies:
+    vue: ">=3.2.13"
+  checksum: b50f3c9f206aa1ed2624ea1c0fa9f75ef54ca4c25520aa5214906fecc103231caae4e5fee57b33a7b2c8b55eea6c02a0fe642a50a8b543f795f6415ced4161b5
   languageName: node
   linkType: hard
 
