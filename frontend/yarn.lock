@@ -7915,7 +7915,7 @@ __metadata:
     lodash: ^4.17.21
     marked: ^10.0.0
     qs: ^6.11.2
-    rollup-plugin-visualizer: ^5.9.3
+    rollup-plugin-visualizer: ^5.10.0
     sass: ^1.69.5
     storybook: ^7.6.2
     typescript: ~5.2.2
@@ -11393,9 +11393,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup-plugin-visualizer@npm:^5.9.3":
-  version: 5.9.3
-  resolution: "rollup-plugin-visualizer@npm:5.9.3"
+"rollup-plugin-visualizer@npm:^5.10.0":
+  version: 5.10.0
+  resolution: "rollup-plugin-visualizer@npm:5.10.0"
   dependencies:
     open: ^8.4.0
     picomatch: ^2.3.1
@@ -11408,7 +11408,7 @@ __metadata:
       optional: true
   bin:
     rollup-plugin-visualizer: dist/bin/cli.js
-  checksum: 86cc311424b31dc23757e884675df4c44bf30625f888213441139ae8dba03f5296a8b8a1f38b19959286c737d3b4fdbe10715e263bb469c5440053e4a951fb1b
+  checksum: b60d50bd3d69fadcba2536bcd0f1926bc26f23ad8872108aad005f050f4d379969bfe09c658f9ae81efcf4329aedf3b0b7fcd80d9a650401b065cf514c8ca78b
   languageName: node
   linkType: hard
 
