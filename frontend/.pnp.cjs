@@ -43,7 +43,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/cldrjs", "npm:0.4.28"],\
             ["@types/dompurify", "npm:3.0.5"],\
             ["@types/dropzone", "npm:5.7.8"],\
-            ["@types/event-source-polyfill", "npm:1.0.4"],\
+            ["@types/event-source-polyfill", "npm:1.0.5"],\
             ["@types/flat", "npm:5.0.4"],\
             ["@types/globalize", "npm:1.5.5"],\
             ["@types/js-yaml", "npm:4.0.9"],\
@@ -5562,10 +5562,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/event-source-polyfill", [\
-        ["npm:1.0.4", {\
-          "packageLocation": "./.yarn/cache/@types-event-source-polyfill-npm-1.0.4-df5be1b19f-fbb2197cca.zip/node_modules/@types/event-source-polyfill/",\
+        ["npm:1.0.5", {\
+          "packageLocation": "./.yarn/cache/@types-event-source-polyfill-npm-1.0.5-68d6820698-f506b68710.zip/node_modules/@types/event-source-polyfill/",\
           "packageDependencies": [\
-            ["@types/event-source-polyfill", "npm:1.0.4"]\
+            ["@types/event-source-polyfill", "npm:1.0.5"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10158,7 +10158,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/cldrjs", "npm:0.4.28"],\
             ["@types/dompurify", "npm:3.0.5"],\
             ["@types/dropzone", "npm:5.7.8"],\
-            ["@types/event-source-polyfill", "npm:1.0.4"],\
+            ["@types/event-source-polyfill", "npm:1.0.5"],\
             ["@types/flat", "npm:5.0.4"],\
             ["@types/globalize", "npm:1.5.5"],\
             ["@types/js-yaml", "npm:4.0.9"],\
