@@ -30,20 +30,19 @@ jobs:
       with:
         node-version: 16
 
-    - name: Build Cache
-      uses: actions/cache@v3
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
       with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-          ~/.cache/google-cloud-tools-java/jib
-          app/build/jib-cache
-        # workaround for https://github.com/actions/cache/issues/342
-        # generate new key for each build to force cache push
-        key: build-cache-${{ github.run_id }}
-        # but use restore key to restore the latest pushed cache
-        restore-keys: |
-          build-cache-
+        gradle-version: wrapper
+        # disable reading from cache on re-runs to fix possible caching issues
+        cache-write-only: ${{ fromJSON(github.run_attempt) != 1 }}
+
+    - name: Collect Workflow Telemetry
+      uses: catchpoint/workflow-telemetry-action@v1
+      with:
+        comment_on_pr: false
+        proc_trace_chart_show: false
+        theme: dark
 
     - name: "Build"
       env:
