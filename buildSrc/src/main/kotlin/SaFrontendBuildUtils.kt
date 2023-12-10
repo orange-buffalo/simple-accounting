@@ -2,7 +2,6 @@
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -30,7 +29,7 @@ abstract class SaFrontendTask : DefaultTask() {
     }
 
     @TaskAction
-    fun executeFrontentTask() {
+    fun executeFrontendTask() {
         project.exec {
             commandLine(fullCommandLine.get())
         }
@@ -46,7 +45,7 @@ abstract class SaCacheableFrontendTask : SaFrontendTask() {
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
     val inputFiles: Provider<Set<File>> = project.provider {
-        project.files(project.projectDir).getAsFileTree().matching(inputFilesPatterns).files
+        project.files(project.projectDir).asFileTree.matching(inputFilesPatterns).files
     }
 
     @OutputDirectories
@@ -80,7 +79,6 @@ data class TsConfig(
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 fun readTsConfig(targetConfigFile: File): TsConfig {
     val json = Json {
         ignoreUnknownKeys = true
