@@ -38,4 +38,5 @@ export const Default = defineStory(() => ({
     openSelectDropdown('.el-select'),
     waitForText('Recently Used Currencies'),
   ),
+  useRealTime: true,
 });
