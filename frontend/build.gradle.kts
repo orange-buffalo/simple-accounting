@@ -1,6 +1,7 @@
 val prodConfigs = arrayOf(
     ".eslintignore", ".eslintrc.cjs", "package.json",
-    "package-lock.json", "build-config/vite-plugins.ts", "vite.config.ts"
+    "yarn.lock", "build-config/vite-plugins.ts", "vite.config.ts",
+    ".yarnrc.yml", ".pnp.cjs", ".pnp.loader.mjs", ".yarn/releases/**",
 )
 val storybookConfigs = arrayOf(".babelrc", "build-config/storybook/**")
 
@@ -10,7 +11,7 @@ val installFrontendDependencies by tasks.register<SaCacheableFrontendTask>("inst
         include("yarn.lock")
         include("build-config/post-install/**")
     }
-    outputDirectories.set(files(".yarn/.cache", ".yarn/unplugged", "src/services/i18n/l10n"))
+    outputDirectories.set(files(".yarn/.cache", ".yarn/cache", ".yarn/unplugged", "src/services/i18n/l10n"))
 }
 
 val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
@@ -54,7 +55,6 @@ val buildStorybook by tasks.register<SaCacheableFrontendTask>("buildStorybook") 
     outputDirectories.set(files("build/storybook"))
     dependsOn(installFrontendDependencies)
 }
-
 
 tasks.register("check") {
     dependsOn(testFrontend)
