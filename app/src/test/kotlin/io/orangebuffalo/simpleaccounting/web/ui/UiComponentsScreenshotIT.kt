@@ -29,124 +29,42 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import kotlin.math.max
-import kotlin.math.min
 
 @ExtendWith(StorybookExtension::class)
 class UiComponentsScreenshotsIT {
 
-    private val retryTemplate = RetryTemplate().also {
-        // we need to retry because rendering is flaky, especially when it comes to rendering fonts
-        it.setRetryPolicy(SimpleRetryPolicy(5))
+    // we need to retry because rendering is flaky, especially when it comes to rendering fonts
+
+    // the outer retry is restarting the whole page, to cover flaky browser startup issues
+    private val storyPageRetryTemplate = RetryTemplate().also {
+        it.setRetryPolicy(SimpleRetryPolicy(3))
         it.setBackOffPolicy(NoBackOffPolicy())
     }
 
     @Test
     fun `should have all stories screenshots valid`(env: StorybookEnvironment) {
-        val committedScreenshotsDir = File("src/test/resources/__screenshots_test_images")
-        committedScreenshotsDir.shouldExist()
-
-        val committedScreenshots = getRelativeFilePathsByBaseDir(committedScreenshotsDir)
-        val expectedScreenshots = env.stories.asSequence().map { it.screenshotFileName() }.toSet()
-
-        val newStories = expectedScreenshots.subtract(committedScreenshots)
-        val failedScreenshots = mutableListOf<String>()
-
-        val (generatedScreenshotsDirectory, diffDirectory) = getGeneratedScreenshotsDirectories()
+        val context = ScreenshotsContext(env)
 
         // limiting the max number of threads - too many of them produce flaky results without significant boost in speed
-        val worker = Executors.newFixedThreadPool(min(4, max(Runtime.getRuntime().availableProcessors() - 1, 1)))
+        val worker = Executors.newFixedThreadPool(max(Runtime.getRuntime().availableProcessors() - 1, 1))
 
         val futures = env.stories.map { story ->
             CompletableFuture.runAsync({
-                logger.info { "Processing story $story" }
-                val stopWatch = StopWatch()
-
-                val committedScreenshotFile = File(committedScreenshotsDir, story.screenshotFileName())
-                val generatedScreenshotFile = File(generatedScreenshotsDirectory, story.screenshotFileName())
-                var imageComparison: ImageComparisonResult? = null
-                var generatedScreenshot: ByteArray? = null
-                try {
-                    env.page().use { page ->
-                        retryTemplate.execute<Unit, ScreenshotRetryException> {
-                            if (it.retryCount > 0) {
-                                logger.warn { "Retrying ${it.retryCount} time" }
-                            }
-
-
-                            page.navigate(story.storybookUrl())
-
-                            page.notifyStorybookAboutScreenshotPreparation()
-                            page.waitForCondition {
-                                page.isStorybookReadyForTakingScreenshot() ?: false
-                            }
-
-                            logger.info { "Story was loaded ${stopWatch.tick()}ms" }
-
-                            generatedScreenshot = page.screenshot(
-                                Page.ScreenshotOptions()
-                                    .setFullPage(true)
-                                    .setCaret(ScreenshotCaret.HIDE)
-                                    .setType(ScreenshotType.PNG)
-                                    .setAnimations(ScreenshotAnimations.DISABLED)
-                            )
-
-                            logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
-
-                            if (newStories.contains(story.screenshotFileName())) {
-                                generatedScreenshotFile.writeBytes(generatedScreenshot!!)
-                                logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
-                                if (env.shouldUpdateCommittedScreenshots) {
-                                    committedScreenshotFile.writeBytes(generatedScreenshot!!)
-                                    logger.info { "Updated committed file ${stopWatch.tick()}ms" }
-                                }
-                            } else {
-                                val committedScreenshot = ImageIO.read(committedScreenshotFile)
-                                val generatedScreenshotImage =
-                                    ImageIO.read(ByteArrayInputStream(generatedScreenshot))
-                                logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
-
-                                imageComparison =
-                                    ImageComparison(committedScreenshot, generatedScreenshotImage).compareImages()
-                                logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
-
-                                if (imageComparison!!.imageComparisonState != ImageComparisonState.MATCH) {
-                                    throw ScreenshotRetryException()
-                                }
-                            }
-                        }
-                    }
-                } catch (e: ScreenshotRetryException) {
-                    logger.info { "Screenshots differ by ${imageComparison!!.differencePercent}%" }
-
-                    failedScreenshots.add(story.screenshotFileName())
-                    imageComparison!!.result.write(File(diffDirectory, "${story.id}-diff.png"))
-                    logger.info { "Saved diff ${stopWatch.tick()}ms" }
-
-                    generatedScreenshotFile.writeBytes(generatedScreenshot!!)
-                    logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
-
-                    if (env.shouldUpdateCommittedScreenshots) {
-                        committedScreenshotFile.writeBytes(generatedScreenshot!!)
-                        logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
-                    }
-                } catch (e: Exception) {
-                    logger.error(e) { "Failed to process story $story" }
-                    throw IllegalStateException("Failed to process story $story", e)
-                }
+                executeStoryTest(story, context)
             }, worker)
         }
         CompletableFuture.allOf(*futures.toTypedArray()).get(10, TimeUnit.MINUTES)
         worker.shutdown()
 
-        val deletedStories = committedScreenshots.subtract(expectedScreenshots)
+        val deletedStories = context.committedScreenshots.subtract(context.expectedScreenshots)
         if (env.shouldUpdateCommittedScreenshots) {
             logger.info { "Deleting non existing stories $deletedStories" }
-            deletedStories.forEach { File(committedScreenshotsDir, it).delete() }
+            deletedStories.forEach { File(context.committedScreenshotsDir, it).delete() }
         }
 
         assertSoftly {
             withClue("All screenshots must be committed") {
-                newStories.shouldBeEmpty()
+                context.newStories.shouldBeEmpty()
             }
 
             withClue("All committed screenshots must have stories in storybook") {
@@ -154,8 +72,96 @@ class UiComponentsScreenshotsIT {
             }
 
             withClue("All screenshots must be up to date") {
-                failedScreenshots.shouldBeEmpty()
+                context.failedScreenshots.shouldBeEmpty()
             }
+        }
+    }
+
+    private fun executeStoryTest(
+        story: StorybookStory,
+        context: ScreenshotsContext,
+    ) {
+        logger.info { "Processing story $story" }
+        val stopWatch = StopWatch()
+
+        val committedScreenshotFile = File(context.committedScreenshotsDir, story.screenshotFileName())
+        val generatedScreenshotFile = File(context.generatedScreenshotsDirectory, story.screenshotFileName())
+        var imageComparison: ImageComparisonResult? = null
+        var generatedScreenshot: ByteArray? = null
+        var browserConsoleLog = ""
+        try {
+            context.env.page().use { page ->
+                page.onConsoleMessage { consoleMessage ->
+                    browserConsoleLog += "${consoleMessage.type()}: ${consoleMessage.text()}\n"
+                }
+                storyPageRetryTemplate.execute<Unit, ScreenshotRetryException> { storyPageRetry ->
+                    if (storyPageRetry.retryCount > 0) {
+                        logger.warn { "Retrying page load ${storyPageRetry.retryCount} time" }
+                    }
+
+                    page.navigate(story.storybookUrl())
+
+                    page.notifyStorybookAboutScreenshotPreparation()
+                    page.waitForCondition {
+                        page.isStorybookReadyForTakingScreenshot() ?: false
+                    }
+
+                    logger.info { "Story was loaded ${stopWatch.tick()}ms" }
+
+                    generatedScreenshot = page.screenshot(
+                        Page.ScreenshotOptions()
+                            .setFullPage(true)
+                            .setCaret(ScreenshotCaret.HIDE)
+                            .setType(ScreenshotType.PNG)
+                            .setAnimations(ScreenshotAnimations.DISABLED)
+                    )
+                    logger.info { "Screenshot taken ${stopWatch.tick()}ms" }
+
+                    if (context.newStories.contains(story.screenshotFileName())) {
+                        generatedScreenshotFile.writeBytes(generatedScreenshot!!)
+                        logger.info { "Saved new story screenshot ${stopWatch.tick()}ms" }
+                        if (context.env.shouldUpdateCommittedScreenshots) {
+                            committedScreenshotFile.writeBytes(generatedScreenshot!!)
+                            logger.info { "Updated committed file ${stopWatch.tick()}ms" }
+                        }
+                    } else {
+                        val committedScreenshot = ImageIO.read(committedScreenshotFile)
+                        val generatedScreenshotImage =
+                            ImageIO.read(ByteArrayInputStream(generatedScreenshot))
+                        logger.info { "Loaded committed screenshot ${stopWatch.tick()}ms" }
+
+                        imageComparison =
+                            ImageComparison(committedScreenshot, generatedScreenshotImage).compareImages()
+                        logger.info { "Compared screenshots ${stopWatch.tick()}ms" }
+
+                        if (imageComparison!!.imageComparisonState != ImageComparisonState.MATCH) {
+                            logger.info { "Screenshots differ by ${imageComparison!!.differencePercent}%" }
+                            throw ScreenshotRetryException()
+                        } else {
+                            logger.info { "Screenshots match" }
+                        }
+                    }
+                }
+            }
+        } catch (e: ScreenshotRetryException) {
+            logger.info { "Screenshot for story $story eventually does not match" }
+            logger.info { "Browser console log:\n$browserConsoleLog" }
+
+            context.failedScreenshots.add(story.screenshotFileName())
+            imageComparison!!.result.write(File(context.diffDirectory, "${story.id}-diff.png"))
+            logger.info { "Saved diff ${stopWatch.tick()}ms" }
+
+            generatedScreenshotFile.writeBytes(generatedScreenshot!!)
+            logger.info { "Saved new screenshot ${stopWatch.tick()}ms" }
+
+            if (context.env.shouldUpdateCommittedScreenshots) {
+                committedScreenshotFile.writeBytes(generatedScreenshot!!)
+                logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
+            }
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to process story $story" }
+            logger.error { "Browser console log:\n$browserConsoleLog" }
+            throw IllegalStateException("Failed to process story $story", e)
         }
     }
 
@@ -177,6 +183,30 @@ class UiComponentsScreenshotsIT {
         fullScreenshotsDirectory.mkdirs()
 
         return fullScreenshotsDirectory to diffDirectory
+    }
+
+    private inner class ScreenshotsContext(val env: StorybookEnvironment) {
+        val committedScreenshotsDir: File = File("src/test/resources/__screenshots_test_images")
+        val generatedScreenshotsDirectory: File
+        val newStories: Set<String>
+        val failedScreenshots: MutableList<String>
+        val diffDirectory: File
+        val committedScreenshots: Set<String>
+        val expectedScreenshots: Set<String>
+
+        init {
+            committedScreenshotsDir.shouldExist()
+
+            this.committedScreenshots = getRelativeFilePathsByBaseDir(committedScreenshotsDir)
+            this.expectedScreenshots = env.stories.asSequence().map { it.screenshotFileName() }.toSet()
+
+            this.newStories = expectedScreenshots.subtract(committedScreenshots)
+            this.failedScreenshots = mutableListOf()
+
+            val (generatedScreenshotsDirectory, diffDirectory) = getGeneratedScreenshotsDirectories()
+            this.generatedScreenshotsDirectory = generatedScreenshotsDirectory
+            this.diffDirectory = diffDirectory
+        }
     }
 }
 
