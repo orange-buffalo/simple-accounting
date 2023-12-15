@@ -1,7 +1,7 @@
 val prodConfigs = arrayOf(
     ".eslintignore", ".eslintrc.cjs", "package.json",
     "yarn.lock", "build-config/vite-plugins.ts", "vite.config.ts",
-    ".yarnrc.yml", ".pnp.cjs", ".pnp.loader.mjs", ".yarn/releases/**",
+    ".yarnrc.yml", ".yarn/releases/**",
 )
 val storybookConfigs = arrayOf(".babelrc", "build-config/storybook/**")
 
