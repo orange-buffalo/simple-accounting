@@ -129,6 +129,9 @@ class UiComponentsScreenshotsIT {
                         committedScreenshotFile.writeBytes(generatedScreenshot!!)
                         logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
                     }
+                } catch (e: Exception) {
+                    logger.error(e) { "Failed to process story $story" }
+                    throw IllegalStateException("Failed to process story $story", e)
                 }
             }, worker)
         }
