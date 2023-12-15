@@ -5,13 +5,8 @@ val prodConfigs = arrayOf(
 )
 val storybookConfigs = arrayOf(".babelrc", "build-config/storybook/**")
 
-val installFrontendDependencies by tasks.register<SaCacheableFrontendTask>("installFrontendDependencies") {
+val installFrontendDependencies by tasks.register<SaFrontendTask>("installFrontendDependencies") {
     args.set("install --immutable")
-    inputFiles {
-        include("yarn.lock")
-        include("build-config/post-install/**")
-    }
-    outputDirectories.set(files(".yarn/.cache", ".yarn/cache", ".yarn/unplugged", "src/services/i18n/l10n"))
 }
 
 val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
