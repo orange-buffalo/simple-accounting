@@ -41,3 +41,6 @@ components.d.ts
 
 .yarn/cache
 .yarn/install-state.gz
+
+.pnp.loader.mjs
+.pnp.cjs
