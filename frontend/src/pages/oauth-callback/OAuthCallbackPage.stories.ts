@@ -12,7 +12,7 @@ export default {
 export const Loading = defineStory(() => ({
   components: { OAuthCallbackPage },
   template: '<OAuthCallbackPage />',
-  beforeCreate() {
+  setup() {
     fetchMock.post('/api/auth/oauth2/callback', {}, neverEndingPostRequest);
   },
 }), {
@@ -25,7 +25,7 @@ export const Loading = defineStory(() => ({
 export const Success = defineStory(() => ({
   components: { OAuthCallbackPage },
   template: '<OAuthCallbackPage />',
-  beforeCreate() {
+  setup() {
     fetchMock.post('/api/auth/oauth2/callback', {});
   },
 }), {
@@ -35,7 +35,7 @@ export const Success = defineStory(() => ({
 export const Failure = defineStory(() => ({
   components: { OAuthCallbackPage },
   template: '<OAuthCallbackPage />',
-  beforeCreate() {
+  setup() {
     fetchMock.post('/api/auth/oauth2/callback', {
       status: 400,
       body: { errorId: '3213-f23df-2dsfds-232' },

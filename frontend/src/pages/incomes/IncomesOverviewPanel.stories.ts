@@ -36,7 +36,7 @@ function createStory(income: IncomeDto) {
       return { income };
     },
     template: '<IncomesOverviewPanel :income="income" />',
-    beforeCreate() {
+    setup() {
       mockApi();
     },
   };

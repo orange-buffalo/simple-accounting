@@ -81,11 +81,11 @@ export const storybookData = {
     onGetToDefaultWorkspacePath('/general-taxes', pageResponseRaw(Object.values(generalTaxes)));
   },
   storyComponentConfig: {
-    setup: () => ({
-      storybookData,
-    }),
-    beforeCreate() {
+    setup: () => {
       storybookData.mockApi();
+      return ({
+        storybookData,
+      });
     },
   },
 };

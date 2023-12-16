@@ -24,7 +24,7 @@ export const Loaded = defineStory(() => ({
 export const Loading = defineStory(() => ({
   components: { SaCustomerOutput },
   template: '<SaCustomerOutput :customer-id="7"/>',
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/customers/7', {}, neverEndingGetRequest);
   },
 }));

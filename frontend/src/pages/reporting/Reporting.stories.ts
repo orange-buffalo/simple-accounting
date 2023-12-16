@@ -13,7 +13,7 @@ export default {
 export const Default = defineStory(() => ({
   components: { Reporting },
   template: '<Reporting />',
-  beforeCreate() {
+  setup() {
     storybookData.mockApi();
     onGetToDefaultWorkspacePath('/reporting/general-taxes', {
       finalizedCollectedTaxes: [{

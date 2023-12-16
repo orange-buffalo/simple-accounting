@@ -48,7 +48,7 @@ function mockApiResponses() {
 export const Default = defineStory(() => ({
   components: { InvoicesOverview },
   template: '<InvoicesOverview />',
-  beforeCreate() {
+  setup() {
     mockApiResponses();
   },
 }), {
@@ -63,7 +63,7 @@ export const Default = defineStory(() => ({
 export const ReadOnly = defineStory(() => ({
   components: { InvoicesOverview },
   template: '<InvoicesOverview />',
-  beforeCreate() {
+  setup() {
     mockApiResponses();
   },
 }), {

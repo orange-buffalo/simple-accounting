@@ -14,7 +14,7 @@ export const Default = defineStory(() => ({
   data: () => ({
     selectedCurrency: undefined,
   }),
-  beforeCreate() {
+  setup() {
     fetchMock.get(defaultWorkspacePath('/statistics/currencies-shortlist'), [
       'EUR', 'AUD',
     ]);

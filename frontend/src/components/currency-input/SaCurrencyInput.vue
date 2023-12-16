@@ -3,6 +3,7 @@
     v-model="inputValue"
     filterable
     :disabled="disabled"
+    :loading="loading"
   >
     <ElOptionGroup
       v-for="group in currenciesGroups"
@@ -25,7 +26,9 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, watch } from 'vue';
+  import {
+    computed, onMounted, ref, watch,
+  } from 'vue';
   import type { CurrencyInfo } from '@/services/i18n';
   import { $t, getCurrenciesInfo } from '@/services/i18n';
   import { useCurrentWorkspace } from '@/services/workspaces';
@@ -40,6 +43,7 @@
 
   const currenciesShortlist = ref<CurrencyInfo[]>([]);
   const currencies = getCurrenciesInfo();
+  const loading = ref(true);
 
   async function loadShortlist() {
     const { currentWorkspaceId } = useCurrentWorkspace();
@@ -48,6 +52,7 @@
     });
     currenciesShortlist.value = shortlistedCurrencyCodes
       .map((currencyCode) => currencies[currencyCode]);
+    loading.value = false;
   }
 
   const currenciesGroups = computed(() => {
@@ -77,7 +82,7 @@
     emit('update:modelValue', newValue);
   });
 
-  loadShortlist();
+  onMounted(() => loadShortlist());
 </script>
 
 <style lang="scss">

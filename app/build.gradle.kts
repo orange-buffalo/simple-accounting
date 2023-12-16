@@ -147,6 +147,7 @@ tasks.register<Test>("screenshotsTest") {
     // as we recommend to run tests against running storybook locally
     ifCi {
         dependsOn(tasks.getByPath(":frontend:buildStorybook"))
+        inputs.files(tasks.getByPath(":frontend:buildStorybook").outputs)
     }
 }
 
