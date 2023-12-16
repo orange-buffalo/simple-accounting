@@ -91,7 +91,7 @@ jobs:
         run: ./gradlew e2eTest --scan --console=plain --build-cache
 
       - name: "Save Tests Results"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
           name: Tests Results
@@ -99,7 +99,7 @@ jobs:
           if-no-files-found: "ignore"
 
       - name: "Save Failed Screenshots"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
           name: Screenshots Diff Files
