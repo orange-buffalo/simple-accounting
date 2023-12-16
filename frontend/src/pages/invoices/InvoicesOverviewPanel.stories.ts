@@ -54,7 +54,7 @@ function createStory(invoice: InvoiceDto) {
       },
     },
     template: '<InvoicesOverviewPanel :invoice="invoice" @invoice-update="onInvoiceUpdate" />',
-    beforeCreate() {
+    setup() {
       mockApi();
       fetchMock.put(pathOnlyMatcher(defaultWorkspacePath(`/invoices/${invoicePrototype.id}`)), (_, req) => {
         action('PUT Invoice API')(req.body);

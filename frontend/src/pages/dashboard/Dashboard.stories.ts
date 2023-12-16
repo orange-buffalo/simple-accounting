@@ -15,7 +15,7 @@ export default {
 export const Loading = defineStory(() => ({
   components: { Dashboard },
   template: '<Dashboard/>',
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/statistics/expenses', {}, neverEndingGetRequest);
     onGetToDefaultWorkspacePath('/statistics/incomes', {}, neverEndingGetRequest);
     onGetToDefaultWorkspacePath('/statistics/income-tax-payments', {}, neverEndingGetRequest);
@@ -28,7 +28,7 @@ export const Loading = defineStory(() => ({
 export const Loaded = defineStory(() => ({
   components: { Dashboard },
   template: '<Dashboard/>',
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/statistics/expenses', {
       totalAmount: 26182,
       finalizedCount: 42,

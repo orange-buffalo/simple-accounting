@@ -32,7 +32,7 @@ function createStory(taxPayment: IncomeTaxPaymentDto) {
       return { taxPayment };
     },
     template: '<IncomeTaxPaymentsOverviewPanel :tax-payment="taxPayment" />',
-    beforeCreate() {
+    setup() {
       mockApi();
     },
   };

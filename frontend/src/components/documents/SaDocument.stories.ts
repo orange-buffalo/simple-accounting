@@ -16,7 +16,7 @@ export const Loading = defineStory(() => ({
 
 export const Loaded = () => ({
   components: { SaDocument },
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/documents/42/download-token', {
       token: 'token66',
     });

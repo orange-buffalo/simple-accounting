@@ -50,7 +50,7 @@ export const Default = defineStory(() => ({
 export const Loading = defineStory(() => ({
   components: { SaCustomerInput },
   template: '<SaCustomerInput />',
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/customers', {}, neverEndingGetRequest);
   },
 }));

@@ -21,7 +21,7 @@ export const Loaded = defineStory(() => ({
 export const Loading = defineStory(() => ({
   components: { SaCategoryOutput },
   template: '<SaCategoryOutput :category-id="42"/>',
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/categories', {}, neverEndingGetRequest);
   },
 }));

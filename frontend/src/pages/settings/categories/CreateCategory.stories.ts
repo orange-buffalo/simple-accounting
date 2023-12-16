@@ -12,7 +12,7 @@ export default {
 export const Default = defineStory(() => ({
   components: { CreateCategory },
   template: '<CreateCategory />',
-  beforeCreate() {
+  setup() {
     fetchMock.post(defaultWorkspacePath('/categories'), (_, req) => {
       action('POST /categories')(JSON.parse(req.body as string));
       return {};

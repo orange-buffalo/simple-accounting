@@ -39,7 +39,7 @@ function mockApiResponses() {
 export const Default = defineStory(() => ({
   components: { IncomeTaxPaymentsOverview },
   template: '<IncomeTaxPaymentsOverview />',
-  beforeCreate() {
+  setup() {
     mockApiResponses();
   },
 }), {
@@ -51,7 +51,7 @@ export const Default = defineStory(() => ({
 export const ReadOnly = defineStory(() => ({
   components: { IncomeTaxPaymentsOverview },
   template: '<IncomeTaxPaymentsOverview />',
-  beforeCreate() {
+  setup() {
     mockApiResponses();
   },
 }), {

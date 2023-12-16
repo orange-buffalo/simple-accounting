@@ -13,7 +13,7 @@ export default {
 export const WithGoogleDrive = defineStory(() => ({
   components: { MyProfile },
   template: '<MyProfile/>',
-  beforeCreate() {
+  setup() {
     fetchMock.get('/api/profile', {
       userName: 'fry',
       documentsStorage: 'google-drive',

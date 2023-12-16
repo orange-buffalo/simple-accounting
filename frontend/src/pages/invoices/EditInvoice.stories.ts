@@ -29,7 +29,7 @@ function mockApiResponses() {
 export const Create = defineStory(() => ({
   components: { EditInvoice },
   template: '<EditInvoice />',
-  beforeCreate() {
+  setup() {
     mockApiResponses();
     fetchMock.post(defaultWorkspacePath('/invoices'), (_, req) => {
       action('POST /invoices')(req.body);
@@ -64,7 +64,7 @@ const invoiceProto = {
 export const Edit = defineStory(() => ({
   components: { EditInvoice },
   template: '<EditInvoice :id="987" />',
-  beforeCreate() {
+  setup() {
     mockApiResponses();
     onGetToDefaultWorkspacePath('/invoices/987', invoiceProto);
     fetchMock.put(defaultWorkspacePath('/invoices/987'), (_, req) => {

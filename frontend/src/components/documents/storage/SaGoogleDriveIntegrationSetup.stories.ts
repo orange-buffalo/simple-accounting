@@ -15,7 +15,7 @@ export default {
 
 export const AuthorizationRequired = defineStory(() => ({
   components: { SaGoogleDriveIntegrationSetup },
-  beforeCreate() {
+  setup() {
     fetchMock.get('/api/storage/google-drive/status', {
       authorizationRequired: true,
       authorizationUrl: '/',
@@ -28,7 +28,7 @@ export const AuthorizationRequired = defineStory(() => ({
 
 export const InProgress = defineStory(() => ({
   components: { SaGoogleDriveIntegrationSetup },
-  beforeCreate() {
+  setup() {
     fetchMock.get('/api/storage/google-drive/status', {
       authorizationRequired: true,
       authorizationUrl: '/',
@@ -45,7 +45,7 @@ export const InProgress = defineStory(() => ({
 
 export const Authorized = defineStory(() => ({
   components: { SaGoogleDriveIntegrationSetup },
-  beforeCreate() {
+  setup() {
     fetchMock.get('/api/storage/google-drive/status', {
       authorizationRequired: false,
       folderId: 'xxxyyyzzz',
@@ -59,7 +59,7 @@ export const Authorized = defineStory(() => ({
 
 export const Failed = defineStory(() => ({
   components: { SaGoogleDriveIntegrationSetup },
-  beforeCreate() {
+  setup() {
     fetchMock.get('/api/storage/google-drive/status', {
       authorizationRequired: true,
       authorizationUrl: '/',

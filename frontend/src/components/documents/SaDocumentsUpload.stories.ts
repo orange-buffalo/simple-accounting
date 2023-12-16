@@ -87,7 +87,7 @@ const DocumentsUploadStories = defineComponent({
 export const LoadingOnCreateIsSet = defineStory(() => ({
   components: { DocumentsUploadStories },
   template: '<DocumentsUploadStories :documents-ids="[]" loading-on-create :submittable="false"/>',
-  beforeCreate() {
+  setup() {
     mockLoadingStorageStatus();
   },
 }));
@@ -102,7 +102,7 @@ export const WithDocuments = defineStory(() => ({
     ],
   }),
   template: '<DocumentsUploadStories :documents-ids="documentIds" />',
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
     fetchMock.get(pathOnlyMatcher(defaultWorkspacePath('/documents')), pageResponse(
       storybookData.documents.cheesePizzaAndALargeSodaReceipt,
@@ -117,7 +117,7 @@ export const WithDocuments = defineStory(() => ({
 export const WithLoadingDocuments = defineStory(() => ({
   components: { DocumentsUploadStories },
   template: '<DocumentsUploadStories :documents-ids="[42, 43]" :submittable="false"/>',
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
     fetchMock.get(pathOnlyMatcher(defaultWorkspacePath('/documents')), {}, neverEndingGetRequest);
   },
@@ -134,7 +134,7 @@ export const WithDeferredDocuments = defineStory(() => ({
     };
   },
   template: '<DocumentsUploadStories :documents-ids="documents" loading-on-create :submittable="false"/>',
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
     fetchMock.get(pathOnlyMatcher(defaultWorkspacePath('/documents')), pageResponse(
       storybookData.documents.lunaParkDeliveryAgreement,
@@ -155,7 +155,7 @@ export const InitialLoadingWithNoDocuments = defineStory(() => ({
     return { documents: [] };
   },
   template: '<DocumentsUploadStories :documents-ids="documents" loading-on-create :submittable="false"/>',
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
   },
   mounted() {
@@ -168,7 +168,7 @@ export const InitialLoadingWithNoDocuments = defineStory(() => ({
 export const EmptyDocuments = defineStory(() => ({
   components: { DocumentsUploadStories },
   template: '<DocumentsUploadStories :documents-ids="[]" :submittable="false" />',
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
   },
 }), {
@@ -179,7 +179,7 @@ export const EmptyDocuments = defineStory(() => ({
 export const AllUploadsFailing = defineStory(() => ({
   components: { DocumentsUploadStories },
   template: '<DocumentsUploadStories :documents-ids="[]" />',
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
     fetchMock.post(defaultWorkspacePath('/documents'), {
       status: 404,
@@ -190,7 +190,7 @@ export const AllUploadsFailing = defineStory(() => ({
 export const LoadingStorageStatus = defineStory(() => ({
   components: { DocumentsUploadStories },
   template: '<DocumentsUploadStories :documents-ids="[]" :submittable="false"/>',
-  beforeCreate() {
+  setup() {
     mockLoadingStorageStatus();
   },
 }));
@@ -198,7 +198,7 @@ export const LoadingStorageStatus = defineStory(() => ({
 export const FailedStorageStatus = defineStory(() => ({
   components: { DocumentsUploadStories },
   template: '<DocumentsUploadStories :documents-ids="[]" :submittable="false"/>',
-  beforeCreate() {
+  setup() {
     mockFailedStorageStatus();
   },
 }), {

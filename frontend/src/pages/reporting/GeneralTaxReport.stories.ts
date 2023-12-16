@@ -14,7 +14,7 @@ export default {
 export const Default = defineStory(() => ({
   components: { GeneralTaxReport },
   template: '<GeneralTaxReport :date-range="[new Date(\'2021-01-01\'), new Date(\'2021-12-31\')]" />',
-  beforeCreate() {
+  setup() {
     storybookData.mockApi();
     onGetToDefaultWorkspacePath('/reporting/general-taxes', {
       finalizedCollectedTaxes: [{

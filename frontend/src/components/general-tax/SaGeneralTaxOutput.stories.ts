@@ -24,7 +24,7 @@ export const Loaded = defineStory(() => ({
 export const Loading = defineStory(() => ({
   components: { SaGeneralTaxOutput },
   template: '<SaGeneralTaxOutput :general-tax-id="7"/>',
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/general-taxes/7', {}, neverEndingGetRequest);
   },
 }));

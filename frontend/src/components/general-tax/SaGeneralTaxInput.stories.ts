@@ -50,7 +50,7 @@ export const Default = defineStory(() => ({
 export const Loading = defineStory(() => ({
   components: { SaGeneralTaxInput },
   template: '<SaGeneralTaxInput />',
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/general-taxes', {}, neverEndingGetRequest);
   },
 }));

@@ -37,7 +37,7 @@ class UiComponentsScreenshotsIT {
 
     // the outer retry is restarting the whole page, to cover flaky browser startup issues
     private val storyPageRetryTemplate = RetryTemplate().also {
-        it.setRetryPolicy(SimpleRetryPolicy(3))
+        it.setRetryPolicy(SimpleRetryPolicy(5))
         it.setBackOffPolicy(NoBackOffPolicy())
     }
 

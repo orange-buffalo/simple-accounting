@@ -31,11 +31,7 @@ for (let i = 0; i < 15; i += 1) {
 
 export const Default = defineStory(() => ({
   components: { SaInvoiceSelect },
-  setup: () => ({
-    emptySelectedInvoice: ref<number | undefined>(),
-    prefilledSelectedInvoice: ref<number>(1),
-  }),
-  beforeCreate() {
+  setup: () => {
     onGetToDefaultWorkspacePath('/invoices', {
       data: invoices.slice(0, 10),
       pageNumber: 1,
@@ -43,6 +39,10 @@ export const Default = defineStory(() => ({
       pageSize: 10,
     } as ApiPage<InvoiceDto>);
     onGetToDefaultWorkspacePath('/invoices/1', invoices[1]);
+    return ({
+      emptySelectedInvoice: ref<number | undefined>(),
+      prefilledSelectedInvoice: ref<number>(1),
+    });
   },
   template: `
     <h3>Empty value</h3>

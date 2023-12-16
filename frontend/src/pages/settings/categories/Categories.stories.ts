@@ -14,7 +14,7 @@ export default {
 export const Default = defineStory(() => ({
   components: { Categories },
   template: '<Categories />',
-  beforeCreate() {
+  setup() {
     onGetToDefaultWorkspacePath('/categories', {
       pageSize: 10,
       totalElements: 2,

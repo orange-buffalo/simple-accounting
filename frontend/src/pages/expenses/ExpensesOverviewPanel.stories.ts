@@ -48,7 +48,7 @@ function createStory(expense: ExpenseDto) {
       return { expense };
     },
     template: '<ExpensesOverviewPanel :expense="expense" />',
-    beforeCreate() {
+    setup() {
       mockApi();
     },
   };

@@ -157,7 +157,7 @@ export const Default = defineStory(() => ({
     StoryForm,
     StoryFormWithDocuments,
   },
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
   },
   template: `

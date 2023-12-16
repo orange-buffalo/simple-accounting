@@ -26,22 +26,14 @@ export default {
 export const NoDocuments = defineStory(() => ({
   components: { SaDocumentsList },
   template: '<SaDocumentsList :documents-ids="[]" style="width: 400px"/>',
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
   },
 }));
 
 export const WithDocuments = defineStory(() => ({
   components: { SaDocumentsList },
-  setup: () => ({
-    documentsIds: [
-      storybookData.documents.lunaParkDeliveryAgreement.id,
-      storybookData.documents.cheesePizzaAndALargeSodaReceipt.id,
-      storybookData.documents.coffeeReceipt.id,
-    ],
-  }),
-  template: '<SaDocumentsList :documents-ids="documentsIds"  style="width: 400px" />',
-  beforeCreate() {
+  setup: () => {
     mockSuccessStorageStatus();
     onGetToDefaultWorkspacePath(
       '/documents',
@@ -52,7 +44,15 @@ export const WithDocuments = defineStory(() => ({
       ),
     );
     mockFileDownload();
+    return ({
+      documentsIds: [
+        storybookData.documents.lunaParkDeliveryAgreement.id,
+        storybookData.documents.cheesePizzaAndALargeSodaReceipt.id,
+        storybookData.documents.coffeeReceipt.id,
+      ],
+    });
   },
+  template: '<SaDocumentsList :documents-ids="documentsIds"  style="width: 400px" />',
 }), {
   screenshotPreparation: waitForText(storybookData.documents.coffeeReceipt.name),
   useRealTime: true,
@@ -61,7 +61,7 @@ export const WithDocuments = defineStory(() => ({
 export const WithLoadingDocuments = defineStory(() => ({
   components: { SaDocumentsList },
   template: '<SaDocumentsList :documents-ids="[77, 78]" style="width: 400px"/>',
-  beforeCreate() {
+  setup() {
     mockSuccessStorageStatus();
     onGetToDefaultWorkspacePath('/documents', {}, neverEndingGetRequest);
   },
@@ -70,14 +70,7 @@ export const WithLoadingDocuments = defineStory(() => ({
 // screenshot is skipped for this case
 export const WithDeferredDocuments = defineStory(() => ({
   components: { SaDocumentsList },
-  setup: () => ({
-    documentsIds: [
-      storybookData.documents.lunaParkDeliveryAgreement.id,
-      storybookData.documents.coffeeReceipt.id,
-    ],
-  }),
-  template: '<SaDocumentsList :documents-ids="documentsIds" style="width: 400px"/>',
-  beforeCreate() {
+  setup: () => {
     mockSuccessStorageStatus();
     onGetToDefaultWorkspacePath(
       '/documents',
@@ -88,13 +81,20 @@ export const WithDeferredDocuments = defineStory(() => ({
       { delay: 1000 },
     );
     mockFileDownload();
+    return ({
+      documentsIds: [
+        storybookData.documents.lunaParkDeliveryAgreement.id,
+        storybookData.documents.coffeeReceipt.id,
+      ],
+    });
   },
+  template: '<SaDocumentsList :documents-ids="documentsIds" style="width: 400px"/>',
 }));
 
 export const LoadingStorageStatus = defineStory(() => ({
   components: { SaDocumentsList },
   template: '<SaDocumentsList :documents-ids="[]" style="width: 400px"/>',
-  beforeCreate() {
+  setup() {
     mockLoadingStorageStatus();
   },
 }));
@@ -102,7 +102,7 @@ export const LoadingStorageStatus = defineStory(() => ({
 export const FailedStorageStatus = defineStory(() => ({
   components: { SaDocumentsList },
   template: '<SaDocumentsList :documents-ids="[42]" style="width: 400px"/>',
-  beforeCreate() {
+  setup() {
     mockFailedStorageStatus();
   },
 }), {
