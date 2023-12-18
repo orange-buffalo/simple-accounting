@@ -78,7 +78,7 @@
     "vite": "^4.5.0",
     "vite-svg-loader": "^5.1.0",
     "vitest": "^0.34.6",
-    "vue-tsc": "^1.8.24",
+    "vue-tsc": "^1.8.25",
     "whatwg-fetch": "^3.6.19"
   },
   "packageManager": "yarn@3.6.4"
