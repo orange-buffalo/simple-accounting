@@ -70,7 +70,7 @@
     "fetch-mock": "^9.11.0",
     "flat": "^6.0.1",
     "js-yaml": "^4.1.0",
-    "jsdom": "^22.1.0",
+    "jsdom": "^23.0.1",
     "rollup-plugin-visualizer": "^5.10.0",
     "sass": "^1.69.5",
     "storybook": "^7.6.5",
