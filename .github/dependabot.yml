@@ -4,6 +4,8 @@ updates:
     directory: "/frontend"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "Australia/Melbourne"
     open-pull-requests-limit: 2
     rebase-strategy: "disabled"
     commit-message:
@@ -13,6 +15,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "Australia/Melbourne"
     rebase-strategy: "disabled"
     commit-message:
       prefix: "chore(deps)"
@@ -21,6 +25,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+      time: "03:00"
+      timezone: "Australia/Melbourne"
     open-pull-requests-limit: 2
     rebase-strategy: "disabled"
     commit-message:
