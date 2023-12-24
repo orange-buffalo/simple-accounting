@@ -135,7 +135,8 @@ class SaGeneratorStrategy : DefaultGeneratorStrategy() {
                     .replace('-', '_')
                     .replace('.', '_')
             )
-            if (definition is TableDefinition && mode != GeneratorStrategy.Mode.RECORD) "${validName}Table"
+            if (definition is TableDefinition && mode != GeneratorStrategy.Mode.PATH) "${validName}PathTable"
+            else if (definition is TableDefinition && mode != GeneratorStrategy.Mode.RECORD) "${validName}Table"
             else if (definition is TableDefinition && mode == GeneratorStrategy.Mode.RECORD) "${validName}Record"
             else validName
         }

@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStora
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.reactive.asFlow
@@ -20,7 +21,7 @@ import java.io.File
 import java.util.*
 
 //todo #82: use IO
-@Suppress("EXPERIMENTAL_API_USAGE")
+@OptIn(DelicateCoroutinesApi::class)
 private val localFsStorageContext = newFixedThreadPoolContext(10, "local-fs-storage")
 
 @Service

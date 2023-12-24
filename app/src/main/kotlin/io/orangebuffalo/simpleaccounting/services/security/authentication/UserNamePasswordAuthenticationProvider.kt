@@ -3,13 +3,10 @@ package io.orangebuffalo.simpleaccounting.services.security.authentication
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.security.mono
 import io.orangebuffalo.simpleaccounting.services.security.toSecurityPrincipal
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.withTimeout
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -24,7 +21,7 @@ class UserNamePasswordAuthenticationProvider(
     private val authenticationService: AuthenticationService,
 ) : ReactiveAuthenticationManager {
 
-    @Suppress("EXPERIMENTAL_API_USAGE")
+    @OptIn(ObsoleteCoroutinesApi::class, DelicateCoroutinesApi::class)
     private val authenticationRequestsOrchestrator = GlobalScope.actor<AuthenticationRequest> {
         // throttles requests per user
         val perUserRequestsProcessor = mutableMapOf<String, SendChannel<AuthenticationRequest>>()
