@@ -1,8 +1,10 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.node.json",
   "include": ["vite.config.*", "build-config/vite-plugins.ts", "build-config/storybook/main.ts", "build-config/proxy-port-resolver.ts"],
   "compilerOptions": {
     "composite": true,
-    "types": ["node", "vitest"]
+    "types": ["node", "vitest"],
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   }
 }

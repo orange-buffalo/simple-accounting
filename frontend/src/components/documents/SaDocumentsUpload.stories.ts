@@ -46,7 +46,7 @@ const DocumentsUploadStories = defineComponent({
   },
 
   setup() {
-    const documentsUpload = ref<SaDocumentsUpload | null>(null);
+    const documentsUpload = ref<typeof SaDocumentsUpload | null>(null);
 
     return {
       startUpload() {

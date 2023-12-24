@@ -2,7 +2,7 @@ import type { SaStoryScreenshotPreparation } from '@/__storybook__/sa-storybook'
 
 export function waitForInputValue(value: string, selector: string): SaStoryScreenshotPreparation {
   return skipWhenSucceededOnce(() => {
-    const input = document.querySelector(selector);
+    const input = document.querySelector(selector) as HTMLInputElement;
     return input && input.value && input.value.indexOf(value) >= 0;
   });
 }
@@ -24,7 +24,7 @@ export function waitForText(text: string, selector?: string): SaStoryScreenshotP
   });
 }
 
-function isVisible(element: Node) {
+function isVisible(element: Element) {
   const computedStyle = window.getComputedStyle(element);
   if (computedStyle.display === 'none') {
     return false;
@@ -37,7 +37,7 @@ function isVisible(element: Node) {
 
 export function clickOnElement(selector: string): SaStoryScreenshotPreparation {
   return skipWhenSucceededOnce(() => {
-    const element = document.querySelector(selector);
+    const element = document.querySelector(selector) as HTMLElement;
     if (!element) return false;
     element.click();
     return true;
