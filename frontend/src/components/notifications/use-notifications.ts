@@ -35,6 +35,7 @@ function showNotification(
     showClose: true,
     message,
     duration: type.duration,
+    // @ts-ignore
     icon: h(SaIcon, {
       icon: type.icon,
       size: 18,
