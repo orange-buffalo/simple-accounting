@@ -1,5 +1,5 @@
-console.log('generating l10n bundles....');
+import { generateLocaleBundles } from './l10n/locale-bundles-builder.js';
 
-require('./l10n/locale-bundles-builder');
-
-console.log('bundles generated');
+console.info('generating l10n bundles....');
+generateLocaleBundles();
+console.info('bundles generated');

@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const Cldr = require('cldrjs');
+import fs from 'fs';
+import path from 'path';
+import Cldr from 'cldrjs';
 
 function getMergedCldrJson(baseDir, jsonFiles) {
   const mergedJson = jsonFiles.reduce((totalJson, jsonFileName) => {
@@ -20,7 +20,8 @@ function mergeAndSaveCldrJsonFiles(baseDir, jsonFiles, outputFile) {
 }
 
 const baseCodeGenDir = 'src/services/i18n/l10n';
-const baseCldrDataDir = path.dirname(require.resolve('cldr-data'));
+// should use import.meta.resolve('cldr-data'), but does not work in bun
+const baseCldrDataDir = 'node_modules/cldr-data/';
 
 function prepareCodeGenDir() {
   fs.mkdirSync(baseCodeGenDir, { recursive: true });
@@ -144,8 +145,10 @@ function generateSupportedLocales() {
   fs.writeFileSync(`${baseCodeGenDir}/supported-locales.json`, JSON.stringify(localesCodes));
 }
 
-prepareCodeGenDir();
-generateBaseLocalBundleJson();
-generateLocalesBundlesJsons();
-generateLocalesDisplayNames();
-generateSupportedLocales();
+export function generateLocaleBundles() {
+  prepareCodeGenDir();
+  generateBaseLocalBundleJson();
+  generateLocalesBundlesJsons();
+  generateLocalesDisplayNames();
+  generateSupportedLocales();
+}
