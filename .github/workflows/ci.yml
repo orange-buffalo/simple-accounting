@@ -25,12 +25,15 @@ jobs:
         distribution: 'corretto'
         java-version: '17'
 
-    - name: 'Set up Node.js'
-      uses: actions/setup-node@v4
+    - name: "Setup Bun"
+      uses: oven-sh/setup-bun@v1
       with:
-        node-version: 16
-        cache: 'yarn'
-        cache-dependency-path: frontend/yarn.lock
+        bun-version: latest
+
+    - uses: actions/cache@v3
+      with:
+        key: ${{ runner.os }}-${{ hashFiles('frontend/bun.lockb', 'frontend/package.json') }}
+        path: ~/.bun/install/cache
 
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2

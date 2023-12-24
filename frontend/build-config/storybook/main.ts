@@ -1,6 +1,7 @@
 import type { StorybookConfig } from '@storybook/vue3-vite';
 import type { ConfigEnv } from 'vite';
 import { loadConfigFromFile, mergeConfig } from 'vite';
+import { resolve } from 'path';
 import { vitePlugins } from '../vite-plugins';
 
 const storybookConfig: StorybookConfig = {
@@ -23,8 +24,7 @@ const storybookConfig: StorybookConfig = {
       /* eslint-disable @typescript-eslint/no-explicit-any */
       configType as any as ConfigEnv,
       // eslint-disable-next-line @typescript-eslint/no-var-requires,global-require
-      require('path')
-        .resolve(__dirname, '../../vite.config.ts'),
+      resolve(__dirname, '../../vite.config.ts'),
     );
 
     return mergeConfig(config, {

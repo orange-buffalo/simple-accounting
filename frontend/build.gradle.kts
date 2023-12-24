@@ -1,16 +1,15 @@
 val prodConfigs = arrayOf(
     ".eslintignore", ".eslintrc.cjs", "package.json",
-    "yarn.lock", "build-config/vite-plugins.ts", "vite.config.ts",
-    ".yarnrc.yml", ".yarn/releases/**",
+    "bun.lockb", "build-config/vite-plugins.ts", "vite.config.ts",
 )
 val storybookConfigs = arrayOf(".babelrc", "build-config/storybook/**")
 
 val installFrontendDependencies by tasks.register<SaFrontendTask>("installFrontendDependencies") {
-    args.set("install --immutable")
+    args.set("install --frozen-lockfile")
 }
 
 val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
-    args.set("build")
+    args.set("run build")
     inputFiles {
         prodConfigs.forEach { include(it) }
         readTsConfig(file("tsconfig.app.json")).applyIncludesExcludes(this)
@@ -22,7 +21,7 @@ val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
 }
 
 val testFrontend by tasks.register<SaCacheableFrontendTask>("testFrontend") {
-    args.set("test:unit")
+    args.set("run test:unit")
     inputFiles {
         prodConfigs.forEach { include(it) }
         readTsConfig(file("tsconfig.vitest.json")).applyIncludesExcludes(this)
@@ -31,7 +30,7 @@ val testFrontend by tasks.register<SaCacheableFrontendTask>("testFrontend") {
 }
 
 val lint by tasks.register<SaCacheableFrontendTask>("lint") {
-    args.set("lint")
+    args.set("run lint")
     inputFiles {
         prodConfigs.forEach { include(it) }
         storybookConfigs.forEach { include(it) }
@@ -41,7 +40,7 @@ val lint by tasks.register<SaCacheableFrontendTask>("lint") {
 }
 
 val buildStorybook by tasks.register<SaCacheableFrontendTask>("buildStorybook") {
-    args.set("build-storybook")
+    args.set("run build-storybook")
     inputFiles {
         prodConfigs.forEach { include(it) }
         storybookConfigs.forEach { include(it) }
@@ -59,7 +58,6 @@ tasks.register("check") {
 val cleanFrontend by tasks.register("cleanFrontend") {
     group = "Frontend"
     doLast {
-        delete(project.files(".yarn/install-state.gz"))
         delete(project.files("src/services/i18n/l10n"))
         delete(project.files("dist"))
         delete(project.files("build/storybook"))
