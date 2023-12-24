@@ -4,8 +4,7 @@
   "scripts": {
     "postinstall": "node build-config/post-install/post-install.js",
     "dev": "vite",
-    "build": "run typecheck && vite build",
-    "preview": "vite preview --port 5050",
+    "build": "bun run typecheck && vite build",
     "test:unit": "vitest --run",
     "test:unit:watch": "vitest",
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
@@ -80,6 +79,5 @@
     "vitest": "^0.34.6",
     "vue-tsc": "^1.8.25",
     "whatwg-fetch": "^3.6.19"
-  },
-  "packageManager": "yarn@3.6.4"
+  }
 }

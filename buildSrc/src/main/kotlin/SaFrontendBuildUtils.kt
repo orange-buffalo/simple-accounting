@@ -1,6 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.gradle.api.DefaultTask
@@ -19,7 +18,7 @@ abstract class SaFrontendTask : DefaultTask() {
 
     private val fullCommandLine = args.map { userInput ->
         listOf(
-            "yarn",
+            "bun",
             *(userInput.split(" ").map { it.trim() }.toTypedArray())
         )
     }

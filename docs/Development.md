@@ -12,6 +12,12 @@ You can then build it with `./gradlew assemble` and then run `SimpleAccountingAp
 > and like to run the integrated application, you need to run `./gradlew assemble` to build the frontend code.
 >
 > See other sections for more efficient development workflows.
+ 
+## Requirements
+
+* Java 17
+* Latest [Bun](https://bun.sh/docs/installation), which should be available on `PATH`.
+* Docker
 
 ## Development Flow
 
@@ -22,7 +28,7 @@ and final checks of the new developments.
 
 ### Regular Spring Boot with Vite dev server
 
-You can start Vite dev server by running `yarn dev` in `frontend` module. It will proxy all API requests to
+You can start Vite dev server by running `bun dev` in `frontend` module. It will proxy all API requests to
 the Spring Boot application running on `9393` port (unless test configs states the different, more on that below).
 
 With Vite dev server, your frontend code will hot-reload on changes.
@@ -32,7 +38,7 @@ With Vite dev server, your frontend code will hot-reload on changes.
 We are using Storybook for developing generic components that are aimed to be reused in multiple places. We then
 also test the Storybook pages with screenshot testing (see below) to ensure visual stability e.g. on library updates.
 
-Start the Storybook with `yarn storybook` in `frontend` module.
+Start the Storybook with `bun storybook` in `frontend` module.
 
 ### Testing
 
@@ -52,7 +58,7 @@ be covered separately.
 
 #### Frontend
 
-For covering the most complex frontend logic (non-UI), we use Vitest. Run `yarn test:unit` or `yarn test:unit:watch`
+For covering the most complex frontend logic (non-UI), we use Vitest. Run `bun test:unit` or `bun test:unit:watch`
 in `frontend` directory to run the tests or develop new ones.
 
 #### API tests

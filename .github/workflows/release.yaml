@@ -23,25 +23,22 @@ jobs:
           distribution: 'corretto'
           java-version: '17'
 
-      - name: 'Set up Node.js'
-        uses: actions/setup-node@v4
+      - name: "Setup Bun"
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 16
+          bun-version: latest
 
-      - name: Build Cache
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.cache/google-cloud-tools-java/jib
-            app/build/jib-cache
-          # workaround for https://github.com/actions/cache/issues/342
-          # generate new key for each build to force cache push
-          key: build-cache-${{ github.run_id }}
-          # but use restore key to restore the latest pushed cache
-          restore-keys: |
-            build-cache-
+          key: ${{ runner.os }}-${{ hashFiles('frontend/bun.lockb', 'frontend/package.json') }}
+          path: ~/.bun/install/cache
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+          # disable reading from cache on re-runs to fix possible caching issues
+          cache-write-only: ${{ fromJSON(github.run_attempt) != 1 }}
 
       - name: Calculate new version
         id: calculate_new_version
