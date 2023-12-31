@@ -25,7 +25,7 @@
     "event-source-polyfill": "^1.0.31",
     "globalize": "^1.7.0",
     "imask": "^6.6.1",
-    "jwt-decode": "^3.1.2",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "marked": "^11.1.0",
     "qs": "^6.11.2",
