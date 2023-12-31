@@ -1,7 +1,9 @@
 package io.orangebuffalo.simpleaccounting.services.security.jwt
 
-import io.jsonwebtoken.*
-import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.Claims
+import io.jsonwebtoken.Jws
+import io.jsonwebtoken.JwtException
+import io.jsonwebtoken.Jwts
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrincipal
@@ -18,13 +20,13 @@ class JwtService(
     private val timeService: TimeService
 ) {
 
-    private val keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
+    private val keyPair = Jwts.SIG.RS256.keyPair().build()
 
     fun buildJwtToken(principal: SecurityPrincipal, validTill: Instant? = null): String = Jwts.builder()
-        .setSubject(principal.userName)
+        .subject(principal.userName)
         .claim("roles", principal.roles)
         .claim("transient", principal.isTransient)
-        .setExpiration((validTill ?: getDefaultTokenExpiration()).toDate())
+        .expiration((validTill ?: getDefaultTokenExpiration()).toDate())
         .signWith(keyPair.private)
         .compact()
 
@@ -37,21 +39,21 @@ class JwtService(
     fun validateTokenAndBuildUserDetails(token: String): UserDetails {
         val jws: Jws<Claims>
         try {
-            jws = Jwts.parserBuilder()
-                .setSigningKey(keyPair.public)
+            jws = Jwts.parser()
+                .verifyWith(keyPair.public)
                 .build()
-                .parseClaimsJws(token)
+                .parseSignedClaims(token)
 
         } catch (ex: JwtException) {
             throw BadCredentialsException("Bad token $token", ex)
         }
 
-        val transient = jws.body["transient"] as Boolean
+        val transient = jws.payload["transient"] as Boolean
         return if (transient) {
-            createTransientUserPrincipal(jws.body.subject, token)
+            createTransientUserPrincipal(jws.payload.subject, token)
         } else {
             @Suppress("UNCHECKED_CAST")
-            createRegularUserPrincipal(jws.body.subject, token, jws.body["roles"] as List<String>)
+            createRegularUserPrincipal(jws.payload.subject, token, jws.payload["roles"] as List<String>)
         }
     }
 }
