@@ -110,6 +110,9 @@ tasks.withType<KaptGenerateStubs> {
 }
 
 jib {
+    from {
+        image = "eclipse-temurin:21-jre-jammy"
+    }
     to {
         image = "orangebuffalo/simple-accounting:${project.version}"
         tags = setOf("latest")
@@ -181,5 +184,6 @@ tasks.withType<KotlinCompile> {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(Config.JVM_VERSION))
+        vendor = JvmVendorSpec.ADOPTIUM
     }
 }
