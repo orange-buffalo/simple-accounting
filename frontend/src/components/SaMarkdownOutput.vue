@@ -21,7 +21,7 @@
   import { computed, ref, watch } from 'vue';
 
   function renderMarkdown(source?: string) {
-    return source ? DOMPurify.sanitize(marked(source)) : '';
+    return source ? DOMPurify.sanitize(marked.parse(source) as string) : '';
   }
 
   const props = withDefaults(defineProps<{
