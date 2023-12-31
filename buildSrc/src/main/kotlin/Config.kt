@@ -1,5 +1,5 @@
 class Config {
     companion object{
-        const val JVM_VERSION = 17
+        const val JVM_VERSION = 21
     }
 }
