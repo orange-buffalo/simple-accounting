@@ -1,12 +1,12 @@
-package io.orangebuffalo.simpleaccounting.web.ui
+package io.orangebuffalo.simpleaccounting.web.ui.shared
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
-import io.orangebuffalo.simpleaccounting.web.ui.pages.openLoginPage
-import io.orangebuffalo.simpleaccounting.web.ui.pages.shouldBeDashboardPage
-import io.orangebuffalo.simpleaccounting.web.ui.pages.shouldBeUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.openLoginPage
+import io.orangebuffalo.simpleaccounting.web.ui.user.pages.shouldBeDashboardPage
 import org.junit.jupiter.api.Test
 
 @SimpleAccountingFullStackTest

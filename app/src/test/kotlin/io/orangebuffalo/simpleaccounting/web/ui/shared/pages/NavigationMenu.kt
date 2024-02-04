@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui.pages
+package io.orangebuffalo.simpleaccounting.web.ui.shared.pages
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
