@@ -15,7 +15,10 @@ class PlatformUser(
     val loginStatistics: LoginStatistics = LoginStatistics(0, null),
 
     @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY)
-    val i18nSettings: I18nSettings
+    val i18nSettings: I18nSettings = I18nSettings(
+        locale = "en_AU",
+        language = "en"
+    )
 ) : AbstractEntity()
 
 data class LoginStatistics(
