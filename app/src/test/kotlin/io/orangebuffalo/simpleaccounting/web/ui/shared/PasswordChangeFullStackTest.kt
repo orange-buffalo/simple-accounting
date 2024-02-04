@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui
+package io.orangebuffalo.simpleaccounting.web.ui.shared
 
 import com.microsoft.playwright.Page
 import com.nhaarman.mockitokotlin2.doReturn
@@ -10,9 +10,9 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.PlatformUserRepository
-import io.orangebuffalo.simpleaccounting.web.ui.pages.loginAs
-import io.orangebuffalo.simpleaccounting.web.ui.pages.shouldBeMyProfilePage
-import io.orangebuffalo.simpleaccounting.web.ui.pages.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
+import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeMyProfilePage
+import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui.pages
+package io.orangebuffalo.simpleaccounting.web.ui.user.pages
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
