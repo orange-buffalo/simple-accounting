@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeMyProfilePage
@@ -29,20 +30,22 @@ class PasswordChangeFullStackTest(
 
         page.loginAs(testData.fry)
         page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage()
-            .currentPassword {
+        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+            currentPassword {
                 fill("currentPassword")
             }
-            .newPassword {
+            newPassword {
                 fill("newPassword")
             }
-            .newPasswordConfirmation {
+            newPasswordConfirmation {
                 fill("newPassword")
             }
-            .changePasswordButton { click() }
-            .shouldHaveNotifications {
+            changePasswordButton { click() }
+
+            page.shouldHaveNotifications {
                 success("Password has been changed")
             }
+        }
 
         repository.findByUserName(testData.fry.userName)
             .shouldNotBeNull()
@@ -53,40 +56,42 @@ class PasswordChangeFullStackTest(
     fun `should prevent submit if inputs not provided`(page: Page, testData: PasswordChangeTestData) {
         page.loginAs(testData.fry)
         page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage()
-            .changePasswordButton { shouldBeDisabled() }
-            .currentPassword {
+        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+            changePasswordButton { shouldBeDisabled() }
+            currentPassword {
                 fill("currentPassword")
             }
-            .changePasswordButton { shouldBeDisabled() }
-            .newPassword {
+            changePasswordButton { shouldBeDisabled() }
+            newPassword {
                 fill("newPassword")
             }
-            .changePasswordButton { shouldBeDisabled() }
-            .newPasswordConfirmation {
+            changePasswordButton { shouldBeDisabled() }
+            newPasswordConfirmation {
                 fill("newPassword")
             }
-            .changePasswordButton { shouldBeEnabled() }
+            changePasswordButton { shouldBeEnabled() }
+        }
     }
 
     @Test
     fun `should validate that confirmation matches the new password`(page: Page, testData: PasswordChangeTestData) {
         page.loginAs(testData.fry)
         page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage()
-            .currentPassword {
+        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+            currentPassword {
                 fill("currentPassword")
             }
-            .newPassword {
+            newPassword {
                 fill("newPassword")
             }
-            .newPasswordConfirmation {
+            newPasswordConfirmation {
                 fill("newPassword1")
             }
-            .changePasswordButton { click() }
-            .newPasswordConfirmation { formItem ->
+            changePasswordButton { click() }
+            newPasswordConfirmation { formItem ->
                 formItem.shouldHaveValidationError("New password confirmation does not match")
             }
+        }
     }
 
     @Test
@@ -95,23 +100,24 @@ class PasswordChangeFullStackTest(
 
         page.loginAs(testData.fry)
         page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage()
-            .currentPassword {
+        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+            currentPassword {
                 fill("currentPassword")
             }
-            .newPassword {
+            newPassword {
                 fill("newPassword")
             }
-            .newPasswordConfirmation {
+            newPasswordConfirmation {
                 fill("newPassword")
             }
-            .changePasswordButton { click() }
-            .shouldHaveNotifications {
+            changePasswordButton { click() }
+            page.shouldHaveNotifications {
                 validationFailed()
             }
-            .currentPassword { formItem ->
+            currentPassword { formItem ->
                 formItem.shouldHaveValidationError("Current password does not match")
             }
+        }
 
         withClue("Password should not be changed") {
             repository.findByUserName(testData.fry.userName)
@@ -126,20 +132,21 @@ class PasswordChangeFullStackTest(
 
         page.loginAs(testData.farnsworth)
         page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage()
-            .currentPassword {
+        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+            currentPassword {
                 fill("currentPassword")
             }
-            .newPassword {
+            newPassword {
                 fill("newPassword")
             }
-            .newPasswordConfirmation {
+            newPasswordConfirmation {
                 fill("newPassword")
             }
-            .changePasswordButton { click() }
-            .shouldHaveNotifications {
+            changePasswordButton { click() }
+            page.shouldHaveNotifications {
                 success("Password has been changed")
             }
+        }
 
         repository.findByUserName(testData.farnsworth.userName)
             .shouldNotBeNull()
@@ -148,6 +155,8 @@ class PasswordChangeFullStackTest(
 
     class PasswordChangeTestData : TestData {
         val fry = Prototypes.fry()
+
+        // TODO #23: workspace should not be required?
         val workspace = Prototypes.workspace(owner = fry)
         val farnsworth = Prototypes.farnsworth()
     }

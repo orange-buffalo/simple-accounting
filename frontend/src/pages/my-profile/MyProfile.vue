@@ -9,7 +9,7 @@
       :model="profile"
       ref="formRef"
     >
-      <div>
+      <div v-if="!isAdmin()">
         <!-- todo #204: space is not even -->
         <h2>Documents Storage</h2>
 
@@ -42,10 +42,11 @@
   import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup.vue';
-  import type { ProfileDto } from '@/services/api';
-  import { profileApi } from '@/services/api';
+  import { ProfileDto, useAuth, profileApi } from '@/services/api';
   import { useForm } from '@/components/form/use-form';
   import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
+
+  const { isAdmin } = useAuth();
 
   const profile = ref<ProfileDto>({
     userName: '',

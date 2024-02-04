@@ -5,6 +5,7 @@ import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.assertions.LocatorAssertions
 import com.microsoft.playwright.assertions.PlaywrightAssertions
+import io.orangebuffalo.simpleaccounting.infra.ui.components.Notifications
 
 fun Locator.assertThat(): LocatorAssertions = PlaywrightAssertions.assertThat(this)
 
@@ -39,3 +40,7 @@ fun ElementHandle.hasClass(className: String): Boolean = evaluate(
 ) as Boolean
 
 fun ElementHandle.innerTextOrNull(): String? = this.innerText().trim().takeIf { it.isNotBlank() }
+
+fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
+    Notifications(this).spec()
+}
