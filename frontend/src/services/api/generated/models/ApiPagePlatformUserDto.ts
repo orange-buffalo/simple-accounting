@@ -13,49 +13,49 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { UserDto } from './UserDto';
+import type { PlatformUserDto } from './PlatformUserDto';
 import {
-    UserDtoFromJSON,
-    UserDtoFromJSONTyped,
-    UserDtoToJSON,
-} from './UserDto';
+    PlatformUserDtoFromJSON,
+    PlatformUserDtoFromJSONTyped,
+    PlatformUserDtoToJSON,
+} from './PlatformUserDto';
 
 /**
  * 
  * @export
- * @interface ApiPageUserDto
+ * @interface ApiPagePlatformUserDto
  */
-export interface ApiPageUserDto {
+export interface ApiPagePlatformUserDto {
     /**
      * 
      * @type {number}
-     * @memberof ApiPageUserDto
+     * @memberof ApiPagePlatformUserDto
      */
     pageNumber: number;
     /**
      * 
      * @type {number}
-     * @memberof ApiPageUserDto
+     * @memberof ApiPagePlatformUserDto
      */
     pageSize: number;
     /**
      * 
      * @type {number}
-     * @memberof ApiPageUserDto
+     * @memberof ApiPagePlatformUserDto
      */
     totalElements: number;
     /**
      * 
-     * @type {Array<UserDto>}
-     * @memberof ApiPageUserDto
+     * @type {Array<PlatformUserDto>}
+     * @memberof ApiPagePlatformUserDto
      */
-    data: Array<UserDto>;
+    data: Array<PlatformUserDto>;
 }
 
 /**
- * Check if a given object implements the ApiPageUserDto interface.
+ * Check if a given object implements the ApiPagePlatformUserDto interface.
  */
-export function instanceOfApiPageUserDto(value: object): boolean {
+export function instanceOfApiPagePlatformUserDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "pageNumber" in value;
     isInstance = isInstance && "pageSize" in value;
@@ -65,11 +65,11 @@ export function instanceOfApiPageUserDto(value: object): boolean {
     return isInstance;
 }
 
-export function ApiPageUserDtoFromJSON(json: any): ApiPageUserDto {
-    return ApiPageUserDtoFromJSONTyped(json, false);
+export function ApiPagePlatformUserDtoFromJSON(json: any): ApiPagePlatformUserDto {
+    return ApiPagePlatformUserDtoFromJSONTyped(json, false);
 }
 
-export function ApiPageUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApiPageUserDto {
+export function ApiPagePlatformUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApiPagePlatformUserDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -78,11 +78,11 @@ export function ApiPageUserDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
         'pageNumber': json['pageNumber'],
         'pageSize': json['pageSize'],
         'totalElements': json['totalElements'],
-        'data': ((json['data'] as Array<any>).map(UserDtoFromJSON)),
+        'data': ((json['data'] as Array<any>).map(PlatformUserDtoFromJSON)),
     };
 }
 
-export function ApiPageUserDtoToJSON(value?: ApiPageUserDto | null): any {
+export function ApiPagePlatformUserDtoToJSON(value?: ApiPagePlatformUserDto | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -94,7 +94,7 @@ export function ApiPageUserDtoToJSON(value?: ApiPageUserDto | null): any {
         'pageNumber': value.pageNumber,
         'pageSize': value.pageSize,
         'totalElements': value.totalElements,
-        'data': ((value.data as Array<any>).map(UserDtoToJSON)),
+        'data': ((value.data as Array<any>).map(PlatformUserDtoToJSON)),
     };
 }
 

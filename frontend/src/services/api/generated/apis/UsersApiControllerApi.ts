@@ -15,22 +15,30 @@
 
 import * as runtime from '../runtime';
 import type {
-  ApiPageUserDto,
-  CreateUserDto,
-  UserDto,
+  ApiPagePlatformUserDto,
+  CreateUserRequestDto,
+  PlatformUserDto,
 } from '../models';
 import {
-    ApiPageUserDtoFromJSON,
-    ApiPageUserDtoToJSON,
-    CreateUserDtoFromJSON,
-    CreateUserDtoToJSON,
-    UserDtoFromJSON,
-    UserDtoToJSON,
+    ApiPagePlatformUserDtoFromJSON,
+    ApiPagePlatformUserDtoToJSON,
+    CreateUserRequestDtoFromJSON,
+    CreateUserRequestDtoToJSON,
+    PlatformUserDtoFromJSON,
+    PlatformUserDtoToJSON,
 } from '../models';
 import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface CreateUserRequest {
-    createUserDto: CreateUserDto;
+    createUserRequestDto: CreateUserRequestDto;
+}
+
+export interface GetUsersRequest {
+    sortBy?: GetUsersSortByEnum;
+    freeSearchTextEq?: string;
+    pageNumber?: number;
+    pageSize?: number;
+    sortOrder?: GetUsersSortOrderEnum;
 }
 
 /**
@@ -40,9 +48,9 @@ export class UsersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
 
     /**
      */
-    async createUserRaw(requestParameters: CreateUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<UserDto>> {
-        if (requestParameters.createUserDto === null || requestParameters.createUserDto === undefined) {
-            throw new runtime.RequiredError('createUserDto','Required parameter requestParameters.createUserDto was null or undefined when calling createUser.');
+    async createUserRaw(requestParameters: CreateUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<PlatformUserDto>> {
+        if (requestParameters.createUserRequestDto === null || requestParameters.createUserRequestDto === undefined) {
+            throw new runtime.RequiredError('createUserRequestDto','Required parameter requestParameters.createUserRequestDto was null or undefined when calling createUser.');
         }
 
         const queryParameters: any = {};
@@ -56,23 +64,43 @@ export class UsersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateUserDtoToJSON(requestParameters.createUserDto),
+            body: CreateUserRequestDtoToJSON(requestParameters.createUserRequestDto),
         }, initOverrides, additionalParameters);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PlatformUserDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createUser(requestParameters: CreateUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<UserDto> {
+    async createUser(requestParameters: CreateUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<PlatformUserDto> {
         const response = await this.createUserRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
     /**
      */
-    async getUsersRaw(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPageUserDto>> {
+    async getUsersRaw(requestParameters: GetUsersRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPagePlatformUserDto>> {
         const queryParameters: any = {};
+
+        if (requestParameters.sortBy !== undefined) {
+            queryParameters['sortBy'] = requestParameters.sortBy;
+        }
+
+        if (requestParameters.freeSearchTextEq !== undefined) {
+            queryParameters['freeSearchText[eq]'] = requestParameters.freeSearchTextEq;
+        }
+
+        if (requestParameters.pageNumber !== undefined) {
+            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        }
+
+        if (requestParameters.pageSize !== undefined) {
+            queryParameters['pageSize'] = requestParameters.pageSize;
+        }
+
+        if (requestParameters.sortOrder !== undefined) {
+            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -83,14 +111,30 @@ export class UsersApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             query: queryParameters,
         }, initOverrides, additionalParameters);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageUserDtoFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => ApiPagePlatformUserDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getUsers(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPageUserDto> {
-        const response = await this.getUsersRaw(initOverrides, additionalParameters);
+    async getUsers(requestParameters: GetUsersRequest = {}, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPagePlatformUserDto> {
+        const response = await this.getUsersRaw(requestParameters, initOverrides, additionalParameters);
         return await response.value();
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetUsersSortByEnum = {
+    NotSupported: '_NOT_SUPPORTED'
+} as const;
+export type GetUsersSortByEnum = typeof GetUsersSortByEnum[keyof typeof GetUsersSortByEnum];
+/**
+ * @export
+ */
+export const GetUsersSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type GetUsersSortOrderEnum = typeof GetUsersSortOrderEnum[keyof typeof GetUsersSortOrderEnum];
