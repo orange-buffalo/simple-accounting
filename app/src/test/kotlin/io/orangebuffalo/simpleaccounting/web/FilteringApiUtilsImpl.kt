@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndBody
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
+import io.orangebuffalo.simpleaccounting.infra.security.asFarnsworth
+import io.orangebuffalo.simpleaccounting.infra.security.asFry
 import io.orangebuffalo.simpleaccounting.infra.utils.combine
 import io.orangebuffalo.simpleaccounting.infra.utils.logger
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
@@ -21,10 +23,12 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
 class FilteringApiTestCasesBuilderImpl<T : Any>(
-    entityType: KClass<T>
+    entityType: KClass<T>,
 ) : FilteringApiTestCasesBuilder<T> {
 
     override lateinit var baseUrl: String
+    override var workspaceBasedUrl: Boolean = true
+    override var executeAsAdmin: Boolean = false
 
     private lateinit var entityInitiator: EntitiesRegistry.() -> T
     private val entityMatcher: EntityMatcherImpl = EntityMatcherImpl()
@@ -98,7 +102,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
     private fun addFiltersCombinationsTestCases(
         testCases: MutableSet<FilteringApiTestCase>
     ) {
-        val filtersPerField = filteringBuilder.allFilters.asSequence()
+        val filtersPerField = filteringBuilder.allFilters
             .groupBy { it.substring(0, it.indexOf('[')) }
             .values
             .toMutableList()
@@ -242,7 +246,11 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         fun asDescUrlFilter() = "sortBy=$apiField desc"
     }
 
-    private inner class FilteringTestCase : AbstractFilteringApiTestCase(baseUrl) {
+    private inner class FilteringTestCase : AbstractFilteringApiTestCase(
+        initialUrl = baseUrl,
+        workspaceBasedUrl = workspaceBasedUrl,
+        executeAsAdmin = executeAsAdmin,
+    ) {
 
         private val filters: MutableList<String> = mutableListOf()
         private val equalsHashCodeProperties: Array<out (obj: FilteringTestCase) -> Any?>
@@ -273,7 +281,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         }
 
         override fun execute(client: WebTestClient) {
-            filterReplacements.forEach { filterReplacemetSpec -> url = filterReplacemetSpec(url) }
+            filterReplacements.forEach { filterReplacementSpec -> url = filterReplacementSpec(url) }
             super.execute(client)
         }
 
@@ -288,7 +296,11 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
     private inner class SortingTestCase(
         private val entitiesInitiators: List<EntitiesRegistry.(entity: T) -> Unit>,
         sortingQueryParam: String? = null
-    ) : AbstractFilteringApiTestCase(baseUrl) {
+    ) : AbstractFilteringApiTestCase(
+        initialUrl = baseUrl,
+        workspaceBasedUrl = workspaceBasedUrl,
+        executeAsAdmin = executeAsAdmin,
+    ) {
 
         init {
             url += (if (sortingQueryParam == null) "?" else "?$sortingQueryParam&") +
@@ -312,23 +324,32 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
     }
 
     private abstract inner class AbstractFilteringApiTestCase(
-        initialUrl: String
+        initialUrl: String,
+        private val workspaceBasedUrl: Boolean,
+        private val executeAsAdmin: Boolean,
     ) : FilteringApiTestCase() {
 
         var url: String = initialUrl
-        val entitiesRegistry: EntitiesRegistry = EntitiesRegistryImpl()
+        val entitiesRegistry: EntitiesRegistry = EntitiesRegistryImpl(skipWorkspaceEntities = !workspaceBasedUrl)
         val expectedEntitiesInResponse: MutableList<T> = mutableListOf()
 
         override fun generateData() = entitiesRegistry.entities
 
-        override fun toString() = url
+        override fun toString() = if (workspaceBasedUrl) "/api/workspaces/{workspace}/$url" else "/api/$url"
 
         abstract fun assertResults(responseEntitiesDesc: List<String>, expectedEntitiesDesc: List<String>)
 
         override fun execute(client: WebTestClient) {
             logger.info { "Executing $this" }
-            client.get()
-                .uri("/api/workspaces/${entitiesRegistry.workspace.id}/${url}")
+            val requestUrl = if (workspaceBasedUrl) {
+                "/api/workspaces/${entitiesRegistry.workspace.id}/$url"
+            } else {
+                "/api/$url"
+            }
+            client
+                .let { if (executeAsAdmin) it.asFarnsworth() else it.asFry() }
+                .get()
+                .uri(requestUrl)
                 .verifyOkAndBody { body ->
                     val objectMapper = ObjectMapper()
                     val jsonResponse = objectMapper.readTree(body)
@@ -362,11 +383,14 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
         }
     }
 
-    private class EntitiesRegistryImpl : EntitiesRegistry {
+    private class EntitiesRegistryImpl(skipWorkspaceEntities: Boolean) : EntitiesRegistry {
 
         override val workspaceOwner: PlatformUser = Prototypes.platformUser(userName = "Fry", isAdmin = false)
         override val workspace: Workspace = Prototypes.workspace(owner = workspaceOwner)
-        override val entities: MutableList<Any> = mutableListOf(workspaceOwner, workspace)
+        override val entities: MutableList<Any> = if (skipWorkspaceEntities)
+            mutableListOf()
+        else
+            mutableListOf(workspaceOwner, workspace)
 
         override fun <T : Any> save(entity: T): T {
             entities.add(entity)

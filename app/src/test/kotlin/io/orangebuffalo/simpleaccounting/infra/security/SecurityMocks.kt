@@ -7,6 +7,8 @@ import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.test.context.support.WithSecurityContext
 import org.springframework.security.test.context.support.WithSecurityContextFactory
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockAuthentication
+import org.springframework.test.web.reactive.server.WebTestClient
 
 @Retention(AnnotationRetention.RUNTIME)
 @WithSecurityContext(factory = SaMockSecurityContextFactory::class)
@@ -26,7 +28,7 @@ annotation class WithMockFryUser
 annotation class WithMockZoidbergUser
 
 @Retention(AnnotationRetention.RUNTIME)
-@WithSaMockUser(roles = ["USER"], userName = "Farnsworth")
+@WithSaMockUser(roles = ["ADMIN"], userName = "Farnsworth")
 annotation class WithMockFarnsworthUser
 
 @Retention(AnnotationRetention.RUNTIME)
@@ -48,4 +50,16 @@ class SaMockSecurityContextFactory : WithSecurityContextFactory<WithSaMockUser> 
         context.authentication = UsernamePasswordAuthenticationToken(principal, "", principal.authorities)
         return context
     }
+}
+
+fun WebTestClient.asFarnsworth(): WebTestClient {
+    val principal = createRegularUserPrincipal("Farnsworth", "", listOf("ADMIN"))
+    val authentication = UsernamePasswordAuthenticationToken(principal, "", principal.authorities)
+    return this.mutateWith(mockAuthentication(authentication))
+}
+
+fun WebTestClient.asFry(): WebTestClient {
+    val principal = createRegularUserPrincipal("Fry", "", listOf("USER"))
+    val authentication = UsernamePasswordAuthenticationToken(principal, "", principal.authorities)
+    return this.mutateWith(mockAuthentication(authentication))
 }
