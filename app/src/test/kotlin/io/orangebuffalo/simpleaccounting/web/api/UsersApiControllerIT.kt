@@ -1,15 +1,16 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
+import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
+import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
+import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
@@ -19,7 +20,7 @@ internal class UsersApiControllerIT(
 ) {
 
     @Test
-    @WithMockUser(roles = ["USER"])
+    @WithMockFryUser
     fun `should allow access only for Admin to read users`() {
         client.get()
             .uri("/api/users")
@@ -28,7 +29,7 @@ internal class UsersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"])
+    @WithMockFryUser
     fun `should allow access only for Admin to create users`() {
         client.post()
             .uri("/api/users")
@@ -37,7 +38,7 @@ internal class UsersApiControllerIT(
     }
 
     @Test
-    @WithMockUser(roles = ["ADMIN"])
+    @WithMockFarnsworthUser
     fun `should return a valid users page`(testData: UserApiTestData) {
         client.get()
             .uri("/api/users")
@@ -49,26 +50,26 @@ internal class UsersApiControllerIT(
                 inPath("$.data").isArray.containsExactly(
                     json(
                         """{
+                        userName: "Farnsworth",
+                        id: ${testData.farnsworth.id},
+                        version: 0,
+                        admin: true
+                    }"""
+                    ),
+                    json(
+                        """{
                         userName: "Fry",
                         id: ${testData.fry.id},
                         version: 0,
                         admin: false
                     }"""
                     ),
-                    json(
-                        """{
-                        userName: "Farnsworth",
-                        id: ${testData.farnsworth.id},
-                        version: 0,
-                        admin: true
-                    }"""
-                    )
                 )
             }
     }
 
     @Test
-    @WithMockUser(roles = ["ADMIN"])
+    @WithMockFarnsworthUser
     fun `should create a new user`(testData: UserApiTestData) {
         client.post()
             .uri("/api/users")

@@ -1074,13 +1074,46 @@ paths:
       tags:
       - users-api-controller
       operationId: getUsers
+      parameters:
+      - name: sortBy
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - _NOT_SUPPORTED
+      - name: "freeSearchText[eq]"
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: pageNumber
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: sortOrder
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageUserDto'
+                $ref: '#/components/schemas/ApiPagePlatformUserDto'
     post:
       tags:
       - users-api-controller
@@ -1089,7 +1122,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserDto'
+              $ref: '#/components/schemas/CreateUserRequestDto'
         required: true
       responses:
         "200":
@@ -1097,7 +1130,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: '#/components/schemas/PlatformUserDto'
   /api/shared-workspaces:
     get:
       tags:
@@ -2146,7 +2179,7 @@ components:
           type: boolean
         expense:
           type: boolean
-    CreateUserDto:
+    CreateUserRequestDto:
       required:
       - admin
       - password
@@ -2159,7 +2192,7 @@ components:
           type: boolean
         password:
           type: string
-    UserDto:
+    PlatformUserDto:
       required:
       - admin
       - userName
@@ -2534,7 +2567,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CategoryDto'
-    ApiPageUserDto:
+    ApiPagePlatformUserDto:
       required:
       - data
       - pageNumber
@@ -2554,7 +2587,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/UserDto'
+            $ref: '#/components/schemas/PlatformUserDto'
     GoogleDriveStorageIntegrationStatus:
       required:
       - authorizationRequired

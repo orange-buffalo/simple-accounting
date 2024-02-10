@@ -1,13 +1,12 @@
 package io.orangebuffalo.simpleaccounting.web
 
-import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.infra.database.TestData
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.junit.jupiter.MockitoSettings
@@ -30,6 +29,8 @@ inline fun <reified T : Any> generateFilteringApiTests(
 @FilteringTestApiDslMarker
 interface FilteringApiTestCasesBuilder<T : Any> {
     var baseUrl: String
+    var workspaceBasedUrl: Boolean
+    var executeAsAdmin: Boolean
 
     fun entityMatcher(init: EntityMatcher<T>.() -> Unit)
 
@@ -94,7 +95,6 @@ abstract class AbstractFilteringApiTest {
 
     @ParameterizedTest
     @MethodSource("createTestCases")
-    @WithSaMockUser(userName = "Fry")
     fun testFilteringApi(testCase: FilteringApiTestCase) {
         mockCurrentDate(timeService)
         mockCurrentTime(timeService)

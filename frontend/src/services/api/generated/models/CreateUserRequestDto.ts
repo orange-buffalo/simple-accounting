@@ -16,33 +16,33 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface CreateUserDto
+ * @interface CreateUserRequestDto
  */
-export interface CreateUserDto {
+export interface CreateUserRequestDto {
     /**
      * 
      * @type {string}
-     * @memberof CreateUserDto
+     * @memberof CreateUserRequestDto
      */
     userName: string;
     /**
      * 
      * @type {boolean}
-     * @memberof CreateUserDto
+     * @memberof CreateUserRequestDto
      */
     admin: boolean;
     /**
      * 
      * @type {string}
-     * @memberof CreateUserDto
+     * @memberof CreateUserRequestDto
      */
     password: string;
 }
 
 /**
- * Check if a given object implements the CreateUserDto interface.
+ * Check if a given object implements the CreateUserRequestDto interface.
  */
-export function instanceOfCreateUserDto(value: object): boolean {
+export function instanceOfCreateUserRequestDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "userName" in value;
     isInstance = isInstance && "admin" in value;
@@ -51,11 +51,11 @@ export function instanceOfCreateUserDto(value: object): boolean {
     return isInstance;
 }
 
-export function CreateUserDtoFromJSON(json: any): CreateUserDto {
-    return CreateUserDtoFromJSONTyped(json, false);
+export function CreateUserRequestDtoFromJSON(json: any): CreateUserRequestDto {
+    return CreateUserRequestDtoFromJSONTyped(json, false);
 }
 
-export function CreateUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateUserDto {
+export function CreateUserRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateUserRequestDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -67,7 +67,7 @@ export function CreateUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
     };
 }
 
-export function CreateUserDtoToJSON(value?: CreateUserDto | null): any {
+export function CreateUserRequestDtoToJSON(value?: CreateUserRequestDto | null): any {
     if (value === undefined) {
         return undefined;
     }
