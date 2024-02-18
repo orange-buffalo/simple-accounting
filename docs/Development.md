@@ -92,6 +92,27 @@ We can use `.test-config.yaml` to switch to other modes:
 You can run the full suite with `./gradlew test`. Just note that `.test-config.yaml` will take effect here as well,
 and your frontend code will not be built automatically unless `CI=true` is set in environment variables.
 
+#### Faster tests development with JBR
+
+We leverage [JBR](https://github.com/JetBrains/JetBrainsRuntime) and its support for advanced
+class redefinitions in order to provide even faster feedback loop during the tests' development.
+
+The general idea is simple - run the test in a loop, change the code (both test and subject) and 
+compile it without restarting Spring Context. JBR will reload almost all code changes. Obviously,
+changes to Spring Context (like new beans or changes to aspects) will not be applied until the 
+context restart.
+
+To enable this mode:
+* Ensure JBR is available in Gradle [toolchain directory](https://docs.gradle.org/current/userguide/toolchains.html#sec:auto_detection) as auto-provisioning is not yet supported.
+* In the tests config (`.tests-config.yaml`, see above), add `hotReloadEnabled: true`.
+* Add JUnit's `@RepeatedTest(100)` on your test.
+* Ensure your IDE is delegating executions to Gradle.
+* Put a break point in the test.
+* Debug the test.
+
+Once the test is started, changing any code and compiling the project will reload the changes. In most cases,
+they will be picked up on the next test loop iteration.
+
 #### Screenshot tests
 
 As mentioned above, we use Storybook for commonly used components and test their appearance stability with
@@ -141,7 +162,7 @@ Follow these steps:
 5. Drop Flyway table on target database:
    ```sql
    drop table "flyway_schema_history";
-   ```                               
+   ```
 6. Enable `spring.flyway.baseline-on-migrate=true` in `application.yml`.
 7. Once application started on the target database, set `spring.flyway.baseline-on-migrate` back to `false`
    in `application.yml`.
