@@ -833,5 +833,18 @@ export default {
 
   usersOverview: {
     header: () => 'Users',
+    filters: {
+      announcement: () => 'Filters coming soon',
+      input: {
+        placeholder: () => 'Search users',
+      },
+    },
+    create: () => 'Create user',
+  },
+
+  adminOverviewPanel: {
+    userTypeAdmin: () => 'Admin user',
+    userTypeRegular: () => 'User',
+    edit: () => 'Edit',
   },
 };
