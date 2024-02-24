@@ -1,7 +1,11 @@
 package io.orangebuffalo.simpleaccounting.web.ui.shared.pages
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.ui.components.*
+import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.infra.ui.components.ComponentsAccessors
+import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
+import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
 
 class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
@@ -39,9 +43,9 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
     }
 
     class PasswordChangeForm(page: Page, components: ComponentsAccessors<MyProfilePage>) {
-        val currentPassword = components.formItemByLabel("Current Password", TextInput::class)
-        val newPassword = components.formItemByLabel("New Password", TextInput::class)
-        val newPasswordConfirmation = components.formItemByLabel("New Password Confirmation", TextInput::class)
+        val currentPassword = components.formItemTextInputByLabel("Current Password")
+        val newPassword = components.formItemTextInputByLabel("New Password")
+        val newPasswordConfirmation = components.formItemTextInputByLabel("New Password Confirmation")
         val changePasswordButton = components.buttonByText("Apply new password")
         private val passwordChangeSectionHeader =
             page.locator("//*[contains(@class, 'el-form')]//h2[text()='Change Password']")
@@ -70,10 +74,6 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
 
         fun shouldBeVisible() {
             languagePreferencesSectionHeader.assertThat().isVisible()
-        }
-
-        fun shouldBeHidden() {
-            languagePreferencesSectionHeader.assertThat().isHidden()
         }
     }
 }

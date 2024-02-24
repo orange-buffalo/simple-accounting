@@ -4,7 +4,7 @@ import com.microsoft.playwright.Locator
 import io.orangebuffalo.simpleaccounting.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
 
-class PageHeader<T : Any>(
+class PageHeader<T : Any> private constructor(
     private val locator: Locator,
     private val parent: T,
 ) {
@@ -12,7 +12,9 @@ class PageHeader<T : Any>(
         locator.assertThat().isVisible()
         return parent
     }
-}
 
-fun <T : SaPageBase<T>> ComponentsAccessors<T>.pageHeader(text: String) =
-    PageHeader(page.locator(XPath.h1WithText(text)), this.owner)
+    companion object {
+        fun <T : SaPageBase<T>> ComponentsAccessors<T>.pageHeader(text: String) =
+            PageHeader(page.locator(XPath.h1WithText(text)), this.owner)
+    }
+}

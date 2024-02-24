@@ -3,10 +3,10 @@ package io.orangebuffalo.simpleaccounting.web.ui.admin.pages
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaOverviewItem
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.infra.ui.components.pageHeader
 
 class UsersOverviewPage(page: Page) : SaPageBase<UsersOverviewPage>(page) {
     val pageItems = components.overviewItems()
