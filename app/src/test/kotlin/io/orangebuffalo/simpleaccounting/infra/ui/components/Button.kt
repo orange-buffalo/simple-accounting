@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.infra.ui.components
 import com.microsoft.playwright.Locator
 import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
 
-class Button<T : Any>(
+class Button<T : Any> private constructor(
     private val locator: Locator,
     private val parent: T,
 ) {
@@ -17,7 +17,9 @@ class Button<T : Any>(
     }
 
     fun click() = locator.click()
-}
 
-fun <T: SaPageBase<T>> ComponentsAccessors<T>.buttonByText(label: String) =
-    Button(page.getByText(label), this.owner)
+    companion object {
+        fun <T : SaPageBase<T>> ComponentsAccessors<T>.buttonByText(label: String) =
+            Button(page.getByText(label), this.owner)
+    }
+}
