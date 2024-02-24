@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import org.jooq.impl.DSL.lower
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 
@@ -47,7 +48,7 @@ class UsersApiController(
         filteringApiExecutorBuilder.executor<PlatformUser, PlatformUserDto, NoOpSorting, UsersFilteringRequest> {
             val platformUser = Tables.PLATFORM_USER
             query(platformUser) {
-                addDefaultSorting { root.id.asc() }
+                addDefaultSorting { lower(root.userName).asc() }
                 onFilter(UsersFilteringRequest::freeSearchText) { searchText ->
                     platformUser.userName.containsIgnoreCase(searchText)
                 }

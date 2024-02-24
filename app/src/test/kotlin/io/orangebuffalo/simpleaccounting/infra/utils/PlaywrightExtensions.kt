@@ -39,7 +39,11 @@ fun ElementHandle.hasClass(className: String): Boolean = evaluate(
     className
 ) as Boolean
 
-fun ElementHandle.innerTextOrNull(): String? = this.innerText().trim().takeIf { it.isNotBlank() }
+fun ElementHandle.innerTextOrNull(): String? = this.innerText().trim().ifBlank { null }
+
+fun Locator.innerTextOrNull(): String? = this.innerText().trim().ifBlank { null }
+
+fun Locator.innerTextTrimmed() = this.innerText().trim()
 
 fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
     Notifications(this).spec()

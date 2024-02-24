@@ -14,7 +14,12 @@ class NavigationMenu(private val page: Page) {
     }
 
     fun clickMyProfile(): NavigationMenu {
-        page.getByText("My Profile").click()
+        container.getByText("My Profile").click()
+        return this
+    }
+
+    fun clickUsersOverview(): NavigationMenu {
+        container.getByText("Users").click()
         return this
     }
 

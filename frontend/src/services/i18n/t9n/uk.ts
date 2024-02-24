@@ -245,7 +245,7 @@ export default {
   expensesOverview: {
     header: () => 'Витрати',
     filters: {
-      announcement: () => 'Фільтри найближчим часом ',
+      announcement: () => 'Фільтри будуть незабаром',
       input: {
         placeholder: () => 'Витрати на пошук ',
       },
@@ -319,7 +319,7 @@ export default {
   incomeTaxPaymentsOverview: {
     header: () => 'Прибутковий Податок ',
     filters: {
-      announcement: () => 'Фільтри найближчим часом ',
+      announcement: () => 'Фільтри будуть незабаром',
     },
     create: () => 'Додати новий',
   },
@@ -514,7 +514,7 @@ export default {
   incomesOverview: {
     header: () => 'Доходи',
     filters: {
-      announcement: () => 'Фільтри найближчим часом ',
+      announcement: () => 'Фільтри будуть незабаром',
       input: {
         placeholder: () => 'Пошук доходи ',
       },
@@ -606,7 +606,7 @@ export default {
   invoicesOverview: {
     header: () => 'Рахунки-фактури',
     filters: {
-      announcement: () => 'Фільтри найближчим часом ',
+      announcement: () => 'Фільтри будуть незабаром',
       input: {
         placeholder: () => 'Пошук рахунків-фактур',
       },
@@ -832,5 +832,18 @@ export default {
 
   usersOverview: {
     header: () => 'Користувачі',
+    filters: {
+      announcement: () => 'Фільтри будуть незабаром',
+      input: {
+        placeholder: () => 'Пошук користувачів',
+      },
+    },
+    create: () => 'Створити користувача',
+  },
+
+  adminOverviewPanel: {
+    userTypeAdmin: () => 'Адміністратор',
+    userTypeRegular: () => 'Користувач',
+    edit: () => 'Редагувати',
   },
 };
