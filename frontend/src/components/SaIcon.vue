@@ -1,5 +1,5 @@
 <template>
-  <span class="sa-icon" @click="$emit('click')" :style="style">
+  <span class="sa-icon" :data-icon="icon" @click="$emit('click')" :style="style">
     <Component :is="loadedIcon" />
   </span>
 </template>

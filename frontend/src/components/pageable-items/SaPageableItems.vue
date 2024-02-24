@@ -15,7 +15,7 @@
       <div
         v-for="dataItem in data"
         :key="dataItem.id"
-        class="col col-xs-12"
+        class="col col-xs-12 sa-pageable-items__item"
       >
         <slot :item="dataItem">{{ dataItem }}</slot>
       </div>
