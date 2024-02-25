@@ -37,7 +37,8 @@ class UsersApiController(
                 userName = user.userName!!,
                 passwordHash = "",
                 isAdmin = user.admin!!,
-                i18nSettings = I18nSettings(locale = "en_AU", language = "en")
+                i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+                activated = false
             ).apply {
                 authenticationService.setUserPassword(this, user.password!!)
             }
@@ -68,7 +69,8 @@ data class PlatformUserDto(
     var userName: String,
     var id: Long?,
     var version: Int,
-    var admin: Boolean
+    var admin: Boolean,
+    var activated: Boolean,
 )
 
 data class CreateUserRequestDto(
@@ -81,5 +83,6 @@ private fun PlatformUser.mapToUserDto() = PlatformUserDto(
     userName = userName,
     id = id,
     version = version!!,
-    admin = isAdmin
+    admin = isAdmin,
+    activated = activated,
 )

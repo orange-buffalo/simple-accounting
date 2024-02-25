@@ -2194,6 +2194,7 @@ components:
           type: string
     PlatformUserDto:
       required:
+      - activated
       - admin
       - userName
       - version
@@ -2208,6 +2209,8 @@ components:
           type: integer
           format: int32
         admin:
+          type: boolean
+        activated:
           type: boolean
     SaveSharedWorkspaceRequestDto:
       required:

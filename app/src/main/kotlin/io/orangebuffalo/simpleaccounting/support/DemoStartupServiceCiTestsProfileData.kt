@@ -31,13 +31,15 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
             userName = "Fry",
             passwordHash = "{noop}password",
             isAdmin = false,
-            i18nSettings = I18nSettings(locale = "en", language = "en")
+            i18nSettings = I18nSettings(locale = "en", language = "en"),
+            activated = true
         ).also { jdbcAggregateTemplate.insert(it) }
         PlatformUser(
             userName = "Hermes",
             passwordHash = "{noop}password",
             isAdmin = true,
-            i18nSettings = I18nSettings(locale = "en", language = "en")
+            i18nSettings = I18nSettings(locale = "en", language = "en"),
+            activated = true
         ).also { jdbcAggregateTemplate.insert(it) }
 
         val planetExpressWorkspace = Workspace(

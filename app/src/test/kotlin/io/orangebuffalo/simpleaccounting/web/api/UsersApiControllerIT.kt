@@ -45,7 +45,7 @@ internal class UsersApiControllerIT(
             .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("2")
+                inPath("$.totalElements").isNumber.isEqualTo("3")
 
                 inPath("$.data").isArray.containsExactly(
                     json(
@@ -53,7 +53,8 @@ internal class UsersApiControllerIT(
                         userName: "Farnsworth",
                         id: ${testData.farnsworth.id},
                         version: 0,
-                        admin: true
+                        admin: true,
+                        activated: true
                     }"""
                     ),
                     json(
@@ -61,9 +62,19 @@ internal class UsersApiControllerIT(
                         userName: "Fry",
                         id: ${testData.fry.id},
                         version: 0,
-                        admin: false
+                        admin: false,
+                        activated: true
                     }"""
                     ),
+                    json(
+                        """{
+                        userName: "Zoidberg",
+                        id: ${testData.zoidberg.id},
+                        version: 0,
+                        admin: false,
+                        activated: false
+                    }"""
+                    )
                 )
             }
     }
@@ -87,7 +98,8 @@ internal class UsersApiControllerIT(
                         userName: "Leela",
                         id: "#{json-unit.any-number}",
                         version: 0,
-                        admin: false
+                        admin: false,
+                        activated: false
                     }"""
                     )
                 )
@@ -98,6 +110,11 @@ internal class UsersApiControllerIT(
 class UserApiTestData : TestData {
     val farnsworth = Prototypes.farnsworth()
     val fry = Prototypes.fry()
+    val zoidberg = Prototypes.platformUser(
+        userName = "Zoidberg",
+        isAdmin = false,
+        activated = false
+    )
 
-    override fun generateData() = listOf(farnsworth, fry)
+    override fun generateData() = listOf(farnsworth, fry, zoidberg)
 }
