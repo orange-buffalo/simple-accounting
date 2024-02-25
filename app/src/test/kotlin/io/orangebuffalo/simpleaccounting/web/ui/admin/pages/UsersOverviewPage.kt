@@ -7,9 +7,11 @@ import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companio
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaOverviewItem
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.infra.ui.components.TextInput.Companion.textInputByPlaceholder
 
 class UsersOverviewPage(page: Page) : SaPageBase<UsersOverviewPage>(page) {
     val pageItems = components.overviewItems()
+    val filterInput = components.textInputByPlaceholder("Search users")
     private val header = components.pageHeader("Users")
     fun shouldBeOpen() = header.shouldBeVisible()
 }

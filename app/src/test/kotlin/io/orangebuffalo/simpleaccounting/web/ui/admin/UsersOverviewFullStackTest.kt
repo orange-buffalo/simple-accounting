@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.ui.admin
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
@@ -20,26 +21,98 @@ class UsersOverviewFullStackTest {
         page.loginAs(testData.farnsworth)
         page.shouldHaveSideMenu().clickUsersOverview()
         page.shouldBeUsersOverviewPage()
-            .pageItems { items ->
-                items.map { it.toUserOverviewItem() }.shouldContainExactly(
-                    UserOverviewItem(
-                        userName = "aUser",
-                        userType = UserOverviewItem.regularUserType,
-                    ),
-                    UserOverviewItem(
-                        userName = "B user",
-                        userType = UserOverviewItem.adminUserType,
-                    ),
-                    UserOverviewItem(
-                        userName = "C User",
-                        userType = UserOverviewItem.regularUserType,
-                    ),
-                    UserOverviewItem(
-                        userName = "Farnsworth",
-                        userType = UserOverviewItem.adminUserType,
-                    ),
-                )
-                items.forEach { it.shouldNotHaveDetails() }
+            .pageItems {
+                shouldSatisfy { items ->
+                    items.map { it.toUserOverviewItem() }.shouldContainExactly(
+                        UserOverviewItem(
+                            userName = "aUser",
+                            userType = UserOverviewItem.regularUserType,
+                        ),
+                        UserOverviewItem(
+                            userName = "B user",
+                            userType = UserOverviewItem.adminUserType,
+                        ),
+                        UserOverviewItem(
+                            userName = "C User",
+                            userType = UserOverviewItem.regularUserType,
+                        ),
+                        UserOverviewItem(
+                            userName = "Farnsworth",
+                            userType = UserOverviewItem.adminUserType,
+                        ),
+                    )
+                    items.forEach { it.shouldNotHaveDetails() }
+                }
+                paginator {
+                    shouldHaveActivePage(1)
+                    shouldHaveTotalPages(1)
+                }
+            }
+    }
+
+    @Test
+    fun `should support pagination`(page: Page, testData: PaginationTestData) {
+        page.loginAs(testData.farnsworth)
+        page.shouldHaveSideMenu().clickUsersOverview()
+        val firsPageUsers = listOf(
+            "Farnsworth", "user 1", "user 10", "user 11", "user 12",
+            "user 13", "user 14", "user 15", "user 2", "user 3"
+        )
+        page.shouldBeUsersOverviewPage()
+            .pageItems {
+                shouldSatisfy { items ->
+                    items.map { it.title }.shouldContainExactly(firsPageUsers)
+                }
+                paginator {
+                    shouldHaveActivePage(1)
+                    shouldHaveTotalPages(2)
+                    next()
+                    shouldHaveActivePage(2)
+                    shouldHaveTotalPages(2)
+                }
+                shouldSatisfy { items ->
+                    items.map { it.title }.shouldContainExactly(
+                        "user 4", "user 5", "user 6", "user 7", "user 8", "user 9"
+                    )
+                }
+                paginator {
+                    previous()
+                    shouldHaveActivePage(1)
+                    shouldHaveTotalPages(2)
+                }
+                shouldSatisfy { items ->
+                    items.map { it.title }.shouldContainExactly(firsPageUsers)
+                }
+            }
+    }
+
+    @Test
+    fun `should support filtering`(page: Page, testData: FilteringTestData) {
+        page.loginAs(testData.farnsworth)
+        page.shouldHaveSideMenu().clickUsersOverview()
+        page.shouldBeUsersOverviewPage()
+            .pageItems {
+                // ensure all targeted items visible by default
+                shouldSatisfy { items ->
+                    items.map { it.title }.shouldContainAll(
+                        "aBcDef", "abcdef", "ABCDEF", "qwerty"
+                    )
+                }
+                // ensure we update paginator as well
+                paginator {
+                    shouldHaveActivePage(1)
+                    shouldHaveTotalPages(2)
+                }
+            }
+            .filterInput { fill("cd") }
+            .pageItems {
+                shouldSatisfy { items ->
+                    items.map { it.title }.shouldContainExactly("aBcDef", "abcdef", "ABCDEF")
+                }
+                paginator {
+                    shouldHaveActivePage(1)
+                    shouldHaveTotalPages(1)
+                }
             }
     }
 
@@ -51,6 +124,31 @@ class UsersOverviewFullStackTest {
             Prototypes.platformUser(userName = "aUser", isAdmin = false),
             Prototypes.platformUser(userName = "B user", isAdmin = true),
             Prototypes.platformUser(userName = "C User", isAdmin = false),
+        )
+    }
+
+    class PaginationTestData : TestData {
+        var farnsworth = Prototypes.farnsworth()
+        override fun generateData() = listOf(
+            farnsworth,
+            *((1..15)
+                .map { Prototypes.platformUser(userName = "user $it") }
+                .toTypedArray())
+        )
+    }
+
+    class FilteringTestData : TestData {
+        var farnsworth = Prototypes.farnsworth()
+        override fun generateData() = listOf(
+            farnsworth,
+            Prototypes.platformUser(userName = "aBcDef"),
+            Prototypes.platformUser(userName = "abcdef"),
+            Prototypes.platformUser(userName = "ABCDEF"),
+            Prototypes.platformUser(userName = "qwerty"),
+            // some users to enable pagination
+            *((1..10)
+                .map { Prototypes.platformUser(userName = "user $it") }
+                .toTypedArray())
         )
     }
 }

@@ -1,11 +1,12 @@
 package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import org.awaitility.Awaitility.await
+import io.orangebuffalo.simpleaccounting.infra.ui.components.Paginator.Companion.twoSyncedPaginators
 
 class SaPageableItems<I, P> private constructor(
     private val container: Locator,
     private val parent: P,
+    val paginator: Paginator,
     private val itemFactory: (container: Locator) -> I
 ) {
 
@@ -19,15 +20,26 @@ class SaPageableItems<I, P> private constructor(
      * current items and invokes spec until the condition is satisfied.
      * Spec must throw assertion error if the condition is not satisfied.
      */
-    operator fun invoke(spec: (items: List<I>) -> Unit): P {
-        await().untilAsserted {
-            spec(items)
-        }
+    fun shouldSatisfy(spec: (items: List<I>) -> Unit) = io.orangebuffalo.simpleaccounting.infra.utils.shouldSatisfy {
+        spec(items)
+    }
+
+    operator fun invoke(action: SaPageableItems<I, *>.() -> Unit): P {
+        this.action()
         return parent
     }
 
     companion object {
-        fun <T : SaPageBase<T>, I> ComponentsAccessors<T>.pageableItems(itemFactory: (container: Locator) -> I) =
-            SaPageableItems(page.locator(".sa-pageable-items"), this.owner, itemFactory)
+        fun <T : SaPageBase<T>, I> ComponentsAccessors<T>.pageableItems(
+            itemFactory: (container: Locator) -> I
+        ): SaPageableItems<I, T> {
+            val container = page.locator(".sa-pageable-items")
+            return SaPageableItems(
+                container = container,
+                parent = this.owner,
+                paginator = this.twoSyncedPaginators(container),
+                itemFactory = itemFactory
+            )
+        }
     }
 }

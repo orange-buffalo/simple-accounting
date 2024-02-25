@@ -6,6 +6,7 @@ import com.microsoft.playwright.Page
 import com.microsoft.playwright.assertions.LocatorAssertions
 import com.microsoft.playwright.assertions.PlaywrightAssertions
 import io.orangebuffalo.simpleaccounting.infra.ui.components.Notifications
+import org.awaitility.Awaitility.await
 
 fun Locator.assertThat(): LocatorAssertions = PlaywrightAssertions.assertThat(this)
 
@@ -47,4 +48,17 @@ fun Locator.innerTextTrimmed() = this.innerText().trim()
 
 fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
     Notifications(this).spec()
+}
+
+/**
+ * Awaits until the provided spec is satisfied.
+ * Spec is satisfied when it does not throw an assertion error.
+ *
+ * Playwright does not have a built-in mechanism to wait for a condition to be satisfied,
+ * hence using Awaitility.
+ */
+fun shouldSatisfy(spec: () -> Unit) {
+    await().untilAsserted {
+        spec()
+    }
 }
