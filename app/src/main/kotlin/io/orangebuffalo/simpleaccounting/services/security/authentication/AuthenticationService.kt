@@ -25,10 +25,17 @@ class AuthenticationService(
     suspend fun authenticate(userName: String, credentials: String): PlatformUser {
         val user = platformUserService.getUserByUserName(userName)
             ?: throw BadCredentialsException("Invalid Credentials")
+        validateActivated(user)
         validateTemporaryLock(user)
         validatePassword(user, credentials)
         resetLoginStatistics(user)
         return user
+    }
+
+    private fun validateActivated(user: PlatformUser) {
+        if (!user.activated) {
+            throw BadCredentialsException("User is not activated")
+        }
     }
 
     private fun validateTemporaryLock(user: PlatformUser) {

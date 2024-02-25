@@ -43,6 +43,12 @@ export interface PlatformUserDto {
      * @memberof PlatformUserDto
      */
     admin: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof PlatformUserDto
+     */
+    activated: boolean;
 }
 
 /**
@@ -53,6 +59,7 @@ export function instanceOfPlatformUserDto(value: object): boolean {
     isInstance = isInstance && "userName" in value;
     isInstance = isInstance && "version" in value;
     isInstance = isInstance && "admin" in value;
+    isInstance = isInstance && "activated" in value;
 
     return isInstance;
 }
@@ -71,6 +78,7 @@ export function PlatformUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'id': !exists(json, 'id') ? undefined : json['id'],
         'version': json['version'],
         'admin': json['admin'],
+        'activated': json['activated'],
     };
 }
 
@@ -87,6 +95,7 @@ export function PlatformUserDtoToJSON(value?: PlatformUserDto | null): any {
         'id': value.id,
         'version': value.version,
         'admin': value.admin,
+        'activated': value.activated,
     };
 }
 

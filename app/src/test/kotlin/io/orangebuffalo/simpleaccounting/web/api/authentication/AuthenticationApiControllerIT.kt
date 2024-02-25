@@ -131,6 +131,23 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
+    fun `should return 401 when user is not activated`(testData: AuthenticationApiTestData) {
+        client.post().uri(LOGIN_PATH)
+            .contentType(APPLICATION_JSON)
+            .bodyValue(
+                LoginRequest(
+                    userName = "Inactive",
+                    password = "irrelevant"
+                )
+            )
+            .exchange()
+            .expectStatus().isUnauthorized
+            .expectThatJsonBody {
+                inPath("$.error").isEqualTo("BadCredentials")
+            }
+    }
+
+    @Test
     fun `should return 400 when request body is empty`() {
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
@@ -388,6 +405,10 @@ class AuthenticationApiControllerIT(
     class AuthenticationApiTestData : TestData {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
+        val inactiveUser = Prototypes.platformUser(
+            userName = "Inactive",
+            activated = false
+        )
         val fryWorkspace = Prototypes.workspace(owner = fry)
         val revokedAccessToken = Prototypes.workspaceAccessToken(
             workspace = fryWorkspace,
@@ -410,7 +431,8 @@ class AuthenticationApiControllerIT(
 
         override fun generateData() = listOf(
             fry, farnsworth, fryWorkspace,
-            revokedAccessToken, expiredAccessToken, validAccessToken
+            revokedAccessToken, expiredAccessToken, validAccessToken,
+            inactiveUser,
         )
     }
 }

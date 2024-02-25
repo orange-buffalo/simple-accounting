@@ -36,6 +36,7 @@ class AdminUserRecoveryService(private val aggregateTemplate: JdbcAggregateTempl
                     userName = userName,
                     passwordHash = "{noop}$password",
                     isAdmin = true,
+                    activated = true,
                 )
             )
             log.warn {

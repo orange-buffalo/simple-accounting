@@ -62,13 +62,15 @@ class Prototypes {
             passwordHash: String = "nopassword",
             isAdmin: Boolean = false,
             documentsStorage: String? = null,
-            i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en")
+            i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+            activated: Boolean = true,
         ) = PlatformUser(
             userName = userName,
             passwordHash = passwordHash,
             isAdmin = isAdmin,
             documentsStorage = documentsStorage,
-            i18nSettings = i18nSettings
+            i18nSettings = i18nSettings,
+            activated = activated
         ).apply {
             id = currentEntityId++
             version = 0
