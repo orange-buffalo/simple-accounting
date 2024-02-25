@@ -9,6 +9,7 @@ class PlatformUser(
     var userName: String,
     var passwordHash: String,
     var isAdmin: Boolean,
+    var activated: Boolean,
     var documentsStorage: String? = null,
 
     @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY)

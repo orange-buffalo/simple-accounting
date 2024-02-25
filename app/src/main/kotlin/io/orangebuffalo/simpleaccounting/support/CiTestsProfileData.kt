@@ -27,7 +27,8 @@ class CiTestsProfileData(private val jdbcAggregateTemplate: JdbcAggregateTemplat
                 userName = "Fry",
                 passwordHash = "{noop}password",
                 isAdmin = false,
-                i18nSettings = I18nSettings(locale = "en_AU", language = "en")
+                i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+                activated = true
             )
         )
 
