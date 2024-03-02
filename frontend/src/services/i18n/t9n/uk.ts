@@ -844,6 +844,8 @@ export default {
   adminOverviewPanel: {
     userTypeAdmin: () => 'Адміністратор',
     userTypeRegular: () => 'Користувач',
+    userActivated: () => 'Активований',
+    userNotActivated: () => 'Не активований',
     edit: () => 'Редагувати',
   },
 };

@@ -30,7 +30,7 @@ class Prototypes {
         fun farnsworth() = platformUser(
             userName = "Farnsworth",
             passwordHash = "scienceBasedHash",
-            isAdmin = true
+            isAdmin = true,
         )
 
         fun zoidberg() = platformUser(
