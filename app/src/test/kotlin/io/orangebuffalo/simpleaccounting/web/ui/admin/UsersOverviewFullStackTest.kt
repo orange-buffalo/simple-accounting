@@ -27,18 +27,22 @@ class UsersOverviewFullStackTest {
                         UserOverviewItem(
                             userName = "aUser",
                             userType = UserOverviewItem.regularUserType,
+                            userActivation = UserOverviewItem.activeUser,
                         ),
                         UserOverviewItem(
                             userName = "B user",
                             userType = UserOverviewItem.adminUserType,
+                            userActivation = UserOverviewItem.inactiveUser,
                         ),
                         UserOverviewItem(
                             userName = "C User",
                             userType = UserOverviewItem.regularUserType,
+                            userActivation = UserOverviewItem.inactiveUser,
                         ),
                         UserOverviewItem(
                             userName = "Farnsworth",
                             userType = UserOverviewItem.adminUserType,
+                            userActivation = UserOverviewItem.activeUser,
                         ),
                     )
                     items.forEach { it.shouldNotHaveDetails() }
@@ -121,9 +125,9 @@ class UsersOverviewFullStackTest {
         var farnsworth = Prototypes.farnsworth()
         override fun generateData() = listOf(
             farnsworth,
-            Prototypes.platformUser(userName = "aUser", isAdmin = false),
-            Prototypes.platformUser(userName = "B user", isAdmin = true),
-            Prototypes.platformUser(userName = "C User", isAdmin = false),
+            Prototypes.platformUser(userName = "aUser", isAdmin = false, activated = true),
+            Prototypes.platformUser(userName = "B user", isAdmin = true, activated = false),
+            Prototypes.platformUser(userName = "C User", isAdmin = false, activated = false),
         )
     }
 

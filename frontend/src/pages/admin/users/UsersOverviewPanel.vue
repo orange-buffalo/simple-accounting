@@ -13,6 +13,19 @@
       >
         {{ $t.adminOverviewPanel.userTypeRegular() }}
       </SaOverviewItemPrimaryAttribute>
+
+      <SaOverviewItemPrimaryAttribute
+        v-if="user.activated"
+        icon="active-user"
+      >
+        {{ $t.adminOverviewPanel.userActivated() }}
+      </SaOverviewItemPrimaryAttribute>
+      <SaOverviewItemPrimaryAttribute
+        v-else
+        icon="inactive-user"
+      >
+        {{ $t.adminOverviewPanel.userNotActivated() }}
+      </SaOverviewItemPrimaryAttribute>
     </template>
 
     <template #last-column>

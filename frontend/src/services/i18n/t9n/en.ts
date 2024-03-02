@@ -845,6 +845,8 @@ export default {
   adminOverviewPanel: {
     userTypeAdmin: () => 'Admin user',
     userTypeRegular: () => 'User',
+    userActivated: () => 'Active',
+    userNotActivated: () => 'Not yet activated',
     edit: () => 'Edit',
   },
 };

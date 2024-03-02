@@ -19,6 +19,7 @@ class UsersOverviewPage(page: Page) : SaPageBase<UsersOverviewPage>(page) {
 data class UserOverviewItem(
     val userName: String,
     val userType: SaOverviewItem.PrimaryAttribute,
+    val userActivation: SaOverviewItem.PrimaryAttribute,
 ) {
     companion object {
         val adminUserType = SaOverviewItem.PrimaryAttribute(
@@ -29,13 +30,23 @@ data class UserOverviewItem(
             icon = "regular-user",
             text = "User",
         )
+        val activeUser = SaOverviewItem.PrimaryAttribute(
+            icon = "active-user",
+            text = "Active",
+        )
+        val inactiveUser = SaOverviewItem.PrimaryAttribute(
+            icon = "inactive-user",
+            text = "Not yet activated",
+        )
     }
 }
 
 fun SaOverviewItem.toUserOverviewItem(): UserOverviewItem {
+    primaryAttributes.shouldHaveSize(2)
     return UserOverviewItem(
         userName = title.shouldNotBeNull(),
-        userType = primaryAttributes.shouldHaveSize(1).first(),
+        userType = primaryAttributes[0],
+        userActivation = primaryAttributes[1],
     )
 }
 
