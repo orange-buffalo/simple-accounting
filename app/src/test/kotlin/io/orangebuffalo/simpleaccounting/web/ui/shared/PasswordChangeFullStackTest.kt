@@ -10,7 +10,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveNotifications
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeMyProfilePage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu

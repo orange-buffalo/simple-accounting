@@ -14,8 +14,8 @@ import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

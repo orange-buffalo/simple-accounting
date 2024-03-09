@@ -2,20 +2,19 @@ package io.orangebuffalo.simpleaccounting.services.security.jwt
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
+import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.RefreshToken
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.RefreshTokenRepository
 import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshTokenService
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import java.time.Instant
@@ -25,11 +24,9 @@ import java.util.function.Consumer
 @SimpleAccountingIntegrationTest
 class RefreshTokenServiceIT(
     @Autowired private val refreshTokenService: RefreshTokenService,
-    @Autowired private val refreshTokenRepository: RefreshTokenRepository
+    @Autowired private val refreshTokenRepository: RefreshTokenRepository,
+    @Autowired val timeService: TimeService,
 ) {
-
-    @MockBean
-    lateinit var timeService: TimeService
 
     @Test
     fun `should generate a new refresh token`(testData: RefreshTokenServiceTestData) {

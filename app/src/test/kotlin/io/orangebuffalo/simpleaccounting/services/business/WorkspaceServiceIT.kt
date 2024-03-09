@@ -3,16 +3,15 @@ package io.orangebuffalo.simpleaccounting.services.business
 import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
 import io.orangebuffalo.simpleaccounting.infra.security.*
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
+import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.AbstractThrowableAssert
 import org.assertj.core.api.Assertions.assertThatCode
@@ -21,17 +20,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import java.time.Duration
 
 @SimpleAccountingIntegrationTest
 @DisplayName("WorkspaceService ")
 internal class WorkspaceServiceIT(
-    @Autowired val workspaceService: WorkspaceService
+    @Autowired val workspaceService: WorkspaceService,
+    @Autowired val timeService: TimeService,
 ) {
-
-    @MockBean
-    private lateinit var timeService: TimeService
 
     @BeforeEach
     fun setup() {

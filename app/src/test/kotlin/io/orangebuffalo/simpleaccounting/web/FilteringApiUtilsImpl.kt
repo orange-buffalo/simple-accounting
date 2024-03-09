@@ -13,7 +13,7 @@ import io.orangebuffalo.simpleaccounting.infra.security.asFarnsworth
 import io.orangebuffalo.simpleaccounting.infra.security.asFry
 import io.orangebuffalo.simpleaccounting.infra.utils.combine
 import io.orangebuffalo.simpleaccounting.infra.utils.logger
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.support.kotlinEquals
 import io.orangebuffalo.simpleaccounting.support.kotlinHashCode

@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContextAsync

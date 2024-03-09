@@ -1,0 +1,5 @@
+package io.orangebuffalo.simpleaccounting.domain.users
+
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
+
+interface UserActivationTokenRepository : AbstractEntityRepository<UserActivationToken>
