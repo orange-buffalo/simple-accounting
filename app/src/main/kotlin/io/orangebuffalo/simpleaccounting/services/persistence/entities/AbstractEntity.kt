@@ -21,12 +21,8 @@ abstract class AbstractEntity {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as AbstractEntity
-
-        if (stickyHash != other.stickyHash) return false
-
-        return true
+        return stickyHash == other.stickyHash
     }
 
     override fun hashCode(): Int {

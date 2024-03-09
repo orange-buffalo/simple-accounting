@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.security.runAs
 import io.orangebuffalo.simpleaccounting.services.security.toSecurityPrincipal
 import kotlinx.coroutines.DelicateCoroutinesApi

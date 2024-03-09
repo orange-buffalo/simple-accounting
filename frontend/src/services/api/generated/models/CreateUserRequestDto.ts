@@ -31,12 +31,6 @@ export interface CreateUserRequestDto {
      * @memberof CreateUserRequestDto
      */
     admin: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateUserRequestDto
-     */
-    password: string;
 }
 
 /**
@@ -46,7 +40,6 @@ export function instanceOfCreateUserRequestDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "userName" in value;
     isInstance = isInstance && "admin" in value;
-    isInstance = isInstance && "password" in value;
 
     return isInstance;
 }
@@ -63,7 +56,6 @@ export function CreateUserRequestDtoFromJSONTyped(json: any, ignoreDiscriminator
         
         'userName': json['userName'],
         'admin': json['admin'],
-        'password': json['password'],
     };
 }
 
@@ -78,7 +70,6 @@ export function CreateUserRequestDtoToJSON(value?: CreateUserRequestDto | null):
         
         'userName': value.userName,
         'admin': value.admin,
-        'password': value.password,
     };
 }
 

@@ -10,19 +10,18 @@ import assertk.assertions.isZero
 import assertk.fail
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
+import io.orangebuffalo.simpleaccounting.domain.users.LoginStatistics
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.LoginStatistics
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
+import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import kotlinx.coroutines.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -39,9 +38,8 @@ class BruteForceDefenseIT(
     @Autowired val transactionTemplate: TransactionTemplate,
     @Autowired val platformUserRepository: PlatformUserRepository,
     @Autowired val passwordEncoder: PasswordEncoder,
+    @Autowired val timeService: TimeService,
 ) {
-    @MockBean
-    lateinit var timeService: TimeService
 
     @BeforeEach
     fun setupCurrentTime() {

@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.integration.downloads
 
-import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.TokenGenerator
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.runAs
