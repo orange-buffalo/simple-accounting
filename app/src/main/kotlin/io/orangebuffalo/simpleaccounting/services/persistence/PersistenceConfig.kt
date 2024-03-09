@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 import javax.sql.DataSource
 
 @Configuration
-@EnableJdbcRepositories
+@EnableJdbcRepositories(basePackages = ["io.orangebuffalo.simpleaccounting"])
 @EnableTransactionManagement
 class PersistenceConfig {
 

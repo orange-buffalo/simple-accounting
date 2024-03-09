@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive
 
-import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2ClientAuthorizationProvider
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2FailedEvent

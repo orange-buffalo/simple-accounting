@@ -1,8 +1,5 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.users
 
-import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.services.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
@@ -32,16 +29,9 @@ class UsersApiController(
 
     @PostMapping
     suspend fun createUser(@RequestBody @Valid user: CreateUserRequestDto): PlatformUserDto = userService
-        .save(
-            PlatformUser(
-                userName = user.userName!!,
-                passwordHash = "",
-                isAdmin = user.admin!!,
-                i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
-                activated = false
-            ).apply {
-                authenticationService.setUserPassword(this, user.password!!)
-            }
+        .createUser(
+            userName = user.userName!!,
+            isAdmin = user.admin!!,
         )
         .mapToUserDto()
 
@@ -75,8 +65,7 @@ data class PlatformUserDto(
 
 data class CreateUserRequestDto(
     @field:NotBlank var userName: String?,
-    @field:NotNull var admin: Boolean?,
-    @field:NotBlank var password: String?
+    @field:NotNull var admin: Boolean?
 )
 
 private fun PlatformUser.mapToUserDto() = PlatformUserDto(

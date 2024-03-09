@@ -20,17 +20,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Incomes API ")
 internal class IncomesApiControllerIT(
-    @Autowired val client: WebTestClient
+    @Autowired val client: WebTestClient,
+    @Autowired val timeService: TimeService,
 ) {
-
-    @MockBean
-    lateinit var timeService: TimeService
 
     @BeforeEach
     fun setup() {
@@ -766,7 +763,7 @@ internal class IncomesApiControllerIT(
             status = IncomeStatus.FINALIZED,
             generalTax = spaceTax,
             generalTaxAmount = 20,
-            generalTaxRateInBps = 12000 ,
+            generalTaxRateInBps = 12000,
             linkedInvoice = firstSpaceInvoice
         )
 

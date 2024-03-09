@@ -11,10 +11,9 @@ import io.orangebuffalo.simpleaccounting.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.infra.api.urlEncodeParameter
 import io.orangebuffalo.simpleaccounting.infra.api.willReturnOkJson
 import io.orangebuffalo.simpleaccounting.infra.database.TestData
-import io.orangebuffalo.simpleaccounting.infra.utils.*
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test

@@ -2,6 +2,8 @@ package io.orangebuffalo.simpleaccounting.support
 
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.ContextRefreshedEvent

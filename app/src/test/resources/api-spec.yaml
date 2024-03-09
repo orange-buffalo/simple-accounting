@@ -2182,7 +2182,6 @@ components:
     CreateUserRequestDto:
       required:
       - admin
-      - password
       - userName
       type: object
       properties:
@@ -2190,8 +2189,6 @@ components:
           type: string
         admin:
           type: boolean
-        password:
-          type: string
     PlatformUserDto:
       required:
       - activated

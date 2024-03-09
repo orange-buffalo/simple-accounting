@@ -1,6 +1,6 @@
-package io.orangebuffalo.simpleaccounting.services.migration
+package io.orangebuffalo.simpleaccounting.domain.users.migration
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
 import org.apache.commons.lang3.RandomStringUtils
