@@ -2,7 +2,7 @@
 arrow = "1.2.3"
 assertk = "0.28.0"
 awaitility = "4.2.0"
-guava = "33.0.0-jre"
+guava = "33.1.0-jre"
 imageComparison = "4.4.0"
 javaxEl = "3.0.1-b12"
 jib = "3.4.1"
