@@ -11,6 +11,7 @@ import org.springframework.boot.actuate.health.HealthEndpoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.codec.ServerCodecConfigurer
 import org.springframework.http.codec.json.Jackson2JsonDecoder
@@ -27,9 +28,12 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
+import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers
 import org.springframework.web.reactive.config.ResourceHandlerRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
+import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 import java.util.concurrent.TimeUnit
 
@@ -78,6 +82,7 @@ class WebConfig : WebFluxConfigurer {
                     .matchers(EndpointRequest.toAnyEndpoint()).denyAll()
                     .pathMatchers("/api/auth/**").permitAll()
                     .pathMatchers("/api/downloads/**").permitAll()
+                    .matchers(userActivationTokensApiControllerPublicEndpointsMatcher()).permitAll()
                     .pathMatchers("/api/users/**").hasRole("ADMIN")
                     .pathMatchers("/api/**").authenticated()
                     .pathMatchers("/**").permitAll()
@@ -116,8 +121,8 @@ class WebConfig : WebFluxConfigurer {
         return AuthenticationWebFilter(authenticationManager).apply {
             setRequiresAuthenticationMatcher(
                 AndServerWebExchangeMatcher(
-                    ServerWebExchangeMatchers.pathMatchers("/api/**"),
-                    NegatedServerWebExchangeMatcher(ServerWebExchangeMatchers.pathMatchers("/api/auth/**"))
+                    pathMatchers("/api/**"),
+                    NegatedServerWebExchangeMatcher(pathMatchers("/api/auth/**"))
                 )
             )
             setServerAuthenticationConverter(jwtTokenAuthenticationConverter)
@@ -131,3 +136,22 @@ class WebConfig : WebFluxConfigurer {
     fun spaWebFilter() = SpaWebFilter()
 
 }
+
+private fun userActivationTokensApiControllerPublicEndpointsMatcher() = OrServerWebExchangeMatcher(
+    // activateUser
+    pathMatchers(HttpMethod.POST, "/api/user-activation-tokens/*/activate"),
+    // getToken but the one for anonymous users (without a parameter)
+    AndServerWebExchangeMatcher(
+        pathMatchers(HttpMethod.GET, "/api/user-activation-tokens/*"),
+        object : ServerWebExchangeMatcher {
+            override fun matches(exchange: ServerWebExchange): Mono<ServerWebExchangeMatcher.MatchResult> {
+                val match = exchange.request.queryParams["by"] == null
+                return if (match) {
+                    ServerWebExchangeMatcher.MatchResult.match()
+                } else {
+                    ServerWebExchangeMatcher.MatchResult.notMatch()
+                }
+            }
+        }
+    )
+)

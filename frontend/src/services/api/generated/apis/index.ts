@@ -16,6 +16,7 @@ export * from './ProfileApiControllerApi';
 export * from './PushNotificationsApiControllerApi';
 export * from './ReportingApiControllerApi';
 export * from './StatisticsApiControllerApi';
+export * from './UserActivationTokensApiControllerApi';
 export * from './UsersApiControllerApi';
 export * from './WorkspaceAccessTokensApiControllerApi';
 export * from './WorkspacesApiControllerApi';

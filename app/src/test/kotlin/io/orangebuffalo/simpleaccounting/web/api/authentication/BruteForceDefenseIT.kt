@@ -15,7 +15,7 @@ import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import kotlinx.coroutines.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -322,7 +322,7 @@ class BruteForceDefenseIT(
         )
         .exchange()
 
-    class BruteForceDefenseTestData : TestData {
+    class BruteForceDefenseTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
 
         override fun generateData() = listOf(fry)

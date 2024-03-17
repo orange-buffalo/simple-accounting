@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseSt
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.FinalizedGeneralTaxSummaryItem
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.PendingGeneralTaxSummaryItem
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -73,7 +73,7 @@ internal class GeneralTaxReportingServiceIT(
     }
 }
 
-class GeneralTaxReportTestData : TestData {
+class GeneralTaxReportTestData : TestDataDeprecated {
 
     val dateFrom: LocalDate = LocalDate.of(3000, 1, 1)
     val dateTo: LocalDate = LocalDate.of(3010, 1, 1)

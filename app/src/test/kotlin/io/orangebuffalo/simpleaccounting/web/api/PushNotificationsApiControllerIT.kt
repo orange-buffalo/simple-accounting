@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.api.assertNextJsonIs
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -158,7 +158,7 @@ class PushNotificationsApiControllerIT(
         }
     }
 
-    class PushNotificationsApiTestData : TestData {
+    class PushNotificationsApiTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val bender = Prototypes.bender()
 
