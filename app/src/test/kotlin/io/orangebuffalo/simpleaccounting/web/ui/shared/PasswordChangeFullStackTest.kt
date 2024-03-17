@@ -8,7 +8,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
@@ -153,7 +153,7 @@ class PasswordChangeFullStackTest(
             .passwordHash.shouldBe("newPasswordHash")
     }
 
-    class PasswordChangeTestData : TestData {
+    class PasswordChangeTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
 
         // TODO #23: workspace should not be required?

@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.RefreshToken
@@ -94,7 +94,7 @@ class RefreshTokenServiceIT(
         assertThat(updatedToken.expirationTime).isEqualTo(MOCK_TIME.minus(70, ChronoUnit.DAYS))
     }
 
-    class RefreshTokenServiceTestData : TestData {
+    class RefreshTokenServiceTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val refreshToken = RefreshToken(
             userId = fry.id!!,

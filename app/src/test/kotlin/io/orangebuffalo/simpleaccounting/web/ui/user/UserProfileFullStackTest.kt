@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.web.ui.user
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeMyProfilePage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
@@ -24,7 +24,7 @@ class UserProfileFullStackTest {
             .shouldHavePasswordChangeSectionVisible()
     }
 
-    class UserProfileTestData : TestData {
+    class UserProfileTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
 
         // TODO #23: workspace should not be required?

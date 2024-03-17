@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.domain.users
 
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.services.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPageRequest
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
@@ -12,13 +11,14 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.jooq.impl.DSL.lower
 import org.springdoc.core.annotations.ParameterObject
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/users")
+@Transactional
 class UsersApiController(
     private val userService: PlatformUserService,
-    private val authenticationService: AuthenticationService,
     filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 

@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.UserOverviewItem
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.toUserOverviewItem
@@ -120,7 +120,7 @@ class UsersOverviewFullStackTest {
             }
     }
 
-    class OverviewTestData : TestData {
+    class OverviewTestData : TestDataDeprecated {
 
         var farnsworth = Prototypes.farnsworth()
         override fun generateData() = listOf(
@@ -131,7 +131,7 @@ class UsersOverviewFullStackTest {
         )
     }
 
-    class PaginationTestData : TestData {
+    class PaginationTestData : TestDataDeprecated {
         var farnsworth = Prototypes.farnsworth()
         override fun generateData() = listOf(
             farnsworth,
@@ -141,7 +141,7 @@ class UsersOverviewFullStackTest {
         )
     }
 
-    class FilteringTestData : TestData {
+    class FilteringTestData : TestDataDeprecated {
         var farnsworth = Prototypes.farnsworth()
         override fun generateData() = listOf(
             farnsworth,

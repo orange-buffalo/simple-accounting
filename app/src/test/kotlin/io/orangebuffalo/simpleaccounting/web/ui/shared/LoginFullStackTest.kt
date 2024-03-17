@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.web.ui.shared
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.openLoginPage
 import io.orangebuffalo.simpleaccounting.web.ui.user.pages.shouldBeDashboardPage
@@ -42,7 +42,7 @@ class LoginFullStackTest {
         page.shouldBeUsersOverviewPage()
     }
 
-    class LoginTestData : TestData {
+    class LoginTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val workspace = Prototypes.workspace(owner = fry)
         val farnsworth = Prototypes.farnsworth()

@@ -5,7 +5,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.*
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
@@ -278,7 +278,7 @@ internal class WorkspaceServiceIT(
         workspaceAssertions(assertThat(workspace))
     }
 
-    class WorkspaceServiceTestData : TestData {
+    class WorkspaceServiceTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
         val zoidberg = Prototypes.zoidberg()

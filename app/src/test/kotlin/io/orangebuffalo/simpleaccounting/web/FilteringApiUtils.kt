@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.web
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
@@ -225,7 +225,7 @@ interface EntitiesRegistry {
  * A filtering/sorting test case. Not intended to be used directly.
  * Use [generateFilteringApiTests] to create a collection of test cases and configure them.
  */
-abstract class FilteringApiTestCase : TestData {
+abstract class FilteringApiTestCase : TestDataDeprecated {
     abstract fun execute(client: WebTestClient)
 }
 

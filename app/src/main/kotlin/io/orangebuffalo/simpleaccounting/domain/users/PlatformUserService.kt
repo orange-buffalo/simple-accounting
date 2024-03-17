@@ -3,17 +3,25 @@ package io.orangebuffalo.simpleaccounting.domain.users
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.services.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
 import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.beans.factory.ObjectProvider
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.temporal.ChronoUnit
 
+/**
+ * Service for managing platform users, including their activation tokens.
+ */
 @Service
 class PlatformUserService(
     private val userRepository: PlatformUserRepository,
     private val userActivationTokenRepository: UserActivationTokenRepository,
     private val userManagementProperties: UserManagementProperties,
     private val timeService: TimeService,
+    // object provider is used to avoid circular dependencies
+    private val authenticationService: ObjectProvider<AuthenticationService>,
 ) {
 
     suspend fun getCurrentUser(): PlatformUser = withDbContext {
@@ -42,18 +50,7 @@ class PlatformUserService(
                 activated = false
             )
         )
-        withDbContext {
-            userActivationTokenRepository.save(
-                UserActivationToken(
-                    userId = user.id!!,
-                    token = RandomStringUtils.randomAscii(100),
-                    expiresAt = timeService.currentTime().plus(
-                        userManagementProperties.activation.tokenTtlInHours.toLong(),
-                        ChronoUnit.HOURS,
-                    )
-                )
-            )
-        }
+        setupUserActivationToken(user.id!!)
         return user
     }
 
@@ -61,4 +58,108 @@ class PlatformUserService(
         userRepository.findById(userId)
             .orElseThrow { EntityNotFoundException("User $userId is not found") }
     }
+
+    /**
+     * Retrieves user activation token by user id. There is always at most one token per user.
+     * In case the token is not found, or is expired, null is returned.
+     * In case the token is expired, it is removed.
+     */
+    suspend fun getUserActivationTokenForUser(userId: Long): UserActivationToken? {
+        val token = withDbContext {
+            userActivationTokenRepository.findByUserId(userId)
+        }
+        return ensureTokenIsNotExpired(token)
+    }
+
+    private suspend fun ensureTokenIsNotExpired(token: UserActivationToken?): UserActivationToken? {
+        if (token == null) return null
+        if (token.expired) {
+            withDbContext {
+                userActivationTokenRepository.delete(token)
+            }
+            return null
+        }
+        return token
+    }
+
+    /**
+     * Retrieves user activation token by token value.
+     * In case the token is not found, or is expired, null is returned.
+     * In case the token is expired, it is removed.
+     */
+    suspend fun getUserActivationToken(tokenValue: String): UserActivationToken? {
+        val token = withDbContext {
+            userActivationTokenRepository.findByToken(tokenValue)
+        }
+        return ensureTokenIsNotExpired(token)
+    }
+
+    /**
+     * Creates a new user activation token for the user with the specified id.
+     * In case there is an existing token for the user, it is replaced with a new one.
+     */
+    suspend fun createUserActivationToken(userId: Long): UserActivationToken {
+        val user = withDbContext {
+            userRepository.findByIdOrNull(userId)
+        }
+        if (user == null) {
+            throw EntityNotFoundException("User $userId is not found")
+        }
+        if (user.activated) {
+            throw UserActivationTokenCreationException.UserAlreadyActivatedException(userId)
+        }
+        val token = withDbContext {
+            userActivationTokenRepository.findByUserId(userId)
+        }
+        if (token != null) {
+            withDbContext {
+                userActivationTokenRepository.delete(token)
+            }
+        }
+        return setupUserActivationToken(userId)
+    }
+
+    private suspend fun setupUserActivationToken(userId: Long) = withDbContext {
+        userActivationTokenRepository.save(
+            UserActivationToken(
+                userId = userId,
+                token = RandomStringUtils.randomAlphanumeric(100),
+                expiresAt = timeService.currentTime().plus(
+                    userManagementProperties.activation.tokenTtlInHours.toLong(),
+                    ChronoUnit.HOURS,
+                )
+            )
+        )
+    }
+
+    suspend fun activateUser(token: String, password: String) {
+        val userActivationToken = withDbContext {
+            userActivationTokenRepository.findByToken(token)
+                ?: throw EntityNotFoundException("User activation token not found $token")
+        }
+
+        if (userActivationToken.expired) {
+            withDbContext {
+                userActivationTokenRepository.delete(userActivationToken)
+            }
+            throw UserActivationException.TokenExpiredException()
+        }
+
+        val user = withDbContext {
+            userRepository.findById(userActivationToken.userId)
+                // should never happen due to DB constraints
+                .orElseThrow { IllegalStateException("User ${userActivationToken.userId} is not found") }
+        }
+
+        authenticationService.getObject().setUserPassword(user, password)
+        user.activated = true
+
+        withDbContext {
+            userRepository.save(user)
+            userActivationTokenRepository.delete(userActivationToken)
+        }
+    }
+
+    private val UserActivationToken.expired: Boolean
+        get() = expiresAt.isBefore(timeService.currentTime())
 }

@@ -12,6 +12,7 @@ import org.springframework.core.codec.CodecException
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.validation.FieldError
@@ -39,6 +40,16 @@ internal class RestApiControllerExceptionsHandler(
             ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(GeneralErrorDto("BadCredentials"))
+        )
+    }
+
+    @ExceptionHandler
+    fun onException(exception: AccessDeniedException): Mono<ResponseEntity<GeneralErrorDto>> {
+        logger.trace(exception) {}
+        return Mono.just(
+            ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(GeneralErrorDto("AccessDenied"))
         )
     }
 

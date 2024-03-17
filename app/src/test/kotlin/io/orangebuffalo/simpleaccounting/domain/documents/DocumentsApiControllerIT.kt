@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -304,7 +304,7 @@ class DocumentsApiControllerIT(
             }
     }
 
-    class DocumentsApiTestData : TestData {
+    class DocumentsApiTestData : TestDataDeprecated {
         val fry = Prototypes.platformUser(userName = "Fry", documentsStorage = "test-storage")
         val fryWorkspace = Prototypes.workspace(owner = fry)
         val anotherFryWorkspace = Prototypes.workspace(owner = fry)

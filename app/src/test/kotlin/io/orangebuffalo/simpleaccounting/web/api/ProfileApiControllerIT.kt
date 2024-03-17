@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStora
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
@@ -239,7 +239,7 @@ class ProfileApiControllerIT(
     }
 }
 
-class ProfileApiTestData : TestData {
+class ProfileApiTestData : TestDataDeprecated {
 
     val fry = Prototypes.fry().apply {
         documentsStorage = "google-drive"

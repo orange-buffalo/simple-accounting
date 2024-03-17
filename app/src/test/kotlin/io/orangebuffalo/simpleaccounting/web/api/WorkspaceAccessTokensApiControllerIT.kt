@@ -2,14 +2,13 @@ package io.orangebuffalo.simpleaccounting.web.api
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.services.integration.TokenGenerator
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -160,7 +159,7 @@ class WorkspaceAccessTokensApiControllerIT(
             }
     }
 
-    class WorkspaceAccessTokensApiTestData : TestData {
+    class WorkspaceAccessTokensApiTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
         val zoidberg = Prototypes.zoidberg()
