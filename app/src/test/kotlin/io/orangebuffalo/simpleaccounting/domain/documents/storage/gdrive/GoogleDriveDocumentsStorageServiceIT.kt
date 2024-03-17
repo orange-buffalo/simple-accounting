@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRe
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.utils.*
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.*
@@ -488,7 +488,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         )
     }
 
-    class GoogleDriveTestData : TestData {
+    class GoogleDriveTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val workspace = Prototypes.workspace(owner = fry)
         override fun generateData() = listOf(fry, workspace)

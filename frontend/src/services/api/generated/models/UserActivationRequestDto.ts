@@ -16,58 +16,42 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface CreateUserDto
+ * @interface UserActivationRequestDto
  */
-export interface CreateUserDto {
+export interface UserActivationRequestDto {
     /**
      * 
      * @type {string}
-     * @memberof CreateUserDto
-     */
-    userName: string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof CreateUserDto
-     */
-    admin: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateUserDto
+     * @memberof UserActivationRequestDto
      */
     password: string;
 }
 
 /**
- * Check if a given object implements the CreateUserDto interface.
+ * Check if a given object implements the UserActivationRequestDto interface.
  */
-export function instanceOfCreateUserDto(value: object): boolean {
+export function instanceOfUserActivationRequestDto(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "userName" in value;
-    isInstance = isInstance && "admin" in value;
     isInstance = isInstance && "password" in value;
 
     return isInstance;
 }
 
-export function CreateUserDtoFromJSON(json: any): CreateUserDto {
-    return CreateUserDtoFromJSONTyped(json, false);
+export function UserActivationRequestDtoFromJSON(json: any): UserActivationRequestDto {
+    return UserActivationRequestDtoFromJSONTyped(json, false);
 }
 
-export function CreateUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateUserDto {
+export function UserActivationRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserActivationRequestDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'userName': json['userName'],
-        'admin': json['admin'],
         'password': json['password'],
     };
 }
 
-export function CreateUserDtoToJSON(value?: CreateUserDto | null): any {
+export function UserActivationRequestDtoToJSON(value?: UserActivationRequestDto | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -76,8 +60,6 @@ export function CreateUserDtoToJSON(value?: CreateUserDto | null): any {
     }
     return {
         
-        'userName': value.userName,
-        'admin': value.admin,
         'password': value.password,
     };
 }

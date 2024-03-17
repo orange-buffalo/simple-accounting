@@ -4,15 +4,15 @@ import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshTokenService
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
+import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshTokenService
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -33,16 +33,14 @@ private const val TOKEN_PATH = "/api/auth/token"
 @SimpleAccountingIntegrationTest
 class AuthenticationApiControllerIT(
     @Autowired val client: WebTestClient,
-    @Autowired val passwordEncoder: PasswordEncoder
+    @Autowired val passwordEncoder: PasswordEncoder,
+    @Autowired val timeService: TimeService,
 ) {
     @MockBean
     lateinit var jwtService: JwtService
 
     @MockBean
     lateinit var refreshTokenService: RefreshTokenService
-
-    @MockBean
-    lateinit var timeService: TimeService
 
     @Test
     fun `should return a JWT token for valid user login credentials`(testData: AuthenticationApiTestData) {
@@ -121,6 +119,23 @@ class AuthenticationApiControllerIT(
                 LoginRequest(
                     userName = "Fry",
                     password = "qwerty"
+                )
+            )
+            .exchange()
+            .expectStatus().isUnauthorized
+            .expectThatJsonBody {
+                inPath("$.error").isEqualTo("BadCredentials")
+            }
+    }
+
+    @Test
+    fun `should return 401 when user is not activated`(testData: AuthenticationApiTestData) {
+        client.post().uri(LOGIN_PATH)
+            .contentType(APPLICATION_JSON)
+            .bodyValue(
+                LoginRequest(
+                    userName = "Inactive",
+                    password = "irrelevant"
                 )
             )
             .exchange()
@@ -385,9 +400,13 @@ class AuthenticationApiControllerIT(
             .jsonPath("$.token").isEqualTo("jwtTokenForSharedWorkspace")
     }
 
-    class AuthenticationApiTestData : TestData {
+    class AuthenticationApiTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
+        val inactiveUser = Prototypes.platformUser(
+            userName = "Inactive",
+            activated = false
+        )
         val fryWorkspace = Prototypes.workspace(owner = fry)
         val revokedAccessToken = Prototypes.workspaceAccessToken(
             workspace = fryWorkspace,
@@ -410,7 +429,8 @@ class AuthenticationApiControllerIT(
 
         override fun generateData() = listOf(
             fry, farnsworth, fryWorkspace,
-            revokedAccessToken, expiredAccessToken, validAccessToken
+            revokedAccessToken, expiredAccessToken, validAccessToken,
+            inactiveUser,
         )
     }
 }

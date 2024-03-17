@@ -1,11 +1,13 @@
 package io.orangebuffalo.simpleaccounting.infra.database
 
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.domain.documents.Document
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
+import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import java.time.Instant
 import java.time.LocalDate
@@ -30,7 +32,7 @@ class Prototypes {
         fun farnsworth() = platformUser(
             userName = "Farnsworth",
             passwordHash = "scienceBasedHash",
-            isAdmin = true
+            isAdmin = true,
         )
 
         fun zoidberg() = platformUser(
@@ -62,13 +64,15 @@ class Prototypes {
             passwordHash: String = "nopassword",
             isAdmin: Boolean = false,
             documentsStorage: String? = null,
-            i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en")
+            i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+            activated: Boolean = true,
         ) = PlatformUser(
             userName = userName,
             passwordHash = passwordHash,
             isAdmin = isAdmin,
             documentsStorage = documentsStorage,
-            i18nSettings = i18nSettings
+            i18nSettings = i18nSettings,
+            activated = activated
         ).apply {
             id = currentEntityId++
             version = 0

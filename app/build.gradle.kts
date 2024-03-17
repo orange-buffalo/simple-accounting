@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.Kapt
 import org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -24,6 +23,7 @@ plugins {
 }
 
 apply<SaJooqCodeGenPlugin>()
+apply<SaHotReloadPlugin>()
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
@@ -184,6 +184,6 @@ tasks.withType<KotlinCompile> {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(Config.JVM_VERSION))
-        vendor = JvmVendorSpec.ADOPTIUM
+        // vendor is set in SaHotReloadPlugin
     }
 }

@@ -10,11 +10,10 @@ import io.orangebuffalo.simpleaccounting.infra.api.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.infra.api.urlEncodeParameter
 import io.orangebuffalo.simpleaccounting.infra.api.willReturnOkJson
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
-import io.orangebuffalo.simpleaccounting.infra.utils.*
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -249,7 +248,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
         runBlocking { clientAuthorizationProvider.handleAuthorizationResponse(request) }
     }
 
-    class AuthorizationProviderTestData : TestData {
+    class AuthorizationProviderTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         override fun generateData() = listOf(fry)
     }

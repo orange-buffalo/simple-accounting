@@ -16,65 +16,50 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UserDto
+ * @interface CreateUserRequestDto
  */
-export interface UserDto {
+export interface CreateUserRequestDto {
     /**
      * 
      * @type {string}
-     * @memberof UserDto
+     * @memberof CreateUserRequestDto
      */
     userName: string;
     /**
      * 
-     * @type {number}
-     * @memberof UserDto
-     */
-    id?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof UserDto
-     */
-    version: number;
-    /**
-     * 
      * @type {boolean}
-     * @memberof UserDto
+     * @memberof CreateUserRequestDto
      */
     admin: boolean;
 }
 
 /**
- * Check if a given object implements the UserDto interface.
+ * Check if a given object implements the CreateUserRequestDto interface.
  */
-export function instanceOfUserDto(value: object): boolean {
+export function instanceOfCreateUserRequestDto(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "userName" in value;
-    isInstance = isInstance && "version" in value;
     isInstance = isInstance && "admin" in value;
 
     return isInstance;
 }
 
-export function UserDtoFromJSON(json: any): UserDto {
-    return UserDtoFromJSONTyped(json, false);
+export function CreateUserRequestDtoFromJSON(json: any): CreateUserRequestDto {
+    return CreateUserRequestDtoFromJSONTyped(json, false);
 }
 
-export function UserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserDto {
+export function CreateUserRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateUserRequestDto {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'userName': json['userName'],
-        'id': !exists(json, 'id') ? undefined : json['id'],
-        'version': json['version'],
         'admin': json['admin'],
     };
 }
 
-export function UserDtoToJSON(value?: UserDto | null): any {
+export function CreateUserRequestDtoToJSON(value?: CreateUserRequestDto | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -84,8 +69,6 @@ export function UserDtoToJSON(value?: UserDto | null): any {
     return {
         
         'userName': value.userName,
-        'id': value.id,
-        'version': value.version,
         'admin': value.admin,
     };
 }

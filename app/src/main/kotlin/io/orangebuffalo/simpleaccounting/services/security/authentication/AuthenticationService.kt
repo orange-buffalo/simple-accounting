@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.services.security.authentication
 
-import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipalOrNull
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -25,10 +25,17 @@ class AuthenticationService(
     suspend fun authenticate(userName: String, credentials: String): PlatformUser {
         val user = platformUserService.getUserByUserName(userName)
             ?: throw BadCredentialsException("Invalid Credentials")
+        validateActivated(user)
         validateTemporaryLock(user)
         validatePassword(user, credentials)
         resetLoginStatistics(user)
         return user
+    }
+
+    private fun validateActivated(user: PlatformUser) {
+        if (!user.activated) {
+            throw BadCredentialsException("User is not activated")
+        }
     }
 
     private fun validateTemporaryLock(user: PlatformUser) {

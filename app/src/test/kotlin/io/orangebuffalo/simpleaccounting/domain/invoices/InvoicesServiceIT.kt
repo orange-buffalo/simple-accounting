@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,7 +43,7 @@ class InvoicesServiceIT(
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
-class OverdueJobTestData : TestData {
+class OverdueJobTestData : TestDataDeprecated {
     val firstOwner = Prototypes.platformUser()
     val secondOwner = Prototypes.platformUser()
     val firstWorkspace = Prototypes.workspace(owner = firstOwner)

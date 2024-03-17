@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
-import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
@@ -9,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -218,7 +217,7 @@ internal class StatisticsApiControllerIT(
             .verifyNotFound("Workspace ${testData.workspace.id} is not found")
     }
 
-    class StatisticsApiTestData : TestData {
+    class StatisticsApiTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
         val workspace = Prototypes.workspace(owner = fry)

@@ -4,7 +4,6 @@ import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.stub
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
@@ -12,15 +11,15 @@ import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
+import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -45,11 +44,9 @@ import java.util.function.Consumer
 @DisplayName("Documents API ")
 class DocumentsApiControllerIT(
     @Autowired val client: WebTestClient,
-    @Autowired val testDocumentsStorage: TestDocumentsStorage
+    @Autowired val testDocumentsStorage: TestDocumentsStorage,
+    @Autowired val timeService: TimeService,
 ) {
-
-    @MockBean
-    lateinit var timeService: TimeService
 
     @MockBean
     lateinit var downloadsService: DownloadsService
@@ -307,7 +304,7 @@ class DocumentsApiControllerIT(
             }
     }
 
-    class DocumentsApiTestData : TestData {
+    class DocumentsApiTestData : TestDataDeprecated {
         val fry = Prototypes.platformUser(userName = "Fry", documentsStorage = "test-storage")
         val fryWorkspace = Prototypes.workspace(owner = fry)
         val anotherFryWorkspace = Prototypes.workspace(owner = fry)

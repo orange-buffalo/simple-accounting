@@ -1,26 +1,24 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
-import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
+import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
@@ -28,11 +26,9 @@ import java.time.Duration
 @SimpleAccountingIntegrationTest
 @DisplayName("Workspaces API ")
 internal class WorkspacesApiControllerIT(
-    @Autowired val client: WebTestClient
+    @Autowired val client: WebTestClient,
+    @Autowired val timeService: TimeService,
 ) {
-
-    @MockBean
-    private lateinit var timeService: TimeService
 
     @Test
     fun `should allow GET access only for logged in users`() {
@@ -285,7 +281,7 @@ internal class WorkspacesApiControllerIT(
             .expectBody<String>().isEqualTo("Token ${testData.fryWorkspaceAccessTokenExpired.token} is not valid")
     }
 
-    class WorkspacesApiTestData : TestData {
+    class WorkspacesApiTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
         val zoidberg = Prototypes.zoidberg()

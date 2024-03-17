@@ -2,6 +2,8 @@ package io.orangebuffalo.simpleaccounting.support
 
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.ContextRefreshedEvent
@@ -27,7 +29,8 @@ class CiTestsProfileData(private val jdbcAggregateTemplate: JdbcAggregateTemplat
                 userName = "Fry",
                 passwordHash = "{noop}password",
                 isAdmin = false,
-                i18nSettings = I18nSettings(locale = "en_AU", language = "en")
+                i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+                activated = true
             )
         )
 

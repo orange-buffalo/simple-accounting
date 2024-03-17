@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.domain.documents
 
-import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService

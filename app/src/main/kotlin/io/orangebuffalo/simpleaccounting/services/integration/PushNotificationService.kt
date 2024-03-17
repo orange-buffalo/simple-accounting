@@ -2,7 +2,7 @@
 
 package io.orangebuffalo.simpleaccounting.services.integration
 
-import io.orangebuffalo.simpleaccounting.services.business.PlatformUserService
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import mu.KotlinLogging

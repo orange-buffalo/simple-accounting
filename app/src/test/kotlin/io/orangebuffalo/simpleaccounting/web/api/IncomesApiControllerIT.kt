@@ -1,37 +1,33 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
-import io.orangebuffalo.simpleaccounting.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE_VALUE
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
+import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Incomes API ")
 internal class IncomesApiControllerIT(
-    @Autowired val client: WebTestClient
+    @Autowired val client: WebTestClient,
+    @Autowired val timeService: TimeService,
 ) {
-
-    @MockBean
-    lateinit var timeService: TimeService
 
     @BeforeEach
     fun setup() {
@@ -714,7 +710,7 @@ internal class IncomesApiControllerIT(
             .verifyNotFound("Documents [${testData.pizzaDeliveryPayslip.id}] are not found")
     }
 
-    class IncomesApiTestData : TestData {
+    class IncomesApiTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
         val planetExpressWorkspace = Prototypes.workspace(owner = fry)
@@ -767,7 +763,7 @@ internal class IncomesApiControllerIT(
             status = IncomeStatus.FINALIZED,
             generalTax = spaceTax,
             generalTaxAmount = 20,
-            generalTaxRateInBps = 12000 ,
+            generalTaxRateInBps = 12000,
             linkedInvoice = firstSpaceInvoice
         )
 

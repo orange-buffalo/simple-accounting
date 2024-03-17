@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
@@ -67,7 +67,7 @@ class DocumentsServiceIT(
     }
 }
 
-class DocumentsServiceTestData : TestData {
+class DocumentsServiceTestData : TestDataDeprecated {
     val fry = Prototypes.platformUser(
         userName = "Fry",
         documentsStorage = "mock-storage"

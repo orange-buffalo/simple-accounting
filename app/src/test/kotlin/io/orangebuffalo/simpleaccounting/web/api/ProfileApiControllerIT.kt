@@ -9,13 +9,13 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStora
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.I18nSettings
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -239,7 +239,7 @@ class ProfileApiControllerIT(
     }
 }
 
-class ProfileApiTestData : TestData {
+class ProfileApiTestData : TestDataDeprecated {
 
     val fry = Prototypes.fry().apply {
         documentsStorage = "google-drive"

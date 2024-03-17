@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra
 
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecatedExtension
 import io.orangebuffalo.simpleaccounting.infra.database.TestDataExtension
 import io.orangebuffalo.simpleaccounting.infra.security.TestPasswordEncoderConfig
 import io.orangebuffalo.simpleaccounting.infra.security.TestPasswordEncoderListener
@@ -15,7 +16,7 @@ import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@ExtendWith(SpringExtension::class, TestDataExtension::class, PlaywrightExtension::class)
+@ExtendWith(SpringExtension::class, TestDataDeprecatedExtension::class, TestDataExtension::class, PlaywrightExtension::class)
 @PlaywrightConfig(configurer = FullStackTestsPlaywrightConfigurer::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(TestPasswordEncoderConfig::class)
