@@ -3,6 +3,9 @@ simpleaccounting:
     storage:
       local-fs:
         base-directory: "build/tmp"
+  user-management:
+    activation:
+      token-ttl-in-hours: 5
 
 spring:
   security:

@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -400,7 +400,7 @@ class AuthenticationApiControllerIT(
             .jsonPath("$.token").isEqualTo("jwtTokenForSharedWorkspace")
     }
 
-    class AuthenticationApiTestData : TestData {
+    class AuthenticationApiTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val farnsworth = Prototypes.farnsworth()
         val inactiveUser = Prototypes.platformUser(

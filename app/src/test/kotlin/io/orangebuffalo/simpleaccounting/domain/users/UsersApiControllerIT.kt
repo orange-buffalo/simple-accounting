@@ -128,7 +128,7 @@ internal class UsersApiControllerIT(
             .should {
                 it.userId.shouldBe(createdUserId)
                 it.token.shouldNotBeNull()
-                it.expiresAt.shouldBeEqualComparingTo(MOCK_TIME.plusSeconds(72 * 3600))
+                it.expiresAt.shouldBeEqualComparingTo(MOCK_TIME.plusSeconds(5 * 3600))
             }
     }
 }

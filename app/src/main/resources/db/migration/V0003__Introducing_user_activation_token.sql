@@ -3,5 +3,15 @@ create table "USER_ACTIVATION_TOKEN" (
     "VERSION"    integer                                 not null,
     "USER_ID"    bigint                                  not null,
     "TOKEN"      varchar(255)                            not null,
-    "EXPIRES_AT" timestamp                               not null
-)
+    "EXPIRES_AT" timestamp                               not null,
+
+    constraint "USER_ACTIVATION_TOKEN_USER_FK"
+        foreign key ("USER_ID")
+            references "PLATFORM_USER" ("ID"),
+
+    constraint "USER_ACTIVATION_TOKEN_USER_UQ"
+        unique ("USER_ID"),
+
+    constraint "USER_ACTIVATION_TOKEN_UQ"
+        unique ("TOKEN")
+);

@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.web.ui.admin
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeMyProfilePage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
@@ -24,7 +24,7 @@ class AdminProfileFullStackTest {
             .shouldHavePasswordChangeSectionVisible()
     }
 
-    class AdminProfileTestData : TestData {
+    class AdminProfileTestData : TestDataDeprecated {
         val admin = Prototypes.farnsworth()
     }
 }

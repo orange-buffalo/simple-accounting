@@ -5,8 +5,7 @@ import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
-import io.orangebuffalo.simpleaccounting.infra.utils.*
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -174,7 +173,7 @@ class OAuth2WebClientBuilderProviderIT(
         }
         .block(Duration.ofSeconds(20))
 
-    class WebClientProviderTestData : TestData {
+    class WebClientProviderTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         override fun generateData() = listOf(fry)
     }

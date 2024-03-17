@@ -12,7 +12,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -337,7 +337,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 }
 
-class AuthorizedClientData : TestData {
+class AuthorizedClientData : TestDataDeprecated {
     val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(47733)
     val accessTokenIssueTime: Instant = Instant.ofEpochMilli(47734)
     val accessTokenExpireTime: Instant = Instant.ofEpochMilli(47735)

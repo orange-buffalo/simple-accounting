@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundExce
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.runAs
 import io.orangebuffalo.simpleaccounting.services.security.toSecurityPrincipal
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
@@ -85,7 +85,7 @@ class DownloadsServiceIT(
         fun testContentProvider() = TestContentProvider()
     }
 
-    class DownloadsServiceTestData : TestData {
+    class DownloadsServiceTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         override fun generateData() = listOf(fry)
     }

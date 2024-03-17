@@ -1131,6 +1131,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PlatformUserDto'
+  /api/user-activation-tokens:
+    post:
+      tags:
+      - user-activation-tokens-api-controller
+      operationId: createToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserActivationTokenRequestDto'
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserActivationTokenDto'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserActivationTokensApiBadRequestErrors'
+  /api/user-activation-tokens/{token}/activate:
+    post:
+      tags:
+      - user-activation-tokens-api-controller
+      operationId: activateUser
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserActivationRequestDto'
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserActivationTokensApiBadRequestErrors'
   /api/shared-workspaces:
     get:
       tags:
@@ -1465,6 +1515,43 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/DataBuffer'
+  /api/user-activation-tokens/{userId}:
+    get:
+      tags:
+      - user-activation-tokens-api-controller
+      operationId: getTokenByUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserActivationTokenDto'
+  /api/user-activation-tokens/{token}:
+    get:
+      tags:
+      - user-activation-tokens-api-controller
+      operationId: getToken
+      parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserActivationTokenDto'
   /api/storage/google-drive/status:
     get:
       tags:
@@ -2209,6 +2296,32 @@ components:
           type: boolean
         activated:
           type: boolean
+    CreateUserActivationTokenRequestDto:
+      required:
+      - userId
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+    UserActivationTokenDto:
+      required:
+      - expiresAt
+      - token
+      type: object
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    UserActivationRequestDto:
+      required:
+      - password
+      type: object
+      properties:
+        password:
+          type: string
     SaveSharedWorkspaceRequestDto:
       required:
       - token
@@ -2617,6 +2730,18 @@ components:
       properties:
         active:
           type: boolean
+    UserActivationTokensApiBadRequestErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - UserAlreadyActivated
+          - TokenExpired
+        message:
+          type: string
     ProfileApiBadRequestErrors:
       required:
       - error

@@ -4,7 +4,7 @@ import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.TestData
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,7 +22,7 @@ class TimestampsIT(
         }
     }
 
-    class TimestampsTestData : TestData {
+    class TimestampsTestData : TestDataDeprecated {
         val fry = Prototypes.fry()
         val workspace = Prototypes.workspace(owner = fry)
         val slurmReceipt = Prototypes.document(workspace = workspace)
