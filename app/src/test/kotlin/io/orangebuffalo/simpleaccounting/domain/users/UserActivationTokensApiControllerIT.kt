@@ -5,18 +5,18 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotContain
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
-import io.orangebuffalo.simpleaccounting.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
-import io.orangebuffalo.simpleaccounting.infra.api.verifyOkNoContent
+import io.orangebuffalo.simpleaccounting.infra.api.*
 import io.orangebuffalo.simpleaccounting.infra.database.TestDataFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsBodyConfiguration
+import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsValidationsTestBase
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import net.javacrumbs.jsonunit.assertj.JsonAssert
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.hamcrest.CustomMatcher
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
+import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 
 /**
@@ -109,15 +110,9 @@ class UserActivationTokensApiControllerIT(
             val preconditions = testDataFactory.setupPreconditions()
 
             request(userId = preconditions.activeToken.userId)
-                .verifyOkAndJsonBody {
-                    isEqualTo(
-                        json(
-                            """{
-                                token: "active-token",
-                                expiresAt: "1999-03-28T23:01:03.042Z"
-                            }"""
-                        )
-                    )
+                .verifyOkAndJsonBodyEqualTo {
+                    put("token", "active-token")
+                    put("expiresAt", "1999-03-28T23:01:03.042Z")
                 }
         }
     }
@@ -186,15 +181,9 @@ class UserActivationTokensApiControllerIT(
         fun `should return valid token`(testDataFactory: TestDataFactory) {
             val preconditions = testDataFactory.setupPreconditions()
             request(preconditions.activeToken.token)
-                .verifyOkAndJsonBody {
-                    isEqualTo(
-                        json(
-                            """{
-                                token: "active-token",
-                                expiresAt: "1999-03-28T23:01:03.042Z"
-                            }"""
-                        )
-                    )
+                .verifyOkAndJsonBodyEqualTo {
+                    put("token", "active-token")
+                    put("expiresAt", "1999-03-28T23:01:03.042Z")
                 }
         }
     }
@@ -225,13 +214,9 @@ class UserActivationTokensApiControllerIT(
             return client
                 .post()
                 .uri("/api/user-activation-tokens")
-                .sendJson(
-                    """
-                    {
-                        "userId": $userId
-                    }
-                    """
-                )
+                .sendJson {
+                    put("userId", userId)
+                }
         }
 
         @Test
@@ -264,15 +249,9 @@ class UserActivationTokensApiControllerIT(
             request(preconditions.activatedUser.id!!)
                 .exchange()
                 .expectStatus().isBadRequest
-                .expectThatJsonBody {
-                    isEqualTo(
-                        json(
-                            """{
-                                error: "UserAlreadyActivated",
-                                message: "User ${preconditions.activatedUser.id} is already activated"
-                            }"""
-                        )
-                    )
+                .expectThatJsonBodyEqualTo {
+                    put("error", "UserAlreadyActivated")
+                    put("message", "User ${preconditions.activatedUser.id} is already activated")
                 }
         }
 
@@ -285,14 +264,10 @@ class UserActivationTokensApiControllerIT(
                 .expectStatus().isCreated
                 .expectThatJsonBody {
                     withDbTokenValueForUserMatcher(preconditions.userWithoutToken)
-                        .isEqualTo(
-                            json(
-                                """{
-                                    token: "#{json-unit.matches:dbTokenValue}",
-                                    expiresAt: "1999-03-29T04:01:02.042Z"
-                                }"""
-                            )
-                        )
+                        .isEqualToJson {
+                            put("token", "#{json-unit.matches:dbTokenValue}")
+                            put("expiresAt", "1999-03-29T04:01:02.042Z")
+                        }
                 }
         }
 
@@ -305,14 +280,10 @@ class UserActivationTokensApiControllerIT(
                 .expectStatus().isCreated
                 .expectThatJsonBody {
                     withDbTokenValueForUserMatcher(preconditions.userWithToken)
-                        .isEqualTo(
-                            json(
-                                """{
-                                    token: "#{json-unit.matches:dbTokenValue}",
-                                    expiresAt: "1999-03-29T04:01:02.042Z"
-                                }"""
-                            )
-                        )
+                        .isEqualToJson {
+                            put("token", "#{json-unit.matches:dbTokenValue}")
+                            put("expiresAt", "1999-03-29T04:01:02.042Z")
+                        }
                 }
 
             withClue("Existing token should be removed") {
@@ -345,11 +316,9 @@ class UserActivationTokensApiControllerIT(
         private fun request(
             token: String,
             password: String = "qwerty",
-            body: String = """
-                {
-                    "password": "$password"
-                }
-                """
+            body: String = buildJsonObject {
+                put("password", password)
+            }.toString()
         ): WebTestClient.RequestHeadersSpec<*> {
             return client
                 .post()
@@ -387,15 +356,9 @@ class UserActivationTokensApiControllerIT(
             request(preconditions.expiredToken.token)
                 .exchange()
                 .expectStatus().isBadRequest
-                .expectThatJsonBody {
-                    isEqualTo(
-                        json(
-                            """{
-                                error: "TokenExpired",
-                                message: "Token expired"
-                            }"""
-                        )
-                    )
+                .expectThatJsonBodyEqualTo {
+                    put("error", "TokenExpired")
+                    put("message", "Token expired")
                 }
 
             withClue("Expired token should be removed") {
@@ -420,6 +383,20 @@ class UserActivationTokensApiControllerIT(
                 aggregateTemplate.findAll(UserActivationToken::class.java)
                     .shouldNotContain(preconditions.activeToken)
             }
+        }
+
+        @Nested
+        inner class RequestsValidation : ApiRequestsValidationsTestBase() {
+            override val requestExecutionSpec = { requestBody: String, testDataFactory: TestDataFactory ->
+                val preconditions = testDataFactory.setupPreconditions()
+                request(preconditions.activeToken.token, body = requestBody)
+            }
+
+            override val requestBodySpec: ApiRequestsBodyConfiguration = {
+                string("password", maxLength = 100, mandatory = true)
+            }
+
+            override val successResponseStatus = HttpStatus.NO_CONTENT
         }
     }
 

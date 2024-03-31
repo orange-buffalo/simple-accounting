@@ -1,7 +1,10 @@
 package io.orangebuffalo.simpleaccounting.infra.api
 
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.buildJsonObject
 import net.javacrumbs.jsonunit.assertj.JsonAssert
 import net.javacrumbs.jsonunit.assertj.JsonAssertions
+import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -19,6 +22,12 @@ fun WebTestClient.ResponseSpec.expectThatJsonBody(
         jsonAssert.spec()
     }
 
+fun WebTestClient.ResponseSpec.expectThatJsonBodyEqualTo(
+    spec: JsonObjectBuilder.() -> Unit
+) = expectThatJsonBody {
+    isEqualToJson(spec)
+}
+
 fun WebTestClient.RequestHeadersSpec<*>.verifyUnauthorized(): WebTestClient.ResponseSpec =
     exchange().expectStatus().isUnauthorized
 
@@ -31,6 +40,14 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
 ) = exchange()
     .expectStatus().isOk
     .expectThatJsonBody(spec)
+
+fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBodyEqualTo(
+    spec: JsonObjectBuilder.() -> Unit
+) {
+    verifyOkAndJsonBody {
+        isEqualToJson(spec)
+    }
+}
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
     jsonBody: String
@@ -67,6 +84,13 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkNoContent() = exchange()
 fun WebTestClient.RequestBodySpec.sendJson(json: String): WebTestClient.RequestHeadersSpec<*> =
     contentType(MediaType.APPLICATION_JSON).bodyValue(json)
 
+fun WebTestClient.RequestBodySpec.sendJson(spec: JsonObjectBuilder.() -> Unit): WebTestClient.RequestHeadersSpec<*> {
+    val jsonElement = buildJsonObject {
+        spec(this)
+    }
+    return sendJson(jsonElement.toString())
+}
+
 fun <T> StepVerifier.Step<T>.assertNextJson(
     consumer: JsonAssert.ConfigurableJsonAssert.() -> Unit
 ): StepVerifier.Step<T> {
@@ -80,4 +104,11 @@ fun <T> StepVerifier.Step<T>.assertNextJsonIs(jsonObject: String): StepVerifier.
     return assertNextJson {
         isEqualTo(JsonAssertions.json(jsonObject))
     }
+}
+
+fun JsonAssert.isEqualToJson(spec: JsonObjectBuilder.() -> Unit) {
+    val jsonElement = buildJsonObject {
+        spec(this)
+    }
+    isEqualTo(json(jsonElement.toString()))
 }
