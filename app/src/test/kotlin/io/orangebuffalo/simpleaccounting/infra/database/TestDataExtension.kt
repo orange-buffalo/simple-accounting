@@ -13,15 +13,10 @@ import org.springframework.transaction.support.TransactionTemplate
  * Injects [TestDataFactory] instances into the test instances or methods. See factory docs
  * for more details on the intended usage.
  */
-class TestDataExtension : Extension, ParameterResolver, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
+class TestDataExtension : Extension, ParameterResolver, BeforeEachCallback {
 
     override fun beforeEach(extensionContext: ExtensionContext) {
         cleanupDatabase(extensionContext)
-        setupTestData(extensionContext)
-    }
-
-    private fun setupTestData(extensionContext: ExtensionContext) {
-        extensionContext.testDataFactories.forEach { it.setup() }
     }
 
     private fun cleanupDatabase(extensionContext: ExtensionContext) {
@@ -57,6 +52,9 @@ class TestDataExtension : Extension, ParameterResolver, BeforeEachCallback, Afte
         TestDataFactory::class.java == parameterContext.parameter.type
 
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any {
+        if (extensionContext.testMethod.isEmpty) {
+            throw ParameterResolutionException("TestDataFactory can only be injected into methods")
+        }
         val applicationContext = SpringExtension.getApplicationContext(extensionContext)
         val jdbcAggregateTemplate = applicationContext.getBean(JdbcAggregateTemplate::class.java)
         val transactionManager = applicationContext.getBean(PlatformTransactionManager::class.java)
@@ -64,40 +62,8 @@ class TestDataExtension : Extension, ParameterResolver, BeforeEachCallback, Afte
             platformTransactionManager = transactionManager,
             jdbcAggregateTemplate = jdbcAggregateTemplate
         )
-        extensionContext.testDataFactories.add(testDataFactory)
         return testDataFactory
-    }
-
-    override fun afterEach(context: ExtensionContext) {
-        // reset the factories to re-create the data for the next test
-        context.testDataFactories.forEach { it.reset() }
-    }
-
-    override fun afterAll(context: ExtensionContext) {
-        // remove the factories from the store to avoid memory leaks
-        context.getStore(testDataStoreNs).remove(testDataStoreKey)
     }
 }
 
-private val ExtensionContext.testDataFactories: MutableList<TestDataFactory>
-    get() {
-        val store = this.getStore(testDataStoreNs)
-
-        @Suppress("UNCHECKED_CAST")
-        var factoriesPerInstance =
-            store.get(testDataStoreKey, MutableMap::class.java) as MutableMap<Any, MutableList<TestDataFactory>>?
-        if (factoriesPerInstance == null) {
-            factoriesPerInstance = mutableMapOf()
-            store.put(testDataStoreKey, factoriesPerInstance)
-        }
-
-        val currentInstance = this.testInstance.orElse(emptyInstanceToken)
-        return factoriesPerInstance.getOrPut(currentInstance) { mutableListOf() }
-    }
-
 private val tablesToTruncate = mutableSetOf<String>()
-private val testDataStoreNs = ExtensionContext.Namespace.create(TestDataFactory::class.qualifiedName)
-private const val testDataStoreKey = "testDataFactories"
-
-// in order to support constructor injection, when the test instance is not yet available
-private val emptyInstanceToken = Any()
