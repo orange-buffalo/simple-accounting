@@ -5,7 +5,9 @@ import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.Defau
 import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.HandleApiErrorsWith
 import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.SaApiErrorDto
 import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 import kotlinx.coroutines.delay
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -125,7 +127,8 @@ data class UserActivationRequestDto(
     /**
      * The password to set for the user.
      */
-    @field:NotNull var password: String,
+    @field:NotBlank
+    @field:Size(max = 100) var password: String,
 )
 
 private fun UserActivationToken.mapToUserActivationTokenDto() = UserActivationTokenDto(

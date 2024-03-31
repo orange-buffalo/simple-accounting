@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.web.api.authentication
 import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
+import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
@@ -14,6 +15,9 @@ import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrin
 import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshTokenService
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -164,9 +168,15 @@ class AuthenticationApiControllerIT(
             .bodyValue("{}")
             .exchange()
             .expectStatus().isBadRequest
-            .expectBody<String>()
-            .consumeWith {
-                assertThat(it.responseBody).containsIgnoringCase("Property userName is required")
+            .expectThatJsonBodyEqualTo {
+                put("error", "InvalidInput")
+                putJsonArray("requestErrors") {
+                    addJsonObject {
+                        put("field", "userName")
+                        put("error", "MustNotBeNull")
+                        put("message", "must not be null")
+                    }
+                }
             }
     }
 

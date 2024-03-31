@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling
 
-import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.orangebuffalo.simpleaccounting.services.business.InvalidWorkspaceAccessTokenException
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
@@ -104,54 +105,73 @@ internal class RestApiControllerExceptionsHandler(
     }
 
     @ExceptionHandler
-    fun onException(exception: ServerWebInputException): Mono<ResponseEntity<String>> {
+    fun onException(exception: ServerWebInputException): Mono<ResponseEntity<*>> {
         logger.trace(exception) { "Bad request to ${exception.methodParameter}" }
         return handleNestedRuntimeException(exception)
     }
 
     @ExceptionHandler
-    fun onException(exception: CodecException): Mono<ResponseEntity<String>> {
+    fun onException(exception: CodecException): Mono<ResponseEntity<*>> {
         logger.trace(exception) { }
         return handleNestedRuntimeException(exception)
     }
 
-    private fun handleNestedRuntimeException(exception: NestedRuntimeException): Mono<ResponseEntity<String>> {
-        val cause = exception.mostSpecificCause
-        val message = if (cause is MissingKotlinParameterException) {
-            "Property ${cause.parameter.name} is required"
-        } else {
-            "Bad JSON request"
+    private fun handleNestedRuntimeException(exception: NestedRuntimeException): Mono<ResponseEntity<*>> {
+        val response = when (val cause = exception.mostSpecificCause) {
+            is MismatchedInputException -> handleMismatchedInputException(cause)
+            else -> GeneralErrorDto("Bad JSON request")
         }
+        return jsonBadRequest(response)
+    }
 
-        return Mono.just(
-            ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(message)
-        )
+    private fun handleMismatchedInputException(cause: MismatchedInputException): Any {
+        if (cause.message?.contains("which is a non-nullable type") == true) {
+            val fieldName = cause.path.joinToString(".") { it.fieldName }
+            return InvalidInputErrorDto(
+                requestErrors = listOf(
+                    InvalidInputErrorDto.FieldErrorDto(
+                        field = fieldName,
+                        error = "MustNotBeNull",
+                        message = "must not be null"
+                    )
+                )
+            )
+        } else return GeneralErrorDto("Bad JSON request")
     }
 
     @ExceptionHandler
-    fun onException(exception: WebExchangeBindException): Mono<ResponseEntity<String>> {
+    fun onException(exception: WebExchangeBindException): Mono<ResponseEntity<*>> {
         logger.trace(exception) {}
 
-        val cause = exception.bindingResult.allErrors.joinToString { error ->
-            if (error is FieldError) {
-                "${error.field} ${error.defaultMessage}"
-            } else {
-                error.toString()
+        val fieldErrors = exception.bindingResult.allErrors
+            .map { error ->
+                val fieldName = if (error is FieldError) error.field else "<unknown>"
+                val message = error.defaultMessage ?: "<not provided>"
+                val springError = error.code ?: "<unknown>"
+                val mapping = springValidationErrorsMappings[springError]
+                if (mapping != null) {
+                    InvalidInputErrorDto.FieldErrorDto(
+                        field = fieldName,
+                        error = mapping.error,
+                        message = message,
+                        // argument[0] is the object itself
+                        params = if ((error.arguments?.size ?: 0) > 1) {
+                            mapping.paramsConverter(error.arguments!!.copyOfRange(1, error.arguments!!.size))
+                        } else null
+                    )
+                } else {
+                    InvalidInputErrorDto.FieldErrorDto(
+                        field = fieldName,
+                        error = springError,
+                        message = message
+                    )
+                }
             }
-        }
 
-        val message = if (cause.isNotEmpty()) {
-            cause
-        } else {
-            exception.message
-        }
-
-        return Mono.just(
-            ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(message)
+        return jsonBadRequest(
+            InvalidInputErrorDto(
+                requestErrors = fieldErrors
+            )
         )
     }
 
@@ -198,6 +218,13 @@ internal class RestApiControllerExceptionsHandler(
                 .build()
         )
     }
+
+    private fun jsonBadRequest(body: Any) : Mono<ResponseEntity<*>> = Mono.just(
+        ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(body)
+    )
 }
 
 data class GeneralErrorDto(
@@ -208,6 +235,19 @@ open class SaApiErrorDto<T : Enum<T>>(
     val error: T,
     val message: String? = null,
 )
+
+data class InvalidInputErrorDto(
+    val error: String = "InvalidInput",
+    val requestErrors: List<FieldErrorDto>
+) {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    data class FieldErrorDto(
+        val field: String,
+        val error: String,
+        val message: String,
+        val params: Map<String, String>? = null,
+    )
+}
 
 @Suppress("unused")
 class AccountIsTemporaryLockedErrorDto(
@@ -237,3 +277,15 @@ abstract class DefaultErrorHandler<E : Enum<E>, R : SaApiErrorDto<E>>(
         }
     }
 }
+
+private data class SpringValidationErrorMapping(
+    val error: String,
+    val paramsConverter: (Array<Any>) -> Map<String, String> = { emptyMap() }
+)
+
+private val springValidationErrorsMappings = mapOf(
+    "NotBlank" to SpringValidationErrorMapping("MustNotBeBlank"),
+    "Size" to SpringValidationErrorMapping("SizeConstraintViolated") { args ->
+        mapOf("min" to args[1].toString(), "max" to args[0].toString())
+    }
+)

@@ -24,7 +24,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
     @Test
     fun `should generate proper arguments for api requests validations`() {
         val testInstance = object : ApiRequestsValidationsTestBase() {
-            override val requestExecutionSpec: ApiRequestsValidationsTestRequestExecutionSpec = {
+            override val requestExecutionSpec: ApiRequestsValidationsTestRequestExecutionSpec = { _, _ ->
                 throw NotImplementedError("Not relevant for this test")
             }
 
@@ -67,8 +67,8 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     ),
                     expectedValidationErrorResponse = errorResponse(
                         field = "mandatoryStringA",
-                        error = "MustNotBeBlank",
-                        message = "must not be blank",
+                        error = "MustNotBeNull",
+                        message = "must not be null",
                     )
                 ),
                 ExpectedResult(
@@ -78,8 +78,8 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     ),
                     expectedValidationErrorResponse = errorResponse(
                         field = "mandatoryStringA",
-                        error = "MustNotBeBlank",
-                        message = "must not be blank",
+                        error = "MustNotBeNull",
+                        message = "must not be null",
                     )
                 ),
                 ExpectedResult(
@@ -112,7 +112,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     expectedValidationErrorResponse = errorResponse(
                         field = "mandatoryStringA",
                         error = "SizeConstraintViolated",
-                        message = "must be between 0 and 10",
+                        message = "size must be between 0 and 10",
                         params = mapOf("min" to "0", "max" to "10")
                     )
                 ),
@@ -131,7 +131,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     expectedValidationErrorResponse = errorResponse(
                         field = "optionalStringA",
                         error = "SizeConstraintViolated",
-                        message = "must be between 15 and 20",
+                        message = "size must be between 15 and 20",
                         params = mapOf("min" to "15", "max" to "20")
                     )
                 ),
@@ -150,7 +150,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     expectedValidationErrorResponse = errorResponse(
                         field = "optionalStringA",
                         error = "SizeConstraintViolated",
-                        message = "must be between 15 and 20",
+                        message = "size must be between 15 and 20",
                         params = mapOf("min" to "15", "max" to "20")
                     )
                 ),
@@ -169,7 +169,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     expectedValidationErrorResponse = errorResponse(
                         field = "optionalStringMinMaxEqual",
                         error = "SizeConstraintViolated",
-                        message = "must be between 13 and 13",
+                        message = "size must be between 13 and 13",
                         params = mapOf("min" to "13", "max" to "13")
                     )
                 ),
@@ -181,7 +181,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     expectedValidationErrorResponse = errorResponse(
                         field = "optionalStringMinMaxEqual",
                         error = "SizeConstraintViolated",
-                        message = "must be between 13 and 13",
+                        message = "size must be between 13 and 13",
                         params = mapOf("min" to "13", "max" to "13")
                     )
                 ),
@@ -202,7 +202,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     expectedValidationErrorResponse = errorResponse(
                         field = "optionalNested.nestedStringA",
                         error = "SizeConstraintViolated",
-                        message = "must be between 0 and 2",
+                        message = "size must be between 0 and 2",
                         params = mapOf("min" to "0", "max" to "2")
                     )
                 ),
@@ -247,7 +247,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     expectedValidationErrorResponse = errorResponse(
                         field = "mandatoryNested.nestedStringB",
                         error = "SizeConstraintViolated",
-                        message = "must be between 0 and 5",
+                        message = "size must be between 0 and 5",
                         params = mapOf("min" to "0", "max" to "5")
                     )
                 ),
@@ -272,7 +272,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
                     expectedValidationErrorResponse = errorResponse(
                         field = "mandatoryNested.deeplyNested.deeplyNestedStringA",
                         error = "SizeConstraintViolated",
-                        message = "must be between 0 and 3",
+                        message = "size must be between 0 and 3",
                         params = mapOf("min" to "0", "max" to "3")
                     )
                 ),

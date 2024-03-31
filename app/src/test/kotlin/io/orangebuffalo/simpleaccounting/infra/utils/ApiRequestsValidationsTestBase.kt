@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.utils
 
 import io.orangebuffalo.simpleaccounting.infra.api.verifyBadRequestAndJsonBody
+import io.orangebuffalo.simpleaccounting.infra.database.TestDataFactory
 import kotlinx.serialization.json.*
 import mu.KotlinLogging
 import org.junit.jupiter.api.DisplayName
@@ -14,7 +15,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.util.stream.Stream
 
-typealias ApiRequestsValidationsTestRequestExecutionSpec = (requestBody: String) -> WebTestClient.RequestHeadersSpec<*>
+typealias ApiRequestsValidationsTestRequestExecutionSpec = (
+    requestBody: String,
+    testDataFactory: TestDataFactory
+) -> WebTestClient.RequestHeadersSpec<*>
 
 typealias ApiRequestsBodyConfiguration = ApiRequestsValidationsBodySpec.() -> Unit
 
@@ -35,15 +39,15 @@ abstract class ApiRequestsValidationsTestBase {
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(ApiRequestsValidationsArgumentsProvider::class)
-    fun `should validate requests`(testCase: ApiRequestsValidationsTestCase) {
+    fun `should validate requests`(testCase: ApiRequestsValidationsTestCase, testDataFactory: TestDataFactory) {
         log.debug { "Executing request:\n${testCase.requestBody}" }
 
         if (testCase.expectedValidationErrorResponse == null) {
-            requestExecutionSpec(testCase.requestBody.toString())
+            requestExecutionSpec(testCase.requestBody.toString(), testDataFactory)
                 .exchange()
                 .expectStatus().isEqualTo(successResponseStatus)
         } else {
-            requestExecutionSpec(testCase.requestBody.toString())
+            requestExecutionSpec(testCase.requestBody.toString(), testDataFactory)
                 .verifyBadRequestAndJsonBody(testCase.expectedValidationErrorResponse.toString())
         }
     }
@@ -157,13 +161,13 @@ private class ApiRequestsValidationsStringFieldSpec(
             field = name,
             description = "should fail when null",
             requestFieldValue = JsonNull,
-            expectedValidationError = ExpectedErrorData.notBlank(),
+            expectedValidationError = ExpectedErrorData.notNull(),
         ) else null,
         if (mandatory) ApiRequestsValidationsErrorCase(
             field = name,
             description = "should fail when not provided",
             requestFieldValue = null,
-            expectedValidationError = ExpectedErrorData.notBlank(),
+            expectedValidationError = ExpectedErrorData.notNull(),
         ) else null,
         if (mandatory) ApiRequestsValidationsErrorCase(
             field = name,
@@ -388,7 +392,7 @@ private data class ExpectedErrorData(
 
         fun size(minLength: Int = 0, maxLength: Int) = ExpectedErrorData(
             error = "SizeConstraintViolated",
-            message = "must be between $minLength and $maxLength",
+            message = "size must be between $minLength and $maxLength",
             params = mapOf(
                 "min" to minLength.toString(),
                 "max" to maxLength.toString()

@@ -2321,6 +2321,8 @@ components:
       type: object
       properties:
         password:
+          maxLength: 100
+          minLength: 0
           type: string
     SaveSharedWorkspaceRequestDto:
       required:
