@@ -26,6 +26,7 @@ jobs:
 
       - name: "Commit and push changes"
         run: |
+          git add frontend/bun.lockb
           git config --global user.name 'dependabot[bot]'
           git config --global user.email 'dependabot[bot]@users.noreply.github.com'
           git commit --amend --no-edit 
