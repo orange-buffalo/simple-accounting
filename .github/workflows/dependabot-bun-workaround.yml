@@ -15,15 +15,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: oven-sh/setup-bun@v1
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
-      - run: |
+
+      - name: "Update bun.lockb"
+        run: |
           cd frontend
           bun install
-          git add bun.lockb
-          git config --global user.name 'dependabot[bot]'
-          git config --global user.email 'dependabot[bot]@users.noreply.github.com'
-          git commit --amend --no-edit 
-          git push --force
+
+      - name: "Commit and push changes"
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "(chore) Update bun.lockb after Dependabot update"
+          file_pattern: 'frontend/bun.lockb'
+          skip_fetch: true
+          skip_checkout: true
