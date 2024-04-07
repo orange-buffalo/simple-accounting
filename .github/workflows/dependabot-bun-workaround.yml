@@ -5,9 +5,6 @@ on:
     paths:
       - "frontend/package.json"
 
-permissions:
-  contents: write
-
 jobs:
   update-bun-lockb:
     name: "Update bun.lockb"
@@ -20,6 +17,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.DEPENDABOT_AUTO_REBASE_TOKEN }}
 
       - name: "Update bun.lockb"
         run: |
@@ -27,9 +25,8 @@ jobs:
           bun install
 
       - name: "Commit and push changes"
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "(chore) Update bun.lockb after Dependabot update"
-          file_pattern: 'frontend/bun.lockb'
-          skip_fetch: true
-          skip_checkout: true
+        run: |
+          git config --global user.name 'dependabot[bot]'
+          git config --global user.email 'dependabot[bot]@users.noreply.github.com'
+          git commit --amend --no-edit 
+          git push --force
