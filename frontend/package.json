@@ -41,7 +41,7 @@
     "@storybook/manager-api": "^8.0.6",
     "@storybook/theming": "^8.0.6",
     "@storybook/vue3": "^8.0.6",
-    "@storybook/vue3-vite": "^7.6.6",
+    "@storybook/vue3-vite": "^8.0.8",
     "@types/cldrjs": "^0.4.28",
     "@types/dompurify": "^3.0.5",
     "@types/dropzone": "^5.7.8",
