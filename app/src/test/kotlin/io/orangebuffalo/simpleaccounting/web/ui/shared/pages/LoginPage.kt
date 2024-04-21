@@ -1,12 +1,12 @@
 package io.orangebuffalo.simpleaccounting.web.ui.shared.pages
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.infra.ui.components.Checkbox.Companion.checkboxByOwnLabel
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.infra.ui.components.TextInput.Companion.textInputByPlaceholder
-import io.orangebuffalo.simpleaccounting.infra.utils.openSimpleAccounting
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.infra.utils.navigateAndDisableAnimations
 
 class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
 
@@ -20,8 +20,17 @@ class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
         passwordInput.fill(user.passwordHash)
         loginButton.click()
     }
+
+    fun shouldBeOpen(): LoginPage {
+        loginInput.shouldBeVisible()
+        passwordInput.shouldBeVisible()
+        loginButton.shouldBeVisible()
+        return this
+    }
 }
 
-fun Page.openLoginPage(): LoginPage = LoginPage(openSimpleAccounting())
+fun Page.openLoginPage(): LoginPage = LoginPage(navigateAndDisableAnimations("/"))
 
 fun Page.loginAs(user: PlatformUser) = openLoginPage().loginAs(user)
+
+fun Page.shouldBeLoginPage(): LoginPage = LoginPage(this).shouldBeOpen()

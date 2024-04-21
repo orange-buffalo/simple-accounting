@@ -32,13 +32,13 @@ class PasswordChangeFullStackTest(
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
-                fill("currentPassword")
+                input { fill("currentPassword") }
             }
             newPassword {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             newPasswordConfirmation {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             changePasswordButton { click() }
 
@@ -59,15 +59,15 @@ class PasswordChangeFullStackTest(
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             changePasswordButton { shouldBeDisabled() }
             currentPassword {
-                fill("currentPassword")
+                input { fill("currentPassword") }
             }
             changePasswordButton { shouldBeDisabled() }
             newPassword {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             changePasswordButton { shouldBeDisabled() }
             newPasswordConfirmation {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             changePasswordButton { shouldBeEnabled() }
         }
@@ -79,17 +79,17 @@ class PasswordChangeFullStackTest(
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
-                fill("currentPassword")
+                input { fill("currentPassword") }
             }
             newPassword {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             newPasswordConfirmation {
-                fill("newPassword1")
+                input { fill("newPassword1") }
             }
             changePasswordButton { click() }
-            newPasswordConfirmation { formItem ->
-                formItem.shouldHaveValidationError("New password confirmation does not match")
+            newPasswordConfirmation {
+                shouldHaveValidationError("New password confirmation does not match")
             }
         }
     }
@@ -102,17 +102,17 @@ class PasswordChangeFullStackTest(
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
-                fill("currentPassword")
+                input { fill("currentPassword") }
             }
             newPassword {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             newPasswordConfirmation {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             changePasswordButton { click() }
-            currentPassword { formItem ->
-                formItem.shouldHaveValidationError("Current password does not match")
+            currentPassword {
+                shouldHaveValidationError("Current password does not match")
             }
         }
 
@@ -131,13 +131,13 @@ class PasswordChangeFullStackTest(
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
-                fill("currentPassword")
+                input { fill("currentPassword") }
             }
             newPassword {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             newPasswordConfirmation {
-                fill("newPassword")
+                input { fill("newPassword") }
             }
             changePasswordButton { click() }
             page.shouldHaveNotifications {

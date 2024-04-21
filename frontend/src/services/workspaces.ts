@@ -19,7 +19,11 @@ function createWorkspace(workspace: WorkspaceDto) {
   setCurrentWorkspace(workspace);
 }
 
-async function loadWorkspaces() {
+/**
+ * Loads workspaces from the API. In case not workspaces are available, returns `false`.
+ * Otherwise, sets the current workspace and return `true`.
+ */
+async function loadWorkspaces(): Promise<boolean> {
   workspaces = await workspacesApi.getWorkspaces();
 
   if (workspaces.length > 0) {
@@ -40,7 +44,11 @@ async function loadWorkspaces() {
     if (currentWorkspace.id == null) throw new Error('Invalid workspace');
 
     storage.set(currentWorkspace.id);
+
+    return true;
   }
+
+  return false;
 }
 
 export function useWorkspaces() {
@@ -62,7 +70,11 @@ export function useCurrentWorkspace() {
   };
 }
 
-export async function initWorkspace() {
-  await useWorkspaces()
+/**
+ * @deprecated - can return false if workspace has not been set, needs to be handled correctly;
+ * use loadWorkspaces instead
+ */
+export async function initWorkspace(): Promise<boolean> {
+  return useWorkspaces()
     .loadWorkspaces();
 }

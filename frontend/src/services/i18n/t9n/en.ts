@@ -852,12 +852,35 @@ export default {
   },
 
   formValidationMessages: {
-    sizeMinMax: (min: number, max: number) => format('The length of this value should be not shorter than {min, number} and no longer than {max, number}', {
+    sizeMinMax: (min: number, max: number) => format('The length of this value should be not shorter than {min, number} and no longer than {max, number} characters', {
       min,
       max,
     }),
-    sizeMax: (max: number) => format('The length of this value should be no longer than {max, number}', {
+    sizeMax: (max: number) => format('The length of this value should be no longer than {max, number} characters', {
       max,
     }),
+    notBlank: () => 'This value is required and should not be blank',
+  },
+
+  accountActivationPage: {
+    loading: () => 'We are verifying your token...',
+    badToken: () => 'Provided token is invalid or expired. Please request a new one.',
+    instructions: () => 'Please provide your new password. You will then need to login using your username and new password.',
+    form: {
+      password: {
+        label: () => 'New Password',
+        placeholder: () => 'Please provide your new password',
+      },
+      passwordConfirmation: {
+        label: () => 'New Password Confirmation',
+        placeholder: () => 'Please confirm your new password',
+        notMatchingError: () => 'Passwords do not match',
+      },
+      submit: () => 'Activate Account',
+    },
+    success: {
+      message: () => 'Account has been activated. You can now login using your credentials.',
+      button: () => 'Login now',
+    },
   },
 };

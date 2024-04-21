@@ -15,7 +15,10 @@ import {
   ExpensesApiControllerApi,
   IncomesApiControllerApi,
   IncomeTaxPaymentsApiControllerApi,
-  ReportingApiControllerApi, WorkspaceAccessTokensApiControllerApi, UsersApiControllerApi,
+  ReportingApiControllerApi,
+  WorkspaceAccessTokensApiControllerApi,
+  UsersApiControllerApi,
+  UserActivationTokensApiControllerApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -68,3 +71,4 @@ export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiControllerApi<Reques
 export const reportingApi = new ReportingApiControllerApi<RequestMetadata>(defaultConfig);
 export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiControllerApi<RequestMetadata>(defaultConfig);
 export const usersApi = new UsersApiControllerApi<RequestMetadata>(defaultConfig);
+export const userActivationTokensApi = new UserActivationTokensApiControllerApi<RequestMetadata>(defaultConfig);

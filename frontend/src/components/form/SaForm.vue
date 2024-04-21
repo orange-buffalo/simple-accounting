@@ -40,7 +40,11 @@
   import { provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ensureDefined, hasValue } from '@/services/utils.ts';
   import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
-  import { getApiFieldErrorMessage } from '@/components/form/api-field-error-messages.ts';
+  import {
+    setFieldErrorsFromClientSideValidation,
+    setFieldsErrorsFromApiResponse,
+  } from '@/components/form/api-field-error-messages.ts';
+  import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
 
   type SaFormProps = {
     model: Record<string, unknown>,
@@ -59,6 +63,10 @@
 
   const isLegacyApi = !hasValue(props.onSubmit);
 
+  if (!isLegacyApi && props.rules) {
+    throw new Error('Rules are not supported in the new API, use ClientSideValidationError instead.');
+  }
+
   const elForm = ref<FormInstance | undefined>(undefined);
   const loading = ref(isLegacyApi);
 
@@ -74,27 +82,26 @@
   });
 
   const submitForm = async () => {
+    // form validation throws an exception if validation fails
+    if (props.rules) {
+      try {
+        await ensureDefined(elForm.value)
+          .validate();
+      } catch (e: unknown) {
+        return;
+      }
+    }
+
     loading.value = true;
     try {
-      const isValid = await ensureDefined(elForm.value)
-        .validate();
-      if (isValid) {
-        if (props.onSubmit) {
-          await props.onSubmit();
-        }
+      if (props.onSubmit) {
+        await props.onSubmit();
       }
     } catch (e: unknown) {
       if (e instanceof ApiFieldLevelValidationError) {
-        e.fieldErrors.forEach((fieldError) => {
-          const formItem = formItems.get(fieldError.field);
-          if (formItem) {
-            formItem.validateState = 'error';
-            // @ts-ignore
-            formItem.validateMessage = getApiFieldErrorMessage(fieldError);
-          } else {
-            throw new Error(`Form item not found for field ${fieldError.field}`);
-          }
-        });
+        setFieldsErrorsFromApiResponse(e.fieldErrors, formItems);
+      } else if (e instanceof ClientSideValidationError) {
+        setFieldErrorsFromClientSideValidation(e.fieldErrors, formItems);
       } else {
         throw e;
       }
