@@ -3,12 +3,12 @@ package io.orangebuffalo.simpleaccounting.infra.ui.components
 import com.microsoft.playwright.Locator
 import io.orangebuffalo.simpleaccounting.infra.ui.components.Paginator.Companion.twoSyncedPaginators
 
-class SaPageableItems<I, P> private constructor(
+class SaPageableItems<I, P: Any> private constructor(
     private val container: Locator,
-    private val parent: P,
+    parent: P,
     val paginator: Paginator,
     private val itemFactory: (container: Locator) -> I
-) {
+) : UiComponent<P, SaPageableItems<I, P>>(parent) {
 
     private val items: List<I>
         get() = container.locator(".sa-pageable-items__item")
@@ -22,11 +22,6 @@ class SaPageableItems<I, P> private constructor(
      */
     fun shouldSatisfy(spec: (items: List<I>) -> Unit) = io.orangebuffalo.simpleaccounting.infra.utils.shouldSatisfy {
         spec(items)
-    }
-
-    operator fun invoke(action: SaPageableItems<I, *>.() -> Unit): P {
-        this.action()
-        return parent
     }
 
     companion object {

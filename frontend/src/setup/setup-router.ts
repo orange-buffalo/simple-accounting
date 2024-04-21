@@ -1,4 +1,4 @@
-import type { RouteLocation, Router } from 'vue-router';
+import type { RouteLocation, Router, RouteRecordSingleView } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/pages/login/Login.vue';
 import SaAuthenticatedPage from '@/components/authenticated-page/SaAuthenticatedPage.vue';
@@ -28,19 +28,39 @@ import { useAuth } from '@/services/api';
 import { useLastView } from '@/services/use-last-view';
 import { LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT } from '@/services/events';
 import UsersOverview from '@/pages/admin/users/UsersOverview.vue';
+import AccountActivationPage from '@/pages/account-activation/AccountActivationPage.vue';
+import SaUnauthenticatedPage from '@/components/unauthenticated-page/SaUnauthenticatedPage.vue';
 
 const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: Number(route.params.id) });
+
+const ANONYMOUS_PAGES: Array<RouteRecordSingleView> = [
+  {
+    path: '/activate-account/:token',
+    name: 'activate-account',
+    component: AccountActivationPage,
+    props: true,
+    meta: {
+      pathPrefix: '/activate-account',
+    },
+  }];
+
+const ANONYMOUS_PAGES_NAMES = ANONYMOUS_PAGES.map((page) => page.name);
+export const ANONYMOUS_PAGES_PATH_PREFIXES = ANONYMOUS_PAGES
+  .map((page) => page.meta?.pathPrefix)
+  .filter((prefix) => prefix) as string[];
 
 function setupAuthenticationHooks(router: Router) {
   const {
     isLoggedIn,
     tryAutoLogin,
   } = useAuth();
-  router.beforeEach(async (to, from, next) => {
+  router.beforeEach(async (to, _, next) => {
     const { setLastView } = useLastView();
+    // todo #117: remove from the list of explicit checks
     if (to.name !== 'login'
       && to.name !== 'login-by-link'
       && to.name !== 'oauth-callback'
+      && !ANONYMOUS_PAGES_NAMES.includes(to.name)
       && !isLoggedIn()) {
       if (await tryAutoLogin()) {
         SUCCESSFUL_LOGIN_EVENT.emit();
@@ -235,6 +255,14 @@ export default function setupRouter() {
           //       name: 'create-new-user',
           //       component: CreateUser,
           //     },
+        ],
+      },
+
+      {
+        path: '/',
+        component: SaUnauthenticatedPage,
+        children: [
+          ...ANONYMOUS_PAGES,
         ],
       },
 

@@ -20,7 +20,8 @@ import java.time.Instant
 @RestController
 @RequestMapping("/api/user-activation-tokens")
 class UserActivationTokensApiController(
-    private val userService: PlatformUserService
+    private val userService: PlatformUserService,
+    private val userManagementProperties: UserManagementProperties,
 ) {
 
     /**
@@ -51,8 +52,7 @@ class UserActivationTokensApiController(
     suspend fun getToken(
         @PathVariable token: String
     ): UserActivationTokenDto {
-        // brute force protection
-        delay(1000)
+        delay(userManagementProperties.activation.tokenVerificationBruteForceDelayInMs)
         val userActivationToken = userService.getUserActivationToken(token)
             ?: throw EntityNotFoundException("User activation token not found $token")
         return userActivationToken.mapToUserActivationTokenDto()
@@ -89,8 +89,7 @@ class UserActivationTokensApiController(
         @PathVariable token: String,
         @RequestBody @Valid request: UserActivationRequestDto
     ) {
-        // brute force protection
-        delay(1000)
+        delay(userManagementProperties.activation.tokenVerificationBruteForceDelayInMs)
         userService.activateUser(token = token, password = request.password)
     }
 }

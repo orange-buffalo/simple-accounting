@@ -1,31 +1,36 @@
 package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveText
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldNotBeVisible
 
-class FormItem<I : Any, T : Any> private constructor(
-    rootLocator: Locator,
-    private val parent: T,
+class FormItem<I : UiComponent<*, *>, P : Any> private constructor(
+    private val rootLocator: Locator,
+    parent: P,
     inputProvider: (container: Locator) -> I
-) {
+) : UiComponent<P, FormItem<I, P>>(parent) {
     private val validationErrorLocator = rootLocator.locator(".el-form-item__error")
     private val inputLocator =
         rootLocator.locator("xpath=//*[@class='el-form-item__content']/*[@class != 'el-form-item__error']")
-    private val input: I = inputProvider(inputLocator)
+    val input: I = inputProvider(inputLocator)
 
-    operator fun invoke(action: I.(formItem: FormItem<I, *>) -> Unit): T {
-        input.action(this)
+    fun shouldBeVisible () = rootLocator.shouldBeVisible()
+
+    fun shouldNotBeVisible() = rootLocator.shouldNotBeVisible()
+
+    fun shouldHaveValidationError(message: String): P {
+        validationErrorLocator.shouldBeVisible()
+        validationErrorLocator.shouldHaveText(message)
         return parent
     }
 
-    fun shouldHaveValidationError(message: String): T {
-        validationErrorLocator.assertThat().isVisible()
-        validationErrorLocator.assertThat().hasText(message)
-        return parent
+    fun shouldNotHaveValidationErrors() {
+        validationErrorLocator.shouldNotBeVisible()
     }
 
     companion object {
-        private fun <T : SaPageBase<T>, I : Any> ComponentsAccessors<T>.formItemByLabel(
+        private fun <P : SaPageBase<P>, I : UiComponent<*, *>> ComponentsAccessors<P>.formItemByLabel(
             label: String,
             inputProvider: (container: Locator) -> I
         ) = FormItem(
@@ -34,7 +39,7 @@ class FormItem<I : Any, T : Any> private constructor(
             inputProvider = inputProvider
         )
 
-        fun <T : SaPageBase<T>> ComponentsAccessors<T>.formItemTextInputByLabel(label: String) =
+        fun <P : SaPageBase<P>> ComponentsAccessors<P>.formItemTextInputByLabel(label: String) =
             formItemByLabel(label) { TextInput.byContainer(it) }
     }
 }

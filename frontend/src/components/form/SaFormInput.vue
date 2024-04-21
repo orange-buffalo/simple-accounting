@@ -1,6 +1,8 @@
 <template>
   <ElInput
     v-model="inputValue"
+    :type="type"
+    :placeholder="placeholder"
   />
 </template>
 
@@ -9,4 +11,9 @@
 
   const saFormItemApi = useSaFormItemComponentsApi();
   const inputValue = saFormItemApi.formItemValue;
+
+  defineProps<{
+    type?: string,
+    placeholder?: string,
+  }>();
 </script>

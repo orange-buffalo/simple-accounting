@@ -20,5 +20,11 @@ data class UserManagementProperties(
          * The time-to-live for user activation tokens in hours.
          */
         var tokenTtlInHours: Int = 72,
+
+        /**
+         * The delay in milliseconds to apply when a token verification is requested, to
+         * protect against brute force attacks.
+         */
+        var tokenVerificationBruteForceDelayInMs: Long = 1000,
     )
 }

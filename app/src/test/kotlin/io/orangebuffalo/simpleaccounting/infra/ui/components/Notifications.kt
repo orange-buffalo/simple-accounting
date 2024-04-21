@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.simpleaccounting.infra.utils.assert
 import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
 
 class Notifications(
@@ -8,10 +9,10 @@ class Notifications(
 ) {
     fun success(message: String) {
         val successContainer = page.locator(".sa-notification--success")
-        successContainer.assertThat().isVisible()
-        successContainer.locator(".el-message__content").assertThat().hasText(message)
+        successContainer.assert { isVisible() }
+        successContainer.locator(".el-message__content").assert { hasText(message) }
         successContainer.locator(".el-message__closeBtn").click()
-        successContainer.assertThat().isHidden()
+        successContainer.assert { isHidden() }
     }
 
     fun validationFailed() {

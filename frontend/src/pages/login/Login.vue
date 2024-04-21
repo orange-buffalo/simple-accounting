@@ -71,7 +71,7 @@
     watch,
   } from 'vue';
 
-  import { initWorkspace, useCurrentWorkspace } from '@/services/workspaces';
+  import { useWorkspaces } from '@/services/workspaces';
   import { $t, setLocaleFromProfile } from '@/services/i18n';
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
@@ -181,17 +181,17 @@
   };
 
   const onUserLogin = async () => {
-    await initWorkspace();
-
-    const { currentWorkspace } = useCurrentWorkspace();
-    const { lastView } = useLastView();
-
-    if (!currentWorkspace) {
-      await navigateByViewName('workspace-setup');
-    } else if (lastView) {
-      await navigateByViewName(lastView);
+    const hasAnyWorkspaces = await useWorkspaces()
+      .loadWorkspaces();
+    if (hasAnyWorkspaces) {
+      const { lastView } = useLastView();
+      if (lastView) {
+        await navigateByViewName(lastView);
+      } else {
+        await navigateByViewName('dashboard');
+      }
     } else {
-      await navigateByViewName('dashboard');
+      await navigateByViewName('workspace-setup');
     }
   };
 

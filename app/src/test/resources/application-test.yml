@@ -6,6 +6,7 @@ simpleaccounting:
   user-management:
     activation:
       token-ttl-in-hours: 5
+      token-verification-brute-force-delay-in-ms: 10
 
 spring:
   security:

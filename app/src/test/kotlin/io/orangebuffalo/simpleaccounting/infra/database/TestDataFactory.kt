@@ -46,12 +46,13 @@ import java.time.Instant
  * }
  * ```
  */
+@Deprecated("Use Preconditions instead")
 class TestDataFactory internal constructor(
     platformTransactionManager: PlatformTransactionManager,
-    private val jdbcAggregateTemplate: JdbcAggregateTemplate,
+    val jdbcAggregateTemplate: JdbcAggregateTemplate,
 ) {
 
-    private val transactionTemplate = TransactionTemplate().apply {
+    val transactionTemplate = TransactionTemplate().apply {
         transactionManager = platformTransactionManager
         propagationBehavior = TransactionTemplate.PROPAGATION_REQUIRES_NEW
     }
@@ -110,5 +111,60 @@ class TestDataFactory internal constructor(
                 )
             )
         }
+    }
+}
+
+abstract class Preconditions(private val infra: PreconditionsInfra) {
+    fun platformUser(
+        userName: String = "Farnsworth",
+        passwordHash: String = "nopassword",
+        isAdmin: Boolean = false,
+        documentsStorage: String? = null,
+        i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en"),
+        activated: Boolean = true,
+    ) = infra.save(
+        PlatformUser(
+            userName = userName,
+            passwordHash = passwordHash,
+            isAdmin = isAdmin,
+            documentsStorage = documentsStorage,
+            i18nSettings = i18nSettings,
+            activated = activated
+        )
+    )
+
+    fun userActivationToken(
+        user: PlatformUser? = null,
+        token: String = RandomStringUtils.randomAlphabetic(10),
+        expiresAt: Instant = MOCK_TIME,
+    ): UserActivationToken {
+        val userId = if (user == null) platformUser().id else user.id
+        return infra.save(
+            UserActivationToken(
+                userId = userId!!,
+                token = token,
+                expiresAt = expiresAt,
+            )
+        )
+    }
+}
+
+/**
+ * Infrastructure for creating preconditions in the database.
+ */
+class PreconditionsInfra(
+    platformTransactionManager: PlatformTransactionManager,
+    private val jdbcAggregateTemplate: JdbcAggregateTemplate,
+) {
+
+    private val transactionTemplate = TransactionTemplate().apply {
+        transactionManager = platformTransactionManager
+        propagationBehavior = TransactionTemplate.PROPAGATION_REQUIRES_NEW
+    }
+
+    fun <T : Any> save(entity: T): T {
+        return transactionTemplate.execute {
+            jdbcAggregateTemplate.save(entity)
+        }!!
     }
 }

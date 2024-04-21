@@ -162,10 +162,10 @@ export function useFormItemValidation() {
 
   const setValidationError = (validationMessage: string) => {
     if (formItem.value) {
-          formItem.value.validateState = 'error';
-          // @ts-ignore
-          formItem.value.validateMessage = validationMessage;
-        }
+      formItem.value.validateState = 'error';
+      // @ts-ignore
+      formItem.value.validateMessage = validationMessage;
+    }
   };
 
   return {
