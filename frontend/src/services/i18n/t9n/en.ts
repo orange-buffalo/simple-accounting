@@ -20,6 +20,8 @@ export default {
       no: () => 'No',
     },
     percent: (value: number) => format('{0, number, :: percent scale/100}', [value]),
+    cancel: () => 'Cancel',
+    save: () => 'Save',
   },
 
   loginPage: {

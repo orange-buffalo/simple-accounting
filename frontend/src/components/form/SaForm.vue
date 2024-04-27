@@ -11,8 +11,21 @@
 
       <hr>
 
-      <div class="sa-form__buttons-bar">
+      <div class="sa-form__buttons-bar-legacy" v-if="isLegacyApi">
         <slot name="buttons-bar" />
+      </div>
+      <div class="sa-form__buttons-bar" v-else>
+        <ElButton
+          type="primary"
+          @click="submitForm"
+          :disabled="props.submitButtonDisabled"
+        >
+          {{ props.submitButtonLabel || $t.common.save() }}
+        </ElButton>
+
+        <ElButton @click="onCancel" v-if="onCancel" link>
+          {{ props.cancelButtonLabel || $t.common.cancel() }}
+        </ElButton>
       </div>
     </ElForm>
   </div>
@@ -23,16 +36,29 @@
     ElForm, FormInstance, FormItemContext, FormRules,
   } from 'element-plus';
   import { ref } from 'vue';
+  import { $t } from '@/services/i18n';
   import { provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
+  import { ensureDefined, hasValue } from '@/services/utils.ts';
 
-  defineProps<{
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    model: Record<string, any>,
+  type SaFormProps = {
+    model: Record<string, unknown>,
     rules?: FormRules,
-  }>();
+    onCancel?: () => Promise<unknown> | unknown,
+    cancelButtonLabel?: string,
+    submitButtonLabel?: string,
+    submitButtonDisabled?: boolean,
+    // optional to support legacy API
+    onSubmit?: () => Promise<unknown> | unknown,
+  };
+
+  const props = withDefaults(defineProps<SaFormProps>(), {
+    submitButtonDisabled: false,
+  });
+
+  const isLegacyApi = !hasValue(props.onSubmit);
 
   const elForm = ref<FormInstance | undefined>(undefined);
-  const loading = ref(true);
+  const loading = ref(isLegacyApi);
 
   const formItems = new Map<string, FormItemContext>();
   provideSaFormComponentsApi({
@@ -44,7 +70,22 @@
     },
   });
 
-  // deprecated API - should not be used any longer
+  const submitForm = async () => {
+    loading.value = true;
+    try {
+      const isValid = await ensureDefined(elForm.value)
+        .validate();
+      if (isValid) {
+        if (props.onSubmit) {
+          await props.onSubmit();
+        }
+      }
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // legacy API - should not be used any longer
   const validate = async (): Promise<boolean> => {
     if (elForm.value) {
       return elForm.value.validate();
@@ -57,7 +98,6 @@
   const stopLoading = () => {
     loading.value = false;
   };
-
   defineExpose({
     validate,
     startLoading,
@@ -121,10 +161,16 @@
       margin-bottom: 10px;
     }
 
-    &__buttons-bar {
+    &__buttons-bar-legacy {
       margin-top: 20px;
       display: flex;
       justify-content: space-between;
+    }
+
+    &__buttons-bar {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
     }
   }
 </style>

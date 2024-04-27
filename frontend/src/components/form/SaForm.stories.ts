@@ -191,18 +191,44 @@ export const SaFormApi = defineStory(() => ({
     const formValues = ref({
       name: 'Fry',
     });
+    const onSubmit = async () => {
+      action('form-submit')(formValues.value);
+      await delay(1000);
+    };
+    const onCancel = async () => {
+      action('form-cancel')();
+    };
     return {
       formValues,
+      onSubmit,
+      onCancel,
     };
   },
   template: `
-    <SaForm :model="formValues">
+    <h4>Defaults</h4>
+    <SaForm :model="formValues" :on-submit="onSubmit" :on-cancel="onCancel">
       <SaFormItem
         label="Name"
         prop="name"
       >
         <ElInput v-model="formValues.name" />
       </SaFormItem>
+    </SaForm>
+    
+    <h4>Custom button labels</h4>
+    <SaForm :model="formValues" 
+            :on-submit="onSubmit"
+            submit-button-label="Submit"
+            :on-cancel="onCancel"
+            cancel-button-label="Back">
+      ...
+    </SaForm>
+    
+    <h4>No cancel callback</h4>
+    <SaForm :model="formValues" 
+            :on-submit="onSubmit"
+            submit-button-label="Submit">
+      ...
     </SaForm>
   `,
 }), {

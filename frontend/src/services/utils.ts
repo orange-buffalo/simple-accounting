@@ -63,3 +63,10 @@ export function ensureDefined<T>(value: T | undefined | null): T {
 }
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+/**
+ * Checks if provided value is not undefined and not null.
+ */
+export function hasValue<T>(param: T | undefined | null): boolean {
+  return param !== undefined && param !== null;
+}
