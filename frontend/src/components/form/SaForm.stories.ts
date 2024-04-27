@@ -3,6 +3,7 @@
 import { ElButton, ElFormItem, ElInput } from 'element-plus';
 import { defineComponent, ref } from 'vue';
 import { action } from '@storybook/addon-actions';
+import SaFormItem from '@/components/form/SaFormItem.vue';
 import { delay } from '@/__storybook__/stories-utils';
 import { useForm, useFormWithDocumentsUpload } from '@/components/form/use-form';
 import SaForm from '@/components/form/SaForm.vue';
@@ -61,30 +62,30 @@ const StoryForm = defineComponent({
   },
   template: `
     <div>
-    <SaForm :model="fry"
-            :rules="rules"
-            ref="formRef"
-    >
-      <ElFormItem
-        label="Name"
-        prop="name"
+      <SaForm :model="fry"
+              :rules="rules"
+              ref="formRef"
       >
-        <ElInput v-model="fry.name" />
-      </ElFormItem>
-
-      <template #buttons-bar>
-        <ElButton>Cancel</ElButton>
-        <ElButton
-          type="primary"
-          @click="submitForm"
+        <ElFormItem
+          label="Name"
+          prop="name"
         >
-          Save
-        </ElButton>
-      </template>
-    </SaForm>
-    <div v-if="!neverEndingLoading" style="padding: 20px">
-      {{ fry.name }}
-    </div>
+          <ElInput v-model="fry.name" />
+        </ElFormItem>
+
+        <template #buttons-bar>
+          <ElButton>Cancel</ElButton>
+          <ElButton
+            type="primary"
+            @click="submitForm"
+          >
+            Save
+          </ElButton>
+        </template>
+      </SaForm>
+      <div v-if="!neverEndingLoading" style="padding: 20px">
+        {{ fry.name }}
+      </div>
     </div>
   `,
 });
@@ -110,7 +111,7 @@ const StoryFormWithDocuments = defineComponent({
       };
     };
 
-    const documents : number[] = [];
+    const documents: number[] = [];
 
     return ({
       fry,
@@ -120,34 +121,34 @@ const StoryFormWithDocuments = defineComponent({
   },
   template: `
     <div>
-    <SaForm :model="fry"
-            ref="formRef"
-    >
-      <ElFormItem
-        label="Name"
-        prop="name"
+      <SaForm :model="fry"
+              ref="formRef"
       >
-        <ElInput v-model="fry.name" />
-      </ElFormItem>
-
-      <SaDocumentsUpload :documents-ids="documents"
-                         @uploads-failed="onDocumentsUploadFailure"
-                         @uploads-completed="onDocumentsUploadComplete"
-                         ref="documentsUploadRef"
-      />
-
-      <template #buttons-bar>
-        <ElButton
-          type="primary"
-          @click="submitForm"
+        <ElFormItem
+          label="Name"
+          prop="name"
         >
-          Save
-        </ElButton>
-      </template>
-    </SaForm>
-    <div style="padding: 20px">
-      {{ fry.name }}
-    </div>
+          <ElInput v-model="fry.name" />
+        </ElFormItem>
+
+        <SaDocumentsUpload :documents-ids="documents"
+                           @uploads-failed="onDocumentsUploadFailure"
+                           @uploads-completed="onDocumentsUploadComplete"
+                           ref="documentsUploadRef"
+        />
+
+        <template #buttons-bar>
+          <ElButton
+            type="primary"
+            @click="submitForm"
+          >
+            Save
+          </ElButton>
+        </template>
+      </SaForm>
+      <div style="padding: 20px">
+        {{ fry.name }}
+      </div>
     </div>
   `,
 });
@@ -177,5 +178,33 @@ export const Default = defineStory(() => ({
     waitForInputValue('Zoidberg', '#activeForm input'),
     waitForInputValue('Fry', '#documentsForm input'),
   ),
+  asPage: true,
+});
+
+export const SaFormApi = defineStory(() => ({
+  components: {
+    SaForm,
+    SaFormItem,
+    ElInput,
+  },
+  setup() {
+    const formValues = ref({
+      name: 'Fry',
+    });
+    return {
+      formValues,
+    };
+  },
+  template: `
+    <SaForm :model="formValues">
+      <SaFormItem
+        label="Name"
+        prop="name"
+      >
+        <ElInput v-model="formValues.name" />
+      </SaFormItem>
+    </SaForm>
+  `,
+}), {
   asPage: true,
 });
