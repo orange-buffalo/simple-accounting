@@ -19,9 +19,11 @@
 </template>
 
 <script lang="ts" setup>
-  import { ElForm } from 'element-plus';
-  import type { FormRules } from 'element-plus';
+  import {
+    ElForm, FormInstance, FormItemContext, FormRules,
+  } from 'element-plus';
   import { ref } from 'vue';
+  import { provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
 
   defineProps<{
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,20 +31,29 @@
     rules?: FormRules,
   }>();
 
-  const elForm = ref<typeof ElForm | undefined>(undefined);
+  const elForm = ref<FormInstance | undefined>(undefined);
   const loading = ref(true);
 
+  const formItems = new Map<string, FormItemContext>();
+  provideSaFormComponentsApi({
+    registerFormItem: (prop: string, formItem: FormItemContext) => {
+      formItems.set(prop, formItem);
+    },
+    unregisterFormItem: (prop: string) => {
+      formItems.delete(prop);
+    },
+  });
+
+  // deprecated API - should not be used any longer
   const validate = async (): Promise<boolean> => {
     if (elForm.value) {
       return elForm.value.validate();
     }
     return false;
   };
-
   const startLoading = () => {
     loading.value = true;
   };
-
   const stopLoading = () => {
     loading.value = false;
   };
