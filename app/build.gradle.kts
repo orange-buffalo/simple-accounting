@@ -146,6 +146,8 @@ tasks.register<Test>("screenshotsTest") {
     filter {
         includeTestsMatching(screenshotsTestPattern)
     }
+    // any change in frontend code could change the stories outcome
+    inputs.files(project(":frontend").projectDir)
     // do not add this dependency in dev to avoid storybook rebuild on each change,
     // as we recommend to run tests against running storybook locally
     ifCi {

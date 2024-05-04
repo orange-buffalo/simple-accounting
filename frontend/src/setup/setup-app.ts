@@ -52,7 +52,7 @@ export function setupApp() {
   vueApp.use(vueRouter);
 
   setupComponents(vueApp);
-  setupErrorHandler();
+  setupErrorHandler(vueApp);
 }
 
 export function mountApp() {
