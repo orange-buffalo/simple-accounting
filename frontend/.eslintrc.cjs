@@ -55,6 +55,7 @@ module.exports = {
     'vue/require-default-prop': 'off',
     'vuejs-accessibility/form-control-has-label': 'off',
     'vue/no-setup-props-destructure': 'off',
+    'max-classes-per-file': 'off',
   },
   globals: {
     RequestInit: 'readonly',

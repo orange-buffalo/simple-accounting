@@ -809,8 +809,7 @@ export default {
   },
 
   errorHandler: {
-    fatalApiError: () => 'We encountered a server error. Please try again.',
-    badRequestError: () => 'Validation failed. Please correct your input and try again',
+    fatalErrorMessage: () => 'We encountered a technical error. Please consider reporting the problem and refresh the page to try again.',
   },
 
   saBasicErrorMessage: {

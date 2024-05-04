@@ -2,6 +2,7 @@ import { setup } from '@storybook/vue3';
 import { defineComponent } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { action } from '@storybook/addon-actions';
+import setupErrorHandler from '@/setup/setup-error-handler';
 import { setupComponents } from '@/setup/setup-app';
 import StoriesApp from './StoriesApp.vue';
 import { decoratorFactory } from '@/__storybook__/decorators/decorator-utils';
@@ -26,6 +27,7 @@ router.beforeEach((guard) => {
 
 setup((app) => {
   setupComponents(app);
+  setupErrorHandler(app);
   app.use(router);
 });
 
