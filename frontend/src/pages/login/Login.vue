@@ -76,8 +76,9 @@
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
-  import { useAuth, profileApi, consumeApiErrorResponse } from '@/services/api';
+  import { useAuth, profileApi } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
+  import { ApiBusinessError } from '@/services/api/api-errors.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -158,7 +159,11 @@
   }
 
   const onLoginError = async (processingError: unknown) => {
-    const apiResponse = await consumeApiErrorResponse<LoginErrorResponse>(processingError);
+    if (!(processingError instanceof ApiBusinessError)) {
+      throw processingError;
+    }
+    // TODO #1209: proper typing here, use e.errorAs
+    const apiResponse = processingError.error as unknown as LoginErrorResponse;
     if (apiResponse?.error === 'AccountLocked' && apiResponse?.lockExpiresInSec !== undefined) {
       accountLockTimer.start(apiResponse.lockExpiresInSec);
     } else if (apiResponse?.error === 'LoginNotAvailable') {
@@ -296,6 +301,7 @@
         &__inner {
           background-color: white !important;
           border-color: $primary-color-lighter-ii !important;
+
           &:after {
             border-color: $primary-color-lighter-ii !important;
           }
