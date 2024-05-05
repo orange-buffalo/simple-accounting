@@ -1,8 +1,7 @@
-import type { ApiPage, ApiPageRequest } from '@/services/api/api-types';
-import { ResponseError } from '@/services/api/generated';
+import type { ApiPage, ApiPageRequest, SaApiErrorDto } from '@/services/api/api-types';
 import type { AdditionalRequestParameters } from '@/services/api/generated/runtime';
 import type { RequestMetadata } from '@/services/api/api-client';
-import { ApiRequestCancelledError } from '@/services/api/api-errors.ts';
+import { ApiBusinessError, ApiRequestCancelledError } from '@/services/api/api-errors.ts';
 
 export function apiDateString(date: Date) {
   return `${date.getFullYear()}-${
@@ -31,13 +30,14 @@ export async function consumeAllPages<T>(
 }
 
 /**
- * Consumes exception and returns the response body, if exception is caused by non-successful response.
- * @param e exception caught during API request execution.
+ * If a provided error is an API business error, returns its response body as desired type.
+ * Otherwise, throws the error further.
  */
-export async function consumeApiErrorResponse<T>(e: unknown): Promise<T | undefined> {
-  if (e instanceof ResponseError) {
-    return (await e.response.json()) as T;
+export function handleApiBusinessError<T extends SaApiErrorDto>(error: unknown): T {
+  if (error instanceof ApiBusinessError) {
+    return error.errorAs<T>();
   }
+  throw error;
 }
 
 export function skipGlobalErrorHandler(): AdditionalRequestParameters<RequestMetadata> {

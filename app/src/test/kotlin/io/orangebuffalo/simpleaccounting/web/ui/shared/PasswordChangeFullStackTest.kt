@@ -111,9 +111,6 @@ class PasswordChangeFullStackTest(
                 fill("newPassword")
             }
             changePasswordButton { click() }
-            page.shouldHaveNotifications {
-                validationFailed()
-            }
             currentPassword { formItem ->
                 formItem.shouldHaveValidationError("Current password does not match")
             }

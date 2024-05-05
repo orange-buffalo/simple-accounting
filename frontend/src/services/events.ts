@@ -1,4 +1,4 @@
-import type { ResponseError, FetchError, WorkspaceDto } from '@/services/api';
+import type { WorkspaceDto } from '@/services/api';
 
 export type Listener<T> = (data: T) => void;
 
@@ -35,8 +35,5 @@ export const SUCCESSFUL_LOGIN_EVENT: Event<void> = new EventImpl();
 
 export const LOADING_STARTED_EVENT: Event<void> = new EventImpl();
 export const LOADING_FINISHED_EVENT: Event<void> = new EventImpl();
-
-export const API_FATAL_ERROR_EVENT: Event<ResponseError | FetchError | Error> = new EventImpl();
-export const API_BAD_REQUEST_EVENT: Event<ResponseError> = new EventImpl();
 
 export const WORKSPACE_CHANGED_EVENT: Event<WorkspaceDto> = new EventImpl();

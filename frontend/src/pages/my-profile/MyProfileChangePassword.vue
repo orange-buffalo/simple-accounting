@@ -76,7 +76,7 @@
   import { useForm, useFormItemValidation } from '@/components/form/use-form';
   import useNotifications from '@/components/notifications/use-notifications';
   import {
-    consumeApiErrorResponse,
+    handleApiBusinessError,
     profileApi,
     ProfileApiBadRequestErrorsErrorEnum,
   } from '@/services/api';
@@ -128,11 +128,13 @@
       });
       showSuccessNotification($t.value.myProfile.changePassword.feedback.success());
     } catch (e: unknown) {
-      const errorResponse = await consumeApiErrorResponse<ProfileApiBadRequestErrors>(e);
-      if (errorResponse?.error === ProfileApiBadRequestErrorsErrorEnum.CurrentPasswordMismatch) {
+      const errorResponse = handleApiBusinessError<ProfileApiBadRequestErrors>(e);
+      if (errorResponse.error === ProfileApiBadRequestErrorsErrorEnum.CurrentPasswordMismatch) {
         currentPasswordValidation.setValidationError(
           $t.value.myProfile.changePassword.validations.currentPasswordMismatch(),
         );
+      } else {
+        throw e;
       }
     }
   };

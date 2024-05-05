@@ -15,11 +15,11 @@ class Notifications(
     }
 
     fun validationFailed() {
-        val successContainer = page.locator(".sa-notification--warning")
-        successContainer.assertThat().isVisible()
-        successContainer.locator(".el-message__content").assertThat()
+        val validationErrorContainer = page.locator(".sa-notification--warning")
+        validationErrorContainer.assertThat().isVisible()
+        validationErrorContainer.locator(".el-message__content").assertThat()
             .hasText("Validation failed. Please correct your input and try again")
-        successContainer.locator(".el-message__closeBtn").click()
-        successContainer.assertThat().isHidden()
+        validationErrorContainer.locator(".el-message__closeBtn").click()
+        validationErrorContainer.assertThat().isHidden()
     }
 }
