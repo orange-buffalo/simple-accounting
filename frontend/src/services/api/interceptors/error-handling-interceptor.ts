@@ -1,35 +1,62 @@
 import type { RequestMetadata } from '@/services/api/api-client';
-import type { Middleware } from '@/services/api/generated';
-import { API_BAD_REQUEST_EVENT, API_FATAL_ERROR_EVENT } from '@/services/events';
-import { FetchError, ResponseError } from '@/services/api/generated';
+import type { InvalidInputErrorDto, Middleware, SaApiErrorDto } from '@/services/api/generated';
+import {
+  ApiAuthError,
+  ApiBusinessError,
+  ApiFieldLevelValidationError, ApiRequestCancelledError, ApiTimeoutError,
+  ClientApiError,
+  FatalApiError,
+  ResourceNotFoundError,
+} from '@/services/api/api-errors.ts';
 
-function shouldSkipGlobalErrorHandler(metadata?: RequestMetadata) {
-  return metadata && metadata.skipGlobalErrorHandler;
-}
-
+/**
+ * Processes responses according to RestApiControllerExceptionsHandler logic.
+ */
 export const errorHandlingInterceptor: Middleware<RequestMetadata> = {
   async post({
     response,
-    metadata,
   }): Promise<Response | void> {
-    if (response.status === 400 && !shouldSkipGlobalErrorHandler(metadata)) {
-      API_BAD_REQUEST_EVENT.emit(new ResponseError(response));
-    } else if (response.status > 401 && !shouldSkipGlobalErrorHandler(metadata)) {
-      API_FATAL_ERROR_EVENT.emit(new ResponseError(response));
+    if (response.status === 404) {
+      throw new ResourceNotFoundError(response);
+    }
+
+    if (response.status === 401) {
+      throw new ApiAuthError(response);
+    }
+
+    const isJsonResponse = response.headers.get('content-type')
+      ?.includes('application/json');
+
+    if (response.status === 400 && isJsonResponse) {
+      const responseBody = await response.clone()
+        .json();
+      if (responseBody.error === 'InvalidInput') {
+        const invalidInputErrorDto = responseBody as InvalidInputErrorDto;
+        throw new ApiFieldLevelValidationError(response, invalidInputErrorDto);
+      } else {
+        const saApiErrorDto = responseBody as SaApiErrorDto;
+        throw new ApiBusinessError(response, saApiErrorDto);
+      }
+    }
+
+    if (response.status >= 300) {
+      throw new FatalApiError('Uncategorized API error happened', response);
     }
   },
 
   async onError({
     error,
     response,
-    metadata,
+    init,
   }): Promise<Response | void> {
-    if (!response && !shouldSkipGlobalErrorHandler(metadata)) {
-      if (error instanceof Error) {
-        API_FATAL_ERROR_EVENT.emit(new FetchError(error));
-      } else {
-        API_FATAL_ERROR_EVENT.emit(new Error('Request execution failed'));
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      const { reason } = init.signal;
+      if (reason instanceof ApiTimeoutError) {
+        throw reason;
+      } else if (reason instanceof ApiRequestCancelledError) {
+        throw reason;
       }
     }
+    throw new ClientApiError(`Request failed with error: ${error}`, error, response);
   },
 };

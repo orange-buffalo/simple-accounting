@@ -51,5 +51,17 @@ internal class SaOpenApiCustomizer(
                 .resolveAsResolvedSchema(AnnotatedType(errorDescriptor.responseBody.java))
                 .schema
         }
+
+        genericResponses.forEach {
+            openApi.components.schemas[it.simpleName] = ModelConverters.getInstance()
+                .resolveAsResolvedSchema(AnnotatedType(it))
+                .schema
+        }
     }
 }
+
+private val genericResponses = listOf(
+    InvalidInputErrorDto.FieldErrorDto::class.java,
+    InvalidInputErrorDto::class.java,
+    SaApiErrorDto::class.java,
+)

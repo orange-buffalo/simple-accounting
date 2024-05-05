@@ -160,6 +160,7 @@ internal class RestApiControllerExceptionsHandler(
                         } else null
                     )
                 } else {
+                    logger.warn { "No mapping is registered for $springError" }
                     InvalidInputErrorDto.FieldErrorDto(
                         field = fieldName,
                         error = springError,

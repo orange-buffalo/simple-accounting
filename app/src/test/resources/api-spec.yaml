@@ -2732,6 +2732,19 @@ components:
       properties:
         active:
           type: boolean
+    ProfileApiBadRequestErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - CurrentPasswordMismatch
+          - TransientUser
+          - NotAuthenticated
+        message:
+          type: string
     UserActivationTokensApiBadRequestErrors:
       required:
       - error
@@ -2744,16 +2757,41 @@ components:
           - TokenExpired
         message:
           type: string
-    ProfileApiBadRequestErrors:
+    FieldErrorDto:
+      required:
+      - error
+      - field
+      - message
+      type: object
+      properties:
+        field:
+          type: string
+        error:
+          type: string
+        message:
+          type: string
+        params:
+          type: object
+          additionalProperties:
+            type: string
+    InvalidInputErrorDto:
+      required:
+      - error
+      - requestErrors
+      type: object
+      properties:
+        error:
+          type: string
+        requestErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+    SaApiErrorDto:
       required:
       - error
       type: object
       properties:
         error:
           type: string
-          enum:
-          - CurrentPasswordMismatch
-          - TransientUser
-          - NotAuthenticated
         message:
           type: string
