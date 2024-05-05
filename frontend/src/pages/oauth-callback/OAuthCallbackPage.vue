@@ -37,8 +37,9 @@
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import { consumeApiErrorResponse, oAuth2CallbackApi, skipGlobalErrorHandler } from '@/services/api';
+  import { oAuth2CallbackApi, skipGlobalErrorHandler } from '@/services/api';
   import type { ErrorResponse } from '@/services/api';
+  import { ApiBusinessError } from '@/services/api/api-errors.ts';
 
   const loading = ref(true);
   const errorId = ref<string | undefined>();
@@ -60,11 +61,12 @@
       }, {}, skipGlobalErrorHandler());
       success.value = true;
     } catch (e: unknown) {
-      const apiError = await consumeApiErrorResponse<ErrorResponse>(e);
-      if (apiError) {
-        errorId.value = apiError.errorId;
+      if (e instanceof ApiBusinessError) {
+        // TODO #1209: proper typing here, use e.errorAs
+        const body = e.error as unknown as ErrorResponse;
+        errorId.value = body.errorId;
       } else {
-        errorId.value = '<unknown>';
+        throw e;
       }
     } finally {
       loading.value = false;
