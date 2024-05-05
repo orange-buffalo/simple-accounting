@@ -1,11 +1,10 @@
 import {
-  describe, test, expect, vi, afterEach,
+  describe, test, expect, vi,
 } from 'vitest';
 import 'whatwg-fetch';
-import fetchMock from 'fetch-mock/esm/client';
 import type { ApiPageRequest } from '@/services/api';
 import {
-  apiDateString, consumeAllPages, consumeApiErrorResponse, profileApi,
+  apiDateString, consumeAllPages,
 } from '@/services/api';
 
 describe('apiDateString', () => {
@@ -97,51 +96,5 @@ describe('consumeAllPage', () => {
       .eql(['a', 'b']);
     expect(executions)
       .toEqual(2);
-  });
-});
-
-describe('consumeApiErrorResponse', () => {
-  test('should consume API error response', async () => {
-    fetchMock.get('/api/profile', {
-      status: 409,
-      body: {
-        responseField: 42,
-      },
-    });
-
-    interface ErrorResponse {
-      responseField: number;
-    }
-
-    try {
-      await profileApi.getProfile();
-      expect(null, 'API call expected to fail')
-        .toBeDefined();
-    } catch (e) {
-      const response = await consumeApiErrorResponse<ErrorResponse>(e);
-      expect(response)
-        .toEqual({ responseField: 42 });
-    }
-  });
-
-  test('should consume API error response as undefined on fetch error', async () => {
-    fetchMock.get('/api/profile', {
-      throws: new Error(),
-    });
-
-    try {
-      await profileApi.getProfile();
-      expect(null, 'API call expected to fail')
-        .toBeDefined();
-    } catch (e) {
-      const response = await consumeApiErrorResponse(e);
-      expect(response)
-        .toBeUndefined();
-    }
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
-    fetchMock.restore();
   });
 });

@@ -2,6 +2,7 @@ import type { ApiPage, ApiPageRequest } from '@/services/api/api-types';
 import { ResponseError } from '@/services/api/generated';
 import type { AdditionalRequestParameters } from '@/services/api/generated/runtime';
 import type { RequestMetadata } from '@/services/api/api-client';
+import { ApiRequestCancelledError } from '@/services/api/api-errors.ts';
 
 export function apiDateString(date: Date) {
   return `${date.getFullYear()}-${
@@ -57,7 +58,7 @@ export function requestTimeout(timeoutMs: number): AdditionalRequestParameters<R
 
 export interface CancellableRequest {
   cancellableRequestConfig: RequestInit;
-  cancelRequest: () => void;
+  cancelRequest: (reason?: unknown) => void;
 }
 
 export function useCancellableRequest(): CancellableRequest {
@@ -66,7 +67,9 @@ export function useCancellableRequest(): CancellableRequest {
     cancellableRequestConfig: {
       signal: abortController.signal,
     },
-    cancelRequest: () => abortController.abort(),
+    cancelRequest: (reason?: unknown) => abortController.abort(
+      new ApiRequestCancelledError(reason),
+    ),
   };
 }
 
