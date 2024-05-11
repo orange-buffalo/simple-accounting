@@ -70,6 +70,7 @@
     unregisterFormItem: (prop: string) => {
       formItems.delete(prop);
     },
+    formValues: props.model,
   });
 
   const submitForm = async () => {

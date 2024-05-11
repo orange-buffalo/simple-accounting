@@ -4,6 +4,7 @@ import { FormItemContext } from 'element-plus';
 export type SaFormComponentsApi = {
   registerFormItem: (prop: string, item: FormItemContext) => void;
   unregisterFormItem: (prop: string) => void;
+  formValues: Record<string, unknown>;
 }
 
 const SaFormComponentsApiKey = Symbol('SaFormComponentsApi') as InjectionKey<SaFormComponentsApi>;

@@ -13,6 +13,7 @@ import {
   allOf, clickOnElement, waitForInputValue, waitForText,
 } from '@/__storybook__/screenshots';
 import { mockSuccessStorageStatus } from '@/__storybook__/api-mocks';
+import SaFormInput from '@/components/form/SaFormInput.vue';
 
 export default {
   title: 'Components/Basic/SaForm',
@@ -186,15 +187,18 @@ export const SaFormApi = defineStory(() => ({
     SaForm,
     SaFormItem,
     ElInput,
+    SaFormInput,
   },
   setup() {
     const formValues = ref({
-      name: 'Fry',
+      details: {
+        name: 'Fry',
+      },
     });
     const onSubmit = async () => {
       action('form-submit')(formValues.value);
       throwApiFieldLevelValidationError({
-        field: 'name',
+        field: 'details.name',
         error: 'SizeConstraintViolated',
         message: 'must not be null',
         params: {
@@ -217,11 +221,12 @@ export const SaFormApi = defineStory(() => ({
     <SaForm :model="formValues" :on-submit="onSubmit" :on-cancel="onCancel" id="validationForm">
       <SaFormItem
         label="Name"
-        prop="name"
+        prop="details.name"
       >
-        <ElInput v-model="formValues.name" />
+        <SaFormInput />
       </SaFormItem>
     </SaForm>
+    {{ formValues.details.name }}
 
     <h4>Custom button labels</h4>
     <SaForm :model="formValues"
