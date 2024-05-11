@@ -849,4 +849,14 @@ export default {
     userNotActivated: () => 'Не активований',
     edit: () => 'Редагувати',
   },
+
+  formValidationMessages: {
+    sizeMinMax: (min: number, max: number) => format('Довжина цього значення не повинна бути коротшою за {min, number} та не довшою за {max, number}', {
+      min,
+      max,
+    }),
+    sizeMax: (max: number) => format('Довжина цього значення не повинна перевищувати {max, number}', {
+      max,
+    }),
+  },
 };
