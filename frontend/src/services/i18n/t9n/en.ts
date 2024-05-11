@@ -850,4 +850,14 @@ export default {
     userNotActivated: () => 'Not yet activated',
     edit: () => 'Edit',
   },
+
+  formValidationMessages: {
+    sizeMinMax: (min: number, max: number) => format('The length of this value should be not shorter than {min, number} and no longer than {max, number}', {
+      min,
+      max,
+    }),
+    sizeMax: (max: number) => format('The length of this value should be no longer than {max, number}', {
+      max,
+    }),
+  },
 };

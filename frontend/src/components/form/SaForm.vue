@@ -39,6 +39,8 @@
   import { $t } from '@/services/i18n';
   import { provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ensureDefined, hasValue } from '@/services/utils.ts';
+  import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
+  import { getApiFieldErrorMessage } from '@/components/form/api-field-error-messages.ts';
 
   type SaFormProps = {
     model: Record<string, unknown>,
@@ -79,6 +81,21 @@
         if (props.onSubmit) {
           await props.onSubmit();
         }
+      }
+    } catch (e: unknown) {
+      if (e instanceof ApiFieldLevelValidationError) {
+        e.fieldErrors.forEach((fieldError) => {
+          const formItem = formItems.get(fieldError.field);
+          if (formItem) {
+            formItem.validateState = 'error';
+            // @ts-ignore
+            formItem.validateMessage = getApiFieldErrorMessage(fieldError);
+          } else {
+            throw new Error(`Form item not found for field ${fieldError.field}`);
+          }
+        });
+      } else {
+        throw e;
       }
     } finally {
       loading.value = false;

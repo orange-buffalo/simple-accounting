@@ -4,13 +4,13 @@ import { ElButton, ElFormItem, ElInput } from 'element-plus';
 import { defineComponent, ref } from 'vue';
 import { action } from '@storybook/addon-actions';
 import SaFormItem from '@/components/form/SaFormItem.vue';
-import { delay } from '@/__storybook__/stories-utils';
+import { delay, throwApiFieldLevelValidationError } from '@/__storybook__/stories-utils';
 import { useForm, useFormWithDocumentsUpload } from '@/components/form/use-form';
 import SaForm from '@/components/form/SaForm.vue';
 import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
 import {
-  allOf, clickOnElement, waitForInputValue,
+  allOf, clickOnElement, waitForInputValue, waitForText,
 } from '@/__storybook__/screenshots';
 import { mockSuccessStorageStatus } from '@/__storybook__/api-mocks';
 
@@ -193,7 +193,15 @@ export const SaFormApi = defineStory(() => ({
     });
     const onSubmit = async () => {
       action('form-submit')(formValues.value);
-      await delay(1000);
+      throwApiFieldLevelValidationError({
+        field: 'name',
+        error: 'SizeConstraintViolated',
+        message: 'must not be null',
+        params: {
+          min: '1',
+          max: '2557',
+        },
+      });
     };
     const onCancel = async () => {
       action('form-cancel')();
@@ -206,7 +214,7 @@ export const SaFormApi = defineStory(() => ({
   },
   template: `
     <h4>Defaults</h4>
-    <SaForm :model="formValues" :on-submit="onSubmit" :on-cancel="onCancel">
+    <SaForm :model="formValues" :on-submit="onSubmit" :on-cancel="onCancel" id="validationForm">
       <SaFormItem
         label="Name"
         prop="name"
@@ -214,23 +222,29 @@ export const SaFormApi = defineStory(() => ({
         <ElInput v-model="formValues.name" />
       </SaFormItem>
     </SaForm>
-    
+
     <h4>Custom button labels</h4>
-    <SaForm :model="formValues" 
+    <SaForm :model="formValues"
             :on-submit="onSubmit"
             submit-button-label="Submit"
             :on-cancel="onCancel"
-            cancel-button-label="Back">
+            cancel-button-label="Back"
+    >
       ...
     </SaForm>
-    
+
     <h4>No cancel callback</h4>
-    <SaForm :model="formValues" 
+    <SaForm :model="formValues"
             :on-submit="onSubmit"
-            submit-button-label="Submit">
+            submit-button-label="Submit"
+    >
       ...
     </SaForm>
   `,
 }), {
   asPage: true,
+  screenshotPreparation: allOf(
+    clickOnElement('#validationForm .el-button--primary'),
+    waitForText('The length of this value should be no longer than 2,557'),
+  ),
 });
