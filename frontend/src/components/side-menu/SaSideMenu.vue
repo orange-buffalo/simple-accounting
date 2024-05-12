@@ -45,6 +45,7 @@
     @include gradient-background;
     color: $white;
     width: 70px !important;
+    align-self: stretch;
 
     @include respond-above($menu-breakpoint) {
       width: 300px !important;
