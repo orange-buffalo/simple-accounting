@@ -1,8 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.ui.admin
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
@@ -22,31 +20,29 @@ class UsersOverviewFullStackTest {
         page.shouldHaveSideMenu().clickUsersOverview()
         page.shouldBeUsersOverviewPage()
             .pageItems {
-                shouldSatisfy { items ->
-                    items.map { it.toUserOverviewItem() }.shouldContainExactly(
-                        UserOverviewItem(
-                            userName = "aUser",
-                            userType = UserOverviewItem.regularUserType,
-                            userActivation = UserOverviewItem.activeUser,
-                        ),
-                        UserOverviewItem(
-                            userName = "B user",
-                            userType = UserOverviewItem.adminUserType,
-                            userActivation = UserOverviewItem.inactiveUser,
-                        ),
-                        UserOverviewItem(
-                            userName = "C User",
-                            userType = UserOverviewItem.regularUserType,
-                            userActivation = UserOverviewItem.inactiveUser,
-                        ),
-                        UserOverviewItem(
-                            userName = "Farnsworth",
-                            userType = UserOverviewItem.adminUserType,
-                            userActivation = UserOverviewItem.activeUser,
-                        ),
-                    )
-                    items.forEach { it.shouldNotHaveDetails() }
-                }
+                shouldHaveExactItems(
+                    UserOverviewItem(
+                        userName = "aUser",
+                        userType = UserOverviewItem.regularUserType,
+                        userActivation = UserOverviewItem.activeUser,
+                    ),
+                    UserOverviewItem(
+                        userName = "B user",
+                        userType = UserOverviewItem.adminUserType,
+                        userActivation = UserOverviewItem.inactiveUser,
+                    ),
+                    UserOverviewItem(
+                        userName = "C User",
+                        userType = UserOverviewItem.regularUserType,
+                        userActivation = UserOverviewItem.inactiveUser,
+                    ),
+                    UserOverviewItem(
+                        userName = "Farnsworth",
+                        userType = UserOverviewItem.adminUserType,
+                        userActivation = UserOverviewItem.activeUser,
+                    ),
+                ) { it.toUserOverviewItem() }
+                staticItems.forEach { it.shouldNotHaveDetails() }
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
@@ -58,15 +54,13 @@ class UsersOverviewFullStackTest {
     fun `should support pagination`(page: Page, testData: PaginationTestData) {
         page.loginAs(testData.farnsworth)
         page.shouldHaveSideMenu().clickUsersOverview()
-        val firsPageUsers = listOf(
+        val firsPageUsers = arrayOf(
             "Farnsworth", "user 1", "user 10", "user 11", "user 12",
             "user 13", "user 14", "user 15", "user 2", "user 3"
         )
         page.shouldBeUsersOverviewPage()
             .pageItems {
-                shouldSatisfy { items ->
-                    items.map { it.title }.shouldContainExactly(firsPageUsers)
-                }
+                shouldHaveExactItems(*firsPageUsers) { it.title }
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
@@ -74,19 +68,15 @@ class UsersOverviewFullStackTest {
                     shouldHaveActivePage(2)
                     shouldHaveTotalPages(2)
                 }
-                shouldSatisfy { items ->
-                    items.map { it.title }.shouldContainExactly(
-                        "user 4", "user 5", "user 6", "user 7", "user 8", "user 9"
-                    )
-                }
+                shouldHaveExactItems(
+                    "user 4", "user 5", "user 6", "user 7", "user 8", "user 9"
+                ) { it.title }
                 paginator {
                     previous()
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                 }
-                shouldSatisfy { items ->
-                    items.map { it.title }.shouldContainExactly(firsPageUsers)
-                }
+                shouldHaveExactItems(*firsPageUsers) { it.title }
             }
     }
 
@@ -97,11 +87,9 @@ class UsersOverviewFullStackTest {
         page.shouldBeUsersOverviewPage()
             .pageItems {
                 // ensure all targeted items visible by default
-                shouldSatisfy { items ->
-                    items.map { it.title }.shouldContainAll(
-                        "aBcDef", "abcdef", "ABCDEF", "qwerty"
-                    )
-                }
+                shouldContainItems(
+                    "aBcDef", "abcdef", "ABCDEF", "qwerty"
+                ) { it.title }
                 // ensure we update paginator as well
                 paginator {
                     shouldHaveActivePage(1)
@@ -110,9 +98,9 @@ class UsersOverviewFullStackTest {
             }
             .filterInput { fill("cd") }
             .pageItems {
-                shouldSatisfy { items ->
-                    items.map { it.title }.shouldContainExactly("aBcDef", "abcdef", "ABCDEF")
-                }
+                shouldHaveExactItems(
+                    "aBcDef", "abcdef", "ABCDEF"
+                ) { it.title }
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
