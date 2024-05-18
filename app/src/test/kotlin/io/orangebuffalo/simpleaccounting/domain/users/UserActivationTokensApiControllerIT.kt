@@ -6,7 +6,8 @@ import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotContain
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataFactory
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsBodyConfiguration
@@ -33,9 +34,10 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SimpleAccountingIntegrationTest
 @DisplayName("User Activation Token API ")
 class UserActivationTokensApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val aggregateTemplate: JdbcAggregateTemplate,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra
 ) {
 
     @BeforeEach
@@ -46,18 +48,16 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{userId}?by=userId")
     inner class GetUserActivationTokenByUserId {
-        private fun TestDataFactory.setupPreconditions() = setupAndCommit {
-            object {
-                val expiredToken = userActivationToken(
-                    token = "expired-token",
-                    expiresAt = MOCK_TIME.minusSeconds(1)
-                )
+        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+            val expiredToken = userActivationToken(
+                token = "expired-token",
+                expiresAt = MOCK_TIME.minusSeconds(1)
+            )
 
-                val activeToken = userActivationToken(
-                    token = "active-token",
-                    expiresAt = MOCK_TIME.plusSeconds(1)
-                )
-            }
+            val activeToken = userActivationToken(
+                token = "active-token",
+                expiresAt = MOCK_TIME.plusSeconds(1)
+            )
         }
 
         private fun request(userId: Long = 42): WebTestClient.RequestHeadersSpec<*> {
@@ -91,8 +91,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         @WithMockFarnsworthUser
-        fun `should return 404 for expired token`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should return 404 for expired token`() {
+            val preconditions = setupPreconditions()
 
             request(userId = preconditions.expiredToken.userId)
                 .exchange()
@@ -106,8 +106,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         @WithMockFarnsworthUser
-        fun `should return valid token`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should return valid token`() {
+            val preconditions = setupPreconditions()
 
             request(userId = preconditions.activeToken.userId)
                 .verifyOkAndJsonBodyEqualTo {
@@ -120,18 +120,16 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{token}")
     inner class GetUserActivationToken {
-        private fun TestDataFactory.setupPreconditions() = setupAndCommit {
-            object {
-                val expiredToken = userActivationToken(
-                    token = "expired-token",
-                    expiresAt = MOCK_TIME.minusSeconds(1)
-                )
+        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+            val expiredToken = userActivationToken(
+                token = "expired-token",
+                expiresAt = MOCK_TIME.minusSeconds(1)
+            )
 
-                val activeToken = userActivationToken(
-                    token = "active-token",
-                    expiresAt = MOCK_TIME.plusSeconds(1)
-                )
-            }
+            val activeToken = userActivationToken(
+                token = "active-token",
+                expiresAt = MOCK_TIME.plusSeconds(1)
+            )
         }
 
         private fun request(token: String): WebTestClient.RequestHeadersSpec<*> {
@@ -141,8 +139,8 @@ class UserActivationTokensApiControllerIT(
         }
 
         @Test
-        fun `should allow anonymous access`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should allow anonymous access`() {
+            val preconditions = setupPreconditions()
             request(preconditions.activeToken.token)
                 .exchange()
                 .expectStatus().is2xxSuccessful
@@ -150,8 +148,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         @WithMockFryUser
-        fun `should allow access with regular user privileges`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should allow access with regular user privileges`() {
+            val preconditions = setupPreconditions()
             request(preconditions.activeToken.token)
                 .exchange()
                 .expectStatus().is2xxSuccessful
@@ -165,8 +163,8 @@ class UserActivationTokensApiControllerIT(
         }
 
         @Test
-        fun `should return 404 for expired token`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should return 404 for expired token`() {
+            val preconditions = setupPreconditions()
             request(preconditions.expiredToken.token)
                 .exchange()
                 .expectStatus().isNotFound
@@ -178,8 +176,8 @@ class UserActivationTokensApiControllerIT(
         }
 
         @Test
-        fun `should return valid token`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should return valid token`() {
+            val preconditions = setupPreconditions()
             request(preconditions.activeToken.token)
                 .verifyOkAndJsonBodyEqualTo {
                     put("token", "active-token")
@@ -191,23 +189,21 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("POST /api/user-activation-tokens")
     inner class CreateToken {
-        private fun TestDataFactory.setupPreconditions() = setupAndCommit {
-            object {
-                val userWithoutToken = platformUser(
-                    activated = false
-                )
-                val userWithToken = platformUser(
-                    activated = false
-                )
-                val existingToken = userActivationToken(
-                    user = userWithToken,
-                    token = "existing-token",
-                    expiresAt = MOCK_TIME.plusSeconds(1)
-                )
-                val activatedUser = platformUser(
-                    activated = true
-                )
-            }
+        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+            val userWithoutToken = platformUser(
+                activated = false
+            )
+            val userWithToken = platformUser(
+                activated = false
+            )
+            val existingToken = userActivationToken(
+                user = userWithToken,
+                token = "existing-token",
+                expiresAt = MOCK_TIME.plusSeconds(1)
+            )
+            val activatedUser = platformUser(
+                activated = true
+            )
         }
 
         private fun request(userId: Long = 42): WebTestClient.RequestHeadersSpec<*> {
@@ -244,8 +240,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         @WithMockFarnsworthUser
-        fun `should return 400 when trying to create a token for activated user`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should return 400 when trying to create a token for activated user`() {
+            val preconditions = setupPreconditions()
             request(preconditions.activatedUser.id!!)
                 .exchange()
                 .expectStatus().isBadRequest
@@ -257,8 +253,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         @WithMockFarnsworthUser
-        fun `should create token for user without token`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should create token for user without token`() {
+            val preconditions = setupPreconditions()
             request(userId = preconditions.userWithoutToken.id!!)
                 .exchange()
                 .expectStatus().isCreated
@@ -273,8 +269,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         @WithMockFarnsworthUser
-        fun `should create new token for user with existing token`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should create new token for user with existing token`() {
+            val preconditions = setupPreconditions()
             request(userId = preconditions.userWithToken.id!!)
                 .exchange()
                 .expectStatus().isCreated
@@ -296,21 +292,19 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("POST /api/user-activation-tokens/{token}/activate")
     inner class ActivateUser {
-        private fun TestDataFactory.setupPreconditions() = setupAndCommit {
-            object {
-                val expiredToken = userActivationToken(
-                    token = "expired-token",
-                    expiresAt = MOCK_TIME.minusSeconds(1)
-                )
-                val user = platformUser(
-                    activated = false
-                )
-                val activeToken = userActivationToken(
-                    user = user,
-                    token = "active-token",
-                    expiresAt = MOCK_TIME.plusSeconds(1)
-                )
-            }
+        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+            val expiredToken = userActivationToken(
+                token = "expired-token",
+                expiresAt = MOCK_TIME.minusSeconds(1)
+            )
+            val user = platformUser(
+                activated = false
+            )
+            val activeToken = userActivationToken(
+                user = user,
+                token = "active-token",
+                expiresAt = MOCK_TIME.plusSeconds(1)
+            )
         }
 
         private fun request(
@@ -327,8 +321,8 @@ class UserActivationTokensApiControllerIT(
         }
 
         @Test
-        fun `should allow anonymous access`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should allow anonymous access`() {
+            val preconditions = setupPreconditions()
             request(preconditions.activeToken.token)
                 .exchange()
                 .expectStatus().is2xxSuccessful
@@ -336,8 +330,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         @WithMockFryUser
-        fun `should allow access with regular user privileges`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should allow access with regular user privileges`() {
+            val preconditions = setupPreconditions()
             request(preconditions.activeToken.token)
                 .exchange()
                 .expectStatus().is2xxSuccessful
@@ -351,8 +345,8 @@ class UserActivationTokensApiControllerIT(
         }
 
         @Test
-        fun `should return 400 for expired token`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should return 400 for expired token`() {
+            val preconditions = setupPreconditions()
             request(preconditions.expiredToken.token)
                 .exchange()
                 .expectStatus().isBadRequest
@@ -368,8 +362,8 @@ class UserActivationTokensApiControllerIT(
         }
 
         @Test
-        fun `should activate account when valid token is used`(testDataFactory: TestDataFactory) {
-            val preconditions = testDataFactory.setupPreconditions()
+        fun `should activate account when valid token is used`() {
+            val preconditions = setupPreconditions()
 
             request(preconditions.activeToken.token)
                 .verifyOkNoContent()
@@ -387,8 +381,8 @@ class UserActivationTokensApiControllerIT(
 
         @Nested
         inner class RequestsValidation : ApiRequestsValidationsTestBase() {
-            override val requestExecutionSpec = { requestBody: String, testDataFactory: TestDataFactory ->
-                val preconditions = testDataFactory.setupPreconditions()
+            override val requestExecutionSpec = { requestBody: String ->
+                val preconditions = setupPreconditions()
                 request(preconditions.activeToken.token, body = requestBody)
             }
 

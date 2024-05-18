@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra
 
 import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecatedExtension
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataExtension
+import io.orangebuffalo.simpleaccounting.infra.database.DatabaseCleanupExtension
 import io.orangebuffalo.simpleaccounting.infra.security.TestPasswordEncoderConfig
 import io.orangebuffalo.simpleaccounting.infra.security.TestPasswordEncoderListener
 import io.orangebuffalo.simpleaccounting.infra.utils.TestsMocksConfiguration
@@ -13,7 +13,7 @@ import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@ExtendWith(SpringExtension::class, TestDataDeprecatedExtension::class, TestDataExtension::class)
+@ExtendWith(SpringExtension::class, TestDataDeprecatedExtension::class, DatabaseCleanupExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @TestPropertySource(properties = ["spring.profiles.active=test"])

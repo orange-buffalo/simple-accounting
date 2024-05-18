@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.utils
 
 import io.orangebuffalo.simpleaccounting.infra.api.verifyBadRequestAndJsonBody
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataFactory
 import kotlinx.serialization.json.*
 import mu.KotlinLogging
 import org.junit.jupiter.api.DisplayName
@@ -16,8 +15,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import java.util.stream.Stream
 
 typealias ApiRequestsValidationsTestRequestExecutionSpec = (
-    requestBody: String,
-    testDataFactory: TestDataFactory
+    requestBody: String
 ) -> WebTestClient.RequestHeadersSpec<*>
 
 typealias ApiRequestsBodyConfiguration = ApiRequestsValidationsBodySpec.() -> Unit
@@ -39,15 +37,15 @@ abstract class ApiRequestsValidationsTestBase {
 
     @ParameterizedTest(name = "{0}")
     @ArgumentsSource(ApiRequestsValidationsArgumentsProvider::class)
-    fun `should validate requests`(testCase: ApiRequestsValidationsTestCase, testDataFactory: TestDataFactory) {
+    fun `should validate requests`(testCase: ApiRequestsValidationsTestCase) {
         log.debug { "Executing request:\n${testCase.requestBody}" }
 
         if (testCase.expectedValidationErrorResponse == null) {
-            requestExecutionSpec(testCase.requestBody.toString(), testDataFactory)
+            requestExecutionSpec(testCase.requestBody.toString())
                 .exchange()
                 .expectStatus().isEqualTo(successResponseStatus)
         } else {
-            requestExecutionSpec(testCase.requestBody.toString(), testDataFactory)
+            requestExecutionSpec(testCase.requestBody.toString())
                 .verifyBadRequestAndJsonBody(testCase.expectedValidationErrorResponse.toString())
         }
     }

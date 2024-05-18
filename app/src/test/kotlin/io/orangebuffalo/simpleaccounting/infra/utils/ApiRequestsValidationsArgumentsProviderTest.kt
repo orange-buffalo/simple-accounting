@@ -24,7 +24,7 @@ class ApiRequestsValidationsArgumentsProviderTest {
     @Test
     fun `should generate proper arguments for api requests validations`() {
         val testInstance = object : ApiRequestsValidationsTestBase() {
-            override val requestExecutionSpec: ApiRequestsValidationsTestRequestExecutionSpec = { _, _ ->
+            override val requestExecutionSpec: ApiRequestsValidationsTestRequestExecutionSpec = { _ ->
                 throw NotImplementedError("Not relevant for this test")
             }
 

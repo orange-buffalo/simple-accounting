@@ -4,8 +4,8 @@ import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBodyEqualTo
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -36,9 +36,10 @@ private const val TOKEN_PATH = "/api/auth/token"
 
 @SimpleAccountingIntegrationTest
 class AuthenticationApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val passwordEncoder: PasswordEncoder,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val passwordEncoder: PasswordEncoder,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
     @MockBean
     lateinit var jwtService: JwtService
@@ -47,11 +48,13 @@ class AuthenticationApiControllerIT(
     lateinit var refreshTokenService: RefreshTokenService
 
     @Test
-    fun `should return a JWT token for valid user login credentials`(testData: AuthenticationApiTestData) {
-        whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
+    fun `should return a JWT token for valid user login credentials`() {
+        val preconditions = setupPreconditions()
+
+        whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
-            userName == "Fry"
+            userName == preconditions.fry.userName
                     && roles.size == 1
                     && roles.contains("USER")
         }, eq(null))) doReturn "jwtTokenForFry"
@@ -60,7 +63,7 @@ class AuthenticationApiControllerIT(
             .contentType(APPLICATION_JSON)
             .bodyValue(
                 LoginRequest(
-                    userName = "Fry",
+                    userName = preconditions.fry.userName,
                     password = "qwerty"
                 )
             )
@@ -72,11 +75,13 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return a JWT token for valid admin login credentials`(testData: AuthenticationApiTestData) {
-        whenever(passwordEncoder.matches("$&#@(@", "scienceBasedHash")) doReturn true
+    fun `should return a JWT token for valid admin login credentials`() {
+        val preconditions = setupPreconditions()
+
+        whenever(passwordEncoder.matches("$&#@(@", preconditions.farnsworth.passwordHash)) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
-            userName == "Farnsworth"
+            userName == preconditions.farnsworth.userName
                     && roles.size == 1
                     && roles.contains("ADMIN")
         }, eq(null))) doReturn "jwtTokenForFarnsworth"
@@ -85,7 +90,7 @@ class AuthenticationApiControllerIT(
             .contentType(APPLICATION_JSON)
             .bodyValue(
                 LoginRequest(
-                    userName = "Farnsworth",
+                    userName = preconditions.farnsworth.userName,
                     password = "$&#@(@"
                 )
             )
@@ -114,14 +119,16 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return 401 when password does not match`(testData: AuthenticationApiTestData) {
-        whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
+    fun `should return 401 when password does not match`() {
+        val preconditions = setupPreconditions()
+
+        whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn false
 
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
             .bodyValue(
                 LoginRequest(
-                    userName = "Fry",
+                    userName = preconditions.fry.userName,
                     password = "qwerty"
                 )
             )
@@ -133,12 +140,14 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return 401 when user is not activated`(testData: AuthenticationApiTestData) {
+    fun `should return 401 when user is not activated`() {
+        val preconditions = setupPreconditions()
+
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
             .bodyValue(
                 LoginRequest(
-                    userName = "Inactive",
+                    userName = preconditions.inactiveUser.userName,
                     password = "irrelevant"
                 )
             )
@@ -182,6 +191,7 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return 400 on non-json request body`() {
+        @Suppress("JsonStandardCompliance")
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
             .bodyValue("hello")
@@ -234,26 +244,26 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return a refresh token for valid user login credentials if remember me requested`(
-        testData: AuthenticationApiTestData
-    ) {
-        whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
+    fun `should return a refresh token for valid user login credentials if remember me requested`() {
+        val preconditions = setupPreconditions()
+
+        whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
-            userName == "Fry"
+            userName == preconditions.fry.userName
                     && roles.size == 1
                     && roles.contains("USER")
         }, eq(null))) doReturn "jwtTokenForFry"
 
         runBlocking {
-            whenever(refreshTokenService.generateRefreshToken("Fry")) doReturn "refreshTokenForFry"
+            whenever(refreshTokenService.generateRefreshToken(preconditions.fry.userName)) doReturn "refreshTokenForFry"
         }
 
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
             .bodyValue(
                 LoginRequest(
-                    userName = "Fry",
+                    userName = preconditions.fry.userName,
                     password = "qwerty",
                     rememberMe = true
                 )
@@ -272,11 +282,11 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return a JWT token when token endpoint is hit and cookie is valid`(
-        testData: AuthenticationApiTestData
-    ) {
+    fun `should return a JWT token when token endpoint is hit and cookie is valid`() {
+        val preconditions = setupPreconditions()
+
         runBlocking {
-            val principal = createRegularUserPrincipal("Fry", "", listOf("USER"))
+            val principal = createRegularUserPrincipal(preconditions.fry.userName, "", listOf("USER"))
 
             whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFry"
             whenever(refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn principal
@@ -293,12 +303,12 @@ class AuthenticationApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return a JWT token when token endpoint is hit and user is authenticated with regular user`(
-        testData: AuthenticationApiTestData
-    ) {
+    fun `should return a JWT token when token endpoint is hit and user is authenticated with regular user`() {
+        val preconditions = setupPreconditions()
+
         runBlocking {
             whenever(jwtService.buildJwtToken(argThat {
-                userName == "Fry"
+                userName == preconditions.fry.userName
             }, eq(null))) doReturn "jwtTokenForFry"
 
             client.post().uri(TOKEN_PATH)
@@ -314,15 +324,15 @@ class AuthenticationApiControllerIT(
 
     @Test
     @WithSaMockUser(transient = true, workspaceAccessToken = "validToken")
-    fun `should return a JWT token when token endpoint is hit and user is authenticated with transient user`(
-        testData: AuthenticationApiTestData
-    ) {
+    fun `should return a JWT token when token endpoint is hit and user is authenticated with transient user`() {
+        val preconditions = setupPreconditions()
+
         runBlocking {
             mockCurrentTime(timeService)
 
             whenever(jwtService.buildJwtToken(argThat {
                 userName == "validToken"
-            }, eq(testData.validAccessToken.validTill))) doReturn "jwtTokenForTransientUser"
+            }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForTransientUser"
 
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
@@ -336,9 +346,9 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return 401 if refresh token is not valid and user is not authenticated`(
-        testData: AuthenticationApiTestData
-    ) {
+    fun `should return 401 if refresh token is not valid and user is not authenticated`() {
+        setupPreconditions()
+
         runBlocking {
             whenever(
                 refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")
@@ -353,9 +363,9 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return 401 if refresh token is missing and user is not authenticated`(
-        testData: AuthenticationApiTestData
-    ) {
+    fun `should return 401 if refresh token is missing and user is not authenticated`() {
+        setupPreconditions()
+
         runBlocking {
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
@@ -365,7 +375,9 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return 401 on shared workspaces token login if token is not known`(testData: AuthenticationApiTestData) {
+    fun `should return 401 on shared workspaces token login if token is not known`() {
+        setupPreconditions()
+
         mockCurrentTime(timeService)
 
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=42")
@@ -374,35 +386,41 @@ class AuthenticationApiControllerIT(
     }
 
     @Test
-    fun `should return 401 on shared workspaces token login if token is revoked`(testData: AuthenticationApiTestData) {
+    fun `should return 401 on shared workspaces token login if token is revoked`() {
+        val preconditions = setupPreconditions()
+
         mockCurrentTime(timeService)
 
-        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=revokedToken")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.revokedAccessToken.token}")
             .exchange()
             .expectStatus().isUnauthorized
     }
 
     @Test
-    fun `should return 401 on shared workspaces token login if token is expired`(testData: AuthenticationApiTestData) {
+    fun `should return 401 on shared workspaces token login if token is expired`() {
+        val preconditions = setupPreconditions()
+
         mockCurrentTime(timeService)
 
-        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=expiredToken")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.expiredAccessToken.token}")
             .exchange()
             .expectStatus().isUnauthorized
     }
 
     @Test
-    fun `should return a JWT token for valid workspace access token`(testData: AuthenticationApiTestData) {
+    fun `should return a JWT token for valid workspace access token`() {
+        val preconditions  = setupPreconditions()
+
         mockCurrentTime(timeService)
 
         whenever(jwtService.buildJwtToken(argThat {
-            userName == "validToken"
+            userName == preconditions.validAccessToken.token
                     && isTransient
                     && roles.size == 1
                     && roles.contains("USER")
-        }, eq(testData.validAccessToken.validTill))) doReturn "jwtTokenForSharedWorkspace"
+        }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForSharedWorkspace"
 
-        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=validToken")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.validAccessToken.token}")
             .exchange()
             .expectStatus().isOk
             .expectHeader().doesNotExist(HttpHeaders.SET_COOKIE)
@@ -410,37 +428,31 @@ class AuthenticationApiControllerIT(
             .jsonPath("$.token").isEqualTo("jwtTokenForSharedWorkspace")
     }
 
-    class AuthenticationApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val inactiveUser = Prototypes.platformUser(
+    private fun setupPreconditions() = object: Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val inactiveUser = platformUser(
             userName = "Inactive",
             activated = false
         )
-        val fryWorkspace = Prototypes.workspace(owner = fry)
-        val revokedAccessToken = Prototypes.workspaceAccessToken(
+        val fryWorkspace = workspace(owner = fry)
+        val revokedAccessToken = workspaceAccessToken(
             workspace = fryWorkspace,
             revoked = true,
             validTill = MOCK_TIME.plus(Duration.ofDays(100)),
             token = "revokedToken"
         )
-        val expiredAccessToken = Prototypes.workspaceAccessToken(
+        val expiredAccessToken = workspaceAccessToken(
             workspace = fryWorkspace,
             revoked = false,
             validTill = MOCK_TIME.minusMillis(1),
             token = "expiredToken"
         )
-        val validAccessToken = Prototypes.workspaceAccessToken(
+        val validAccessToken = workspaceAccessToken(
             workspace = fryWorkspace,
             revoked = false,
             validTill = MOCK_TIME.plus(Duration.ofDays(42)),
             token = "validToken"
-        )
-
-        override fun generateData() = listOf(
-            fry, farnsworth, fryWorkspace,
-            revokedAccessToken, expiredAccessToken, validAccessToken,
-            inactiveUser,
         )
     }
 }
