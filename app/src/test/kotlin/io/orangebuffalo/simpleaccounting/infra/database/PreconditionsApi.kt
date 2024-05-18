@@ -42,7 +42,7 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         documentsStorage: String? = null,
         i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en"),
         activated: Boolean = true,
-    ) = infra.save(
+    ) = save(
         PlatformUser(
             userName = userName,
             passwordHash = passwordHash,
@@ -59,7 +59,7 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         expiresAt: Instant = MOCK_TIME,
     ): UserActivationToken {
         val userId = if (user == null) platformUser().id else user.id
-        return infra.save(
+        return save(
             UserActivationToken(
                 userId = userId!!,
                 token = token,
@@ -94,7 +94,7 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         defaultCurrency: String = "USD"
     ): Workspace {
         val ownerId = if (owner == null) platformUser().id else owner.id
-        return infra.save(
+        return save(
             Workspace(
                 name = name,
                 ownerId = ownerId!!,
@@ -113,7 +113,7 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         token: String = "token"
     ): WorkspaceAccessToken {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
-        return infra.save(
+        return save(
             WorkspaceAccessToken(
                 workspaceId = workspaceId!!,
                 timeCreated = timeCreated,
@@ -133,7 +133,7 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         sizeInBytes: Long? = null
     ): Document {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
-        return infra.save(
+        return save(
             Document(
                 name = name,
                 workspaceId = workspaceId!!,
@@ -144,6 +144,8 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
             )
         )
     }
+
+    protected fun <T : Any> save(entity: T): T = infra.save(entity)
 }
 
 /**

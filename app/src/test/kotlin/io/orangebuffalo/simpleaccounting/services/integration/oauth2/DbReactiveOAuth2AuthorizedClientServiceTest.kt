@@ -9,10 +9,11 @@ import assertk.assertions.prop
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -30,8 +31,9 @@ import java.time.Instant
 
 @SimpleAccountingIntegrationTest
 internal class DbReactiveOAuth2AuthorizedClientServiceTest(
-    @Autowired val clientService: DbReactiveOAuth2AuthorizedClientService,
-    @Autowired val repository: PersistentOAuth2AuthorizedClientRepository
+    @Autowired private val clientService: DbReactiveOAuth2AuthorizedClientService,
+    @Autowired private val repository: PersistentOAuth2AuthorizedClientRepository,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @field:MockBean
@@ -54,7 +56,8 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 
     @Test
-    fun `should load client information on fully specified client`(data: AuthorizedClientData) {
+    fun `should load client information on fully specified client`() {
+        val data = setupPreconditions()
         val actualToken: OAuth2AuthorizedClient? =
             clientService.loadAuthorizedClient<OAuth2AuthorizedClient?>("clientRegistration", "fullClient").block()
 
@@ -78,7 +81,8 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 
     @Test
-    fun `should load client information on a client without refresh token`(data: AuthorizedClientData) {
+    fun `should load client information on a client without refresh token`() {
+        val data = setupPreconditions()
         val actualToken: OAuth2AuthorizedClient? =
             clientService.loadAuthorizedClient<OAuth2AuthorizedClient?>("clientRegistration", "noRefreshTokenClient")
                 .block()
@@ -100,7 +104,9 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 
     @Test
-    fun `should save new authorized client with full information provided`(data: AuthorizedClientData) {
+    fun `should save new authorized client with full information provided`() {
+        setupPreconditions()
+
         val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(57733)
         val accessTokenIssueTime: Instant = Instant.ofEpochMilli(57734)
         val accessTokenExpireTime: Instant = Instant.ofEpochMilli(57735)
@@ -142,7 +148,9 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 
     @Test
-    fun `should save new authorized client without refresh token provided`(data: AuthorizedClientData) {
+    fun `should save new authorized client without refresh token provided`() {
+        setupPreconditions()
+
         val accessTokenIssueTime: Instant = Instant.ofEpochMilli(57734)
         val accessTokenExpireTime: Instant = Instant.ofEpochMilli(57735)
 
@@ -179,7 +187,9 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 
     @Test
-    fun `should update full authorized client with full information provided`(data: AuthorizedClientData) {
+    fun `should update full authorized client with full information provided`() {
+        setupPreconditions()
+
         val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(57733)
         val accessTokenIssueTime: Instant = Instant.ofEpochMilli(57734)
         val accessTokenExpireTime: Instant = Instant.ofEpochMilli(57735)
@@ -221,7 +231,9 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 
     @Test
-    fun `should update authorized client without refresh token with full information provided`(data: AuthorizedClientData) {
+    fun `should update authorized client without refresh token with full information provided`() {
+        setupPreconditions()
+
         val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(57733)
         val accessTokenIssueTime: Instant = Instant.ofEpochMilli(57734)
         val accessTokenExpireTime: Instant = Instant.ofEpochMilli(57735)
@@ -263,7 +275,9 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 
     @Test
-    fun `should update authorized client without refresh token with information without refresh token`(data: AuthorizedClientData) {
+    fun `should update authorized client without refresh token with information without refresh token`() {
+        setupPreconditions()
+
         val accessTokenIssueTime: Instant = Instant.ofEpochMilli(57734)
         val accessTokenExpireTime: Instant = Instant.ofEpochMilli(57735)
 
@@ -300,7 +314,9 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     }
 
     @Test
-    fun `should preserve refresh token on update full authorized client with no refresh token`(data: AuthorizedClientData) {
+    fun `should preserve refresh token on update full authorized client with no refresh token`() {
+        val data = setupPreconditions()
+
         val accessTokenIssueTime: Instant = Instant.ofEpochMilli(57734)
         val accessTokenExpireTime: Instant = Instant.ofEpochMilli(57735)
 
@@ -335,34 +351,38 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
             prop(PersistentOAuth2AuthorizedClient::clientRegistrationId).isEqualTo("clientRegistration")
         }
     }
-}
 
-class AuthorizedClientData : TestDataDeprecated {
-    val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(47733)
-    val accessTokenIssueTime: Instant = Instant.ofEpochMilli(47734)
-    val accessTokenExpireTime: Instant = Instant.ofEpochMilli(47735)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(47733)
+        val accessTokenIssueTime: Instant = Instant.ofEpochMilli(47734)
+        val accessTokenExpireTime: Instant = Instant.ofEpochMilli(47735)
 
-    private val fullClient = PersistentOAuth2AuthorizedClient(
-        clientRegistrationId = "clientRegistration",
-        refreshTokenIssuedAt = refreshTokenIssueTime,
-        refreshToken = "refreshToken",
-        accessToken = "accessToken",
-        accessTokenIssuedAt = accessTokenIssueTime,
-        accessTokenExpiresAt = accessTokenExpireTime,
-        userName = "fullClient",
-        accessTokenScopes = setOf(ClientTokenScope("scope"))
-    )
+        init {
+            save(
+                PersistentOAuth2AuthorizedClient(
+                    clientRegistrationId = "clientRegistration",
+                    refreshTokenIssuedAt = refreshTokenIssueTime,
+                    refreshToken = "refreshToken",
+                    accessToken = "accessToken",
+                    accessTokenIssuedAt = accessTokenIssueTime,
+                    accessTokenExpiresAt = accessTokenExpireTime,
+                    userName = "fullClient",
+                    accessTokenScopes = setOf(ClientTokenScope("scope"))
+                )
+            )
 
-    private val noRefreshTokenClient = PersistentOAuth2AuthorizedClient(
-        clientRegistrationId = "clientRegistration",
-        refreshTokenIssuedAt = null,
-        refreshToken = null,
-        accessToken = "accessToken",
-        accessTokenIssuedAt = accessTokenIssueTime,
-        accessTokenExpiresAt = accessTokenExpireTime,
-        userName = "noRefreshTokenClient",
-        accessTokenScopes = setOf(ClientTokenScope("scope"))
-    )
-
-    override fun generateData() = listOf(fullClient, noRefreshTokenClient)
+            save(
+                PersistentOAuth2AuthorizedClient(
+                    clientRegistrationId = "clientRegistration",
+                    refreshTokenIssuedAt = null,
+                    refreshToken = null,
+                    accessToken = "accessToken",
+                    accessTokenIssuedAt = accessTokenIssueTime,
+                    accessTokenExpiresAt = accessTokenExpireTime,
+                    userName = "noRefreshTokenClient",
+                    accessTokenScopes = setOf(ClientTokenScope("scope"))
+                )
+            )
+        }
+    }
 }
