@@ -3,17 +3,17 @@ package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 import com.github.tomakehurst.wiremock.client.WireMock.badRequest
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.nhaarman.mockitokotlin2.*
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.infra.api.urlEncodeParameter
 import io.orangebuffalo.simpleaccounting.infra.api.willReturnOkJson
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -46,7 +46,8 @@ import java.util.function.Consumer
 @NeedsWireMock
 internal class OAuth2ClientAuthorizationProviderIT(
     @Autowired private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider,
-    @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate
+    @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @MockBean
@@ -66,7 +67,9 @@ internal class OAuth2ClientAuthorizationProviderIT(
 
     @Test
     @WithSaMockUser(userName = "Fry")
-    fun `should create a valid authorization URL`(testData: AuthorizationProviderTestData) {
+    fun `should create a valid authorization URL`() {
+        setupPreconditions()
+
         val actualUrl = runBlocking { clientAuthorizationProvider.buildAuthorizationUrl("test-client") }
 
         verifyBlocking(savedAuthorizationRequestRepository) { save(capture(savedRequestCaptor)) }
@@ -88,7 +91,9 @@ internal class OAuth2ClientAuthorizationProviderIT(
 
     @Test
     @WithSaMockUser(userName = "Fry")
-    fun `should add additional parameters to authorization URL`(testData: AuthorizationProviderTestData) {
+    fun `should add additional parameters to authorization URL`() {
+        setupPreconditions()
+
         val actualUrl = runBlocking {
             clientAuthorizationProvider.buildAuthorizationUrl("test-client", mapOf("param1" to "value1"))
         }
@@ -106,9 +111,8 @@ internal class OAuth2ClientAuthorizationProviderIT(
     }
 
     @Test
-    fun `should emit OAuth2FailedEvent and throw exception if error is provided in the response`(
-        testData: AuthorizationProviderTestData
-    ) {
+    fun `should emit OAuth2FailedEvent and throw exception if error is provided in the response`() {
+        val testData = setupPreconditions()
 
         mockSavedRequest(testData.fry)
 
@@ -121,13 +125,12 @@ internal class OAuth2ClientAuthorizationProviderIT(
             )
         }
 
-        verifyAuthFailedEvent(testData)
+        verifyAuthFailedEvent(testData.fry)
     }
 
     @Test
-    fun `should emit OAuth2FailedEvent and throw exception if code is not provided in the response`(
-        testData: AuthorizationProviderTestData
-    ) {
+    fun `should emit OAuth2FailedEvent and throw exception if code is not provided in the response`() {
+        val testData = setupPreconditions()
 
         mockSavedRequest(testData.fry)
 
@@ -140,13 +143,12 @@ internal class OAuth2ClientAuthorizationProviderIT(
             )
         }
 
-        verifyAuthFailedEvent(testData)
+        verifyAuthFailedEvent(testData.fry)
     }
 
     @Test
-    fun `should emit OAuth2FailedEvent and throw exception if token endpoint fails`(
-        testData: AuthorizationProviderTestData
-    ) {
+    fun `should emit OAuth2FailedEvent and throw exception if token endpoint fails`() {
+        val testData = setupPreconditions()
 
         mockSavedRequest(testData.fry)
         stubPostRequestTo("/token") {
@@ -155,11 +157,13 @@ internal class OAuth2ClientAuthorizationProviderIT(
 
         assertThatThrownBy { handleAuthorizationResponse(callbackRequestProto()) }
 
-        verifyAuthFailedEvent(testData)
+        verifyAuthFailedEvent(testData.fry)
     }
 
     @Test
-    fun `should call token endpoint with proper parameters`(testData: AuthorizationProviderTestData) {
+    fun `should call token endpoint with proper parameters`() {
+        val testData = setupPreconditions()
+
         mockSavedRequest(testData.fry)
 
         stubPostRequestTo("/token") {
@@ -182,7 +186,9 @@ internal class OAuth2ClientAuthorizationProviderIT(
     }
 
     @Test
-    fun `should save persisted client and emit successful auth even on token response`(testData: AuthorizationProviderTestData) {
+    fun `should save persisted client and emit successful auth even on token response`() {
+        val testData = setupPreconditions()
+
         mockSavedRequest(testData.fry)
 
         stubPostRequestTo("/token") {
@@ -215,11 +221,11 @@ internal class OAuth2ClientAuthorizationProviderIT(
         })
     }
 
-    private fun verifyAuthFailedEvent(testData: AuthorizationProviderTestData) {
+    private fun verifyAuthFailedEvent(fry: PlatformUser) {
         verify(authEventTestListener).onFailedAuth(capture(authFailedEventCaptor))
         val authFailedEvent = authFailedEventCaptor.value
         assertThat(authFailedEvent.clientRegistrationId).isEqualTo("test-client")
-        assertThat(authFailedEvent.user).isEqualTo(testData.fry)
+        assertThat(authFailedEvent.user).isEqualTo(fry)
     }
 
     private fun callbackRequestProto() = OAuth2AuthorizationCallbackRequest(
@@ -248,9 +254,8 @@ internal class OAuth2ClientAuthorizationProviderIT(
         runBlocking { clientAuthorizationProvider.handleAuthorizationResponse(request) }
     }
 
-    class AuthorizationProviderTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        override fun generateData() = listOf(fry)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
     }
 
     // workaround for https://github.com/spring-projects/spring-framework/issues/18907
