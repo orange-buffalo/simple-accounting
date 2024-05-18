@@ -2,18 +2,23 @@ package io.orangebuffalo.simpleaccounting.web.ui.shared
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.openLoginPage
 import io.orangebuffalo.simpleaccounting.web.ui.user.pages.shouldBeDashboardPage
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 
 @SimpleAccountingFullStackTest
-class LoginFullStackTest {
+class LoginFullStackTest(
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
+) {
 
     @Test
-    fun `should login as regular user`(page: Page, testData: LoginTestData) {
+    fun `should login as regular user`(page: Page) {
+        val testData = setupPreconditions()
+
         page.openLoginPage()
             .loginButton { shouldBeDisabled() }
             .rememberMeCheckbox { shouldBeChecked() }
@@ -28,7 +33,9 @@ class LoginFullStackTest {
     }
 
     @Test
-    fun `should login as admin user`(page: Page, testData: LoginTestData) {
+    fun `should login as admin user`(page: Page) {
+        val testData = setupPreconditions()
+
         page.openLoginPage()
             .loginButton { shouldBeDisabled() }
             .rememberMeCheckbox { shouldBeChecked() }
@@ -42,9 +49,9 @@ class LoginFullStackTest {
         page.shouldBeUsersOverviewPage()
     }
 
-    class LoginTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val workspace = Prototypes.workspace(owner = fry)
-        val farnsworth = Prototypes.farnsworth()
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val workspace = workspace(owner = fry)
+        val farnsworth = farnsworth()
     }
 }

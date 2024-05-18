@@ -3,8 +3,8 @@ package io.orangebuffalo.simpleaccounting.services.security.jwt
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.RefreshToken
@@ -25,11 +25,14 @@ import java.util.function.Consumer
 class RefreshTokenServiceIT(
     @Autowired private val refreshTokenService: RefreshTokenService,
     @Autowired private val refreshTokenRepository: RefreshTokenRepository,
-    @Autowired val timeService: TimeService,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
-    fun `should generate a new refresh token`(testData: RefreshTokenServiceTestData) {
+    fun `should generate a new refresh token`() {
+        val testData = setupPreconditions()
+
         val currentTime = Instant.parse("2018-05-03T16:03:23Z")
         val expirationTime = Instant.parse("2018-06-02T16:03:23Z")
 
@@ -49,7 +52,9 @@ class RefreshTokenServiceIT(
     }
 
     @Test
-    fun `should build user details if token is valid`(testData: RefreshTokenServiceTestData) {
+    fun `should build user details if token is valid`() {
+        val testData = setupPreconditions()
+
         whenever(timeService.currentTime()) doReturn MOCK_TIME
 
         val userDetails = runBlocking {
@@ -63,7 +68,9 @@ class RefreshTokenServiceIT(
     }
 
     @Test
-    fun `should fail on validation if token is expired`(testData: RefreshTokenServiceTestData) {
+    fun `should fail on validation if token is expired`() {
+        val testData = setupPreconditions()
+
         whenever(timeService.currentTime()) doReturn MOCK_TIME.plus(30, ChronoUnit.DAYS).plusMillis(1)
 
         assertThatThrownBy {
@@ -74,14 +81,18 @@ class RefreshTokenServiceIT(
     }
 
     @Test
-    fun `should fail on validation if token is not found`(testData: RefreshTokenServiceTestData) {
+    fun `should fail on validation if token is not found`() {
+        setupPreconditions()
+
         assertThatThrownBy { runBlocking { refreshTokenService.validateTokenAndBuildUserDetails("??") } }
             .isInstanceOf(BadCredentialsException::class.java)
             .hasMessage("Bad token")
     }
 
     @Test
-    fun `should prolong the token`(testData: RefreshTokenServiceTestData) {
+    fun `should prolong the token`() {
+        val testData = setupPreconditions()
+
         whenever(timeService.currentTime()) doReturn MOCK_TIME.minus(100, ChronoUnit.DAYS)
 
         val updatedTokenString = runBlocking {
@@ -94,14 +105,14 @@ class RefreshTokenServiceIT(
         assertThat(updatedToken.expirationTime).isEqualTo(MOCK_TIME.minus(70, ChronoUnit.DAYS))
     }
 
-    class RefreshTokenServiceTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val refreshToken = RefreshToken(
-            userId = fry.id!!,
-            token = "42:34jFbT3h2=",
-            expirationTime = MOCK_TIME
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val refreshToken = save(
+            RefreshToken(
+                userId = fry.id!!,
+                token = "42:34jFbT3h2=",
+                expirationTime = MOCK_TIME
+            )
         )
-
-        override fun generateData() = listOf(fry, refreshToken)
     }
 }
