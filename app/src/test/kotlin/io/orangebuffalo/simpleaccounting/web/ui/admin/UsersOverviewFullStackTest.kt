@@ -2,21 +2,25 @@ package io.orangebuffalo.simpleaccounting.web.ui.admin
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.UserOverviewItem
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.toUserOverviewItem
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 
 @SimpleAccountingFullStackTest
-class UsersOverviewFullStackTest {
+class UsersOverviewFullStackTest(
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
+) {
 
     @Test
-    fun `should provide users overview`(page: Page, testData: OverviewTestData) {
-        page.loginAs(testData.farnsworth)
+    fun `should provide users overview`(page: Page) {
+        val preconditions = setupOverviewPreconditions()
+        page.loginAs(preconditions.farnsworth)
         page.shouldHaveSideMenu().clickUsersOverview()
         page.shouldBeUsersOverviewPage()
             .pageItems {
@@ -51,8 +55,9 @@ class UsersOverviewFullStackTest {
     }
 
     @Test
-    fun `should support pagination`(page: Page, testData: PaginationTestData) {
-        page.loginAs(testData.farnsworth)
+    fun `should support pagination`(page: Page) {
+        val preconditions = setupPaginationPreconditions()
+        page.loginAs(preconditions.farnsworth)
         page.shouldHaveSideMenu().clickUsersOverview()
         val firsPageUsers = arrayOf(
             "Farnsworth", "user 1", "user 10", "user 11", "user 12",
@@ -81,8 +86,9 @@ class UsersOverviewFullStackTest {
     }
 
     @Test
-    fun `should support filtering`(page: Page, testData: FilteringTestData) {
-        page.loginAs(testData.farnsworth)
+    fun `should support filtering`(page: Page) {
+        val preconditions = setupFilteringPreconditions()
+        page.loginAs(preconditions.farnsworth)
         page.shouldHaveSideMenu().clickUsersOverview()
         page.shouldBeUsersOverviewPage()
             .pageItems {
@@ -108,39 +114,34 @@ class UsersOverviewFullStackTest {
             }
     }
 
-    class OverviewTestData : TestDataDeprecated {
+    private fun setupOverviewPreconditions() = object : Preconditions(preconditionsInfra) {
+        val farnsworth = farnsworth()
 
-        var farnsworth = Prototypes.farnsworth()
-        override fun generateData() = listOf(
-            farnsworth,
-            Prototypes.platformUser(userName = "aUser", isAdmin = false, activated = true),
-            Prototypes.platformUser(userName = "B user", isAdmin = true, activated = false),
-            Prototypes.platformUser(userName = "C User", isAdmin = false, activated = false),
-        )
+        init {
+            platformUser(userName = "aUser", isAdmin = false, activated = true)
+            platformUser(userName = "B user", isAdmin = true, activated = false)
+            platformUser(userName = "C User", isAdmin = false, activated = false)
+        }
     }
 
-    class PaginationTestData : TestDataDeprecated {
-        var farnsworth = Prototypes.farnsworth()
-        override fun generateData() = listOf(
-            farnsworth,
-            *((1..15)
-                .map { Prototypes.platformUser(userName = "user $it") }
-                .toTypedArray())
-        )
+    private fun setupPaginationPreconditions() = object : Preconditions(preconditionsInfra) {
+        var farnsworth = farnsworth()
+
+        init {
+            (1..15).forEach { platformUser(userName = "user $it") }
+        }
     }
 
-    class FilteringTestData : TestDataDeprecated {
-        var farnsworth = Prototypes.farnsworth()
-        override fun generateData() = listOf(
-            farnsworth,
-            Prototypes.platformUser(userName = "aBcDef"),
-            Prototypes.platformUser(userName = "abcdef"),
-            Prototypes.platformUser(userName = "ABCDEF"),
-            Prototypes.platformUser(userName = "qwerty"),
+    private fun setupFilteringPreconditions() = object : Preconditions(preconditionsInfra) {
+        var farnsworth = farnsworth()
+
+        init {
+            platformUser(userName = "aBcDef")
+            platformUser(userName = "abcdef")
+            platformUser(userName = "ABCDEF")
+            platformUser(userName = "qwerty")
             // some users to enable pagination
-            *((1..10)
-                .map { Prototypes.platformUser(userName = "user $it") }
-                .toTypedArray())
-        )
+            (1..10).forEach { platformUser(userName = "user $it") }
+        }
     }
 }

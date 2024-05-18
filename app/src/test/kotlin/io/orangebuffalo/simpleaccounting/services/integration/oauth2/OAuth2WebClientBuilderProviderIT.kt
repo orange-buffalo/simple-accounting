@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -41,12 +41,14 @@ class OAuth2WebClientBuilderProviderIT(
     @Autowired private val webClientBuilderProvider: OAuth2WebClientBuilderProvider,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val transactionTemplate: TransactionTemplate,
-    @WireMockPort private val wireMockPort: Int
+    @WireMockPort private val wireMockPort: Int,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
     @WithSaMockUser(userName = "Fry")
-    fun `should fail if client authorization does not exist`(testData: WebClientProviderTestData) {
+    fun `should fail if client authorization does not exist`() {
+        setupPreconditions()
         assertThatThrownBy { executeResourceRequest() }
             .isInstanceOfSatisfying(ClientAuthorizationRequiredException::class.java) { exception ->
                 assertThat(exception.clientRegistrationId).isEqualTo("test-client")
@@ -55,7 +57,8 @@ class OAuth2WebClientBuilderProviderIT(
 
     @Test
     @WithSaMockUser(userName = "Fry")
-    fun `should use access token if authorized client exists and token is not expired`(testData: WebClientProviderTestData) {
+    fun `should use access token if authorized client exists and token is not expired`() {
+        setupPreconditions()
         transactionTemplate.executeWithoutResult {
             jdbcAggregateTemplate.insert(
                 PersistentOAuth2AuthorizedClient(
@@ -84,7 +87,8 @@ class OAuth2WebClientBuilderProviderIT(
 
     @Test
     @WithSaMockUser(userName = "Fry")
-    fun `should delete client authorization if access token is not valid and refresh token is missing`(testData: WebClientProviderTestData) {
+    fun `should delete client authorization if access token is not valid and refresh token is missing`() {
+        setupPreconditions()
         transactionTemplate.executeWithoutResult {
             jdbcAggregateTemplate.insert(
                 PersistentOAuth2AuthorizedClient(
@@ -113,7 +117,8 @@ class OAuth2WebClientBuilderProviderIT(
 
     @Test
     @WithSaMockUser(userName = "Fry")
-    fun `should update access token automatically if expired when refresh token exists`(testData: WebClientProviderTestData) {
+    fun `should update access token automatically if expired when refresh token exists`() {
+        setupPreconditions()
         transactionTemplate.executeWithoutResult {
             jdbcAggregateTemplate.insert(
                 PersistentOAuth2AuthorizedClient(
@@ -173,8 +178,7 @@ class OAuth2WebClientBuilderProviderIT(
         }
         .block(Duration.ofSeconds(20))
 
-    class WebClientProviderTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        override fun generateData() = listOf(fry)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
     }
 }
