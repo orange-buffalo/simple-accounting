@@ -15,6 +15,7 @@ import java.time.LocalDate
 // JavaScript min number value is -9007199254740991, so we need to reduce the magnitude of ids to avoid overflows
 internal var currentEntityId: Long = Long.MIN_VALUE / 10_000
 
+@Deprecated("Use Preconditions")
 class Prototypes {
     companion object {
         /**

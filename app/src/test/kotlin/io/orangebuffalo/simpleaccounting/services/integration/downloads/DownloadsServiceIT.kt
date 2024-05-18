@@ -1,14 +1,14 @@
 package io.orangebuffalo.simpleaccounting.services.integration.downloads
 
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
+import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.runAs
 import io.orangebuffalo.simpleaccounting.services.security.toSecurityPrincipal
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
-import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
-import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -19,12 +19,14 @@ import org.springframework.context.annotation.Bean
 
 @SimpleAccountingIntegrationTest
 class DownloadsServiceIT(
-    @Autowired val downloadsService: DownloadsService,
-    @Autowired val testContentProvider: TestContentProvider
+    @Autowired private val downloadsService: DownloadsService,
+    @Autowired private val testContentProvider: TestContentProvider,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
-    fun `should generate download token`(testData: DownloadsServiceTestData) {
+    fun `should generate download token`() {
+        val testData = setupPreconditions()
         val token = runBlocking {
             runAs(testData.fry.toSecurityPrincipal()) {
                 downloadsService.createDownloadToken(testContentProvider, TestContentMetadata("ref"))
@@ -44,7 +46,8 @@ class DownloadsServiceIT(
     }
 
     @Test
-    fun `should return content from content provider by generated token`(testData: DownloadsServiceTestData) {
+    fun `should return content from content provider by generated token`() {
+        val testData = setupPreconditions()
         val token = runBlocking {
             runAs(testData.fry.toSecurityPrincipal()) {
                 downloadsService.createDownloadToken(testContentProvider, TestContentMetadata("ref"))
@@ -85,8 +88,7 @@ class DownloadsServiceIT(
         fun testContentProvider() = TestContentProvider()
     }
 
-    class DownloadsServiceTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        override fun generateData() = listOf(fry)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
     }
 }

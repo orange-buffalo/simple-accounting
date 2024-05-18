@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.database
 
+import io.orangebuffalo.simpleaccounting.domain.documents.Document
 import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.domain.users.UserActivationToken
@@ -119,6 +120,27 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
                 validTill = validTill,
                 revoked = revoked,
                 token = token
+            )
+        )
+    }
+
+    fun document(
+        name: String = "Slurm Receipt",
+        workspace: Workspace? = null,
+        timeUploaded: Instant = MOCK_TIME,
+        storageId: String = "test-storage",
+        storageLocation: String? = "test-location",
+        sizeInBytes: Long? = null
+    ): Document {
+        val workspaceId = if (workspace == null) workspace().id else workspace.id
+        return infra.save(
+            Document(
+                name = name,
+                workspaceId = workspaceId!!,
+                storageId = storageId,
+                storageLocation = storageLocation,
+                timeUploaded = timeUploaded,
+                sizeInBytes = sizeInBytes
             )
         )
     }
