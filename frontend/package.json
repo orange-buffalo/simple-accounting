@@ -33,7 +33,7 @@
     "vue-router": "4.2.5"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "1.10.2",
+    "@rushstack/eslint-patch": "1.10.3",
     "@sinonjs/fake-timers": "11.2.2",
     "@storybook/addon-actions": "8.0.10",
     "@storybook/addons": "7.6.17",
