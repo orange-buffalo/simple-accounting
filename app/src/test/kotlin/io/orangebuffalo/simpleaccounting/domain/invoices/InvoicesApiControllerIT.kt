@@ -5,8 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME_VALUE
@@ -24,8 +24,9 @@ import java.time.LocalDate
 @SimpleAccountingIntegrationTest
 @DisplayName("Invoices API ")
 internal class InvoicesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @BeforeEach
@@ -34,7 +35,8 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    fun `should allow GET access only for logged in users`(testData: InvoicesApiTestData) {
+    fun `should allow GET access only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .verifyUnauthorized()
@@ -42,7 +44,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return invoices of a workspace of current user`(testData: InvoicesApiTestData) {
+    fun `should return invoices of a workspace of current user`() {
+        val testData = setupPreconditions()
         mockCurrentDate(timeService)
 
         client.get()
@@ -94,7 +97,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found on GET`(testData: InvoicesApiTestData) {
+    fun `should return 404 if workspace is not found on GET`() {
+        setupPreconditions()
         client.get()
             .uri("/api/workspaces/27347947239/invoices")
             .verifyNotFound("Workspace 27347947239 is not found")
@@ -102,14 +106,16 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 on GET if workspace belongs to another user`(testData: InvoicesApiTestData) {
+    fun `should return 404 on GET if workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
     }
 
     @Test
-    fun `should allow GET access for an invoice only for logged in users`(testData: InvoicesApiTestData) {
+    fun `should allow GET access for an invoice only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/expenses/${testData.secondSpaceInvoice.id}")
             .verifyUnauthorized()
@@ -117,7 +123,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return invoice by id for current user`(testData: InvoicesApiTestData) {
+    fun `should return invoice by id for current user`() {
+        val testData = setupPreconditions()
         mockCurrentDate(timeService)
 
         client.get()
@@ -145,7 +152,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when requesting invoice by id`(testData: InvoicesApiTestData) {
+    fun `should return 404 if workspace is not found when requesting invoice by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/5634632/invoices/${testData.firstSpaceInvoice.id}")
             .verifyNotFound("Workspace 5634632 is not found")
@@ -153,9 +161,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when requesting invoice by id`(
-        testData: InvoicesApiTestData
-    ) {
+    fun `should return 404 if workspace belongs to another user when requesting invoice by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
@@ -163,9 +170,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if invoice belongs to another workspace when requesting invoice by id`(
-        testData: InvoicesApiTestData
-    ) {
+    fun `should return 404 if invoice belongs to another workspace when requesting invoice by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.pizzaInvoice.id}")
             .verifyNotFound("Invoice ${testData.pizzaInvoice.id} is not found")
@@ -173,7 +179,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when creating invoice`(testData: InvoicesApiTestData) {
+    fun `should return 404 if workspace is not found when creating invoice`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/995943/invoices")
             .sendJson(testData.simpleInvoice())
@@ -182,7 +189,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new invoice`(testData: InvoicesApiTestData) {
+    fun `should create a new invoice`() {
+        val testData = setupPreconditions()
         mockCurrentDate(timeService)
 
         client.post()
@@ -229,7 +237,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when creating invoice`(testData: InvoicesApiTestData) {
+    fun `should return 404 if workspace belongs to another user when creating invoice`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .sendJson(testData.simpleInvoice())
@@ -238,7 +247,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new invoice with minimum data`(testData: InvoicesApiTestData) {
+    fun `should create a new invoice with minimum data`() {
+        val testData = setupPreconditions()
         mockCurrentDate(timeService)
 
         client.post()
@@ -276,7 +286,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when customer of new invoice is not found`(testData: InvoicesApiTestData) {
+    fun `should return 404 when customer of new invoice is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .sendJson(
@@ -294,7 +305,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when customer of new invoice belongs to another workspace`(testData: InvoicesApiTestData) {
+    fun `should return 404 when customer of new invoice belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .sendJson(
@@ -312,7 +324,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when tax of new invoice is not found`(testData: InvoicesApiTestData) {
+    fun `should return 404 when tax of new invoice is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .sendJson(
@@ -331,7 +344,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when tax of new invoice belongs to another workspace`(testData: InvoicesApiTestData) {
+    fun `should return 404 when tax of new invoice belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .sendJson(
@@ -350,7 +364,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when attachment of new invoice is not found`(testData: InvoicesApiTestData) {
+    fun `should return 404 when attachment of new invoice is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .sendJson(
@@ -369,7 +384,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when attachment of new invoice belongs to another workspace`(testData: InvoicesApiTestData) {
+    fun `should return 404 when attachment of new invoice belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices")
             .sendJson(
@@ -387,7 +403,8 @@ internal class InvoicesApiControllerIT(
     }
 
     @Test
-    fun `should allow PUT access only for logged in users`(testData: InvoicesApiTestData) {
+    fun `should allow PUT access only for logged in users`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .verifyUnauthorized()
@@ -395,7 +412,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update invoice of current user`(testData: InvoicesApiTestData) {
+    fun `should update invoice of current user`() {
+        val testData = setupPreconditions()
         mockCurrentDate(timeService)
 
         client.put()
@@ -442,7 +460,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update invoice of current user with minimum data`(testData: InvoicesApiTestData) {
+    fun `should update invoice of current user with minimum data`() {
+        val testData = setupPreconditions()
         mockCurrentDate(timeService)
 
         client.put()
@@ -480,7 +499,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail with 404 on PUT when workspace belongs to another user`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .sendJson(testData.simpleInvoice())
@@ -489,7 +509,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when invoice belongs to another workspace`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when invoice belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.pizzaInvoice.id}")
             .sendJson(testData.simpleInvoice())
@@ -498,7 +519,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when invoice does not exist`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when invoice does not exist`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/5566")
             .sendJson(testData.simpleInvoice())
@@ -507,7 +529,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when customer is not found`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when customer is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .sendJson(
@@ -525,7 +548,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when customer belongs to another workspace`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when customer belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .sendJson(
@@ -543,7 +567,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when tax is not found`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when tax is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .sendJson(
@@ -562,7 +587,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when tax belongs to another workspace`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when tax belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .sendJson(
@@ -581,7 +607,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when attachment is not found`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when attachment is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .sendJson(
@@ -600,7 +627,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when attachment belongs to another workspace`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on PUT when attachment belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}")
             .sendJson(
@@ -619,7 +647,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail with 404 on invoice cancellation when workspace belongs to another user`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on invoice cancellation when workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.firstSpaceInvoice.id}/cancel")
             .sendJson(testData.simpleInvoice())
@@ -628,7 +657,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on invoice cancellation when invoice belongs to another workspace`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on invoice cancellation when invoice belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/${testData.pizzaInvoice.id}/cancel")
             .sendJson(testData.simpleInvoice())
@@ -637,7 +667,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on invoice cancellation when invoice does not exist`(testData: InvoicesApiTestData) {
+    fun `should fail with 404 on invoice cancellation when invoice does not exist`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/invoices/5566/cancel")
             .sendJson(testData.simpleInvoice())
@@ -646,7 +677,8 @@ internal class InvoicesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should cancel invoice of current user`(testData: InvoicesApiTestData) {
+    fun `should cancel invoice of current user`() {
+        val testData = setupPreconditions()
         mockCurrentDate(timeService)
 
         client.post()
@@ -676,23 +708,23 @@ internal class InvoicesApiControllerIT(
             }
     }
 
-    class InvoicesApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val planetExpressWorkspace = Prototypes.workspace(owner = fry)
-        val spaceCustomer = Prototypes.customer(workspace = planetExpressWorkspace)
-        val anotherSpaceCustomer = Prototypes.customer(workspace = planetExpressWorkspace)
-        val pizzaDeliveryWorkspace = Prototypes.workspace(owner = fry)
-        val pizzaCustomer = Prototypes.customer(workspace = pizzaDeliveryWorkspace)
-        val pizzaCategory = Prototypes.category(workspace = pizzaDeliveryWorkspace)
-        val spaceDeliveryCategory = Prototypes.category(workspace = planetExpressWorkspace)
-        val pensionCategory = Prototypes.category(workspace = planetExpressWorkspace)
-        val pizzaDeliveryTax = Prototypes.generalTax(workspace = pizzaDeliveryWorkspace)
-        val planetExpressTax = Prototypes.generalTax(workspace = planetExpressWorkspace)
-        val spaceDeliveryInvoicePrint = Prototypes.document(workspace = planetExpressWorkspace)
-        val pizzaDeliveryInvoicePrint = Prototypes.document(workspace = pizzaDeliveryWorkspace)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val planetExpressWorkspace = workspace(owner = fry)
+        val spaceCustomer = customer(workspace = planetExpressWorkspace)
+        val anotherSpaceCustomer = customer(workspace = planetExpressWorkspace)
+        val pizzaDeliveryWorkspace = workspace(owner = fry)
+        val pizzaCustomer = customer(workspace = pizzaDeliveryWorkspace)
+        val pizzaCategory = category(workspace = pizzaDeliveryWorkspace)
+        val spaceDeliveryCategory = category(workspace = planetExpressWorkspace)
+        val pensionCategory = category(workspace = planetExpressWorkspace)
+        val pizzaDeliveryTax = generalTax(workspace = pizzaDeliveryWorkspace)
+        val planetExpressTax = generalTax(workspace = planetExpressWorkspace)
+        val spaceDeliveryInvoicePrint = document(workspace = planetExpressWorkspace)
+        val pizzaDeliveryInvoicePrint = document(workspace = pizzaDeliveryWorkspace)
 
-        val pizzaInvoice = Prototypes.invoice(
+        val pizzaInvoice = invoice(
             title = "pizza invoice",
             customer = pizzaCustomer,
             currency = "THF",
@@ -703,7 +735,7 @@ internal class InvoicesApiControllerIT(
             dueDate = LocalDate.of(1999, 12, 24)
         )
 
-        val firstSpaceInvoice = Prototypes.invoice(
+        val firstSpaceInvoice = invoice(
             title = "first space invoice",
             customer = spaceCustomer,
             currency = "THF",
@@ -717,22 +749,13 @@ internal class InvoicesApiControllerIT(
             generalTax = planetExpressTax
         )
 
-        val secondSpaceInvoice = Prototypes.invoice(
+        val secondSpaceInvoice = invoice(
             title = "second space invoice",
             customer = anotherSpaceCustomer,
             currency = "ZXF",
             amount = 70,
             dateIssued = LocalDate.of(3000, 1, 6),
             dueDate = LocalDate.of(3000, 1, 7)
-        )
-
-        override fun generateData() = listOf(
-            farnsworth, fry, planetExpressWorkspace, pizzaDeliveryWorkspace,
-            spaceDeliveryCategory, pensionCategory, pizzaCategory,
-            spaceDeliveryInvoicePrint, pizzaDeliveryInvoicePrint,
-            pizzaDeliveryTax, planetExpressTax,
-            spaceCustomer, anotherSpaceCustomer, pizzaCustomer,
-            firstSpaceInvoice, secondSpaceInvoice, pizzaInvoice
         )
 
         fun simpleInvoice(): String = """{

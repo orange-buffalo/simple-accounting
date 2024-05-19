@@ -14,8 +14,8 @@ import io.orangebuffalo.simpleaccounting.domain.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import kotlinx.coroutines.*
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -34,11 +34,12 @@ private val CURRENT_TIME = Instant.ofEpochMilli(424242)
 
 @SimpleAccountingIntegrationTest
 class BruteForceDefenseIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val transactionTemplate: TransactionTemplate,
-    @Autowired val platformUserRepository: PlatformUserRepository,
-    @Autowired val passwordEncoder: PasswordEncoder,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val transactionTemplate: TransactionTemplate,
+    @Autowired private val platformUserRepository: PlatformUserRepository,
+    @Autowired private val passwordEncoder: PasswordEncoder,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @BeforeEach
@@ -47,7 +48,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should successfully login if account is unlocked`(testData: BruteForceDefenseTestData) {
+    fun `should successfully login if account is unlocked`() {
+         setupPreconditions()
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn true
 
         client.executeLoginForFry()
@@ -60,7 +62,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should not lock account after the first failure`(testData: BruteForceDefenseTestData) {
+    fun `should not lock account after the first failure`() {
+         setupPreconditions()
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
         client.executeLoginForFry()
@@ -78,9 +81,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should successfully login if account is temporary locked but lock has expired`(
-        testData: BruteForceDefenseTestData
-    ) {
+    fun `should successfully login if account is temporary locked but lock has expired`() {
+         setupPreconditions()
         setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = CURRENT_TIME.minusMillis(1)
@@ -98,9 +100,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should forbid login if account is temporary locked (boundary case of the last millis)`(
-        testData: BruteForceDefenseTestData
-    ) {
+    fun `should forbid login if account is temporary locked (boundary case of the last millis)`() {
+         setupPreconditions()
         setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = CURRENT_TIME
@@ -122,7 +123,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should forbid login if account is temporary locked`(testData: BruteForceDefenseTestData) {
+    fun `should forbid login if account is temporary locked`() {
+         setupPreconditions()
         setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = CURRENT_TIME.plusMillis(4500)
@@ -144,7 +146,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should increase failed attempts without locking if below 5 attempts`(testData: BruteForceDefenseTestData) {
+    fun `should increase failed attempts without locking if below 5 attempts`() {
+         setupPreconditions()
         setupFryLoginStatistics {
             failedAttemptsCount = 4
             temporaryLockExpirationTime = null
@@ -167,7 +170,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should lock account after 5 failed attempts`(testData: BruteForceDefenseTestData) {
+    fun `should lock account after 5 failed attempts`() {
+         setupPreconditions()
         setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = null
@@ -191,7 +195,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should progressively increase locking time`(testData: BruteForceDefenseTestData) {
+    fun `should progressively increase locking time`() {
+         setupPreconditions()
         setupFryLoginStatistics {
             failedAttemptsCount = 7
             temporaryLockExpirationTime = CURRENT_TIME.minusMillis(1)
@@ -215,7 +220,8 @@ class BruteForceDefenseIT(
     }
 
     @Test
-    fun `should cap locking time at 1 day`(testData: BruteForceDefenseTestData) {
+    fun `should cap locking time at 1 day`() {
+         setupPreconditions()
         setupFryLoginStatistics {
             failedAttemptsCount = 100
             temporaryLockExpirationTime = CURRENT_TIME.minusMillis(1)
@@ -240,7 +246,8 @@ class BruteForceDefenseIT(
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
-    fun `should handle parallel login requests and throttle them`(testData: BruteForceDefenseTestData) {
+    fun `should handle parallel login requests and throttle them`() {
+         setupPreconditions()
         whenever(passwordEncoder.matches("qwerty", "qwertyHash")) doReturn false
 
         val requests = generateSequence(1) { if (it < 10) it + 1 else null }
@@ -322,9 +329,7 @@ class BruteForceDefenseIT(
         )
         .exchange()
 
-    class BruteForceDefenseTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-
-        override fun generateData() = listOf(fry)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
     }
 }

@@ -18,7 +18,7 @@ class DocumentsFilteringApiIT : AbstractFilteringApiTest() {
 
                 entityMatcher {
                     responseFields("name")
-                    entityFields({ invoice -> invoice.name })
+                    entityFields({ document -> document.name })
                 }
 
                 defaultEntityProvider {
