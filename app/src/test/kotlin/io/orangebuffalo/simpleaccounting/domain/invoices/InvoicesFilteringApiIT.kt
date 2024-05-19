@@ -1,9 +1,8 @@
 package io.orangebuffalo.simpleaccounting.domain.invoices
 
+import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.web.AbstractFilteringApiTest
 import io.orangebuffalo.simpleaccounting.web.generateFilteringApiTests
 
@@ -29,15 +28,6 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     )
                 }
 
-                defaultEntityProvider {
-                    val customer = save(Prototypes.customer(workspace = workspace))
-                    Prototypes.invoice(
-                        customer = customer,
-                        status = InvoiceStatus.DRAFT,
-                        dueDate = MOCK_DATE.plusDays(100)
-                    )
-                }
-
                 val freeSearchTextApiField = "freeSearchText"
                 val freeSearchTextEqXXX = "$freeSearchTextApiField[eq]=XXX"
                 val freeSearchTextEqYYY = "$freeSearchTextApiField[eq]=YYY"
@@ -51,13 +41,17 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
 
                 filtering {
                     entity {
-                        configure { invoice ->
-                            invoice.customerId = Prototypes.customer(
-                                workspace = workspace,
-                                name = "name xxx"
-                            ).let { save(it).id!! }
-                            invoice.notes = "notes"
-                            invoice.title = "title"
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(
+                                    workspace = targetWorkspace,
+                                    name = "name xxx"
+                                ),
+                                status = InvoiceStatus.DRAFT,
+                                dueDate = MOCK_DATE.plusDays(100),
+                                notes = "notes",
+                                title = "title",
+                            )
                         }
                         skippedOn(freeSearchTextEqYYY)
                         skippedOn(statusInCancelled)
@@ -67,13 +61,17 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     }
 
                     entity {
-                        configure { invoice ->
-                            invoice.customerId = Prototypes.customer(
-                                workspace = workspace,
-                                name = "name"
-                            ).let { save(it).id!! }
-                            invoice.notes = "notesYYy"
-                            invoice.title = "title"
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(
+                                    workspace = targetWorkspace,
+                                    name = "name"
+                                ),
+                                status = InvoiceStatus.DRAFT,
+                                dueDate = MOCK_DATE.plusDays(100),
+                                notes = "notesYYy",
+                                title = "title",
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(statusInCancelled)
@@ -83,41 +81,17 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     }
 
                     entity {
-                        configure { invoice ->
-                            invoice.customerId = Prototypes.customer(
-                                workspace = workspace,
-                                name = "name"
-                            ).let { save(it).id!! }
-                            invoice.notes = "notes"
-                            invoice.title = "title"
-                        }
-                        skippedOn(freeSearchTextEqXXX)
-                        skippedOn(freeSearchTextEqYYY)
-                        skippedOn(statusInCancelled)
-                        skippedOn(statusInPaid)
-                        skippedOn(statusInSent)
-                        skippedOn(statusInOverdue)
-                    }
-
-                    entity {
-                        configure { invoice ->
-                            invoice.customerId = Prototypes.customer(
-                                workspace = workspace,
-                                name = "name"
-                            ).let { save(it).id!! }
-                            invoice.notes = "notes yyy notes"
-                            invoice.title = "xXx title"
-                        }
-                        skippedOn(statusInCancelled)
-                        skippedOn(statusInPaid)
-                        skippedOn(statusInSent)
-                        skippedOn(statusInOverdue)
-                    }
-
-                    entity {
-                        configure { invoice ->
-                            invoice.title = "draft"
-                            invoice.status = InvoiceStatus.DRAFT
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(
+                                    workspace = targetWorkspace,
+                                    name = "name"
+                                ),
+                                status = InvoiceStatus.DRAFT,
+                                dueDate = MOCK_DATE.plusDays(100),
+                                notes = "notes",
+                                title = "title",
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -128,10 +102,49 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     }
 
                     entity {
-                        configure { invoice ->
-                            invoice.title = "cancelled"
-                            invoice.status = InvoiceStatus.CANCELLED
-                            invoice.dueDate = MOCK_DATE.minusDays(100)
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(
+                                    workspace = targetWorkspace,
+                                    name = "name"
+                                ),
+                                status = InvoiceStatus.DRAFT,
+                                dueDate = MOCK_DATE.plusDays(100),
+                                notes = "notes yyy notes",
+                                title = "xXx title"
+                            )
+                        }
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInOverdue)
+                    }
+
+                    entity {
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                status = InvoiceStatus.DRAFT,
+                                dueDate = MOCK_DATE.plusDays(100),
+                                title = "draft",
+                            )
+                        }
+                        skippedOn(freeSearchTextEqXXX)
+                        skippedOn(freeSearchTextEqYYY)
+                        skippedOn(statusInCancelled)
+                        skippedOn(statusInPaid)
+                        skippedOn(statusInSent)
+                        skippedOn(statusInOverdue)
+                    }
+
+                    entity {
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                title = "cancelled",
+                                status = InvoiceStatus.CANCELLED,
+                                dueDate = MOCK_DATE.minusDays(100),
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -142,9 +155,13 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     }
 
                     entity {
-                        configure { invoice ->
-                            invoice.title = "paid"
-                            invoice.status = InvoiceStatus.PAID
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                dueDate = MOCK_DATE.plusDays(100),
+                                title = "paid",
+                                status = InvoiceStatus.PAID,
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -155,9 +172,13 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     }
 
                     entity {
-                        configure { invoice ->
-                            invoice.title = "sent"
-                            invoice.status = InvoiceStatus.SENT
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                dueDate = MOCK_DATE.plusDays(100),
+                                title = "sent",
+                                status = InvoiceStatus.SENT,
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -168,9 +189,13 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
                     }
 
                     entity {
-                        configure { invoice ->
-                            invoice.title = "overdue"
-                            invoice.status = InvoiceStatus.OVERDUE
+                        createEntity {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                dueDate = MOCK_DATE.plusDays(100),
+                                title = "overdue",
+                                status = InvoiceStatus.OVERDUE
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
@@ -183,29 +208,44 @@ class InvoicesFilteringApiIT : AbstractFilteringApiTest() {
 
                 sorting {
                     default {
-                        goes { invoice ->
-                            invoice.dateIssued = MOCK_DATE.plusDays(1)
-                            invoice.timeRecorded = MOCK_TIME
+                        goes {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                dateIssued = MOCK_DATE.plusDays(1),
+                                timeRecorded = MOCK_TIME,
+                            )
                         }
 
-                        goes { invoice ->
-                            invoice.dateIssued = MOCK_DATE
-                            invoice.timeRecorded = MOCK_TIME.minusMillis(1)
+                        goes {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                dateIssued = MOCK_DATE,
+                                timeRecorded = MOCK_TIME.minusMillis(1),
+                            )
                         }
 
-                        goes { invoice ->
-                            invoice.dateIssued = MOCK_DATE
-                            invoice.timeRecorded = MOCK_TIME
+                        goes {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                dateIssued = MOCK_DATE,
+                                timeRecorded = MOCK_TIME,
+                            )
                         }
 
-                        goes { invoice ->
-                            invoice.dateIssued = MOCK_DATE
-                            invoice.timeRecorded = MOCK_TIME.plusMillis(1)
+                        goes {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                dateIssued = MOCK_DATE,
+                                timeRecorded = MOCK_TIME.plusMillis(1),
+                            )
                         }
 
-                        goes { invoice ->
-                            invoice.dateIssued = MOCK_DATE.minusDays(1)
-                            invoice.timeRecorded = MOCK_TIME
+                        goes {
+                            entitiesFactory.invoice(
+                                customer = entitiesFactory.customer(workspace = targetWorkspace),
+                                dateIssued = MOCK_DATE.minusDays(1),
+                                timeRecorded = MOCK_TIME,
+                            )
                         }
                     }
                 }

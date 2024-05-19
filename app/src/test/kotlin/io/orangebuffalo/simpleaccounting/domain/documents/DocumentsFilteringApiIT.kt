@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.domain.documents
 
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.web.AbstractFilteringApiTest
 import io.orangebuffalo.simpleaccounting.web.generateFilteringApiTests
@@ -21,12 +20,6 @@ class DocumentsFilteringApiIT : AbstractFilteringApiTest() {
                     entityFields({ document -> document.name })
                 }
 
-                defaultEntityProvider {
-                    Prototypes.document(
-                        workspace = workspace
-                    )
-                }
-
                 val idApiField = "id"
                 val invoicePlaceholder = "{INVOICE}"
                 val receiptPlaceholder = "{RECEIPT}"
@@ -35,18 +28,33 @@ class DocumentsFilteringApiIT : AbstractFilteringApiTest() {
 
                 filtering {
                     entity {
-                        configure { document -> document.name = "Invoice" }
+                        createEntity {
+                            entitiesFactory.document(
+                                workspace = targetWorkspace,
+                                name = "Invoice",
+                            )
+                        }
                         dynamicFilterReplacement(invoicePlaceholder) { document -> document.id }
                     }
 
                     entity {
-                        configure { document -> document.name = "Receipt" }
+                        createEntity {
+                            entitiesFactory.document(
+                                workspace = targetWorkspace,
+                                name = "Receipt",
+                            )
+                        }
                         dynamicFilterReplacement(receiptPlaceholder) { document -> document.id }
                         skippedOn(idEqInvoiceFilter)
                     }
 
                     entity {
-                        configure { document -> document.name = "Contract" }
+                        createEntity {
+                            entitiesFactory.document(
+                                workspace = targetWorkspace,
+                                name = "Contract",
+                            )
+                        }
                         skippedOn(idEqInvoiceFilter)
                         skippedOn(idInInvoiceReceiptFilter)
                     }

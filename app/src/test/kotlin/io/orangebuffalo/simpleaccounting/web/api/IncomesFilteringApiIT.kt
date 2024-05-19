@@ -1,9 +1,8 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
+import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.simpleaccounting.web.AbstractFilteringApiTest
 import io.orangebuffalo.simpleaccounting.web.generateFilteringApiTests
@@ -30,118 +29,151 @@ class IncomesFilteringApiIT : AbstractFilteringApiTest() {
                     )
                 }
 
-                defaultEntityProvider {
-                    Prototypes.income(
-                        workspace = workspace
-                    )
-                }
-
                 val freeSearchTextApiField = "freeSearchText"
                 val freeSearchTextEqXXX = "$freeSearchTextApiField[eq]=XXX"
                 val freeSearchTextEqYYY = "$freeSearchTextApiField[eq]=YYY"
 
                 filtering {
                     entity {
-                        configure { income ->
-                            income.categoryId = Prototypes.category(
-                                workspace = workspace,
-                                name = "name xxx"
-                            ).let { save(it).id }
-                            income.notes = "notes"
-                            income.title = "title"
+                        createEntity {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                category = entitiesFactory.category(
+                                    workspace = targetWorkspace,
+                                    name = "name xxx"
+                                ),
+                                notes = "notes",
+                                title = "title",
+                            )
                         }
                         skippedOn(freeSearchTextEqYYY)
                     }
 
                     entity {
-                        configure { income ->
-                            income.categoryId = Prototypes.category(
-                                workspace = workspace,
-                                name = "name"
-                            ).let { save(it).id }
-                            income.notes = "notesYYy"
-                            income.title = "title"
+                        createEntity {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                category = entitiesFactory.category(
+                                    workspace = targetWorkspace,
+                                    name = "name"
+                                ),
+                                notes = "notesYYy",
+                                title = "title",
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                     }
 
                     entity {
-                        configure { income ->
+                        createEntity {
                             // no category
-                            income.notes = "notesYYy"
-                            income.title = "title"
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                category = null,
+                                notes = "notesYYy",
+                                title = "title",
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                     }
 
                     entity {
-                        configure { income ->
-                            income.categoryId = Prototypes.category(
-                                workspace = workspace,
-                                name = "name"
-                            ).let { save(it).id }
-                            income.notes = "notes"
-                            income.title = "title"
-                        }
-                        skippedOn(freeSearchTextEqXXX)
-                        skippedOn(freeSearchTextEqYYY)
-                    }
-
-                    entity {
-                        configure { income ->
-                           // no category
-                            income.notes = "notes"
-                            income.title = "title"
+                        createEntity {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                category = entitiesFactory.category(
+                                    workspace = targetWorkspace,
+                                    name = "name"
+                                ),
+                                notes = "notes",
+                                title = "title",
+                            )
                         }
                         skippedOn(freeSearchTextEqXXX)
                         skippedOn(freeSearchTextEqYYY)
                     }
 
                     entity {
-                        configure { income ->
-                            income.categoryId = Prototypes.category(
-                                workspace = workspace,
-                                name = "name"
-                            ).let { save(it).id }
-                            income.notes = "notes yyy notes"
-                            income.title = "xXx title"
-                        }
-                    }
-
-                    entity {
-                        configure { income ->
+                        createEntity {
                             // no category
-                            income.notes = "notes yyy notes"
-                            income.title = "xXx title"
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                category = null,
+                                notes = "notes",
+                                title = "title",
+                            )
+                        }
+                        skippedOn(freeSearchTextEqXXX)
+                        skippedOn(freeSearchTextEqYYY)
+                    }
+
+                    entity {
+                        createEntity {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                category = entitiesFactory.category(
+                                    workspace = targetWorkspace,
+                                    name = "name"
+                                ),
+                                notes = "notes yyy notes",
+                                title = "xXx title",
+                            )
+                        }
+                    }
+
+                    entity {
+                        createEntity {
+                            // no category
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                category = null,
+                                notes = "notes yyy notes",
+                                title = "xXx title",
+                            )
                         }
                     }
                 }
 
                 sorting {
                     default {
-                        goes { income ->
-                            income.dateReceived = MOCK_DATE.plusDays(1)
-                            income.timeRecorded = MOCK_TIME
+                        goes {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                dateReceived = MOCK_DATE.plusDays(1),
+                                timeRecorded = MOCK_TIME,
+                            )
                         }
 
-                        goes { income ->
-                            income.dateReceived = MOCK_DATE
-                            income.timeRecorded = MOCK_TIME.minusMillis(1)
+                        goes {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                dateReceived = MOCK_DATE,
+                                timeRecorded = MOCK_TIME.minusMillis(1),
+                            )
                         }
 
-                        goes { income ->
-                            income.dateReceived = MOCK_DATE
-                            income.timeRecorded = MOCK_TIME
+                        goes {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                dateReceived = MOCK_DATE,
+                                timeRecorded = MOCK_TIME,
+                            )
                         }
 
-                        goes { income ->
-                            income.dateReceived = MOCK_DATE
-                            income.timeRecorded = MOCK_TIME.plusMillis(1)
+                        goes {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                dateReceived = MOCK_DATE,
+                                timeRecorded = MOCK_TIME.plusMillis(1),
+                            )
                         }
 
-                        goes { income ->
-                            income.dateReceived = MOCK_DATE.minusDays(1)
-                            income.timeRecorded = MOCK_TIME
+                        goes {
+                            entitiesFactory.income(
+                                workspace = targetWorkspace,
+                                dateReceived = MOCK_DATE.minusDays(1),
+                                timeRecorded = MOCK_TIME,
+                            )
                         }
                     }
                 }
