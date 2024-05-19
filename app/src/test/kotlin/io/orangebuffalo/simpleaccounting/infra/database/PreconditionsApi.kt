@@ -1,17 +1,21 @@
 package io.orangebuffalo.simpleaccounting.infra.database
 
 import io.orangebuffalo.simpleaccounting.domain.documents.Document
+import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
+import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceAttachment
+import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.domain.users.UserActivationToken
+import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Instant
+import java.time.LocalDate
 
 /**
  * API for creating preconditions in the database.
@@ -42,16 +46,14 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         documentsStorage: String? = null,
         i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en"),
         activated: Boolean = true,
-    ) = save(
-        PlatformUser(
-            userName = userName,
-            passwordHash = passwordHash,
-            isAdmin = isAdmin,
-            documentsStorage = documentsStorage,
-            i18nSettings = i18nSettings,
-            activated = activated
-        )
-    )
+    ) = PlatformUser(
+        userName = userName,
+        passwordHash = passwordHash,
+        isAdmin = isAdmin,
+        documentsStorage = documentsStorage,
+        i18nSettings = i18nSettings,
+        activated = activated
+    ).save()
 
     fun userActivationToken(
         user: PlatformUser? = null,
@@ -59,13 +61,11 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         expiresAt: Instant = MOCK_TIME,
     ): UserActivationToken {
         val userId = if (user == null) platformUser().id else user.id
-        return save(
-            UserActivationToken(
-                userId = userId!!,
-                token = token,
-                expiresAt = expiresAt,
-            )
-        )
+        return UserActivationToken(
+            userId = userId!!,
+            token = token,
+            expiresAt = expiresAt,
+        ).save()
     }
 
     /**
@@ -87,28 +87,28 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
     )
 
     fun zoidberg() = platformUser(
-            userName = "Zoidberg",
-            passwordHash = "??",
-            isAdmin = false
-        )
+        userName = "Zoidberg",
+        passwordHash = "??",
+        isAdmin = false
+    )
 
-        fun roberto() = platformUser(
-            userName = "Roberto",
-            passwordHash = "o_O",
-            isAdmin = false
-        )
+    fun roberto() = platformUser(
+        userName = "Roberto",
+        passwordHash = "o_O",
+        isAdmin = false
+    )
 
-        fun mafiaBot() = platformUser(
-            userName = "MafiaBot",
-            passwordHash = "$$$",
-            isAdmin = false
-        )
+    fun mafiaBot() = platformUser(
+        userName = "MafiaBot",
+        passwordHash = "$$$",
+        isAdmin = false
+    )
 
-        fun bender() = platformUser(
-            userName = "Bender",
-            passwordHash = "011101010101101001",
-            isAdmin = false
-        )
+    fun bender() = platformUser(
+        userName = "Bender",
+        passwordHash = "011101010101101001",
+        isAdmin = false
+    )
 
     fun workspace(
         name: String = "Planet Express",
@@ -118,15 +118,13 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         defaultCurrency: String = "USD"
     ): Workspace {
         val ownerId = if (owner == null) platformUser().id else owner.id
-        return save(
-            Workspace(
-                name = name,
-                ownerId = ownerId!!,
-                taxEnabled = taxEnabled,
-                multiCurrencyEnabled = multiCurrencyEnabled,
-                defaultCurrency = defaultCurrency
-            )
-        )
+        return Workspace(
+            name = name,
+            ownerId = ownerId!!,
+            taxEnabled = taxEnabled,
+            multiCurrencyEnabled = multiCurrencyEnabled,
+            defaultCurrency = defaultCurrency
+        ).save()
     }
 
     fun workspaceAccessToken(
@@ -137,15 +135,13 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         token: String = "token"
     ): WorkspaceAccessToken {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
-        return save(
-            WorkspaceAccessToken(
-                workspaceId = workspaceId!!,
-                timeCreated = timeCreated,
-                validTill = validTill,
-                revoked = revoked,
-                token = token
-            )
-        )
+        return WorkspaceAccessToken(
+            workspaceId = workspaceId!!,
+            timeCreated = timeCreated,
+            validTill = validTill,
+            revoked = revoked,
+            token = token
+        ).save()
     }
 
     fun document(
@@ -157,19 +153,190 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         sizeInBytes: Long? = null
     ): Document {
         val workspaceId = if (workspace == null) workspace().id else workspace.id
-        return save(
-            Document(
-                name = name,
-                workspaceId = workspaceId!!,
-                storageId = storageId,
-                storageLocation = storageLocation,
-                timeUploaded = timeUploaded,
-                sizeInBytes = sizeInBytes
-            )
-        )
+        return Document(
+            name = name,
+            workspaceId = workspaceId!!,
+            storageId = storageId,
+            storageLocation = storageLocation,
+            timeUploaded = timeUploaded,
+            sizeInBytes = sizeInBytes
+        ).save()
     }
 
-    protected fun <T : Any> save(entity: T): T = infra.save(entity)
+    fun category(
+        name: String = "Delivery",
+        description: String? = null,
+        workspace: Workspace? = null,
+        income: Boolean = true,
+        expense: Boolean = true
+    ): Category {
+        val workspaceId = if (workspace == null) workspace().id else workspace.id
+        return Category(
+            name = name,
+            workspaceId = workspaceId!!,
+            income = income,
+            expense = expense,
+            description = description
+        ).save()
+    }
+
+    fun generalTax(
+        title: String = "Tax",
+        rateInBps: Int = 10_00,
+        description: String? = null,
+        workspace: Workspace? = null,
+    ): GeneralTax {
+        val workspaceId = if (workspace == null) workspace().id else workspace.id
+        return GeneralTax(
+            title = title,
+            workspaceId = workspaceId!!,
+            rateInBps = rateInBps,
+            description = description
+        ).save()
+    }
+
+    fun expense(
+        category: Category? = null,
+        workspace: Workspace? = null,
+        title: String = "Expense",
+        timeRecorded: Instant = MOCK_TIME,
+        datePaid: LocalDate = MOCK_DATE,
+        currency: String = "USD",
+        originalAmount: Long = 100,
+        convertedAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+        incomeTaxableAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+        useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
+        attachments: Set<Document> = setOf(),
+        percentOnBusiness: Int = 100,
+        generalTax: GeneralTax? = null,
+        generalTaxRateInBps: Int? = null,
+        generalTaxAmount: Long? = null,
+        notes: String? = null,
+        status: ExpenseStatus = ExpenseStatus.FINALIZED
+    ): Expense {
+        val workspaceId = if (workspace == null) workspace().id else workspace.id
+        return Expense(
+            workspaceId = workspaceId!!,
+            categoryId = category?.id,
+            title = title,
+            datePaid = datePaid,
+            timeRecorded = timeRecorded,
+            currency = currency,
+            originalAmount = originalAmount,
+            convertedAmounts = convertedAmounts,
+            incomeTaxableAmounts = incomeTaxableAmounts,
+            useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+            percentOnBusiness = percentOnBusiness,
+            generalTaxId = generalTax?.id,
+            attachments = attachments.asSequence().map { ExpenseAttachment(it.id!!) }.toSet(),
+            generalTaxAmount = generalTaxAmount,
+            generalTaxRateInBps = generalTaxRateInBps,
+            notes = notes,
+            status = status
+        ).save()
+    }
+
+    fun amountsInDefaultCurrency(
+        amount: Long
+    ): AmountsInDefaultCurrency = AmountsInDefaultCurrency(amount, amount)
+
+    fun emptyAmountsInDefaultCurrency(): AmountsInDefaultCurrency = AmountsInDefaultCurrency(
+        originalAmountInDefaultCurrency = null,
+        adjustedAmountInDefaultCurrency = null
+    )
+
+    fun income(
+        category: Category? = null,
+        workspace: Workspace? = null,
+        title: String = "Income",
+        timeRecorded: Instant = MOCK_TIME,
+        dateReceived: LocalDate = MOCK_DATE,
+        currency: String = "USD",
+        originalAmount: Long = 100,
+        convertedAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+        incomeTaxableAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100),
+        useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false,
+        attachments: Set<Document> = setOf(),
+        notes: String? = null,
+        generalTax: GeneralTax? = null,
+        generalTaxRateInBps: Int? = null,
+        generalTaxAmount: Long? = null,
+        status: IncomeStatus = IncomeStatus.FINALIZED,
+        linkedInvoice: Invoice? = null
+    ): Income {
+        val workspaceId = if (workspace == null) workspace().id else workspace.id
+        return Income(
+            categoryId = category?.id,
+            workspaceId = workspaceId!!,
+            generalTaxAmount = generalTaxAmount,
+            convertedAmounts = convertedAmounts,
+            useDifferentExchangeRateForIncomeTaxPurposes = useDifferentExchangeRateForIncomeTaxPurposes,
+            incomeTaxableAmounts = incomeTaxableAmounts,
+            status = status,
+            generalTaxId = generalTax?.id,
+            notes = notes,
+            generalTaxRateInBps = generalTaxRateInBps,
+            attachments = attachments.asSequence().map { document -> IncomeAttachment(document.id!!) }.toSet(),
+            currency = currency,
+            dateReceived = dateReceived,
+            originalAmount = originalAmount,
+            timeRecorded = timeRecorded,
+            title = title,
+            linkedInvoiceId = linkedInvoice?.id
+        ).save()
+    }
+
+    fun customer(
+        name: String = "customer",
+        workspace: Workspace? = null,
+    ): Customer {
+        val workspaceId = if (workspace == null) workspace().id else workspace.id
+        return Customer(
+            name = name,
+            workspaceId = workspaceId!!,
+        ).save()
+    }
+
+    fun invoice(
+        customer: Customer? = null,
+        title: String = "invoice",
+        timeRecorded: Instant = MOCK_TIME,
+        dateIssued: LocalDate = MOCK_DATE,
+        dateSent: LocalDate? = null,
+        datePaid: LocalDate? = null,
+        timeCancelled: Instant? = null,
+        dueDate: LocalDate = MOCK_DATE,
+        currency: String = "USD",
+        amount: Long = 100,
+        attachments: Set<Document> = setOf(),
+        notes: String? = null,
+        generalTax: GeneralTax? = null,
+        status: InvoiceStatus = InvoiceStatus.DRAFT
+    ): Invoice {
+        val customerId = if (customer == null) customer().id else customer.id
+        return Invoice(
+            customerId = customerId!!,
+            title = title,
+            timeRecorded = timeRecorded,
+            dateIssued = dateIssued,
+            dateSent = dateSent,
+            datePaid = datePaid,
+            timeCancelled = timeCancelled,
+            dueDate = dueDate,
+            currency = currency,
+            amount = amount,
+            attachments = attachments.asSequence().map { document ->
+                InvoiceAttachment(document.id!!)
+            }.toSet(),
+            notes = notes,
+            generalTaxId = generalTax?.id,
+            status = status
+        ).save()
+    }
+
+    protected fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
+
+    protected fun <T : Any> T.save(): T = infra.save(this)
 }
 
 /**

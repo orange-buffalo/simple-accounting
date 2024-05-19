@@ -5,8 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE_VALUE
@@ -25,8 +25,9 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SimpleAccountingIntegrationTest
 @DisplayName("Incomes API ")
 internal class IncomesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @BeforeEach
@@ -35,7 +36,8 @@ internal class IncomesApiControllerIT(
     }
 
     @Test
-    fun `should allow GET access only for logged in users`(testData: IncomesApiTestData) {
+    fun `should allow GET access only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .verifyUnauthorized()
@@ -43,7 +45,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return incomes of a workspace of current user`(testData: IncomesApiTestData) {
+    fun `should return incomes of a workspace of current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .verifyOkAndJsonBody {
@@ -127,7 +130,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found on GET`(testData: IncomesApiTestData) {
+    fun `should return 404 if workspace is not found on GET`() {
+        setupPreconditions()
         client.get()
             .uri("/api/workspaces/27347947239/incomes")
             .verifyNotFound("Workspace 27347947239 is not found")
@@ -135,14 +139,16 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 on GET if workspace belongs to another user`(testData: IncomesApiTestData) {
+    fun `should return 404 on GET if workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
     }
 
     @Test
-    fun `should allow GET access for an income only for logged in users`(testData: IncomesApiTestData) {
+    fun `should allow GET access for an income only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/expenses/${testData.firstSpaceIncome.id}")
             .verifyUnauthorized()
@@ -150,7 +156,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return income by id for current user`(testData: IncomesApiTestData) {
+    fun `should return income by id for current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .verifyOkAndJsonBody {
@@ -188,7 +195,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when requesting income by id`(testData: IncomesApiTestData) {
+    fun `should return 404 if workspace is not found when requesting income by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/5634632/incomes/${testData.firstSpaceIncome.id}")
             .verifyNotFound("Workspace 5634632 is not found")
@@ -196,9 +204,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when requesting income by id`(
-        testData: IncomesApiTestData
-    ) {
+    fun `should return 404 if workspace belongs to another user when requesting income by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
@@ -206,9 +213,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if income belongs to another workspace when requesting income by id`(
-        testData: IncomesApiTestData
-    ) {
+    fun `should return 404 if income belongs to another workspace when requesting income by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.pizzaWageIncome.id}")
             .verifyNotFound("Income ${testData.pizzaWageIncome.id} is not found")
@@ -216,7 +222,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when creating income`(testData: IncomesApiTestData) {
+    fun `should return 404 if workspace is not found when creating income`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/995943/incomes")
             .sendJson(testData.defaultNewIncome())
@@ -225,7 +232,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new income`(testData: IncomesApiTestData) {
+    fun `should create a new income`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(
@@ -278,7 +286,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when creating income`(testData: IncomesApiTestData) {
+    fun `should return 404 if workspace belongs to another user when creating income`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(testData.defaultNewIncome())
@@ -287,7 +296,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new income with minimum data for default currency`(testData: IncomesApiTestData) {
+    fun `should create a new income with minimum data for default currency`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(
@@ -331,7 +341,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when category of new income is not found`(testData: IncomesApiTestData) {
+    fun `should return 404 when category of new income is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(
@@ -351,7 +362,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when category of new income belongs to another workspace`(testData: IncomesApiTestData) {
+    fun `should return 404 when category of new income belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(
@@ -371,7 +383,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when tax of new income is not found`(testData: IncomesApiTestData) {
+    fun `should return 404 when tax of new income is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(
@@ -392,7 +405,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when tax of new income belongs to another workspace`(testData: IncomesApiTestData) {
+    fun `should return 404 when tax of new income belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(
@@ -413,7 +427,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when attachment of new income is not found`(testData: IncomesApiTestData) {
+    fun `should return 404 when attachment of new income is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(
@@ -433,7 +448,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when attachment of new income belongs to another workspace`(testData: IncomesApiTestData) {
+    fun `should return 404 when attachment of new income belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes")
             .sendJson(
@@ -452,7 +468,8 @@ internal class IncomesApiControllerIT(
     }
 
     @Test
-    fun `should allow PUT access only for logged in users`(testData: IncomesApiTestData) {
+    fun `should allow PUT access only for logged in users`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .verifyUnauthorized()
@@ -460,7 +477,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update income of current user`(testData: IncomesApiTestData) {
+    fun `should update income of current user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -515,7 +533,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update income of current user with minimum data`(testData: IncomesApiTestData) {
+    fun `should update income of current user with minimum data`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -553,7 +572,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail with 404 on PUT when workspace belongs to another user`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -570,7 +590,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when income belongs to another workspace`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when income belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.pizzaWageIncome.id}")
             .sendJson(
@@ -587,7 +608,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when income does not exist`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when income does not exist`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/5566")
             .sendJson(
@@ -604,7 +626,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when category is not found`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when category is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -622,7 +645,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when category belongs to another workspace`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when category belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -640,7 +664,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when tax is not found`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when tax is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -658,7 +683,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when tax belongs to another workspace`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when tax belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -676,7 +702,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when attachment is not found`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when attachment is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -694,7 +721,8 @@ internal class IncomesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when attachment belongs to another workspace`(testData: IncomesApiTestData) {
+    fun `should fail with 404 on PUT when attachment belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/incomes/${testData.firstSpaceIncome.id}")
             .sendJson(
@@ -710,42 +738,42 @@ internal class IncomesApiControllerIT(
             .verifyNotFound("Documents [${testData.pizzaDeliveryPayslip.id}] are not found")
     }
 
-    class IncomesApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val planetExpressWorkspace = Prototypes.workspace(owner = fry)
-        val pizzaDeliveryWorkspace = Prototypes.workspace(owner = fry)
-        val pizzaCategory = Prototypes.category(workspace = pizzaDeliveryWorkspace)
-        val spaceDeliveryCategory = Prototypes.category(workspace = planetExpressWorkspace)
-        val pensionCategory = Prototypes.category(workspace = planetExpressWorkspace)
-        val pizzaDeliveryTax = Prototypes.generalTax(workspace = pizzaDeliveryWorkspace)
-        val planetExpressTax = Prototypes.generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
-        val spaceDeliveryPayslip = Prototypes.document(workspace = planetExpressWorkspace)
-        val pizzaDeliveryPayslip = Prototypes.document(workspace = pizzaDeliveryWorkspace)
-        val spaceTax = Prototypes.generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val planetExpressWorkspace = workspace(owner = fry)
+        val pizzaDeliveryWorkspace = workspace(owner = fry)
+        val pizzaCategory = category(workspace = pizzaDeliveryWorkspace)
+        val spaceDeliveryCategory = category(workspace = planetExpressWorkspace)
+        val pensionCategory = category(workspace = planetExpressWorkspace)
+        val pizzaDeliveryTax = generalTax(workspace = pizzaDeliveryWorkspace)
+        val planetExpressTax = generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
+        val spaceDeliveryPayslip = document(workspace = planetExpressWorkspace)
+        val pizzaDeliveryPayslip = document(workspace = pizzaDeliveryWorkspace)
+        val spaceTax = generalTax(workspace = planetExpressWorkspace, rateInBps = 1000)
 
-        val pizzaWageIncome = Prototypes.income(
+        val pizzaWageIncome = income(
             workspace = pizzaDeliveryWorkspace,
             category = pizzaCategory,
             currency = "THF",
             originalAmount = 50,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(50),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(50)
+            convertedAmounts = amountsInDefaultCurrency(50),
+            incomeTaxableAmounts = amountsInDefaultCurrency(50)
         )
 
-        val spaceCustomer = Prototypes.customer(
+        val spaceCustomer = customer(
             workspace = planetExpressWorkspace
         )
 
-        val firstSpaceInvoice = Prototypes.invoice(
+        val firstSpaceInvoice = invoice(
             customer = spaceCustomer
         )
 
-        val secondSpaceInvoice = Prototypes.invoice(
+        val secondSpaceInvoice = invoice(
             customer = spaceCustomer
         )
 
-        val firstSpaceIncome = Prototypes.income(
+        val firstSpaceIncome = income(
             title = "first space delivery",
             workspace = planetExpressWorkspace,
             category = spaceDeliveryCategory,
@@ -767,14 +795,14 @@ internal class IncomesApiControllerIT(
             linkedInvoice = firstSpaceInvoice
         )
 
-        val secondSpaceIncome = Prototypes.income(
+        val secondSpaceIncome = income(
             title = "second space delivery",
             workspace = planetExpressWorkspace,
             category = spaceDeliveryCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(510),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            convertedAmounts = amountsInDefaultCurrency(510),
+            incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
             useDifferentExchangeRateForIncomeTaxPurposes = true,
             notes = "nice!",
             attachments = setOf(spaceDeliveryPayslip),
@@ -782,24 +810,16 @@ internal class IncomesApiControllerIT(
             status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
         )
 
-        val thirdSpaceIncome = Prototypes.income(
+        val thirdSpaceIncome = income(
             title = "third space delivery",
             workspace = planetExpressWorkspace,
             currency = "ZZA",
             originalAmount = 200,
-            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            convertedAmounts = emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             generalTax = null,
             status = IncomeStatus.PENDING_CONVERSION
-        )
-
-        override fun generateData() = listOf(
-            farnsworth, fry, planetExpressWorkspace, spaceDeliveryCategory, spaceDeliveryPayslip,
-            spaceTax, spaceCustomer, firstSpaceInvoice, secondSpaceInvoice,
-            firstSpaceIncome, secondSpaceIncome, thirdSpaceIncome,
-            pizzaDeliveryWorkspace, pizzaCategory, pizzaWageIncome,
-            pizzaDeliveryTax, planetExpressTax, pensionCategory, pizzaDeliveryPayslip
         )
 
         fun defaultNewIncome(): String = """{

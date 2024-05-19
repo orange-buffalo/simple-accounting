@@ -6,11 +6,11 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
-import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeMyProfilePage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
@@ -22,10 +22,13 @@ import org.springframework.security.crypto.password.PasswordEncoder
 class PasswordChangeFullStackTest(
     @Autowired private val repository: PlatformUserRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
-    fun `should change password for regular user`(page: Page, testData: PasswordChangeTestData) {
+    fun `should change password for regular user`(page: Page) {
+        val testData = setupPreconditions()
+
         whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
 
         page.loginAs(testData.fry)
@@ -53,7 +56,9 @@ class PasswordChangeFullStackTest(
     }
 
     @Test
-    fun `should prevent submit if inputs not provided`(page: Page, testData: PasswordChangeTestData) {
+    fun `should prevent submit if inputs not provided`(page: Page) {
+        val testData = setupPreconditions()
+
         page.loginAs(testData.fry)
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
@@ -74,7 +79,9 @@ class PasswordChangeFullStackTest(
     }
 
     @Test
-    fun `should validate that confirmation matches the new password`(page: Page, testData: PasswordChangeTestData) {
+    fun `should validate that confirmation matches the new password`(page: Page) {
+        val testData = setupPreconditions()
+
         page.loginAs(testData.fry)
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
@@ -95,7 +102,9 @@ class PasswordChangeFullStackTest(
     }
 
     @Test
-    fun `should validate that current password matches`(page: Page, testData: PasswordChangeTestData) {
+    fun `should validate that current password matches`(page: Page) {
+        val testData = setupPreconditions()
+
         whenever(passwordEncoder.matches("currentPassword", testData.fry.passwordHash)) doReturn false
 
         page.loginAs(testData.fry)
@@ -124,7 +133,9 @@ class PasswordChangeFullStackTest(
     }
 
     @Test
-    fun `should change password for admin user`(page: Page, testData: PasswordChangeTestData) {
+    fun `should change password for admin user`(page: Page) {
+        val testData = setupPreconditions()
+
         whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
 
         page.loginAs(testData.farnsworth)
@@ -150,11 +161,11 @@ class PasswordChangeFullStackTest(
             .passwordHash.shouldBe("newPasswordHash")
     }
 
-    class PasswordChangeTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
 
         // TODO #23: workspace should not be required?
-        val workspace = Prototypes.workspace(owner = fry)
-        val farnsworth = Prototypes.farnsworth()
+        val workspace = workspace(owner = fry)
+        val farnsworth = farnsworth()
     }
 }

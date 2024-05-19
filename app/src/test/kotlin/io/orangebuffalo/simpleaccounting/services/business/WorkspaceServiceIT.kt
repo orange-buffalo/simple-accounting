@@ -337,15 +337,11 @@ internal class WorkspaceServiceIT(
                 SavedWorkspaceAccessToken(
                     ownerId = farnsworth.id!!,
                     workspaceAccessTokenId = validTokenForFryWorkspace.id!!
-                )
-            )
-            save(
+                ),
                 SavedWorkspaceAccessToken(
                     ownerId = roberto.id!!,
                     workspaceAccessTokenId = expiredTokenForFryWorkspace.id!!
-                )
-            )
-            save(
+                ),
                 SavedWorkspaceAccessToken(
                     ownerId = mafiaBot.id!!,
                     workspaceAccessTokenId = revokedTokenForFryWorkspace.id!!

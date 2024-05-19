@@ -107,12 +107,10 @@ class RefreshTokenServiceIT(
 
     private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
         val fry = fry()
-        val refreshToken = save(
-            RefreshToken(
-                userId = fry.id!!,
-                token = "42:34jFbT3h2=",
-                expirationTime = MOCK_TIME
-            )
-        )
+        val refreshToken = RefreshToken(
+            userId = fry.id!!,
+            token = "42:34jFbT3h2=",
+            expirationTime = MOCK_TIME
+        ).save()
     }
 }
