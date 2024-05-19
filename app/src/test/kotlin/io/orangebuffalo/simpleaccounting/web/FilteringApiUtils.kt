@@ -2,7 +2,8 @@ package io.orangebuffalo.simpleaccounting.web
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
@@ -81,11 +82,6 @@ interface FilteringApiTestCasesBuilder<T : Any> {
     fun entityMatcher(init: EntityMatcher<T>.() -> Unit)
 
     /**
-     * Creates an entity prototype which is then customized by the [filtering] and [sorting] specs.
-     */
-    fun defaultEntityProvider(init: EntitiesRegistry.() -> T)
-
-    /**
      * Defines filtering specification (list of entities and how they react on different filters).
      */
     fun filtering(init: FilteringTestCaseBuilder<T>.() -> Unit)
@@ -135,10 +131,11 @@ interface FilteringTestCaseBuilder<T : Any> {
     @FilteringTestApiDslMarker
     interface FilteringEntityBuilder<T : Any> {
         /**
-         * Configures the entity, using the prototype provided by [FilteringApiTestCasesBuilder.defaultEntityProvider]
-         * as the input value.
+         * Adds an entity to the preconditions, and potentially created additionally required dependencies.
+         * The returned entity is then expected to be provided in the API response, unless [skippedOn] configures
+         * it to be excluded for particular filters.
          */
-        fun configure(init: EntitiesRegistry.(entity: T) -> Unit)
+        fun createEntity(init: EntitiesRegistry.() -> T)
 
         /**
          * Registers expectation for the entity to be skipped when the specified filter is applied.
@@ -184,10 +181,8 @@ interface SortingTestCaseBuilder<T : Any> {
          * Registers a new entity in the preconditions and adds it to the
          * expected result of sorting test case. The order of this method calls
          * defines the expected order of the entities in the response.
-         *
-         * The entities are configured using the prototype provided by [FilteringApiTestCasesBuilder.defaultEntityProvider].
          */
-        fun goes(init: EntitiesRegistry.(entity: T) -> Unit)
+        fun goes(init: EntitiesRegistry.() -> T)
     }
 }
 
@@ -202,31 +197,26 @@ interface EntitiesRegistry {
      * The workspace for which tests are executed
      * (if [FilteringApiTestCasesBuilder.workspaceBasedUrl] is `true`).
      */
-    val workspace: Workspace
+    val targetWorkspace: Workspace
 
     /**
      * The owner of the workspace for which tests are executed
      * (if [FilteringApiTestCasesBuilder.workspaceBasedUrl] is `true`).
      */
-    val workspaceOwner: PlatformUser
+    val targetWorkspaceOwner: PlatformUser
 
     /**
-     * The list of already registered precondition entities.
+     * The entities factory that can be used to create other entities.
      */
-    val entities: List<Any>
-
-    /**
-     * Adds a new entity to the preconditions.
-     */
-    fun <T : Any> save(entity: T): T
+    val entitiesFactory: Preconditions
 }
 
 /**
  * A filtering/sorting test case. Not intended to be used directly.
  * Use [generateFilteringApiTests] to create a collection of test cases and configure them.
  */
-abstract class FilteringApiTestCase : TestDataDeprecated {
-    abstract fun execute(client: WebTestClient)
+abstract class FilteringApiTestCase {
+    abstract fun execute(client: WebTestClient, preconditionsInfra: PreconditionsInfra)
 }
 
 /**
@@ -244,11 +234,14 @@ abstract class AbstractFilteringApiTest {
     @Autowired
     lateinit var timeService: TimeService
 
+    @Autowired
+    lateinit var preconditionsInfra: PreconditionsInfra
+
     @ParameterizedTest
     @MethodSource("createTestCases")
     fun testFilteringApi(testCase: FilteringApiTestCase) {
         mockCurrentDate(timeService)
         mockCurrentTime(timeService)
-        testCase.execute(client)
+        testCase.execute(client, preconditionsInfra)
     }
 }
