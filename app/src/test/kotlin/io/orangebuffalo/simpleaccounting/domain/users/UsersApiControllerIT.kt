@@ -8,12 +8,13 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.web.api.UserApiTestData
 import net.javacrumbs.jsonunit.assertj.JsonAssertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -24,9 +25,10 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SimpleAccountingIntegrationTest
 @DisplayName("Admin User API ")
 internal class UsersApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val aggregateTemplate: JdbcAggregateTemplate,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
@@ -49,7 +51,8 @@ internal class UsersApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return a valid users page`(testData: UserApiTestData) {
+    fun `should return a valid users page`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/users")
             .verifyOkAndJsonBody {
@@ -91,7 +94,8 @@ internal class UsersApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should create a new user`(testData: UserApiTestData) {
+    fun `should create a new user`() {
+        setupPreconditions()
         mockCurrentTime(timeService)
 
         client.post()
@@ -117,7 +121,7 @@ internal class UsersApiControllerIT(
             }
 
         val createdUserId = aggregateTemplate.findAll(PlatformUser::class.java)
-            .filter { it.userName == "Leela"}
+            .filter { it.userName == "Leela" }
             .shouldHaveSize(1)
             .first()
             .id
@@ -131,4 +135,15 @@ internal class UsersApiControllerIT(
                 it.expiresAt.shouldBeEqualComparingTo(MOCK_TIME.plusSeconds(5 * 3600))
             }
     }
+
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val farnsworth = farnsworth()
+        val fry = fry()
+        val zoidberg = platformUser(
+            userName = "Zoidberg",
+            isAdmin = false,
+            activated = false
+        )
+    }
+
 }

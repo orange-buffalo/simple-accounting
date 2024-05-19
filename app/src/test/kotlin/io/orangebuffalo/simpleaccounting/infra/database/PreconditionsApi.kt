@@ -334,6 +334,29 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         ).save()
     }
 
+    fun incomeTaxPayment(
+        workspace: Workspace? = null,
+        timeRecorded: Instant = MOCK_TIME,
+        datePaid: LocalDate = MOCK_DATE,
+        reportingDate: LocalDate = MOCK_DATE,
+        amount: Long = 100,
+        title: String = "Tax Payment",
+        attachments: Set<Document> = setOf(),
+        notes: String? = null
+    ): IncomeTaxPayment {
+        val workspaceId = if (workspace == null) workspace().id else workspace.id
+        return IncomeTaxPayment(
+            workspaceId = workspaceId!!,
+            timeRecorded = timeRecorded,
+            datePaid = datePaid,
+            reportingDate = reportingDate,
+            amount = amount,
+            title = title,
+            attachments = attachments.asSequence().map { IncomeTaxPaymentAttachment(it.id!!) }.toSet(),
+            notes = notes
+        ).save()
+    }
+
     protected fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
 
     protected fun <T : Any> T.save(): T = infra.save(this)
