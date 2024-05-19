@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.infra.api.assertNextJsonIs
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.infra.api.assertNextJsonIs
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -23,14 +23,16 @@ import java.time.temporal.ChronoUnit
 @SimpleAccountingIntegrationTest
 @DisplayName("Push Notifications API ")
 class PushNotificationsApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val pushNotificationService: PushNotificationService
+    @Autowired private val client: WebTestClient,
+    @Autowired private val pushNotificationService: PushNotificationService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     @WithMockFryUser
-    fun `should receive a single broadcast event`(testData: PushNotificationsApiTestData) {
+    fun `should receive a single broadcast event`() {
+        setupPreconditions()
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -59,7 +61,8 @@ class PushNotificationsApiControllerIT(
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     @WithMockFryUser
-    fun `should receive multiple broadcast events`(testData: PushNotificationsApiTestData) {
+    fun `should receive multiple broadcast events`() {
+        setupPreconditions()
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -101,7 +104,8 @@ class PushNotificationsApiControllerIT(
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     @WithMockFryUser
-    fun `should not receive events addressed to another user`(testData: PushNotificationsApiTestData) {
+    fun `should not receive events addressed to another user`() {
+        val testData = setupPreconditions()
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -158,10 +162,8 @@ class PushNotificationsApiControllerIT(
         }
     }
 
-    class PushNotificationsApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val bender = Prototypes.bender()
-
-        override fun generateData() = listOf(fry, bender)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val bender = bender()
     }
 }

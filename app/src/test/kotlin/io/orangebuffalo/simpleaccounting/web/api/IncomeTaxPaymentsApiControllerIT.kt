@@ -5,8 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
@@ -24,8 +24,9 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SimpleAccountingIntegrationTest
 @DisplayName("Income Tax Payments API ")
 internal class IncomeTaxPaymentsApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @BeforeEach
@@ -34,7 +35,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
     }
 
     @Test
-    fun `should allow GET access only for logged in users`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should allow GET access only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments")
             .verifyUnauthorized()
@@ -42,7 +44,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return income tax payments of a workspace of current user`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return income tax payments of a workspace of current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments")
             .verifyOkAndJsonBody {
@@ -83,7 +86,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found on GET`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return 404 if workspace is not found on GET`() {
+        setupPreconditions()
         client.get()
             .uri("/api/workspaces/27347947239/income-tax-payments")
             .verifyNotFound("Workspace 27347947239 is not found")
@@ -91,14 +95,16 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 on GET if workspace belongs to another user`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return 404 on GET if workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
     }
 
     @Test
-    fun `should allow GET access for an income only for logged in users`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should allow GET access for an income only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/expenses/${testData.firstSpaceIncomeTaxPayment.id}")
             .verifyUnauthorized()
@@ -106,7 +112,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return income tax payment by id for current user`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return income tax payment by id for current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.firstSpaceIncomeTaxPayment.id}")
             .verifyOkAndJsonBody {
@@ -130,7 +137,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when requesting income tax payment by id`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return 404 if workspace is not found when requesting income tax payment by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/5634632/income-tax-payments/${testData.firstSpaceIncomeTaxPayment.id}")
             .verifyNotFound("Workspace 5634632 is not found")
@@ -138,9 +146,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when requesting income tax payment by id`(
-        testData: IncomeTaxPaymentsApiTestData
-    ) {
+    fun `should return 404 if workspace belongs to another user when requesting income tax payment by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.firstSpaceIncomeTaxPayment.id}")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
@@ -148,9 +155,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if income tax payment belongs to another workspace when requesting income tax payment by id`(
-        testData: IncomeTaxPaymentsApiTestData
-    ) {
+    fun `should return 404 if income tax payment belongs to another workspace when requesting income tax payment by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.pizzaIncomeTaxPayment.id}")
             .verifyNotFound("Income Tax Payment ${testData.pizzaIncomeTaxPayment.id} is not found")
@@ -158,7 +164,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when creating income tax payment`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return 404 if workspace is not found when creating income tax payment`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/995943/income-tax-payments")
             .sendJson(testData.defaultNewIncomeTaxPayment())
@@ -167,7 +174,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new income tax payment`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should create a new income tax payment`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments")
             .sendJson(
@@ -201,7 +209,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when creating income tax payment`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return 404 if workspace belongs to another user when creating income tax payment`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments")
             .sendJson(testData.defaultNewIncomeTaxPayment())
@@ -210,7 +219,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new income with minimum data for default currency`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should create a new income with minimum data for default currency`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments")
             .sendJson(
@@ -241,7 +251,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when attachment of new income tax payment is not found`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return 404 when attachment of new income tax payment is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments")
             .sendJson(
@@ -258,7 +269,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when attachment of new income tax payment belongs to another workspace`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should return 404 when attachment of new income tax payment belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments")
             .sendJson(
@@ -274,7 +286,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
     }
 
     @Test
-    fun `should allow PUT access only for logged in users`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should allow PUT access only for logged in users`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.firstSpaceIncomeTaxPayment.id}")
             .verifyUnauthorized()
@@ -282,7 +295,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update income tax payment of current user`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should update income tax payment of current user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.firstSpaceIncomeTaxPayment.id}")
             .sendJson(
@@ -313,7 +327,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail with 404 on PUT when workspace belongs to another user`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should fail with 404 on PUT when workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.firstSpaceIncomeTaxPayment.id}")
             .sendJson(testData.defaultNewIncomeTaxPayment())
@@ -322,7 +337,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when income tax payment belongs to another workspace`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should fail with 404 on PUT when income tax payment belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.pizzaIncomeTaxPayment.id}")
             .sendJson(testData.defaultNewIncomeTaxPayment())
@@ -331,7 +347,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when income tax payment does not exist`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should fail with 404 on PUT when income tax payment does not exist`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/5566")
             .sendJson(testData.defaultNewIncomeTaxPayment())
@@ -340,7 +357,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when attachment is not found`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should fail with 404 on PUT when attachment is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.firstSpaceIncomeTaxPayment.id}")
             .sendJson(
@@ -357,7 +375,8 @@ internal class IncomeTaxPaymentsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when attachment belongs to another workspace`(testData: IncomeTaxPaymentsApiTestData) {
+    fun `should fail with 404 on PUT when attachment belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/income-tax-payments/${testData.firstSpaceIncomeTaxPayment.id}")
             .sendJson(
@@ -372,22 +391,22 @@ internal class IncomeTaxPaymentsApiControllerIT(
             .verifyNotFound("Documents [${testData.pizzaDeliveryPayslip.id}] are not found")
     }
 
-    class IncomeTaxPaymentsApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val planetExpressWorkspace = Prototypes.workspace(owner = fry)
-        val pizzaDeliveryWorkspace = Prototypes.workspace(owner = fry)
-        val spaceDeliveryPayslip = Prototypes.document(workspace = planetExpressWorkspace)
-        val pizzaDeliveryPayslip = Prototypes.document(workspace = pizzaDeliveryWorkspace)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val planetExpressWorkspace = workspace(owner = fry)
+        val pizzaDeliveryWorkspace = workspace(owner = fry)
+        val spaceDeliveryPayslip = document(workspace = planetExpressWorkspace)
+        val pizzaDeliveryPayslip = document(workspace = pizzaDeliveryWorkspace)
 
-        val pizzaIncomeTaxPayment = Prototypes.incomeTaxPayment(
+        val pizzaIncomeTaxPayment = incomeTaxPayment(
             workspace = pizzaDeliveryWorkspace,
             amount = 50,
             title = "pizza income tax payment",
             attachments = setOf(pizzaDeliveryPayslip)
         )
 
-        val firstSpaceIncomeTaxPayment = Prototypes.incomeTaxPayment(
+        val firstSpaceIncomeTaxPayment = incomeTaxPayment(
             workspace = planetExpressWorkspace,
             amount = 50,
             title = "first space income tax payment",
@@ -397,16 +416,10 @@ internal class IncomeTaxPaymentsApiControllerIT(
             datePaid = MOCK_DATE.plusDays(2)
         )
 
-        val secondSpaceIncome = Prototypes.incomeTaxPayment(
+        val secondSpaceIncome = incomeTaxPayment(
             workspace = planetExpressWorkspace,
             amount = 100,
             title = "second space income tax payment"
-        )
-
-        override fun generateData() = listOf(
-            farnsworth, fry, planetExpressWorkspace, spaceDeliveryPayslip,
-            firstSpaceIncomeTaxPayment, secondSpaceIncome,
-            pizzaDeliveryWorkspace, pizzaDeliveryPayslip, pizzaIncomeTaxPayment
         )
 
         fun defaultNewIncomeTaxPayment(): String = """{

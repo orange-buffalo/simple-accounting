@@ -5,8 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -18,11 +18,13 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SimpleAccountingIntegrationTest
 @DisplayName("Customers API ")
 internal class CustomersApiControllerIT(
-    @Autowired val client: WebTestClient
+    @Autowired private val client: WebTestClient,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
-    fun `should allow GET access only for logged in users`(testData: CustomersApiTestData) {
+    fun `should allow GET access only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
             .verifyUnauthorized()
@@ -30,7 +32,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return customers of a workspace of current user`(testData: CustomersApiTestData) {
+    fun `should return customers of a workspace of current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
             .verifyOkAndJsonBody {
@@ -60,7 +63,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found on GET`(testData: CustomersApiTestData) {
+    fun `should return 404 if workspace is not found on GET`() {
+        setupPreconditions()
         client.get()
             .uri("/api/workspaces/27347947239/customers")
             .verifyNotFound("Workspace 27347947239 is not found")
@@ -68,14 +72,16 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 on GET if workspace belongs to another user`(testData: CustomersApiTestData) {
+    fun `should return 404 on GET if workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
     }
 
     @Test
-    fun `should allow GET access for customer only for logged in users`(testData: CustomersApiTestData) {
+    fun `should allow GET access for customer only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/expenses/${testData.firstSpaceCustomer.id}")
             .verifyUnauthorized()
@@ -83,7 +89,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return customer by id for current user`(testData: CustomersApiTestData) {
+    fun `should return customer by id for current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers/${testData.firstSpaceCustomer.id}")
             .verifyOkAndJsonBody {
@@ -101,7 +108,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when requesting customer by id`(testData: CustomersApiTestData) {
+    fun `should return 404 if workspace is not found when requesting customer by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/5634632/customers/${testData.firstSpaceCustomer.id}")
             .verifyNotFound("Workspace 5634632 is not found")
@@ -109,9 +117,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when requesting customer by id`(
-        testData: CustomersApiTestData
-    ) {
+    fun `should return 404 if workspace belongs to another user when requesting customer by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers/${testData.firstSpaceCustomer.id}")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
@@ -119,9 +126,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if customer belongs to another workspace when requesting customer by id`(
-        testData: CustomersApiTestData
-    ) {
+    fun `should return 404 if customer belongs to another workspace when requesting customer by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers/${testData.pizzaCustomer.id}")
             .verifyNotFound("Customer ${testData.pizzaCustomer.id} is not found")
@@ -129,7 +135,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when creating customer`(testData: CustomersApiTestData) {
+    fun `should return 404 if workspace is not found when creating customer`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/995943/customers")
             .sendJson(testData.defaultNewCustomer())
@@ -138,7 +145,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new customer`(testData: CustomersApiTestData) {
+    fun `should create a new customer`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
             .sendJson(
@@ -161,7 +169,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when creating customer`(testData: CustomersApiTestData) {
+    fun `should return 404 if workspace belongs to another user when creating customer`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers")
             .sendJson(testData.defaultNewCustomer())
@@ -169,7 +178,8 @@ internal class CustomersApiControllerIT(
     }
 
     @Test
-    fun `should allow PUT access only for logged in users`(testData: CustomersApiTestData) {
+    fun `should allow PUT access only for logged in users`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers/${testData.firstSpaceCustomer.id}")
             .verifyUnauthorized()
@@ -177,7 +187,8 @@ internal class CustomersApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update customer of current user`(testData: CustomersApiTestData) {
+    fun `should update customer of current user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/customers/${testData.firstSpaceCustomer.id}")
             .sendJson(
@@ -198,25 +209,19 @@ internal class CustomersApiControllerIT(
             }
     }
 
-    class CustomersApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val planetExpressWorkspace = Prototypes.workspace(owner = fry)
-        val pizzaDeliveryWorkspace = Prototypes.workspace(owner = fry)
-        val pizzaCustomer = Prototypes.customer(workspace = pizzaDeliveryWorkspace)
-        val firstSpaceCustomer = Prototypes.customer(
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val planetExpressWorkspace = workspace(owner = fry)
+        val pizzaDeliveryWorkspace = workspace(owner = fry)
+        val pizzaCustomer = customer(workspace = pizzaDeliveryWorkspace)
+        val firstSpaceCustomer = customer(
             workspace = planetExpressWorkspace,
             name = "first space customer"
         )
-        val secondSpaceCustomer = Prototypes.customer(
+        val secondSpaceCustomer = customer(
             workspace = planetExpressWorkspace,
             name = "second space customer"
-        )
-
-        override fun generateData() = listOf(
-            farnsworth, fry, planetExpressWorkspace,
-            firstSpaceCustomer, secondSpaceCustomer,
-            pizzaDeliveryWorkspace, pizzaCustomer
         )
 
         fun defaultNewCustomer(): String = """{
