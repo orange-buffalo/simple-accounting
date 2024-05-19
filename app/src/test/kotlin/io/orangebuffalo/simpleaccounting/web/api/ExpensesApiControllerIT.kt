@@ -5,8 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE_VALUE
@@ -25,8 +25,9 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SimpleAccountingIntegrationTest
 @DisplayName("Expenses API ")
 internal class ExpensesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @BeforeEach
@@ -35,7 +36,8 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    fun `should allow GET access only for logged in users`(testData: ExpensesApiTestData) {
+    fun `should allow GET access only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .verifyUnauthorized()
@@ -43,7 +45,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return expenses of a workspace of current user`(testData: ExpensesApiTestData) {
+    fun `should return expenses of a workspace of current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .verifyOkAndJsonBody {
@@ -155,7 +158,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found on GET`(testData: ExpensesApiTestData) {
+    fun `should return 404 if workspace is not found on GET`() {
+        setupPreconditions()
         client.get()
             .uri("/api/workspaces/27347947239/expenses")
             .verifyNotFound("Workspace 27347947239 is not found")
@@ -163,14 +167,16 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 on GET if workspace belongs to another user`(testData: ExpensesApiTestData) {
+    fun `should return 404 on GET if workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
     }
 
     @Test
-    fun `should allow GET access for an expense only for logged in users`(testData: ExpensesApiTestData) {
+    fun `should allow GET access for an expense only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .verifyUnauthorized()
@@ -178,7 +184,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return expense by id for current user`(testData: ExpensesApiTestData) {
+    fun `should return expense by id for current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .verifyOkAndJsonBody {
@@ -213,7 +220,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when requesting expense by id`(testData: ExpensesApiTestData) {
+    fun `should return 404 if workspace is not found when requesting expense by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/5634632/expenses/${testData.firstSlurm.id}")
             .verifyNotFound("Workspace 5634632 is not found")
@@ -221,9 +229,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when requesting expense by id`(
-        testData: ExpensesApiTestData
-    ) {
+    fun `should return 404 if workspace belongs to another user when requesting expense by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
@@ -231,9 +238,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if expense belongs to another workspace when requesting expense by id`(
-        testData: ExpensesApiTestData
-    ) {
+    fun `should return 404 if expense belongs to another workspace when requesting expense by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.coffeeExpense.id}")
             .verifyNotFound("Expense ${testData.coffeeExpense.id} is not found")
@@ -241,7 +247,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when creating expense`(testData: ExpensesApiTestData) {
+    fun `should return 404 if workspace is not found when creating expense`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/995943/expenses")
             .sendJson(testData.defaultNewExpense())
@@ -250,7 +257,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new expense`(testData: ExpensesApiTestData) {
+    fun `should create a new expense`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -305,7 +313,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when creating expense`(testData: ExpensesApiTestData) {
+    fun `should return 404 if workspace belongs to another user when creating expense`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(testData.defaultNewExpense())
@@ -314,7 +323,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new expense with minimum data for default currency`(testData: ExpensesApiTestData) {
+    fun `should create a new expense with minimum data for default currency`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -359,7 +369,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when category of new expense is not found`(testData: ExpensesApiTestData) {
+    fun `should return 404 when category of new expense is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -377,7 +388,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when category of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
+    fun `should return 404 when category of new expense belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -395,7 +407,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when tax of new expense is not found`(testData: ExpensesApiTestData) {
+    fun `should return 404 when tax of new expense is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -414,7 +427,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when tax of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
+    fun `should return 404 when tax of new expense belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -433,7 +447,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when attachment of new expense is not found`(testData: ExpensesApiTestData) {
+    fun `should return 404 when attachment of new expense is not found`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -451,7 +466,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 when attachment of new expense belongs to another workspace`(testData: ExpensesApiTestData) {
+    fun `should return 404 when attachment of new expense belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
             .sendJson(
@@ -468,7 +484,8 @@ internal class ExpensesApiControllerIT(
     }
 
     @Test
-    fun `should allow PUT access only for logged in users`(testData: ExpensesApiTestData) {
+    fun `should allow PUT access only for logged in users`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .verifyUnauthorized()
@@ -476,7 +493,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update expense of current user`(testData: ExpensesApiTestData) {
+    fun `should update expense of current user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -531,7 +549,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update expense of current user with minimum data`(testData: ExpensesApiTestData) {
+    fun `should update expense of current user with minimum data`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -570,7 +589,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail with 404 on PUT when workspace belongs to another user`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -587,7 +607,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when expense belongs to another workspace`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when expense belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.coffeeExpense.id}")
             .sendJson(
@@ -604,7 +625,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when expense does not exist`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when expense does not exist`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/5566")
             .sendJson(
@@ -621,7 +643,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when category is not found`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when category is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -639,7 +662,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when category belongs to another workspace`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when category belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -657,7 +681,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when tax is not found`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when tax is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -675,7 +700,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when tax belongs to another workspace`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when tax belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -693,7 +719,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when attachment is not found`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when attachment is not found`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -711,7 +738,8 @@ internal class ExpensesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 on PUT when attachment belongs to another workspace`(testData: ExpensesApiTestData) {
+    fun `should fail with 404 on PUT when attachment belongs to another workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
             .sendJson(
@@ -727,44 +755,44 @@ internal class ExpensesApiControllerIT(
             .verifyNotFound("Documents [${testData.coffeeReceipt.id}] are not found")
     }
 
-    class ExpensesApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val fryWorkspace = Prototypes.workspace(owner = fry)
-        val fryCoffeeWorkspace = Prototypes.workspace(owner = fry)
-        val coffeeCategory = Prototypes.category(workspace = fryCoffeeWorkspace)
-        val slurmCategory = Prototypes.category(workspace = fryWorkspace)
-        val beerCategory = Prototypes.category(workspace = fryWorkspace)
-        val coffeeTax = Prototypes.generalTax(workspace = fryCoffeeWorkspace)
-        val slurmTax = Prototypes.generalTax(workspace = fryWorkspace)
-        val slurmReceipt = Prototypes.document(workspace = fryWorkspace)
-        val coffeeReceipt = Prototypes.document(workspace = fryCoffeeWorkspace)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val fryWorkspace = workspace(owner = fry)
+        val fryCoffeeWorkspace = workspace(owner = fry)
+        val coffeeCategory = category(workspace = fryCoffeeWorkspace)
+        val slurmCategory = category(workspace = fryWorkspace)
+        val beerCategory = category(workspace = fryWorkspace)
+        val coffeeTax = generalTax(workspace = fryCoffeeWorkspace)
+        val slurmTax = generalTax(workspace = fryWorkspace)
+        val slurmReceipt = document(workspace = fryWorkspace)
+        val coffeeReceipt = document(workspace = fryCoffeeWorkspace)
 
-        val coffeeExpense = Prototypes.expense(
+        val coffeeExpense = expense(
             workspace = fryCoffeeWorkspace,
             category = coffeeCategory,
             currency = "THF",
             originalAmount = 50,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(50),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(50),
+            convertedAmounts = amountsInDefaultCurrency(50),
+            incomeTaxableAmounts = amountsInDefaultCurrency(50),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.FINALIZED,
             percentOnBusiness = 100
         )
 
-        val firstSlurm = Prototypes.expense(
+        val firstSlurm = expense(
             title = "best ever slurm",
             workspace = fryWorkspace,
             category = slurmCategory,
             currency = "THF",
             originalAmount = 5000,
-            convertedAmounts = Prototypes.amountsInDefaultCurrency(500),
-            incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(500),
+            convertedAmounts = amountsInDefaultCurrency(500),
+            incomeTaxableAmounts = amountsInDefaultCurrency(500),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.FINALIZED
         )
 
-        val secondSlurm = Prototypes.expense(
+        val secondSlurm = expense(
             title = "another great slurm",
             workspace = fryWorkspace,
             category = slurmCategory,
@@ -786,7 +814,7 @@ internal class ExpensesApiControllerIT(
             generalTax = null
         )
 
-        val thirdSlurm = Prototypes.expense(
+        val thirdSlurm = expense(
             title = "slurm is never enough",
             workspace = fryWorkspace,
             category = slurmCategory,
@@ -796,7 +824,7 @@ internal class ExpensesApiControllerIT(
                 originalAmountInDefaultCurrency = 510,
                 adjustedAmountInDefaultCurrency = 459
             ),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
             useDifferentExchangeRateForIncomeTaxPurposes = true,
             status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
             percentOnBusiness = 99,
@@ -805,24 +833,17 @@ internal class ExpensesApiControllerIT(
             generalTaxAmount = 46
         )
 
-        val fourthSlurm = Prototypes.expense(
+        val fourthSlurm = expense(
             title = "need more slurm",
             workspace = fryWorkspace,
             category = slurmCategory,
             currency = "ZZB",
             originalAmount = 5100,
-            convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            convertedAmounts = emptyAmountsInDefaultCurrency(),
+            incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
             useDifferentExchangeRateForIncomeTaxPurposes = false,
             status = ExpenseStatus.PENDING_CONVERSION,
             percentOnBusiness = 100
-        )
-
-        override fun generateData() = listOf(
-            farnsworth, fry, fryWorkspace, slurmCategory, slurmReceipt,
-            slurmTax, firstSlurm, secondSlurm, thirdSlurm, fourthSlurm,
-            fryCoffeeWorkspace, coffeeCategory, coffeeExpense, coffeeTax,
-            beerCategory, coffeeReceipt
         )
 
         fun defaultNewExpense(): String = """{

@@ -5,8 +5,8 @@ import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
@@ -18,11 +18,13 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SimpleAccountingIntegrationTest
 @DisplayName("Taxes API ")
 internal class GeneralTaxesApiControllerIT(
-    @Autowired val client: WebTestClient
+    @Autowired private val client: WebTestClient,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
-    fun `should allow GET access only for logged in users`(testData: GeneralTaxesApiTestData) {
+    fun `should allow GET access only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes")
             .verifyUnauthorized()
@@ -30,7 +32,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return taxes of a workspace of current user`(testData: GeneralTaxesApiTestData) {
+    fun `should return taxes of a workspace of current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes")
             .verifyOkAndJsonBody {
@@ -63,7 +66,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found on GET`(testData: GeneralTaxesApiTestData) {
+    fun `should return 404 if workspace is not found on GET`() {
+        setupPreconditions()
         client.get()
             .uri("/api/workspaces/27347947239/general-taxes")
             .verifyNotFound("Workspace 27347947239 is not found")
@@ -71,14 +75,16 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 on GET if workspace belongs to another user`(testData: GeneralTaxesApiTestData) {
+    fun `should return 404 on GET if workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
     }
 
     @Test
-    fun `should allow GET access for tax only for logged in users`(testData: GeneralTaxesApiTestData) {
+    fun `should allow GET access for tax only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/expenses/${testData.firstSpaceTax.id}")
             .verifyUnauthorized()
@@ -86,7 +92,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return tax by id for current user`(testData: GeneralTaxesApiTestData) {
+    fun `should return tax by id for current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes/${testData.firstSpaceTax.id}")
             .verifyOkAndJsonBody {
@@ -105,7 +112,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when requesting tax by id`(testData: GeneralTaxesApiTestData) {
+    fun `should return 404 if workspace is not found when requesting tax by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/5634632/general-taxes/${testData.firstSpaceTax.id}")
             .verifyNotFound("Workspace 5634632 is not found")
@@ -113,9 +121,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when requesting tax by id`(
-        testData: GeneralTaxesApiTestData
-    ) {
+    fun `should return 404 if workspace belongs to another user when requesting tax by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes/${testData.firstSpaceTax.id}")
             .verifyNotFound("Workspace ${testData.planetExpressWorkspace.id} is not found")
@@ -123,9 +130,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if tax belongs to another workspace when requesting tax by id`(
-        testData: GeneralTaxesApiTestData
-    ) {
+    fun `should return 404 if tax belongs to another workspace when requesting tax by id`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes/${testData.pizzaTax.id}")
             .verifyNotFound("Tax ${testData.pizzaTax.id} is not found")
@@ -133,7 +139,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return 404 if workspace is not found when creating tax`(testData: GeneralTaxesApiTestData) {
+    fun `should return 404 if workspace is not found when creating tax`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/995943/general-taxes")
             .sendJson(testData.defaultNewTax())
@@ -142,7 +149,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new tax`(testData: GeneralTaxesApiTestData) {
+    fun `should create a new tax`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes")
             .sendJson(
@@ -169,7 +177,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new tax with minimum data`(testData: GeneralTaxesApiTestData) {
+    fun `should create a new tax with minimum data`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes")
             .sendJson(
@@ -194,7 +203,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should return 404 if workspace belongs to another user when creating tax`(testData: GeneralTaxesApiTestData) {
+    fun `should return 404 if workspace belongs to another user when creating tax`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes")
             .sendJson(testData.defaultNewTax())
@@ -202,7 +212,8 @@ internal class GeneralTaxesApiControllerIT(
     }
 
     @Test
-    fun `should allow PUT access only for logged in users`(testData: GeneralTaxesApiTestData) {
+    fun `should allow PUT access only for logged in users`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes/${testData.firstSpaceTax.id}")
             .verifyUnauthorized()
@@ -210,7 +221,8 @@ internal class GeneralTaxesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update tax of current user`(testData: GeneralTaxesApiTestData) {
+    fun `should update tax of current user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.planetExpressWorkspace.id}/general-taxes/${testData.firstSpaceTax.id}")
             .sendJson(
@@ -235,28 +247,22 @@ internal class GeneralTaxesApiControllerIT(
             }
     }
 
-    class GeneralTaxesApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val planetExpressWorkspace = Prototypes.workspace(owner = fry)
-        val pizzaDeliveryWorkspace = Prototypes.workspace(owner = fry)
-        val pizzaTax = Prototypes.generalTax(workspace = pizzaDeliveryWorkspace)
-        val firstSpaceTax = Prototypes.generalTax(
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val planetExpressWorkspace = workspace(owner = fry)
+        val pizzaDeliveryWorkspace = workspace(owner = fry)
+        val pizzaTax = generalTax(workspace = pizzaDeliveryWorkspace)
+        val firstSpaceTax = generalTax(
             workspace = planetExpressWorkspace,
             title = "first space tax",
             rateInBps = 4503
         )
-        val secondSpaceTax = Prototypes.generalTax(
+        val secondSpaceTax = generalTax(
             workspace = planetExpressWorkspace,
             title = "second space tax",
             description = "second tax description",
             rateInBps = 3
-        )
-
-        override fun generateData() = listOf(
-            farnsworth, fry, planetExpressWorkspace,
-            firstSpaceTax, secondSpaceTax,
-            pizzaDeliveryWorkspace, pizzaTax
         )
 
         fun defaultNewTax(): String = """{
