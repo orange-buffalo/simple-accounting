@@ -4,8 +4,8 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
@@ -26,8 +26,9 @@ import java.time.Duration
 @SimpleAccountingIntegrationTest
 @DisplayName("Workspaces API ")
 internal class WorkspacesApiControllerIT(
-    @Autowired val client: WebTestClient,
-    @Autowired val timeService: TimeService,
+    @Autowired private val client: WebTestClient,
+    @Autowired private val timeService: TimeService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
@@ -39,7 +40,8 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return workspaces of current user`(testData: WorkspacesApiTestData) {
+    fun `should return workspaces of current user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces")
             .verifyOkAndJsonBody {
@@ -61,7 +63,9 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockZoidbergUser
-    fun `should return empty list if no workspace exists for user`(testData: WorkspacesApiTestData) {
+    fun `should return empty list if no workspace exists for user`() {
+        setupPreconditions()
+
         client.get()
             .uri("/api/workspaces")
             .verifyOkAndJsonBody {
@@ -71,7 +75,8 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithSaMockUser(transient = true, workspaceAccessToken = "validFryWorkspaceToken")
-    fun `should return shared workspace for transient user on GET workspaces`(testData: WorkspacesApiTestData) {
+    fun `should return shared workspace for transient user on GET workspaces`() {
+        val testData = setupPreconditions()
         mockCurrentTime(timeService)
 
         client.get()
@@ -102,7 +107,9 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should create a new workspace`(testData: WorkspacesApiTestData) {
+    fun `should create a new workspace`() {
+        setupPreconditions()
+
         client.post()
             .uri("/api/workspaces")
             .sendJson(
@@ -139,7 +146,8 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should update a workspace`(testData: WorkspacesApiTestData) {
+    fun `should update a workspace`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}")
             .sendJson(
@@ -171,9 +179,8 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockZoidbergUser
-    fun `should return 404 on PUT if workspace belongs to another user`(
-        testData: WorkspacesApiTestData
-    ) {
+    fun `should return 404 on PUT if workspace belongs to another user`() {
+        val testData = setupPreconditions()
         client.put()
             .uri("/api/workspaces/${testData.fryWorkspace.id}")
             .sendJson(
@@ -201,7 +208,9 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockZoidbergUser
-    fun `should return empty list if no shared workspace exists for user`(testData: WorkspacesApiTestData) {
+    fun `should return empty list if no shared workspace exists for user`() {
+        setupPreconditions()
+
         mockCurrentTime(timeService)
 
         client.get()
@@ -213,7 +222,8 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should return shared workspaces of current user`(testData: WorkspacesApiTestData) {
+    fun `should return shared workspaces of current user`() {
+        val testData = setupPreconditions()
         mockCurrentTime(timeService)
 
         client.get()
@@ -237,7 +247,8 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should save shared workspace by valid access token`(testData: WorkspacesApiTestData) {
+    fun `should save shared workspace by valid access token`() {
+        val testData = setupPreconditions()
         mockCurrentTime(timeService)
 
         client.post()
@@ -266,7 +277,8 @@ internal class WorkspacesApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail on attempt to save shared workspace by expired token`(testData: WorkspacesApiTestData) {
+    fun `should fail on attempt to save shared workspace by expired token`() {
+        val testData = setupPreconditions()
         mockCurrentTime(timeService)
 
         client.post()
@@ -281,12 +293,12 @@ internal class WorkspacesApiControllerIT(
             .expectBody<String>().isEqualTo("Token ${testData.fryWorkspaceAccessTokenExpired.token} is not valid")
     }
 
-    class WorkspacesApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val zoidberg = Prototypes.zoidberg()
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val zoidberg = zoidberg()
 
-        val fryWorkspace = Prototypes.workspace(
+        val fryWorkspace = workspace(
             name = "Property of Philip J. Fry",
             owner = fry,
             taxEnabled = false,
@@ -294,7 +306,7 @@ internal class WorkspacesApiControllerIT(
             defaultCurrency = "USD"
         )
 
-        val farnsworthWorkspace = Prototypes.workspace(
+        val farnsworthWorkspace = workspace(
             name = "Laboratory",
             owner = farnsworth,
             taxEnabled = false,
@@ -302,45 +314,41 @@ internal class WorkspacesApiControllerIT(
             defaultCurrency = "USD"
         )
 
-        val fryWorkspaceAccessToken = Prototypes.workspaceAccessToken(
+        val fryWorkspaceAccessToken = workspaceAccessToken(
             workspace = fryWorkspace,
             validTill = MOCK_TIME.plus(Duration.ofDays(1000)),
             token = "validFryWorkspaceToken"
         )
 
-        val fryWorkspaceAccessTokenExpired = Prototypes.workspaceAccessToken(
+        val fryWorkspaceAccessTokenExpired = workspaceAccessToken(
             workspace = fryWorkspace,
             validTill = MOCK_TIME.minusMillis(1),
             token = "expiredFryWorkspaceToken"
         )
 
-        val farnsworthWorkspaceAccessToken = Prototypes.workspaceAccessToken(
+        val farnsworthWorkspaceAccessToken = workspaceAccessToken(
             workspace = farnsworthWorkspace,
             validTill = MOCK_TIME.plus(Duration.ofDays(1000)),
             token = "validFarnsworthWorkspaceToken"
         )
 
-        val farnsworthWorkspaceSavedForFry = SavedWorkspaceAccessToken(
-            ownerId = fry.id!!,
-            workspaceAccessTokenId = farnsworthWorkspaceAccessToken.id!!
-        )
-
-        val farnsworthWorkspaceAccessTokenExpired = Prototypes.workspaceAccessToken(
+        val farnsworthWorkspaceAccessTokenExpired = workspaceAccessToken(
             workspace = farnsworthWorkspace,
             validTill = MOCK_TIME.minusMillis(1),
             token = "expiredFarnsworthWorkspaceToken"
         )
 
-        val farnsworthWorkspaceSavedForFryExpired = SavedWorkspaceAccessToken(
-            ownerId = fry.id!!,
-            workspaceAccessTokenId = farnsworthWorkspaceAccessTokenExpired.id!!
-        )
-
-        override fun generateData() = listOf(
-            farnsworth, fry, fryWorkspace, farnsworthWorkspace, zoidberg,
-            fryWorkspaceAccessToken, fryWorkspaceAccessTokenExpired,
-            farnsworthWorkspaceAccessToken, farnsworthWorkspaceSavedForFry,
-            farnsworthWorkspaceAccessTokenExpired, farnsworthWorkspaceSavedForFryExpired
-        )
+        init {
+            save(
+                SavedWorkspaceAccessToken(
+                    ownerId = fry.id!!,
+                    workspaceAccessTokenId = farnsworthWorkspaceAccessTokenExpired.id!!
+                ),
+                SavedWorkspaceAccessToken(
+                    ownerId = fry.id!!,
+                    workspaceAccessTokenId = farnsworthWorkspaceAccessToken.id!!
+                )
+            )
+        }
     }
 }

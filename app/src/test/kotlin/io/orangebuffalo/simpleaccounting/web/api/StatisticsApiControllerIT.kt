@@ -4,13 +4,13 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
+import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
-import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
-import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -21,11 +21,13 @@ import java.time.LocalDate
 @SimpleAccountingIntegrationTest
 @DisplayName("Statistics API ")
 internal class StatisticsApiControllerIT(
-    @Autowired val client: WebTestClient
+    @Autowired private val client: WebTestClient,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
-    fun `should allow access to expenses statistics only for authenticated users`(testData: StatisticsApiTestData) {
+    fun `should allow access to expenses statistics only for authenticated users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/expenses" +
@@ -36,7 +38,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should calculate expenses statistics`(testData: StatisticsApiTestData) {
+    fun `should calculate expenses statistics`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/expenses" +
@@ -72,9 +75,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 if workspace does not exist when requesting expenses statistics`(
-        testData: StatisticsApiTestData
-    ) {
+    fun `should fail with 404 if workspace does not exist when requesting expenses statistics`() {
+        setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/5555/statistics/expenses" +
@@ -85,9 +87,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail with 404 if workspace belongs to another user when requesting expenses statistics`(
-        testData: StatisticsApiTestData
-    ) {
+    fun `should fail with 404 if workspace belongs to another user when requesting expenses statistics`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/expenses" +
@@ -97,7 +98,8 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    fun `should allow access to incomes statistics only for authenticated users`(testData: StatisticsApiTestData) {
+    fun `should allow access to incomes statistics only for authenticated users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/incomes" +
@@ -108,7 +110,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should calculate incomes statistics`(testData: StatisticsApiTestData) {
+    fun `should calculate incomes statistics`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/incomes" +
@@ -144,9 +147,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 if workspace does not exist when requesting incomes statistics`(
-        testData: StatisticsApiTestData
-    ) {
+    fun `should fail with 404 if workspace does not exist when requesting incomes statistics`() {
+        setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/5555/statistics/incomes" +
@@ -157,9 +159,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail with 404 if workspace belongs to another user when requesting incomes statistics`(
-        testData: StatisticsApiTestData
-    ) {
+    fun `should fail with 404 if workspace belongs to another user when requesting incomes statistics`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/incomes" +
@@ -169,7 +170,8 @@ internal class StatisticsApiControllerIT(
     }
 
     @Test
-    fun `should allow access to tax payments statistics only for authenticated users`(testData: StatisticsApiTestData) {
+    fun `should allow access to tax payments statistics only for authenticated users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/income-tax-payments" +
@@ -180,7 +182,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should calculate tax payments statistics`(testData: StatisticsApiTestData) {
+    fun `should calculate tax payments statistics`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/income-tax-payments" +
@@ -193,9 +196,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should fail with 404 if workspace does not exist when requesting tax payments statistics`(
-        testData: StatisticsApiTestData
-    ) {
+    fun `should fail with 404 if workspace does not exist when requesting tax payments statistics`() {
+        setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/5555/statistics/income-tax-payments" +
@@ -206,9 +208,8 @@ internal class StatisticsApiControllerIT(
 
     @Test
     @WithMockFarnsworthUser
-    fun `should fail with 404 if workspace belongs to another user when requesting tax payments statistics`(
-        testData: StatisticsApiTestData
-    ) {
+    fun `should fail with 404 if workspace belongs to another user when requesting tax payments statistics`() {
+        val testData = setupPreconditions()
         client.get()
             .uri(
                 "/api/workspaces/${testData.workspace.id}/statistics/income-tax-payments" +
@@ -217,44 +218,41 @@ internal class StatisticsApiControllerIT(
             .verifyNotFound("Workspace ${testData.workspace.id} is not found")
     }
 
-    class StatisticsApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val workspace = Prototypes.workspace(owner = fry)
-        val irrelevantWorkspace = Prototypes.workspace(owner = fry)
-        val firstCategory = Prototypes.category(workspace = workspace)
-        val secondCategory = Prototypes.category(workspace = workspace)
-        val thirdCategory = Prototypes.category(workspace = workspace)
-        val irrelevantCategory = Prototypes.category(workspace = irrelevantWorkspace)
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val workspace = workspace(owner = fry)
+        val irrelevantWorkspace = workspace(owner = fry)
+        val firstCategory = category(workspace = workspace)
+        val secondCategory = category(workspace = workspace)
+        val irrelevantCategory = category(workspace = irrelevantWorkspace)
 
-        override fun generateData() = listOf(
-            farnsworth, fry, workspace, irrelevantWorkspace,
-            firstCategory, secondCategory, thirdCategory, irrelevantCategory,
-
+        init {
+            category(workspace = workspace)
             // in range, lower boundary
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 4, 10),
                 originalAmount = 100,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+                convertedAmounts = amountsInDefaultCurrency(100),
+                incomeTaxableAmounts = amountsInDefaultCurrency(100),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED
-            ),
+            )
             // out of range: -1 day
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 4, 9),
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(555),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(555),
+                convertedAmounts = amountsInDefaultCurrency(555),
+                incomeTaxableAmounts = amountsInDefaultCurrency(555),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 555
-            ),
+            )
             // in range, upper boundary
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 10, 1),
@@ -272,110 +270,110 @@ internal class StatisticsApiControllerIT(
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 112
-            ),
+            )
             // out of range: +1 day
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = firstCategory,
                 datePaid = LocalDate.of(3000, 10, 2),
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(113),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(113),
+                convertedAmounts = amountsInDefaultCurrency(113),
+                incomeTaxableAmounts = amountsInDefaultCurrency(113),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 113
-            ),
+            )
             // in range
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(10),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(10),
+                convertedAmounts = amountsInDefaultCurrency(10),
+                incomeTaxableAmounts = amountsInDefaultCurrency(10),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 10
-            ),
+            )
             // in range
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 7),
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(10000),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(10000),
+                convertedAmounts = amountsInDefaultCurrency(10000),
+                incomeTaxableAmounts = amountsInDefaultCurrency(10000),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 10000
-            ),
+            )
             // in range: pending
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(210),
-                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                convertedAmounts = amountsInDefaultCurrency(210),
+                incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 originalAmount = 210
-            ),
+            )
             // in range: pending
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(210),
-                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                convertedAmounts = amountsInDefaultCurrency(210),
+                incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 originalAmount = 210
-            ),
+            )
             // in range: pending
-            Prototypes.expense(
+            expense(
                 workspace = workspace,
                 category = secondCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
                 currency = "ZZG",
-                convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                convertedAmounts = emptyAmountsInDefaultCurrency(),
+                incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.PENDING_CONVERSION,
                 originalAmount = 210
-            ),
+            )
             // in range, but out of scope: another workspace
-            Prototypes.expense(
+            expense(
                 workspace = irrelevantWorkspace,
                 category = irrelevantCategory,
                 datePaid = LocalDate.of(3000, 6, 6),
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = amountsInDefaultCurrency(33),
+                incomeTaxableAmounts = amountsInDefaultCurrency(33),
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
                 status = ExpenseStatus.FINALIZED,
                 originalAmount = 33
-            ),
+            )
 
             // in range, but out of scope: another workspace
-            Prototypes.income(
+            income(
                 workspace = irrelevantWorkspace,
                 category = irrelevantCategory,
                 dateReceived = LocalDate.of(3010, 5, 23),
                 originalAmount = 177,
                 currency = irrelevantWorkspace.defaultCurrency,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(177),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(177)
-            ),
+                convertedAmounts = amountsInDefaultCurrency(177),
+                incomeTaxableAmounts = amountsInDefaultCurrency(177)
+            )
             // out of range: -1 day
-            Prototypes.income(
+            income(
                 workspace = workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 4, 20),
                 originalAmount = 166,
                 currency = workspace.defaultCurrency,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(166),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(166)
-            ),
+                convertedAmounts = amountsInDefaultCurrency(166),
+                incomeTaxableAmounts = amountsInDefaultCurrency(166)
+            )
             // in range: lower boundary
-            Prototypes.income(
+            income(
                 workspace = workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 4, 21),
@@ -392,83 +390,83 @@ internal class StatisticsApiControllerIT(
                     adjustedAmountInDefaultCurrency = 20
                 ),
                 useDifferentExchangeRateForIncomeTaxPurposes = true
-            ),
+            )
             // in range: upper boundary
-            Prototypes.income(
+            income(
                 workspace = workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 9, 15),
                 originalAmount = 168,
                 currency = "ZZH",
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(100),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(200),
+                convertedAmounts = amountsInDefaultCurrency(100),
+                incomeTaxableAmounts = amountsInDefaultCurrency(200),
                 useDifferentExchangeRateForIncomeTaxPurposes = true
-            ),
+            )
             // out of rage: +1 day
-            Prototypes.income(
+            income(
                 workspace = workspace,
                 category = firstCategory,
                 dateReceived = LocalDate.of(3010, 9, 16),
                 originalAmount = 177,
                 currency = workspace.defaultCurrency,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(177),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(177)
-            ),
+                convertedAmounts = amountsInDefaultCurrency(177),
+                incomeTaxableAmounts = amountsInDefaultCurrency(177)
+            )
             // in range, pending
-            Prototypes.income(
+            income(
                 workspace = workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 233,
                 currency = "ZZH",
-                convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                convertedAmounts = emptyAmountsInDefaultCurrency(),
+                incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
                 status = IncomeStatus.PENDING_CONVERSION
-            ),
+            )
             // in range: pending
-            Prototypes.income(
+            income(
                 workspace = workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 233,
                 currency = "ZZH",
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(233),
-                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                convertedAmounts = amountsInDefaultCurrency(233),
+                incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
                 status = IncomeStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 useDifferentExchangeRateForIncomeTaxPurposes = true
-            ),
+            )
             // in range
-            Prototypes.income(
+            income(
                 workspace = workspace,
                 category = secondCategory,
                 dateReceived = LocalDate.of(3010, 6, 1),
                 originalAmount = 1000,
                 currency = workspace.defaultCurrency,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(1000),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(1000)
-            ),
+                convertedAmounts = amountsInDefaultCurrency(1000),
+                incomeTaxableAmounts = amountsInDefaultCurrency(1000)
+            )
 
-            Prototypes.incomeTaxPayment(
+            incomeTaxPayment(
                 workspace = workspace,
                 reportingDate = LocalDate.of(3005, 7, 1),
                 amount = 23
-            ),
-            Prototypes.incomeTaxPayment(
+            )
+            incomeTaxPayment(
                 workspace = workspace,
                 reportingDate = LocalDate.of(3005, 7, 2),
                 amount = 43
-            ),
+            )
 
-            Prototypes.incomeTaxPayment(
+            incomeTaxPayment(
                 workspace = workspace,
                 reportingDate = LocalDate.of(3005, 8, 1),
                 amount = 34
-            ),
-            Prototypes.incomeTaxPayment(
+            )
+            incomeTaxPayment(
                 workspace = workspace,
                 reportingDate = LocalDate.of(3005, 8, 2),
                 amount = 111
             )
-        )
+        }
     }
 }

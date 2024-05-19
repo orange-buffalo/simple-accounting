@@ -4,8 +4,8 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.infra.database.TestDataDeprecated
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
@@ -18,11 +18,13 @@ import org.springframework.test.web.reactive.server.expectBody
 @SimpleAccountingIntegrationTest
 @DisplayName("Categories API ")
 internal class CategoriesApiControllerIT(
-    @Autowired val client: WebTestClient
+    @Autowired private val client: WebTestClient,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
-    fun `should allow GET access only for logged in users`(testData: CategoriesApiTestData) {
+    fun `should allow GET access only for logged in users`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
             .verifyUnauthorized()
@@ -30,7 +32,8 @@ internal class CategoriesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should get categories of current user workspace`(testData: CategoriesApiTestData) {
+    fun `should get categories of current user workspace`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
             .verifyOkAndJsonBody {
@@ -60,7 +63,8 @@ internal class CategoriesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should get 404 when requesting categories of another user`(testData: CategoriesApiTestData) {
+    fun `should get 404 when requesting categories of another user`() {
+        val testData = setupPreconditions()
         client.get()
             .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")
             .exchange()
@@ -71,7 +75,8 @@ internal class CategoriesApiControllerIT(
     }
 
     @Test
-    fun `should allow POST access only for logged in users`(testData: CategoriesApiTestData) {
+    fun `should allow POST access only for logged in users`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
             .verifyUnauthorized()
@@ -79,7 +84,8 @@ internal class CategoriesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should add a new category to the workspace`(testData: CategoriesApiTestData) {
+    fun `should add a new category to the workspace`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
             .sendJson(
@@ -108,7 +114,8 @@ internal class CategoriesApiControllerIT(
 
     @Test
     @WithMockFryUser
-    fun `should get 404 when adding category to workspace of another user`(testData: CategoriesApiTestData) {
+    fun `should get 404 when adding category to workspace of another user`() {
+        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")
             .sendJson(
@@ -126,24 +133,20 @@ internal class CategoriesApiControllerIT(
             }
     }
 
-    class CategoriesApiTestData : TestDataDeprecated {
-        val fry = Prototypes.fry()
-        val farnsworth = Prototypes.farnsworth()
-        val fryWorkspace = Prototypes.workspace(owner = fry)
-        val farnsworthWorkspace = Prototypes.workspace(owner = farnsworth)
-        val slurmCategory = Prototypes.category(
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val fry = fry()
+        val farnsworth = farnsworth()
+        val fryWorkspace = workspace(owner = fry)
+        val farnsworthWorkspace = workspace(owner = farnsworth)
+        val slurmCategory = category(
             name = "Slurm", workspace = fryWorkspace, description = "..", income = false, expense = true
         )
-        val planetExpressCategory = Prototypes.category(
+        val planetExpressCategory = category(
             name = "PlanetExpress",
             workspace = fryWorkspace,
             description = "...",
             income = true,
             expense = false
-        )
-
-        override fun generateData() = listOf(
-            farnsworth, fry, fryWorkspace, farnsworthWorkspace, slurmCategory, planetExpressCategory
         )
     }
 }
