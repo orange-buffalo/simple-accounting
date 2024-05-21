@@ -19,7 +19,7 @@
     "@messageformat/core": "3.3.0",
     "@messageformat/parser": "5.1.0",
     "copy-to-clipboard": "3.3.3",
-    "dompurify": "3.0.6",
+    "dompurify": "3.1.4",
     "dropzone": "6.0.0-beta.2",
     "element-plus": "2.4.4",
     "event-source-polyfill": "1.0.31",
