@@ -3,7 +3,8 @@ package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
+import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
 import kotlinx.coroutines.runBlocking
@@ -15,7 +16,7 @@ class OAuth2SucceededEventTest {
     @Test
     fun `should execute the client registration request within user context`() {
         val event = OAuth2SucceededEvent(
-            user = Prototypes.fry(),
+            user = fry(),
             context = EmptyCoroutineContext,
             clientRegistrationId = "test-client"
         )
@@ -32,4 +33,12 @@ class OAuth2SucceededEventTest {
         assertThat(principal).isNotNull()
         assertThat(principal!!.userName).isEqualTo("Fry")
     }
+
+    private fun fry() = PlatformUser(
+        userName = "Fry",
+        isAdmin = false,
+        passwordHash = "hash",
+        activated = true,
+        i18nSettings = I18nSettings(locale = "en", language = "en")
+    )
 }
