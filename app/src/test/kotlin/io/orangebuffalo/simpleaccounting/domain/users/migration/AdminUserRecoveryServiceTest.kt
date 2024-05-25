@@ -7,7 +7,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
@@ -15,7 +16,8 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 @SimpleAccountingIntegrationTest
 class AdminUserRecoveryServiceTest(
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
-    @Autowired private val adminUserRecoveryService: AdminUserRecoveryService
+    @Autowired private val adminUserRecoveryService: AdminUserRecoveryService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
 ) {
 
     @Test
@@ -34,13 +36,11 @@ class AdminUserRecoveryServiceTest(
 
     @Test
     fun `should not create admin user if it already exists`() {
-        aggregateTemplate.insert(
-            Prototypes.platformUser(
-                isAdmin = true,
-                userName = "test-admin",
-                passwordHash = "test-password",
-            )
-        )
+        object : Preconditions(preconditionsInfra) {
+            init {
+                platformUser(userName = "test-admin", isAdmin = true, passwordHash = "test-password")
+            }
+        }
 
         adminUserRecoveryService.recoverAdminUser()
 
@@ -55,12 +55,11 @@ class AdminUserRecoveryServiceTest(
 
     @Test
     fun `should create admin user if regular user exists`() {
-        aggregateTemplate.insert(
-            Prototypes.platformUser(
-                userName = "test-user",
-                isAdmin = false
-            )
-        )
+        object : Preconditions(preconditionsInfra) {
+            init {
+                platformUser(userName = "test-user", isAdmin = false)
+            }
+        }
 
         adminUserRecoveryService.recoverAdminUser()
 
