@@ -1,113 +1,99 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.infra.database.Prototypes
-import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
+import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpenseRepository
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.beans.factory.annotation.Autowired
 
-@ExtendWith(MockitoExtension::class)
+@SimpleAccountingIntegrationTest
 @DisplayName("ExpenseService")
-internal class ExpenseServiceTest {
+internal class ExpenseServiceIT(
+    @Autowired private val expenseService: ExpenseService,
+    @Autowired private val preconditionsInfra: PreconditionsInfra,
+) {
 
-    @field:Mock
-    private lateinit var expenseRepository: ExpenseRepository
-
-    @field:Mock
-    private lateinit var workspaceService: WorkspaceService
-
-    @field:Mock
-    private lateinit var generalTaxService: GeneralTaxService
-
-    @field:Mock
-    private lateinit var categoryService: CategoryService
-
-    @field:Mock
-    private lateinit var documentsService: DocumentsService
-
-    @field:InjectMocks
-    private lateinit var expenseService: ExpenseService
-
-    private val workspace = Prototypes.workspace()
-    private val generalTaxFromWorkspace = Prototypes.generalTax(workspace = workspace, rateInBps = 10_00)
-
-    @BeforeEach
-    fun setup() {
-        runBlocking {
-            whenever(
-                workspaceService.getAccessibleWorkspace(
-                    workspace.id!!,
-                    WorkspaceAccessMode.READ_WRITE
-                )
-            ) doReturn workspace
-        }
-    }
-
-    private fun setupTaxMock() = runBlocking {
-        whenever(
-            generalTaxService.getValidGeneralTax(
-                generalTaxFromWorkspace.id!!,
-                workspace.id!!
-            )
-        ) doReturn generalTaxFromWorkspace
+    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+        val nonDefaultCurrency = "CC2"
+        val fry = fry()
+        val workspace = workspace(
+            owner = fry,
+            defaultCurrency = "CC1"
+        )
+        val generalTaxFromWorkspace = generalTax(
+            workspace = workspace,
+            rateInBps = 10_00
+        )
     }
 
     @Test
-    fun `should reset the values for default currency`() =
+    @WithMockFryUser
+    fun `should reset the values for default currency`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = AmountsInDefaultCurrency(33),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(33),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = workspace.defaultCurrency,
-                workspace = workspace,
+                currency = preconditions.workspace.defaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
-                useDifferentExchangeRateForIncomeTaxPurposes = true
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(45),
-            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(45),
+            expectedConvertedAmounts = AmountsInDefaultCurrency(45),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(45),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
             expectedStatus = ExpenseStatus.FINALIZED,
             expectedUseDifferentExchangeRates = false
         )
+    }
 
     @Test
-    fun `should calculate percent on business for default currency`() =
+    @WithMockFryUser
+    fun `should calculate percent on business for default currency`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = AmountsInDefaultCurrency(33),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(33),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = workspace.defaultCurrency,
-                workspace = workspace,
+                currency = preconditions.workspace.defaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 10,
-                useDifferentExchangeRateForIncomeTaxPurposes = true
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
             expectedConvertedAmounts = AmountsInDefaultCurrency(
@@ -124,23 +110,31 @@ internal class ExpenseServiceTest {
             expectedStatus = ExpenseStatus.FINALIZED,
             expectedUseDifferentExchangeRates = false
         )
+    }
 
     @Test
+    @WithMockFryUser
     fun `should calculate tax on default currency`() {
-        setupTaxMock()
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = generalTaxFromWorkspace,
+            expense = Expense(
+                generalTaxId = preconditions.generalTaxFromWorkspace.id,
                 originalAmount = 4500,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = AmountsInDefaultCurrency(33),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(33),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = workspace.defaultCurrency,
-                workspace = workspace,
+                currency = preconditions.workspace.defaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
-                useDifferentExchangeRateForIncomeTaxPurposes = true
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 4500,
             expectedConvertedAmounts = AmountsInDefaultCurrency(
@@ -151,7 +145,7 @@ internal class ExpenseServiceTest {
                 originalAmountInDefaultCurrency = 4500,
                 adjustedAmountInDefaultCurrency = 4091
             ),
-            expectedGeneralTax = generalTaxFromWorkspace,
+            expectedGeneralTax = preconditions.generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 409, // original amount - reported amount
             expectedGeneralTaxRateInBps = 10_00,
             expectedStatus = ExpenseStatus.FINALIZED,
@@ -160,21 +154,28 @@ internal class ExpenseServiceTest {
     }
 
     @Test
+    @WithMockFryUser
     fun `should calculate tax on default currency with percent on business`() {
-        setupTaxMock()
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = generalTaxFromWorkspace,
+            expense = Expense(
+                generalTaxId = preconditions.generalTaxFromWorkspace.id,
                 originalAmount = 450,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(33),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(33),
+                convertedAmounts = AmountsInDefaultCurrency(33),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(33),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = workspace.defaultCurrency,
-                workspace = workspace,
+                currency = preconditions.workspace.defaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 90,
-                useDifferentExchangeRateForIncomeTaxPurposes = true
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 450,
             expectedConvertedAmounts = AmountsInDefaultCurrency(
@@ -185,7 +186,7 @@ internal class ExpenseServiceTest {
                 originalAmountInDefaultCurrency = 450,
                 adjustedAmountInDefaultCurrency = 368
             ),
-            expectedGeneralTax = generalTaxFromWorkspace,
+            expectedGeneralTax = preconditions.generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 37, // business spent amount 405 - base amount 368
             expectedGeneralTaxRateInBps = 10_00,
             expectedStatus = ExpenseStatus.FINALIZED,
@@ -194,185 +195,247 @@ internal class ExpenseServiceTest {
     }
 
     @Test
-    fun `should keep amounts as null if not yet converted`() =
+    @WithMockFryUser
+    fun `should keep amounts as null if not yet converted`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-                incomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+                convertedAmounts = AmountsInDefaultCurrency(null),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(null),
                 status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
+                currency = preconditions.nonDefaultCurrency,
                 percentOnBusiness = 100,
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
-                workspace = workspace
+                workspaceId = preconditions.workspace.id!!,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedConvertedAmounts = AmountsInDefaultCurrency(null),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(null),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
             expectedStatus = ExpenseStatus.PENDING_CONVERSION,
             expectedUseDifferentExchangeRates = true
         )
+    }
 
     @Test
-    fun `should set amount to null if not yet converted and same rate used for conversion`() =
+    @WithMockFryUser
+    fun `should set amount to null if not yet converted and same rate used for conversion`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
                 convertedAmounts = AmountsInDefaultCurrency(
                     originalAmountInDefaultCurrency = null,
                     adjustedAmountInDefaultCurrency = 42
                 ),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(44),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
                 status = ExpenseStatus.FINALIZED,
-                useDifferentExchangeRateForIncomeTaxPurposes = false
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedConvertedAmounts = AmountsInDefaultCurrency(null),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(null),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
             expectedUseDifferentExchangeRates = false,
             expectedStatus = ExpenseStatus.PENDING_CONVERSION
         )
+    }
 
     @Test
-    fun `should keep income taxable amount if not yet converted and different rate used for conversion`() =
+    @WithMockFryUser
+    fun `should keep income taxable amount if not yet converted and different rate used for conversion`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
                 convertedAmounts = AmountsInDefaultCurrency(
                     originalAmountInDefaultCurrency = null,
                     adjustedAmountInDefaultCurrency = 42
                 ),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(44),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
                 status = ExpenseStatus.FINALIZED,
-                useDifferentExchangeRateForIncomeTaxPurposes = true
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
-            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(44),
+            expectedConvertedAmounts = AmountsInDefaultCurrency(null),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(44),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
             expectedUseDifferentExchangeRates = true,
             expectedStatus = ExpenseStatus.PENDING_CONVERSION
         )
+    }
 
     @Test
-    fun `should propagate converted amount if same rate is used`() =
+    @WithMockFryUser
+    fun `should propagate converted amount if same rate is used`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+                convertedAmounts = AmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
-                status = ExpenseStatus.PENDING_CONVERSION
+                status = ExpenseStatus.PENDING_CONVERSION,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(30),
+            expectedConvertedAmounts = AmountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(30),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
             expectedUseDifferentExchangeRates = false,
             expectedStatus = ExpenseStatus.FINALIZED
         )
+    }
 
     @Test
-    fun `should keep income taxable amount if different rate is used`() =
+    @WithMockFryUser
+    fun `should keep income taxable amount if different rate is used`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+                convertedAmounts = AmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
-                status = ExpenseStatus.PENDING_CONVERSION
+                status = ExpenseStatus.PENDING_CONVERSION,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-            expectedIncomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+            expectedConvertedAmounts = AmountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(100),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
             expectedUseDifferentExchangeRates = true,
             expectedStatus = ExpenseStatus.FINALIZED
         )
+    }
 
     @Test
-    fun `should keep income taxable amount empty if different rate is used`() =
+    @WithMockFryUser
+    fun `should keep income taxable amount empty if different rate is used`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
+                convertedAmounts = AmountsInDefaultCurrency(30),
                 incomeTaxableAmounts = AmountsInDefaultCurrency(
                     originalAmountInDefaultCurrency = null,
                     adjustedAmountInDefaultCurrency = 300
                 ),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
-                status = ExpenseStatus.PENDING_CONVERSION
+                status = ExpenseStatus.PENDING_CONVERSION,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
-            expectedConvertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-            expectedIncomeTaxableAmounts = Prototypes.emptyAmountsInDefaultCurrency(),
+            expectedConvertedAmounts = AmountsInDefaultCurrency(30),
+            expectedIncomeTaxableAmounts = AmountsInDefaultCurrency(null),
             expectedGeneralTax = null,
             expectedGeneralTaxAmount = null,
             expectedGeneralTaxRateInBps = null,
             expectedUseDifferentExchangeRates = true,
             expectedStatus = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES
         )
+    }
 
     @Test
-    fun `should use converted amounts to calculate percent on business`() =
+    @WithMockFryUser
+    fun `should use converted amounts to calculate percent on business`() {
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = null,
+            expense = Expense(
+                generalTaxId = null,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(41),
+                convertedAmounts = AmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(41),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
                 percentOnBusiness = 90,
-                status = ExpenseStatus.PENDING_CONVERSION
+                status = ExpenseStatus.PENDING_CONVERSION,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
             expectedConvertedAmounts = AmountsInDefaultCurrency(
@@ -389,23 +452,31 @@ internal class ExpenseServiceTest {
             expectedUseDifferentExchangeRates = true,
             expectedStatus = ExpenseStatus.FINALIZED
         )
+    }
 
     @Test
+    @WithMockFryUser
     fun `should calculate tax based on income taxable amount if different rate is used`() {
-        setupTaxMock()
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = generalTaxFromWorkspace,
+            expense = Expense(
+                generalTaxId = preconditions.generalTaxFromWorkspace.id,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(30),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(41),
+                convertedAmounts = AmountsInDefaultCurrency(30),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(41),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
-                status = ExpenseStatus.PENDING_CONVERSION
+                status = ExpenseStatus.PENDING_CONVERSION,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
             expectedConvertedAmounts = AmountsInDefaultCurrency(
@@ -416,7 +487,7 @@ internal class ExpenseServiceTest {
                 originalAmountInDefaultCurrency = 41,
                 adjustedAmountInDefaultCurrency = 37 // base for 10% added tax to get 41
             ),
-            expectedGeneralTax = generalTaxFromWorkspace,
+            expectedGeneralTax = preconditions.generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 4, // actual amount 41 - base amount 37
             expectedGeneralTaxRateInBps = 10_00,
             expectedUseDifferentExchangeRates = true,
@@ -425,21 +496,28 @@ internal class ExpenseServiceTest {
     }
 
     @Test
+    @WithMockFryUser
     fun `should calculate tax bases on converted amount if same rate is used`() {
-        setupTaxMock()
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = generalTaxFromWorkspace,
+            expense = Expense(
+                generalTaxId = preconditions.generalTaxFromWorkspace.id,
                 originalAmount = 45,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(41),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(100),
+                convertedAmounts = AmountsInDefaultCurrency(41),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 100,
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
-                status = ExpenseStatus.PENDING_CONVERSION
+                status = ExpenseStatus.PENDING_CONVERSION,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 45,
             expectedConvertedAmounts = AmountsInDefaultCurrency(
@@ -450,7 +528,7 @@ internal class ExpenseServiceTest {
                 originalAmountInDefaultCurrency = 41,
                 adjustedAmountInDefaultCurrency = 37
             ),
-            expectedGeneralTax = generalTaxFromWorkspace,
+            expectedGeneralTax = preconditions.generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 4, // actual amount 41 - base amount 37
             expectedGeneralTaxRateInBps = 10_00,
             expectedUseDifferentExchangeRates = false,
@@ -459,21 +537,28 @@ internal class ExpenseServiceTest {
     }
 
     @Test
+    @WithMockFryUser
     fun `should calculate tax based on income taxable amount if percent on business provided and different rate used`() {
-        setupTaxMock()
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = generalTaxFromWorkspace,
+            expense = Expense(
+                generalTaxId = preconditions.generalTaxFromWorkspace.id,
                 originalAmount = 4500,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(4000),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(4100),
+                convertedAmounts = AmountsInDefaultCurrency(4000),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(4100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 80,
                 useDifferentExchangeRateForIncomeTaxPurposes = true,
-                status = ExpenseStatus.PENDING_CONVERSION
+                status = ExpenseStatus.PENDING_CONVERSION,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 4500,
             expectedConvertedAmounts = AmountsInDefaultCurrency(
@@ -484,7 +569,7 @@ internal class ExpenseServiceTest {
                 originalAmountInDefaultCurrency = 4100,
                 adjustedAmountInDefaultCurrency = 2982 // 80% of 4100 = 3280, base for 10% added tax for 3280 is 2982
             ),
-            expectedGeneralTax = generalTaxFromWorkspace,
+            expectedGeneralTax = preconditions.generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 298, // 3280 of taxable amount - base amount of 2982
             expectedGeneralTaxRateInBps = 10_00,
             expectedUseDifferentExchangeRates = true,
@@ -493,21 +578,28 @@ internal class ExpenseServiceTest {
     }
 
     @Test
+    @WithMockFryUser
     fun `should calculate tax based on converted amount if percent on business provided and same rate used`() {
-        setupTaxMock()
+        val preconditions = setupPreconditions()
         executeSaveExpenseAndAssert(
-            expense = Prototypes.expense(
-                generalTax = generalTaxFromWorkspace,
+            expense = Expense(
+                generalTaxId = preconditions.generalTaxFromWorkspace.id,
                 originalAmount = 4500,
-                convertedAmounts = Prototypes.amountsInDefaultCurrency(4000),
-                incomeTaxableAmounts = Prototypes.amountsInDefaultCurrency(4100),
+                convertedAmounts = AmountsInDefaultCurrency(4000),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(4100),
                 generalTaxRateInBps = 33,
                 generalTaxAmount = 33,
-                currency = "--${workspace.defaultCurrency}--",
-                workspace = workspace,
+                currency = preconditions.nonDefaultCurrency,
+                workspaceId = preconditions.workspace.id!!,
                 percentOnBusiness = 80,
                 useDifferentExchangeRateForIncomeTaxPurposes = false,
-                status = ExpenseStatus.PENDING_CONVERSION
+                status = ExpenseStatus.PENDING_CONVERSION,
+                datePaid = MOCK_DATE,
+                categoryId = null,
+                notes = null,
+                title = "Expense",
+                timeRecorded = MOCK_TIME,
+                attachments = setOf(),
             ),
             expectedOriginalAmount = 4500,
             expectedConvertedAmounts = AmountsInDefaultCurrency(
@@ -518,7 +610,7 @@ internal class ExpenseServiceTest {
                 originalAmountInDefaultCurrency = 4000,
                 adjustedAmountInDefaultCurrency = 2909
             ),
-            expectedGeneralTax = generalTaxFromWorkspace,
+            expectedGeneralTax = preconditions.generalTaxFromWorkspace,
             expectedGeneralTaxAmount = 291, // based on converted amount of 3200
             expectedGeneralTaxRateInBps = 10_00,
             expectedUseDifferentExchangeRates = false,
@@ -537,8 +629,6 @@ internal class ExpenseServiceTest {
         expectedStatus: ExpenseStatus,
         expectedUseDifferentExchangeRates: Boolean
     ) {
-        setupSaveExpenseMock()
-
         val actualExpense = runBlocking {
             expenseService.saveExpense(expense)
         }
@@ -552,11 +642,5 @@ internal class ExpenseServiceTest {
         assertThat(actualExpense.generalTaxRateInBps).isEqualTo(expectedGeneralTaxRateInBps)
         assertThat(actualExpense.useDifferentExchangeRateForIncomeTaxPurposes)
             .isEqualTo(expectedUseDifferentExchangeRates)
-    }
-
-    private fun setupSaveExpenseMock() {
-        whenever(expenseRepository.save(any<Expense>())) doAnswer { invocation ->
-            invocation.arguments[0] as Expense
-        }
     }
 }
