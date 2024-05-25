@@ -17,6 +17,11 @@ data class AmountsInDefaultCurrency(
 
 ) {
 
+    /**
+     * In case of the default currency, this shortcut constructor can be used.
+     */
+    constructor(amountInDefaultCurrency: Long?) : this(amountInDefaultCurrency, amountInDefaultCurrency)
+
     val empty: Boolean
         get() = originalAmountInDefaultCurrency == null && adjustedAmountInDefaultCurrency == null
 
