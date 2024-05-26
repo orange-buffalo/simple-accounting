@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.e2e
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfig
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightExtension
 import org.junit.jupiter.api.Test
@@ -16,14 +16,14 @@ class E2eTests {
     @Test
     fun `should login successfully`(page: Page) {
         page.loginWithFry()
-        page.sideMenuItem("Dashboard").assertThat().isVisible()
+        page.sideMenuItem("Dashboard").shouldBeVisible()
     }
 
     @Test
     fun `should load invoices`(page: Page) {
         page.loginWithFry()
         page.sideMenuItem("Invoice").click()
-        page.overviewItemByTitle("Stuffed Toys").assertThat().isVisible()
+        page.overviewItemByTitle("Stuffed Toys").shouldBeVisible()
     }
 }
 

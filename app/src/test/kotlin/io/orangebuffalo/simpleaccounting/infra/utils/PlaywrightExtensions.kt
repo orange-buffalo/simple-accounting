@@ -3,20 +3,10 @@ package io.orangebuffalo.simpleaccounting.infra.utils
 import com.microsoft.playwright.ElementHandle
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
-import com.microsoft.playwright.assertions.LocatorAssertions
-import com.microsoft.playwright.assertions.PlaywrightAssertions
 import io.kotest.assertions.nondeterministic.eventually
 import io.orangebuffalo.simpleaccounting.infra.ui.components.Notifications
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.seconds
-
-@Deprecated("Use PlaywrightAssertions instead")
-fun Locator.assertThat(): LocatorAssertions = PlaywrightAssertions.assertThat(this)
-
-@Deprecated("Use PlaywrightAssertions instead")
-fun Locator.assert(spec: LocatorAssertions.(element: Locator) -> Unit) {
-    spec(PlaywrightAssertions.assertThat(this), this)
-}
 
 object XPath {
     fun hasClass(className: String): String = "contains(concat(' ', normalize-space(@class), ' '), ' $className ')"

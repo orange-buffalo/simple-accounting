@@ -2,14 +2,14 @@ package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.orangebuffalo.simpleaccounting.infra.utils.XPath
-import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
 
 class PageHeader<P : Any> private constructor(
     private val locator: Locator,
     parent: P,
 ) : UiComponent<P, PageHeader<P>>(parent) {
     fun shouldBeVisible(): P {
-        locator.assertThat().isVisible()
+        locator.shouldBeVisible()
         return parent
     }
 
