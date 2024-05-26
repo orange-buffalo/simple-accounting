@@ -6,7 +6,8 @@ import io.orangebuffalo.simpleaccounting.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldNotBeVisible
 
 class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
     private val header = components.pageHeader("My Profile")
@@ -51,7 +52,7 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
             page.locator("//*[contains(@class, 'el-form')]//h2[text()='Change Password']")
 
         fun shouldBeVisible() {
-            passwordChangeSectionHeader.assertThat().isVisible()
+            passwordChangeSectionHeader.shouldBeVisible()
         }
     }
 
@@ -60,11 +61,11 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
             page.locator("//*[contains(@class, 'el-form')]//h2[text()='Documents Storage']")
 
         fun shouldBeVisible() {
-            documentStorageSectionHeader.assertThat().isVisible()
+            documentStorageSectionHeader.shouldBeVisible()
         }
 
         fun shouldBeHidden() {
-            documentStorageSectionHeader.assertThat().isHidden()
+            documentStorageSectionHeader.shouldNotBeVisible()
         }
     }
 
@@ -73,7 +74,7 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
             page.locator("//*[contains(@class, 'el-form')]//h2[text()='Language Preferences']")
 
         fun shouldBeVisible() {
-            languagePreferencesSectionHeader.assertThat().isVisible()
+            languagePreferencesSectionHeader.shouldBeVisible()
         }
     }
 }

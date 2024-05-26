@@ -2,9 +2,9 @@ package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageableItems.Companion.pageableItems
-import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
 import io.orangebuffalo.simpleaccounting.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.infra.utils.innerTextTrimmed
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldNotBeVisible
 
 class SaOverviewItem private constructor(
     private val panel: Locator,
@@ -24,7 +24,7 @@ class SaOverviewItem private constructor(
     private val detailsTrigger = panel.locator(".overview-item__details-trigger")
 
     fun shouldNotHaveDetails() {
-        detailsTrigger.assertThat().isHidden()
+        detailsTrigger.shouldNotBeVisible()
     }
 
     companion object {

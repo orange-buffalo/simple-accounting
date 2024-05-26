@@ -2,14 +2,14 @@ package io.orangebuffalo.simpleaccounting.web.ui.shared.pages
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainInOrder
-import io.orangebuffalo.simpleaccounting.infra.utils.assertThat
 import io.orangebuffalo.simpleaccounting.infra.utils.hasClass
 import io.orangebuffalo.simpleaccounting.infra.utils.innerTextOrNull
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
 
 class NavigationMenu(private val page: Page) {
     private val container = page.locator(".side-menu")
     fun shouldBeVisible(): NavigationMenu {
-        container.assertThat().isVisible()
+        container.shouldBeVisible()
         return this
     }
 

@@ -1,17 +1,22 @@
 package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.orangebuffalo.simpleaccounting.infra.utils.assert
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldNotBeVisible
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldSatisfy
 
 class Button<P : Any> private constructor(
     private val locator: Locator,
     parent: P,
 ) : UiComponent<P, Button<P>>(parent) {
-    fun shouldBeDisabled() = locator.assert { isDisabled() }
+    fun shouldBeDisabled() = locator.shouldSatisfy {
+        this.isDisabled.shouldBeTrue()
+    }
 
-    fun shouldBeEnabled() = locator.assert { isEnabled() }
+    fun shouldBeEnabled() = locator.shouldSatisfy {
+        this.isEnabled.shouldBeTrue()
+    }
 
     fun click() = locator.click()
 
