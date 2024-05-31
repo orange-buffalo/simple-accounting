@@ -2,7 +2,7 @@ import { jwtDecode } from 'jwt-decode';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 import type { LoginRequest } from '@/services/api/generated';
 import { authApi } from '@/services/api/api-client';
-import { defaultRequestSettings, skipGlobalErrorHandler } from '@/services/api/api-utils';
+import { defaultRequestSettings } from '@/services/api/api-utils';
 
 interface ApiToken {
   jwtToken: string | null,
@@ -66,7 +66,7 @@ export async function tryAutoLogin() {
   try {
     const response = await authApi.refreshToken({}, {
       credentials: 'include',
-    }, skipGlobalErrorHandler());
+    });
 
     updateApiToken(response.token);
     scheduleTokenRefresh();
@@ -90,7 +90,7 @@ export function getAuthorizationHeader(): string | null {
 
 async function login(loginRequest: LoginRequest) {
   cancelTokenRefresh();
-  const response = await authApi.login({ loginRequest }, defaultRequestSettings(), skipGlobalErrorHandler());
+  const response = await authApi.login({ loginRequest }, defaultRequestSettings());
   updateApiToken(response.token);
   scheduleTokenRefresh();
 }

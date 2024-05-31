@@ -55,13 +55,9 @@
   import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
   import { $t } from '@/services/i18n';
   import type {
-    ApiPageRequest,
-    HasOptionalId,
-    AdditionalRequestParameters,
-    RequestMetadata,
-    ApiPage, CancellableRequest,
+    ApiPage, ApiPageRequest, CancellableRequest, HasOptionalId,
   } from '@/services/api';
-  import { skipGlobalErrorHandler, useCancellableRequest } from '@/services/api';
+  import { useCancellableRequest } from '@/services/api';
   import { ensureDefined } from '@/services/utils';
 
   const itemsToDisplay = 10;
@@ -72,11 +68,9 @@
     placeholder?: string,
     optionsProvider: (pageRequest: ApiPageRequest,
                       query: string | undefined,
-                      requestInit: RequestInit,
-                      requestConfig: AdditionalRequestParameters<RequestMetadata>) => Promise<ApiPage<HasOptionalId>>,
+                      requestInit: RequestInit) => Promise<ApiPage<HasOptionalId>>,
     optionProvider: (id: number,
-                     requestInit: RequestInit,
-                     requestConfig: AdditionalRequestParameters<RequestMetadata>) => Promise<HasOptionalId>,
+                     requestInit: RequestInit) => Promise<HasOptionalId>,
     clearable?: boolean
   }>();
 
@@ -105,7 +99,7 @@
     try {
       const providerData = await props.optionsProvider({
         pageSize: itemsToDisplay,
-      }, query, cancelToken.cancellableRequestConfig, skipGlobalErrorHandler());
+      }, query, cancelToken.cancellableRequestConfig);
 
       availableValues.value = providerData.data.map((entity) => ({
         entity,
@@ -153,7 +147,7 @@
     } else {
       selectedValueLoadingState.value.loading = true;
       try {
-        const initialEntity = await props.optionProvider(entityId, {}, skipGlobalErrorHandler());
+        const initialEntity = await props.optionProvider(entityId, {});
         selectedValue.value = props.labelProvider(initialEntity);
       } catch (e) {
         selectedValueLoadingState.value.error = true;

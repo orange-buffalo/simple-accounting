@@ -33,9 +33,7 @@
   import SaIcon from '@/components/SaIcon.vue';
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { $t } from '@/services/i18n';
-  import type {
-    AdditionalRequestParameters, ApiPageRequest, HasOptionalId, InvoiceDto, RequestMetadata,
-  } from '@/services/api';
+  import type { ApiPageRequest, HasOptionalId, InvoiceDto } from '@/services/api';
   import { invoicesApi } from '@/services/api';
   import { useCurrentWorkspace } from '@/services/workspaces';
 
@@ -55,21 +53,19 @@
     pageRequest: ApiPageRequest,
     query: string | undefined,
     requestInit: RequestInit,
-    requestConfig: AdditionalRequestParameters<RequestMetadata>,
   ) => invoicesApi.getInvoices({
     workspaceId: currentWorkspaceId,
     freeSearchTextEq: query,
     ...pageRequest,
-  }, requestInit, requestConfig);
+  }, requestInit);
 
   const optionProvider = async (
     id: number,
     requestInit: RequestInit,
-    requestConfig: AdditionalRequestParameters<RequestMetadata>,
   ) => invoicesApi.getInvoice({
     workspaceId: currentWorkspaceId,
     invoiceId: id,
-  }, requestInit, requestConfig);
+  }, requestInit);
 </script>
 
 <style lang="scss">
