@@ -37,7 +37,7 @@
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaIcon from '@/components/SaIcon.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import { oAuth2CallbackApi, skipGlobalErrorHandler } from '@/services/api';
+  import { oAuth2CallbackApi } from '@/services/api';
   import type { ErrorResponse } from '@/services/api';
   import { ApiBusinessError } from '@/services/api/api-errors.ts';
 
@@ -58,7 +58,7 @@
           error,
           state,
         },
-      }, {}, skipGlobalErrorHandler());
+      });
       success.value = true;
     } catch (e: unknown) {
       if (e instanceof ApiBusinessError) {

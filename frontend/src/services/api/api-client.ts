@@ -27,7 +27,6 @@ import { authorizationTokenInterceptor, expiredTokenInterceptor } from '@/servic
 import { errorHandlingInterceptor } from '@/services/api/interceptors/error-handling-interceptor';
 
 export interface RequestMetadata {
-  readonly skipGlobalErrorHandler?: boolean;
   readonly requestTimeoutMs?: number,
   requestTimeoutHandler?: ReturnType<typeof setTimeout>
 }

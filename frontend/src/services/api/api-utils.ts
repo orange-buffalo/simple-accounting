@@ -40,14 +40,6 @@ export function handleApiBusinessError<T extends SaApiErrorDto>(error: unknown):
   throw error;
 }
 
-export function skipGlobalErrorHandler(): AdditionalRequestParameters<RequestMetadata> {
-  return {
-    metadata: {
-      skipGlobalErrorHandler: true,
-    },
-  };
-}
-
 export function requestTimeout(timeoutMs: number): AdditionalRequestParameters<RequestMetadata> {
   return {
     metadata: {
