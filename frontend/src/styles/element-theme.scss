@@ -40,6 +40,14 @@
   --el-mask-color: rgba(255, 255, 255, 0.3);
 }
 
+.el-select {
+  --el-select-width: 250px;
+  --el-select-input-font-size: inherit;
+  &__wrapper {
+    height: $sa-input-height;
+  }
+}
+
 .el-alert {
   --el-alert-title-font-size: 100%;
   --el-alert-description-font-size: 90%;
@@ -55,6 +63,7 @@
   &__title {
     display: flex;
     align-items: flex-end;
+    font-weight: bold;
 
     .sa-icon {
       margin-right: 5px;

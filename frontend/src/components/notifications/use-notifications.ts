@@ -7,35 +7,40 @@ interface NotificationType {
   icon: string,
   notificationClass: string,
   duration: number,
+  elPlusType: 'success' | 'warning' | 'info' | 'error',
 }
 
 const ERROR_NOTIFICATION: NotificationType = {
   icon: 'error',
   notificationClass: 'error',
   duration: 0,
+  elPlusType: 'error',
 };
 
 const SUCCESS_NOTIFICATION: NotificationType = {
   icon: 'success',
   notificationClass: 'success',
   duration: 5000,
+  elPlusType: 'success',
 };
 
 const WARNING_NOTIFICATION: NotificationType = {
   icon: 'warning-circle',
   notificationClass: 'warning',
   duration: 10000,
+  elPlusType: 'warning',
 };
 
 function showNotification(
   message: string,
   type: NotificationType,
 ) {
+  // @ts-ignore
   ElMessage({
     showClose: true,
     message,
     duration: type.duration,
-    // @ts-ignore
+    type: type.elPlusType,
     icon: h(SaIcon, {
       icon: type.icon,
       size: 18,
