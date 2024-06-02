@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,12 +36,10 @@ export interface PendingTaxSummaryItemDto {
 /**
  * Check if a given object implements the PendingTaxSummaryItemDto interface.
  */
-export function instanceOfPendingTaxSummaryItemDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "tax" in value;
-    isInstance = isInstance && "includedItemsNumber" in value;
-
-    return isInstance;
+export function instanceOfPendingTaxSummaryItemDto(value: object): value is PendingTaxSummaryItemDto {
+    if (!('tax' in value) || value['tax'] === undefined) return false;
+    if (!('includedItemsNumber' in value) || value['includedItemsNumber'] === undefined) return false;
+    return true;
 }
 
 export function PendingTaxSummaryItemDtoFromJSON(json: any): PendingTaxSummaryItemDto {
@@ -49,7 +47,7 @@ export function PendingTaxSummaryItemDtoFromJSON(json: any): PendingTaxSummaryIt
 }
 
 export function PendingTaxSummaryItemDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): PendingTaxSummaryItemDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -60,16 +58,13 @@ export function PendingTaxSummaryItemDtoFromJSONTyped(json: any, ignoreDiscrimin
 }
 
 export function PendingTaxSummaryItemDtoToJSON(value?: PendingTaxSummaryItemDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'tax': value.tax,
-        'includedItemsNumber': value.includedItemsNumber,
+        'tax': value['tax'],
+        'includedItemsNumber': value['includedItemsNumber'],
     };
 }
 

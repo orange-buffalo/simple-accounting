@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface UserActivationRequestDto {
 /**
  * Check if a given object implements the UserActivationRequestDto interface.
  */
-export function instanceOfUserActivationRequestDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "password" in value;
-
-    return isInstance;
+export function instanceOfUserActivationRequestDto(value: object): value is UserActivationRequestDto {
+    if (!('password' in value) || value['password'] === undefined) return false;
+    return true;
 }
 
 export function UserActivationRequestDtoFromJSON(json: any): UserActivationRequestDto {
@@ -42,7 +40,7 @@ export function UserActivationRequestDtoFromJSON(json: any): UserActivationReque
 }
 
 export function UserActivationRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserActivationRequestDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -52,15 +50,12 @@ export function UserActivationRequestDtoFromJSONTyped(json: any, ignoreDiscrimin
 }
 
 export function UserActivationRequestDtoToJSON(value?: UserActivationRequestDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'password': value.password,
+        'password': value['password'],
     };
 }
 

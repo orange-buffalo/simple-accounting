@@ -14,7 +14,6 @@
 
 
 import * as runtime from '../runtime';
-import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
 
 export interface GetContentRequest {
     token: string;
@@ -23,19 +22,22 @@ export interface GetContentRequest {
 /**
  * 
  */
-export class DownloadsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
+export class DownloadsApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getContentRaw(requestParameters: GetContentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<Array<object>>> {
-        if (requestParameters.token === null || requestParameters.token === undefined) {
-            throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling getContent.');
+    async getContentRaw(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<object>>> {
+        if (requestParameters['token'] == null) {
+            throw new runtime.RequiredError(
+                'token',
+                'Required parameter "token" was null or undefined when calling getContent().'
+            );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters.token !== undefined) {
-            queryParameters['token'] = requestParameters.token;
+        if (requestParameters['token'] != null) {
+            queryParameters['token'] = requestParameters['token'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -45,15 +47,15 @@ export class DownloadsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<Array<object>> {
-        const response = await this.getContentRaw(requestParameters, initOverrides, additionalParameters);
+    async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<object>> {
+        const response = await this.getContentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

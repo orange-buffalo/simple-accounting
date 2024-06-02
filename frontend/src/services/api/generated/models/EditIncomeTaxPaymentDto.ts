@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -60,13 +60,11 @@ export interface EditIncomeTaxPaymentDto {
 /**
  * Check if a given object implements the EditIncomeTaxPaymentDto interface.
  */
-export function instanceOfEditIncomeTaxPaymentDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "datePaid" in value;
-    isInstance = isInstance && "amount" in value;
-    isInstance = isInstance && "title" in value;
-
-    return isInstance;
+export function instanceOfEditIncomeTaxPaymentDto(value: object): value is EditIncomeTaxPaymentDto {
+    if (!('datePaid' in value) || value['datePaid'] === undefined) return false;
+    if (!('amount' in value) || value['amount'] === undefined) return false;
+    if (!('title' in value) || value['title'] === undefined) return false;
+    return true;
 }
 
 export function EditIncomeTaxPaymentDtoFromJSON(json: any): EditIncomeTaxPaymentDto {
@@ -74,35 +72,32 @@ export function EditIncomeTaxPaymentDtoFromJSON(json: any): EditIncomeTaxPayment
 }
 
 export function EditIncomeTaxPaymentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): EditIncomeTaxPaymentDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'datePaid': (new Date(json['datePaid'])),
-        'reportingDate': !exists(json, 'reportingDate') ? undefined : (new Date(json['reportingDate'])),
+        'reportingDate': json['reportingDate'] == null ? undefined : (new Date(json['reportingDate'])),
         'amount': json['amount'],
-        'attachments': !exists(json, 'attachments') ? undefined : json['attachments'],
-        'notes': !exists(json, 'notes') ? undefined : json['notes'],
+        'attachments': json['attachments'] == null ? undefined : json['attachments'],
+        'notes': json['notes'] == null ? undefined : json['notes'],
         'title': json['title'],
     };
 }
 
 export function EditIncomeTaxPaymentDtoToJSON(value?: EditIncomeTaxPaymentDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'datePaid': (new Date(value.datePaid.getTime() - value.datePaid.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'reportingDate': value.reportingDate === undefined ? undefined : (new Date(value.reportingDate.getTime() - value.reportingDate.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'amount': value.amount,
-        'attachments': value.attachments,
-        'notes': value.notes,
-        'title': value.title,
+        'datePaid': ((value['datePaid']).toISOString().substring(0,10)),
+        'reportingDate': value['reportingDate'] == null ? undefined : ((value['reportingDate']).toISOString().substring(0,10)),
+        'amount': value['amount'],
+        'attachments': value['attachments'],
+        'notes': value['notes'],
+        'title': value['title'],
     };
 }
 

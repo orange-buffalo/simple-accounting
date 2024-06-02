@@ -19,7 +19,7 @@ import type {
   UserActivationRequestDto,
   UserActivationTokenDto,
   UserActivationTokensApiBadRequestErrors,
-} from '../models';
+} from '../models/index';
 import {
     CreateUserActivationTokenRequestDtoFromJSON,
     CreateUserActivationTokenRequestDtoToJSON,
@@ -29,8 +29,7 @@ import {
     UserActivationTokenDtoToJSON,
     UserActivationTokensApiBadRequestErrorsFromJSON,
     UserActivationTokensApiBadRequestErrorsToJSON,
-} from '../models';
-import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
+} from '../models/index';
 
 export interface ActivateUserRequest {
     token: string;
@@ -52,17 +51,23 @@ export interface GetTokenByUserRequest {
 /**
  * 
  */
-export class UserActivationTokensApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
+export class UserActivationTokensApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async activateUserRaw(requestParameters: ActivateUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.token === null || requestParameters.token === undefined) {
-            throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling activateUser.');
+    async activateUserRaw(requestParameters: ActivateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['token'] == null) {
+            throw new runtime.RequiredError(
+                'token',
+                'Required parameter "token" was null or undefined when calling activateUser().'
+            );
         }
 
-        if (requestParameters.userActivationRequestDto === null || requestParameters.userActivationRequestDto === undefined) {
-            throw new runtime.RequiredError('userActivationRequestDto','Required parameter requestParameters.userActivationRequestDto was null or undefined when calling activateUser.');
+        if (requestParameters['userActivationRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'userActivationRequestDto',
+                'Required parameter "userActivationRequestDto" was null or undefined when calling activateUser().'
+            );
         }
 
         const queryParameters: any = {};
@@ -72,27 +77,30 @@ export class UserActivationTokensApiControllerApi<RM = void> extends runtime.Bas
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/user-activation-tokens/{token}/activate`.replace(`{${"token"}}`, encodeURIComponent(String(requestParameters.token))),
+            path: `/api/user-activation-tokens/{token}/activate`.replace(`{${"token"}}`, encodeURIComponent(String(requestParameters['token']))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: UserActivationRequestDtoToJSON(requestParameters.userActivationRequestDto),
-        }, initOverrides, additionalParameters);
+            body: UserActivationRequestDtoToJSON(requestParameters['userActivationRequestDto']),
+        }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
 
     /**
      */
-    async activateUser(requestParameters: ActivateUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<void> {
-        await this.activateUserRaw(requestParameters, initOverrides, additionalParameters);
+    async activateUser(requestParameters: ActivateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.activateUserRaw(requestParameters, initOverrides);
     }
 
     /**
      */
-    async createTokenRaw(requestParameters: CreateTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<UserActivationTokenDto>> {
-        if (requestParameters.createUserActivationTokenRequestDto === null || requestParameters.createUserActivationTokenRequestDto === undefined) {
-            throw new runtime.RequiredError('createUserActivationTokenRequestDto','Required parameter requestParameters.createUserActivationTokenRequestDto was null or undefined when calling createToken.');
+    async createTokenRaw(requestParameters: CreateTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserActivationTokenDto>> {
+        if (requestParameters['createUserActivationTokenRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'createUserActivationTokenRequestDto',
+                'Required parameter "createUserActivationTokenRequestDto" was null or undefined when calling createToken().'
+            );
         }
 
         const queryParameters: any = {};
@@ -106,24 +114,27 @@ export class UserActivationTokensApiControllerApi<RM = void> extends runtime.Bas
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateUserActivationTokenRequestDtoToJSON(requestParameters.createUserActivationTokenRequestDto),
-        }, initOverrides, additionalParameters);
+            body: CreateUserActivationTokenRequestDtoToJSON(requestParameters['createUserActivationTokenRequestDto']),
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UserActivationTokenDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createToken(requestParameters: CreateTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<UserActivationTokenDto> {
-        const response = await this.createTokenRaw(requestParameters, initOverrides, additionalParameters);
+    async createToken(requestParameters: CreateTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserActivationTokenDto> {
+        const response = await this.createTokenRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getTokenRaw(requestParameters: GetTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<UserActivationTokenDto>> {
-        if (requestParameters.token === null || requestParameters.token === undefined) {
-            throw new runtime.RequiredError('token','Required parameter requestParameters.token was null or undefined when calling getToken.');
+    async getTokenRaw(requestParameters: GetTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserActivationTokenDto>> {
+        if (requestParameters['token'] == null) {
+            throw new runtime.RequiredError(
+                'token',
+                'Required parameter "token" was null or undefined when calling getToken().'
+            );
         }
 
         const queryParameters: any = {};
@@ -131,27 +142,30 @@ export class UserActivationTokensApiControllerApi<RM = void> extends runtime.Bas
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/user-activation-tokens/{token}`.replace(`{${"token"}}`, encodeURIComponent(String(requestParameters.token))),
+            path: `/api/user-activation-tokens/{token}`.replace(`{${"token"}}`, encodeURIComponent(String(requestParameters['token']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UserActivationTokenDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getToken(requestParameters: GetTokenRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<UserActivationTokenDto> {
-        const response = await this.getTokenRaw(requestParameters, initOverrides, additionalParameters);
+    async getToken(requestParameters: GetTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserActivationTokenDto> {
+        const response = await this.getTokenRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getTokenByUserRaw(requestParameters: GetTokenByUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<UserActivationTokenDto>> {
-        if (requestParameters.userId === null || requestParameters.userId === undefined) {
-            throw new runtime.RequiredError('userId','Required parameter requestParameters.userId was null or undefined when calling getTokenByUser.');
+    async getTokenByUserRaw(requestParameters: GetTokenByUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserActivationTokenDto>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getTokenByUser().'
+            );
         }
 
         const queryParameters: any = {};
@@ -159,19 +173,19 @@ export class UserActivationTokensApiControllerApi<RM = void> extends runtime.Bas
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/user-activation-tokens/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters.userId))),
+            path: `/api/user-activation-tokens/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => UserActivationTokenDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getTokenByUser(requestParameters: GetTokenByUserRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<UserActivationTokenDto> {
-        const response = await this.getTokenByUserRaw(requestParameters, initOverrides, additionalParameters);
+    async getTokenByUser(requestParameters: GetTokenByUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserActivationTokenDto> {
+        const response = await this.getTokenByUserRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

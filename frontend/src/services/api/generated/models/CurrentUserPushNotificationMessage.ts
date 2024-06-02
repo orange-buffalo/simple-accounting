@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,11 +36,9 @@ export interface CurrentUserPushNotificationMessage {
 /**
  * Check if a given object implements the CurrentUserPushNotificationMessage interface.
  */
-export function instanceOfCurrentUserPushNotificationMessage(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "eventName" in value;
-
-    return isInstance;
+export function instanceOfCurrentUserPushNotificationMessage(value: object): value is CurrentUserPushNotificationMessage {
+    if (!('eventName' in value) || value['eventName'] === undefined) return false;
+    return true;
 }
 
 export function CurrentUserPushNotificationMessageFromJSON(json: any): CurrentUserPushNotificationMessage {
@@ -48,27 +46,24 @@ export function CurrentUserPushNotificationMessageFromJSON(json: any): CurrentUs
 }
 
 export function CurrentUserPushNotificationMessageFromJSONTyped(json: any, ignoreDiscriminator: boolean): CurrentUserPushNotificationMessage {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'eventName': json['eventName'],
-        'data': !exists(json, 'data') ? undefined : json['data'],
+        'data': json['data'] == null ? undefined : json['data'],
     };
 }
 
 export function CurrentUserPushNotificationMessageToJSON(value?: CurrentUserPushNotificationMessage | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'eventName': value.eventName,
-        'data': value.data,
+        'eventName': value['eventName'],
+        'data': value['data'],
     };
 }
 

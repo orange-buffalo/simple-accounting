@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { CustomerDto } from './CustomerDto';
 import {
     CustomerDtoFromJSON,
@@ -55,14 +55,12 @@ export interface ApiPageCustomerDto {
 /**
  * Check if a given object implements the ApiPageCustomerDto interface.
  */
-export function instanceOfApiPageCustomerDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "pageNumber" in value;
-    isInstance = isInstance && "pageSize" in value;
-    isInstance = isInstance && "totalElements" in value;
-    isInstance = isInstance && "data" in value;
-
-    return isInstance;
+export function instanceOfApiPageCustomerDto(value: object): value is ApiPageCustomerDto {
+    if (!('pageNumber' in value) || value['pageNumber'] === undefined) return false;
+    if (!('pageSize' in value) || value['pageSize'] === undefined) return false;
+    if (!('totalElements' in value) || value['totalElements'] === undefined) return false;
+    if (!('data' in value) || value['data'] === undefined) return false;
+    return true;
 }
 
 export function ApiPageCustomerDtoFromJSON(json: any): ApiPageCustomerDto {
@@ -70,7 +68,7 @@ export function ApiPageCustomerDtoFromJSON(json: any): ApiPageCustomerDto {
 }
 
 export function ApiPageCustomerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApiPageCustomerDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -83,18 +81,15 @@ export function ApiPageCustomerDtoFromJSONTyped(json: any, ignoreDiscriminator: 
 }
 
 export function ApiPageCustomerDtoToJSON(value?: ApiPageCustomerDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'pageNumber': value.pageNumber,
-        'pageSize': value.pageSize,
-        'totalElements': value.totalElements,
-        'data': ((value.data as Array<any>).map(CustomerDtoToJSON)),
+        'pageNumber': value['pageNumber'],
+        'pageSize': value['pageSize'],
+        'totalElements': value['totalElements'],
+        'data': ((value['data'] as Array<any>).map(CustomerDtoToJSON)),
     };
 }
 

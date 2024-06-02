@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -96,16 +96,14 @@ export interface EditInvoiceDto {
 /**
  * Check if a given object implements the EditInvoiceDto interface.
  */
-export function instanceOfEditInvoiceDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "title" in value;
-    isInstance = isInstance && "customer" in value;
-    isInstance = isInstance && "dateIssued" in value;
-    isInstance = isInstance && "dueDate" in value;
-    isInstance = isInstance && "currency" in value;
-    isInstance = isInstance && "amount" in value;
-
-    return isInstance;
+export function instanceOfEditInvoiceDto(value: object): value is EditInvoiceDto {
+    if (!('title' in value) || value['title'] === undefined) return false;
+    if (!('customer' in value) || value['customer'] === undefined) return false;
+    if (!('dateIssued' in value) || value['dateIssued'] === undefined) return false;
+    if (!('dueDate' in value) || value['dueDate'] === undefined) return false;
+    if (!('currency' in value) || value['currency'] === undefined) return false;
+    if (!('amount' in value) || value['amount'] === undefined) return false;
+    return true;
 }
 
 export function EditInvoiceDtoFromJSON(json: any): EditInvoiceDto {
@@ -113,7 +111,7 @@ export function EditInvoiceDtoFromJSON(json: any): EditInvoiceDto {
 }
 
 export function EditInvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): EditInvoiceDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -121,39 +119,36 @@ export function EditInvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
         'title': json['title'],
         'customer': json['customer'],
         'dateIssued': (new Date(json['dateIssued'])),
-        'dateSent': !exists(json, 'dateSent') ? undefined : (new Date(json['dateSent'])),
-        'datePaid': !exists(json, 'datePaid') ? undefined : (new Date(json['datePaid'])),
-        'dateCancelled': !exists(json, 'dateCancelled') ? undefined : (new Date(json['dateCancelled'])),
+        'dateSent': json['dateSent'] == null ? undefined : (new Date(json['dateSent'])),
+        'datePaid': json['datePaid'] == null ? undefined : (new Date(json['datePaid'])),
+        'dateCancelled': json['dateCancelled'] == null ? undefined : (new Date(json['dateCancelled'])),
         'dueDate': (new Date(json['dueDate'])),
         'currency': json['currency'],
         'amount': json['amount'],
-        'attachments': !exists(json, 'attachments') ? undefined : json['attachments'],
-        'notes': !exists(json, 'notes') ? undefined : json['notes'],
-        'generalTax': !exists(json, 'generalTax') ? undefined : json['generalTax'],
+        'attachments': json['attachments'] == null ? undefined : json['attachments'],
+        'notes': json['notes'] == null ? undefined : json['notes'],
+        'generalTax': json['generalTax'] == null ? undefined : json['generalTax'],
     };
 }
 
 export function EditInvoiceDtoToJSON(value?: EditInvoiceDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'title': value.title,
-        'customer': value.customer,
-        'dateIssued': (new Date(value.dateIssued.getTime() - value.dateIssued.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'dateSent': value.dateSent === undefined ? undefined : (new Date(value.dateSent.getTime() - value.dateSent.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'datePaid': value.datePaid === undefined ? undefined : (new Date(value.datePaid.getTime() - value.datePaid.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'dateCancelled': value.dateCancelled === undefined ? undefined : (new Date(value.dateCancelled.getTime() - value.dateCancelled.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'dueDate': (new Date(value.dueDate.getTime() - value.dueDate.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'currency': value.currency,
-        'amount': value.amount,
-        'attachments': value.attachments,
-        'notes': value.notes,
-        'generalTax': value.generalTax,
+        'title': value['title'],
+        'customer': value['customer'],
+        'dateIssued': ((value['dateIssued']).toISOString().substring(0,10)),
+        'dateSent': value['dateSent'] == null ? undefined : ((value['dateSent']).toISOString().substring(0,10)),
+        'datePaid': value['datePaid'] == null ? undefined : ((value['datePaid']).toISOString().substring(0,10)),
+        'dateCancelled': value['dateCancelled'] == null ? undefined : ((value['dateCancelled']).toISOString().substring(0,10)),
+        'dueDate': ((value['dueDate']).toISOString().substring(0,10)),
+        'currency': value['currency'],
+        'amount': value['amount'],
+        'attachments': value['attachments'],
+        'notes': value['notes'],
+        'generalTax': value['generalTax'],
     };
 }
 

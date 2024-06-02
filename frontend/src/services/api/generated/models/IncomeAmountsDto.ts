@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,10 +36,8 @@ export interface IncomeAmountsDto {
 /**
  * Check if a given object implements the IncomeAmountsDto interface.
  */
-export function instanceOfIncomeAmountsDto(value: object): boolean {
-    let isInstance = true;
-
-    return isInstance;
+export function instanceOfIncomeAmountsDto(value: object): value is IncomeAmountsDto {
+    return true;
 }
 
 export function IncomeAmountsDtoFromJSON(json: any): IncomeAmountsDto {
@@ -47,27 +45,24 @@ export function IncomeAmountsDtoFromJSON(json: any): IncomeAmountsDto {
 }
 
 export function IncomeAmountsDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): IncomeAmountsDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'originalAmountInDefaultCurrency': !exists(json, 'originalAmountInDefaultCurrency') ? undefined : json['originalAmountInDefaultCurrency'],
-        'adjustedAmountInDefaultCurrency': !exists(json, 'adjustedAmountInDefaultCurrency') ? undefined : json['adjustedAmountInDefaultCurrency'],
+        'originalAmountInDefaultCurrency': json['originalAmountInDefaultCurrency'] == null ? undefined : json['originalAmountInDefaultCurrency'],
+        'adjustedAmountInDefaultCurrency': json['adjustedAmountInDefaultCurrency'] == null ? undefined : json['adjustedAmountInDefaultCurrency'],
     };
 }
 
 export function IncomeAmountsDtoToJSON(value?: IncomeAmountsDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'originalAmountInDefaultCurrency': value.originalAmountInDefaultCurrency,
-        'adjustedAmountInDefaultCurrency': value.adjustedAmountInDefaultCurrency,
+        'originalAmountInDefaultCurrency': value['originalAmountInDefaultCurrency'],
+        'adjustedAmountInDefaultCurrency': value['adjustedAmountInDefaultCurrency'],
     };
 }
 

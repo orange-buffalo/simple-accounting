@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { IncomeExpensesStatisticsItemDto } from './IncomeExpensesStatisticsItemDto';
 import {
     IncomeExpensesStatisticsItemDtoFromJSON,
@@ -61,15 +61,13 @@ export interface IncomesExpensesStatisticsDto {
 /**
  * Check if a given object implements the IncomesExpensesStatisticsDto interface.
  */
-export function instanceOfIncomesExpensesStatisticsDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "items" in value;
-    isInstance = isInstance && "totalAmount" in value;
-    isInstance = isInstance && "finalizedCount" in value;
-    isInstance = isInstance && "pendingCount" in value;
-    isInstance = isInstance && "currencyExchangeDifference" in value;
-
-    return isInstance;
+export function instanceOfIncomesExpensesStatisticsDto(value: object): value is IncomesExpensesStatisticsDto {
+    if (!('items' in value) || value['items'] === undefined) return false;
+    if (!('totalAmount' in value) || value['totalAmount'] === undefined) return false;
+    if (!('finalizedCount' in value) || value['finalizedCount'] === undefined) return false;
+    if (!('pendingCount' in value) || value['pendingCount'] === undefined) return false;
+    if (!('currencyExchangeDifference' in value) || value['currencyExchangeDifference'] === undefined) return false;
+    return true;
 }
 
 export function IncomesExpensesStatisticsDtoFromJSON(json: any): IncomesExpensesStatisticsDto {
@@ -77,7 +75,7 @@ export function IncomesExpensesStatisticsDtoFromJSON(json: any): IncomesExpenses
 }
 
 export function IncomesExpensesStatisticsDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): IncomesExpensesStatisticsDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -91,19 +89,16 @@ export function IncomesExpensesStatisticsDtoFromJSONTyped(json: any, ignoreDiscr
 }
 
 export function IncomesExpensesStatisticsDtoToJSON(value?: IncomesExpensesStatisticsDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'items': ((value.items as Array<any>).map(IncomeExpensesStatisticsItemDtoToJSON)),
-        'totalAmount': value.totalAmount,
-        'finalizedCount': value.finalizedCount,
-        'pendingCount': value.pendingCount,
-        'currencyExchangeDifference': value.currencyExchangeDifference,
+        'items': ((value['items'] as Array<any>).map(IncomeExpensesStatisticsItemDtoToJSON)),
+        'totalAmount': value['totalAmount'],
+        'finalizedCount': value['finalizedCount'],
+        'pendingCount': value['pendingCount'],
+        'currencyExchangeDifference': value['currencyExchangeDifference'],
     };
 }
 

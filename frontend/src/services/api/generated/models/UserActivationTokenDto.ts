@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,12 +36,10 @@ export interface UserActivationTokenDto {
 /**
  * Check if a given object implements the UserActivationTokenDto interface.
  */
-export function instanceOfUserActivationTokenDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "token" in value;
-    isInstance = isInstance && "expiresAt" in value;
-
-    return isInstance;
+export function instanceOfUserActivationTokenDto(value: object): value is UserActivationTokenDto {
+    if (!('token' in value) || value['token'] === undefined) return false;
+    if (!('expiresAt' in value) || value['expiresAt'] === undefined) return false;
+    return true;
 }
 
 export function UserActivationTokenDtoFromJSON(json: any): UserActivationTokenDto {
@@ -49,7 +47,7 @@ export function UserActivationTokenDtoFromJSON(json: any): UserActivationTokenDt
 }
 
 export function UserActivationTokenDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserActivationTokenDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -60,16 +58,13 @@ export function UserActivationTokenDtoFromJSONTyped(json: any, ignoreDiscriminat
 }
 
 export function UserActivationTokenDtoToJSON(value?: UserActivationTokenDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'token': value.token,
-        'expiresAt': (value.expiresAt.toISOString()),
+        'token': value['token'],
+        'expiresAt': ((value['expiresAt']).toISOString()),
     };
 }
 

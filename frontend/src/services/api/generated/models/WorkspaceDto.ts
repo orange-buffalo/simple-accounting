@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -66,16 +66,14 @@ export interface WorkspaceDto {
 /**
  * Check if a given object implements the WorkspaceDto interface.
  */
-export function instanceOfWorkspaceDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "version" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "taxEnabled" in value;
-    isInstance = isInstance && "multiCurrencyEnabled" in value;
-    isInstance = isInstance && "defaultCurrency" in value;
-    isInstance = isInstance && "editable" in value;
-
-    return isInstance;
+export function instanceOfWorkspaceDto(value: object): value is WorkspaceDto {
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('taxEnabled' in value) || value['taxEnabled'] === undefined) return false;
+    if (!('multiCurrencyEnabled' in value) || value['multiCurrencyEnabled'] === undefined) return false;
+    if (!('defaultCurrency' in value) || value['defaultCurrency'] === undefined) return false;
+    if (!('editable' in value) || value['editable'] === undefined) return false;
+    return true;
 }
 
 export function WorkspaceDtoFromJSON(json: any): WorkspaceDto {
@@ -83,12 +81,12 @@ export function WorkspaceDtoFromJSON(json: any): WorkspaceDto {
 }
 
 export function WorkspaceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): WorkspaceDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'id': !exists(json, 'id') ? undefined : json['id'],
+        'id': json['id'] == null ? undefined : json['id'],
         'version': json['version'],
         'name': json['name'],
         'taxEnabled': json['taxEnabled'],
@@ -99,21 +97,18 @@ export function WorkspaceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolea
 }
 
 export function WorkspaceDtoToJSON(value?: WorkspaceDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'id': value.id,
-        'version': value.version,
-        'name': value.name,
-        'taxEnabled': value.taxEnabled,
-        'multiCurrencyEnabled': value.multiCurrencyEnabled,
-        'defaultCurrency': value.defaultCurrency,
-        'editable': value.editable,
+        'id': value['id'],
+        'version': value['version'],
+        'name': value['name'],
+        'taxEnabled': value['taxEnabled'],
+        'multiCurrencyEnabled': value['multiCurrencyEnabled'],
+        'defaultCurrency': value['defaultCurrency'],
+        'editable': value['editable'],
     };
 }
 

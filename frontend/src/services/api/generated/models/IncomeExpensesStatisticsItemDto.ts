@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -54,14 +54,12 @@ export interface IncomeExpensesStatisticsItemDto {
 /**
  * Check if a given object implements the IncomeExpensesStatisticsItemDto interface.
  */
-export function instanceOfIncomeExpensesStatisticsItemDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "totalAmount" in value;
-    isInstance = isInstance && "finalizedCount" in value;
-    isInstance = isInstance && "pendingCount" in value;
-    isInstance = isInstance && "currencyExchangeDifference" in value;
-
-    return isInstance;
+export function instanceOfIncomeExpensesStatisticsItemDto(value: object): value is IncomeExpensesStatisticsItemDto {
+    if (!('totalAmount' in value) || value['totalAmount'] === undefined) return false;
+    if (!('finalizedCount' in value) || value['finalizedCount'] === undefined) return false;
+    if (!('pendingCount' in value) || value['pendingCount'] === undefined) return false;
+    if (!('currencyExchangeDifference' in value) || value['currencyExchangeDifference'] === undefined) return false;
+    return true;
 }
 
 export function IncomeExpensesStatisticsItemDtoFromJSON(json: any): IncomeExpensesStatisticsItemDto {
@@ -69,12 +67,12 @@ export function IncomeExpensesStatisticsItemDtoFromJSON(json: any): IncomeExpens
 }
 
 export function IncomeExpensesStatisticsItemDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): IncomeExpensesStatisticsItemDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'categoryId': !exists(json, 'categoryId') ? undefined : json['categoryId'],
+        'categoryId': json['categoryId'] == null ? undefined : json['categoryId'],
         'totalAmount': json['totalAmount'],
         'finalizedCount': json['finalizedCount'],
         'pendingCount': json['pendingCount'],
@@ -83,19 +81,16 @@ export function IncomeExpensesStatisticsItemDtoFromJSONTyped(json: any, ignoreDi
 }
 
 export function IncomeExpensesStatisticsItemDtoToJSON(value?: IncomeExpensesStatisticsItemDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'categoryId': value.categoryId,
-        'totalAmount': value.totalAmount,
-        'finalizedCount': value.finalizedCount,
-        'pendingCount': value.pendingCount,
-        'currencyExchangeDifference': value.currencyExchangeDifference,
+        'categoryId': value['categoryId'],
+        'totalAmount': value['totalAmount'],
+        'finalizedCount': value['finalizedCount'],
+        'pendingCount': value['pendingCount'],
+        'currencyExchangeDifference': value['currencyExchangeDifference'],
     };
 }
 

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -48,13 +48,11 @@ export interface CreateCategoryDto {
 /**
  * Check if a given object implements the CreateCategoryDto interface.
  */
-export function instanceOfCreateCategoryDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "income" in value;
-    isInstance = isInstance && "expense" in value;
-
-    return isInstance;
+export function instanceOfCreateCategoryDto(value: object): value is CreateCategoryDto {
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('income' in value) || value['income'] === undefined) return false;
+    if (!('expense' in value) || value['expense'] === undefined) return false;
+    return true;
 }
 
 export function CreateCategoryDtoFromJSON(json: any): CreateCategoryDto {
@@ -62,31 +60,28 @@ export function CreateCategoryDtoFromJSON(json: any): CreateCategoryDto {
 }
 
 export function CreateCategoryDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateCategoryDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'name': json['name'],
-        'description': !exists(json, 'description') ? undefined : json['description'],
+        'description': json['description'] == null ? undefined : json['description'],
         'income': json['income'],
         'expense': json['expense'],
     };
 }
 
 export function CreateCategoryDtoToJSON(value?: CreateCategoryDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'name': value.name,
-        'description': value.description,
-        'income': value.income,
-        'expense': value.expense,
+        'name': value['name'],
+        'description': value['description'],
+        'income': value['income'],
+        'expense': value['expense'],
     };
 }
 

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -96,15 +96,13 @@ export interface EditIncomeDto {
 /**
  * Check if a given object implements the EditIncomeDto interface.
  */
-export function instanceOfEditIncomeDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "dateReceived" in value;
-    isInstance = isInstance && "title" in value;
-    isInstance = isInstance && "currency" in value;
-    isInstance = isInstance && "originalAmount" in value;
-    isInstance = isInstance && "useDifferentExchangeRateForIncomeTaxPurposes" in value;
-
-    return isInstance;
+export function instanceOfEditIncomeDto(value: object): value is EditIncomeDto {
+    if (!('dateReceived' in value) || value['dateReceived'] === undefined) return false;
+    if (!('title' in value) || value['title'] === undefined) return false;
+    if (!('currency' in value) || value['currency'] === undefined) return false;
+    if (!('originalAmount' in value) || value['originalAmount'] === undefined) return false;
+    if (!('useDifferentExchangeRateForIncomeTaxPurposes' in value) || value['useDifferentExchangeRateForIncomeTaxPurposes'] === undefined) return false;
+    return true;
 }
 
 export function EditIncomeDtoFromJSON(json: any): EditIncomeDto {
@@ -112,47 +110,44 @@ export function EditIncomeDtoFromJSON(json: any): EditIncomeDto {
 }
 
 export function EditIncomeDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): EditIncomeDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'category': !exists(json, 'category') ? undefined : json['category'],
+        'category': json['category'] == null ? undefined : json['category'],
         'dateReceived': (new Date(json['dateReceived'])),
         'title': json['title'],
         'currency': json['currency'],
         'originalAmount': json['originalAmount'],
-        'convertedAmountInDefaultCurrency': !exists(json, 'convertedAmountInDefaultCurrency') ? undefined : json['convertedAmountInDefaultCurrency'],
+        'convertedAmountInDefaultCurrency': json['convertedAmountInDefaultCurrency'] == null ? undefined : json['convertedAmountInDefaultCurrency'],
         'useDifferentExchangeRateForIncomeTaxPurposes': json['useDifferentExchangeRateForIncomeTaxPurposes'],
-        'incomeTaxableAmountInDefaultCurrency': !exists(json, 'incomeTaxableAmountInDefaultCurrency') ? undefined : json['incomeTaxableAmountInDefaultCurrency'],
-        'attachments': !exists(json, 'attachments') ? undefined : json['attachments'],
-        'notes': !exists(json, 'notes') ? undefined : json['notes'],
-        'generalTax': !exists(json, 'generalTax') ? undefined : json['generalTax'],
-        'linkedInvoice': !exists(json, 'linkedInvoice') ? undefined : json['linkedInvoice'],
+        'incomeTaxableAmountInDefaultCurrency': json['incomeTaxableAmountInDefaultCurrency'] == null ? undefined : json['incomeTaxableAmountInDefaultCurrency'],
+        'attachments': json['attachments'] == null ? undefined : json['attachments'],
+        'notes': json['notes'] == null ? undefined : json['notes'],
+        'generalTax': json['generalTax'] == null ? undefined : json['generalTax'],
+        'linkedInvoice': json['linkedInvoice'] == null ? undefined : json['linkedInvoice'],
     };
 }
 
 export function EditIncomeDtoToJSON(value?: EditIncomeDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'category': value.category,
-        'dateReceived': (new Date(value.dateReceived.getTime() - value.dateReceived.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'title': value.title,
-        'currency': value.currency,
-        'originalAmount': value.originalAmount,
-        'convertedAmountInDefaultCurrency': value.convertedAmountInDefaultCurrency,
-        'useDifferentExchangeRateForIncomeTaxPurposes': value.useDifferentExchangeRateForIncomeTaxPurposes,
-        'incomeTaxableAmountInDefaultCurrency': value.incomeTaxableAmountInDefaultCurrency,
-        'attachments': value.attachments,
-        'notes': value.notes,
-        'generalTax': value.generalTax,
-        'linkedInvoice': value.linkedInvoice,
+        'category': value['category'],
+        'dateReceived': ((value['dateReceived']).toISOString().substring(0,10)),
+        'title': value['title'],
+        'currency': value['currency'],
+        'originalAmount': value['originalAmount'],
+        'convertedAmountInDefaultCurrency': value['convertedAmountInDefaultCurrency'],
+        'useDifferentExchangeRateForIncomeTaxPurposes': value['useDifferentExchangeRateForIncomeTaxPurposes'],
+        'incomeTaxableAmountInDefaultCurrency': value['incomeTaxableAmountInDefaultCurrency'],
+        'attachments': value['attachments'],
+        'notes': value['notes'],
+        'generalTax': value['generalTax'],
+        'linkedInvoice': value['linkedInvoice'],
     };
 }
 

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { I18nSettingsDto } from './I18nSettingsDto';
 import {
     I18nSettingsDtoFromJSON,
@@ -49,12 +49,10 @@ export interface ProfileDto {
 /**
  * Check if a given object implements the ProfileDto interface.
  */
-export function instanceOfProfileDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "userName" in value;
-    isInstance = isInstance && "i18n" in value;
-
-    return isInstance;
+export function instanceOfProfileDto(value: object): value is ProfileDto {
+    if (!('userName' in value) || value['userName'] === undefined) return false;
+    if (!('i18n' in value) || value['i18n'] === undefined) return false;
+    return true;
 }
 
 export function ProfileDtoFromJSON(json: any): ProfileDto {
@@ -62,29 +60,26 @@ export function ProfileDtoFromJSON(json: any): ProfileDto {
 }
 
 export function ProfileDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ProfileDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'userName': json['userName'],
-        'documentsStorage': !exists(json, 'documentsStorage') ? undefined : json['documentsStorage'],
+        'documentsStorage': json['documentsStorage'] == null ? undefined : json['documentsStorage'],
         'i18n': I18nSettingsDtoFromJSON(json['i18n']),
     };
 }
 
 export function ProfileDtoToJSON(value?: ProfileDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'userName': value.userName,
-        'documentsStorage': value.documentsStorage,
-        'i18n': I18nSettingsDtoToJSON(value.i18n),
+        'userName': value['userName'],
+        'documentsStorage': value['documentsStorage'],
+        'i18n': I18nSettingsDtoToJSON(value['i18n']),
     };
 }
 

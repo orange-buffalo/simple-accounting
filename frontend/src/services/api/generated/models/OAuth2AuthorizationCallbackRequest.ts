@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -42,11 +42,9 @@ export interface OAuth2AuthorizationCallbackRequest {
 /**
  * Check if a given object implements the OAuth2AuthorizationCallbackRequest interface.
  */
-export function instanceOfOAuth2AuthorizationCallbackRequest(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "state" in value;
-
-    return isInstance;
+export function instanceOfOAuth2AuthorizationCallbackRequest(value: object): value is OAuth2AuthorizationCallbackRequest {
+    if (!('state' in value) || value['state'] === undefined) return false;
+    return true;
 }
 
 export function OAuth2AuthorizationCallbackRequestFromJSON(json: any): OAuth2AuthorizationCallbackRequest {
@@ -54,29 +52,26 @@ export function OAuth2AuthorizationCallbackRequestFromJSON(json: any): OAuth2Aut
 }
 
 export function OAuth2AuthorizationCallbackRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): OAuth2AuthorizationCallbackRequest {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'code': !exists(json, 'code') ? undefined : json['code'],
-        'error': !exists(json, 'error') ? undefined : json['error'],
+        'code': json['code'] == null ? undefined : json['code'],
+        'error': json['error'] == null ? undefined : json['error'],
         'state': json['state'],
     };
 }
 
 export function OAuth2AuthorizationCallbackRequestToJSON(value?: OAuth2AuthorizationCallbackRequest | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'code': value.code,
-        'error': value.error,
-        'state': value.state,
+        'code': value['code'],
+        'error': value['error'],
+        'state': value['state'],
     };
 }
 

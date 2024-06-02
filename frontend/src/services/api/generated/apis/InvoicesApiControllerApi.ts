@@ -18,7 +18,7 @@ import type {
   ApiPageInvoiceDto,
   EditInvoiceDto,
   InvoiceDto,
-} from '../models';
+} from '../models/index';
 import {
     ApiPageInvoiceDtoFromJSON,
     ApiPageInvoiceDtoToJSON,
@@ -26,8 +26,7 @@ import {
     EditInvoiceDtoToJSON,
     InvoiceDtoFromJSON,
     InvoiceDtoToJSON,
-} from '../models';
-import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
+} from '../models/index';
 
 export interface CancelInvoiceRequest {
     workspaceId: number;
@@ -63,17 +62,23 @@ export interface UpdateInvoiceRequest {
 /**
  * 
  */
-export class InvoicesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
+export class InvoicesApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async cancelInvoiceRaw(requestParameters: CancelInvoiceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<InvoiceDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling cancelInvoice.');
+    async cancelInvoiceRaw(requestParameters: CancelInvoiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InvoiceDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling cancelInvoice().'
+            );
         }
 
-        if (requestParameters.invoiceId === null || requestParameters.invoiceId === undefined) {
-            throw new runtime.RequiredError('invoiceId','Required parameter requestParameters.invoiceId was null or undefined when calling cancelInvoice.');
+        if (requestParameters['invoiceId'] == null) {
+            throw new runtime.RequiredError(
+                'invoiceId',
+                'Required parameter "invoiceId" was null or undefined when calling cancelInvoice().'
+            );
         }
 
         const queryParameters: any = {};
@@ -81,31 +86,37 @@ export class InvoicesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/invoices/{invoiceId}/cancel`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))).replace(`{${"invoiceId"}}`, encodeURIComponent(String(requestParameters.invoiceId))),
+            path: `/api/workspaces/{workspaceId}/invoices/{invoiceId}/cancel`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"invoiceId"}}`, encodeURIComponent(String(requestParameters['invoiceId']))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => InvoiceDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async cancelInvoice(requestParameters: CancelInvoiceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<InvoiceDto> {
-        const response = await this.cancelInvoiceRaw(requestParameters, initOverrides, additionalParameters);
+    async cancelInvoice(requestParameters: CancelInvoiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InvoiceDto> {
+        const response = await this.cancelInvoiceRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async createInvoiceRaw(requestParameters: CreateInvoiceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<InvoiceDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createInvoice.');
+    async createInvoiceRaw(requestParameters: CreateInvoiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InvoiceDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling createInvoice().'
+            );
         }
 
-        if (requestParameters.editInvoiceDto === null || requestParameters.editInvoiceDto === undefined) {
-            throw new runtime.RequiredError('editInvoiceDto','Required parameter requestParameters.editInvoiceDto was null or undefined when calling createInvoice.');
+        if (requestParameters['editInvoiceDto'] == null) {
+            throw new runtime.RequiredError(
+                'editInvoiceDto',
+                'Required parameter "editInvoiceDto" was null or undefined when calling createInvoice().'
+            );
         }
 
         const queryParameters: any = {};
@@ -115,32 +126,38 @@ export class InvoicesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/invoices`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))),
+            path: `/api/workspaces/{workspaceId}/invoices`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: EditInvoiceDtoToJSON(requestParameters.editInvoiceDto),
-        }, initOverrides, additionalParameters);
+            body: EditInvoiceDtoToJSON(requestParameters['editInvoiceDto']),
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => InvoiceDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createInvoice(requestParameters: CreateInvoiceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<InvoiceDto> {
-        const response = await this.createInvoiceRaw(requestParameters, initOverrides, additionalParameters);
+    async createInvoice(requestParameters: CreateInvoiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InvoiceDto> {
+        const response = await this.createInvoiceRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getInvoiceRaw(requestParameters: GetInvoiceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<InvoiceDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getInvoice.');
+    async getInvoiceRaw(requestParameters: GetInvoiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InvoiceDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getInvoice().'
+            );
         }
 
-        if (requestParameters.invoiceId === null || requestParameters.invoiceId === undefined) {
-            throw new runtime.RequiredError('invoiceId','Required parameter requestParameters.invoiceId was null or undefined when calling getInvoice.');
+        if (requestParameters['invoiceId'] == null) {
+            throw new runtime.RequiredError(
+                'invoiceId',
+                'Required parameter "invoiceId" was null or undefined when calling getInvoice().'
+            );
         }
 
         const queryParameters: any = {};
@@ -148,87 +165,99 @@ export class InvoicesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/invoices/{invoiceId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))).replace(`{${"invoiceId"}}`, encodeURIComponent(String(requestParameters.invoiceId))),
+            path: `/api/workspaces/{workspaceId}/invoices/{invoiceId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"invoiceId"}}`, encodeURIComponent(String(requestParameters['invoiceId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => InvoiceDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getInvoice(requestParameters: GetInvoiceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<InvoiceDto> {
-        const response = await this.getInvoiceRaw(requestParameters, initOverrides, additionalParameters);
+    async getInvoice(requestParameters: GetInvoiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InvoiceDto> {
+        const response = await this.getInvoiceRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getInvoicesRaw(requestParameters: GetInvoicesRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPageInvoiceDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getInvoices.');
+    async getInvoicesRaw(requestParameters: GetInvoicesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ApiPageInvoiceDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getInvoices().'
+            );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters.sortBy !== undefined) {
-            queryParameters['sortBy'] = requestParameters.sortBy;
+        if (requestParameters['sortBy'] != null) {
+            queryParameters['sortBy'] = requestParameters['sortBy'];
         }
 
-        if (requestParameters.freeSearchTextEq !== undefined) {
-            queryParameters['freeSearchText[eq]'] = requestParameters.freeSearchTextEq;
+        if (requestParameters['freeSearchTextEq'] != null) {
+            queryParameters['freeSearchText[eq]'] = requestParameters['freeSearchTextEq'];
         }
 
-        if (requestParameters.statusIn) {
-            queryParameters['status[in]'] = requestParameters.statusIn;
+        if (requestParameters['statusIn'] != null) {
+            queryParameters['status[in]'] = requestParameters['statusIn'];
         }
 
-        if (requestParameters.pageNumber !== undefined) {
-            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        if (requestParameters['pageNumber'] != null) {
+            queryParameters['pageNumber'] = requestParameters['pageNumber'];
         }
 
-        if (requestParameters.pageSize !== undefined) {
-            queryParameters['pageSize'] = requestParameters.pageSize;
+        if (requestParameters['pageSize'] != null) {
+            queryParameters['pageSize'] = requestParameters['pageSize'];
         }
 
-        if (requestParameters.sortOrder !== undefined) {
-            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        if (requestParameters['sortOrder'] != null) {
+            queryParameters['sortOrder'] = requestParameters['sortOrder'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/invoices`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))),
+            path: `/api/workspaces/{workspaceId}/invoices`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageInvoiceDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getInvoices(requestParameters: GetInvoicesRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPageInvoiceDto> {
-        const response = await this.getInvoicesRaw(requestParameters, initOverrides, additionalParameters);
+    async getInvoices(requestParameters: GetInvoicesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiPageInvoiceDto> {
+        const response = await this.getInvoicesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async updateInvoiceRaw(requestParameters: UpdateInvoiceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<InvoiceDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling updateInvoice.');
+    async updateInvoiceRaw(requestParameters: UpdateInvoiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<InvoiceDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling updateInvoice().'
+            );
         }
 
-        if (requestParameters.invoiceId === null || requestParameters.invoiceId === undefined) {
-            throw new runtime.RequiredError('invoiceId','Required parameter requestParameters.invoiceId was null or undefined when calling updateInvoice.');
+        if (requestParameters['invoiceId'] == null) {
+            throw new runtime.RequiredError(
+                'invoiceId',
+                'Required parameter "invoiceId" was null or undefined when calling updateInvoice().'
+            );
         }
 
-        if (requestParameters.editInvoiceDto === null || requestParameters.editInvoiceDto === undefined) {
-            throw new runtime.RequiredError('editInvoiceDto','Required parameter requestParameters.editInvoiceDto was null or undefined when calling updateInvoice.');
+        if (requestParameters['editInvoiceDto'] == null) {
+            throw new runtime.RequiredError(
+                'editInvoiceDto',
+                'Required parameter "editInvoiceDto" was null or undefined when calling updateInvoice().'
+            );
         }
 
         const queryParameters: any = {};
@@ -238,20 +267,20 @@ export class InvoicesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/invoices/{invoiceId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))).replace(`{${"invoiceId"}}`, encodeURIComponent(String(requestParameters.invoiceId))),
+            path: `/api/workspaces/{workspaceId}/invoices/{invoiceId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"invoiceId"}}`, encodeURIComponent(String(requestParameters['invoiceId']))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: EditInvoiceDtoToJSON(requestParameters.editInvoiceDto),
-        }, initOverrides, additionalParameters);
+            body: EditInvoiceDtoToJSON(requestParameters['editInvoiceDto']),
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => InvoiceDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async updateInvoice(requestParameters: UpdateInvoiceRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<InvoiceDto> {
-        const response = await this.updateInvoiceRaw(requestParameters, initOverrides, additionalParameters);
+    async updateInvoice(requestParameters: UpdateInvoiceRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<InvoiceDto> {
+        const response = await this.updateInvoiceRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

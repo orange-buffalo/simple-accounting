@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -54,14 +54,12 @@ export interface DocumentDto {
 /**
  * Check if a given object implements the DocumentDto interface.
  */
-export function instanceOfDocumentDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "id" in value;
-    isInstance = isInstance && "version" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "timeUploaded" in value;
-
-    return isInstance;
+export function instanceOfDocumentDto(value: object): value is DocumentDto {
+    if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('timeUploaded' in value) || value['timeUploaded'] === undefined) return false;
+    return true;
 }
 
 export function DocumentDtoFromJSON(json: any): DocumentDto {
@@ -69,7 +67,7 @@ export function DocumentDtoFromJSON(json: any): DocumentDto {
 }
 
 export function DocumentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): DocumentDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -78,24 +76,21 @@ export function DocumentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'version': json['version'],
         'name': json['name'],
         'timeUploaded': (new Date(json['timeUploaded'])),
-        'sizeInBytes': !exists(json, 'sizeInBytes') ? undefined : json['sizeInBytes'],
+        'sizeInBytes': json['sizeInBytes'] == null ? undefined : json['sizeInBytes'],
     };
 }
 
 export function DocumentDtoToJSON(value?: DocumentDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'id': value.id,
-        'version': value.version,
-        'name': value.name,
-        'timeUploaded': (value.timeUploaded.toISOString()),
-        'sizeInBytes': value.sizeInBytes,
+        'id': value['id'],
+        'version': value['version'],
+        'name': value['name'],
+        'timeUploaded': ((value['timeUploaded']).toISOString()),
+        'sizeInBytes': value['sizeInBytes'],
     };
 }
 

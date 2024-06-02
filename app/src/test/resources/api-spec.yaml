@@ -22,7 +22,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditWorkspaceDto'
+              $ref: "#/components/schemas/EditWorkspaceDto"
         required: true
       responses:
         "200":
@@ -30,7 +30,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkspaceDto'
+                $ref: "#/components/schemas/WorkspaceDto"
   /api/workspaces/{workspaceId}/invoices/{invoiceId}:
     get:
       tags:
@@ -55,7 +55,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvoiceDto'
+                $ref: "#/components/schemas/InvoiceDto"
     put:
       tags:
       - invoices-api-controller
@@ -77,7 +77,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditInvoiceDto'
+              $ref: "#/components/schemas/EditInvoiceDto"
         required: true
       responses:
         "200":
@@ -85,7 +85,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvoiceDto'
+                $ref: "#/components/schemas/InvoiceDto"
   /api/workspaces/{workspaceId}/incomes/{incomeId}:
     get:
       tags:
@@ -110,7 +110,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomeDto'
+                $ref: "#/components/schemas/IncomeDto"
     put:
       tags:
       - incomes-api-controller
@@ -132,7 +132,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditIncomeDto'
+              $ref: "#/components/schemas/EditIncomeDto"
         required: true
       responses:
         "200":
@@ -140,7 +140,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomeDto'
+                $ref: "#/components/schemas/IncomeDto"
   /api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}:
     get:
       tags:
@@ -165,7 +165,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomeTaxPaymentDto'
+                $ref: "#/components/schemas/IncomeTaxPaymentDto"
     put:
       tags:
       - income-tax-payments-api-controller
@@ -187,7 +187,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditIncomeTaxPaymentDto'
+              $ref: "#/components/schemas/EditIncomeTaxPaymentDto"
         required: true
       responses:
         "200":
@@ -195,7 +195,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomeTaxPaymentDto'
+                $ref: "#/components/schemas/IncomeTaxPaymentDto"
   /api/workspaces/{workspaceId}/general-taxes/{taxId}:
     get:
       tags:
@@ -220,7 +220,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeneralTaxDto'
+                $ref: "#/components/schemas/GeneralTaxDto"
     put:
       tags:
       - general-tax-api-controller
@@ -242,7 +242,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditGeneralTaxDto'
+              $ref: "#/components/schemas/EditGeneralTaxDto"
         required: true
       responses:
         "200":
@@ -250,7 +250,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeneralTaxDto'
+                $ref: "#/components/schemas/GeneralTaxDto"
   /api/workspaces/{workspaceId}/expenses/{expenseId}:
     get:
       tags:
@@ -275,7 +275,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDto'
+                $ref: "#/components/schemas/ExpenseDto"
     put:
       tags:
       - expenses-api-controller
@@ -297,7 +297,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditExpenseDto'
+              $ref: "#/components/schemas/EditExpenseDto"
         required: true
       responses:
         "200":
@@ -305,7 +305,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDto'
+                $ref: "#/components/schemas/ExpenseDto"
   /api/workspaces/{workspaceId}/customers/{customerId}:
     get:
       tags:
@@ -330,7 +330,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerDto'
+                $ref: "#/components/schemas/CustomerDto"
     put:
       tags:
       - customers-api-controller
@@ -352,7 +352,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditCustomerDto'
+              $ref: "#/components/schemas/EditCustomerDto"
         required: true
       responses:
         "200":
@@ -360,7 +360,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerDto'
+                $ref: "#/components/schemas/CustomerDto"
   /api/profile:
     get:
       tags:
@@ -372,7 +372,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfileDto'
+                $ref: "#/components/schemas/ProfileDto"
     put:
       tags:
       - profile-api-controller
@@ -381,7 +381,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateProfileRequestDto'
+              $ref: "#/components/schemas/UpdateProfileRequestDto"
         required: true
       responses:
         "200":
@@ -389,7 +389,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfileDto'
+                $ref: "#/components/schemas/ProfileDto"
   /api/workspaces:
     get:
       tags:
@@ -403,7 +403,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/WorkspaceDto'
+                  $ref: "#/components/schemas/WorkspaceDto"
     post:
       tags:
       - workspaces-api-controller
@@ -412,7 +412,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateWorkspaceDto'
+              $ref: "#/components/schemas/CreateWorkspaceDto"
         required: true
       responses:
         "200":
@@ -420,7 +420,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkspaceDto'
+                $ref: "#/components/schemas/WorkspaceDto"
   /api/workspaces/{workspaceId}/workspace-access-tokens:
     get:
       tags:
@@ -439,7 +439,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageWorkspaceAccessTokenDto'
+                $ref: "#/components/schemas/ApiPageWorkspaceAccessTokenDto"
     post:
       tags:
       - workspace-access-tokens-api-controller
@@ -455,7 +455,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateWorkspaceAccessTokenDto'
+              $ref: "#/components/schemas/CreateWorkspaceAccessTokenDto"
         required: true
       responses:
         "200":
@@ -463,7 +463,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkspaceAccessTokenDto'
+                $ref: "#/components/schemas/WorkspaceAccessTokenDto"
   /api/workspaces/{workspaceId}/invoices:
     get:
       tags:
@@ -527,7 +527,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageInvoiceDto'
+                $ref: "#/components/schemas/ApiPageInvoiceDto"
     post:
       tags:
       - invoices-api-controller
@@ -543,7 +543,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditInvoiceDto'
+              $ref: "#/components/schemas/EditInvoiceDto"
         required: true
       responses:
         "200":
@@ -551,7 +551,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvoiceDto'
+                $ref: "#/components/schemas/InvoiceDto"
   /api/workspaces/{workspaceId}/invoices/{invoiceId}/cancel:
     post:
       tags:
@@ -576,7 +576,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvoiceDto'
+                $ref: "#/components/schemas/InvoiceDto"
   /api/workspaces/{workspaceId}/incomes:
     get:
       tags:
@@ -627,7 +627,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageIncomeDto'
+                $ref: "#/components/schemas/ApiPageIncomeDto"
     post:
       tags:
       - incomes-api-controller
@@ -643,7 +643,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditIncomeDto'
+              $ref: "#/components/schemas/EditIncomeDto"
         required: true
       responses:
         "200":
@@ -651,7 +651,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomeDto'
+                $ref: "#/components/schemas/IncomeDto"
   /api/workspaces/{workspaceId}/income-tax-payments:
     get:
       tags:
@@ -670,7 +670,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageIncomeTaxPaymentDto'
+                $ref: "#/components/schemas/ApiPageIncomeTaxPaymentDto"
     post:
       tags:
       - income-tax-payments-api-controller
@@ -686,7 +686,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditIncomeTaxPaymentDto'
+              $ref: "#/components/schemas/EditIncomeTaxPaymentDto"
         required: true
       responses:
         "200":
@@ -694,7 +694,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomeTaxPaymentDto'
+                $ref: "#/components/schemas/IncomeTaxPaymentDto"
   /api/workspaces/{workspaceId}/general-taxes:
     get:
       tags:
@@ -740,7 +740,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageGeneralTaxDto'
+                $ref: "#/components/schemas/ApiPageGeneralTaxDto"
     post:
       tags:
       - general-tax-api-controller
@@ -756,7 +756,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditGeneralTaxDto'
+              $ref: "#/components/schemas/EditGeneralTaxDto"
         required: true
       responses:
         "200":
@@ -764,7 +764,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeneralTaxDto'
+                $ref: "#/components/schemas/GeneralTaxDto"
   /api/workspaces/{workspaceId}/expenses:
     get:
       tags:
@@ -815,7 +815,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageExpenseDto'
+                $ref: "#/components/schemas/ApiPageExpenseDto"
     post:
       tags:
       - expenses-api-controller
@@ -831,7 +831,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditExpenseDto'
+              $ref: "#/components/schemas/EditExpenseDto"
         required: true
       responses:
         "200":
@@ -839,7 +839,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDto'
+                $ref: "#/components/schemas/ExpenseDto"
   /api/workspaces/{workspaceId}/documents:
     get:
       tags:
@@ -899,7 +899,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageDocumentDto'
+                $ref: "#/components/schemas/ApiPageDocumentDto"
     post:
       tags:
       - documents-api-controller
@@ -928,7 +928,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentDto'
+                $ref: "#/components/schemas/DocumentDto"
   /api/workspaces/{workspaceId}/customers:
     get:
       tags:
@@ -974,7 +974,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageCustomerDto'
+                $ref: "#/components/schemas/ApiPageCustomerDto"
     post:
       tags:
       - customers-api-controller
@@ -990,7 +990,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditCustomerDto'
+              $ref: "#/components/schemas/EditCustomerDto"
         required: true
       responses:
         "200":
@@ -998,7 +998,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerDto'
+                $ref: "#/components/schemas/CustomerDto"
   /api/workspaces/{workspaceId}/categories:
     get:
       tags:
@@ -1044,7 +1044,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPageCategoryDto'
+                $ref: "#/components/schemas/ApiPageCategoryDto"
     post:
       tags:
       - categories-api-controller
@@ -1060,7 +1060,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateCategoryDto'
+              $ref: "#/components/schemas/CreateCategoryDto"
         required: true
       responses:
         "200":
@@ -1068,7 +1068,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CategoryDto'
+                $ref: "#/components/schemas/CategoryDto"
   /api/users:
     get:
       tags:
@@ -1113,7 +1113,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiPagePlatformUserDto'
+                $ref: "#/components/schemas/ApiPagePlatformUserDto"
     post:
       tags:
       - users-api-controller
@@ -1122,7 +1122,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserRequestDto'
+              $ref: "#/components/schemas/CreateUserRequestDto"
         required: true
       responses:
         "200":
@@ -1130,7 +1130,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlatformUserDto'
+                $ref: "#/components/schemas/PlatformUserDto"
   /api/user-activation-tokens:
     post:
       tags:
@@ -1140,7 +1140,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserActivationTokenRequestDto'
+              $ref: "#/components/schemas/CreateUserActivationTokenRequestDto"
         required: true
       responses:
         "201":
@@ -1148,13 +1148,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserActivationTokenDto'
+                $ref: "#/components/schemas/UserActivationTokenDto"
         "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserActivationTokensApiBadRequestErrors'
+                $ref: "#/components/schemas/UserActivationTokensApiBadRequestErrors"
   /api/user-activation-tokens/{token}/activate:
     post:
       tags:
@@ -1170,7 +1170,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserActivationRequestDto'
+              $ref: "#/components/schemas/UserActivationRequestDto"
         required: true
       responses:
         "204":
@@ -1180,7 +1180,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserActivationTokensApiBadRequestErrors'
+                $ref: "#/components/schemas/UserActivationTokensApiBadRequestErrors"
   /api/shared-workspaces:
     get:
       tags:
@@ -1194,7 +1194,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/WorkspaceDto'
+                  $ref: "#/components/schemas/WorkspaceDto"
     post:
       tags:
       - workspaces-api-controller
@@ -1203,7 +1203,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SaveSharedWorkspaceRequestDto'
+              $ref: "#/components/schemas/SaveSharedWorkspaceRequestDto"
         required: true
       responses:
         "200":
@@ -1211,7 +1211,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkspaceDto'
+                $ref: "#/components/schemas/WorkspaceDto"
   /api/profile/change-password:
     post:
       tags:
@@ -1221,7 +1221,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChangePasswordRequestDto'
+              $ref: "#/components/schemas/ChangePasswordRequestDto"
         required: true
       responses:
         "204":
@@ -1231,7 +1231,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfileApiBadRequestErrors'
+                $ref: "#/components/schemas/ProfileApiBadRequestErrors"
   /api/auth/token:
     post:
       tags:
@@ -1249,7 +1249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: "#/components/schemas/TokenResponse"
   /api/auth/oauth2/callback:
     post:
       tags:
@@ -1259,7 +1259,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OAuth2AuthorizationCallbackRequest'
+              $ref: "#/components/schemas/OAuth2AuthorizationCallbackRequest"
         required: true
       responses:
         "400":
@@ -1267,7 +1267,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "200":
           description: OK
   /api/auth/logout:
@@ -1291,7 +1291,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
         required: true
       responses:
         "200":
@@ -1299,7 +1299,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: "#/components/schemas/TokenResponse"
   /api/auth/login-by-token:
     post:
       tags:
@@ -1317,7 +1317,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: "#/components/schemas/TokenResponse"
   /api/workspaces/{workspaceId}/statistics/incomes:
     get:
       tags:
@@ -1348,7 +1348,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomesExpensesStatisticsDto'
+                $ref: "#/components/schemas/IncomesExpensesStatisticsDto"
   /api/workspaces/{workspaceId}/statistics/income-tax-payments:
     get:
       tags:
@@ -1379,7 +1379,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomeTaxPaymentsStatisticsDto'
+                $ref: "#/components/schemas/IncomeTaxPaymentsStatisticsDto"
   /api/workspaces/{workspaceId}/statistics/expenses:
     get:
       tags:
@@ -1410,7 +1410,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncomesExpensesStatisticsDto'
+                $ref: "#/components/schemas/IncomesExpensesStatisticsDto"
   /api/workspaces/{workspaceId}/statistics/currencies-shortlist:
     get:
       tags:
@@ -1462,7 +1462,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeneralTaxReportDto'
+                $ref: "#/components/schemas/GeneralTaxReportDto"
   /api/workspaces/{workspaceId}/documents/{documentId}/download-token:
     get:
       tags:
@@ -1487,7 +1487,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetDownloadTokenResponse'
+                $ref: "#/components/schemas/GetDownloadTokenResponse"
   /api/workspaces/{workspaceId}/documents/{documentId}/content:
     get:
       tags:
@@ -1514,7 +1514,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DataBuffer'
+                  $ref: "#/components/schemas/DataBuffer"
   /api/user-activation-tokens/{userId}:
     get:
       tags:
@@ -1533,7 +1533,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserActivationTokenDto'
+                $ref: "#/components/schemas/UserActivationTokenDto"
   /api/user-activation-tokens/{token}:
     get:
       tags:
@@ -1551,7 +1551,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserActivationTokenDto'
+                $ref: "#/components/schemas/UserActivationTokenDto"
   /api/storage/google-drive/status:
     get:
       tags:
@@ -1563,7 +1563,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GoogleDriveStorageIntegrationStatus'
+                $ref: "#/components/schemas/GoogleDriveStorageIntegrationStatus"
   /api/push-notifications:
     get:
       tags:
@@ -1577,7 +1577,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CurrentUserPushNotificationMessage'
+                  $ref: "#/components/schemas/CurrentUserPushNotificationMessage"
   /api/profile/documents-storage:
     get:
       tags:
@@ -1589,7 +1589,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentsStorageStatus'
+                $ref: "#/components/schemas/DocumentsStorageStatus"
   /api/downloads:
     get:
       tags:
@@ -1609,7 +1609,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DataBuffer'
+                  $ref: "#/components/schemas/DataBuffer"
 components:
   schemas:
     ErrorResponse:
@@ -1883,9 +1883,9 @@ components:
           type: integer
           format: int64
         convertedAmounts:
-          $ref: '#/components/schemas/IncomeAmountsDto'
+          $ref: "#/components/schemas/IncomeAmountsDto"
         incomeTaxableAmounts:
-          $ref: '#/components/schemas/IncomeAmountsDto'
+          $ref: "#/components/schemas/IncomeAmountsDto"
         useDifferentExchangeRateForIncomeTaxPurposes:
           type: boolean
     EditIncomeTaxPaymentDto:
@@ -2107,9 +2107,9 @@ components:
           type: integer
           format: int64
         convertedAmounts:
-          $ref: '#/components/schemas/ExpenseAmountsDto'
+          $ref: "#/components/schemas/ExpenseAmountsDto"
         incomeTaxableAmounts:
-          $ref: '#/components/schemas/ExpenseAmountsDto'
+          $ref: "#/components/schemas/ExpenseAmountsDto"
         useDifferentExchangeRateForIncomeTaxPurposes:
           type: boolean
     EditCustomerDto:
@@ -2154,7 +2154,7 @@ components:
           minLength: 0
           type: string
         i18n:
-          $ref: '#/components/schemas/I18nSettingsDto'
+          $ref: "#/components/schemas/I18nSettingsDto"
     ProfileDto:
       required:
       - i18n
@@ -2166,7 +2166,7 @@ components:
         documentsStorage:
           type: string
         i18n:
-          $ref: '#/components/schemas/I18nSettingsDto'
+          $ref: "#/components/schemas/I18nSettingsDto"
     CreateWorkspaceDto:
       required:
       - defaultCurrency
@@ -2392,7 +2392,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/WorkspaceAccessTokenDto'
+            $ref: "#/components/schemas/WorkspaceAccessTokenDto"
     IncomeExpensesStatisticsItemDto:
       required:
       - currencyExchangeDifference
@@ -2428,7 +2428,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/IncomeExpensesStatisticsItemDto'
+            $ref: "#/components/schemas/IncomeExpensesStatisticsItemDto"
         totalAmount:
           type: integer
           format: int64
@@ -2480,19 +2480,19 @@ components:
         finalizedCollectedTaxes:
           type: array
           items:
-            $ref: '#/components/schemas/FinalizedTaxSummaryItemDto'
+            $ref: "#/components/schemas/FinalizedTaxSummaryItemDto"
         finalizedPaidTaxes:
           type: array
           items:
-            $ref: '#/components/schemas/FinalizedTaxSummaryItemDto'
+            $ref: "#/components/schemas/FinalizedTaxSummaryItemDto"
         pendingCollectedTaxes:
           type: array
           items:
-            $ref: '#/components/schemas/PendingTaxSummaryItemDto'
+            $ref: "#/components/schemas/PendingTaxSummaryItemDto"
         pendingPaidTaxes:
           type: array
           items:
-            $ref: '#/components/schemas/PendingTaxSummaryItemDto'
+            $ref: "#/components/schemas/PendingTaxSummaryItemDto"
     PendingTaxSummaryItemDto:
       required:
       - includedItemsNumber
@@ -2525,7 +2525,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/InvoiceDto'
+            $ref: "#/components/schemas/InvoiceDto"
     ApiPageIncomeDto:
       required:
       - data
@@ -2546,7 +2546,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/IncomeDto'
+            $ref: "#/components/schemas/IncomeDto"
     ApiPageIncomeTaxPaymentDto:
       required:
       - data
@@ -2567,7 +2567,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/IncomeTaxPaymentDto'
+            $ref: "#/components/schemas/IncomeTaxPaymentDto"
     ApiPageGeneralTaxDto:
       required:
       - data
@@ -2588,7 +2588,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/GeneralTaxDto'
+            $ref: "#/components/schemas/GeneralTaxDto"
     ApiPageExpenseDto:
       required:
       - data
@@ -2609,7 +2609,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/ExpenseDto'
+            $ref: "#/components/schemas/ExpenseDto"
     ApiPageDocumentDto:
       required:
       - data
@@ -2630,7 +2630,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/DocumentDto'
+            $ref: "#/components/schemas/DocumentDto"
     GetDownloadTokenResponse:
       required:
       - token
@@ -2660,7 +2660,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CustomerDto'
+            $ref: "#/components/schemas/CustomerDto"
     ApiPageCategoryDto:
       required:
       - data
@@ -2681,7 +2681,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CategoryDto'
+            $ref: "#/components/schemas/CategoryDto"
     ApiPagePlatformUserDto:
       required:
       - data
@@ -2702,7 +2702,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/PlatformUserDto'
+            $ref: "#/components/schemas/PlatformUserDto"
     GoogleDriveStorageIntegrationStatus:
       required:
       - authorizationRequired
@@ -2732,6 +2732,18 @@ components:
       properties:
         active:
           type: boolean
+    UserActivationTokensApiBadRequestErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - UserAlreadyActivated
+          - TokenExpired
+        message:
+          type: string
     ProfileApiBadRequestErrors:
       required:
       - error
@@ -2743,18 +2755,6 @@ components:
           - CurrentPasswordMismatch
           - TransientUser
           - NotAuthenticated
-        message:
-          type: string
-    UserActivationTokensApiBadRequestErrors:
-      required:
-      - error
-      type: object
-      properties:
-        error:
-          type: string
-          enum:
-          - UserAlreadyActivated
-          - TokenExpired
         message:
           type: string
     FieldErrorDto:
@@ -2785,7 +2785,7 @@ components:
         requestErrors:
           type: array
           items:
-            $ref: '#/components/schemas/FieldErrorDto'
+            $ref: "#/components/schemas/FieldErrorDto"
     SaApiErrorDto:
       required:
       - error

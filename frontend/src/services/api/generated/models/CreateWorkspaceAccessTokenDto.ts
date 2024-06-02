@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface CreateWorkspaceAccessTokenDto {
 /**
  * Check if a given object implements the CreateWorkspaceAccessTokenDto interface.
  */
-export function instanceOfCreateWorkspaceAccessTokenDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "validTill" in value;
-
-    return isInstance;
+export function instanceOfCreateWorkspaceAccessTokenDto(value: object): value is CreateWorkspaceAccessTokenDto {
+    if (!('validTill' in value) || value['validTill'] === undefined) return false;
+    return true;
 }
 
 export function CreateWorkspaceAccessTokenDtoFromJSON(json: any): CreateWorkspaceAccessTokenDto {
@@ -42,7 +40,7 @@ export function CreateWorkspaceAccessTokenDtoFromJSON(json: any): CreateWorkspac
 }
 
 export function CreateWorkspaceAccessTokenDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateWorkspaceAccessTokenDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -52,15 +50,12 @@ export function CreateWorkspaceAccessTokenDtoFromJSONTyped(json: any, ignoreDisc
 }
 
 export function CreateWorkspaceAccessTokenDtoToJSON(value?: CreateWorkspaceAccessTokenDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'validTill': (value.validTill.toISOString()),
+        'validTill': ((value['validTill']).toISOString()),
     };
 }
 

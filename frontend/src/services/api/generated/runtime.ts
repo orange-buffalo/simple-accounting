@@ -15,23 +15,23 @@
 
 export const BASE_PATH = "http://localhost".replace(/\/+$/, "");
 
-export interface ConfigurationParameters<RM = void> {
+export interface ConfigurationParameters {
     basePath?: string; // override base path
     fetchApi?: FetchAPI; // override for fetch implementation
-    middleware?: Middleware<RM>[]; // middleware to apply before/after fetch requests
+    middleware?: Middleware[]; // middleware to apply before/after fetch requests
     queryParamsStringify?: (params: HTTPQuery) => string; // stringify function for query strings
     username?: string; // parameter for basic security
     password?: string; // parameter for basic security
-    apiKey?: string | ((name: string) => string); // parameter for apiKey security
+    apiKey?: string | Promise<string> | ((name: string) => string | Promise<string>); // parameter for apiKey security
     accessToken?: string | Promise<string> | ((name?: string, scopes?: string[]) => string | Promise<string>); // parameter for oauth2 security
     headers?: HTTPHeaders; //header params we want to use on every request
     credentials?: RequestCredentials; //value for the credentials param we want to use on each request
 }
 
-export class Configuration<RM = void> {
-    constructor(private configuration: ConfigurationParameters<RM> = {}) {}
+export class Configuration {
+    constructor(private configuration: ConfigurationParameters = {}) {}
 
-    set config(configuration: Configuration<RM>) {
+    set config(configuration: Configuration) {
         this.configuration = configuration;
     }
 
@@ -43,7 +43,7 @@ export class Configuration<RM = void> {
         return this.configuration.fetchApi;
     }
 
-    get middleware(): Middleware<RM>[] {
+    get middleware(): Middleware[] {
         return this.configuration.middleware || [];
     }
 
@@ -59,7 +59,7 @@ export class Configuration<RM = void> {
         return this.configuration.password;
     }
 
-    get apiKey(): ((name: string) => string) | undefined {
+    get apiKey(): ((name: string) => string | Promise<string>) | undefined {
         const apiKey = this.configuration.apiKey;
         if (apiKey) {
             return typeof apiKey === 'function' ? apiKey : () => apiKey;
@@ -89,33 +89,51 @@ export const DefaultConfig = new Configuration();
 /**
  * This is the base class for all generated API classes.
  */
-export class BaseAPI<RM = void> {
+export class BaseAPI {
 
-    private middleware: Middleware<RM>[];
+    private static readonly jsonRegex = new RegExp('^(:?application\/json|[^;/ \t]+\/[^;/ \t]+[+]json)[ \t]*(:?;.*)?$', 'i');
+    private middleware: Middleware[];
 
-    constructor(protected configuration = new Configuration<RM>()) {
+    constructor(protected configuration = DefaultConfig) {
         this.middleware = configuration.middleware;
     }
 
-    withMiddleware<T extends BaseAPI<RM>>(this: T, ...middlewares: Middleware<RM>[]) {
-        const next : T = this.clone<T>();
+    withMiddleware<T extends BaseAPI>(this: T, ...middlewares: Middleware[]) {
+        const next = this.clone<T>();
         next.middleware = next.middleware.concat(...middlewares);
         return next;
     }
 
-    withPreMiddleware<T extends BaseAPI<RM>>(this: T, ...preMiddlewares: Array<Middleware<RM>['pre']>) {
+    withPreMiddleware<T extends BaseAPI>(this: T, ...preMiddlewares: Array<Middleware['pre']>) {
         const middlewares = preMiddlewares.map((pre) => ({ pre }));
         return this.withMiddleware<T>(...middlewares);
     }
 
-    withPostMiddleware<T extends BaseAPI<RM>>(this: T, ...postMiddlewares: Array<Middleware<RM>['post']>) {
+    withPostMiddleware<T extends BaseAPI>(this: T, ...postMiddlewares: Array<Middleware['post']>) {
         const middlewares = postMiddlewares.map((post) => ({ post }));
         return this.withMiddleware<T>(...middlewares);
     }
 
-    protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<Response> {
+    /**
+     * Check if the given MIME is a JSON MIME.
+     * JSON MIME examples:
+     *   application/json
+     *   application/json; charset=UTF8
+     *   APPLICATION/JSON
+     *   application/vnd.company+json
+     * @param mime - MIME (Multipurpose Internet Mail Extensions)
+     * @return True if the given MIME is JSON, false otherwise.
+     */
+    protected isJsonMime(mime: string | null | undefined): boolean {
+        if (!mime) {
+            return false;
+        }
+        return BaseAPI.jsonRegex.test(mime);
+    }
+
+    protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction): Promise<Response> {
         const { url, init } = await this.createFetchParams(context, initOverrides);
-        const response = await this.fetchApi(url, init, additionalParameters?.metadata);
+        const response = await this.fetchApi(url, init);
         if (response && (response.status >= 200 && response.status < 300)) {
             return response;
         }
@@ -152,33 +170,38 @@ export class BaseAPI<RM = void> {
                 init: initParams,
                 context,
             }))
+        };
+
+        let body: any;
+        if (isFormData(overriddenInit.body)
+            || (overriddenInit.body instanceof URLSearchParams)
+            || isBlob(overriddenInit.body)) {
+          body = overriddenInit.body;
+        } else if (this.isJsonMime(headers['Content-Type'])) {
+          body = JSON.stringify(overriddenInit.body);
+        } else {
+          body = overriddenInit.body;
         }
 
         const init: RequestInit = {
             ...overriddenInit,
-            body:
-                isFormData(overriddenInit.body) ||
-                overriddenInit.body instanceof URLSearchParams ||
-                isBlob(overriddenInit.body)
-                    ? overriddenInit.body
-                    : JSON.stringify(overriddenInit.body),
+            body
         };
 
         return { url, init };
     }
 
-    private fetchApi = async (url: string, init: RequestInit, metadata?: RM) => {
+    private fetchApi = async (url: string, init: RequestInit) => {
         let fetchParams = { url, init };
         for (const middleware of this.middleware) {
             if (middleware.pre) {
                 fetchParams = await middleware.pre({
                     fetch: this.fetchApi,
                     ...fetchParams,
-                    metadata,
                 }) || fetchParams;
             }
         }
-        let response = undefined;
+        let response: Response | undefined = undefined;
         try {
             response = await (this.configuration.fetchApi || fetch)(fetchParams.url, fetchParams.init);
         } catch (e) {
@@ -190,7 +213,6 @@ export class BaseAPI<RM = void> {
                         init: fetchParams.init,
                         error: e,
                         response: response ? response.clone() : undefined,
-                        metadata,
                     }) || response;
                 }
             }
@@ -209,7 +231,6 @@ export class BaseAPI<RM = void> {
                     url: fetchParams.url,
                     init: fetchParams.init,
                     response: response.clone(),
-                    metadata
                 }) || response;
             }
         }
@@ -220,7 +241,7 @@ export class BaseAPI<RM = void> {
      * Create a shallow clone of `this` by constructing a new instance
      * and then shallow cloning data members.
      */
-    private clone<T extends BaseAPI<RM>>(this: T): T {
+    private clone<T extends BaseAPI>(this: T): T {
         const constructor = this.constructor as any;
         const next = new constructor(this.configuration);
         next.middleware = this.middleware.slice();
@@ -229,11 +250,11 @@ export class BaseAPI<RM = void> {
 };
 
 function isBlob(value: any): value is Blob {
-    return typeof Blob !== 'undefined' && value instanceof Blob
+    return typeof Blob !== 'undefined' && value instanceof Blob;
 }
 
 function isFormData(value: any): value is FormData {
-    return typeof FormData !== "undefined" && value instanceof FormData
+    return typeof FormData !== "undefined" && value instanceof FormData;
 }
 
 export class ResponseError extends Error {
@@ -271,21 +292,10 @@ export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
 export type HTTPHeaders = { [key: string]: string };
 export type HTTPQuery = { [key: string]: string | number | null | boolean | Array<string | number | null | boolean> | Set<string | number | null | boolean> | HTTPQuery };
 export type HTTPBody = Json | FormData | URLSearchParams;
-export type HTTPRequestInit = { headers?: HTTPHeaders; method: HTTPMethod; credentials?: RequestCredentials; body?: HTTPBody }
+export type HTTPRequestInit = { headers?: HTTPHeaders; method: HTTPMethod; credentials?: RequestCredentials; body?: HTTPBody };
 export type ModelPropertyNaming = 'camelCase' | 'snake_case' | 'PascalCase' | 'original';
 
 export type InitOverrideFunction = (requestContext: { init: HTTPRequestInit, context: RequestOpts }) => Promise<RequestInit>
-
-/**
- * Configures additional request execution aspects (e.g. middleware behaviour).
- */
-export interface AdditionalRequestParameters<RM = void> {
-  /**
-   * Request metadata to be passed to the middleware. Typical use case - configure middleware
-   * behaviour on per-request basis.
-   */
-  metadata?: RM;
-}
 
 export interface FetchParams {
     url: string;
@@ -298,11 +308,6 @@ export interface RequestOpts {
     headers: HTTPHeaders;
     query?: HTTPQuery;
     body?: HTTPBody;
-}
-
-export function exists(json: any, key: string) {
-    const value = json[key];
-    return value !== null && value !== undefined;
 }
 
 export function querystring(params: HTTPQuery, prefix: string = ''): string {
@@ -349,37 +354,34 @@ export function canConsumeForm(consumes: Consume[]): boolean {
 }
 
 export interface Consume {
-    contentType: string
+    contentType: string;
 }
 
-export interface RequestContext<RM = void> {
+export interface RequestContext {
     fetch: FetchAPI;
     url: string;
     init: RequestInit;
-    metadata?: RM;
 }
 
-export interface ResponseContext<RM = void> {
+export interface ResponseContext {
     fetch: FetchAPI;
     url: string;
     init: RequestInit;
     response: Response;
-    metadata?: RM;
 }
 
-export interface ErrorContext<RM = void> {
+export interface ErrorContext {
     fetch: FetchAPI;
     url: string;
     init: RequestInit;
     error: unknown;
     response?: Response;
-    metadata?: RM;
 }
 
-export interface Middleware<RM = void> {
-    pre?(context: RequestContext<RM>): Promise<FetchParams | void>;
-    post?(context: ResponseContext<RM>): Promise<Response | void>;
-    onError?(context: ErrorContext<RM>): Promise<Response | void>;
+export interface Middleware {
+    pre?(context: RequestContext): Promise<FetchParams | void>;
+    post?(context: ResponseContext): Promise<Response | void>;
+    onError?(context: ErrorContext): Promise<Response | void>;
 }
 
 export interface ApiResponse<T> {

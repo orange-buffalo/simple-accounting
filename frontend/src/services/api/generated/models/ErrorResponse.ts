@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface ErrorResponse {
 /**
  * Check if a given object implements the ErrorResponse interface.
  */
-export function instanceOfErrorResponse(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "errorId" in value;
-
-    return isInstance;
+export function instanceOfErrorResponse(value: object): value is ErrorResponse {
+    if (!('errorId' in value) || value['errorId'] === undefined) return false;
+    return true;
 }
 
 export function ErrorResponseFromJSON(json: any): ErrorResponse {
@@ -42,7 +40,7 @@ export function ErrorResponseFromJSON(json: any): ErrorResponse {
 }
 
 export function ErrorResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): ErrorResponse {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -52,15 +50,12 @@ export function ErrorResponseFromJSONTyped(json: any, ignoreDiscriminator: boole
 }
 
 export function ErrorResponseToJSON(value?: ErrorResponse | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'errorId': value.errorId,
+        'errorId': value['errorId'],
     };
 }
 

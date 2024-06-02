@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { FinalizedTaxSummaryItemDto } from './FinalizedTaxSummaryItemDto';
 import {
     FinalizedTaxSummaryItemDtoFromJSON,
@@ -61,14 +61,12 @@ export interface GeneralTaxReportDto {
 /**
  * Check if a given object implements the GeneralTaxReportDto interface.
  */
-export function instanceOfGeneralTaxReportDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "finalizedCollectedTaxes" in value;
-    isInstance = isInstance && "finalizedPaidTaxes" in value;
-    isInstance = isInstance && "pendingCollectedTaxes" in value;
-    isInstance = isInstance && "pendingPaidTaxes" in value;
-
-    return isInstance;
+export function instanceOfGeneralTaxReportDto(value: object): value is GeneralTaxReportDto {
+    if (!('finalizedCollectedTaxes' in value) || value['finalizedCollectedTaxes'] === undefined) return false;
+    if (!('finalizedPaidTaxes' in value) || value['finalizedPaidTaxes'] === undefined) return false;
+    if (!('pendingCollectedTaxes' in value) || value['pendingCollectedTaxes'] === undefined) return false;
+    if (!('pendingPaidTaxes' in value) || value['pendingPaidTaxes'] === undefined) return false;
+    return true;
 }
 
 export function GeneralTaxReportDtoFromJSON(json: any): GeneralTaxReportDto {
@@ -76,7 +74,7 @@ export function GeneralTaxReportDtoFromJSON(json: any): GeneralTaxReportDto {
 }
 
 export function GeneralTaxReportDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GeneralTaxReportDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -89,18 +87,15 @@ export function GeneralTaxReportDtoFromJSONTyped(json: any, ignoreDiscriminator:
 }
 
 export function GeneralTaxReportDtoToJSON(value?: GeneralTaxReportDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'finalizedCollectedTaxes': ((value.finalizedCollectedTaxes as Array<any>).map(FinalizedTaxSummaryItemDtoToJSON)),
-        'finalizedPaidTaxes': ((value.finalizedPaidTaxes as Array<any>).map(FinalizedTaxSummaryItemDtoToJSON)),
-        'pendingCollectedTaxes': ((value.pendingCollectedTaxes as Array<any>).map(PendingTaxSummaryItemDtoToJSON)),
-        'pendingPaidTaxes': ((value.pendingPaidTaxes as Array<any>).map(PendingTaxSummaryItemDtoToJSON)),
+        'finalizedCollectedTaxes': ((value['finalizedCollectedTaxes'] as Array<any>).map(FinalizedTaxSummaryItemDtoToJSON)),
+        'finalizedPaidTaxes': ((value['finalizedPaidTaxes'] as Array<any>).map(FinalizedTaxSummaryItemDtoToJSON)),
+        'pendingCollectedTaxes': ((value['pendingCollectedTaxes'] as Array<any>).map(PendingTaxSummaryItemDtoToJSON)),
+        'pendingPaidTaxes': ((value['pendingPaidTaxes'] as Array<any>).map(PendingTaxSummaryItemDtoToJSON)),
     };
 }
 

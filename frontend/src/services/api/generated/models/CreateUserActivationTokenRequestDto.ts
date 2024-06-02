@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface CreateUserActivationTokenRequestDto {
 /**
  * Check if a given object implements the CreateUserActivationTokenRequestDto interface.
  */
-export function instanceOfCreateUserActivationTokenRequestDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "userId" in value;
-
-    return isInstance;
+export function instanceOfCreateUserActivationTokenRequestDto(value: object): value is CreateUserActivationTokenRequestDto {
+    if (!('userId' in value) || value['userId'] === undefined) return false;
+    return true;
 }
 
 export function CreateUserActivationTokenRequestDtoFromJSON(json: any): CreateUserActivationTokenRequestDto {
@@ -42,7 +40,7 @@ export function CreateUserActivationTokenRequestDtoFromJSON(json: any): CreateUs
 }
 
 export function CreateUserActivationTokenRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateUserActivationTokenRequestDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -52,15 +50,12 @@ export function CreateUserActivationTokenRequestDtoFromJSONTyped(json: any, igno
 }
 
 export function CreateUserActivationTokenRequestDtoToJSON(value?: CreateUserActivationTokenRequestDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'userId': value.userId,
+        'userId': value['userId'],
     };
 }
 

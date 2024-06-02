@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { FieldErrorDto } from './FieldErrorDto';
 import {
     FieldErrorDtoFromJSON,
@@ -43,12 +43,10 @@ export interface InvalidInputErrorDto {
 /**
  * Check if a given object implements the InvalidInputErrorDto interface.
  */
-export function instanceOfInvalidInputErrorDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "error" in value;
-    isInstance = isInstance && "requestErrors" in value;
-
-    return isInstance;
+export function instanceOfInvalidInputErrorDto(value: object): value is InvalidInputErrorDto {
+    if (!('error' in value) || value['error'] === undefined) return false;
+    if (!('requestErrors' in value) || value['requestErrors'] === undefined) return false;
+    return true;
 }
 
 export function InvalidInputErrorDtoFromJSON(json: any): InvalidInputErrorDto {
@@ -56,7 +54,7 @@ export function InvalidInputErrorDtoFromJSON(json: any): InvalidInputErrorDto {
 }
 
 export function InvalidInputErrorDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): InvalidInputErrorDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -67,16 +65,13 @@ export function InvalidInputErrorDtoFromJSONTyped(json: any, ignoreDiscriminator
 }
 
 export function InvalidInputErrorDtoToJSON(value?: InvalidInputErrorDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'error': value.error,
-        'requestErrors': ((value.requestErrors as Array<any>).map(FieldErrorDtoToJSON)),
+        'error': value['error'],
+        'requestErrors': ((value['requestErrors'] as Array<any>).map(FieldErrorDtoToJSON)),
     };
 }
 

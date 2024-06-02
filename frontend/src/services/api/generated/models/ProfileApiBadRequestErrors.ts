@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -48,11 +48,9 @@ export type ProfileApiBadRequestErrorsErrorEnum = typeof ProfileApiBadRequestErr
 /**
  * Check if a given object implements the ProfileApiBadRequestErrors interface.
  */
-export function instanceOfProfileApiBadRequestErrors(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "error" in value;
-
-    return isInstance;
+export function instanceOfProfileApiBadRequestErrors(value: object): value is ProfileApiBadRequestErrors {
+    if (!('error' in value) || value['error'] === undefined) return false;
+    return true;
 }
 
 export function ProfileApiBadRequestErrorsFromJSON(json: any): ProfileApiBadRequestErrors {
@@ -60,27 +58,24 @@ export function ProfileApiBadRequestErrorsFromJSON(json: any): ProfileApiBadRequ
 }
 
 export function ProfileApiBadRequestErrorsFromJSONTyped(json: any, ignoreDiscriminator: boolean): ProfileApiBadRequestErrors {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'error': json['error'],
-        'message': !exists(json, 'message') ? undefined : json['message'],
+        'message': json['message'] == null ? undefined : json['message'],
     };
 }
 
 export function ProfileApiBadRequestErrorsToJSON(value?: ProfileApiBadRequestErrors | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'error': value.error,
-        'message': value.message,
+        'error': value['error'],
+        'message': value['message'],
     };
 }
 

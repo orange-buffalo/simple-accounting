@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,12 +36,10 @@ export interface CreateUserRequestDto {
 /**
  * Check if a given object implements the CreateUserRequestDto interface.
  */
-export function instanceOfCreateUserRequestDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "userName" in value;
-    isInstance = isInstance && "admin" in value;
-
-    return isInstance;
+export function instanceOfCreateUserRequestDto(value: object): value is CreateUserRequestDto {
+    if (!('userName' in value) || value['userName'] === undefined) return false;
+    if (!('admin' in value) || value['admin'] === undefined) return false;
+    return true;
 }
 
 export function CreateUserRequestDtoFromJSON(json: any): CreateUserRequestDto {
@@ -49,7 +47,7 @@ export function CreateUserRequestDtoFromJSON(json: any): CreateUserRequestDto {
 }
 
 export function CreateUserRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateUserRequestDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -60,16 +58,13 @@ export function CreateUserRequestDtoFromJSONTyped(json: any, ignoreDiscriminator
 }
 
 export function CreateUserRequestDtoToJSON(value?: CreateUserRequestDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'userName': value.userName,
-        'admin': value.admin,
+        'userName': value['userName'],
+        'admin': value['admin'],
     };
 }
 

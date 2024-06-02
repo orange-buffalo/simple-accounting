@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,12 +36,10 @@ export interface ChangePasswordRequestDto {
 /**
  * Check if a given object implements the ChangePasswordRequestDto interface.
  */
-export function instanceOfChangePasswordRequestDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "currentPassword" in value;
-    isInstance = isInstance && "newPassword" in value;
-
-    return isInstance;
+export function instanceOfChangePasswordRequestDto(value: object): value is ChangePasswordRequestDto {
+    if (!('currentPassword' in value) || value['currentPassword'] === undefined) return false;
+    if (!('newPassword' in value) || value['newPassword'] === undefined) return false;
+    return true;
 }
 
 export function ChangePasswordRequestDtoFromJSON(json: any): ChangePasswordRequestDto {
@@ -49,7 +47,7 @@ export function ChangePasswordRequestDtoFromJSON(json: any): ChangePasswordReque
 }
 
 export function ChangePasswordRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ChangePasswordRequestDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -60,16 +58,13 @@ export function ChangePasswordRequestDtoFromJSONTyped(json: any, ignoreDiscrimin
 }
 
 export function ChangePasswordRequestDtoToJSON(value?: ChangePasswordRequestDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'currentPassword': value.currentPassword,
-        'newPassword': value.newPassword,
+        'currentPassword': value['currentPassword'],
+        'newPassword': value['newPassword'],
     };
 }
 

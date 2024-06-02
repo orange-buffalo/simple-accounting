@@ -16,21 +16,20 @@
 import * as runtime from '../runtime';
 import type {
   GoogleDriveStorageIntegrationStatus,
-} from '../models';
+} from '../models/index';
 import {
     GoogleDriveStorageIntegrationStatusFromJSON,
     GoogleDriveStorageIntegrationStatusToJSON,
-} from '../models';
-import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
+} from '../models/index';
 
 /**
  * 
  */
-export class GoogleDriveStorageApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
+export class GoogleDriveStorageApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getIntegrationStatusRaw(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<GoogleDriveStorageIntegrationStatus>> {
+    async getIntegrationStatusRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoogleDriveStorageIntegrationStatus>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -40,15 +39,15 @@ export class GoogleDriveStorageApiControllerApi<RM = void> extends runtime.BaseA
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GoogleDriveStorageIntegrationStatusFromJSON(jsonValue));
     }
 
     /**
      */
-    async getIntegrationStatus(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<GoogleDriveStorageIntegrationStatus> {
-        const response = await this.getIntegrationStatusRaw(initOverrides, additionalParameters);
+    async getIntegrationStatus(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoogleDriveStorageIntegrationStatus> {
+        const response = await this.getIntegrationStatusRaw(initOverrides);
         return await response.value();
     }
 

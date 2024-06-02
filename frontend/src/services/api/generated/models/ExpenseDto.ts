@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { ExpenseAmountsDto } from './ExpenseAmountsDto';
 import {
     ExpenseAmountsDtoFromJSON,
@@ -151,23 +151,21 @@ export type ExpenseDtoStatusEnum = typeof ExpenseDtoStatusEnum[keyof typeof Expe
 /**
  * Check if a given object implements the ExpenseDto interface.
  */
-export function instanceOfExpenseDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "title" in value;
-    isInstance = isInstance && "timeRecorded" in value;
-    isInstance = isInstance && "datePaid" in value;
-    isInstance = isInstance && "currency" in value;
-    isInstance = isInstance && "originalAmount" in value;
-    isInstance = isInstance && "attachments" in value;
-    isInstance = isInstance && "percentOnBusiness" in value;
-    isInstance = isInstance && "id" in value;
-    isInstance = isInstance && "version" in value;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "convertedAmounts" in value;
-    isInstance = isInstance && "incomeTaxableAmounts" in value;
-    isInstance = isInstance && "useDifferentExchangeRateForIncomeTaxPurposes" in value;
-
-    return isInstance;
+export function instanceOfExpenseDto(value: object): value is ExpenseDto {
+    if (!('title' in value) || value['title'] === undefined) return false;
+    if (!('timeRecorded' in value) || value['timeRecorded'] === undefined) return false;
+    if (!('datePaid' in value) || value['datePaid'] === undefined) return false;
+    if (!('currency' in value) || value['currency'] === undefined) return false;
+    if (!('originalAmount' in value) || value['originalAmount'] === undefined) return false;
+    if (!('attachments' in value) || value['attachments'] === undefined) return false;
+    if (!('percentOnBusiness' in value) || value['percentOnBusiness'] === undefined) return false;
+    if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('convertedAmounts' in value) || value['convertedAmounts'] === undefined) return false;
+    if (!('incomeTaxableAmounts' in value) || value['incomeTaxableAmounts'] === undefined) return false;
+    if (!('useDifferentExchangeRateForIncomeTaxPurposes' in value) || value['useDifferentExchangeRateForIncomeTaxPurposes'] === undefined) return false;
+    return true;
 }
 
 export function ExpenseDtoFromJSON(json: any): ExpenseDto {
@@ -175,12 +173,12 @@ export function ExpenseDtoFromJSON(json: any): ExpenseDto {
 }
 
 export function ExpenseDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ExpenseDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'category': !exists(json, 'category') ? undefined : json['category'],
+        'category': json['category'] == null ? undefined : json['category'],
         'title': json['title'],
         'timeRecorded': (new Date(json['timeRecorded'])),
         'datePaid': (new Date(json['datePaid'])),
@@ -188,13 +186,13 @@ export function ExpenseDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'originalAmount': json['originalAmount'],
         'attachments': json['attachments'],
         'percentOnBusiness': json['percentOnBusiness'],
-        'notes': !exists(json, 'notes') ? undefined : json['notes'],
+        'notes': json['notes'] == null ? undefined : json['notes'],
         'id': json['id'],
         'version': json['version'],
         'status': json['status'],
-        'generalTax': !exists(json, 'generalTax') ? undefined : json['generalTax'],
-        'generalTaxRateInBps': !exists(json, 'generalTaxRateInBps') ? undefined : json['generalTaxRateInBps'],
-        'generalTaxAmount': !exists(json, 'generalTaxAmount') ? undefined : json['generalTaxAmount'],
+        'generalTax': json['generalTax'] == null ? undefined : json['generalTax'],
+        'generalTaxRateInBps': json['generalTaxRateInBps'] == null ? undefined : json['generalTaxRateInBps'],
+        'generalTaxAmount': json['generalTaxAmount'] == null ? undefined : json['generalTaxAmount'],
         'convertedAmounts': ExpenseAmountsDtoFromJSON(json['convertedAmounts']),
         'incomeTaxableAmounts': ExpenseAmountsDtoFromJSON(json['incomeTaxableAmounts']),
         'useDifferentExchangeRateForIncomeTaxPurposes': json['useDifferentExchangeRateForIncomeTaxPurposes'],
@@ -202,32 +200,29 @@ export function ExpenseDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
 }
 
 export function ExpenseDtoToJSON(value?: ExpenseDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'category': value.category,
-        'title': value.title,
-        'timeRecorded': (value.timeRecorded.toISOString()),
-        'datePaid': (new Date(value.datePaid.getTime() - value.datePaid.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'currency': value.currency,
-        'originalAmount': value.originalAmount,
-        'attachments': value.attachments,
-        'percentOnBusiness': value.percentOnBusiness,
-        'notes': value.notes,
-        'id': value.id,
-        'version': value.version,
-        'status': value.status,
-        'generalTax': value.generalTax,
-        'generalTaxRateInBps': value.generalTaxRateInBps,
-        'generalTaxAmount': value.generalTaxAmount,
-        'convertedAmounts': ExpenseAmountsDtoToJSON(value.convertedAmounts),
-        'incomeTaxableAmounts': ExpenseAmountsDtoToJSON(value.incomeTaxableAmounts),
-        'useDifferentExchangeRateForIncomeTaxPurposes': value.useDifferentExchangeRateForIncomeTaxPurposes,
+        'category': value['category'],
+        'title': value['title'],
+        'timeRecorded': ((value['timeRecorded']).toISOString()),
+        'datePaid': ((value['datePaid']).toISOString().substring(0,10)),
+        'currency': value['currency'],
+        'originalAmount': value['originalAmount'],
+        'attachments': value['attachments'],
+        'percentOnBusiness': value['percentOnBusiness'],
+        'notes': value['notes'],
+        'id': value['id'],
+        'version': value['version'],
+        'status': value['status'],
+        'generalTax': value['generalTax'],
+        'generalTaxRateInBps': value['generalTaxRateInBps'],
+        'generalTaxAmount': value['generalTaxAmount'],
+        'convertedAmounts': ExpenseAmountsDtoToJSON(value['convertedAmounts']),
+        'incomeTaxableAmounts': ExpenseAmountsDtoToJSON(value['incomeTaxableAmounts']),
+        'useDifferentExchangeRateForIncomeTaxPurposes': value['useDifferentExchangeRateForIncomeTaxPurposes'],
     };
 }
 

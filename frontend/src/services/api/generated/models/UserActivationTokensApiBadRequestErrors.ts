@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -47,11 +47,9 @@ export type UserActivationTokensApiBadRequestErrorsErrorEnum = typeof UserActiva
 /**
  * Check if a given object implements the UserActivationTokensApiBadRequestErrors interface.
  */
-export function instanceOfUserActivationTokensApiBadRequestErrors(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "error" in value;
-
-    return isInstance;
+export function instanceOfUserActivationTokensApiBadRequestErrors(value: object): value is UserActivationTokensApiBadRequestErrors {
+    if (!('error' in value) || value['error'] === undefined) return false;
+    return true;
 }
 
 export function UserActivationTokensApiBadRequestErrorsFromJSON(json: any): UserActivationTokensApiBadRequestErrors {
@@ -59,27 +57,24 @@ export function UserActivationTokensApiBadRequestErrorsFromJSON(json: any): User
 }
 
 export function UserActivationTokensApiBadRequestErrorsFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserActivationTokensApiBadRequestErrors {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'error': json['error'],
-        'message': !exists(json, 'message') ? undefined : json['message'],
+        'message': json['message'] == null ? undefined : json['message'],
     };
 }
 
 export function UserActivationTokensApiBadRequestErrorsToJSON(value?: UserActivationTokensApiBadRequestErrors | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'error': value.error,
-        'message': value.message,
+        'error': value['error'],
+        'message': value['message'],
     };
 }
 

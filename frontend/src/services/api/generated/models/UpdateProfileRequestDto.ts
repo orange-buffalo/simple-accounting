@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { I18nSettingsDto } from './I18nSettingsDto';
 import {
     I18nSettingsDtoFromJSON,
@@ -43,11 +43,9 @@ export interface UpdateProfileRequestDto {
 /**
  * Check if a given object implements the UpdateProfileRequestDto interface.
  */
-export function instanceOfUpdateProfileRequestDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "i18n" in value;
-
-    return isInstance;
+export function instanceOfUpdateProfileRequestDto(value: object): value is UpdateProfileRequestDto {
+    if (!('i18n' in value) || value['i18n'] === undefined) return false;
+    return true;
 }
 
 export function UpdateProfileRequestDtoFromJSON(json: any): UpdateProfileRequestDto {
@@ -55,27 +53,24 @@ export function UpdateProfileRequestDtoFromJSON(json: any): UpdateProfileRequest
 }
 
 export function UpdateProfileRequestDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpdateProfileRequestDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'documentsStorage': !exists(json, 'documentsStorage') ? undefined : json['documentsStorage'],
+        'documentsStorage': json['documentsStorage'] == null ? undefined : json['documentsStorage'],
         'i18n': I18nSettingsDtoFromJSON(json['i18n']),
     };
 }
 
 export function UpdateProfileRequestDtoToJSON(value?: UpdateProfileRequestDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'documentsStorage': value.documentsStorage,
-        'i18n': I18nSettingsDtoToJSON(value.i18n),
+        'documentsStorage': value['documentsStorage'],
+        'i18n': I18nSettingsDtoToJSON(value['i18n']),
     };
 }
 

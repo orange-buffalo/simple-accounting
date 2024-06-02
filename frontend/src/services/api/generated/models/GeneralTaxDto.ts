@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -54,14 +54,12 @@ export interface GeneralTaxDto {
 /**
  * Check if a given object implements the GeneralTaxDto interface.
  */
-export function instanceOfGeneralTaxDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "title" in value;
-    isInstance = isInstance && "id" in value;
-    isInstance = isInstance && "version" in value;
-    isInstance = isInstance && "rateInBps" in value;
-
-    return isInstance;
+export function instanceOfGeneralTaxDto(value: object): value is GeneralTaxDto {
+    if (!('title' in value) || value['title'] === undefined) return false;
+    if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('rateInBps' in value) || value['rateInBps'] === undefined) return false;
+    return true;
 }
 
 export function GeneralTaxDtoFromJSON(json: any): GeneralTaxDto {
@@ -69,7 +67,7 @@ export function GeneralTaxDtoFromJSON(json: any): GeneralTaxDto {
 }
 
 export function GeneralTaxDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): GeneralTaxDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -77,25 +75,22 @@ export function GeneralTaxDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
         'title': json['title'],
         'id': json['id'],
         'version': json['version'],
-        'description': !exists(json, 'description') ? undefined : json['description'],
+        'description': json['description'] == null ? undefined : json['description'],
         'rateInBps': json['rateInBps'],
     };
 }
 
 export function GeneralTaxDtoToJSON(value?: GeneralTaxDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'title': value.title,
-        'id': value.id,
-        'version': value.version,
-        'description': value.description,
-        'rateInBps': value.rateInBps,
+        'title': value['title'],
+        'id': value['id'],
+        'version': value['version'],
+        'description': value['description'],
+        'rateInBps': value['rateInBps'],
     };
 }
 

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -60,14 +60,12 @@ export interface CategoryDto {
 /**
  * Check if a given object implements the CategoryDto interface.
  */
-export function instanceOfCategoryDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "version" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "income" in value;
-    isInstance = isInstance && "expense" in value;
-
-    return isInstance;
+export function instanceOfCategoryDto(value: object): value is CategoryDto {
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('income' in value) || value['income'] === undefined) return false;
+    if (!('expense' in value) || value['expense'] === undefined) return false;
+    return true;
 }
 
 export function CategoryDtoFromJSON(json: any): CategoryDto {
@@ -75,35 +73,32 @@ export function CategoryDtoFromJSON(json: any): CategoryDto {
 }
 
 export function CategoryDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CategoryDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'id': !exists(json, 'id') ? undefined : json['id'],
+        'id': json['id'] == null ? undefined : json['id'],
         'version': json['version'],
         'name': json['name'],
-        'description': !exists(json, 'description') ? undefined : json['description'],
+        'description': json['description'] == null ? undefined : json['description'],
         'income': json['income'],
         'expense': json['expense'],
     };
 }
 
 export function CategoryDtoToJSON(value?: CategoryDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'id': value.id,
-        'version': value.version,
-        'name': value.name,
-        'description': value.description,
-        'income': value.income,
-        'expense': value.expense,
+        'id': value['id'],
+        'version': value['version'],
+        'name': value['name'],
+        'description': value['description'],
+        'income': value['income'],
+        'expense': value['expense'],
     };
 }
 
