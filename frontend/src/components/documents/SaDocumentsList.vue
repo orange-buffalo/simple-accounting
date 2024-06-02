@@ -36,7 +36,7 @@
   import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { DocumentDto } from '@/services/api';
-  import { consumeAllPages, documentsApi, useCancellableRequest } from '@/services/api';
+  import { consumeAllPages, documentsApi, useRequestConfig } from '@/services/api';
 
   const props = defineProps<{ documentsIds: number[] }>();
 
@@ -52,9 +52,9 @@
       documentsLoading.value = true;
 
       const {
-        cancellableRequestConfig,
+        requestConfig,
         cancelRequest,
-      } = useCancellableRequest();
+      } = useRequestConfig({});
 
       onCleanup(cancelRequest);
 
@@ -65,7 +65,7 @@
           workspaceId: currentWorkspaceId,
           ...pageRequest,
           idIn: props.documentsIds,
-        }, cancellableRequestConfig));
+        }, requestConfig));
       } finally {
         documentsLoading.value = false;
       }

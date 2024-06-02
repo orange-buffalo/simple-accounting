@@ -55,9 +55,9 @@
   import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
   import { $t } from '@/services/i18n';
   import type {
-    ApiPage, ApiPageRequest, CancellableRequest, HasOptionalId,
+    ApiPage, ApiPageRequest, HasOptionalId, RequestConfigReturn,
   } from '@/services/api';
-  import { useCancellableRequest } from '@/services/api';
+  import { useRequestConfig } from '@/services/api';
   import { ensureDefined } from '@/services/utils';
 
   const itemsToDisplay = 10;
@@ -76,7 +76,7 @@
 
   const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
 
-  let cancelToken: CancellableRequest | undefined;
+  let requestConfigData: RequestConfigReturn | undefined;
 
   const loading = ref(false);
 
@@ -91,15 +91,15 @@
   const availableValues = ref<Array<ListItem>>([]);
 
   const executeSearch = async (query?: string) => {
-    if (cancelToken) {
-      cancelToken.cancelRequest();
+    if (requestConfigData) {
+      requestConfigData.cancelRequest();
     }
     loading.value = true;
-    cancelToken = useCancellableRequest();
+    requestConfigData = useRequestConfig({});
     try {
       const providerData = await props.optionsProvider({
         pageSize: itemsToDisplay,
-      }, query, cancelToken.cancellableRequestConfig);
+      }, query, requestConfigData.requestConfig);
 
       availableValues.value = providerData.data.map((entity) => ({
         entity,
@@ -125,7 +125,7 @@
         isInfo: true,
       }];
     } finally {
-      cancelToken = undefined;
+      requestConfigData = undefined;
       loading.value = false;
     }
   };

@@ -26,12 +26,7 @@ import { loadingEventsInterceptor } from '@/services/api/interceptors/loading-in
 import { authorizationTokenInterceptor, expiredTokenInterceptor } from '@/services/api/interceptors/auth-interceptor';
 import { errorHandlingInterceptor } from '@/services/api/interceptors/error-handling-interceptor';
 
-export interface RequestMetadata {
-  readonly requestTimeoutMs?: number,
-  requestTimeoutHandler?: ReturnType<typeof setTimeout>
-}
-
-const defaultConfigParameters: ConfigurationParameters<RequestMetadata> = {
+const defaultConfigParameters: ConfigurationParameters = {
   basePath: '',
   queryParamsStringify: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
   middleware: [
@@ -42,9 +37,9 @@ const defaultConfigParameters: ConfigurationParameters<RequestMetadata> = {
     errorHandlingInterceptor,
   ],
 };
-const defaultConfig = new Configuration<RequestMetadata>(defaultConfigParameters);
+const defaultConfig = new Configuration(defaultConfigParameters);
 
-export const authApi = new AuthenticationApiControllerApi<RequestMetadata>(new Configuration<RequestMetadata>({
+export const authApi = new AuthenticationApiControllerApi(new Configuration({
   ...defaultConfigParameters,
   middleware: [
     requestTimeoutInterceptor,
@@ -54,20 +49,20 @@ export const authApi = new AuthenticationApiControllerApi<RequestMetadata>(new C
   ],
 }));
 
-export const workspacesApi = new WorkspacesApiControllerApi<RequestMetadata>(defaultConfig);
-export const profileApi = new ProfileApiControllerApi<RequestMetadata>(defaultConfig);
-export const customersApi = new CustomersApiControllerApi<RequestMetadata>(defaultConfig);
-export const categoriesApi = new CategoriesApiControllerApi<RequestMetadata>(defaultConfig);
-export const statisticsApi = new StatisticsApiControllerApi<RequestMetadata>(defaultConfig);
-export const invoicesApi = new InvoicesApiControllerApi<RequestMetadata>(defaultConfig);
-export const expensesApi = new ExpensesApiControllerApi<RequestMetadata>(defaultConfig);
-export const incomesApi = new IncomesApiControllerApi<RequestMetadata>(defaultConfig);
-export const documentsApi = new DocumentsApiControllerApi<RequestMetadata>(defaultConfig);
-export const generalTaxesApi = new GeneralTaxApiControllerApi<RequestMetadata>(defaultConfig);
-export const googleDriveStorageApi = new GoogleDriveStorageApiControllerApi<RequestMetadata>(defaultConfig);
-export const oAuth2CallbackApi = new OAuth2CallbackControllerApi<RequestMetadata>(defaultConfig);
-export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiControllerApi<RequestMetadata>(defaultConfig);
-export const reportingApi = new ReportingApiControllerApi<RequestMetadata>(defaultConfig);
-export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiControllerApi<RequestMetadata>(defaultConfig);
-export const usersApi = new UsersApiControllerApi<RequestMetadata>(defaultConfig);
-export const userActivationTokensApi = new UserActivationTokensApiControllerApi<RequestMetadata>(defaultConfig);
+export const workspacesApi = new WorkspacesApiControllerApi(defaultConfig);
+export const profileApi = new ProfileApiControllerApi(defaultConfig);
+export const customersApi = new CustomersApiControllerApi(defaultConfig);
+export const categoriesApi = new CategoriesApiControllerApi(defaultConfig);
+export const statisticsApi = new StatisticsApiControllerApi(defaultConfig);
+export const invoicesApi = new InvoicesApiControllerApi(defaultConfig);
+export const expensesApi = new ExpensesApiControllerApi(defaultConfig);
+export const incomesApi = new IncomesApiControllerApi(defaultConfig);
+export const documentsApi = new DocumentsApiControllerApi(defaultConfig);
+export const generalTaxesApi = new GeneralTaxApiControllerApi(defaultConfig);
+export const googleDriveStorageApi = new GoogleDriveStorageApiControllerApi(defaultConfig);
+export const oAuth2CallbackApi = new OAuth2CallbackControllerApi(defaultConfig);
+export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiControllerApi(defaultConfig);
+export const reportingApi = new ReportingApiControllerApi(defaultConfig);
+export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiControllerApi(defaultConfig);
+export const usersApi = new UsersApiControllerApi(defaultConfig);
+export const userActivationTokensApi = new UserActivationTokensApiControllerApi(defaultConfig);

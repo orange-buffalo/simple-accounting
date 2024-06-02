@@ -1,5 +1,5 @@
 import { onMounted, onUnmounted } from 'vue';
-import { profileApi, useCancellableRequest } from '@/services/api';
+import { profileApi, useRequestConfig } from '@/services/api';
 import { fetchMock } from '@/__storybook__/api-mocks';
 
 export default {
@@ -25,13 +25,13 @@ export const FatalApiError = () => ({
 export const CancelledRequest = () => ({
   setup() {
     const {
-      cancellableRequestConfig,
+      requestConfig,
       cancelRequest,
-    } = useCancellableRequest();
+    } = useRequestConfig({});
     onMounted(async () => {
       cancelRequest();
       fetchMock.get('api/profile', { delay: 20000 });
-      await profileApi.getProfile(cancellableRequestConfig);
+      await profileApi.getProfile(requestConfig);
     });
 
     onUnmounted(() => {

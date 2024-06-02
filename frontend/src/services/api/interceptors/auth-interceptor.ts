@@ -1,5 +1,4 @@
 import type { FetchParams, Middleware } from '@/services/api/generated';
-import type { RequestMetadata } from '@/services/api/api-client';
 import { getAuthorizationHeader, tryAutoLogin } from '@/services/api/auth';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 
@@ -14,7 +13,7 @@ export function applyAuthorization(init: RequestInit): RequestInit {
   };
 }
 
-export const authorizationTokenInterceptor: Middleware<RequestMetadata> = {
+export const authorizationTokenInterceptor: Middleware = {
   async pre({
     url,
     init,
@@ -26,7 +25,7 @@ export const authorizationTokenInterceptor: Middleware<RequestMetadata> = {
   },
 };
 
-export const expiredTokenInterceptor: Middleware<RequestMetadata> = {
+export const expiredTokenInterceptor: Middleware = {
   async post({
     response,
     fetch,

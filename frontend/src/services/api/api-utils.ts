@@ -1,7 +1,20 @@
 import type { ApiPage, ApiPageRequest, SaApiErrorDto } from '@/services/api/api-types';
-import type { AdditionalRequestParameters } from '@/services/api/generated/runtime';
-import type { RequestMetadata } from '@/services/api/api-client';
 import { ApiBusinessError, ApiRequestCancelledError } from '@/services/api/api-errors.ts';
+
+const DEFAULT_TIMEOUT_MS = 10000;
+
+let currentGlobalTimeoutMs = DEFAULT_TIMEOUT_MS;
+
+/**
+ * Updates the global request timeout. Only intended for one-time global setup, e.g. in tests.
+ */
+export function setGlobalRequestTimeout(requestTimeoutMs: number) {
+  currentGlobalTimeoutMs = requestTimeoutMs;
+}
+
+export function getGlobalRequestTimeout() {
+  return currentGlobalTimeoutMs;
+}
 
 export function apiDateString(date: Date) {
   return `${date.getFullYear()}-${
@@ -40,31 +53,58 @@ export function handleApiBusinessError<T extends SaApiErrorDto>(error: unknown):
   throw error;
 }
 
-export function requestTimeout(timeoutMs: number): AdditionalRequestParameters<RequestMetadata> {
-  return {
-    metadata: {
-      requestTimeoutMs: timeoutMs,
-    },
-  };
+/**
+ * Configuration for {@link #useRequestConfig}.
+ */
+export interface RequestConfigParams {
+  /**
+   * Custom timeout to override the defaults.
+   */
+  timeoutMs?: number;
 }
 
-export interface CancellableRequest {
-  cancellableRequestConfig: RequestInit;
-  cancelRequest: (reason?: unknown) => void;
+/**
+ * Return type of {@link #useRequestConfig}.
+ */
+export interface RequestConfigReturn {
+  /**
+   * To be passed into the API calls.
+   */
+  requestConfig: RequestInit;
+
+  /**
+   * Handle for manual request cancellation.
+   */
+  cancelRequest: () => void;
 }
 
-export function useCancellableRequest(): CancellableRequest {
+/**
+ * Can be replaced with AbortSignal.any once it is widely adopted.
+ */
+function anyAbortSignal(...signals: AbortSignal[]) {
+  const controller = new AbortController();
+  signals.forEach((signal) => {
+    signal.addEventListener('abort', function onAbord() {
+      controller.abort(this.reason);
+    }, { once: true });
+  });
+  return controller.signal;
+}
+
+/**
+ * Allows to customize a {@link RequestInit} for API calls.
+ */
+export function useRequestConfig(params: RequestConfigParams): RequestConfigReturn {
   const abortController = new AbortController();
   return {
-    cancellableRequestConfig: {
-      signal: abortController.signal,
+    requestConfig: {
+      signal: anyAbortSignal(
+        abortController.signal,
+        AbortSignal.timeout(params.timeoutMs || currentGlobalTimeoutMs),
+      ),
     },
-    cancelRequest: (reason?: unknown) => abortController.abort(
-      new ApiRequestCancelledError(reason),
+    cancelRequest: () => abortController.abort(
+      new ApiRequestCancelledError(),
     ),
   };
-}
-
-export function defaultRequestSettings(): RequestInit {
-  return {};
 }
