@@ -3,7 +3,7 @@
 import { action } from '@storybook/addon-actions';
 import { ref } from 'vue';
 import type {
-  AdditionalRequestParameters, ApiPage, ApiPageRequest, HasOptionalId, RequestMetadata,
+  ApiPage, ApiPageRequest, HasOptionalId,
 } from '@/services/api';
 import { delay } from '@/__storybook__/stories-utils';
 import SaEntitySelect from '@/components/entity-select/SaEntitySelect.vue';
@@ -33,9 +33,8 @@ export const Default = defineStory(() => ({
       pageRequest: ApiPageRequest,
       query: string | undefined,
       requestInit: RequestInit,
-      requestConfig: AdditionalRequestParameters<RequestMetadata>,
     ) => {
-      action('search')(pageRequest, query, requestInit, requestConfig);
+      action('search')(pageRequest, query, requestInit);
       const filteredEntities = entities.filter((it) => it.name.toLowerCase()
         .indexOf((query || '').toLowerCase()) >= 0);
       return {

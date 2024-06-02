@@ -104,12 +104,9 @@ export class ApiTimeoutError extends ApiError {
  * Indicates a request was cancelled before it was completed (programmatically).
  */
 export class ApiRequestCancelledError extends ApiError {
-  reason: unknown;
-
-  constructor(reason: unknown) {
+  constructor() {
     super('Request was cancelled before it was completed');
     this.name = 'ApiRequestCancelledError';
-    this.reason = reason;
   }
 }
 

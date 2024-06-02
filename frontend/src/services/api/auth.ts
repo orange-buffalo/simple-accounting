@@ -2,7 +2,6 @@ import { jwtDecode } from 'jwt-decode';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 import type { LoginRequest } from '@/services/api/generated';
 import { authApi } from '@/services/api/api-client';
-import { defaultRequestSettings } from '@/services/api/api-utils';
 
 interface ApiToken {
   jwtToken: string | null,
@@ -90,7 +89,7 @@ export function getAuthorizationHeader(): string | null {
 
 async function login(loginRequest: LoginRequest) {
   cancelTokenRefresh();
-  const response = await authApi.login({ loginRequest }, defaultRequestSettings());
+  const response = await authApi.login({ loginRequest });
   updateApiToken(response.token);
   scheduleTokenRefresh();
 }

@@ -16,9 +16,7 @@ import {
 } from '@/services/api/api-errors';
 import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
 import type { ProfileApiControllerApi } from '@/services/api/generated/apis/ProfileApiControllerApi';
-import type { RequestMetadata } from '@/services/api/api-client';
-import type { CancellableRequest } from '@/services/api/api-utils';
-import type { AdditionalRequestParameters, InitOverrideFunction } from '@/services/api/generated/runtime';
+import type { RequestConfigReturn, RequestConfigParams } from '@/services/api/api-utils';
 
 // eslint-disable-next-line vue/max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
@@ -33,10 +31,8 @@ describe('API Client', () => {
   let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
   let useAuth: () => Auth;
-  let profileApi: ProfileApiControllerApi<RequestMetadata>;
-  let requestTimeout: (timeoutMs: number) => AdditionalRequestParameters<RequestMetadata>;
-  let useCancellableRequest: () => CancellableRequest;
-  let defaultRequestSettings: () => RequestInit;
+  let profileApi: ProfileApiControllerApi;
+  let useRequestConfig: (params: RequestConfigParams) => RequestConfigReturn;
 
   const assertRegularRequestEvents = () => {
     expect(loginRequiredEventMock)
@@ -47,10 +43,7 @@ describe('API Client', () => {
       .toHaveBeenCalledOnce();
   };
 
-  const apiCall = async (
-    initOverrides?: RequestInit | InitOverrideFunction,
-    additionalParameters?: AdditionalRequestParameters<RequestMetadata>,
-  ) => profileApi.getProfile(initOverrides, additionalParameters);
+  const apiCall = async (initOverrides?: RequestInit) => profileApi.getProfile(initOverrides);
   const apiCallPath = '/api/profile';
 
   test('does not set Authorization token when not logged in', async () => {
@@ -278,29 +271,17 @@ describe('API Client', () => {
       delay: 20000,
     });
 
-    const error = await expectToFailWith<ApiTimeoutError>(async () => {
-      await apiCall(defaultRequestSettings(), requestTimeout(200));
-    }, 'ApiTimeoutError');
-    expect(error.message)
-      .toBe('Request timed out (200ms)');
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ApiTimeoutError on timeout when custom abort signal is set', async () => {
-    vi.useRealTimers();
-
-    fetchMock.get(apiCallPath, 200, {
-      delay: 20000,
+    const { requestConfig } = useRequestConfig({
+      timeoutMs: 200,
     });
 
     const error = await expectToFailWith<ApiTimeoutError>(async () => {
-      await apiCall({
-        signal: new AbortController().signal,
-      }, requestTimeout(200));
+      await apiCall(requestConfig);
     }, 'ApiTimeoutError');
     expect(error.message)
-      .toBe('Request timed out (200ms)');
+      .toBe('Request timed out');
+
+    assertRegularRequestEvents();
   });
 
   test('throws with ApiRequestCancelledError when custom cancellation is requested', async () => {
@@ -311,19 +292,17 @@ describe('API Client', () => {
     });
 
     const {
-      cancellableRequestConfig,
+      requestConfig,
       cancelRequest,
-    } = useCancellableRequest();
+    } = useRequestConfig({});
 
-    setTimeout(() => cancelRequest('custom reason'), 500);
+    setTimeout(() => cancelRequest(), 500);
 
     const error = await expectToFailWith<ApiRequestCancelledError>(async () => {
-      await apiCall(cancellableRequestConfig);
+      await apiCall(requestConfig);
     }, 'ApiRequestCancelledError');
     expect(error.message)
       .toBe('Request was cancelled before it was completed');
-    expect(error.reason)
-      .toBe('custom reason');
 
     assertRegularRequestEvents();
   });
@@ -351,9 +330,7 @@ describe('API Client', () => {
     ({
       useAuth,
       profileApi,
-      requestTimeout,
-      useCancellableRequest,
-      defaultRequestSettings,
+      useRequestConfig,
     } = await import('@/services/api'));
   });
 

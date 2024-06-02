@@ -1,4 +1,3 @@
-import type { RequestMetadata } from '@/services/api/api-client';
 import type { InvalidInputErrorDto, Middleware, SaApiErrorDto } from '@/services/api/generated';
 import {
   ApiAuthError,
@@ -12,7 +11,7 @@ import {
 /**
  * Processes responses according to RestApiControllerExceptionsHandler logic.
  */
-export const errorHandlingInterceptor: Middleware<RequestMetadata> = {
+export const errorHandlingInterceptor: Middleware = {
   async post({
     response,
   }): Promise<Response | void> {
@@ -49,12 +48,19 @@ export const errorHandlingInterceptor: Middleware<RequestMetadata> = {
     response,
     init,
   }): Promise<Response | void> {
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      const { reason } = init.signal;
-      if (reason instanceof ApiTimeoutError) {
-        throw reason;
-      } else if (reason instanceof ApiRequestCancelledError) {
-        throw reason;
+    if (error instanceof DOMException) {
+      if (error.name === 'AbortError') {
+        const { reason } = init.signal;
+        if (reason instanceof ApiRequestCancelledError) {
+          // see useRequestConfig for the reason
+          throw reason;
+        } else if (reason instanceof DOMException && reason.name === 'TimeoutError') {
+          // when useRequestConfig is used and timout is reached, it is wrapped into an AbortError
+          throw new ApiTimeoutError('Request timed out');
+        }
+      } else if (error.name === 'TimeoutError') {
+        // thrown by default global timeout
+        throw new ApiTimeoutError('Request timed out');
       }
     }
     throw new ClientApiError(`Request failed with error: ${error}`, error, response);

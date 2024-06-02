@@ -71,7 +71,6 @@
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
   import {
-    defaultRequestSettings,
     UserActivationRequestDto,
     userActivationTokensApi,
     UserActivationTokensApiBadRequestErrors,
@@ -108,7 +107,7 @@
     await executeTokenApiRequest(async () => {
       await userActivationTokensApi.getToken({
         token: props.token,
-      }, defaultRequestSettings());
+      });
       status.value = 'TOKEN_VALIDATED';
     });
   });
@@ -131,7 +130,7 @@
       await userActivationTokensApi.activateUser({
         token: props.token,
         userActivationRequestDto: form.value as UserActivationRequestDto,
-      }, defaultRequestSettings());
+      });
       status.value = 'ACCOUNT_ACTIVATED';
     });
   };
