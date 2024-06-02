@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -78,18 +78,16 @@ export interface IncomeTaxPaymentDto {
 /**
  * Check if a given object implements the IncomeTaxPaymentDto interface.
  */
-export function instanceOfIncomeTaxPaymentDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "id" in value;
-    isInstance = isInstance && "version" in value;
-    isInstance = isInstance && "title" in value;
-    isInstance = isInstance && "timeRecorded" in value;
-    isInstance = isInstance && "datePaid" in value;
-    isInstance = isInstance && "reportingDate" in value;
-    isInstance = isInstance && "amount" in value;
-    isInstance = isInstance && "attachments" in value;
-
-    return isInstance;
+export function instanceOfIncomeTaxPaymentDto(value: object): value is IncomeTaxPaymentDto {
+    if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('title' in value) || value['title'] === undefined) return false;
+    if (!('timeRecorded' in value) || value['timeRecorded'] === undefined) return false;
+    if (!('datePaid' in value) || value['datePaid'] === undefined) return false;
+    if (!('reportingDate' in value) || value['reportingDate'] === undefined) return false;
+    if (!('amount' in value) || value['amount'] === undefined) return false;
+    if (!('attachments' in value) || value['attachments'] === undefined) return false;
+    return true;
 }
 
 export function IncomeTaxPaymentDtoFromJSON(json: any): IncomeTaxPaymentDto {
@@ -97,7 +95,7 @@ export function IncomeTaxPaymentDtoFromJSON(json: any): IncomeTaxPaymentDto {
 }
 
 export function IncomeTaxPaymentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): IncomeTaxPaymentDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -110,28 +108,25 @@ export function IncomeTaxPaymentDtoFromJSONTyped(json: any, ignoreDiscriminator:
         'reportingDate': (new Date(json['reportingDate'])),
         'amount': json['amount'],
         'attachments': json['attachments'],
-        'notes': !exists(json, 'notes') ? undefined : json['notes'],
+        'notes': json['notes'] == null ? undefined : json['notes'],
     };
 }
 
 export function IncomeTaxPaymentDtoToJSON(value?: IncomeTaxPaymentDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'id': value.id,
-        'version': value.version,
-        'title': value.title,
-        'timeRecorded': (value.timeRecorded.toISOString()),
-        'datePaid': (new Date(value.datePaid.getTime() - value.datePaid.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'reportingDate': (new Date(value.reportingDate.getTime() - value.reportingDate.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'amount': value.amount,
-        'attachments': value.attachments,
-        'notes': value.notes,
+        'id': value['id'],
+        'version': value['version'],
+        'title': value['title'],
+        'timeRecorded': ((value['timeRecorded']).toISOString()),
+        'datePaid': ((value['datePaid']).toISOString().substring(0,10)),
+        'reportingDate': ((value['reportingDate']).toISOString().substring(0,10)),
+        'amount': value['amount'],
+        'attachments': value['attachments'],
+        'notes': value['notes'],
     };
 }
 

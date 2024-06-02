@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,12 +36,10 @@ export interface CreateWorkspaceDto {
 /**
  * Check if a given object implements the CreateWorkspaceDto interface.
  */
-export function instanceOfCreateWorkspaceDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "defaultCurrency" in value;
-
-    return isInstance;
+export function instanceOfCreateWorkspaceDto(value: object): value is CreateWorkspaceDto {
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('defaultCurrency' in value) || value['defaultCurrency'] === undefined) return false;
+    return true;
 }
 
 export function CreateWorkspaceDtoFromJSON(json: any): CreateWorkspaceDto {
@@ -49,7 +47,7 @@ export function CreateWorkspaceDtoFromJSON(json: any): CreateWorkspaceDto {
 }
 
 export function CreateWorkspaceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateWorkspaceDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -60,16 +58,13 @@ export function CreateWorkspaceDtoFromJSONTyped(json: any, ignoreDiscriminator: 
 }
 
 export function CreateWorkspaceDtoToJSON(value?: CreateWorkspaceDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'name': value.name,
-        'defaultCurrency': value.defaultCurrency,
+        'name': value['name'],
+        'defaultCurrency': value['defaultCurrency'],
     };
 }
 

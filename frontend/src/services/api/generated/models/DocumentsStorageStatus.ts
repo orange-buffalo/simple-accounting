@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface DocumentsStorageStatus {
 /**
  * Check if a given object implements the DocumentsStorageStatus interface.
  */
-export function instanceOfDocumentsStorageStatus(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "active" in value;
-
-    return isInstance;
+export function instanceOfDocumentsStorageStatus(value: object): value is DocumentsStorageStatus {
+    if (!('active' in value) || value['active'] === undefined) return false;
+    return true;
 }
 
 export function DocumentsStorageStatusFromJSON(json: any): DocumentsStorageStatus {
@@ -42,7 +40,7 @@ export function DocumentsStorageStatusFromJSON(json: any): DocumentsStorageStatu
 }
 
 export function DocumentsStorageStatusFromJSONTyped(json: any, ignoreDiscriminator: boolean): DocumentsStorageStatus {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -52,15 +50,12 @@ export function DocumentsStorageStatusFromJSONTyped(json: any, ignoreDiscriminat
 }
 
 export function DocumentsStorageStatusToJSON(value?: DocumentsStorageStatus | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'active': value.active,
+        'active': value['active'],
     };
 }
 

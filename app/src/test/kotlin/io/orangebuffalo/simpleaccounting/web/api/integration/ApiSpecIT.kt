@@ -162,6 +162,6 @@ class ApiSpecIT(
     private fun shouldOverrideCommittedFiles(): Boolean = System.getenv("OVERRIDE_COMMITTED_FILES") != null
 
     private class OpenApiGenerator
-        : GenericContainer<OpenApiGenerator>("orangebuffalo/openapigenerator:latest")
+        : GenericContainer<OpenApiGenerator>("openapitools/openapi-generator-cli:v7.6.0")
 
 }

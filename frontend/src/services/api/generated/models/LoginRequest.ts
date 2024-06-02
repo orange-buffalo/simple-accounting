@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -42,13 +42,11 @@ export interface LoginRequest {
 /**
  * Check if a given object implements the LoginRequest interface.
  */
-export function instanceOfLoginRequest(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "userName" in value;
-    isInstance = isInstance && "password" in value;
-    isInstance = isInstance && "rememberMe" in value;
-
-    return isInstance;
+export function instanceOfLoginRequest(value: object): value is LoginRequest {
+    if (!('userName' in value) || value['userName'] === undefined) return false;
+    if (!('password' in value) || value['password'] === undefined) return false;
+    if (!('rememberMe' in value) || value['rememberMe'] === undefined) return false;
+    return true;
 }
 
 export function LoginRequestFromJSON(json: any): LoginRequest {
@@ -56,7 +54,7 @@ export function LoginRequestFromJSON(json: any): LoginRequest {
 }
 
 export function LoginRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): LoginRequest {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -68,17 +66,14 @@ export function LoginRequestFromJSONTyped(json: any, ignoreDiscriminator: boolea
 }
 
 export function LoginRequestToJSON(value?: LoginRequest | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'userName': value.userName,
-        'password': value.password,
-        'rememberMe': value.rememberMe,
+        'userName': value['userName'],
+        'password': value['password'],
+        'rememberMe': value['rememberMe'],
     };
 }
 

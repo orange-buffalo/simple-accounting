@@ -18,7 +18,7 @@ import type {
   ApiPageExpenseDto,
   EditExpenseDto,
   ExpenseDto,
-} from '../models';
+} from '../models/index';
 import {
     ApiPageExpenseDtoFromJSON,
     ApiPageExpenseDtoToJSON,
@@ -26,8 +26,7 @@ import {
     EditExpenseDtoToJSON,
     ExpenseDtoFromJSON,
     ExpenseDtoToJSON,
-} from '../models';
-import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
+} from '../models/index';
 
 export interface CreateExpenseRequest {
     workspaceId: number;
@@ -57,17 +56,23 @@ export interface UpdateExpenseRequest {
 /**
  * 
  */
-export class ExpensesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
+export class ExpensesApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async createExpenseRaw(requestParameters: CreateExpenseRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ExpenseDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createExpense.');
+    async createExpenseRaw(requestParameters: CreateExpenseRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ExpenseDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling createExpense().'
+            );
         }
 
-        if (requestParameters.editExpenseDto === null || requestParameters.editExpenseDto === undefined) {
-            throw new runtime.RequiredError('editExpenseDto','Required parameter requestParameters.editExpenseDto was null or undefined when calling createExpense.');
+        if (requestParameters['editExpenseDto'] == null) {
+            throw new runtime.RequiredError(
+                'editExpenseDto',
+                'Required parameter "editExpenseDto" was null or undefined when calling createExpense().'
+            );
         }
 
         const queryParameters: any = {};
@@ -77,32 +82,38 @@ export class ExpensesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/expenses`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))),
+            path: `/api/workspaces/{workspaceId}/expenses`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: EditExpenseDtoToJSON(requestParameters.editExpenseDto),
-        }, initOverrides, additionalParameters);
+            body: EditExpenseDtoToJSON(requestParameters['editExpenseDto']),
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ExpenseDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createExpense(requestParameters: CreateExpenseRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ExpenseDto> {
-        const response = await this.createExpenseRaw(requestParameters, initOverrides, additionalParameters);
+    async createExpense(requestParameters: CreateExpenseRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ExpenseDto> {
+        const response = await this.createExpenseRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getExpenseRaw(requestParameters: GetExpenseRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ExpenseDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getExpense.');
+    async getExpenseRaw(requestParameters: GetExpenseRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ExpenseDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getExpense().'
+            );
         }
 
-        if (requestParameters.expenseId === null || requestParameters.expenseId === undefined) {
-            throw new runtime.RequiredError('expenseId','Required parameter requestParameters.expenseId was null or undefined when calling getExpense.');
+        if (requestParameters['expenseId'] == null) {
+            throw new runtime.RequiredError(
+                'expenseId',
+                'Required parameter "expenseId" was null or undefined when calling getExpense().'
+            );
         }
 
         const queryParameters: any = {};
@@ -110,83 +121,95 @@ export class ExpensesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/expenses/{expenseId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))).replace(`{${"expenseId"}}`, encodeURIComponent(String(requestParameters.expenseId))),
+            path: `/api/workspaces/{workspaceId}/expenses/{expenseId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"expenseId"}}`, encodeURIComponent(String(requestParameters['expenseId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ExpenseDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getExpense(requestParameters: GetExpenseRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ExpenseDto> {
-        const response = await this.getExpenseRaw(requestParameters, initOverrides, additionalParameters);
+    async getExpense(requestParameters: GetExpenseRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ExpenseDto> {
+        const response = await this.getExpenseRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getExpensesRaw(requestParameters: GetExpensesRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPageExpenseDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getExpenses.');
+    async getExpensesRaw(requestParameters: GetExpensesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ApiPageExpenseDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getExpenses().'
+            );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters.sortBy !== undefined) {
-            queryParameters['sortBy'] = requestParameters.sortBy;
+        if (requestParameters['sortBy'] != null) {
+            queryParameters['sortBy'] = requestParameters['sortBy'];
         }
 
-        if (requestParameters.freeSearchTextEq !== undefined) {
-            queryParameters['freeSearchText[eq]'] = requestParameters.freeSearchTextEq;
+        if (requestParameters['freeSearchTextEq'] != null) {
+            queryParameters['freeSearchText[eq]'] = requestParameters['freeSearchTextEq'];
         }
 
-        if (requestParameters.pageNumber !== undefined) {
-            queryParameters['pageNumber'] = requestParameters.pageNumber;
+        if (requestParameters['pageNumber'] != null) {
+            queryParameters['pageNumber'] = requestParameters['pageNumber'];
         }
 
-        if (requestParameters.pageSize !== undefined) {
-            queryParameters['pageSize'] = requestParameters.pageSize;
+        if (requestParameters['pageSize'] != null) {
+            queryParameters['pageSize'] = requestParameters['pageSize'];
         }
 
-        if (requestParameters.sortOrder !== undefined) {
-            queryParameters['sortOrder'] = requestParameters.sortOrder;
+        if (requestParameters['sortOrder'] != null) {
+            queryParameters['sortOrder'] = requestParameters['sortOrder'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/expenses`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))),
+            path: `/api/workspaces/{workspaceId}/expenses`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageExpenseDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getExpenses(requestParameters: GetExpensesRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPageExpenseDto> {
-        const response = await this.getExpensesRaw(requestParameters, initOverrides, additionalParameters);
+    async getExpenses(requestParameters: GetExpensesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiPageExpenseDto> {
+        const response = await this.getExpensesRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async updateExpenseRaw(requestParameters: UpdateExpenseRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ExpenseDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling updateExpense.');
+    async updateExpenseRaw(requestParameters: UpdateExpenseRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ExpenseDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling updateExpense().'
+            );
         }
 
-        if (requestParameters.expenseId === null || requestParameters.expenseId === undefined) {
-            throw new runtime.RequiredError('expenseId','Required parameter requestParameters.expenseId was null or undefined when calling updateExpense.');
+        if (requestParameters['expenseId'] == null) {
+            throw new runtime.RequiredError(
+                'expenseId',
+                'Required parameter "expenseId" was null or undefined when calling updateExpense().'
+            );
         }
 
-        if (requestParameters.editExpenseDto === null || requestParameters.editExpenseDto === undefined) {
-            throw new runtime.RequiredError('editExpenseDto','Required parameter requestParameters.editExpenseDto was null or undefined when calling updateExpense.');
+        if (requestParameters['editExpenseDto'] == null) {
+            throw new runtime.RequiredError(
+                'editExpenseDto',
+                'Required parameter "editExpenseDto" was null or undefined when calling updateExpense().'
+            );
         }
 
         const queryParameters: any = {};
@@ -196,20 +219,20 @@ export class ExpensesApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/expenses/{expenseId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))).replace(`{${"expenseId"}}`, encodeURIComponent(String(requestParameters.expenseId))),
+            path: `/api/workspaces/{workspaceId}/expenses/{expenseId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"expenseId"}}`, encodeURIComponent(String(requestParameters['expenseId']))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: EditExpenseDtoToJSON(requestParameters.editExpenseDto),
-        }, initOverrides, additionalParameters);
+            body: EditExpenseDtoToJSON(requestParameters['editExpenseDto']),
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ExpenseDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async updateExpense(requestParameters: UpdateExpenseRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ExpenseDto> {
-        const response = await this.updateExpenseRaw(requestParameters, initOverrides, additionalParameters);
+    async updateExpense(requestParameters: UpdateExpenseRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ExpenseDto> {
+        const response = await this.updateExpenseRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

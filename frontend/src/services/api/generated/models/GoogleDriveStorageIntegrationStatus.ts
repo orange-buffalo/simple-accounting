@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -48,11 +48,9 @@ export interface GoogleDriveStorageIntegrationStatus {
 /**
  * Check if a given object implements the GoogleDriveStorageIntegrationStatus interface.
  */
-export function instanceOfGoogleDriveStorageIntegrationStatus(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "authorizationRequired" in value;
-
-    return isInstance;
+export function instanceOfGoogleDriveStorageIntegrationStatus(value: object): value is GoogleDriveStorageIntegrationStatus {
+    if (!('authorizationRequired' in value) || value['authorizationRequired'] === undefined) return false;
+    return true;
 }
 
 export function GoogleDriveStorageIntegrationStatusFromJSON(json: any): GoogleDriveStorageIntegrationStatus {
@@ -60,31 +58,28 @@ export function GoogleDriveStorageIntegrationStatusFromJSON(json: any): GoogleDr
 }
 
 export function GoogleDriveStorageIntegrationStatusFromJSONTyped(json: any, ignoreDiscriminator: boolean): GoogleDriveStorageIntegrationStatus {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'folderId': !exists(json, 'folderId') ? undefined : json['folderId'],
-        'folderName': !exists(json, 'folderName') ? undefined : json['folderName'],
-        'authorizationUrl': !exists(json, 'authorizationUrl') ? undefined : json['authorizationUrl'],
+        'folderId': json['folderId'] == null ? undefined : json['folderId'],
+        'folderName': json['folderName'] == null ? undefined : json['folderName'],
+        'authorizationUrl': json['authorizationUrl'] == null ? undefined : json['authorizationUrl'],
         'authorizationRequired': json['authorizationRequired'],
     };
 }
 
 export function GoogleDriveStorageIntegrationStatusToJSON(value?: GoogleDriveStorageIntegrationStatus | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'folderId': value.folderId,
-        'folderName': value.folderName,
-        'authorizationUrl': value.authorizationUrl,
-        'authorizationRequired': value.authorizationRequired,
+        'folderId': value['folderId'],
+        'folderName': value['folderName'],
+        'authorizationUrl': value['authorizationUrl'],
+        'authorizationRequired': value['authorizationRequired'],
     };
 }
 

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface GetDownloadTokenResponse {
 /**
  * Check if a given object implements the GetDownloadTokenResponse interface.
  */
-export function instanceOfGetDownloadTokenResponse(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "token" in value;
-
-    return isInstance;
+export function instanceOfGetDownloadTokenResponse(value: object): value is GetDownloadTokenResponse {
+    if (!('token' in value) || value['token'] === undefined) return false;
+    return true;
 }
 
 export function GetDownloadTokenResponseFromJSON(json: any): GetDownloadTokenResponse {
@@ -42,7 +40,7 @@ export function GetDownloadTokenResponseFromJSON(json: any): GetDownloadTokenRes
 }
 
 export function GetDownloadTokenResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetDownloadTokenResponse {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -52,15 +50,12 @@ export function GetDownloadTokenResponseFromJSONTyped(json: any, ignoreDiscrimin
 }
 
 export function GetDownloadTokenResponseToJSON(value?: GetDownloadTokenResponse | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'token': value.token,
+        'token': value['token'],
     };
 }
 

@@ -18,7 +18,7 @@ import type {
   ApiPageIncomeTaxPaymentDto,
   EditIncomeTaxPaymentDto,
   IncomeTaxPaymentDto,
-} from '../models';
+} from '../models/index';
 import {
     ApiPageIncomeTaxPaymentDtoFromJSON,
     ApiPageIncomeTaxPaymentDtoToJSON,
@@ -26,8 +26,7 @@ import {
     EditIncomeTaxPaymentDtoToJSON,
     IncomeTaxPaymentDtoFromJSON,
     IncomeTaxPaymentDtoToJSON,
-} from '../models';
-import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
+} from '../models/index';
 
 export interface CreateTaxPaymentRequest {
     workspaceId: number;
@@ -52,17 +51,23 @@ export interface UpdateTaxPaymentRequest {
 /**
  * 
  */
-export class IncomeTaxPaymentsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
+export class IncomeTaxPaymentsApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async createTaxPaymentRaw(requestParameters: CreateTaxPaymentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<IncomeTaxPaymentDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling createTaxPayment.');
+    async createTaxPaymentRaw(requestParameters: CreateTaxPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<IncomeTaxPaymentDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling createTaxPayment().'
+            );
         }
 
-        if (requestParameters.editIncomeTaxPaymentDto === null || requestParameters.editIncomeTaxPaymentDto === undefined) {
-            throw new runtime.RequiredError('editIncomeTaxPaymentDto','Required parameter requestParameters.editIncomeTaxPaymentDto was null or undefined when calling createTaxPayment.');
+        if (requestParameters['editIncomeTaxPaymentDto'] == null) {
+            throw new runtime.RequiredError(
+                'editIncomeTaxPaymentDto',
+                'Required parameter "editIncomeTaxPaymentDto" was null or undefined when calling createTaxPayment().'
+            );
         }
 
         const queryParameters: any = {};
@@ -72,32 +77,38 @@ export class IncomeTaxPaymentsApiControllerApi<RM = void> extends runtime.BaseAP
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/income-tax-payments`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))),
+            path: `/api/workspaces/{workspaceId}/income-tax-payments`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: EditIncomeTaxPaymentDtoToJSON(requestParameters.editIncomeTaxPaymentDto),
-        }, initOverrides, additionalParameters);
+            body: EditIncomeTaxPaymentDtoToJSON(requestParameters['editIncomeTaxPaymentDto']),
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomeTaxPaymentDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async createTaxPayment(requestParameters: CreateTaxPaymentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<IncomeTaxPaymentDto> {
-        const response = await this.createTaxPaymentRaw(requestParameters, initOverrides, additionalParameters);
+    async createTaxPayment(requestParameters: CreateTaxPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IncomeTaxPaymentDto> {
+        const response = await this.createTaxPaymentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getTaxPaymentRaw(requestParameters: GetTaxPaymentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<IncomeTaxPaymentDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getTaxPayment.');
+    async getTaxPaymentRaw(requestParameters: GetTaxPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<IncomeTaxPaymentDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getTaxPayment().'
+            );
         }
 
-        if (requestParameters.taxPaymentId === null || requestParameters.taxPaymentId === undefined) {
-            throw new runtime.RequiredError('taxPaymentId','Required parameter requestParameters.taxPaymentId was null or undefined when calling getTaxPayment.');
+        if (requestParameters['taxPaymentId'] == null) {
+            throw new runtime.RequiredError(
+                'taxPaymentId',
+                'Required parameter "taxPaymentId" was null or undefined when calling getTaxPayment().'
+            );
         }
 
         const queryParameters: any = {};
@@ -105,27 +116,30 @@ export class IncomeTaxPaymentsApiControllerApi<RM = void> extends runtime.BaseAP
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))).replace(`{${"taxPaymentId"}}`, encodeURIComponent(String(requestParameters.taxPaymentId))),
+            path: `/api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"taxPaymentId"}}`, encodeURIComponent(String(requestParameters['taxPaymentId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomeTaxPaymentDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getTaxPayment(requestParameters: GetTaxPaymentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<IncomeTaxPaymentDto> {
-        const response = await this.getTaxPaymentRaw(requestParameters, initOverrides, additionalParameters);
+    async getTaxPayment(requestParameters: GetTaxPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IncomeTaxPaymentDto> {
+        const response = await this.getTaxPaymentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async getTaxPaymentsRaw(requestParameters: GetTaxPaymentsRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<ApiPageIncomeTaxPaymentDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling getTaxPayments.');
+    async getTaxPaymentsRaw(requestParameters: GetTaxPaymentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ApiPageIncomeTaxPaymentDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling getTaxPayments().'
+            );
         }
 
         const queryParameters: any = {};
@@ -133,35 +147,44 @@ export class IncomeTaxPaymentsApiControllerApi<RM = void> extends runtime.BaseAP
         const headerParameters: runtime.HTTPHeaders = {};
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/income-tax-payments`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))),
+            path: `/api/workspaces/{workspaceId}/income-tax-payments`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => ApiPageIncomeTaxPaymentDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async getTaxPayments(requestParameters: GetTaxPaymentsRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<ApiPageIncomeTaxPaymentDto> {
-        const response = await this.getTaxPaymentsRaw(requestParameters, initOverrides, additionalParameters);
+    async getTaxPayments(requestParameters: GetTaxPaymentsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiPageIncomeTaxPaymentDto> {
+        const response = await this.getTaxPaymentsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async updateTaxPaymentRaw(requestParameters: UpdateTaxPaymentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<IncomeTaxPaymentDto>> {
-        if (requestParameters.workspaceId === null || requestParameters.workspaceId === undefined) {
-            throw new runtime.RequiredError('workspaceId','Required parameter requestParameters.workspaceId was null or undefined when calling updateTaxPayment.');
+    async updateTaxPaymentRaw(requestParameters: UpdateTaxPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<IncomeTaxPaymentDto>> {
+        if (requestParameters['workspaceId'] == null) {
+            throw new runtime.RequiredError(
+                'workspaceId',
+                'Required parameter "workspaceId" was null or undefined when calling updateTaxPayment().'
+            );
         }
 
-        if (requestParameters.taxPaymentId === null || requestParameters.taxPaymentId === undefined) {
-            throw new runtime.RequiredError('taxPaymentId','Required parameter requestParameters.taxPaymentId was null or undefined when calling updateTaxPayment.');
+        if (requestParameters['taxPaymentId'] == null) {
+            throw new runtime.RequiredError(
+                'taxPaymentId',
+                'Required parameter "taxPaymentId" was null or undefined when calling updateTaxPayment().'
+            );
         }
 
-        if (requestParameters.editIncomeTaxPaymentDto === null || requestParameters.editIncomeTaxPaymentDto === undefined) {
-            throw new runtime.RequiredError('editIncomeTaxPaymentDto','Required parameter requestParameters.editIncomeTaxPaymentDto was null or undefined when calling updateTaxPayment.');
+        if (requestParameters['editIncomeTaxPaymentDto'] == null) {
+            throw new runtime.RequiredError(
+                'editIncomeTaxPaymentDto',
+                'Required parameter "editIncomeTaxPaymentDto" was null or undefined when calling updateTaxPayment().'
+            );
         }
 
         const queryParameters: any = {};
@@ -171,20 +194,20 @@ export class IncomeTaxPaymentsApiControllerApi<RM = void> extends runtime.BaseAP
         headerParameters['Content-Type'] = 'application/json';
 
         const response = await this.request({
-            path: `/api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters.workspaceId))).replace(`{${"taxPaymentId"}}`, encodeURIComponent(String(requestParameters.taxPaymentId))),
+            path: `/api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}`.replace(`{${"workspaceId"}}`, encodeURIComponent(String(requestParameters['workspaceId']))).replace(`{${"taxPaymentId"}}`, encodeURIComponent(String(requestParameters['taxPaymentId']))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: EditIncomeTaxPaymentDtoToJSON(requestParameters.editIncomeTaxPaymentDto),
-        }, initOverrides, additionalParameters);
+            body: EditIncomeTaxPaymentDtoToJSON(requestParameters['editIncomeTaxPaymentDto']),
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => IncomeTaxPaymentDtoFromJSON(jsonValue));
     }
 
     /**
      */
-    async updateTaxPayment(requestParameters: UpdateTaxPaymentRequest, initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<IncomeTaxPaymentDto> {
-        const response = await this.updateTaxPaymentRaw(requestParameters, initOverrides, additionalParameters);
+    async updateTaxPayment(requestParameters: UpdateTaxPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<IncomeTaxPaymentDto> {
+        const response = await this.updateTaxPaymentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

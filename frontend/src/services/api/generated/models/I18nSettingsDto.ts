@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,12 +36,10 @@ export interface I18nSettingsDto {
 /**
  * Check if a given object implements the I18nSettingsDto interface.
  */
-export function instanceOfI18nSettingsDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "locale" in value;
-    isInstance = isInstance && "language" in value;
-
-    return isInstance;
+export function instanceOfI18nSettingsDto(value: object): value is I18nSettingsDto {
+    if (!('locale' in value) || value['locale'] === undefined) return false;
+    if (!('language' in value) || value['language'] === undefined) return false;
+    return true;
 }
 
 export function I18nSettingsDtoFromJSON(json: any): I18nSettingsDto {
@@ -49,7 +47,7 @@ export function I18nSettingsDtoFromJSON(json: any): I18nSettingsDto {
 }
 
 export function I18nSettingsDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): I18nSettingsDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -60,16 +58,13 @@ export function I18nSettingsDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
 }
 
 export function I18nSettingsDtoToJSON(value?: I18nSettingsDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'locale': value.locale,
-        'language': value.language,
+        'locale': value['locale'],
+        'language': value['language'],
     };
 }
 

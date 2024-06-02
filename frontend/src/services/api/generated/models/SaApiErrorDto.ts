@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,11 +36,9 @@ export interface SaApiErrorDto {
 /**
  * Check if a given object implements the SaApiErrorDto interface.
  */
-export function instanceOfSaApiErrorDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "error" in value;
-
-    return isInstance;
+export function instanceOfSaApiErrorDto(value: object): value is SaApiErrorDto {
+    if (!('error' in value) || value['error'] === undefined) return false;
+    return true;
 }
 
 export function SaApiErrorDtoFromJSON(json: any): SaApiErrorDto {
@@ -48,27 +46,24 @@ export function SaApiErrorDtoFromJSON(json: any): SaApiErrorDto {
 }
 
 export function SaApiErrorDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): SaApiErrorDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'error': json['error'],
-        'message': !exists(json, 'message') ? undefined : json['message'],
+        'message': json['message'] == null ? undefined : json['message'],
     };
 }
 
 export function SaApiErrorDtoToJSON(value?: SaApiErrorDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'error': value.error,
-        'message': value.message,
+        'error': value['error'],
+        'message': value['message'],
     };
 }
 

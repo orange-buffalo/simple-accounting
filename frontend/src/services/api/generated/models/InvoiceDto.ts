@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -128,21 +128,19 @@ export type InvoiceDtoStatusEnum = typeof InvoiceDtoStatusEnum[keyof typeof Invo
 /**
  * Check if a given object implements the InvoiceDto interface.
  */
-export function instanceOfInvoiceDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "title" in value;
-    isInstance = isInstance && "customer" in value;
-    isInstance = isInstance && "timeRecorded" in value;
-    isInstance = isInstance && "dateIssued" in value;
-    isInstance = isInstance && "dueDate" in value;
-    isInstance = isInstance && "currency" in value;
-    isInstance = isInstance && "amount" in value;
-    isInstance = isInstance && "attachments" in value;
-    isInstance = isInstance && "id" in value;
-    isInstance = isInstance && "version" in value;
-    isInstance = isInstance && "status" in value;
-
-    return isInstance;
+export function instanceOfInvoiceDto(value: object): value is InvoiceDto {
+    if (!('title' in value) || value['title'] === undefined) return false;
+    if (!('customer' in value) || value['customer'] === undefined) return false;
+    if (!('timeRecorded' in value) || value['timeRecorded'] === undefined) return false;
+    if (!('dateIssued' in value) || value['dateIssued'] === undefined) return false;
+    if (!('dueDate' in value) || value['dueDate'] === undefined) return false;
+    if (!('currency' in value) || value['currency'] === undefined) return false;
+    if (!('amount' in value) || value['amount'] === undefined) return false;
+    if (!('attachments' in value) || value['attachments'] === undefined) return false;
+    if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
+    return true;
 }
 
 export function InvoiceDtoFromJSON(json: any): InvoiceDto {
@@ -150,7 +148,7 @@ export function InvoiceDtoFromJSON(json: any): InvoiceDto {
 }
 
 export function InvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): InvoiceDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -159,44 +157,41 @@ export function InvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         'customer': json['customer'],
         'timeRecorded': (new Date(json['timeRecorded'])),
         'dateIssued': (new Date(json['dateIssued'])),
-        'dateSent': !exists(json, 'dateSent') ? undefined : (new Date(json['dateSent'])),
-        'datePaid': !exists(json, 'datePaid') ? undefined : (new Date(json['datePaid'])),
+        'dateSent': json['dateSent'] == null ? undefined : (new Date(json['dateSent'])),
+        'datePaid': json['datePaid'] == null ? undefined : (new Date(json['datePaid'])),
         'dueDate': (new Date(json['dueDate'])),
         'currency': json['currency'],
         'amount': json['amount'],
         'attachments': json['attachments'],
-        'notes': !exists(json, 'notes') ? undefined : json['notes'],
+        'notes': json['notes'] == null ? undefined : json['notes'],
         'id': json['id'],
         'version': json['version'],
         'status': json['status'],
-        'generalTax': !exists(json, 'generalTax') ? undefined : json['generalTax'],
+        'generalTax': json['generalTax'] == null ? undefined : json['generalTax'],
     };
 }
 
 export function InvoiceDtoToJSON(value?: InvoiceDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'title': value.title,
-        'customer': value.customer,
-        'timeRecorded': (value.timeRecorded.toISOString()),
-        'dateIssued': (new Date(value.dateIssued.getTime() - value.dateIssued.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'dateSent': value.dateSent === undefined ? undefined : (new Date(value.dateSent.getTime() - value.dateSent.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'datePaid': value.datePaid === undefined ? undefined : (new Date(value.datePaid.getTime() - value.datePaid.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'dueDate': (new Date(value.dueDate.getTime() - value.dueDate.getTimezoneOffset()*60*1000).toISOString().substr(0,10)),
-        'currency': value.currency,
-        'amount': value.amount,
-        'attachments': value.attachments,
-        'notes': value.notes,
-        'id': value.id,
-        'version': value.version,
-        'status': value.status,
-        'generalTax': value.generalTax,
+        'title': value['title'],
+        'customer': value['customer'],
+        'timeRecorded': ((value['timeRecorded']).toISOString()),
+        'dateIssued': ((value['dateIssued']).toISOString().substring(0,10)),
+        'dateSent': value['dateSent'] == null ? undefined : ((value['dateSent']).toISOString().substring(0,10)),
+        'datePaid': value['datePaid'] == null ? undefined : ((value['datePaid']).toISOString().substring(0,10)),
+        'dueDate': ((value['dueDate']).toISOString().substring(0,10)),
+        'currency': value['currency'],
+        'amount': value['amount'],
+        'attachments': value['attachments'],
+        'notes': value['notes'],
+        'id': value['id'],
+        'version': value['version'],
+        'status': value['status'],
+        'generalTax': value['generalTax'],
     };
 }
 

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface EditCustomerDto {
 /**
  * Check if a given object implements the EditCustomerDto interface.
  */
-export function instanceOfEditCustomerDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "name" in value;
-
-    return isInstance;
+export function instanceOfEditCustomerDto(value: object): value is EditCustomerDto {
+    if (!('name' in value) || value['name'] === undefined) return false;
+    return true;
 }
 
 export function EditCustomerDtoFromJSON(json: any): EditCustomerDto {
@@ -42,7 +40,7 @@ export function EditCustomerDtoFromJSON(json: any): EditCustomerDto {
 }
 
 export function EditCustomerDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): EditCustomerDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -52,15 +50,12 @@ export function EditCustomerDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
 }
 
 export function EditCustomerDtoToJSON(value?: EditCustomerDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'name': value.name,
+        'name': value['name'],
     };
 }
 

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -54,14 +54,12 @@ export interface PlatformUserDto {
 /**
  * Check if a given object implements the PlatformUserDto interface.
  */
-export function instanceOfPlatformUserDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "userName" in value;
-    isInstance = isInstance && "version" in value;
-    isInstance = isInstance && "admin" in value;
-    isInstance = isInstance && "activated" in value;
-
-    return isInstance;
+export function instanceOfPlatformUserDto(value: object): value is PlatformUserDto {
+    if (!('userName' in value) || value['userName'] === undefined) return false;
+    if (!('version' in value) || value['version'] === undefined) return false;
+    if (!('admin' in value) || value['admin'] === undefined) return false;
+    if (!('activated' in value) || value['activated'] === undefined) return false;
+    return true;
 }
 
 export function PlatformUserDtoFromJSON(json: any): PlatformUserDto {
@@ -69,13 +67,13 @@ export function PlatformUserDtoFromJSON(json: any): PlatformUserDto {
 }
 
 export function PlatformUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): PlatformUserDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'userName': json['userName'],
-        'id': !exists(json, 'id') ? undefined : json['id'],
+        'id': json['id'] == null ? undefined : json['id'],
         'version': json['version'],
         'admin': json['admin'],
         'activated': json['activated'],
@@ -83,19 +81,16 @@ export function PlatformUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
 }
 
 export function PlatformUserDtoToJSON(value?: PlatformUserDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'userName': value.userName,
-        'id': value.id,
-        'version': value.version,
-        'admin': value.admin,
-        'activated': value.activated,
+        'userName': value['userName'],
+        'id': value['id'],
+        'version': value['version'],
+        'admin': value['admin'],
+        'activated': value['activated'],
     };
 }
 

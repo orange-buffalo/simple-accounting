@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { ExpenseDto } from './ExpenseDto';
 import {
     ExpenseDtoFromJSON,
@@ -55,14 +55,12 @@ export interface ApiPageExpenseDto {
 /**
  * Check if a given object implements the ApiPageExpenseDto interface.
  */
-export function instanceOfApiPageExpenseDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "pageNumber" in value;
-    isInstance = isInstance && "pageSize" in value;
-    isInstance = isInstance && "totalElements" in value;
-    isInstance = isInstance && "data" in value;
-
-    return isInstance;
+export function instanceOfApiPageExpenseDto(value: object): value is ApiPageExpenseDto {
+    if (!('pageNumber' in value) || value['pageNumber'] === undefined) return false;
+    if (!('pageSize' in value) || value['pageSize'] === undefined) return false;
+    if (!('totalElements' in value) || value['totalElements'] === undefined) return false;
+    if (!('data' in value) || value['data'] === undefined) return false;
+    return true;
 }
 
 export function ApiPageExpenseDtoFromJSON(json: any): ApiPageExpenseDto {
@@ -70,7 +68,7 @@ export function ApiPageExpenseDtoFromJSON(json: any): ApiPageExpenseDto {
 }
 
 export function ApiPageExpenseDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApiPageExpenseDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -83,18 +81,15 @@ export function ApiPageExpenseDtoFromJSONTyped(json: any, ignoreDiscriminator: b
 }
 
 export function ApiPageExpenseDtoToJSON(value?: ApiPageExpenseDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'pageNumber': value.pageNumber,
-        'pageSize': value.pageSize,
-        'totalElements': value.totalElements,
-        'data': ((value.data as Array<any>).map(ExpenseDtoToJSON)),
+        'pageNumber': value['pageNumber'],
+        'pageSize': value['pageSize'],
+        'totalElements': value['totalElements'],
+        'data': ((value['data'] as Array<any>).map(ExpenseDtoToJSON)),
     };
 }
 

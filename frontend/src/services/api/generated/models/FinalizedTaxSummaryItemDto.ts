@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -48,14 +48,12 @@ export interface FinalizedTaxSummaryItemDto {
 /**
  * Check if a given object implements the FinalizedTaxSummaryItemDto interface.
  */
-export function instanceOfFinalizedTaxSummaryItemDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "tax" in value;
-    isInstance = isInstance && "taxAmount" in value;
-    isInstance = isInstance && "includedItemsNumber" in value;
-    isInstance = isInstance && "includedItemsAmount" in value;
-
-    return isInstance;
+export function instanceOfFinalizedTaxSummaryItemDto(value: object): value is FinalizedTaxSummaryItemDto {
+    if (!('tax' in value) || value['tax'] === undefined) return false;
+    if (!('taxAmount' in value) || value['taxAmount'] === undefined) return false;
+    if (!('includedItemsNumber' in value) || value['includedItemsNumber'] === undefined) return false;
+    if (!('includedItemsAmount' in value) || value['includedItemsAmount'] === undefined) return false;
+    return true;
 }
 
 export function FinalizedTaxSummaryItemDtoFromJSON(json: any): FinalizedTaxSummaryItemDto {
@@ -63,7 +61,7 @@ export function FinalizedTaxSummaryItemDtoFromJSON(json: any): FinalizedTaxSumma
 }
 
 export function FinalizedTaxSummaryItemDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): FinalizedTaxSummaryItemDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -76,18 +74,15 @@ export function FinalizedTaxSummaryItemDtoFromJSONTyped(json: any, ignoreDiscrim
 }
 
 export function FinalizedTaxSummaryItemDtoToJSON(value?: FinalizedTaxSummaryItemDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'tax': value.tax,
-        'taxAmount': value.taxAmount,
-        'includedItemsNumber': value.includedItemsNumber,
-        'includedItemsAmount': value.includedItemsAmount,
+        'tax': value['tax'],
+        'taxAmount': value['taxAmount'],
+        'includedItemsNumber': value['includedItemsNumber'],
+        'includedItemsAmount': value['includedItemsAmount'],
     };
 }
 

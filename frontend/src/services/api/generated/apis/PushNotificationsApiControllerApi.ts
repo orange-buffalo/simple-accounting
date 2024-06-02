@@ -16,21 +16,20 @@
 import * as runtime from '../runtime';
 import type {
   CurrentUserPushNotificationMessage,
-} from '../models';
+} from '../models/index';
 import {
     CurrentUserPushNotificationMessageFromJSON,
     CurrentUserPushNotificationMessageToJSON,
-} from '../models';
-import type { AdditionalRequestParameters, InitOverrideFunction } from '../runtime';
+} from '../models/index';
 
 /**
  * 
  */
-export class PushNotificationsApiControllerApi<RM = void> extends runtime.BaseAPI<RM> {
+export class PushNotificationsApiControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async getPushNotificationMessagesRaw(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<runtime.ApiResponse<Array<CurrentUserPushNotificationMessage>>> {
+    async getPushNotificationMessagesRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CurrentUserPushNotificationMessage>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -40,15 +39,15 @@ export class PushNotificationsApiControllerApi<RM = void> extends runtime.BaseAP
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides, additionalParameters);
+        }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CurrentUserPushNotificationMessageFromJSON));
     }
 
     /**
      */
-    async getPushNotificationMessages(initOverrides?: RequestInit | InitOverrideFunction, additionalParameters?: AdditionalRequestParameters<RM>): Promise<Array<CurrentUserPushNotificationMessage>> {
-        const response = await this.getPushNotificationMessagesRaw(initOverrides, additionalParameters);
+    async getPushNotificationMessages(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CurrentUserPushNotificationMessage>> {
+        const response = await this.getPushNotificationMessagesRaw(initOverrides);
         return await response.value();
     }
 

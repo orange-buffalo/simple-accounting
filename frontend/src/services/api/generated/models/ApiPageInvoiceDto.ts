@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { InvoiceDto } from './InvoiceDto';
 import {
     InvoiceDtoFromJSON,
@@ -55,14 +55,12 @@ export interface ApiPageInvoiceDto {
 /**
  * Check if a given object implements the ApiPageInvoiceDto interface.
  */
-export function instanceOfApiPageInvoiceDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "pageNumber" in value;
-    isInstance = isInstance && "pageSize" in value;
-    isInstance = isInstance && "totalElements" in value;
-    isInstance = isInstance && "data" in value;
-
-    return isInstance;
+export function instanceOfApiPageInvoiceDto(value: object): value is ApiPageInvoiceDto {
+    if (!('pageNumber' in value) || value['pageNumber'] === undefined) return false;
+    if (!('pageSize' in value) || value['pageSize'] === undefined) return false;
+    if (!('totalElements' in value) || value['totalElements'] === undefined) return false;
+    if (!('data' in value) || value['data'] === undefined) return false;
+    return true;
 }
 
 export function ApiPageInvoiceDtoFromJSON(json: any): ApiPageInvoiceDto {
@@ -70,7 +68,7 @@ export function ApiPageInvoiceDtoFromJSON(json: any): ApiPageInvoiceDto {
 }
 
 export function ApiPageInvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApiPageInvoiceDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -83,18 +81,15 @@ export function ApiPageInvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: b
 }
 
 export function ApiPageInvoiceDtoToJSON(value?: ApiPageInvoiceDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'pageNumber': value.pageNumber,
-        'pageSize': value.pageSize,
-        'totalElements': value.totalElements,
-        'data': ((value.data as Array<any>).map(InvoiceDtoToJSON)),
+        'pageNumber': value['pageNumber'],
+        'pageSize': value['pageSize'],
+        'totalElements': value['totalElements'],
+        'data': ((value['data'] as Array<any>).map(InvoiceDtoToJSON)),
     };
 }
 

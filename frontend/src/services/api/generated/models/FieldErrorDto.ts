@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -48,13 +48,11 @@ export interface FieldErrorDto {
 /**
  * Check if a given object implements the FieldErrorDto interface.
  */
-export function instanceOfFieldErrorDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "field" in value;
-    isInstance = isInstance && "error" in value;
-    isInstance = isInstance && "message" in value;
-
-    return isInstance;
+export function instanceOfFieldErrorDto(value: object): value is FieldErrorDto {
+    if (!('field' in value) || value['field'] === undefined) return false;
+    if (!('error' in value) || value['error'] === undefined) return false;
+    if (!('message' in value) || value['message'] === undefined) return false;
+    return true;
 }
 
 export function FieldErrorDtoFromJSON(json: any): FieldErrorDto {
@@ -62,7 +60,7 @@ export function FieldErrorDtoFromJSON(json: any): FieldErrorDto {
 }
 
 export function FieldErrorDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): FieldErrorDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -70,23 +68,20 @@ export function FieldErrorDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
         'field': json['field'],
         'error': json['error'],
         'message': json['message'],
-        'params': !exists(json, 'params') ? undefined : json['params'],
+        'params': json['params'] == null ? undefined : json['params'],
     };
 }
 
 export function FieldErrorDtoToJSON(value?: FieldErrorDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'field': value.field,
-        'error': value.error,
-        'message': value.message,
-        'params': value.params,
+        'field': value['field'],
+        'error': value['error'],
+        'message': value['message'],
+        'params': value['params'],
     };
 }
 

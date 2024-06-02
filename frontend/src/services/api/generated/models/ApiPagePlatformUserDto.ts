@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { PlatformUserDto } from './PlatformUserDto';
 import {
     PlatformUserDtoFromJSON,
@@ -55,14 +55,12 @@ export interface ApiPagePlatformUserDto {
 /**
  * Check if a given object implements the ApiPagePlatformUserDto interface.
  */
-export function instanceOfApiPagePlatformUserDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "pageNumber" in value;
-    isInstance = isInstance && "pageSize" in value;
-    isInstance = isInstance && "totalElements" in value;
-    isInstance = isInstance && "data" in value;
-
-    return isInstance;
+export function instanceOfApiPagePlatformUserDto(value: object): value is ApiPagePlatformUserDto {
+    if (!('pageNumber' in value) || value['pageNumber'] === undefined) return false;
+    if (!('pageSize' in value) || value['pageSize'] === undefined) return false;
+    if (!('totalElements' in value) || value['totalElements'] === undefined) return false;
+    if (!('data' in value) || value['data'] === undefined) return false;
+    return true;
 }
 
 export function ApiPagePlatformUserDtoFromJSON(json: any): ApiPagePlatformUserDto {
@@ -70,7 +68,7 @@ export function ApiPagePlatformUserDtoFromJSON(json: any): ApiPagePlatformUserDt
 }
 
 export function ApiPagePlatformUserDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): ApiPagePlatformUserDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -83,18 +81,15 @@ export function ApiPagePlatformUserDtoFromJSONTyped(json: any, ignoreDiscriminat
 }
 
 export function ApiPagePlatformUserDtoToJSON(value?: ApiPagePlatformUserDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'pageNumber': value.pageNumber,
-        'pageSize': value.pageSize,
-        'totalElements': value.totalElements,
-        'data': ((value.data as Array<any>).map(PlatformUserDtoToJSON)),
+        'pageNumber': value['pageNumber'],
+        'pageSize': value['pageSize'],
+        'totalElements': value['totalElements'],
+        'data': ((value['data'] as Array<any>).map(PlatformUserDtoToJSON)),
     };
 }
 

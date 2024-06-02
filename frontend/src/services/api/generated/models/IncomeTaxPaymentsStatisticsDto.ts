@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface IncomeTaxPaymentsStatisticsDto {
 /**
  * Check if a given object implements the IncomeTaxPaymentsStatisticsDto interface.
  */
-export function instanceOfIncomeTaxPaymentsStatisticsDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "totalTaxPayments" in value;
-
-    return isInstance;
+export function instanceOfIncomeTaxPaymentsStatisticsDto(value: object): value is IncomeTaxPaymentsStatisticsDto {
+    if (!('totalTaxPayments' in value) || value['totalTaxPayments'] === undefined) return false;
+    return true;
 }
 
 export function IncomeTaxPaymentsStatisticsDtoFromJSON(json: any): IncomeTaxPaymentsStatisticsDto {
@@ -42,7 +40,7 @@ export function IncomeTaxPaymentsStatisticsDtoFromJSON(json: any): IncomeTaxPaym
 }
 
 export function IncomeTaxPaymentsStatisticsDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): IncomeTaxPaymentsStatisticsDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -52,15 +50,12 @@ export function IncomeTaxPaymentsStatisticsDtoFromJSONTyped(json: any, ignoreDis
 }
 
 export function IncomeTaxPaymentsStatisticsDtoToJSON(value?: IncomeTaxPaymentsStatisticsDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'totalTaxPayments': value.totalTaxPayments,
+        'totalTaxPayments': value['totalTaxPayments'],
     };
 }
 

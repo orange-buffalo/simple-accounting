@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -42,12 +42,10 @@ export interface EditGeneralTaxDto {
 /**
  * Check if a given object implements the EditGeneralTaxDto interface.
  */
-export function instanceOfEditGeneralTaxDto(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "title" in value;
-    isInstance = isInstance && "rateInBps" in value;
-
-    return isInstance;
+export function instanceOfEditGeneralTaxDto(value: object): value is EditGeneralTaxDto {
+    if (!('title' in value) || value['title'] === undefined) return false;
+    if (!('rateInBps' in value) || value['rateInBps'] === undefined) return false;
+    return true;
 }
 
 export function EditGeneralTaxDtoFromJSON(json: any): EditGeneralTaxDto {
@@ -55,29 +53,26 @@ export function EditGeneralTaxDtoFromJSON(json: any): EditGeneralTaxDto {
 }
 
 export function EditGeneralTaxDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): EditGeneralTaxDto {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'title': json['title'],
-        'description': !exists(json, 'description') ? undefined : json['description'],
+        'description': json['description'] == null ? undefined : json['description'],
         'rateInBps': json['rateInBps'],
     };
 }
 
 export function EditGeneralTaxDtoToJSON(value?: EditGeneralTaxDto | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+    if (value == null) {
+        return value;
     }
     return {
         
-        'title': value.title,
-        'description': value.description,
-        'rateInBps': value.rateInBps,
+        'title': value['title'],
+        'description': value['description'],
+        'rateInBps': value['rateInBps'],
     };
 }
 
