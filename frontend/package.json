@@ -31,7 +31,7 @@
     "marked": "12.0.2",
     "qs": "6.12.1",
     "vue": "3.4.27",
-    "vue-router": "4.3.2"
+    "vue-router": "4.3.3"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "1.10.3",
