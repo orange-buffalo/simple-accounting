@@ -30,6 +30,7 @@ import { LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT } from '@/services/events'
 import UsersOverview from '@/pages/admin/users/UsersOverview.vue';
 import AccountActivationPage from '@/pages/account-activation/AccountActivationPage.vue';
 import SaUnauthenticatedPage from '@/components/unauthenticated-page/SaUnauthenticatedPage.vue';
+import EditUser from '@/pages/admin/users/EditUser.vue';
 
 const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: Number(route.params.id) });
 
@@ -250,11 +251,11 @@ export default function setupRouter() {
             name: 'users-overview',
             component: UsersOverview,
           },
-          //     {
-          //       path: 'admin/users/create',
-          //       name: 'create-new-user',
-          //       component: CreateUser,
-          //     },
+          {
+            path: 'admin/users/create',
+            name: 'create-new-user',
+            component: EditUser,
+          },
         ],
       },
 

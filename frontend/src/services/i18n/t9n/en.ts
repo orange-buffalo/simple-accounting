@@ -883,4 +883,28 @@ export default {
       button: () => 'Login now',
     },
   },
+
+  editUser: {
+    pageHeader: {
+      edit: () => 'Edit User',
+      create: () => 'Create New User',
+    },
+    form: {
+      userName: {
+        label: () => 'Username',
+      },
+      role: {
+        label: () => 'User role',
+        options: {
+          user: () => 'User',
+          admin: () => 'Admin user',
+        },
+      },
+    },
+    successNotification: (userName: string) => format('User {0} has been successfully saved', [userName]),
+  },
+
+  saForm: {
+    inputValidationFailed: () => 'Some of the fields have not been filled correctly. Please check the form and try again.',
+  },
 };

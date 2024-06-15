@@ -71,6 +71,9 @@ function useFormInternal(
   };
 }
 
+/**
+ * @deprecated Use new from API - onSubmit in SaForm.
+ */
 export function useForm(
   loadFormData: () => Promise<void>,
   saveFormData: () => Promise<void>,
@@ -87,6 +90,9 @@ export function useForm(
   };
 }
 
+/**
+ * @deprecated Use new from API - onSubmit in SaForm.
+ */
 export function useFormWithDocumentsUpload(
   loadFormData: () => Promise<void>,
   saveFormData: () => Promise<void>,
@@ -148,6 +154,7 @@ export function useFormWithDocumentsUpload(
  *  - add `:ref="myFieldValidation.formItem"` to the form item
  *  - call `myFieldValidation.setValidationError('My error message');` to set the error
  *  - call `myFieldValidation.resetErrors();` to reset the error, e.g. in `@keyup` handler
+ * @deprecated Use new from API - onSubmit in SaForm.
  */
 export function useFormItemValidation() {
   const formItem = ref<FormItemContext | null>(null);

@@ -45,6 +45,7 @@
     setFieldsErrorsFromApiResponse,
   } from '@/components/form/api-field-error-messages.ts';
   import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
+  import useNotifications from '@/components/notifications/use-notifications.ts';
 
   type SaFormProps = {
     model: Record<string, unknown>,
@@ -81,6 +82,7 @@
     formValues: props.model,
   });
 
+  const { showWarningNotification } = useNotifications();
   const submitForm = async () => {
     // form validation throws an exception if validation fails
     if (props.rules) {
@@ -100,8 +102,10 @@
     } catch (e: unknown) {
       if (e instanceof ApiFieldLevelValidationError) {
         setFieldsErrorsFromApiResponse(e.fieldErrors, formItems);
+        showWarningNotification($t.value.saForm.inputValidationFailed());
       } else if (e instanceof ClientSideValidationError) {
         setFieldErrorsFromClientSideValidation(e.fieldErrors, formItems);
+        showWarningNotification($t.value.saForm.inputValidationFailed());
       } else {
         throw e;
       }

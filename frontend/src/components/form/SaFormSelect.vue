@@ -1,10 +1,12 @@
 <template>
   <SaFormItemInternal v-bind="props" v-model="inputValue">
-    <ElInput
+    <ElSelect
       v-model="inputValue"
-      :type="type"
-      :placeholder="placeholder"
-    />
+      :placeholder="props.placeholder"
+      :clearable="props.clearable"
+    >
+      <slot />
+    </ElSelect>
   </SaFormItemInternal>
 </template>
 
@@ -13,10 +15,10 @@
   import { SaFormComponentProps } from '@/components/form/sa-form-api';
   import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
 
-  const inputValue = ref<string | null>();
+  const inputValue = ref<unknown | null>();
 
   const props = defineProps<SaFormComponentProps & {
-    type?: string,
+    clearable?: boolean,
     placeholder?: string,
   }>();
 </script>

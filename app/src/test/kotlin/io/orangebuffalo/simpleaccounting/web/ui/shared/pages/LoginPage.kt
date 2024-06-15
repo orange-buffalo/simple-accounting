@@ -12,7 +12,7 @@ class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
 
     val loginInput = components.textInputByPlaceholder("Login")
     val passwordInput = components.textInputByPlaceholder("Password")
-    val loginButton = components.buttonByText("LOGIN")
+    val loginButton = components.buttonByText("Login")
     val rememberMeCheckbox = components.checkboxByOwnLabel("Remember me for 30 days")
 
     fun loginAs(user: PlatformUser) {

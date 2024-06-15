@@ -3,7 +3,7 @@
 import { ElButton, ElFormItem, ElInput } from 'element-plus';
 import { defineComponent, ref } from 'vue';
 import { action } from '@storybook/addon-actions';
-import SaFormItem from '@/components/form/SaFormItem.vue';
+import SaFormSelect from '@/components/form/SaFormSelect.vue';
 import { delay, throwApiFieldLevelValidationError } from '@/__storybook__/stories-utils';
 import { useForm, useFormWithDocumentsUpload } from '@/components/form/use-form';
 import SaForm from '@/components/form/SaForm.vue';
@@ -185,15 +185,15 @@ export const Default = defineStory(() => ({
 export const SaFormApi = defineStory(() => ({
   components: {
     SaForm,
-    SaFormItem,
-    ElInput,
     SaFormInput,
+    SaFormSelect,
   },
   setup() {
     const formValues = ref({
       details: {
         name: 'Fry',
       },
+      role: 'USER',
     });
     const onSubmit = async () => {
       action('form-submit')(formValues.value);
@@ -219,14 +219,15 @@ export const SaFormApi = defineStory(() => ({
   template: `
     <h4>Defaults</h4>
     <SaForm :model="formValues" :on-submit="onSubmit" :on-cancel="onCancel" id="validationForm">
-      <SaFormItem
-        label="Name"
-        prop="details.name"
-      >
-        <SaFormInput />
-      </SaFormItem>
+      <SaFormInput label="Name"
+                   prop="details.name" />
+      <SaFormSelect label="Role"
+                    prop="role">
+        <ElOption label="User" value="USER" />
+        <ElOption label="Admin" value="ADMIN" />
+      </SaFormSelect>
     </SaForm>
-    {{ formValues.details.name }}
+    {{ JSON.stringify(formValues) }}
 
     <h4>Custom button labels</h4>
     <SaForm :model="formValues"

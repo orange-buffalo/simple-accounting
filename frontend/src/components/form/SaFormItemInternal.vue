@@ -9,35 +9,29 @@
 </template>
 
 <script lang="ts" setup>
+  /**
+   * This is and internal component for form implementation. All form components should be wrapped in this component
+   * in their implementation.
+   */
   import { ElFormItem, FormItemContext } from 'element-plus';
   import {
     defineProps, onMounted, onUnmounted, ref, watch,
   } from 'vue';
   import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ensureDefined } from '@/services/utils.ts';
-  import {
-    provideSaFormItemComponentsApi,
-    SaFormItemComponentsApi,
-  } from '@/components/form/sa-form-item-components-api.ts';
+  import { SaFormComponentProps } from '@/components/form/sa-form-api.ts';
 
-  const props = defineProps<{
-    prop: string,
-    label: string,
-  }>();
+  const props = defineProps<SaFormComponentProps>();
 
   const formItemContext = ref<FormItemContext | null>(null);
   const saFormApi = useSaFormComponentsApi();
 
-  const formItemValue = ref<unknown | null>(null);
-  const componentsApi: SaFormItemComponentsApi = {
-    formItemValue,
-  };
-  provideSaFormItemComponentsApi(componentsApi);
+  const formItemValue = defineModel<unknown | null>();
 
+  // changes made by the wrapped components must be reflected in the form values
   watch(() => formItemValue.value, (value) => {
     formItemContext.value?.clearValidate();
 
-    // set the deep value by prop into saFormApi.formValues, ensure nested objects are traversed
     const path = props.prop.split('.');
     let current = saFormApi.formValues;
     for (let i = 0; i < path.length - 1; i += 1) {
@@ -49,7 +43,7 @@
     current[path[path.length - 1]] = value;
   });
 
-  // update formItemValue when saFormApi.formValues[prop] changes, ensure nested objects are traversed
+  // changes made to the form values must be reflected in the wrapped components
   watch(() => saFormApi.formValues, (value) => {
     formItemValue.value = undefined;
     const path = props.prop.split('.');
