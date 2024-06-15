@@ -8,10 +8,12 @@ import io.orangebuffalo.simpleaccounting.infra.utils.shouldNotBeVisible
 class Notifications(
     private val page: Page,
 ) {
-    fun success(message: String) {
+    fun success(message: String? = null) {
         val successContainer = page.locator(".sa-notification--success")
         successContainer.shouldBeVisible()
-        successContainer.locator(".el-message__content").shouldHaveText(message)
+        if (message != null) {
+            successContainer.locator(".el-message__content").shouldHaveText(message)
+        }
         successContainer.locator(".el-message__closeBtn").click()
         successContainer.shouldNotBeVisible()
     }
@@ -20,7 +22,7 @@ class Notifications(
         val validationErrorContainer = page.locator(".sa-notification--warning")
         validationErrorContainer.shouldBeVisible()
         validationErrorContainer.locator(".el-message__content").shouldHaveText(
-            "Validation failed. Please correct your input and try again"
+            "Some of the fields have not been filled correctly. Please check the form and try again."
         )
         validationErrorContainer.locator(".el-message__closeBtn").click()
         validationErrorContainer.shouldNotBeVisible()

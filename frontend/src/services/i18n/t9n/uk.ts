@@ -882,4 +882,28 @@ export default {
       button: () => 'Увійти зараз',
     },
   },
+
+  editUser: {
+    pageHeader: {
+      edit: () => 'Редагувати користувача',
+      create: () => 'Створити нового користувача',
+    },
+    form: {
+      userName: {
+        label: () => 'Ім\'я користувача',
+      },
+      role: {
+        label: () => 'Роль користувача',
+        options: {
+          user: () => 'Користувач',
+          admin: () => 'Адміністратор',
+        },
+      },
+    },
+    successNotification: (userName: string) => format('Користувач {0} був успішно збережений', [userName]),
+  },
+
+  saForm: {
+    inputValidationFailed: () => 'Деякі поля не були правильно заповнені. Будь ласка, перевірте форму та спробуйте знову.',
+  },
 };

@@ -12,6 +12,8 @@ object XPath {
     fun hasClass(className: String): String = "contains(concat(' ', normalize-space(@class), ' '), ' $className ')"
 
     fun h1WithText(text: String): String = "//h1[normalize-space(.) = '$text']"
+
+    fun hasText(text: String) : String = "normalize-space(.) = '$text'"
 }
 
 fun Page.navigateAndDisableAnimations(path: String): Page {

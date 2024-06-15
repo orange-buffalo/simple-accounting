@@ -41,5 +41,8 @@ class FormItem<I : UiComponent<*, *>, P : Any> private constructor(
 
         fun <P : SaPageBase<P>> ComponentsAccessors<P>.formItemTextInputByLabel(label: String) =
             formItemByLabel(label) { TextInput.byContainer(it) }
+
+        fun <P: SaPageBase<P>> ComponentsAccessors<P>.formItemSelectByLabel(label: String) =
+            formItemByLabel(label) { Select.byContainer(it) }
     }
 }

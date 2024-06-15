@@ -9,9 +9,6 @@ module.exports = {
     '@vue/eslint-config-typescript/recommended',
     '@vue/airbnb',
     'plugin:storybook/recommended'],
-  env: {
-    'vue/setup-compiler-macros': true,
-  },
   rules: {
     'import/no-useless-path-segments': 'off',
     'import/extensions': 'off',
@@ -59,5 +56,6 @@ module.exports = {
   },
   globals: {
     RequestInit: 'readonly',
+    defineModel: 'readonly',
   },
 };

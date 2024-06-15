@@ -1,5 +1,5 @@
 <template>
-  <ElContainer direction="vertical">
+  <ElContainer direction="vertical" class="sa-unauthenticated-page__container">
     <LogoLogin class="sa-unauthenticated-page__logo" />
     <div class="sa-unauthenticated-page__content">
       <RouterView />
@@ -15,15 +15,15 @@
   @use "@/styles/vars.scss" as *;
   @use "@/styles/mixins.scss" as *;
 
-  .el-container {
-    min-height: 100vh;
-    height: auto;
-    position: relative;
-    align-items: center;
-    background-color: $primary-grey;
-  }
-
   .sa-unauthenticated-page {
+    &__container {
+      min-height: 100vh;
+      height: auto;
+      position: relative;
+      align-items: center;
+      background-color: $primary-grey;
+    }
+
     &__logo {
       min-height: 150px;
       height: 150px;

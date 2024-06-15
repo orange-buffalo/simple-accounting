@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 import org.jooq.impl.DSL.lower
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.transaction.annotation.Transactional
@@ -30,8 +31,8 @@ class UsersApiController(
     @PostMapping
     suspend fun createUser(@RequestBody @Valid user: CreateUserRequestDto): PlatformUserDto = userService
         .createUser(
-            userName = user.userName!!,
-            isAdmin = user.admin!!,
+            userName = user.userName,
+            isAdmin = user.admin,
         )
         .mapToUserDto()
 
@@ -64,8 +65,8 @@ data class PlatformUserDto(
 )
 
 data class CreateUserRequestDto(
-    @field:NotBlank var userName: String?,
-    @field:NotNull var admin: Boolean?
+    @field:NotBlank @field:Size(max = 255) var userName: String,
+    @field:NotNull var admin: Boolean,
 )
 
 private fun PlatformUser.mapToUserDto() = PlatformUserDto(

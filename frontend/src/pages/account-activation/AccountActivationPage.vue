@@ -26,25 +26,19 @@
       :submit-button-label="$t.accountActivationPage.form.submit()"
     >
       <template #default>
-        <SaFormItem
+        <SaFormInput
           :label="$t.accountActivationPage.form.password.label()"
           prop="password"
-        >
-          <SaFormInput
-            type="password"
-            :placeholder="$t.accountActivationPage.form.password.placeholder()"
-          />
-        </SaFormItem>
+          type="password"
+          :placeholder="$t.accountActivationPage.form.password.placeholder()"
+        />
 
-        <SaFormItem
+        <SaFormInput
           :label="$t.accountActivationPage.form.passwordConfirmation.label()"
           prop="passwordConfirmation"
-        >
-          <SaFormInput
-            type="password"
-            :placeholder="$t.accountActivationPage.form.passwordConfirmation.placeholder()"
-          />
-        </SaFormItem>
+          type="password"
+          :placeholder="$t.accountActivationPage.form.passwordConfirmation.placeholder()"
+        />
       </template>
     </SaForm>
   </template>
@@ -67,7 +61,6 @@
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import SaForm from '@/components/form/SaForm.vue';
   import { ApiBusinessError, ResourceNotFoundError } from '@/services/api/api-errors.ts';
-  import SaFormItem from '@/components/form/SaFormItem.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
   import {

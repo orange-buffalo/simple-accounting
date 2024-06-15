@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.orangebuffalo.simpleaccounting.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldNotBeVisible
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldSatisfy
@@ -26,6 +27,6 @@ class Button<P : Any> private constructor(
 
     companion object {
         fun <T : SaPageBase<T>> ComponentsAccessors<T>.buttonByText(label: String) =
-            Button(page.getByText(label), this.owner)
+            Button(page.locator("xpath=//button[${XPath.hasText(label)}]"), this.owner)
     }
 }

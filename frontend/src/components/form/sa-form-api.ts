@@ -25,3 +25,11 @@ export class ClientSideValidationError extends Error {
     this.fieldErrors = fieldErrors;
   }
 }
+
+/**
+ * Common properties for all form components.
+ */
+export type SaFormComponentProps = {
+  label: string;
+  prop: string;
+};
