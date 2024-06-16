@@ -125,7 +125,10 @@ internal class RestApiControllerExceptionsHandler(
     }
 
     private fun handleMismatchedInputException(cause: MismatchedInputException): Any {
-        if (cause.message?.contains("which is a non-nullable type") == true) {
+        if (cause.message?.contains("which is a non-nullable type") == true
+            || cause.message?.contains("FAIL_ON_NULL_FOR_PRIMITIVES to 'false'") == true
+            || cause.message?.contains("Missing required creator property") == true
+        ) {
             val fieldName = cause.path.joinToString(".") { it.fieldName }
             return InvalidInputErrorDto(
                 requestErrors = listOf(
@@ -220,7 +223,7 @@ internal class RestApiControllerExceptionsHandler(
         )
     }
 
-    private fun jsonBadRequest(body: Any) : Mono<ResponseEntity<*>> = Mono.just(
+    private fun jsonBadRequest(body: Any): Mono<ResponseEntity<*>> = Mono.just(
         ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .contentType(MediaType.APPLICATION_JSON)

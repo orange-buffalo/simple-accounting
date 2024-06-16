@@ -49,6 +49,16 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBodyEqualTo(
     }
 }
 
+fun WebTestClient.RequestHeadersSpec<*>.verifyCreatedAndJsonBodyEqualTo(
+    spec: JsonObjectBuilder.() -> Unit
+) {
+    exchange()
+        .expectStatus().isCreated
+        .expectThatJsonBody {
+            isEqualToJson(spec)
+        }
+}
+
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
     jsonBody: String
 ) = verifyOkAndJsonBody {

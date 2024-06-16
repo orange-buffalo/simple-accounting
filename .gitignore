@@ -21,4 +21,4 @@ frontend/coverage
 
 .java-version
 
-.kotlin/sessions
+**/.kotlin/sessions
