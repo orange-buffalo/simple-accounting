@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra
 
+import io.orangebuffalo.simpleaccounting.infra.api.ApiTestClientConfig
 import io.orangebuffalo.simpleaccounting.infra.database.DatabaseCleanupExtension
 import io.orangebuffalo.simpleaccounting.infra.security.TestPasswordEncoderConfig
 import io.orangebuffalo.simpleaccounting.infra.security.TestPasswordEncoderListener
@@ -16,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @TestPropertySource(properties = ["spring.profiles.active=test"])
-@Import(TestPasswordEncoderConfig::class, TestsMocksConfiguration::class)
+@Import(TestPasswordEncoderConfig::class, TestsMocksConfiguration::class, ApiTestClientConfig::class)
 @TestExecutionListeners(
     listeners = [TestPasswordEncoderListener::class],
     mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS

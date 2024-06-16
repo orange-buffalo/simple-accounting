@@ -109,6 +109,15 @@ interface ApiRequestsValidationsBodySpec {
     )
 
     /**
+     * Defines a boolean field in the request body.
+     */
+    fun boolean(
+        name: String,
+        mandatory: Boolean,
+        defaultValidValue: Boolean = true
+    )
+
+    /**
      * Defines a nested object field in the request body.
      */
     fun nested(
@@ -215,6 +224,34 @@ private class ApiRequestsValidationsStringFieldSpec(
     )
 }
 
+private class ApiRequestsValidationsBooleanFieldSpec(
+    name: String,
+    mandatory: Boolean,
+    private val defaultValidValue: Boolean
+) : ApiRequestsValidationsFieldSpec<Boolean>(
+    name = name,
+    mandatory = mandatory,
+) {
+    override fun invalidCases() = listOf(
+        if (mandatory) ApiRequestsValidationsErrorCase(
+            field = name,
+            description = "should fail when null",
+            requestFieldValue = JsonNull,
+            expectedValidationError = ExpectedErrorData.notNull(),
+        ) else null,
+        if (mandatory) ApiRequestsValidationsErrorCase(
+            field = name,
+            description = "should fail when not provided",
+            requestFieldValue = null,
+            expectedValidationError = ExpectedErrorData.notNull(),
+        ) else null,
+    )
+
+    override fun defaultValidJsonRequestValue() = JsonPrimitive(defaultValidValue)
+
+    override fun validBoundaryCases() = emptyList<ApiRequestsValidationsValidBoundaryCase>()
+}
+
 private class ApiRequestsValidationsObjectFieldSpec(
     name: String,
     mandatory: Boolean
@@ -234,6 +271,16 @@ private class ApiRequestsValidationsObjectFieldSpec(
                 mandatory = mandatory,
                 minLength = minLength,
                 maxLength = maxLength,
+                defaultValidValue = defaultValidValue
+            )
+        )
+    }
+
+    override fun boolean(name: String, mandatory: Boolean, defaultValidValue: Boolean) {
+        fields.add(
+            ApiRequestsValidationsBooleanFieldSpec(
+                name = name,
+                mandatory = mandatory,
                 defaultValidValue = defaultValidValue
             )
         )

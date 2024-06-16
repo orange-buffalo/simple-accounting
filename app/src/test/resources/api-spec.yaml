@@ -1125,8 +1125,8 @@ paths:
               $ref: "#/components/schemas/CreateUserRequestDto"
         required: true
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           content:
             application/json:
               schema:
@@ -2734,6 +2734,18 @@ components:
       properties:
         active:
           type: boolean
+    UserActivationTokensApiBadRequestErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - UserAlreadyActivated
+          - TokenExpired
+        message:
+          type: string
     ProfileApiBadRequestErrors:
       required:
       - error
@@ -2745,18 +2757,6 @@ components:
           - CurrentPasswordMismatch
           - TransientUser
           - NotAuthenticated
-        message:
-          type: string
-    UserActivationTokensApiBadRequestErrors:
-      required:
-      - error
-      type: object
-      properties:
-        error:
-          type: string
-          enum:
-          - UserAlreadyActivated
-          - TokenExpired
         message:
           type: string
     FieldErrorDto:
