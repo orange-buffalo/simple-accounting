@@ -38,6 +38,17 @@ internal class UsersApiControllerIT(
     @Nested
     @DisplayName("GET /api/users")
     inner class GetUsers {
+        private val preconditions by lazy {
+            object: Preconditions(preconditionsInfra) {
+                val farnsworth = farnsworth()
+                val fry = fry()
+                val zoidberg = platformUser(
+                    userName = "Zoidberg",
+                    isAdmin = false,
+                    activated = false
+                )
+            }
+        }
 
         private fun sendRequest(actor: PlatformUser?) = client
             .getFrom(actor)
@@ -52,7 +63,6 @@ internal class UsersApiControllerIT(
 
         @Test
         fun `should prohibit access by regular users`() {
-            val preconditions = setupPreconditions()
             sendRequest(preconditions.fry)
                 .exchange()
                 .expectStatus().isForbidden
@@ -60,8 +70,7 @@ internal class UsersApiControllerIT(
 
         @Test
         fun `should return a valid users page`() {
-            val testData = setupPreconditions()
-            sendRequest(testData.farnsworth)
+            sendRequest(preconditions.farnsworth)
                 .verifyOkAndJsonBodyEqualTo {
                     put("pageNumber", 1)
                     put("pageSize", 10)
@@ -69,37 +78,27 @@ internal class UsersApiControllerIT(
                     putJsonArray("data") {
                         addJsonObject {
                             put("userName", "Farnsworth")
-                            put("id", testData.farnsworth.id)
+                            put("id", preconditions.farnsworth.id)
                             put("version", 0)
                             put("admin", true)
                             put("activated", true)
                         }
                         addJsonObject {
                             put("userName", "Fry")
-                            put("id", testData.fry.id)
+                            put("id", preconditions.fry.id)
                             put("version", 0)
                             put("admin", false)
                             put("activated", true)
                         }
                         addJsonObject {
                             put("userName", "Zoidberg")
-                            put("id", testData.zoidberg.id)
+                            put("id", preconditions.zoidberg.id)
                             put("version", 0)
                             put("admin", false)
                             put("activated", false)
                         }
                     }
                 }
-        }
-
-        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-            val farnsworth = farnsworth()
-            val fry = fry()
-            val zoidberg = platformUser(
-                userName = "Zoidberg",
-                isAdmin = false,
-                activated = false
-            )
         }
     }
 
@@ -110,6 +109,13 @@ internal class UsersApiControllerIT(
     @DisplayName("POST /api/users")
     inner class CreateUser {
 
+        private val preconditions by lazy {
+            object : Preconditions(preconditionsInfra) {
+                val farnsworth = farnsworth()
+                val fry = fry()
+            }
+        }
+
         @Test
         fun `should prohibit anonymous access`() {
             sendRequest(ANONYMOUS_USER)
@@ -119,7 +125,6 @@ internal class UsersApiControllerIT(
 
         @Test
         fun `should prohibit regular user access`() {
-            val preconditions = setupPreconditions()
             sendRequest(preconditions.fry)
                 .exchange()
                 .expectStatus().isForbidden
@@ -127,7 +132,6 @@ internal class UsersApiControllerIT(
 
         @Test
         fun `should create a new user`() {
-            val preconditions = setupPreconditions()
             mockCurrentTime(timeService)
 
             sendRequest(preconditions.farnsworth)
@@ -166,15 +170,9 @@ internal class UsersApiControllerIT(
                 put("admin", false)
             }
 
-        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-            val farnsworth = farnsworth()
-            val fry = fry()
-        }
-
         @Nested
         inner class RequestsValidation : ApiRequestsValidationsTestBase() {
             override val requestExecutionSpec = { requestBody: String ->
-                val preconditions = setupPreconditions()
                 client
                     .postFrom(preconditions.farnsworth)
                     .uri("/api/users")

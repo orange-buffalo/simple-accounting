@@ -12,6 +12,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 
 @Retention(AnnotationRetention.RUNTIME)
 @WithSecurityContext(factory = SaMockSecurityContextFactory::class)
+@Deprecated("Use ApiTestClient for actual JWT auth")
 annotation class WithSaMockUser(
     val userName: String = "",
     val roles: Array<String> = [],
@@ -21,24 +22,30 @@ annotation class WithSaMockUser(
 
 @Retention(AnnotationRetention.RUNTIME)
 @WithSaMockUser(roles = ["USER"], userName = "Fry")
+@Deprecated("Use ApiTestClient for actual JWT auth")
 annotation class WithMockFryUser
 
 @Retention(AnnotationRetention.RUNTIME)
 @WithSaMockUser(roles = ["USER"], userName = "Zoidberg")
+@Deprecated("Use ApiTestClient for actual JWT auth")
 annotation class WithMockZoidbergUser
 
 @Retention(AnnotationRetention.RUNTIME)
 @WithSaMockUser(roles = ["ADMIN"], userName = "Farnsworth")
+@Deprecated("Use ApiTestClient for actual JWT auth")
 annotation class WithMockFarnsworthUser
 
 @Retention(AnnotationRetention.RUNTIME)
 @WithSaMockUser(roles = ["USER"], userName = "Roberto")
+@Deprecated("Use ApiTestClient for actual JWT auth")
 annotation class WithMockRobertoUser
 
 @Retention(AnnotationRetention.RUNTIME)
 @WithSaMockUser(roles = ["USER"], userName = "MafiaBot")
+@Deprecated("Use ApiTestClient for actual JWT auth")
 annotation class WithMockMafiaBotUser
 
+@Deprecated("Use ApiTestClient for actual JWT auth")
 class SaMockSecurityContextFactory : WithSecurityContextFactory<WithSaMockUser> {
     override fun createSecurityContext(withSaMockUser: WithSaMockUser): SecurityContext {
         val context = SecurityContextHolder.createEmptyContext()
@@ -52,12 +59,14 @@ class SaMockSecurityContextFactory : WithSecurityContextFactory<WithSaMockUser> 
     }
 }
 
+@Deprecated("Use ApiTestClient for actual JWT auth")
 fun WebTestClient.asFarnsworth(): WebTestClient {
     val principal = createRegularUserPrincipal("Farnsworth", "", listOf("ADMIN"))
     val authentication = UsernamePasswordAuthenticationToken(principal, "", principal.authorities)
     return this.mutateWith(mockAuthentication(authentication))
 }
 
+@Deprecated("Use ApiTestClient for actual JWT auth")
 fun WebTestClient.asFry(): WebTestClient {
     val principal = createRegularUserPrincipal("Fry", "", listOf("USER"))
     val authentication = UsernamePasswordAuthenticationToken(principal, "", principal.authorities)
