@@ -112,7 +112,7 @@ fun <T> StepVerifier.Step<T>.assertNextJson(
 
 fun <T> StepVerifier.Step<T>.assertNextJsonIs(jsonObject: String): StepVerifier.Step<T> {
     return assertNextJson {
-        isEqualTo(JsonAssertions.json(jsonObject))
+        isEqualTo(json(jsonObject))
     }
 }
 

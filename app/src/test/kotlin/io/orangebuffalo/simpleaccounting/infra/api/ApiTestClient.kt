@@ -25,41 +25,42 @@ class ApiTestClientConfig {
 
 /**
  * A client for testing API endpoints.
- * Is a wrapper around [WebTestClient] that adds meaningful semantics
- * and reduces some boilerplate.
+ * Is a wrapper around [WebTestClient] that adds JWT authentication capabilities.
  */
 class ApiTestClient(
     private val webTestClient: WebTestClient,
     private val jwtService: JwtService,
 ) {
 
-    fun getFromAnonymous() = getFrom(ANONYMOUS_USER)
-
-    fun getFrom(actor: PlatformUser?): WebTestClient.RequestHeadersUriSpec<*> =
-        if (actor == null) getFromAnonymous() else {
-            val uriSpec = webTestClient.get()
-            uriSpec.headers { headers -> setupAuth(headers, actor) }
-            uriSpec
-        }
-
-    fun postFromAnonymous() = postFrom(ANONYMOUS_USER)
-
-    fun postFrom(actor: PlatformUser?): WebTestClient.RequestBodyUriSpec =
-        if (actor == null) postFromAnonymous() else {
-            val uriSpec = webTestClient.post()
-            uriSpec.headers { headers -> setupAuth(headers, actor) }
-            uriSpec
-        }
-
-    private fun setupAuth(headers: HttpHeaders, actor: PlatformUser) {
-        val token = jwtService.buildJwtToken(
-            principal = actor.toSecurityPrincipal(),
-            validTill = Instant.now().plusSeconds(Duration.ofDays(100).toSeconds())
-        )
-        headers.setBearerAuth(token)
+    fun get() = webTestClient.get().also {
+        it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
 
-    companion object {
-        val ANONYMOUS_USER: PlatformUser? = null
+    fun post() = webTestClient.post().also {
+        it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
 }
+
+/**
+ * A helper method to enrich a [WebTestClient.RequestHeadersSpec] with JWT authentication.
+ * Important: this method should only be used for specs created from [ApiTestClient].
+ */
+fun WebTestClient.RequestHeadersSpec<*>.from(platformUser: PlatformUser): WebTestClient.RequestHeadersSpec<*> =
+    attributes {
+        val jwtService = it[JWT_SERVICE_ATTRIBUTE_NAME] as JwtService?
+            ?: error("This method is only allowed for specs created from ApiTestClient")
+        val token = jwtService.buildJwtToken(
+            principal = platformUser.toSecurityPrincipal(),
+            validTill = Instant.now().plusSeconds(Duration.ofDays(100).toSeconds())
+        )
+        header(HttpHeaders.AUTHORIZATION, "Bearer $token")
+    }
+
+/**
+ * A helper method to add semantics to the request spec to indicate that the request is anonymous.
+ */
+fun WebTestClient.RequestHeadersSpec<*>.fromAnonymous(): WebTestClient.RequestHeadersSpec<*> = headers {
+    it.remove(HttpHeaders.AUTHORIZATION)
+}
+
+private const val JWT_SERVICE_ATTRIBUTE_NAME = "sa-tests.jwt-service"
