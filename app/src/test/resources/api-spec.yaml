@@ -1131,6 +1131,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PlatformUserDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserApiBadRequestErrors"
   /api/user-activation-tokens:
     post:
       tags:
@@ -2744,6 +2750,17 @@ components:
           enum:
           - UserAlreadyActivated
           - TokenExpired
+        message:
+          type: string
+    UserApiBadRequestErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - UserAlreadyExists
         message:
           type: string
     ProfileApiBadRequestErrors:

@@ -59,5 +59,6 @@ export * from './UpdateProfileRequestDto';
 export * from './UserActivationRequestDto';
 export * from './UserActivationTokenDto';
 export * from './UserActivationTokensApiBadRequestErrors';
+export * from './UserApiBadRequestErrors';
 export * from './WorkspaceAccessTokenDto';
 export * from './WorkspaceDto';

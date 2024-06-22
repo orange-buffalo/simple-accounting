@@ -43,6 +43,9 @@ class UserActivationTokensApiControllerIT(
         mockCurrentTime(timeService)
     }
 
+    /**
+     * [UserActivationTokensApiController.getTokenByUser]
+     */
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{userId}?by=userId")
     inner class GetUserActivationTokenByUserId {
@@ -117,6 +120,9 @@ class UserActivationTokensApiControllerIT(
         }
     }
 
+    /**
+     * [UserActivationTokensApiController.getToken]
+     */
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{token}")
     inner class GetUserActivationToken {
@@ -185,6 +191,9 @@ class UserActivationTokensApiControllerIT(
         }
     }
 
+    /**
+     * [UserActivationTokensApiController.createToken]
+     */
     @Nested
     @DisplayName("POST /api/user-activation-tokens")
     inner class CreateToken {
@@ -290,6 +299,9 @@ class UserActivationTokensApiControllerIT(
         }
     }
 
+    /**
+     * [UserActivationTokensApiController.activateUser]
+     */
     @Nested
     @DisplayName("POST /api/user-activation-tokens/{token}/activate")
     inner class ActivateUser {

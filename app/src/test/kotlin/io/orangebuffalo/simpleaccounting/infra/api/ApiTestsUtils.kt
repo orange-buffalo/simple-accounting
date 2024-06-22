@@ -77,6 +77,12 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBody(
     isEqualTo(jsonBody)
 }
 
+fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBodyEqualTo(
+    spec: JsonObjectBuilder.() -> Unit
+) = verifyBadRequestAndJsonBody {
+    isEqualToJson(spec)
+}
+
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
     spec: (body: String) -> Unit
 ) = exchange()
