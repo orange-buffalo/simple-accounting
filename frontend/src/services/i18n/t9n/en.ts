@@ -892,6 +892,9 @@ export default {
     form: {
       userName: {
         label: () => 'Username',
+        errors: {
+          userAlreadyExists: (userName: string) => format('User with username "{0}" already exists', [userName]),
+        },
       },
       role: {
         label: () => 'User role',
