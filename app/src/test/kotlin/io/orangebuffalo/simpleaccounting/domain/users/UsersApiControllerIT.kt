@@ -115,11 +115,11 @@ internal class UsersApiControllerIT(
             }
         }
 
-        private fun request() = client
+        private fun request(userName: String = "Leela") = client
             .post()
             .uri("/api/users")
             .sendJson {
-                put("userName", "Leela")
+                put("userName", userName)
                 put("admin", false)
             }
 
@@ -169,6 +169,16 @@ internal class UsersApiControllerIT(
                         ignoredProperties = arrayOf(UserActivationToken::expiresAt)
                     )
                     it.expiresAt.shouldBeEqualComparingTo(MOCK_TIME.plusSeconds(5 * 3600))
+                }
+        }
+
+        @Test
+        fun `should not allow to create duplicated user`() {
+            request(userName = preconditions.farnsworth.userName)
+                .from(preconditions.farnsworth)
+                .verifyBadRequestAndJsonBodyEqualTo {
+                    put("error", "UserAlreadyExists")
+                    put("message", "User with name '${preconditions.farnsworth.userName}' already exists")
                 }
         }
 

@@ -1,6 +1,9 @@
 package io.orangebuffalo.simpleaccounting.domain.users
 
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
+import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.DefaultErrorHandler
+import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.HandleApiErrorsWith
+import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.SaApiErrorDto
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPageRequest
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
@@ -30,6 +33,7 @@ class UsersApiController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @HandleApiErrorsWith(UserApiBadRequestErrorHandler::class)
     suspend fun createUser(@RequestBody @Valid user: CreateUserRequestDto): PlatformUserDto = userService
         .createUser(
             userName = user.userName,
@@ -77,3 +81,21 @@ private fun PlatformUser.mapToUserDto() = PlatformUserDto(
     admin = isAdmin,
     activated = activated,
 )
+
+class UserApiBadRequestErrorHandler : DefaultErrorHandler<UserApiErrors, UserApiBadRequestErrors>(
+    responseType = UserApiBadRequestErrors::class,
+    exceptionMappings = mapOf(
+        UserCreationException.UserAlreadyExistsException::class to UserApiErrors.UserAlreadyExists
+    )
+)
+
+enum class UserApiErrors {
+    /**
+     * Indicates that a user with requested username already exists.
+     */
+    UserAlreadyExists,
+}
+
+class UserApiBadRequestErrors(error: UserApiErrors, message: String?) :
+    SaApiErrorDto<UserApiErrors>(error, message)
+

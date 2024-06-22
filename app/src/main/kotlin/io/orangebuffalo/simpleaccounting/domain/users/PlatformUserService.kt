@@ -41,6 +41,13 @@ class PlatformUserService(
         userName: String,
         isAdmin: Boolean,
     ): PlatformUser {
+        withDbContext {
+            val existingUser = userRepository.findByUserName(userName)
+            if (existingUser != null) {
+                throw UserCreationException.UserAlreadyExistsException(userName)
+            }
+        }
+
         val user = save(
             PlatformUser(
                 userName = userName,
