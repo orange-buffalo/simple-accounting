@@ -33,7 +33,7 @@ class ApiTestClient(
     private val jwtService: JwtService,
 ) {
 
-    fun getFromAnonymous() = webTestClient.get()
+    fun getFromAnonymous() = getFrom(ANONYMOUS_USER)
 
     fun getFrom(actor: PlatformUser?): WebTestClient.RequestHeadersUriSpec<*> =
         if (actor == null) getFromAnonymous() else {
@@ -42,7 +42,7 @@ class ApiTestClient(
             uriSpec
         }
 
-    fun postFromAnonymous() = webTestClient.post()
+    fun postFromAnonymous() = postFrom(ANONYMOUS_USER)
 
     fun postFrom(actor: PlatformUser?): WebTestClient.RequestBodyUriSpec =
         if (actor == null) postFromAnonymous() else {
