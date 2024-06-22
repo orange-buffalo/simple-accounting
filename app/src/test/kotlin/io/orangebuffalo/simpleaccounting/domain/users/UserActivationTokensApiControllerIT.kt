@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotContain
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.api.ApiTestClient.Companion.ANONYMOUS_USER
 import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsBodyConfiguration
@@ -63,38 +62,41 @@ class UserActivationTokensApiControllerIT(
         }
 
         private fun request(
-            userId: Long = 42,
-            actor: PlatformUser?
+            userId: Long = 42
         ): WebTestClient.RequestHeadersSpec<*> {
             return client
-                .getFrom(actor)
+                .get()
                 .uri("/api/user-activation-tokens/{userId}?by=userId", userId)
         }
 
         @Test
         fun `should prohibit anonymous access`() {
-            request(actor = ANONYMOUS_USER)
+            request()
+                .fromAnonymous()
                 .exchange()
                 .expectStatus().isUnauthorized
         }
 
         @Test
         fun `should require admin privileges`() {
-            request(actor = preconditions.fry)
+            request()
+                .from(preconditions.fry)
                 .exchange()
                 .expectStatus().isForbidden
         }
 
         @Test
         fun `should return 404 for non-existing token`() {
-            request(actor = preconditions.farnsworth)
+            request()
+                .from(preconditions.farnsworth)
                 .exchange()
                 .expectStatus().isNotFound
         }
 
         @Test
         fun `should return 404 for expired token`() {
-            request(userId = preconditions.expiredToken.userId, actor = preconditions.farnsworth)
+            request(userId = preconditions.expiredToken.userId)
+                .from(preconditions.farnsworth)
                 .exchange()
                 .expectStatus().isNotFound
 
@@ -106,7 +108,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should return valid token`() {
-            request(userId = preconditions.activeToken.userId, actor = preconditions.farnsworth)
+            request(userId = preconditions.activeToken.userId)
+                .from(preconditions.farnsworth)
                 .verifyOkAndJsonBodyEqualTo {
                     put("token", "active-token")
                     put("expiresAt", "1999-03-28T23:01:03.042Z")
@@ -131,10 +134,11 @@ class UserActivationTokensApiControllerIT(
             }
         }
 
-        private fun request(token: String, actor: PlatformUser? = ANONYMOUS_USER): WebTestClient.RequestHeadersSpec<*> {
+        private fun request(token: String): WebTestClient.RequestHeadersSpec<*> {
             return client
-                .getFrom(actor)
+                .get()
                 .uri("/api/user-activation-tokens/{token}", token)
+                .fromAnonymous()
         }
 
         @Test
@@ -146,7 +150,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should allow access with regular user privileges`() {
-            request(preconditions.activeToken.token, actor = preconditions.fry)
+            request(preconditions.activeToken.token)
+                .from(preconditions.fry)
                 .exchange()
                 .expectStatus().is2xxSuccessful
         }
@@ -204,9 +209,9 @@ class UserActivationTokensApiControllerIT(
             }
         }
 
-        private fun request(userId: Long = 42, actor: PlatformUser?): WebTestClient.RequestHeadersSpec<*> {
+        private fun request(userId: Long = 42): WebTestClient.RequestHeadersSpec<*> {
             return client
-                .postFrom(actor)
+                .post()
                 .uri("/api/user-activation-tokens")
                 .sendJson {
                     put("userId", userId)
@@ -215,28 +220,32 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should prohibit anonymous access`() {
-            request(actor = ANONYMOUS_USER)
+            request()
+                .fromAnonymous()
                 .exchange()
                 .expectStatus().isUnauthorized
         }
 
         @Test
         fun `should require admin privileges`() {
-            request(actor = preconditions.fry)
+            request()
+                .from(preconditions.fry)
                 .exchange()
                 .expectStatus().isForbidden
         }
 
         @Test
         fun `should return 404 for non-existing user`() {
-            request(100500, actor = preconditions.farnsworth)
+            request(100500)
+                .from(preconditions.farnsworth)
                 .exchange()
                 .expectStatus().isNotFound
         }
 
         @Test
         fun `should return 400 when trying to create a token for activated user`() {
-            request(preconditions.activatedUser.id!!, actor = preconditions.farnsworth)
+            request(preconditions.activatedUser.id!!)
+                .from(preconditions.farnsworth)
                 .exchange()
                 .expectStatus().isBadRequest
                 .expectThatJsonBodyEqualTo {
@@ -247,7 +256,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should create token for user without token`() {
-            request(userId = preconditions.userWithoutToken.id!!, actor = preconditions.farnsworth)
+            request(userId = preconditions.userWithoutToken.id!!)
+                .from(preconditions.farnsworth)
                 .exchange()
                 .expectStatus().isCreated
                 .expectThatJsonBody {
@@ -261,7 +271,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should create new token for user with existing token`() {
-            request(userId = preconditions.userWithToken.id!!, actor = preconditions.farnsworth)
+            request(userId = preconditions.userWithToken.id!!)
+                .from(preconditions.farnsworth)
                 .exchange()
                 .expectStatus().isCreated
                 .expectThatJsonBody {
@@ -282,48 +293,32 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("POST /api/user-activation-tokens/{token}/activate")
     inner class ActivateUser {
-        private val preconditions by lazy {
-            object : Preconditions(preconditionsInfra) {
-                val expiredToken = userActivationToken(
-                    token = "expired-token",
-                    expiresAt = MOCK_TIME.minusSeconds(1)
-                )
-                val user = platformUser(
-                    activated = false
-                )
-                val activeToken = userActivationToken(
-                    user = user,
-                    token = "active-token",
-                    expiresAt = MOCK_TIME.plusSeconds(1)
-                )
-                val fry = fry()
-            }
-        }
-
         private fun request(
             token: String,
             password: String = "qwerty",
             body: String = buildJsonObject {
                 put("password", password)
-            }.toString() ,
-            actor: PlatformUser? = ANONYMOUS_USER
+            }.toString()
         ): WebTestClient.RequestHeadersSpec<*> {
             return client
-                .postFrom(actor)
+                .post()
                 .uri("/api/user-activation-tokens/{token}/activate", token)
                 .sendJson(body)
+                .fromAnonymous()
         }
 
         @Test
         fun `should allow anonymous access`() {
-            request(preconditions.activeToken.token)
+            request(setupPreconditions().activeToken.token)
                 .exchange()
                 .expectStatus().is2xxSuccessful
         }
 
         @Test
         fun `should allow access with regular user privileges`() {
-            request(preconditions.activeToken.token, actor = preconditions.fry)
+            val preconditions = setupPreconditions()
+            request(preconditions.activeToken.token)
+                .from(preconditions.fry)
                 .exchange()
                 .expectStatus().is2xxSuccessful
         }
@@ -337,6 +332,7 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should return 400 for expired token`() {
+            val preconditions = setupPreconditions()
             request(preconditions.expiredToken.token)
                 .exchange()
                 .expectStatus().isBadRequest
@@ -353,6 +349,8 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should activate account when valid token is used`() {
+            val preconditions = setupPreconditions()
+
             request(preconditions.activeToken.token)
                 .verifyOkNoContent()
 
@@ -367,9 +365,26 @@ class UserActivationTokensApiControllerIT(
             }
         }
 
+        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+            val expiredToken = userActivationToken(
+                token = "expired-token",
+                expiresAt = MOCK_TIME.minusSeconds(1)
+            )
+            val user = platformUser(
+                activated = false
+            )
+            val activeToken = userActivationToken(
+                user = user,
+                token = "active-token",
+                expiresAt = MOCK_TIME.plusSeconds(1)
+            )
+            val fry = fry()
+        }
+
         @Nested
         inner class RequestsValidation : ApiRequestsValidationsTestBase() {
             override val requestExecutionSpec = { requestBody: String ->
+                val preconditions = setupPreconditions()
                 request(preconditions.activeToken.token, body = requestBody)
             }
 

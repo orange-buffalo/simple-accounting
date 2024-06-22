@@ -3,11 +3,7 @@ package io.orangebuffalo.simpleaccounting.domain.users
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.api.ApiTestClient
-import io.orangebuffalo.simpleaccounting.infra.api.ApiTestClient.Companion.ANONYMOUS_USER
-import io.orangebuffalo.simpleaccounting.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.infra.api.verifyCreatedAndJsonBodyEqualTo
-import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBodyEqualTo
+import io.orangebuffalo.simpleaccounting.infra.api.*
 import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
 import io.orangebuffalo.simpleaccounting.infra.utils.*
@@ -39,7 +35,7 @@ internal class UsersApiControllerIT(
     @DisplayName("GET /api/users")
     inner class GetUsers {
         private val preconditions by lazy {
-            object: Preconditions(preconditionsInfra) {
+            object : Preconditions(preconditionsInfra) {
                 val farnsworth = farnsworth()
                 val fry = fry()
                 val zoidberg = platformUser(
@@ -50,27 +46,30 @@ internal class UsersApiControllerIT(
             }
         }
 
-        private fun sendRequest(actor: PlatformUser?) = client
-            .getFrom(actor)
+        private fun request() = client
+            .get()
             .uri("/api/users")
 
         @Test
         fun `should prohibit anonymous access`() {
-            sendRequest(ANONYMOUS_USER)
+            request()
+                .fromAnonymous()
                 .exchange()
                 .expectStatus().isUnauthorized
         }
 
         @Test
         fun `should prohibit access by regular users`() {
-            sendRequest(preconditions.fry)
+            request()
+                .from(preconditions.fry)
                 .exchange()
                 .expectStatus().isForbidden
         }
 
         @Test
         fun `should return a valid users page`() {
-            sendRequest(preconditions.farnsworth)
+            request()
+                .from(preconditions.farnsworth)
                 .verifyOkAndJsonBodyEqualTo {
                     put("pageNumber", 1)
                     put("pageSize", 10)
@@ -116,16 +115,26 @@ internal class UsersApiControllerIT(
             }
         }
 
+        private fun request() = client
+            .post()
+            .uri("/api/users")
+            .sendJson {
+                put("userName", "Leela")
+                put("admin", false)
+            }
+
         @Test
         fun `should prohibit anonymous access`() {
-            sendRequest(ANONYMOUS_USER)
+            request()
+                .fromAnonymous()
                 .exchange()
                 .expectStatus().isUnauthorized
         }
 
         @Test
         fun `should prohibit regular user access`() {
-            sendRequest(preconditions.fry)
+            request()
+                .from(preconditions.fry)
                 .exchange()
                 .expectStatus().isForbidden
         }
@@ -134,7 +143,8 @@ internal class UsersApiControllerIT(
         fun `should create a new user`() {
             mockCurrentTime(timeService)
 
-            sendRequest(preconditions.farnsworth)
+            request()
+                .from(preconditions.farnsworth)
                 .verifyCreatedAndJsonBodyEqualTo {
                     put("userName", "Leela")
                     put("id", "#{json-unit.any-number}")
@@ -162,21 +172,14 @@ internal class UsersApiControllerIT(
                 }
         }
 
-        private fun sendRequest(actor: PlatformUser?) = client
-            .postFrom(actor)
-            .uri("/api/users")
-            .sendJson {
-                put("userName", "Leela")
-                put("admin", false)
-            }
-
         @Nested
         inner class RequestsValidation : ApiRequestsValidationsTestBase() {
             override val requestExecutionSpec = { requestBody: String ->
                 client
-                    .postFrom(preconditions.farnsworth)
+                    .post()
                     .uri("/api/users")
                     .sendJson(requestBody)
+                    .from(preconditions.farnsworth)
             }
 
             override val requestBodySpec: ApiRequestsBodyConfiguration = {
