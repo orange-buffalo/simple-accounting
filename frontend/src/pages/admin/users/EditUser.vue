@@ -21,11 +21,17 @@
   import { $t } from '@/services/i18n';
   import SaForm from '@/components/form/SaForm.vue';
   import useNavigation from '@/services/use-navigation';
-  import { CreateUserRequestDto } from '@/services/api';
+  import {
+    CreateUserRequestDto,
+    handleApiBusinessError,
+    UserApiBadRequestErrors,
+  } from '@/services/api';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications.ts';
   import { usersApi } from '@/services/api/api-client.ts';
   import SaFormSelect from '@/components/form/SaFormSelect.vue';
+  import { ApiBusinessError } from '@/services/api/api-errors.ts';
+  import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
 
   const props = defineProps<{
     id?: number
@@ -44,11 +50,24 @@
   });
 
   const saveUser = async () => {
-    await usersApi.createUser({
-      createUserRequestDto: formValues.value,
-    });
-    showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName));
-    await navigateToUsersOverview();
+    try {
+      await usersApi.createUser({
+        createUserRequestDto: formValues.value,
+      });
+      showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName));
+      await navigateToUsersOverview();
+    } catch (e: unknown) {
+      if (e instanceof ApiBusinessError) {
+        const error = handleApiBusinessError<UserApiBadRequestErrors>(e);
+        if (error.error === 'UserAlreadyExists') {
+          throw new ClientSideValidationError([{
+            field: 'userName',
+            message: $t.value.editUser.form.userName.errors.userAlreadyExists(formValues.value.userName),
+          }]);
+        }
+      }
+      throw e;
+    }
   };
 
   const pageHeader = props.id === undefined

@@ -891,6 +891,9 @@ export default {
     form: {
       userName: {
         label: () => 'Ім\'я користувача',
+        errors: {
+          userAlreadyExists: (userName: string) => format('Користувач з іменем "{0}" вже існує', [userName]),
+        },
       },
       role: {
         label: () => 'Роль користувача',

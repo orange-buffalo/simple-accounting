@@ -19,7 +19,6 @@ import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeCreateUserPa
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
@@ -143,11 +142,11 @@ class UserCreationFullStackTest(
     }
 
     @Test
-    @Disabled("To be fixed in #1289")
     fun `should validate user name uniqueness`(page: Page) {
         setupPreconditionsAndNavigateToCreatePage(page)
             .userName { input.fill("admin") }
             .saveButton { click() }
+            .userName { shouldHaveValidationError("User with username \"admin\" already exists") }
             .shouldHaveNotifications {
                 validationFailed()
             }
