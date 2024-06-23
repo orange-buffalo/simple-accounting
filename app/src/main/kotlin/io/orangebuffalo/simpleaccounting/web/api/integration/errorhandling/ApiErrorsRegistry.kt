@@ -5,12 +5,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.result.condition.PatternsRequestCondition
 import org.springframework.web.reactive.result.method.RequestMappingInfoHandlerMapping
-import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 /**
- * Introspects Spring Web endpoints for [HandleApiErrorsWith] annotation and collects corresponding handlers.
- * Is intended to be used by [SaOpenApiCustomizer] and [RestApiControllerExceptionsHandler].
+ * Introspects Spring Web endpoints for [HandleApiErrorsWith] and [ApiErrorMapping] annotations
+ * and collects corresponding handlers.
+ * Is intended to be used by [SaOpenApiCustomizer] for schema generation and by
+ * [RestApiControllerExceptionsHandler] for runtime exception handling.
  */
 @Component
 internal class ApiErrorsRegistry(
@@ -19,10 +20,11 @@ internal class ApiErrorsRegistry(
     val errorDescriptors: List<ApiErrorDescriptor> = restApiMappings.asSequence()
         .flatMap { it.handlerMethods.entries.asSequence() }
         .flatMap { (requestMappingInfo, handlerMethod) ->
-            val handleApiErrorWiths = handlerMethod.method.getAnnotationsByType(HandleApiErrorsWith::class.java)
             val patterns = requestMappingInfo.patternsCondition.patterns.map { it.patternString }
             val methods = requestMappingInfo.methodsCondition.methods.map { it.asHttpMethod() }
-            handleApiErrorWiths.map {
+
+            val handleApiErrorWiths = handlerMethod.method.getAnnotationsByType(HandleApiErrorsWith::class.java)
+            val allHandlers = handleApiErrorWiths.map {
                 val errorHandlerClass = it.errorHandler
                 val errorHandler = errorHandlerClass.primaryConstructor?.call()
                     ?: throw IllegalStateException("$errorHandlerClass (from ${handlerMethod.method}) cannot be instantiated")
@@ -30,12 +32,29 @@ internal class ApiErrorsRegistry(
                 ApiErrorDescriptor(
                     paths = patterns,
                     httpMethods = methods,
-                    responseBody = errorHandler.getResponseType(),
+                    responseBodyDescriptor = errorHandler.getResponseBodyDescriptor(),
                     responseStatus = errorHandler.getHttpStatus(),
                     errorHandler = errorHandler,
                     patternsCondition = requestMappingInfo.patternsCondition,
                 )
+            }.toMutableList()
+
+            val apiErrorMappings = handlerMethod.method.getAnnotationsByType(ApiErrorMapping::class.java)
+            if (apiErrorMappings.isNotEmpty()) {
+                val errorHandler = SimpleApiErrorHandler(apiErrorMappings, handlerMethod.method)
+                allHandlers.add(
+                    ApiErrorDescriptor(
+                        paths = patterns,
+                        httpMethods = methods,
+                        responseBodyDescriptor = errorHandler.getResponseBodyDescriptor(),
+                        responseStatus = errorHandler.getHttpStatus(),
+                        errorHandler = errorHandler,
+                        patternsCondition = requestMappingInfo.patternsCondition,
+                    )
+                )
             }
+
+            allHandlers
         }
         .toList()
 
@@ -53,9 +72,9 @@ internal class ApiErrorsRegistry(
          */
         val responseStatus: HttpStatus,
         /**
-         * Body type for the error response.
+         * Body descriptor for the error response.
          */
-        val responseBody: KClass<*>,
+        val responseBodyDescriptor: ApiErrorResponseBodyDescriptor,
         /**
          * Handler for the error.
          */

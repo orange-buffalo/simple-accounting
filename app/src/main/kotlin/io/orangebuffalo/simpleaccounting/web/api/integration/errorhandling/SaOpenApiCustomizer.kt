@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
  * but not on a single endpoint. This makes schema messy and inaccurate, as different endpoints within same controller
  * might produce a different set of errors.
  *
- * This extension uses information from [HandleApiErrorsWith] (via [ApiErrorsRegistry]) to generate fine-grained
+ * This extension uses information from [ApiErrorsRegistry] to generate fine-grained
  * error response schema definitions, keeping it always consistent with actual error handling logic.
  */
 @Component
@@ -25,37 +25,41 @@ internal class SaOpenApiCustomizer(
     private val apiErrorsRegistry: ApiErrorsRegistry,
 ) : OpenApiCustomizer {
     override fun customise(openApi: OpenAPI) {
-        apiErrorsRegistry.errorDescriptors.forEach { errorDescriptor ->
+        apiErrorsRegistry.errorDescriptors
+            // for stable order of elements in the schema
+            .sortedBy { it.responseBodyDescriptor.typeName }
+            .forEach { errorDescriptor ->
+                val responseBodyDescriptor = errorDescriptor.responseBodyDescriptor
 
-            errorDescriptor.paths.forEach { path ->
-                val pathItem = openApi.paths.computeIfAbsent(path) { _ -> PathItem() }
+                errorDescriptor.paths.forEach { path ->
+                    val pathItem = openApi.paths.computeIfAbsent(path) { _ -> PathItem() }
 
-                errorDescriptor.httpMethods.forEach { httpMethod ->
-                    val swaggerMethod = PathItem.HttpMethod.valueOf(httpMethod.name())
-                    val operation = pathItem.readOperationsMap()[swaggerMethod] ?: Operation()
-                    val content = Content()
-                    content["application/json"] = MediaType()
-                        .schema(
-                            io.swagger.v3.oas.models.media.Schema<Any>()
-                                .`$ref`("#/components/schemas/${errorDescriptor.responseBody.simpleName}")
-                        )
-                    operation.responses["${errorDescriptor.responseStatus.value()}"] =
-                        ApiResponse()
-                            .description(errorDescriptor.responseStatus.reasonPhrase)
-                            .content(content)
-                    pathItem.operation(swaggerMethod, operation)
+                    errorDescriptor.httpMethods.forEach { httpMethod ->
+                        val swaggerMethod = PathItem.HttpMethod.valueOf(httpMethod.name())
+                        val operation = pathItem.readOperationsMap()[swaggerMethod] ?: Operation()
+                        val content = Content()
+                        content["application/json"] = MediaType()
+                            .schema(
+                                io.swagger.v3.oas.models.media.Schema<Any>()
+                                    .`$ref`("#/components/schemas/${responseBodyDescriptor.typeName}")
+                            )
+                        operation.responses["${errorDescriptor.responseStatus.value()}"] =
+                            ApiResponse()
+                                .description(errorDescriptor.responseStatus.reasonPhrase)
+                                .content(content)
+                        pathItem.operation(swaggerMethod, operation)
+                    }
                 }
+
+                openApi.components.addSchemas(responseBodyDescriptor.typeName, responseBodyDescriptor.schemaProvider())
             }
 
-            openApi.components.schemas[errorDescriptor.responseBody.simpleName] = ModelConverters.getInstance()
-                .resolveAsResolvedSchema(AnnotatedType(errorDescriptor.responseBody.java))
-                .schema
-        }
-
         genericResponses.forEach {
-            openApi.components.schemas[it.simpleName] = ModelConverters.getInstance()
-                .resolveAsResolvedSchema(AnnotatedType(it))
-                .schema
+            openApi.components.addSchemas(
+                it.simpleName, ModelConverters.getInstance()
+                    .resolveAsResolvedSchema(AnnotatedType(it))
+                    .schema
+            )
         }
     }
 }

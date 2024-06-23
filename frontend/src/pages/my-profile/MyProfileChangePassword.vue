@@ -77,10 +77,8 @@
   import useNotifications from '@/components/notifications/use-notifications';
   import {
     handleApiBusinessError,
-    profileApi,
-    ProfileApiBadRequestErrorsErrorEnum,
+    profileApi, ProfileApiChangePasswordErrors,
   } from '@/services/api';
-  import type { ProfileApiBadRequestErrors } from '@/services/api';
 
   interface PasswordData {
     currentPassword: string,
@@ -128,8 +126,8 @@
       });
       showSuccessNotification($t.value.myProfile.changePassword.feedback.success());
     } catch (e: unknown) {
-      const errorResponse = handleApiBusinessError<ProfileApiBadRequestErrors>(e);
-      if (errorResponse.error === ProfileApiBadRequestErrorsErrorEnum.CurrentPasswordMismatch) {
+      const errorResponse = handleApiBusinessError<ProfileApiChangePasswordErrors>(e);
+      if (errorResponse.error === 'CurrentPasswordMismatch') {
         currentPasswordValidation.setValidationError(
           $t.value.myProfile.changePassword.validations.currentPasswordMismatch(),
         );

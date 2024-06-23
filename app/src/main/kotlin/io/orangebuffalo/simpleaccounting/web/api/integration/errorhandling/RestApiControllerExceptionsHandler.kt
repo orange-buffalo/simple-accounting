@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundExce
 import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.services.security.authentication.AccountIsTemporaryLockedException
 import io.orangebuffalo.simpleaccounting.services.security.authentication.LoginUnavailableException
+import io.swagger.v3.oas.models.media.Schema
 import mu.KotlinLogging
 import org.springframework.core.NestedRuntimeException
 import org.springframework.core.codec.CodecException
@@ -23,6 +24,8 @@ import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.ServerWebInputException
 import reactor.core.publisher.Mono
+import java.lang.reflect.Method
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
@@ -264,14 +267,19 @@ private fun AccountIsTemporaryLockedException.toDto() =
         lockExpiresInSec = lockExpiresInSec
     )
 
-abstract class DefaultErrorHandler<E : Enum<E>, R : SaApiErrorDto<E>>(
+/**
+ * A base class for complex cases of API error handing when response body is more than just an error code.
+ * @see HandleApiErrorsWith
+ */
+abstract class ComplexResponseBodyErrorHandler<E : Enum<E>, R : SaApiErrorDto<E>>(
     private val responseType: KClass<R>,
     private val exceptionMappings: Map<KClass<out Exception>, E>
 ) : ApiErrorHandler<R> {
 
     override fun getHttpStatus(): HttpStatus = HttpStatus.BAD_REQUEST
 
-    override fun getResponseType(): KClass<R> = responseType
+    override fun getResponseBodyDescriptor(): ApiErrorResponseBodyDescriptor =
+        ApiErrorResponseBodyDescriptor.ofClass(responseType)
 
     override fun handleApiError(exception: Throwable): R? {
         val error = exceptionMappings[exception::class]
@@ -281,6 +289,60 @@ abstract class DefaultErrorHandler<E : Enum<E>, R : SaApiErrorDto<E>>(
         }
     }
 }
+
+/**
+ * API error handler for the standard cases with simple enum-based error response bodies.
+ * @see ApiErrorMapping
+ */
+internal class SimpleApiErrorHandler(
+    private val apiErrorMappings: Array<ApiErrorMapping>,
+    private val endpointMethod: Method,
+) : ApiErrorHandler<SimpleApiErrorDto> {
+    override fun getHttpStatus(): HttpStatus = HttpStatus.BAD_REQUEST
+
+    override fun getResponseBodyDescriptor(): ApiErrorResponseBodyDescriptor {
+        val apiName = endpointMethod.declaringClass.simpleName.removeSuffix("Controller")
+        val endpointNameCapitalized = endpointMethod.name.replaceFirstChar { it.titlecase(Locale.getDefault()) }
+        return ApiErrorResponseBodyDescriptor(
+            typeName = "${apiName}${endpointNameCapitalized}Errors",
+            schemaProvider = {
+                // SimpleApiErrorDto but with "dynamic" enum for error field
+                Schema<Any>()
+                    .type("object")
+                    .required(listOf(SimpleApiErrorDto::error.name))
+                    .addProperty(
+                        SimpleApiErrorDto::error.name,
+                        Schema<String>()
+                            .type("string")
+                            ._enum(apiErrorMappings.map { it.apiError })
+                    )
+                    .addProperty(
+                        SimpleApiErrorDto::message.name,
+                        Schema<String>()
+                            .type("string")
+                    )
+            }
+        )
+    }
+
+    override fun handleApiError(exception: Throwable): SimpleApiErrorDto? {
+        val error = apiErrorMappings.firstOrNull { it.exceptionClass.isInstance(exception) }?.apiError
+        return if (error == null) null else {
+            SimpleApiErrorDto(
+                error = error,
+                message = exception.message,
+            )
+        }
+    }
+}
+
+/**
+ * Same structure as [SaApiErrorDto] but not imposing enum constraint.
+ */
+internal class SimpleApiErrorDto(
+    val error: String,
+    val message: String? = null,
+)
 
 private data class SpringValidationErrorMapping(
     val error: String,

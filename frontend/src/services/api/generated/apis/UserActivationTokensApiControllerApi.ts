@@ -18,7 +18,8 @@ import type {
   CreateUserActivationTokenRequestDto,
   UserActivationRequestDto,
   UserActivationTokenDto,
-  UserActivationTokensApiBadRequestErrors,
+  UserActivationTokensApiActivateUserErrors,
+  UserActivationTokensApiCreateTokenErrors,
 } from '../models/index';
 import {
     CreateUserActivationTokenRequestDtoFromJSON,
@@ -27,8 +28,10 @@ import {
     UserActivationRequestDtoToJSON,
     UserActivationTokenDtoFromJSON,
     UserActivationTokenDtoToJSON,
-    UserActivationTokensApiBadRequestErrorsFromJSON,
-    UserActivationTokensApiBadRequestErrorsToJSON,
+    UserActivationTokensApiActivateUserErrorsFromJSON,
+    UserActivationTokensApiActivateUserErrorsToJSON,
+    UserActivationTokensApiCreateTokenErrorsFromJSON,
+    UserActivationTokensApiCreateTokenErrorsToJSON,
 } from '../models/index';
 
 export interface ActivateUserRequest {

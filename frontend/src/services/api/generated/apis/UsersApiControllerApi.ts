@@ -18,7 +18,7 @@ import type {
   ApiPagePlatformUserDto,
   CreateUserRequestDto,
   PlatformUserDto,
-  UserApiBadRequestErrors,
+  UsersApiCreateUserErrors,
 } from '../models/index';
 import {
     ApiPagePlatformUserDtoFromJSON,
@@ -27,8 +27,8 @@ import {
     CreateUserRequestDtoToJSON,
     PlatformUserDtoFromJSON,
     PlatformUserDtoToJSON,
-    UserApiBadRequestErrorsFromJSON,
-    UserApiBadRequestErrorsToJSON,
+    UsersApiCreateUserErrorsFromJSON,
+    UsersApiCreateUserErrorsToJSON,
 } from '../models/index';
 
 export interface CreateUserRequest {

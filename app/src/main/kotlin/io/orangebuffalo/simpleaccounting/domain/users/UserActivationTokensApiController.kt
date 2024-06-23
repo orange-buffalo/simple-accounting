@@ -1,9 +1,7 @@
 package io.orangebuffalo.simpleaccounting.domain.users
 
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.DefaultErrorHandler
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.HandleApiErrorsWith
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.SaApiErrorDto
+import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiErrorMapping
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -62,14 +60,14 @@ class UserActivationTokensApiController(
      * Creates a new user activation token for the user with the specified id.
      * In case there is an existing token for the user, it is replaced with a new one.
      * In case user is already activated, 400 response is returned
-     * with [UserActivationTokensApiErrors.UserAlreadyActivated] error.
+     * with `UserAlreadyActivated` error.
      *
      * This API is accessible only for users with ADMIN role.
      */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    @HandleApiErrorsWith(UserActivationTokensApiBadRequestErrorHandler::class)
+    @ApiErrorMapping(UserActivationTokenCreationException.UserAlreadyActivatedException::class, "UserAlreadyActivated")
     suspend fun createToken(@RequestBody @Valid request: CreateUserActivationTokenRequestDto): UserActivationTokenDto =
         userService.createUserActivationToken(request.userId).mapToUserActivationTokenDto()
 
@@ -84,7 +82,7 @@ class UserActivationTokensApiController(
      */
     @PostMapping("{token}/activate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @HandleApiErrorsWith(UserActivationTokensApiBadRequestErrorHandler::class)
+    @ApiErrorMapping(UserActivationException.TokenExpiredException::class, "TokenExpired")
     suspend fun activateUser(
         @PathVariable token: String,
         @RequestBody @Valid request: UserActivationRequestDto
@@ -135,27 +133,3 @@ private fun UserActivationToken.mapToUserActivationTokenDto() = UserActivationTo
     expiresAt = expiresAt,
 )
 
-class UserActivationTokensApiBadRequestErrorHandler :
-    DefaultErrorHandler<UserActivationTokensApiErrors, UserActivationTokensApiBadRequestErrors>(
-        responseType = UserActivationTokensApiBadRequestErrors::class,
-        exceptionMappings = mapOf(
-            UserActivationTokenCreationException.UserAlreadyActivatedException::class to UserActivationTokensApiErrors.UserAlreadyActivated,
-            UserActivationException.TokenExpiredException::class to UserActivationTokensApiErrors.TokenExpired,
-        )
-    )
-
-class UserActivationTokensApiBadRequestErrors(error: UserActivationTokensApiErrors, message: String?) :
-    SaApiErrorDto<UserActivationTokensApiErrors>(error, message)
-
-enum class UserActivationTokensApiErrors {
-    /**
-     * Indicates that the user is already activated. User should use their password or request
-     * reset password to access their account.
-     */
-    UserAlreadyActivated,
-
-    /**
-     * Indicates that the token used for activation is expired.
-     */
-    TokenExpired,
-}
