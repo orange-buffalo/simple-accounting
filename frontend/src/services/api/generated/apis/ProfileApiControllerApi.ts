@@ -17,7 +17,7 @@ import * as runtime from '../runtime';
 import type {
   ChangePasswordRequestDto,
   DocumentsStorageStatus,
-  ProfileApiBadRequestErrors,
+  ProfileApiChangePasswordErrors,
   ProfileDto,
   UpdateProfileRequestDto,
 } from '../models/index';
@@ -26,8 +26,8 @@ import {
     ChangePasswordRequestDtoToJSON,
     DocumentsStorageStatusFromJSON,
     DocumentsStorageStatusToJSON,
-    ProfileApiBadRequestErrorsFromJSON,
-    ProfileApiBadRequestErrorsToJSON,
+    ProfileApiChangePasswordErrorsFromJSON,
+    ProfileApiChangePasswordErrorsToJSON,
     ProfileDtoFromJSON,
     ProfileDtoToJSON,
     UpdateProfileRequestDtoFromJSON,

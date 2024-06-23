@@ -65,8 +65,7 @@
   import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
   import {
     UserActivationRequestDto,
-    userActivationTokensApi,
-    UserActivationTokensApiBadRequestErrors,
+    userActivationTokensApi, UserActivationTokensApiActivateUserErrors,
   } from '@/services/api';
 
   const props = defineProps<{
@@ -84,7 +83,7 @@
         status.value = 'BAD_TOKEN';
       }
       if (e instanceof ApiBusinessError) {
-        const { error } = e.errorAs<UserActivationTokensApiBadRequestErrors>();
+        const { error } = e.errorAs<UserActivationTokensApiActivateUserErrors>();
         if (error === 'TokenExpired') {
           status.value = 'BAD_TOKEN';
         } else {

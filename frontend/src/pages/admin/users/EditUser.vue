@@ -23,8 +23,8 @@
   import useNavigation from '@/services/use-navigation';
   import {
     CreateUserRequestDto,
+    UsersApiCreateUserErrors,
     handleApiBusinessError,
-    UserApiBadRequestErrors,
   } from '@/services/api';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications.ts';
@@ -58,7 +58,7 @@
       await navigateToUsersOverview();
     } catch (e: unknown) {
       if (e instanceof ApiBusinessError) {
-        const error = handleApiBusinessError<UserApiBadRequestErrors>(e);
+        const error = handleApiBusinessError<UsersApiCreateUserErrors>(e);
         if (error.error === 'UserAlreadyExists') {
           throw new ClientSideValidationError([{
             field: 'userName',

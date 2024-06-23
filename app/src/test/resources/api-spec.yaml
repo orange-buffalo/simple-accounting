@@ -1136,7 +1136,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserApiBadRequestErrors"
+                $ref: "#/components/schemas/UsersApiCreateUserErrors"
   /api/user-activation-tokens:
     post:
       tags:
@@ -1160,7 +1160,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserActivationTokensApiBadRequestErrors"
+                $ref: "#/components/schemas/UserActivationTokensApiCreateTokenErrors"
   /api/user-activation-tokens/{token}/activate:
     post:
       tags:
@@ -1186,7 +1186,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserActivationTokensApiBadRequestErrors"
+                $ref: "#/components/schemas/UserActivationTokensApiActivateUserErrors"
   /api/shared-workspaces:
     get:
       tags:
@@ -1237,7 +1237,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProfileApiBadRequestErrors"
+                $ref: "#/components/schemas/ProfileApiChangePasswordErrors"
   /api/auth/token:
     post:
       tags:
@@ -2740,30 +2740,7 @@ components:
       properties:
         active:
           type: boolean
-    UserActivationTokensApiBadRequestErrors:
-      required:
-      - error
-      type: object
-      properties:
-        error:
-          type: string
-          enum:
-          - UserAlreadyActivated
-          - TokenExpired
-        message:
-          type: string
-    UserApiBadRequestErrors:
-      required:
-      - error
-      type: object
-      properties:
-        error:
-          type: string
-          enum:
-          - UserAlreadyExists
-        message:
-          type: string
-    ProfileApiBadRequestErrors:
+    ProfileApiChangePasswordErrors:
       required:
       - error
       type: object
@@ -2774,6 +2751,39 @@ components:
           - CurrentPasswordMismatch
           - TransientUser
           - NotAuthenticated
+        message:
+          type: string
+    UserActivationTokensApiActivateUserErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - TokenExpired
+        message:
+          type: string
+    UserActivationTokensApiCreateTokenErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - UserAlreadyActivated
+        message:
+          type: string
+    UsersApiCreateUserErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - UserAlreadyExists
         message:
           type: string
     FieldErrorDto:

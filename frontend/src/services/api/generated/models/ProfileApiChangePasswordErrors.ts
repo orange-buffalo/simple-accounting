@@ -16,19 +16,19 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface ProfileApiBadRequestErrors
+ * @interface ProfileApiChangePasswordErrors
  */
-export interface ProfileApiBadRequestErrors {
+export interface ProfileApiChangePasswordErrors {
     /**
      * 
      * @type {string}
-     * @memberof ProfileApiBadRequestErrors
+     * @memberof ProfileApiChangePasswordErrors
      */
-    error: ProfileApiBadRequestErrorsErrorEnum;
+    error: ProfileApiChangePasswordErrorsErrorEnum;
     /**
      * 
      * @type {string}
-     * @memberof ProfileApiBadRequestErrors
+     * @memberof ProfileApiChangePasswordErrors
      */
     message?: string;
 }
@@ -37,27 +37,27 @@ export interface ProfileApiBadRequestErrors {
 /**
  * @export
  */
-export const ProfileApiBadRequestErrorsErrorEnum = {
+export const ProfileApiChangePasswordErrorsErrorEnum = {
     CurrentPasswordMismatch: 'CurrentPasswordMismatch',
     TransientUser: 'TransientUser',
     NotAuthenticated: 'NotAuthenticated'
 } as const;
-export type ProfileApiBadRequestErrorsErrorEnum = typeof ProfileApiBadRequestErrorsErrorEnum[keyof typeof ProfileApiBadRequestErrorsErrorEnum];
+export type ProfileApiChangePasswordErrorsErrorEnum = typeof ProfileApiChangePasswordErrorsErrorEnum[keyof typeof ProfileApiChangePasswordErrorsErrorEnum];
 
 
 /**
- * Check if a given object implements the ProfileApiBadRequestErrors interface.
+ * Check if a given object implements the ProfileApiChangePasswordErrors interface.
  */
-export function instanceOfProfileApiBadRequestErrors(value: object): value is ProfileApiBadRequestErrors {
+export function instanceOfProfileApiChangePasswordErrors(value: object): value is ProfileApiChangePasswordErrors {
     if (!('error' in value) || value['error'] === undefined) return false;
     return true;
 }
 
-export function ProfileApiBadRequestErrorsFromJSON(json: any): ProfileApiBadRequestErrors {
-    return ProfileApiBadRequestErrorsFromJSONTyped(json, false);
+export function ProfileApiChangePasswordErrorsFromJSON(json: any): ProfileApiChangePasswordErrors {
+    return ProfileApiChangePasswordErrorsFromJSONTyped(json, false);
 }
 
-export function ProfileApiBadRequestErrorsFromJSONTyped(json: any, ignoreDiscriminator: boolean): ProfileApiBadRequestErrors {
+export function ProfileApiChangePasswordErrorsFromJSONTyped(json: any, ignoreDiscriminator: boolean): ProfileApiChangePasswordErrors {
     if (json == null) {
         return json;
     }
@@ -68,7 +68,7 @@ export function ProfileApiBadRequestErrorsFromJSONTyped(json: any, ignoreDiscrim
     };
 }
 
-export function ProfileApiBadRequestErrorsToJSON(value?: ProfileApiBadRequestErrors | null): any {
+export function ProfileApiChangePasswordErrorsToJSON(value?: ProfileApiChangePasswordErrors | null): any {
     if (value == null) {
         return value;
     }

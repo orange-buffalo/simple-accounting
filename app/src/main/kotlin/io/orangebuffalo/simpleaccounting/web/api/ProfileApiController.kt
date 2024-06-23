@@ -2,13 +2,11 @@ package io.orangebuffalo.simpleaccounting.web.api
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.services.security.authentication.PasswordChangeException
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.DefaultErrorHandler
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.HandleApiErrorsWith
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.SaApiErrorDto
+import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiErrorMapping
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
@@ -47,7 +45,9 @@ class ProfileApiController(
 
     @PostMapping("/change-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @HandleApiErrorsWith(ProfileApiBadRequestErrorHandler::class)
+    @ApiErrorMapping(PasswordChangeException.InvalidCurrentPasswordException::class, "CurrentPasswordMismatch")
+    @ApiErrorMapping(PasswordChangeException.TransientUserException::class, "TransientUser")
+    @ApiErrorMapping(PasswordChangeException.UserNotAuthenticatedException::class, "NotAuthenticated")
     suspend fun changePassword(
         @RequestBody @Valid request: ChangePasswordRequestDto
     ) {
@@ -86,21 +86,3 @@ data class ChangePasswordRequestDto(
     @field:NotNull @field:NotEmpty val currentPassword: String,
     @field:NotNull @field:NotEmpty val newPassword: String,
 )
-
-class ProfileApiBadRequestErrorHandler : DefaultErrorHandler<ProfileApiErrors, ProfileApiBadRequestErrors>(
-    responseType = ProfileApiBadRequestErrors::class,
-    exceptionMappings = mapOf(
-        PasswordChangeException.InvalidCurrentPasswordException::class to ProfileApiErrors.CurrentPasswordMismatch,
-        PasswordChangeException.TransientUserException::class to ProfileApiErrors.TransientUser,
-        PasswordChangeException.UserNotAuthenticatedException::class to ProfileApiErrors.NotAuthenticated,
-    )
-)
-
-class ProfileApiBadRequestErrors(error: ProfileApiErrors, message: String?) :
-    SaApiErrorDto<ProfileApiErrors>(error, message)
-
-enum class ProfileApiErrors {
-    CurrentPasswordMismatch,
-    TransientUser,
-    NotAuthenticated,
-}

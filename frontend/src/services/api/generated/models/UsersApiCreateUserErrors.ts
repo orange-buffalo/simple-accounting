@@ -16,19 +16,19 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UserApiBadRequestErrors
+ * @interface UsersApiCreateUserErrors
  */
-export interface UserApiBadRequestErrors {
+export interface UsersApiCreateUserErrors {
     /**
      * 
      * @type {string}
-     * @memberof UserApiBadRequestErrors
+     * @memberof UsersApiCreateUserErrors
      */
-    error: UserApiBadRequestErrorsErrorEnum;
+    error: UsersApiCreateUserErrorsErrorEnum;
     /**
      * 
      * @type {string}
-     * @memberof UserApiBadRequestErrors
+     * @memberof UsersApiCreateUserErrors
      */
     message?: string;
 }
@@ -37,25 +37,25 @@ export interface UserApiBadRequestErrors {
 /**
  * @export
  */
-export const UserApiBadRequestErrorsErrorEnum = {
+export const UsersApiCreateUserErrorsErrorEnum = {
     UserAlreadyExists: 'UserAlreadyExists'
 } as const;
-export type UserApiBadRequestErrorsErrorEnum = typeof UserApiBadRequestErrorsErrorEnum[keyof typeof UserApiBadRequestErrorsErrorEnum];
+export type UsersApiCreateUserErrorsErrorEnum = typeof UsersApiCreateUserErrorsErrorEnum[keyof typeof UsersApiCreateUserErrorsErrorEnum];
 
 
 /**
- * Check if a given object implements the UserApiBadRequestErrors interface.
+ * Check if a given object implements the UsersApiCreateUserErrors interface.
  */
-export function instanceOfUserApiBadRequestErrors(value: object): value is UserApiBadRequestErrors {
+export function instanceOfUsersApiCreateUserErrors(value: object): value is UsersApiCreateUserErrors {
     if (!('error' in value) || value['error'] === undefined) return false;
     return true;
 }
 
-export function UserApiBadRequestErrorsFromJSON(json: any): UserApiBadRequestErrors {
-    return UserApiBadRequestErrorsFromJSONTyped(json, false);
+export function UsersApiCreateUserErrorsFromJSON(json: any): UsersApiCreateUserErrors {
+    return UsersApiCreateUserErrorsFromJSONTyped(json, false);
 }
 
-export function UserApiBadRequestErrorsFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserApiBadRequestErrors {
+export function UsersApiCreateUserErrorsFromJSONTyped(json: any, ignoreDiscriminator: boolean): UsersApiCreateUserErrors {
     if (json == null) {
         return json;
     }
@@ -66,7 +66,7 @@ export function UserApiBadRequestErrorsFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function UserApiBadRequestErrorsToJSON(value?: UserApiBadRequestErrors | null): any {
+export function UsersApiCreateUserErrorsToJSON(value?: UsersApiCreateUserErrors | null): any {
     if (value == null) {
         return value;
     }
