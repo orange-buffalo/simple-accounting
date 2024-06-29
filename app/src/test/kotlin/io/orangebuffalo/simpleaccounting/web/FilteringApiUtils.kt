@@ -2,8 +2,8 @@ package io.orangebuffalo.simpleaccounting.web
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactory
+import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
@@ -208,7 +208,7 @@ interface EntitiesRegistry {
     /**
      * The entities factory that can be used to create other entities.
      */
-    val entitiesFactory: Preconditions
+    val entitiesFactory: EntitiesFactory
 }
 
 /**
@@ -216,7 +216,7 @@ interface EntitiesRegistry {
  * Use [generateFilteringApiTests] to create a collection of test cases and configure them.
  */
 abstract class FilteringApiTestCase {
-    abstract fun execute(client: WebTestClient, preconditionsInfra: PreconditionsInfra)
+    abstract fun execute(client: WebTestClient, entitiesFactoryInfra: EntitiesFactoryInfra)
 }
 
 /**
@@ -235,13 +235,13 @@ abstract class AbstractFilteringApiTest {
     lateinit var timeService: TimeService
 
     @Autowired
-    lateinit var preconditionsInfra: PreconditionsInfra
+    lateinit var entitiesFactoryInfra: EntitiesFactoryInfra
 
     @ParameterizedTest
     @MethodSource("createTestCases")
     fun testFilteringApi(testCase: FilteringApiTestCase) {
         mockCurrentDate(timeService)
         mockCurrentTime(timeService)
-        testCase.execute(client, preconditionsInfra)
+        testCase.execute(client, entitiesFactoryInfra)
     }
 }

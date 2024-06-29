@@ -5,8 +5,7 @@ import com.nhaarman.mockitokotlin2.stub
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
@@ -23,13 +22,14 @@ import org.springframework.context.annotation.Bean
 class DocumentsServiceIT(
     @Autowired private val documentsService: DocumentsService,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @Test
     @WithMockFryUser
     fun `should delegate to storage for status verification`() {
-        setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
 
         val storageStatus = runBlocking {
             documentsService.getCurrentUserStorageStatus()
@@ -40,15 +40,14 @@ class DocumentsServiceIT(
     @Test
     @WithMockFryUser
     fun `should return content for download`() {
-        val testData = setupPreconditions()
         testDocumentsStorage.mock.stub {
             onBlocking {
-                getDocumentContent(testData.fryWorkspace, testData.document.storageLocation!!)
+                getDocumentContent(preconditions.fryWorkspace, preconditions.document.storageLocation!!)
             } doReturn "test-content".toDataBuffers()
         }
 
         val contentResponse = runBlocking {
-            documentsService.getContent(DocumentDownloadMetadata(testData.document.id!!))
+            documentsService.getContent(DocumentDownloadMetadata(preconditions.document.id!!))
         }
 
         assertThat(contentResponse.fileName).isEqualTo("document.pdf")
@@ -70,20 +69,22 @@ class DocumentsServiceIT(
         override fun getId() = "mock-storage"
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = platformUser(
-            userName = "Fry",
-            documentsStorage = "mock-storage"
-        )
-        val fryWorkspace = workspace(owner = fry)
-        val document = document(
-            name = "document.pdf",
-            storageLocation = "document-in-storage",
-            workspace = fryWorkspace,
-            storageId = "mock-storage",
-            timeUploaded = MOCK_TIME,
-            sizeInBytes = 42
-        )
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = platformUser(
+                userName = "Fry",
+                documentsStorage = "mock-storage"
+            )
+            val fryWorkspace = workspace(owner = fry)
+            val document = document(
+                name = "document.pdf",
+                storageLocation = "document-in-storage",
+                workspace = fryWorkspace,
+                storageId = "mock-storage",
+                timeUploaded = MOCK_TIME,
+                sizeInBytes = 42
+            )
+        }
     }
 }
 

@@ -8,8 +8,7 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.StorageAuthori
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
@@ -50,7 +49,7 @@ class GoogleDriveDocumentsStorageServiceIT(
     @Autowired private val documentsStorage: GoogleDriveDocumentsStorage,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val applicationEventPublisher: ApplicationEventPublisher,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @MockBean
@@ -70,8 +69,7 @@ class GoogleDriveDocumentsStorageServiceIT(
     @Test
     @WithSaMockUser("Fry")
     fun `should require authorization if client cannot be authorized`() {
-        val testData = setupPreconditions()
-        givenExistingDriveIntegration(testData.fry)
+        givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAuthorizationFailure()
         clientAuthorizationProvider.stub {
             onBlocking { buildAuthorizationUrl(eq("google-drive"), any()) } doReturn "authUrl"
@@ -85,8 +83,7 @@ class GoogleDriveDocumentsStorageServiceIT(
     @Test
     @WithSaMockUser("Fry")
     fun `should require authorization if access token is invalid`() {
-        val testData = setupPreconditions()
-        givenExistingDriveIntegration(testData.fry)
+        givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAccessToken("driveToken")
         clientAuthorizationProvider.stub {
             onBlocking { buildAuthorizationUrl(eq("google-drive"), any()) } doReturn "authUrl"
@@ -116,8 +113,7 @@ class GoogleDriveDocumentsStorageServiceIT(
     @Test
     @WithSaMockUser("Fry")
     fun `should return existing root folder`() {
-        val testData = setupPreconditions()
-        givenExistingDriveIntegration(testData.fry)
+        givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAccessToken("driveToken")
         stubExistingRootFolder()
 
@@ -140,21 +136,22 @@ class GoogleDriveDocumentsStorageServiceIT(
     @Test
     @WithSaMockUser("Fry")
     fun `should create a new root folder if no previous integration exists`() {
-        val testData = setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
+
         webClientBuilderProvider.mockAccessToken("driveToken")
         stubNewRootFolderRequest()
 
         val status = whenCalculatingIntegrationStatus()
 
         assertNewIntegrationStatus(status)
-        assertNewIntegration(testData.fry)
+        assertNewIntegration(preconditions.fry)
     }
 
     @Test
     @WithSaMockUser("Fry")
     fun `should create a new root folder if previously recorded is trashed`() {
-        val testData = setupPreconditions()
-        givenExistingDriveIntegration(testData.fry)
+        givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAccessToken("driveToken")
         stubGetRequestTo("/drive/v3/files/fryFolderId") {
             withQueryParam("fields", equalTo("name, trashed, id"))
@@ -172,14 +169,13 @@ class GoogleDriveDocumentsStorageServiceIT(
         val status = whenCalculatingIntegrationStatus()
 
         assertNewIntegrationStatus(status)
-        assertNewIntegration(testData.fry)
+        assertNewIntegration(preconditions.fry)
     }
 
     @Test
     @WithSaMockUser("Fry")
     fun `should create a new root folder if previously recorded is not found`() {
-        val testData = setupPreconditions()
-        givenExistingDriveIntegration(testData.fry)
+        givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAccessToken("driveToken")
         stubGetRequestTo("/drive/v3/files/fryFolderId") {
             withQueryParam("fields", equalTo("name, trashed, id"))
@@ -191,24 +187,22 @@ class GoogleDriveDocumentsStorageServiceIT(
         val status = whenCalculatingIntegrationStatus()
 
         assertNewIntegrationStatus(status)
-        assertNewIntegration(testData.fry)
+        assertNewIntegration(preconditions.fry)
     }
 
     @Test
     @WithSaMockUser("Fry")
     fun `should fail on getting content if OAuth2 client is not authorized`() {
-        val testData = setupPreconditions()
         webClientBuilderProvider.mockAuthorizationFailure()
 
         assertThatThrownBy {
-            whenDownloadingDocumentContent(testData.workspace)
+            whenDownloadingDocumentContent(preconditions.workspace)
         }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
     }
 
     @Test
     @WithSaMockUser("Fry")
     fun `should download file content`() {
-        val testData = setupPreconditions()
         webClientBuilderProvider.mockAccessToken("driveToken")
         stubGetRequestTo("/drive/v3/files/testLocation") {
             withQueryParam("alt", equalTo("media"))
@@ -219,7 +213,7 @@ class GoogleDriveDocumentsStorageServiceIT(
             }
         }
 
-        val contentBuffers = whenDownloadingDocumentContent(testData.workspace)
+        val contentBuffers = whenDownloadingDocumentContent(preconditions.workspace)
 
         assertThat(contentBuffers.consumeToString()).isEqualTo("Test Content")
     }
@@ -227,32 +221,29 @@ class GoogleDriveDocumentsStorageServiceIT(
     @Test
     @WithSaMockUser("Fry")
     fun `should fail on saving content if integration is not configured`() {
-        val testData = setupPreconditions()
         assertThatThrownBy {
-            whenSavingDocument(testData.workspace)
+            whenSavingDocument(preconditions.workspace)
         }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
     }
 
     @Test
     @WithSaMockUser("Fry")
     fun `should fail on saving content if OAuth2 client is not authorized`() {
-        val testData = setupPreconditions()
-        givenExistingDriveIntegration(testData.fry)
+        givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAuthorizationFailure()
 
         assertThatThrownBy {
-            whenSavingDocument(testData.workspace)
+            whenSavingDocument(preconditions.workspace)
         }.isInstanceOf(StorageAuthorizationRequiredException::class.java)
     }
 
     @Test
     @WithSaMockUser("Fry")
     fun `should successfully upload a new document`() {
-        val testData = setupPreconditions()
-        givenExistingDriveIntegration(testData.fry)
+        givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAccessToken("driveToken")
         stubGetWorkspaceFolder(
-            testData.workspace,
+            preconditions.workspace,
             """{
                 "files": [{
                     "id": "fryWorkspaceFolderId",
@@ -262,7 +253,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         )
         stubNewFileUpload("fryWorkspaceFolderId")
 
-        val documentResponse = whenSavingDocument(testData.workspace)
+        val documentResponse = whenSavingDocument(preconditions.workspace)
 
         assertThat(documentResponse).isEqualTo(
             SaveDocumentResponse(
@@ -275,17 +266,16 @@ class GoogleDriveDocumentsStorageServiceIT(
     @Test
     @WithSaMockUser("Fry")
     fun `should create a workspace folder if not exists during document upload`() {
-        val testData = setupPreconditions()
-        givenExistingDriveIntegration(testData.fry)
+        givenExistingDriveIntegration(preconditions.fry)
         webClientBuilderProvider.mockAccessToken("driveToken")
-        stubGetWorkspaceFolder(testData.workspace, """{ "files": [] } """)
+        stubGetWorkspaceFolder(preconditions.workspace, """{ "files": [] } """)
         stubPostRequestTo("/drive/v3/files") {
             withQueryParam("fields", equalTo("id, name"))
             withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer driveToken"))
             withRequestBody(
                 equalToJson(
                     """{
-                        "name": "${testData.workspace.id}",
+                        "name": "${preconditions.workspace.id}",
                         "mimeType": "application/vnd.google-apps.folder",
                         "parents": ["fryFolderId"]
                     }"""
@@ -294,13 +284,13 @@ class GoogleDriveDocumentsStorageServiceIT(
             willReturnOkJson(
                 """{ 
                     "id": "workspaceFolderId", 
-                    "name": "${testData.workspace.id}"
+                    "name": "${preconditions.workspace.id}"
                 }"""
             )
         }
         stubNewFileUpload("workspaceFolderId")
 
-        val documentResponse = whenSavingDocument(testData.workspace)
+        val documentResponse = whenSavingDocument(preconditions.workspace)
 
         assertThat(documentResponse).isEqualTo(
             SaveDocumentResponse(
@@ -313,7 +303,6 @@ class GoogleDriveDocumentsStorageServiceIT(
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun `should send push notification with new auth URL on authorization failure`() {
-        val testData = setupPreconditions()
         clientAuthorizationProvider.stub {
             onBlocking { buildAuthorizationUrl(eq("google-drive"), any()) } doReturn "authUrl"
         }
@@ -321,7 +310,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         GlobalScope.run {
             applicationEventPublisher.publishEvent(
                 OAuth2FailedEvent(
-                    user = testData.fry,
+                    user = preconditions.fry,
                     context = coroutineContext,
                     clientRegistrationId = OAUTH2_CLIENT_REGISTRATION_ID
                 )
@@ -331,7 +320,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         await().untilAsserted {
             verifyBlocking(pushNotificationService) {
                 sendPushNotification(
-                    userId = testData.fry.id!!,
+                    userId = preconditions.fry.id!!,
                     eventName = AUTH_EVENT_NAME,
                     data = GoogleDriveStorageIntegrationStatus(
                         folderId = null,
@@ -347,14 +336,13 @@ class GoogleDriveDocumentsStorageServiceIT(
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun `should process success authorization event`() {
-        val testData = setupPreconditions()
         webClientBuilderProvider.mockAccessToken("driveToken")
         stubNewRootFolderRequest()
 
         GlobalScope.run {
             applicationEventPublisher.publishEvent(
                 OAuth2SucceededEvent(
-                    user = testData.fry,
+                    user = preconditions.fry,
                     context = coroutineContext,
                     clientRegistrationId = OAUTH2_CLIENT_REGISTRATION_ID
                 )
@@ -364,7 +352,7 @@ class GoogleDriveDocumentsStorageServiceIT(
         await().untilAsserted {
             verifyBlocking(pushNotificationService) {
                 sendPushNotification(
-                    userId = testData.fry.id!!,
+                    userId = preconditions.fry.id!!,
                     eventName = AUTH_EVENT_NAME,
                     data = GoogleDriveStorageIntegrationStatus(
                         folderId = "newFolderId",
@@ -374,7 +362,7 @@ class GoogleDriveDocumentsStorageServiceIT(
                     )
                 )
             }
-            assertNewIntegration(testData.fry)
+            assertNewIntegration(preconditions.fry)
         }
     }
 
@@ -505,8 +493,10 @@ class GoogleDriveDocumentsStorageServiceIT(
         )
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = fry()
-        val workspace = workspace(owner = fry)
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
+            val workspace = workspace(owner = fry)
+        }
     }
 }

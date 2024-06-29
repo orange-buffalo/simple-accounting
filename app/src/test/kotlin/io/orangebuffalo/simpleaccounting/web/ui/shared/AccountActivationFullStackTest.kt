@@ -9,8 +9,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.openAccountActivationPage
@@ -25,9 +24,25 @@ import java.time.Instant
 @SimpleAccountingFullStackTest
 class AccountActivationFullStackTest(
     @Autowired private val timeServiceSpy: TimeService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
+    preconditionsFactory: PreconditionsFactory,
 ) {
+    private val preconditions by preconditionsFactory {
+        object {
+            val user = platformUser(
+                activated = false,
+                userName = "new-user",
+            )
+            val token = userActivationToken(
+                expiresAt = Instant.ofEpochMilli(1577800922000),
+                user = user,
+            )
+
+            init {
+                whenever(timeServiceSpy.currentTime()) doReturn token.expiresAt
+            }
+        }
+    }
 
     @Test
     fun `should provide feedback if token is not known`(page: Page) {
@@ -41,8 +56,6 @@ class AccountActivationFullStackTest(
 
     @Test
     fun `should provide feedback if token expired during activation`(page: Page) {
-        val preconditions = setupValidTokenPreconditions()
-
         page.openAccountActivationPage(preconditions.token.token)
             .userMessage {
                 shouldBeRegular("Please provide your new password. You will then need to login using your username and new password.")
@@ -73,8 +86,6 @@ class AccountActivationFullStackTest(
 
     @Test
     fun `should validate user input`(page: Page) {
-        val preconditions = setupValidTokenPreconditions()
-
         page.openAccountActivationPage(preconditions.token.token).form {
             withClue("Should validate password match when confirmation is not provided") {
                 newPassword.input.fill("abc")
@@ -124,8 +135,6 @@ class AccountActivationFullStackTest(
 
     @Test
     fun `should activate user account`(page: Page) {
-        val preconditions = setupValidTokenPreconditions()
-
         page.openAccountActivationPage(preconditions.token.token)
             .form {
                 newPassword.input.fill("qwerty")
@@ -167,21 +176,6 @@ class AccountActivationFullStackTest(
                 }
 
             page.shouldBeWorkspaceSetupPage()
-        }
-    }
-
-    private fun setupValidTokenPreconditions() = object : Preconditions(preconditionsInfra) {
-        val user = platformUser(
-            activated = false,
-            userName = "new-user",
-        )
-        val token = userActivationToken(
-            expiresAt = Instant.ofEpochMilli(1577800922000),
-            user = user,
-        )
-
-        init {
-            whenever(timeServiceSpy.currentTime()) doReturn token.expiresAt
         }
     }
 }

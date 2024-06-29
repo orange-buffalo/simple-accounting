@@ -1,8 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.integration.downloads
 
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
@@ -21,14 +20,13 @@ import org.springframework.context.annotation.Bean
 class DownloadsServiceIT(
     @Autowired private val downloadsService: DownloadsService,
     @Autowired private val testContentProvider: TestContentProvider,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @Test
     fun `should generate download token`() {
-        val testData = setupPreconditions()
         val token = runBlocking {
-            runAs(testData.fry.toSecurityPrincipal()) {
+            runAs(preconditions.fry.toSecurityPrincipal()) {
                 downloadsService.createDownloadToken(testContentProvider, TestContentMetadata("ref"))
             }
         }
@@ -47,9 +45,8 @@ class DownloadsServiceIT(
 
     @Test
     fun `should return content from content provider by generated token`() {
-        val testData = setupPreconditions()
         val token = runBlocking {
-            runAs(testData.fry.toSecurityPrincipal()) {
+            runAs(preconditions.fry.toSecurityPrincipal()) {
                 downloadsService.createDownloadToken(testContentProvider, TestContentMetadata("ref"))
             }
         }
@@ -88,7 +85,9 @@ class DownloadsServiceIT(
         fun testContentProvider() = TestContentProvider()
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = fry()
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
+        }
     }
 }

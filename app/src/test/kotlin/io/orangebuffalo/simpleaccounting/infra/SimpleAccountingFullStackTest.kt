@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra
 
 import io.orangebuffalo.simpleaccounting.infra.database.DatabaseCleanupExtension
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactoryExtension
 import io.orangebuffalo.simpleaccounting.infra.security.TestPasswordEncoderConfig
 import io.orangebuffalo.simpleaccounting.infra.security.TestPasswordEncoderListener
 import io.orangebuffalo.simpleaccounting.infra.ui.FullStackTestsPlaywrightConfigurer
@@ -17,7 +18,12 @@ import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@ExtendWith(SpringExtension::class, DatabaseCleanupExtension::class, PlaywrightExtension::class)
+@ExtendWith(
+    SpringExtension::class,
+    DatabaseCleanupExtension::class,
+    PlaywrightExtension::class,
+    PreconditionsFactoryExtension::class
+)
 @PlaywrightConfig(configurer = FullStackTestsPlaywrightConfigurer::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(TestPasswordEncoderConfig::class, TestsMocksConfiguration::class, TestsUtilsConfiguration::class)
