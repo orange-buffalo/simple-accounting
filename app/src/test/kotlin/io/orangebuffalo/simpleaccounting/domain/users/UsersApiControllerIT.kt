@@ -5,8 +5,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsExtension
 import io.orangebuffalo.simpleaccounting.infra.utils.*
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import kotlinx.serialization.json.addJsonObject
@@ -15,6 +14,7 @@ import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpStatus
@@ -25,8 +25,7 @@ import java.time.Instant
 internal class UsersApiControllerIT(
     @Autowired private val client: ApiTestClient,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
-    @Autowired private val timeService: TimeService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    @Autowired private val timeService: TimeService
 ) {
 
     /**
@@ -35,8 +34,9 @@ internal class UsersApiControllerIT(
     @Nested
     @DisplayName("GET /api/users")
     inner class GetUsers {
-        private val preconditions by lazy {
-            object : Preconditions(preconditionsInfra) {
+        @RegisterExtension
+        private val preconditionsExt = PreconditionsExtension {
+            object {
                 val farnsworth = farnsworth()
                 val fry = fry()
                 val zoidberg = platformUser(
@@ -46,6 +46,7 @@ internal class UsersApiControllerIT(
                 )
             }
         }
+        private val preconditions by preconditionsExt
 
         private fun request() = client
             .get()
@@ -109,12 +110,14 @@ internal class UsersApiControllerIT(
     @DisplayName("POST /api/users")
     inner class CreateUser {
 
-        private val preconditions by lazy {
-            object : Preconditions(preconditionsInfra) {
+        @RegisterExtension
+        private val preconditionsExt = PreconditionsExtension {
+            object {
                 val farnsworth = farnsworth()
                 val fry = fry()
             }
         }
+        private val preconditions by preconditionsExt
 
         private fun request(userName: String = "Leela") = client
             .post()
@@ -209,6 +212,15 @@ internal class UsersApiControllerIT(
     @DisplayName("PUT /api/users/{userId}")
     inner class UpdateUser {
 
+        @RegisterExtension
+        private val preconditionsExt = PreconditionsExtension {
+            object {
+                val farnsworth = farnsworth()
+                val fry = fry()
+            }
+        }
+        private val preconditions by preconditionsExt
+
         private fun request(userId: Long?, userName: String = "Leela") = client
             .put()
             .uri("/api/users/${userId}")
@@ -218,7 +230,6 @@ internal class UsersApiControllerIT(
 
         @Test
         fun `should prohibit anonymous access`() {
-            val preconditions = setupPreconditions()
             request(userId = preconditions.fry.id)
                 .fromAnonymous()
                 .exchange()
@@ -227,7 +238,6 @@ internal class UsersApiControllerIT(
 
         @Test
         fun `should prohibit regular user access`() {
-            val preconditions = setupPreconditions()
             request(userId = preconditions.fry.id)
                 .from(preconditions.fry)
                 .exchange()
@@ -236,7 +246,6 @@ internal class UsersApiControllerIT(
 
         @Test
         fun `should update user`() {
-            val preconditions = setupPreconditions()
             request(userId = preconditions.fry.id, userName = "Leela")
                 .from(preconditions.farnsworth)
                 .verifyOkAndJsonBodyEqualTo {
@@ -257,7 +266,6 @@ internal class UsersApiControllerIT(
 
         @Test
         fun `should not allow to update to existing user name`() {
-            val preconditions = setupPreconditions()
             request(userId = preconditions.fry.id, userName = preconditions.farnsworth.userName)
                 .from(preconditions.farnsworth)
                 .verifyBadRequestAndJsonBodyEqualTo {
@@ -266,15 +274,9 @@ internal class UsersApiControllerIT(
                 }
         }
 
-        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-            val farnsworth = farnsworth()
-            val fry = fry()
-        }
-
         @Nested
         inner class RequestsValidation : ApiRequestsValidationsTestBase() {
             override val requestExecutionSpec = { requestBody: String ->
-                val preconditions = setupPreconditions()
                 client
                     .put()
                     .uri("/api/users/${preconditions.fry.id}")
