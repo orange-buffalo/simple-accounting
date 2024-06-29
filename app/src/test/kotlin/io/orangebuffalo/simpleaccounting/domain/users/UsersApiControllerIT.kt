@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.domain.users
 
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
 import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
@@ -198,6 +199,92 @@ internal class UsersApiControllerIT(
             }
 
             override val successResponseStatus = HttpStatus.CREATED
+        }
+    }
+
+    /**
+     * [UsersApiController.updateUser]
+     */
+    @Nested
+    @DisplayName("PUT /api/users/{userId}")
+    inner class UpdateUser {
+
+        private fun request(userId: Long?, userName: String = "Leela") = client
+            .put()
+            .uri("/api/users/${userId}")
+            .sendJson {
+                put("userName", userName)
+            }
+
+        @Test
+        fun `should prohibit anonymous access`() {
+            val preconditions = setupPreconditions()
+            request(userId = preconditions.fry.id)
+                .fromAnonymous()
+                .exchange()
+                .expectStatus().isUnauthorized
+        }
+
+        @Test
+        fun `should prohibit regular user access`() {
+            val preconditions = setupPreconditions()
+            request(userId = preconditions.fry.id)
+                .from(preconditions.fry)
+                .exchange()
+                .expectStatus().isForbidden
+        }
+
+        @Test
+        fun `should update user`() {
+            val preconditions = setupPreconditions()
+            request(userId = preconditions.fry.id, userName = "Leela")
+                .from(preconditions.farnsworth)
+                .verifyOkAndJsonBodyEqualTo {
+                    put("userName", "Leela")
+                    put("id", preconditions.fry.id)
+                    put("version", 1)
+                    put("admin", false)
+                    put("activated", true)
+                }
+
+            aggregateTemplate.findAll<PlatformUser>()
+                .filter { it.id == preconditions.fry.id }
+                .shouldBeSingle()
+                .should {
+                    it.userName.shouldBe("Leela")
+                }
+        }
+
+        @Test
+        fun `should not allow to update to existing user name`() {
+            val preconditions = setupPreconditions()
+            request(userId = preconditions.fry.id, userName = preconditions.farnsworth.userName)
+                .from(preconditions.farnsworth)
+                .verifyBadRequestAndJsonBodyEqualTo {
+                    put("error", "UserAlreadyExists")
+                    put("message", "User with name '${preconditions.farnsworth.userName}' already exists")
+                }
+        }
+
+        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
+            val farnsworth = farnsworth()
+            val fry = fry()
+        }
+
+        @Nested
+        inner class RequestsValidation : ApiRequestsValidationsTestBase() {
+            override val requestExecutionSpec = { requestBody: String ->
+                val preconditions = setupPreconditions()
+                client
+                    .put()
+                    .uri("/api/users/${preconditions.fry.id}")
+                    .sendJson(requestBody)
+                    .from(preconditions.farnsworth)
+            }
+
+            override val requestBodySpec: ApiRequestsBodyConfiguration = {
+                string("userName", maxLength = 255, mandatory = true)
+            }
         }
     }
 }

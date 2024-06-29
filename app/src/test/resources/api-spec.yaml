@@ -361,6 +361,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CustomerDto"
+  /api/users/{userId}:
+    put:
+      tags:
+      - users-api-controller
+      operationId: updateUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformUserDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersApiUpdateUserErrors"
   /api/profile:
     get:
       tags:
@@ -2140,6 +2171,35 @@ components:
         version:
           type: integer
           format: int32
+    UpdateUserRequestDto:
+      required:
+      - userName
+      type: object
+      properties:
+        userName:
+          maxLength: 255
+          minLength: 0
+          type: string
+    PlatformUserDto:
+      required:
+      - activated
+      - admin
+      - userName
+      - version
+      type: object
+      properties:
+        userName:
+          type: string
+        id:
+          type: integer
+          format: int64
+        version:
+          type: integer
+          format: int32
+        admin:
+          type: boolean
+        activated:
+          type: boolean
     I18nSettingsDto:
       required:
       - language
@@ -2283,26 +2343,6 @@ components:
           minLength: 0
           type: string
         admin:
-          type: boolean
-    PlatformUserDto:
-      required:
-      - activated
-      - admin
-      - userName
-      - version
-      type: object
-      properties:
-        userName:
-          type: string
-        id:
-          type: integer
-          format: int64
-        version:
-          type: integer
-          format: int32
-        admin:
-          type: boolean
-        activated:
           type: boolean
     CreateUserActivationTokenRequestDto:
       required:
@@ -2776,6 +2816,17 @@ components:
         message:
           type: string
     UsersApiCreateUserErrors:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+          enum:
+          - UserAlreadyExists
+        message:
+          type: string
+    UsersApiUpdateUserErrors:
       required:
       - error
       type: object
