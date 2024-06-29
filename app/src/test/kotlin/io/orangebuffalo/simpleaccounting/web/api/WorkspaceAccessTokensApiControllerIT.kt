@@ -6,8 +6,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -33,7 +32,7 @@ const val ANOTHER_MOCK_TIME_VALUE = "1999-06-28T22:01:02.053Z"
 @DisplayName("Workspace Access Tokens API ")
 class WorkspaceAccessTokensApiControllerIT(
     @Autowired private val client: WebTestClient,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @MockBean
@@ -49,22 +48,20 @@ class WorkspaceAccessTokensApiControllerIT(
     @Test
     @WithMockZoidbergUser
     fun `should return 404 on GET if workspace belongs to another user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/workspace-access-tokens")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/workspace-access-tokens")
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${testData.fryWorkspace.id} is not found")
+                assertThat(it.responseBody).contains("Workspace ${preconditions.fryWorkspace.id} is not found")
             }
     }
 
     @Test
     @WithMockFryUser
     fun `should return tokens of current user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/workspace-access-tokens")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/workspace-access-tokens")
             .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
@@ -73,7 +70,7 @@ class WorkspaceAccessTokensApiControllerIT(
                 inPath("$.data").isArray.containsExactlyInAnyOrder(
                     json(
                         """{
-                            id: ${testData.firstFryToken.id},
+                            id: ${preconditions.firstFryToken.id},
                             version: 0,
                             validTill: "$MOCK_TIME_VALUE",
                             revoked: false,
@@ -83,7 +80,7 @@ class WorkspaceAccessTokensApiControllerIT(
 
                     json(
                         """{
-                            id: ${testData.secondFryToken.id},
+                            id: ${preconditions.secondFryToken.id},
                             version: 0,
                             validTill: "$ANOTHER_MOCK_TIME_VALUE",
                             revoked: true,
@@ -97,9 +94,8 @@ class WorkspaceAccessTokensApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should filter by workspace on GET`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.emptyFryWorkspace.id}/workspace-access-tokens")
+            .uri("/api/workspaces/${preconditions.emptyFryWorkspace.id}/workspace-access-tokens")
             .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
@@ -110,18 +106,16 @@ class WorkspaceAccessTokensApiControllerIT(
 
     @Test
     fun `should allow POST access only for logged in users`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/workspace-access-tokens")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/workspace-access-tokens")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockZoidbergUser
     fun `should return 404 on POST if workspace belongs to another user`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/workspace-access-tokens")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/workspace-access-tokens")
             .sendJson(
                 """{
                     "validTill": "$MOCK_TIME_VALUE"
@@ -130,18 +124,17 @@ class WorkspaceAccessTokensApiControllerIT(
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${testData.fryWorkspace.id} is not found")
+                assertThat(it.responseBody).contains("Workspace ${preconditions.fryWorkspace.id} is not found")
             }
     }
 
     @Test
     @WithMockFryUser
     fun `should create a new access token`() {
-        val testData = setupPreconditions()
         whenever(tokenGenerator.generateToken()) doReturn ("new-token")
 
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/workspace-access-tokens")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/workspace-access-tokens")
             .sendJson(
                 """{
                     "validTill": "$ANOTHER_MOCK_TIME_VALUE"
@@ -162,23 +155,26 @@ class WorkspaceAccessTokensApiControllerIT(
             }
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = fry()
-        val farnsworth = farnsworth()
-        val zoidberg = zoidberg()
-        val fryWorkspace = workspace(owner = fry)
-        val emptyFryWorkspace = workspace(owner = fry)
-        val firstFryToken = workspaceAccessToken(
-            workspace = fryWorkspace,
-            token = "test-token-one",
-            revoked = false,
-            validTill = MOCK_TIME
-        )
-        val secondFryToken = workspaceAccessToken(
-            workspace = fryWorkspace,
-            token = "test-token-two",
-            revoked = true,
-            validTill = ANOTHER_MOCK_TIME
-        )
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
+            val farnsworth = farnsworth()
+            val zoidberg = zoidberg()
+            val fryWorkspace = workspace(owner = fry)
+            val emptyFryWorkspace = workspace(owner = fry)
+            val firstFryToken = workspaceAccessToken(
+                workspace = fryWorkspace,
+                token = "test-token-one",
+                revoked = false,
+                validTill = MOCK_TIME
+            )
+            val secondFryToken = workspaceAccessToken(
+                workspace = fryWorkspace,
+                token = "test-token-two",
+                revoked = true,
+                validTill = ANOTHER_MOCK_TIME
+            )
+
+        }
     }
 }

@@ -4,8 +4,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
@@ -19,29 +18,45 @@ import org.springframework.test.web.reactive.server.expectBody
 @DisplayName("Categories API ")
 internal class CategoriesApiControllerIT(
     @Autowired private val client: WebTestClient,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
+            val farnsworth = farnsworth()
+            val fryWorkspace = workspace(owner = fry)
+            val farnsworthWorkspace = workspace(owner = farnsworth)
+            val slurmCategory = category(
+                name = "Slurm", workspace = fryWorkspace, description = "..", income = false, expense = true
+            )
+            val planetExpressCategory = category(
+                name = "PlanetExpress",
+                workspace = fryWorkspace,
+                description = "...",
+                income = true,
+                expense = false
+            )
+        }
+    }
 
     @Test
     fun `should allow GET access only for logged in users`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/categories")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockFryUser
     fun `should get categories of current user workspace`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/categories")
             .verifyOkAndJsonBody {
                 inPath("$.data").isArray.containsExactly(
                     json(
                         """{
                         name: "PlanetExpress",
-                        id: ${testData.planetExpressCategory.id},
+                        id: ${preconditions.planetExpressCategory.id},
                         version: 0,
                         description: "...",
                         income: true,
@@ -50,7 +65,7 @@ internal class CategoriesApiControllerIT(
                     ), json(
                         """{
                         name: "Slurm",
-                        id: ${testData.slurmCategory.id},
+                        id: ${preconditions.slurmCategory.id},
                         version: 0,
                         description: "..",
                         income: false,
@@ -64,30 +79,27 @@ internal class CategoriesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should get 404 when requesting categories of another user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")
+            .uri("/api/workspaces/${preconditions.farnsworthWorkspace.id}/categories")
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${testData.farnsworthWorkspace.id} is not found")
+                assertThat(it.responseBody).contains("Workspace ${preconditions.farnsworthWorkspace.id} is not found")
             }
     }
 
     @Test
     fun `should allow POST access only for logged in users`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/categories")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockFryUser
     fun `should add a new category to the workspace`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/categories")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/categories")
             .sendJson(
                 """{
                     "name": "1990s stuff",
@@ -115,9 +127,8 @@ internal class CategoriesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should get 404 when adding category to workspace of another user`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.farnsworthWorkspace.id}/categories")
+            .uri("/api/workspaces/${preconditions.farnsworthWorkspace.id}/categories")
             .sendJson(
                 """{
                     "name": "1990s stuff",
@@ -129,24 +140,7 @@ internal class CategoriesApiControllerIT(
             .exchange()
             .expectStatus().isNotFound
             .expectBody<String>().consumeWith {
-                assertThat(it.responseBody).contains("Workspace ${testData.farnsworthWorkspace.id} is not found")
+                assertThat(it.responseBody).contains("Workspace ${preconditions.farnsworthWorkspace.id} is not found")
             }
-    }
-
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = fry()
-        val farnsworth = farnsworth()
-        val fryWorkspace = workspace(owner = fry)
-        val farnsworthWorkspace = workspace(owner = farnsworth)
-        val slurmCategory = category(
-            name = "Slurm", workspace = fryWorkspace, description = "..", income = false, expense = true
-        )
-        val planetExpressCategory = category(
-            name = "PlanetExpress",
-            workspace = fryWorkspace,
-            description = "...",
-            income = true,
-            expense = false
-        )
     }
 }

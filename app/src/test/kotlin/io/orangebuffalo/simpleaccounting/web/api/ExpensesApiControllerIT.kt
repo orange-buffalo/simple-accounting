@@ -5,8 +5,7 @@ import io.orangebuffalo.simpleaccounting.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE_VALUE
@@ -27,7 +26,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 internal class ExpensesApiControllerIT(
     @Autowired private val client: WebTestClient,
     @Autowired private val timeService: TimeService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @BeforeEach
@@ -37,18 +36,16 @@ internal class ExpensesApiControllerIT(
 
     @Test
     fun `should allow GET access only for logged in users`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockFryUser
     fun `should return expenses of a workspace of current user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
@@ -57,7 +54,7 @@ internal class ExpensesApiControllerIT(
                 inPath("$.data").isArray.containsExactlyInAnyOrder(
                     json(
                         """{
-                            category: ${testData.slurmCategory.id},
+                            category: ${preconditions.slurmCategory.id},
                             title: "best ever slurm",
                             currency: "THF",
                             originalAmount: 5000,
@@ -72,7 +69,7 @@ internal class ExpensesApiControllerIT(
                             useDifferentExchangeRateForIncomeTaxPurposes: false,
                             attachments: [],
                             percentOnBusiness: 100,
-                            id: ${testData.firstSlurm.id},
+                            id: ${preconditions.firstSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -82,7 +79,7 @@ internal class ExpensesApiControllerIT(
 
                     json(
                         """{
-                            category: ${testData.slurmCategory.id},
+                            category: ${preconditions.slurmCategory.id},
                             title: "another great slurm",
                             currency: "ZZB",
                             originalAmount: 5100,
@@ -95,10 +92,10 @@ internal class ExpensesApiControllerIT(
                                 adjustedAmountInDefaultCurrency: 455
                             },
                             useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [${testData.slurmReceipt.id}],
+                            attachments: [${preconditions.slurmReceipt.id}],
                             notes: "nice!",
                             percentOnBusiness: 99,
-                            id: ${testData.secondSlurm.id},
+                            id: ${preconditions.secondSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -108,7 +105,7 @@ internal class ExpensesApiControllerIT(
 
                     json(
                         """{
-                            category: ${testData.slurmCategory.id},
+                            category: ${preconditions.slurmCategory.id},
                             title: "slurm is never enough",
                             currency: "ZZB",
                             originalAmount: 5100,
@@ -121,12 +118,12 @@ internal class ExpensesApiControllerIT(
                             useDifferentExchangeRateForIncomeTaxPurposes: true,
                             attachments: [],
                             percentOnBusiness: 99,
-                            id: ${testData.thirdSlurm.id},
+                            id: ${preconditions.thirdSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "PENDING_CONVERSION_FOR_TAXATION_PURPOSES",
-                            generalTax: ${testData.slurmTax.id},
+                            generalTax: ${preconditions.slurmTax.id},
                             generalTaxRateInBps: 1000,
                             generalTaxAmount: 46
                     }"""
@@ -134,7 +131,7 @@ internal class ExpensesApiControllerIT(
 
                     json(
                         """{
-                            category: ${testData.slurmCategory.id},
+                            category: ${preconditions.slurmCategory.id},
                             title: "need more slurm",
                             currency: "ZZB",
                             originalAmount: 5100,
@@ -145,7 +142,7 @@ internal class ExpensesApiControllerIT(
                             useDifferentExchangeRateForIncomeTaxPurposes: false,
                             attachments: [],
                             percentOnBusiness: 100,
-                            id: ${testData.fourthSlurm.id},
+                            id: ${preconditions.fourthSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -159,7 +156,8 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return 404 if workspace is not found on GET`() {
-        setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
         client.get()
             .uri("/api/workspaces/27347947239/expenses")
             .verifyNotFound("Workspace 27347947239 is not found")
@@ -168,31 +166,28 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFarnsworthUser
     fun `should return 404 on GET if workspace belongs to another user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
+            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
     fun `should allow GET access for an expense only for logged in users`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockFryUser
     fun `should return expense by id for current user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .verifyOkAndJsonBody {
                 inPath("$").isEqualTo(
                     json(
                         """{
-                            category: ${testData.slurmCategory.id},
+                            category: ${preconditions.slurmCategory.id},
                             title: "best ever slurm",
                             currency: "THF",
                             originalAmount: 5000,
@@ -207,7 +202,7 @@ internal class ExpensesApiControllerIT(
                             useDifferentExchangeRateForIncomeTaxPurposes: false,
                             attachments: [],
                             percentOnBusiness: 100,
-                            id: ${testData.firstSlurm.id},
+                            id: ${preconditions.firstSlurm.id},
                             version: 0,
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -221,67 +216,62 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return 404 if workspace is not found when requesting expense by id`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/5634632/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/5634632/expenses/${preconditions.firstSlurm.id}")
             .verifyNotFound("Workspace 5634632 is not found")
     }
 
     @Test
     @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when requesting expense by id`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
-            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
+            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should return 404 if expense belongs to another workspace when requesting expense by id`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.coffeeExpense.id}")
-            .verifyNotFound("Expense ${testData.coffeeExpense.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.coffeeExpense.id}")
+            .verifyNotFound("Expense ${preconditions.coffeeExpense.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should return 404 if workspace is not found when creating expense`() {
-        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/995943/expenses")
-            .sendJson(testData.defaultNewExpense())
+            .sendJson(preconditions.defaultNewExpense())
             .verifyNotFound("Workspace 995943 is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should create a new expense`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .sendJson(
                 """{
-                    "category": ${testData.slurmCategory.id},
+                    "category": ${preconditions.slurmCategory.id},
                     "title": "ever best drink",
                     "currency": "AUD",
                     "originalAmount": 30000,
                     "convertedAmountInDefaultCurrency": 42000,
                     "incomeTaxableAmountInDefaultCurrency": 41500,
-                    "attachments": [${testData.slurmReceipt.id}],
+                    "attachments": [${preconditions.slurmReceipt.id}],
                     "useDifferentExchangeRateForIncomeTaxPurposes": true,
                     "notes": "coffee",
                     "percentOnBusiness": 100,
                     "datePaid": "$MOCK_DATE_VALUE",
-                    "generalTax": ${testData.slurmTax.id}
+                    "generalTax": ${preconditions.slurmTax.id}
                 }"""
             )
             .verifyOkAndJsonBody {
                 isEqualTo(
                     json(
                         """{
-                            category: ${testData.slurmCategory.id},
+                            category: ${preconditions.slurmCategory.id},
                             title: "ever best drink",
                             currency: "AUD",
                             originalAmount: 30000,
@@ -294,7 +284,7 @@ internal class ExpensesApiControllerIT(
                                 adjustedAmountInDefaultCurrency: 37727
                             },
                             useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [${testData.slurmReceipt.id}],
+                            attachments: [${preconditions.slurmReceipt.id}],
                             notes: "coffee",
                             percentOnBusiness: 100,
                             id: "#{json-unit.any-number}",
@@ -302,7 +292,7 @@ internal class ExpensesApiControllerIT(
                             datePaid: "$MOCK_DATE_VALUE",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED",
-                            generalTax: ${testData.slurmTax.id},
+                            generalTax: ${preconditions.slurmTax.id},
                             generalTaxRateInBps: 1000,
                             generalTaxAmount: 3773
                     }"""
@@ -314,22 +304,20 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when creating expense`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
-            .sendJson(testData.defaultNewExpense())
-            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
+            .sendJson(preconditions.defaultNewExpense())
+            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should create a new expense with minimum data for default currency`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .sendJson(
                 """{
-                    "category": ${testData.slurmCategory.id},
+                    "category": ${preconditions.slurmCategory.id},
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
@@ -341,7 +329,7 @@ internal class ExpensesApiControllerIT(
                 isEqualTo(
                     json(
                         """{
-                            category: ${testData.slurmCategory.id},
+                            category: ${preconditions.slurmCategory.id},
                             title: "ever best drink",
                             currency: "USD",
                             originalAmount: 150,
@@ -370,9 +358,8 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return 404 when category of new expense is not found`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .sendJson(
                 """{
                     "category": 537453,
@@ -389,12 +376,11 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return 404 when category of new expense belongs to another workspace`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .sendJson(
                 """{
-                    "category": ${testData.coffeeCategory.id},
+                    "category": ${preconditions.coffeeCategory.id},
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
@@ -402,18 +388,17 @@ internal class ExpensesApiControllerIT(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyNotFound("Category ${testData.coffeeCategory.id} is not found")
+            .verifyNotFound("Category ${preconditions.coffeeCategory.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should return 404 when tax of new expense is not found`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .sendJson(
                 """{
-                    "category": ${testData.slurmCategory.id},
+                    "category": ${preconditions.slurmCategory.id},
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
@@ -428,29 +413,27 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return 404 when tax of new expense belongs to another workspace`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .sendJson(
                 """{
-                    "category": ${testData.slurmCategory.id},
+                    "category": ${preconditions.slurmCategory.id},
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
                     "datePaid": "$MOCK_DATE_VALUE",
-                    "generalTax": ${testData.coffeeTax.id},
+                    "generalTax": ${preconditions.coffeeTax.id},
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyNotFound("Tax ${testData.coffeeTax.id} is not found")
+            .verifyNotFound("Tax ${preconditions.coffeeTax.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should return 404 when attachment of new expense is not found`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .sendJson(
                 """{
                     "attachments": [537453],
@@ -467,12 +450,11 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return 404 when attachment of new expense belongs to another workspace`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
             .sendJson(
                 """{
-                    "attachments": [${testData.coffeeReceipt.id}],
+                    "attachments": [${preconditions.coffeeReceipt.id}],
                     "title": "ever best drink",
                     "currency": "USD",
                     "originalAmount": 150,
@@ -480,26 +462,24 @@ internal class ExpensesApiControllerIT(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyNotFound("Documents [${testData.coffeeReceipt.id}] are not found")
+            .verifyNotFound("Documents [${preconditions.coffeeReceipt.id}] are not found")
     }
 
     @Test
     fun `should allow PUT access only for logged in users`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockFryUser
     fun `should update expense of current user`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
-                    "category": ${testData.beerCategory.id},
+                    "category": ${preconditions.beerCategory.id},
                     "title": "slurm -> beer",
                     "currency": "HHD",
                     "originalAmount": 20000,
@@ -510,14 +490,14 @@ internal class ExpensesApiControllerIT(
                     "notes": "beer",
                     "percentOnBusiness": 90,
                     "datePaid": "3000-02-02",
-                    "generalTax": ${testData.slurmTax.id}
+                    "generalTax": ${preconditions.slurmTax.id}
                 }"""
             )
             .verifyOkAndJsonBody {
                 isEqualTo(
                     json(
                         """{
-                            category: ${testData.beerCategory.id},
+                            category: ${preconditions.beerCategory.id},
                             title: "slurm -> beer",
                             currency: "HHD",
                             originalAmount: 20000,
@@ -533,12 +513,12 @@ internal class ExpensesApiControllerIT(
                             attachments: [],
                             notes: "beer",
                             percentOnBusiness: 90,
-                            id: ${testData.firstSlurm.id},
+                            id: ${preconditions.firstSlurm.id},
                             version: 1,
                             datePaid: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
                             status: "FINALIZED",
-                            generalTax: ${testData.slurmTax.id},
+                            generalTax: ${preconditions.slurmTax.id},
                             generalTaxRateInBps: 1000,
                             generalTaxAmount: 3273
                     }"""
@@ -550,9 +530,8 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should update expense of current user with minimum data`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
                     "title": "slurm updated",
@@ -570,7 +549,7 @@ internal class ExpensesApiControllerIT(
                             currency: "HHD",
                             originalAmount: 20000,
                             attachments: [],
-                            id: ${testData.firstSlurm.id},
+                            id: ${preconditions.firstSlurm.id},
                             version: 1,
                             datePaid: "3000-02-02",
                             timeRecorded: "$MOCK_TIME_VALUE",
@@ -590,9 +569,8 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFarnsworthUser
     fun `should fail with 404 on PUT when workspace belongs to another user`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
                     "title": "slurm updated",
@@ -602,15 +580,14 @@ internal class ExpensesApiControllerIT(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when expense belongs to another workspace`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.coffeeExpense.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.coffeeExpense.id}")
             .sendJson(
                 """{
                     "title": "coffee updated",
@@ -620,15 +597,14 @@ internal class ExpensesApiControllerIT(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyNotFound("Expense ${testData.coffeeExpense.id} is not found")
+            .verifyNotFound("Expense ${preconditions.coffeeExpense.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when expense does not exist`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/5566")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/5566")
             .sendJson(
                 """{
                     "title": "coffee updated",
@@ -644,9 +620,8 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when category is not found`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
                     "category": 5566,
@@ -663,12 +638,11 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when category belongs to another workspace`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
-                    "category": ${testData.coffeeCategory.id},
+                    "category": ${preconditions.coffeeCategory.id},
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
@@ -676,15 +650,14 @@ internal class ExpensesApiControllerIT(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyNotFound("Category ${testData.coffeeCategory.id} is not found")
+            .verifyNotFound("Category ${preconditions.coffeeCategory.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when tax is not found`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
                     "generalTax": 5566,
@@ -701,12 +674,11 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when tax belongs to another workspace`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
-                    "generalTax": ${testData.coffeeTax.id},
+                    "generalTax": ${preconditions.coffeeTax.id},
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
@@ -714,15 +686,14 @@ internal class ExpensesApiControllerIT(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyNotFound("Tax ${testData.coffeeTax.id} is not found")
+            .verifyNotFound("Tax ${preconditions.coffeeTax.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when attachment is not found`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
                     "attachments": [5566],
@@ -739,12 +710,11 @@ internal class ExpensesApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should fail with 404 on PUT when attachment belongs to another workspace`() {
-        val testData = setupPreconditions()
         client.put()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/expenses/${testData.firstSlurm.id}")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
             .sendJson(
                 """{
-                    "attachments": [${testData.coffeeReceipt.id}],
+                    "attachments": [${preconditions.coffeeReceipt.id}],
                     "title": "slurm updated",
                     "currency": "HHD",
                     "originalAmount": 20000,
@@ -752,101 +722,102 @@ internal class ExpensesApiControllerIT(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyNotFound("Documents [${testData.coffeeReceipt.id}] are not found")
+            .verifyNotFound("Documents [${preconditions.coffeeReceipt.id}] are not found")
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = fry()
-        val farnsworth = farnsworth()
-        val fryWorkspace = workspace(owner = fry)
-        val fryCoffeeWorkspace = workspace(owner = fry)
-        val coffeeCategory = category(workspace = fryCoffeeWorkspace)
-        val slurmCategory = category(workspace = fryWorkspace)
-        val beerCategory = category(workspace = fryWorkspace)
-        val coffeeTax = generalTax(workspace = fryCoffeeWorkspace)
-        val slurmTax = generalTax(workspace = fryWorkspace)
-        val slurmReceipt = document(workspace = fryWorkspace)
-        val coffeeReceipt = document(workspace = fryCoffeeWorkspace)
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
+            val farnsworth = farnsworth()
+            val fryWorkspace = workspace(owner = fry)
+            val fryCoffeeWorkspace = workspace(owner = fry)
+            val coffeeCategory = category(workspace = fryCoffeeWorkspace)
+            val slurmCategory = category(workspace = fryWorkspace)
+            val beerCategory = category(workspace = fryWorkspace)
+            val coffeeTax = generalTax(workspace = fryCoffeeWorkspace)
+            val slurmTax = generalTax(workspace = fryWorkspace)
+            val slurmReceipt = document(workspace = fryWorkspace)
+            val coffeeReceipt = document(workspace = fryCoffeeWorkspace)
 
-        val coffeeExpense = expense(
-            workspace = fryCoffeeWorkspace,
-            category = coffeeCategory,
-            currency = "THF",
-            originalAmount = 50,
-            convertedAmounts = amountsInDefaultCurrency(50),
-            incomeTaxableAmounts = amountsInDefaultCurrency(50),
-            useDifferentExchangeRateForIncomeTaxPurposes = false,
-            status = ExpenseStatus.FINALIZED,
-            percentOnBusiness = 100
-        )
+            val coffeeExpense = expense(
+                workspace = fryCoffeeWorkspace,
+                category = coffeeCategory,
+                currency = "THF",
+                originalAmount = 50,
+                convertedAmounts = amountsInDefaultCurrency(50),
+                incomeTaxableAmounts = amountsInDefaultCurrency(50),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 100
+            )
 
-        val firstSlurm = expense(
-            title = "best ever slurm",
-            workspace = fryWorkspace,
-            category = slurmCategory,
-            currency = "THF",
-            originalAmount = 5000,
-            convertedAmounts = amountsInDefaultCurrency(500),
-            incomeTaxableAmounts = amountsInDefaultCurrency(500),
-            useDifferentExchangeRateForIncomeTaxPurposes = false,
-            status = ExpenseStatus.FINALIZED
-        )
+            val firstSlurm = expense(
+                title = "best ever slurm",
+                workspace = fryWorkspace,
+                category = slurmCategory,
+                currency = "THF",
+                originalAmount = 5000,
+                convertedAmounts = amountsInDefaultCurrency(500),
+                incomeTaxableAmounts = amountsInDefaultCurrency(500),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.FINALIZED
+            )
 
-        val secondSlurm = expense(
-            title = "another great slurm",
-            workspace = fryWorkspace,
-            category = slurmCategory,
-            currency = "ZZB",
-            originalAmount = 5100,
-            convertedAmounts = AmountsInDefaultCurrency(
-                originalAmountInDefaultCurrency = 510,
-                adjustedAmountInDefaultCurrency = 505
-            ),
-            incomeTaxableAmounts = AmountsInDefaultCurrency(
-                originalAmountInDefaultCurrency = 460,
-                adjustedAmountInDefaultCurrency = 455
-            ),
-            useDifferentExchangeRateForIncomeTaxPurposes = true,
-            status = ExpenseStatus.FINALIZED,
-            percentOnBusiness = 99,
-            notes = "nice!",
-            attachments = setOf(slurmReceipt),
-            generalTax = null
-        )
+            val secondSlurm = expense(
+                title = "another great slurm",
+                workspace = fryWorkspace,
+                category = slurmCategory,
+                currency = "ZZB",
+                originalAmount = 5100,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = 510,
+                    adjustedAmountInDefaultCurrency = 505
+                ),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = 460,
+                    adjustedAmountInDefaultCurrency = 455
+                ),
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 99,
+                notes = "nice!",
+                attachments = setOf(slurmReceipt),
+                generalTax = null
+            )
 
-        val thirdSlurm = expense(
-            title = "slurm is never enough",
-            workspace = fryWorkspace,
-            category = slurmCategory,
-            currency = "ZZB",
-            originalAmount = 5100,
-            convertedAmounts = AmountsInDefaultCurrency(
-                originalAmountInDefaultCurrency = 510,
-                adjustedAmountInDefaultCurrency = 459
-            ),
-            incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
-            useDifferentExchangeRateForIncomeTaxPurposes = true,
-            status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
-            percentOnBusiness = 99,
-            generalTax = slurmTax,
-            generalTaxRateInBps = 10_00,
-            generalTaxAmount = 46
-        )
+            val thirdSlurm = expense(
+                title = "slurm is never enough",
+                workspace = fryWorkspace,
+                category = slurmCategory,
+                currency = "ZZB",
+                originalAmount = 5100,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = 510,
+                    adjustedAmountInDefaultCurrency = 459
+                ),
+                incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
+                useDifferentExchangeRateForIncomeTaxPurposes = true,
+                status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
+                percentOnBusiness = 99,
+                generalTax = slurmTax,
+                generalTaxRateInBps = 10_00,
+                generalTaxAmount = 46
+            )
 
-        val fourthSlurm = expense(
-            title = "need more slurm",
-            workspace = fryWorkspace,
-            category = slurmCategory,
-            currency = "ZZB",
-            originalAmount = 5100,
-            convertedAmounts = emptyAmountsInDefaultCurrency(),
-            incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
-            useDifferentExchangeRateForIncomeTaxPurposes = false,
-            status = ExpenseStatus.PENDING_CONVERSION,
-            percentOnBusiness = 100
-        )
+            val fourthSlurm = expense(
+                title = "need more slurm",
+                workspace = fryWorkspace,
+                category = slurmCategory,
+                currency = "ZZB",
+                originalAmount = 5100,
+                convertedAmounts = emptyAmountsInDefaultCurrency(),
+                incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                status = ExpenseStatus.PENDING_CONVERSION,
+                percentOnBusiness = 100
+            )
 
-        fun defaultNewExpense(): String = """{
+            fun defaultNewExpense(): String = """{
                     "category": ${slurmCategory.id},
                     "title": "ever best drink",
                     "currency": "USD",
@@ -859,5 +830,6 @@ internal class ExpensesApiControllerIT(
                     "percentOnBusiness": 100,
                     "datePaid": "$MOCK_DATE_VALUE"
                 }"""
+        }
     }
 }

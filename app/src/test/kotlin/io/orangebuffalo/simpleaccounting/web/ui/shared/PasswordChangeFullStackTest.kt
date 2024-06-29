@@ -8,8 +8,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeMyProfilePage
@@ -22,16 +21,14 @@ import org.springframework.security.crypto.password.PasswordEncoder
 class PasswordChangeFullStackTest(
     @Autowired private val repository: PlatformUserRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @Test
     fun `should change password for regular user`(page: Page) {
-        val testData = setupPreconditions()
-
         whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
 
-        page.loginAs(testData.fry)
+        page.loginAs(preconditions.fry)
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
@@ -50,16 +47,14 @@ class PasswordChangeFullStackTest(
             }
         }
 
-        repository.findByUserName(testData.fry.userName)
+        repository.findByUserName(preconditions.fry.userName)
             .shouldNotBeNull()
             .passwordHash.shouldBe("newPasswordHash")
     }
 
     @Test
     fun `should prevent submit if inputs not provided`(page: Page) {
-        val testData = setupPreconditions()
-
-        page.loginAs(testData.fry)
+        page.loginAs(preconditions.fry)
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             changePasswordButton { shouldBeDisabled() }
@@ -80,9 +75,7 @@ class PasswordChangeFullStackTest(
 
     @Test
     fun `should validate that confirmation matches the new password`(page: Page) {
-        val testData = setupPreconditions()
-
-        page.loginAs(testData.fry)
+        page.loginAs(preconditions.fry)
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
@@ -103,11 +96,9 @@ class PasswordChangeFullStackTest(
 
     @Test
     fun `should validate that current password matches`(page: Page) {
-        val testData = setupPreconditions()
+        whenever(passwordEncoder.matches("currentPassword", preconditions.fry.passwordHash)) doReturn false
 
-        whenever(passwordEncoder.matches("currentPassword", testData.fry.passwordHash)) doReturn false
-
-        page.loginAs(testData.fry)
+        page.loginAs(preconditions.fry)
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
@@ -126,19 +117,17 @@ class PasswordChangeFullStackTest(
         }
 
         withClue("Password should not be changed") {
-            repository.findByUserName(testData.fry.userName)
+            repository.findByUserName(preconditions.fry.userName)
                 .shouldNotBeNull()
-                .passwordHash.shouldBe(testData.fry.passwordHash)
+                .passwordHash.shouldBe(preconditions.fry.passwordHash)
         }
     }
 
     @Test
     fun `should change password for admin user`(page: Page) {
-        val testData = setupPreconditions()
-
         whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
 
-        page.loginAs(testData.farnsworth)
+        page.loginAs(preconditions.farnsworth)
         page.shouldHaveSideMenu().clickMyProfile()
         page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
@@ -156,16 +145,18 @@ class PasswordChangeFullStackTest(
             }
         }
 
-        repository.findByUserName(testData.farnsworth.userName)
+        repository.findByUserName(preconditions.farnsworth.userName)
             .shouldNotBeNull()
             .passwordHash.shouldBe("newPasswordHash")
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = fry()
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
 
-        // TODO #23: workspace should not be required?
-        val workspace = workspace(owner = fry)
-        val farnsworth = farnsworth()
+            // TODO #23: workspace should not be required?
+            val workspace = workspace(owner = fry)
+            val farnsworth = farnsworth()
+        }
     }
 }

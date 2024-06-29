@@ -9,8 +9,7 @@ import assertk.assertions.prop
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
@@ -33,7 +32,7 @@ import java.time.Instant
 internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     @Autowired private val clientService: DbReactiveOAuth2AuthorizedClientService,
     @Autowired private val repository: PersistentOAuth2AuthorizedClientRepository,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+     private val preconditionsFactory: PreconditionsFactory,
 ) {
 
     @field:MockBean
@@ -352,37 +351,39 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
         }
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(47733)
-        val accessTokenIssueTime: Instant = Instant.ofEpochMilli(47734)
-        val accessTokenExpireTime: Instant = Instant.ofEpochMilli(47735)
+    private fun setupPreconditions() = preconditionsFactory.setup {
+        object {
+            val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(47733)
+            val accessTokenIssueTime: Instant = Instant.ofEpochMilli(47734)
+            val accessTokenExpireTime: Instant = Instant.ofEpochMilli(47735)
 
-        init {
-            save(
-                PersistentOAuth2AuthorizedClient(
-                    clientRegistrationId = "clientRegistration",
-                    refreshTokenIssuedAt = refreshTokenIssueTime,
-                    refreshToken = "refreshToken",
-                    accessToken = "accessToken",
-                    accessTokenIssuedAt = accessTokenIssueTime,
-                    accessTokenExpiresAt = accessTokenExpireTime,
-                    userName = "fullClient",
-                    accessTokenScopes = setOf(ClientTokenScope("scope"))
+            init {
+                save(
+                    PersistentOAuth2AuthorizedClient(
+                        clientRegistrationId = "clientRegistration",
+                        refreshTokenIssuedAt = refreshTokenIssueTime,
+                        refreshToken = "refreshToken",
+                        accessToken = "accessToken",
+                        accessTokenIssuedAt = accessTokenIssueTime,
+                        accessTokenExpiresAt = accessTokenExpireTime,
+                        userName = "fullClient",
+                        accessTokenScopes = setOf(ClientTokenScope("scope"))
+                    )
                 )
-            )
 
-            save(
-                PersistentOAuth2AuthorizedClient(
-                    clientRegistrationId = "clientRegistration",
-                    refreshTokenIssuedAt = null,
-                    refreshToken = null,
-                    accessToken = "accessToken",
-                    accessTokenIssuedAt = accessTokenIssueTime,
-                    accessTokenExpiresAt = accessTokenExpireTime,
-                    userName = "noRefreshTokenClient",
-                    accessTokenScopes = setOf(ClientTokenScope("scope"))
+                save(
+                    PersistentOAuth2AuthorizedClient(
+                        clientRegistrationId = "clientRegistration",
+                        refreshTokenIssuedAt = null,
+                        refreshToken = null,
+                        accessToken = "accessToken",
+                        accessTokenIssuedAt = accessTokenIssueTime,
+                        accessTokenExpiresAt = accessTokenExpireTime,
+                        userName = "noRefreshTokenClient",
+                        accessTokenScopes = setOf(ClientTokenScope("scope"))
+                    )
                 )
-            )
+            }
         }
     }
 }

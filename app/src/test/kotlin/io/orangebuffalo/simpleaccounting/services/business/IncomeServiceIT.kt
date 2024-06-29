@@ -2,8 +2,7 @@ package io.orangebuffalo.simpleaccounting.services.business
 
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
@@ -25,30 +24,31 @@ import java.time.LocalDate
 @SimpleAccountingIntegrationTest
 internal class IncomeServiceIT(
     @Autowired private val incomeService: IncomeService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val nonDefaultCurrency = "CC2"
-        val fry = fry()
-        val workspace = workspace(
-            owner = fry,
-            defaultCurrency = "CC1"
-        )
-        val generalTaxFromWorkspace = generalTax(
-            workspace = workspace,
-            rateInBps = 10_00
-        )
-        val invoiceFromWorkspace = invoice(
-            customer = customer(workspace = workspace),
-        )
+    private val preconditions by preconditionsFactory {
+        object {
+            val nonDefaultCurrency = "CC2"
+            val fry = fry()
+            val workspace = workspace(
+                owner = fry,
+                defaultCurrency = "CC1"
+            )
+            val generalTaxFromWorkspace = generalTax(
+                workspace = workspace,
+                rateInBps = 10_00
+            )
+            val invoiceFromWorkspace = invoice(
+                customer = customer(workspace = workspace),
+            )
+        }
     }
 
     @Test
     @WithMockFryUser
     fun `should reset the values for default currency`() {
-        val preconditions = setupPreconditions()
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = null,
@@ -80,8 +80,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should calculate tax on default currency`() {
-        val preconditions = setupPreconditions()
-
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = preconditions.generalTaxFromWorkspace.id,
@@ -119,7 +117,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should keep amounts as null if not yet converted`() {
-        val preconditions = setupPreconditions()
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = null,
@@ -151,7 +148,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should set amount to null if not yet converted and same rate used for conversion`() {
-        val preconditions = setupPreconditions()
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = null,
@@ -186,7 +182,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should keep income taxable amount if not yet converted and different rate used for conversion`() {
-        val preconditions = setupPreconditions()
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = null,
@@ -221,7 +216,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should propagate converted amount if same rate is used`() {
-        val preconditions = setupPreconditions()
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = null,
@@ -253,7 +247,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should keep income taxable amount if different rate is used`() {
-        val preconditions = setupPreconditions()
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = null,
@@ -285,7 +278,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should keep income taxable amount empty if different rate is used`() {
-        val preconditions = setupPreconditions()
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = null,
@@ -320,8 +312,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should calculate tax based on income taxable amount if different rate is used`() {
-        val preconditions = setupPreconditions()
-
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = preconditions.generalTaxFromWorkspace.id,
@@ -359,8 +349,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should calculate tax bases on converted amount if same rate is used`() {
-        val preconditions = setupPreconditions()
-
         executeSaveIncomeAndAssert(
             income = Income(
                 generalTaxId = preconditions.generalTaxFromWorkspace.id,
@@ -398,7 +386,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should validate invoice if provided`() {
-        val preconditions = setupPreconditions()
         assertThatThrownBy {
             runBlocking {
                 incomeService.saveIncome(
@@ -427,7 +414,6 @@ internal class IncomeServiceIT(
     @Test
     @WithMockFryUser
     fun `should update invoice if provided`() {
-        val preconditions = setupPreconditions()
         val invoiceId = preconditions.invoiceFromWorkspace.id
 
         runBlocking {
