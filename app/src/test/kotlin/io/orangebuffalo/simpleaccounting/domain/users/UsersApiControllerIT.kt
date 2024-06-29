@@ -5,7 +5,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsExtension
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.*
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import kotlinx.serialization.json.addJsonObject
@@ -14,7 +14,6 @@ import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpStatus
@@ -25,7 +24,8 @@ import java.time.Instant
 internal class UsersApiControllerIT(
     @Autowired private val client: ApiTestClient,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
-    @Autowired private val timeService: TimeService
+    @Autowired private val timeService: TimeService,
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
 
     /**
@@ -34,8 +34,7 @@ internal class UsersApiControllerIT(
     @Nested
     @DisplayName("GET /api/users")
     inner class GetUsers {
-        @RegisterExtension
-        private val preconditionsExt = PreconditionsExtension {
+        private val preconditions by preconditionsFactory {
             object {
                 val farnsworth = farnsworth()
                 val fry = fry()
@@ -46,7 +45,6 @@ internal class UsersApiControllerIT(
                 )
             }
         }
-        private val preconditions by preconditionsExt
 
         private fun request() = client
             .get()
@@ -109,15 +107,12 @@ internal class UsersApiControllerIT(
     @Nested
     @DisplayName("POST /api/users")
     inner class CreateUser {
-
-        @RegisterExtension
-        private val preconditionsExt = PreconditionsExtension {
+        private val preconditions by preconditionsFactory {
             object {
                 val farnsworth = farnsworth()
                 val fry = fry()
             }
         }
-        private val preconditions by preconditionsExt
 
         private fun request(userName: String = "Leela") = client
             .post()
@@ -211,15 +206,12 @@ internal class UsersApiControllerIT(
     @Nested
     @DisplayName("PUT /api/users/{userId}")
     inner class UpdateUser {
-
-        @RegisterExtension
-        private val preconditionsExt = PreconditionsExtension {
+        private val preconditions by preconditionsFactory {
             object {
                 val farnsworth = farnsworth()
                 val fry = fry()
             }
         }
-        private val preconditions by preconditionsExt
 
         private fun request(userId: Long?, userName: String = "Leela") = client
             .put()

@@ -6,7 +6,7 @@ import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotContain
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsExtension
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsBodyConfiguration
 import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsValidationsTestBase
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpStatus
@@ -35,6 +34,7 @@ class UserActivationTokensApiControllerIT(
     @Autowired private val client: ApiTestClient,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val timeService: TimeService,
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
 
     @BeforeEach
@@ -48,8 +48,7 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{userId}?by=userId")
     inner class GetUserActivationTokenByUserId {
-        @RegisterExtension
-        private val preconditionsExt = PreconditionsExtension {
+        private val preconditions by preconditionsFactory {
             object {
                 val fry = fry()
                 val farnsworth = farnsworth()
@@ -63,7 +62,6 @@ class UserActivationTokensApiControllerIT(
                 )
             }
         }
-        private val preconditions by preconditionsExt
 
         private fun request(
             userId: Long = 42
@@ -127,8 +125,7 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{token}")
     inner class GetUserActivationToken {
-        @RegisterExtension
-        private val preconditionsExt = PreconditionsExtension {
+        private val preconditions by preconditionsFactory {
             object {
                 val fry = fry()
                 val expiredToken = userActivationToken(
@@ -141,7 +138,6 @@ class UserActivationTokensApiControllerIT(
                 )
             }
         }
-        private val preconditions by preconditionsExt
 
         private fun request(token: String): WebTestClient.RequestHeadersSpec<*> {
             return client
@@ -200,8 +196,7 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("POST /api/user-activation-tokens")
     inner class CreateToken {
-        @RegisterExtension
-        private val preconditionsExt = PreconditionsExtension {
+        private val preconditions by preconditionsFactory {
             object {
                 val userWithoutToken = platformUser(
                     activated = false
@@ -221,7 +216,6 @@ class UserActivationTokensApiControllerIT(
                 val farnsworth = farnsworth()
             }
         }
-        private val preconditions by preconditionsExt
 
         private fun request(userId: Long = 42): WebTestClient.RequestHeadersSpec<*> {
             return client
@@ -310,8 +304,7 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("POST /api/user-activation-tokens/{token}/activate")
     inner class ActivateUser {
-        @RegisterExtension
-        private val preconditionsExt = PreconditionsExtension {
+        private val preconditions by preconditionsFactory {
             object {
                 val expiredToken = userActivationToken(
                     token = "expired-token",
@@ -328,7 +321,6 @@ class UserActivationTokensApiControllerIT(
                 val fry = fry()
             }
         }
-        private val preconditions by preconditionsExt
 
         private fun request(
             token: String,

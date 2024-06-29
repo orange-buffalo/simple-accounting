@@ -8,8 +8,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeSingle
@@ -25,8 +24,8 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 
 @SimpleAccountingFullStackTest
 class UserCreationFullStackTest(
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
     @Autowired private val entitiesTemplate: JdbcAggregateTemplate,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @Test
@@ -153,7 +152,6 @@ class UserCreationFullStackTest(
     }
 
     private fun setupPreconditionsAndNavigateToCreatePage(page: Page): CreateUserPage {
-        val preconditions = setupOverviewPreconditions()
         page.loginAs(preconditions.farnsworth)
         page.shouldHaveSideMenu().clickUsersOverview()
         page.shouldBeUsersOverviewPage()
@@ -161,11 +159,13 @@ class UserCreationFullStackTest(
         return page.shouldBeCreateUserPage()
     }
 
-    private fun setupOverviewPreconditions() = object : Preconditions(preconditionsInfra) {
-        val farnsworth = platformUser(
-            userName = "admin",
-            passwordHash = "admin",
-            isAdmin = true,
-        )
+    private val preconditions by preconditionsFactory {
+        object {
+            val farnsworth = platformUser(
+                userName = "admin",
+                passwordHash = "admin",
+                isAdmin = true,
+            )
+        }
     }
 }

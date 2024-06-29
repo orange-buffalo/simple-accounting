@@ -4,8 +4,7 @@ import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBodyEqualTo
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -39,7 +38,7 @@ class AuthenticationApiControllerIT(
     @Autowired private val client: WebTestClient,
     @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val timeService: TimeService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
     @MockBean
     lateinit var jwtService: JwtService
@@ -47,10 +46,38 @@ class AuthenticationApiControllerIT(
     @MockBean
     lateinit var refreshTokenService: RefreshTokenService
 
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
+            val farnsworth = farnsworth()
+            val inactiveUser = platformUser(
+                userName = "Inactive",
+                activated = false
+            )
+            val fryWorkspace = workspace(owner = fry)
+            val revokedAccessToken = workspaceAccessToken(
+                workspace = fryWorkspace,
+                revoked = true,
+                validTill = MOCK_TIME.plus(Duration.ofDays(100)),
+                token = "revokedToken"
+            )
+            val expiredAccessToken = workspaceAccessToken(
+                workspace = fryWorkspace,
+                revoked = false,
+                validTill = MOCK_TIME.minusMillis(1),
+                token = "expiredToken"
+            )
+            val validAccessToken = workspaceAccessToken(
+                workspace = fryWorkspace,
+                revoked = false,
+                validTill = MOCK_TIME.plus(Duration.ofDays(42)),
+                token = "validToken"
+            )
+        }
+    }
+
     @Test
     fun `should return a JWT token for valid user login credentials`() {
-        val preconditions = setupPreconditions()
-
         whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
@@ -76,8 +103,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return a JWT token for valid admin login credentials`() {
-        val preconditions = setupPreconditions()
-
         whenever(passwordEncoder.matches("$&#@(@", preconditions.farnsworth.passwordHash)) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
@@ -120,8 +145,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return 401 when password does not match`() {
-        val preconditions = setupPreconditions()
-
         whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn false
 
         client.post().uri(LOGIN_PATH)
@@ -141,8 +164,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return 401 when user is not activated`() {
-        val preconditions = setupPreconditions()
-
         client.post().uri(LOGIN_PATH)
             .contentType(APPLICATION_JSON)
             .bodyValue(
@@ -245,8 +266,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return a refresh token for valid user login credentials if remember me requested`() {
-        val preconditions = setupPreconditions()
-
         whenever(passwordEncoder.matches("qwerty", preconditions.fry.passwordHash)) doReturn true
 
         whenever(jwtService.buildJwtToken(argThat {
@@ -283,8 +302,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return a JWT token when token endpoint is hit and cookie is valid`() {
-        val preconditions = setupPreconditions()
-
         runBlocking {
             val principal = createRegularUserPrincipal(preconditions.fry.userName, "", listOf("USER"))
 
@@ -304,8 +321,6 @@ class AuthenticationApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return a JWT token when token endpoint is hit and user is authenticated with regular user`() {
-        val preconditions = setupPreconditions()
-
         runBlocking {
             whenever(jwtService.buildJwtToken(argThat {
                 userName == preconditions.fry.userName
@@ -325,8 +340,6 @@ class AuthenticationApiControllerIT(
     @Test
     @WithSaMockUser(transient = true, workspaceAccessToken = "validToken")
     fun `should return a JWT token when token endpoint is hit and user is authenticated with transient user`() {
-        val preconditions = setupPreconditions()
-
         runBlocking {
             mockCurrentTime(timeService)
 
@@ -347,8 +360,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return 401 if refresh token is not valid and user is not authenticated`() {
-        setupPreconditions()
-
         runBlocking {
             whenever(
                 refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")
@@ -364,8 +375,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return 401 if refresh token is missing and user is not authenticated`() {
-        setupPreconditions()
-
         runBlocking {
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
@@ -376,8 +385,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return 401 on shared workspaces token login if token is not known`() {
-        setupPreconditions()
-
         mockCurrentTime(timeService)
 
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=42")
@@ -387,8 +394,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return 401 on shared workspaces token login if token is revoked`() {
-        val preconditions = setupPreconditions()
-
         mockCurrentTime(timeService)
 
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.revokedAccessToken.token}")
@@ -398,8 +403,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return 401 on shared workspaces token login if token is expired`() {
-        val preconditions = setupPreconditions()
-
         mockCurrentTime(timeService)
 
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.expiredAccessToken.token}")
@@ -409,8 +412,6 @@ class AuthenticationApiControllerIT(
 
     @Test
     fun `should return a JWT token for valid workspace access token`() {
-        val preconditions  = setupPreconditions()
-
         mockCurrentTime(timeService)
 
         whenever(jwtService.buildJwtToken(argThat {
@@ -426,33 +427,5 @@ class AuthenticationApiControllerIT(
             .expectHeader().doesNotExist(HttpHeaders.SET_COOKIE)
             .expectBody()
             .jsonPath("$.token").isEqualTo("jwtTokenForSharedWorkspace")
-    }
-
-    private fun setupPreconditions() = object: Preconditions(preconditionsInfra) {
-        val fry = fry()
-        val farnsworth = farnsworth()
-        val inactiveUser = platformUser(
-            userName = "Inactive",
-            activated = false
-        )
-        val fryWorkspace = workspace(owner = fry)
-        val revokedAccessToken = workspaceAccessToken(
-            workspace = fryWorkspace,
-            revoked = true,
-            validTill = MOCK_TIME.plus(Duration.ofDays(100)),
-            token = "revokedToken"
-        )
-        val expiredAccessToken = workspaceAccessToken(
-            workspace = fryWorkspace,
-            revoked = false,
-            validTill = MOCK_TIME.minusMillis(1),
-            token = "expiredToken"
-        )
-        val validAccessToken = workspaceAccessToken(
-            workspace = fryWorkspace,
-            revoked = false,
-            validTill = MOCK_TIME.plus(Duration.ofDays(42)),
-            token = "validToken"
-        )
     }
 }

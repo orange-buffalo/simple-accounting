@@ -10,8 +10,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -47,7 +46,7 @@ class DocumentsApiControllerIT(
     @Autowired private val client: WebTestClient,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
     @Autowired private val timeService: TimeService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @MockBean
@@ -61,18 +60,16 @@ class DocumentsApiControllerIT(
 
     @Test
     fun `should allow GET access only for logged in users`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockFryUser
     fun `should return documents of a workspace of current user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
             .verifyOkAndJsonBody {
                 inPath("$.pageNumber").isNumber.isEqualTo("1")
                 inPath("$.pageSize").isNumber.isEqualTo("10")
@@ -81,7 +78,7 @@ class DocumentsApiControllerIT(
                     json(
                         """{
                         "name": "unknown",
-                        "id": ${testData.cheesePizzaAndALargeSodaReceipt.id},
+                        "id": ${preconditions.cheesePizzaAndALargeSodaReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
                         "sizeInBytes": null
@@ -91,7 +88,7 @@ class DocumentsApiControllerIT(
                     json(
                         """{
                         "name": "100_cups.pdf",
-                        "id": ${testData.coffeeReceipt.id},
+                        "id": ${preconditions.coffeeReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
                         "sizeInBytes": 42
@@ -104,7 +101,8 @@ class DocumentsApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return 404 if workspace is not found on GET`() {
-        setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
 
         client.get()
             .uri("/api/workspaces/27347947239/documents")
@@ -114,32 +112,29 @@ class DocumentsApiControllerIT(
     @Test
     @WithMockFarnsworthUser
     fun `should return 404 on GET if workspace belongs to another user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
-            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
+            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
     fun `should allow GET access for document content only for logged in users`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/content")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/content")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockFryUser
     fun `should GET document content`() {
-        val testData = setupPreconditions()
         testDocumentsStorage.stub {
             onBlocking {
-                getDocumentContent(testData.fryWorkspace, "test-location")
+                getDocumentContent(preconditions.fryWorkspace, "test-location")
             } doReturn "test-content".toDataBuffers()
         }
 
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/content")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/content")
             .exchange()
             .expectStatus().isOk
             .expectHeader().contentDisposition(ContentDisposition.parse("attachment; filename=\"100_cups.pdf\""))
@@ -158,59 +153,53 @@ class DocumentsApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should return 404 if workspace is not found when requesting document content`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/5634632/documents/${testData.coffeeReceipt.id}/content")
+            .uri("/api/workspaces/5634632/documents/${preconditions.coffeeReceipt.id}/content")
             .verifyNotFound("Workspace 5634632 is not found")
     }
 
     @Test
     @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when requesting document content`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/content")
-            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/content")
+            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should return 404 if document belongs to another workspace when requesting document content`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.anotherFryWorkspaceDocument.id}/content")
-            .verifyNotFound("Document ${testData.anotherFryWorkspaceDocument.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.anotherFryWorkspaceDocument.id}/content")
+            .verifyNotFound("Document ${preconditions.anotherFryWorkspaceDocument.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should return 404 if workspace is not found when creating document`() {
-        val testData = setupPreconditions()
         client.post()
             .uri("/api/workspaces/995943/documents")
-            .bodyValue(testData.createDefaultFileToUpload().build())
+            .bodyValue(preconditions.createDefaultFileToUpload().build())
             .verifyNotFound("Workspace 995943 is not found")
     }
 
     @Test
     @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when creating document`() {
-        val testData = setupPreconditions()
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
-            .bodyValue(testData.createDefaultFileToUpload().build())
-            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
+            .bodyValue(preconditions.createDefaultFileToUpload().build())
+            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should upload a new file and invoke documents storage`() {
-        val testData = setupPreconditions()
-        mockDocumentsStorage(testData.fryWorkspace)
+        mockDocumentsStorage(preconditions.fryWorkspace)
 
         client.post()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents")
-            .bodyValue(testData.createDefaultFileToUpload().build())
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
+            .bodyValue(preconditions.createDefaultFileToUpload().build())
             .verifyOkAndJsonBody {
                 node("name").isString.isEqualTo("test-file.txt")
                 node("id").isNumber.isNotNull
@@ -234,11 +223,10 @@ class DocumentsApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should filter documents by ids`() {
-        val testData = setupPreconditions()
         client.get()
             .uri { builder ->
-                builder.replacePath("/api/workspaces/${testData.fryWorkspace.id}/documents")
-                    .queryParam("id[eq]", "${testData.cheesePizzaAndALargeSodaReceipt.id}")
+                builder.replacePath("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
+                    .queryParam("id[eq]", "${preconditions.cheesePizzaAndALargeSodaReceipt.id}")
                     .build()
             }
             .verifyOkAndJsonBody {
@@ -250,7 +238,7 @@ class DocumentsApiControllerIT(
                     json(
                         """{
                         "name": "unknown",
-                        "id": ${testData.cheesePizzaAndALargeSodaReceipt.id},
+                        "id": ${preconditions.cheesePizzaAndALargeSodaReceipt.id},
                         "version": 0,
                         "timeUploaded": "$MOCK_TIME_VALUE",
                         "sizeInBytes": null
@@ -262,95 +250,92 @@ class DocumentsApiControllerIT(
 
     @Test
     fun `should allow GET access for document download token only for logged in user`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/download-token")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/download-token")
             .verifyUnauthorized()
     }
 
     @Test
     @WithMockFryUser
     fun `should return 404 if workspace is not found when requesting document download token`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/5634632/documents/${testData.coffeeReceipt.id}/download-token")
+            .uri("/api/workspaces/5634632/documents/${preconditions.coffeeReceipt.id}/download-token")
             .verifyNotFound("Workspace 5634632 is not found")
     }
 
     @Test
     @WithMockFarnsworthUser
     fun `should return 404 if workspace belongs to another user when requesting document download token`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/download-token")
-            .verifyNotFound("Workspace ${testData.fryWorkspace.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/download-token")
+            .verifyNotFound("Workspace ${preconditions.fryWorkspace.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should return 404 if document belongs to another workspace when requesting document download token`() {
-        val testData = setupPreconditions()
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.anotherFryWorkspaceDocument.id}/download-token")
-            .verifyNotFound("Document ${testData.anotherFryWorkspaceDocument.id} is not found")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.anotherFryWorkspaceDocument.id}/download-token")
+            .verifyNotFound("Document ${preconditions.anotherFryWorkspaceDocument.id} is not found")
     }
 
     @Test
     @WithMockFryUser
     fun `should return document download token`() {
-        val testData = setupPreconditions()
         downloadsService.stub {
             onBlocking {
                 createDownloadToken<DocumentDownloadMetadata>(
                     argThat { this is DocumentsService },
-                    argThat { this.documentId == testData.coffeeReceipt.id }
+                    argThat { this.documentId == preconditions.coffeeReceipt.id }
                 )
             } doReturn "token"
         }
 
         client.get()
-            .uri("/api/workspaces/${testData.fryWorkspace.id}/documents/${testData.coffeeReceipt.id}/download-token")
+            .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/download-token")
             .verifyOkAndJsonBody {
                 node("token").isString.isEqualTo("token")
             }
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
-        val fryWorkspace = workspace(owner = fry)
-        val anotherFryWorkspace = workspace(owner = fry)
-        val anotherFryWorkspaceDocument = document(workspace = anotherFryWorkspace)
-        val farnsworth = farnsworth()
-        val coffeeReceipt = document(
-            name = "100_cups.pdf",
-            workspace = fryWorkspace,
-            storageId = "test-storage",
-            storageLocation = "test-location",
-            timeUploaded = MOCK_TIME,
-            sizeInBytes = 42
-        )
-        val cheesePizzaAndALargeSodaReceipt = document(
-            name = "unknown",
-            workspace = fryWorkspace,
-            timeUploaded = MOCK_TIME,
-            sizeInBytes = null
-        )
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+            val fryWorkspace = workspace(owner = fry)
+            val anotherFryWorkspace = workspace(owner = fry)
+            val anotherFryWorkspaceDocument = document(workspace = anotherFryWorkspace)
+            val farnsworth = farnsworth()
+            val coffeeReceipt = document(
+                name = "100_cups.pdf",
+                workspace = fryWorkspace,
+                storageId = "test-storage",
+                storageLocation = "test-location",
+                timeUploaded = MOCK_TIME,
+                sizeInBytes = 42
+            )
+            val cheesePizzaAndALargeSodaReceipt = document(
+                name = "unknown",
+                workspace = fryWorkspace,
+                timeUploaded = MOCK_TIME,
+                sizeInBytes = null
+            )
 
-        fun createDefaultFileToUpload(): MultipartBodyBuilder = MultipartBodyBuilder()
-            .apply {
-                part(
-                    "file",
-                    InMemoryResource("test-content"),
-                    MediaType.TEXT_PLAIN
-                ).header(
-                    HttpHeaders.CONTENT_DISPOSITION,
-                    ContentDisposition
-                        .builder("form-data")
-                        .name("file")
-                        .filename("test-file.txt")
-                        .build().toString()
-                )
-            }
+            fun createDefaultFileToUpload(): MultipartBodyBuilder = MultipartBodyBuilder()
+                .apply {
+                    part(
+                        "file",
+                        InMemoryResource("test-content"),
+                        MediaType.TEXT_PLAIN
+                    ).header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition
+                            .builder("form-data")
+                            .name("file")
+                            .filename("test-file.txt")
+                            .build().toString()
+                    )
+                }
+        }
     }
 
     class TestDocumentsStorage(

@@ -11,63 +11,17 @@ import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import org.apache.commons.lang3.RandomStringUtils
-import org.junit.jupiter.api.extension.AfterEachCallback
-import org.junit.jupiter.api.extension.BeforeEachCallback
-import org.junit.jupiter.api.extension.Extension
-import org.junit.jupiter.api.extension.ExtensionContext
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Instant
 import java.time.LocalDate
-import kotlin.reflect.KProperty
 
 /**
- * API for creating preconditions in the database.
- *
- * The API will create any missing dependencies automatically. Do not rely on the default
- * values in this class and always override all properties that influence test behavior.
- *
- * Important! Invoking any methods of this class immediately saves the created entity to the database,
- * hence it must be called from within the test method execution, otherwise the saved entities
- * will be cleaned up by the test framework before the test method is executed.
- *
- * There are multiple usage patterns for the preconditions API.
- *
- * ### Shared preconditions
- * Often, preconditions are shared between multiple tests to reduce the boilerplate and repetitive code.
- * In this case, [PreconditionsExtension] is a good choice:
- * 1. Create a JUnit [org.junit.jupiter.api.extension.RegisterExtension] property
- * of [PreconditionsExtension] type in the test class:
- * ```
- * @RegisterExtension
- * private val preconditionsExt = PreconditionsExtension {
- *    object {
- *        val user = platformUser()
- *    }
- * }
- * 2. Either use the property directly in tests: `preconditionsExt.value.user` or setup a delegate for cleaner tests:
- * ```
- * private val preconditions by preconditionsExt
- * ...
- * val user = preconditions.user
- * ```
- *
- * ### Test-specific preconditions
- *
- * In case a test requires more complex or individual preconditions, the [Preconditions] class can be used directly:
- * 1. Inject the [PreconditionsInfra] into your test constructor: `@Autowired private val preconditionsInfra: PreconditionsInfra`
- * 2. Create an object of [Preconditions] in your test method or a factory method:
- * ```
- * val preconditions = object: Preconditions(preconditionsInfra) {
- *   val myEntity = <entity factory method>(<entity properties>)
- *   ...
- * }
- * ```
- * 3. Use the created entities in the test code as needed: `preconditions.myEntity.<entity property>`.
+ * API for creating entities in tests, first of all if not always - for tests preconditions.
+ * It is rarely used standalone, but mostly indirectly via [PreconditionsFactory].
  */
-abstract class Preconditions(private val infra: PreconditionsInfra) {
+class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun platformUser(
         userName: String = "Farnsworth",
         passwordHash: String = "nopassword",
@@ -386,15 +340,15 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         ).save()
     }
 
-    protected fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
+    fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
 
-    protected fun <T : Any> T.save(): T = infra.save(this)
+    fun <T : Any> T.save(): T = infra.save(this)
 }
 
 /**
- * Infrastructure for creating preconditions in the database.
+ * Infrastructure for creating test entities.
  */
-class PreconditionsInfra(
+class EntitiesFactoryInfra(
     platformTransactionManager: PlatformTransactionManager,
     private val jdbcAggregateTemplate: JdbcAggregateTemplate,
 ) {
@@ -409,31 +363,4 @@ class PreconditionsInfra(
             jdbcAggregateTemplate.save(entity)
         }!!
     }
-}
-
-/**
- * JUnit 5 extension for creating test-specific preconditions in the database.
- * The preconditions are re-created before each test, which makes it a perfect choice for
- * nested classes with shared preconditions.
- */
-class PreconditionsExtension<P>(private val spec: Preconditions.() -> P) : BeforeEachCallback, AfterEachCallback,
-    Extension {
-
-    private var testSpecificPreconditions: P? = null
-
-    override fun beforeEach(context: ExtensionContext) {
-        val springContext = SpringExtension.getApplicationContext(context)
-        val preconditionsInfra = springContext.getBean(PreconditionsInfra::class.java)
-        val preconditions = object : Preconditions(preconditionsInfra) {}
-        this.testSpecificPreconditions = spec(preconditions)
-    }
-
-    override fun afterEach(context: ExtensionContext) {
-        this.testSpecificPreconditions = null
-    }
-
-    val value: P
-        get() = testSpecificPreconditions!!
-
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): P = testSpecificPreconditions!!
 }
