@@ -57,7 +57,8 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun fry() = platformUser(
         userName = "Fry",
         passwordHash = "qwertyHash",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     /**
@@ -67,30 +68,35 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         userName = "Farnsworth",
         passwordHash = "scienceBasedHash",
         isAdmin = true,
+        activated = true,
     )
 
     fun zoidberg() = platformUser(
         userName = "Zoidberg",
         passwordHash = "??",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     fun roberto() = platformUser(
         userName = "Roberto",
         passwordHash = "o_O",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     fun mafiaBot() = platformUser(
         userName = "MafiaBot",
         passwordHash = "$$$",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     fun bender() = platformUser(
         userName = "Bender",
         passwordHash = "011101010101101001",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     fun workspace(

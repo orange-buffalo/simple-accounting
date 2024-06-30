@@ -29,6 +29,11 @@ class UsersApiController(
         @ParameterObject request: UsersFilteringRequest
     ): ApiPage<PlatformUserDto> = filteringApiExecutor.executeFiltering(request)
 
+    @GetMapping("/{userId}")
+    suspend fun getUser(
+        @PathVariable("userId") userId: Long
+    ): PlatformUserDto = userService.getUserByUserId(userId).mapToUserDto()
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @ApiErrorMapping(UserCreationException.UserAlreadyExistsException::class, "UserAlreadyExists")

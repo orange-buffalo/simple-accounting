@@ -41,6 +41,10 @@ export interface CreateUserRequest {
     createUserRequestDto: CreateUserRequestDto;
 }
 
+export interface GetUserRequest {
+    userId: number;
+}
+
 export interface GetUsersRequest {
     sortBy?: GetUsersSortByEnum;
     freeSearchTextEq?: string;
@@ -90,6 +94,37 @@ export class UsersApiControllerApi extends runtime.BaseAPI {
      */
     async createUser(requestParameters: CreateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PlatformUserDto> {
         const response = await this.createUserRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getUserRaw(requestParameters: GetUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PlatformUserDto>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getUser().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/users/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PlatformUserDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async getUser(requestParameters: GetUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PlatformUserDto> {
+        const response = await this.getUserRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
