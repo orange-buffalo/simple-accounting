@@ -13,8 +13,8 @@ import io.orangebuffalo.simpleaccounting.infra.security.asFry
 import io.orangebuffalo.simpleaccounting.infra.utils.combine
 import io.orangebuffalo.simpleaccounting.infra.utils.logger
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactory
+import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.support.kotlinEquals
 import io.orangebuffalo.simpleaccounting.support.kotlinHashCode
@@ -326,10 +326,10 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
 
         abstract fun generateData(entitiesRegistry: EntitiesRegistry)
 
-        override fun execute(client: WebTestClient, preconditionsInfra: PreconditionsInfra) {
+        override fun execute(client: WebTestClient, entitiesFactoryInfra: EntitiesFactoryInfra) {
             val entitiesRegistry: EntitiesRegistry = EntitiesRegistryImpl(
                 skipWorkspaceEntities = !workspaceBasedUrl,
-                entitiesFactory = object : Preconditions(preconditionsInfra) {},
+                entitiesFactory = EntitiesFactory(entitiesFactoryInfra),
             )
             generateData(entitiesRegistry)
 
@@ -378,7 +378,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
 
     private class EntitiesRegistryImpl(
         skipWorkspaceEntities: Boolean,
-        override val entitiesFactory: Preconditions,
+        override val entitiesFactory: EntitiesFactory,
     ) : EntitiesRegistry {
 
         private val _workspaceOwner: PlatformUser? = if (skipWorkspaceEntities) null

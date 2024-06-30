@@ -18,27 +18,10 @@ import java.time.Instant
 import java.time.LocalDate
 
 /**
- * API for creating preconditions in the database.
- *
- * The API will create any missing dependencies automatically. Do not rely on the default
- * values in this class and always override all properties that influence test behavior.
- *
- * Important! Invoking any methods of this class immediately saves the created entity to the database,
- * hence it must be called from within the test method execution, otherwise the saved entities
- * will be cleaned up by the test framework before the test method is executed.
- *
- * To use:
- * 1. Inject the [PreconditionsInfra] into your test constructor: `@Autowired private val preconditionsInfra: PreconditionsInfra`
- * 2. Create an object of [Preconditions] in your test method or a factory method:
- * ```
- * val preconditions = object: Preconditions(preconditionsInfra) {
- *   val myEntity = <entity factory method>(<entity properties>)
- *   ...
- * }
- * ```
- * 3. Use the created entities in the test code as needed: `preconditions.myEntity.<entity property>`.
+ * API for creating entities in tests, first of all if not always - for tests preconditions.
+ * It is rarely used standalone, but mostly indirectly via [PreconditionsFactory].
  */
-abstract class Preconditions(private val infra: PreconditionsInfra) {
+class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun platformUser(
         userName: String = "Farnsworth",
         passwordHash: String = "nopassword",
@@ -74,7 +57,8 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
     fun fry() = platformUser(
         userName = "Fry",
         passwordHash = "qwertyHash",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     /**
@@ -84,30 +68,35 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         userName = "Farnsworth",
         passwordHash = "scienceBasedHash",
         isAdmin = true,
+        activated = true,
     )
 
     fun zoidberg() = platformUser(
         userName = "Zoidberg",
         passwordHash = "??",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     fun roberto() = platformUser(
         userName = "Roberto",
         passwordHash = "o_O",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     fun mafiaBot() = platformUser(
         userName = "MafiaBot",
         passwordHash = "$$$",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     fun bender() = platformUser(
         userName = "Bender",
         passwordHash = "011101010101101001",
-        isAdmin = false
+        isAdmin = false,
+        activated = true,
     )
 
     fun workspace(
@@ -357,15 +346,15 @@ abstract class Preconditions(private val infra: PreconditionsInfra) {
         ).save()
     }
 
-    protected fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
+    fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
 
-    protected fun <T : Any> T.save(): T = infra.save(this)
+    fun <T : Any> T.save(): T = infra.save(this)
 }
 
 /**
- * Infrastructure for creating preconditions in the database.
+ * Infrastructure for creating test entities.
  */
-class PreconditionsInfra(
+class EntitiesFactoryInfra(
     platformTransactionManager: PlatformTransactionManager,
     private val jdbcAggregateTemplate: JdbcAggregateTemplate,
 ) {

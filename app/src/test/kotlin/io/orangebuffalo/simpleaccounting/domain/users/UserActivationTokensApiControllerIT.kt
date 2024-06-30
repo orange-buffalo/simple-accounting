@@ -6,8 +6,7 @@ import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotContain
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsBodyConfiguration
 import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsValidationsTestBase
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
@@ -35,7 +34,7 @@ class UserActivationTokensApiControllerIT(
     @Autowired private val client: ApiTestClient,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val timeService: TimeService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
 
     @BeforeEach
@@ -49,8 +48,8 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{userId}?by=userId")
     inner class GetUserActivationTokenByUserId {
-        private val preconditions by lazy {
-            object : Preconditions(preconditionsInfra) {
+        private val preconditions by preconditionsFactory {
+            object {
                 val fry = fry()
                 val farnsworth = farnsworth()
                 val expiredToken = userActivationToken(
@@ -126,8 +125,8 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{token}")
     inner class GetUserActivationToken {
-        private val preconditions by lazy {
-            object : Preconditions(preconditionsInfra) {
+        private val preconditions by preconditionsFactory {
+            object {
                 val fry = fry()
                 val expiredToken = userActivationToken(
                     token = "expired-token",
@@ -197,8 +196,8 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("POST /api/user-activation-tokens")
     inner class CreateToken {
-        private val preconditions by lazy {
-            object : Preconditions(preconditionsInfra) {
+        private val preconditions by preconditionsFactory {
+            object {
                 val userWithoutToken = platformUser(
                     activated = false
                 )
@@ -305,6 +304,24 @@ class UserActivationTokensApiControllerIT(
     @Nested
     @DisplayName("POST /api/user-activation-tokens/{token}/activate")
     inner class ActivateUser {
+        private val preconditions by preconditionsFactory {
+            object {
+                val expiredToken = userActivationToken(
+                    token = "expired-token",
+                    expiresAt = MOCK_TIME.minusSeconds(1)
+                )
+                val user = platformUser(
+                    activated = false
+                )
+                val activeToken = userActivationToken(
+                    user = user,
+                    token = "active-token",
+                    expiresAt = MOCK_TIME.plusSeconds(1)
+                )
+                val fry = fry()
+            }
+        }
+
         private fun request(
             token: String,
             password: String = "qwerty",
@@ -321,14 +338,13 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should allow anonymous access`() {
-            request(setupPreconditions().activeToken.token)
+            request(preconditions.activeToken.token)
                 .exchange()
                 .expectStatus().is2xxSuccessful
         }
 
         @Test
         fun `should allow access with regular user privileges`() {
-            val preconditions = setupPreconditions()
             request(preconditions.activeToken.token)
                 .from(preconditions.fry)
                 .exchange()
@@ -344,7 +360,6 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should return 400 for expired token`() {
-            val preconditions = setupPreconditions()
             request(preconditions.expiredToken.token)
                 .exchange()
                 .expectStatus().isBadRequest
@@ -361,8 +376,6 @@ class UserActivationTokensApiControllerIT(
 
         @Test
         fun `should activate account when valid token is used`() {
-            val preconditions = setupPreconditions()
-
             request(preconditions.activeToken.token)
                 .verifyOkNoContent()
 
@@ -377,26 +390,9 @@ class UserActivationTokensApiControllerIT(
             }
         }
 
-        private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-            val expiredToken = userActivationToken(
-                token = "expired-token",
-                expiresAt = MOCK_TIME.minusSeconds(1)
-            )
-            val user = platformUser(
-                activated = false
-            )
-            val activeToken = userActivationToken(
-                user = user,
-                token = "active-token",
-                expiresAt = MOCK_TIME.plusSeconds(1)
-            )
-            val fry = fry()
-        }
-
         @Nested
         inner class RequestsValidation : ApiRequestsValidationsTestBase() {
             override val requestExecutionSpec = { requestBody: String ->
-                val preconditions = setupPreconditions()
                 request(preconditions.activeToken.token, body = requestBody)
             }
 

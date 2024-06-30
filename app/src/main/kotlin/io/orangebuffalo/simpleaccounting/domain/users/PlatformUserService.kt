@@ -37,6 +37,25 @@ class PlatformUserService(
         userRepository.save(user)
     }
 
+    /**
+     * Validates and saves updated user data.
+     * @throws UserUpdateException.UserAlreadyExistsException in case another user with the same name already exists
+     */
+    suspend fun updateUser(updatedUserData: PlatformUser): PlatformUser = withDbContext {
+        check(updatedUserData.id != null) {
+            "User id must be provided for update"
+        }
+        val existingUser = userRepository.findByUserName(updatedUserData.userName)
+        if (existingUser != null && existingUser.id != updatedUserData.id) {
+            throw UserUpdateException.UserAlreadyExistsException(updatedUserData.userName)
+        }
+        userRepository.save(updatedUserData)
+    }
+
+    /**
+     * Creates a new user.
+     * @throws UserCreationException.UserAlreadyExistsException in case another user with the same name already exists
+     */
     suspend fun createUser(
         userName: String,
         isAdmin: Boolean,

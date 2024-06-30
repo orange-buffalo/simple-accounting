@@ -18,7 +18,9 @@ import type {
   ApiPagePlatformUserDto,
   CreateUserRequestDto,
   PlatformUserDto,
+  UpdateUserRequestDto,
   UsersApiCreateUserErrors,
+  UsersApiUpdateUserErrors,
 } from '../models/index';
 import {
     ApiPagePlatformUserDtoFromJSON,
@@ -27,12 +29,20 @@ import {
     CreateUserRequestDtoToJSON,
     PlatformUserDtoFromJSON,
     PlatformUserDtoToJSON,
+    UpdateUserRequestDtoFromJSON,
+    UpdateUserRequestDtoToJSON,
     UsersApiCreateUserErrorsFromJSON,
     UsersApiCreateUserErrorsToJSON,
+    UsersApiUpdateUserErrorsFromJSON,
+    UsersApiUpdateUserErrorsToJSON,
 } from '../models/index';
 
 export interface CreateUserRequest {
     createUserRequestDto: CreateUserRequestDto;
+}
+
+export interface GetUserRequest {
+    userId: number;
 }
 
 export interface GetUsersRequest {
@@ -41,6 +51,11 @@ export interface GetUsersRequest {
     pageNumber?: number;
     pageSize?: number;
     sortOrder?: GetUsersSortOrderEnum;
+}
+
+export interface UpdateUserRequest {
+    userId: number;
+    updateUserRequestDto: UpdateUserRequestDto;
 }
 
 /**
@@ -79,6 +94,37 @@ export class UsersApiControllerApi extends runtime.BaseAPI {
      */
     async createUser(requestParameters: CreateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PlatformUserDto> {
         const response = await this.createUserRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async getUserRaw(requestParameters: GetUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PlatformUserDto>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling getUser().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/api/users/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PlatformUserDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async getUser(requestParameters: GetUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PlatformUserDto> {
+        const response = await this.getUserRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -123,6 +169,47 @@ export class UsersApiControllerApi extends runtime.BaseAPI {
      */
     async getUsers(requestParameters: GetUsersRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ApiPagePlatformUserDto> {
         const response = await this.getUsersRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async updateUserRaw(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PlatformUserDto>> {
+        if (requestParameters['userId'] == null) {
+            throw new runtime.RequiredError(
+                'userId',
+                'Required parameter "userId" was null or undefined when calling updateUser().'
+            );
+        }
+
+        if (requestParameters['updateUserRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'updateUserRequestDto',
+                'Required parameter "updateUserRequestDto" was null or undefined when calling updateUser().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/api/users/{userId}`.replace(`{${"userId"}}`, encodeURIComponent(String(requestParameters['userId']))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateUserRequestDtoToJSON(requestParameters['updateUserRequestDto']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PlatformUserDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async updateUser(requestParameters: UpdateUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PlatformUserDto> {
+        const response = await this.updateUserRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

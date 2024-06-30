@@ -1,8 +1,9 @@
 package io.orangebuffalo.simpleaccounting.domain.invoices
 
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactory
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentDate
@@ -21,7 +22,8 @@ import java.util.stream.Stream
 class InvoicesServiceIT(
     @Autowired private val invoicesService: InvoicesService,
     @Autowired private val invoiceRepository: InvoiceRepository,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    @Autowired private val entitiesFactoryInfra: EntitiesFactoryInfra,
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
 
     @field:MockBean
@@ -49,64 +51,66 @@ class InvoicesServiceIT(
         }
     }
 
-    private fun setupOverdueTestPreconditions() = object : Preconditions(preconditionsInfra) {
-        val firstOwner = platformUser()
-        val secondOwner = platformUser()
-        val firstWorkspace = workspace(owner = firstOwner)
-        val secondWorkspace = workspace(owner = secondOwner)
-        val firstCustomer = customer(workspace = firstWorkspace)
-        val secondCustomer = customer(workspace = secondWorkspace)
-        val overdueInvoices = listOf(
-            invoice(
-                customer = firstCustomer,
-                status = InvoiceStatus.SENT,
-                dueDate = MOCK_DATE.minusDays(1)
-            ),
-            invoice(
-                customer = secondCustomer,
-                status = InvoiceStatus.SENT,
-                dueDate = MOCK_DATE.minusDays(1)
+    private fun setupOverdueTestPreconditions() = preconditionsFactory.setup {
+        object {
+            val firstOwner = platformUser()
+            val secondOwner = platformUser()
+            val firstWorkspace = workspace(owner = firstOwner)
+            val secondWorkspace = workspace(owner = secondOwner)
+            val firstCustomer = customer(workspace = firstWorkspace)
+            val secondCustomer = customer(workspace = secondWorkspace)
+            val overdueInvoices = listOf(
+                invoice(
+                    customer = firstCustomer,
+                    status = InvoiceStatus.SENT,
+                    dueDate = MOCK_DATE.minusDays(1)
+                ),
+                invoice(
+                    customer = secondCustomer,
+                    status = InvoiceStatus.SENT,
+                    dueDate = MOCK_DATE.minusDays(1)
+                )
             )
-        )
-        val unchangedInvoices = listOf(
-            invoice(
-                customer = secondCustomer,
-                status = InvoiceStatus.SENT,
-                dueDate = MOCK_DATE
-            ),
-            invoice(
-                customer = secondCustomer,
-                status = InvoiceStatus.SENT,
-                dueDate = MOCK_DATE.plusDays(1)
-            ),
-            invoice(
-                customer = firstCustomer,
-                status = InvoiceStatus.DRAFT,
-                dueDate = MOCK_DATE.minusDays(1)
-            ),
-            invoice(
-                customer = secondCustomer,
-                status = InvoiceStatus.DRAFT,
-                dueDate = MOCK_DATE
-            ),
-            invoice(
-                customer = secondCustomer,
-                status = InvoiceStatus.PAID,
-                dueDate = MOCK_DATE.minusDays(1)
-            ),
-            invoice(
-                customer = firstCustomer,
-                status = InvoiceStatus.PAID,
-                dueDate = MOCK_DATE
+            val unchangedInvoices = listOf(
+                invoice(
+                    customer = secondCustomer,
+                    status = InvoiceStatus.SENT,
+                    dueDate = MOCK_DATE
+                ),
+                invoice(
+                    customer = secondCustomer,
+                    status = InvoiceStatus.SENT,
+                    dueDate = MOCK_DATE.plusDays(1)
+                ),
+                invoice(
+                    customer = firstCustomer,
+                    status = InvoiceStatus.DRAFT,
+                    dueDate = MOCK_DATE.minusDays(1)
+                ),
+                invoice(
+                    customer = secondCustomer,
+                    status = InvoiceStatus.DRAFT,
+                    dueDate = MOCK_DATE
+                ),
+                invoice(
+                    customer = secondCustomer,
+                    status = InvoiceStatus.PAID,
+                    dueDate = MOCK_DATE.minusDays(1)
+                ),
+                invoice(
+                    customer = firstCustomer,
+                    status = InvoiceStatus.PAID,
+                    dueDate = MOCK_DATE
+                )
             )
-        )
+        }
     }
 
     @ParameterizedTest
     @MethodSource("invoiceStatusTestData")
     @WithMockFryUser
-    fun `should save invoice and set proper status`(testDataFactory: (PreconditionsInfra) -> InvoiceStatusTestData) {
-        val testData = testDataFactory(preconditionsInfra)
+    fun `should save invoice and set proper status`(testDataFactory: (EntitiesFactoryInfra) -> InvoiceStatusTestData) {
+        val testData = testDataFactory(entitiesFactoryInfra)
         mockCurrentDate(timeService)
 
         val savedInvoice = runBlocking {
@@ -123,17 +127,17 @@ class InvoicesServiceIT(
     companion object TestDataHolder {
         @Suppress("unused")
         @JvmStatic
-        fun invoiceStatusTestData(): Stream<(PreconditionsInfra) -> InvoiceStatusTestData> = Stream.of(
+        fun invoiceStatusTestData(): Stream<(EntitiesFactoryInfra) -> InvoiceStatusTestData> = Stream.of(
             { preconditionsInfra ->
                 InvoiceStatusTestData(
-                    preconditionsInfra = preconditionsInfra,
+                    entitiesFactory = EntitiesFactory(preconditionsInfra),
                     expectedStatus = InvoiceStatus.DRAFT,
                 )
             },
 
             { preconditionsInfra ->
                 InvoiceStatusTestData(
-                    preconditionsInfra = preconditionsInfra,
+                    entitiesFactory = EntitiesFactory(preconditionsInfra),
                     currentStatus = InvoiceStatus.DRAFT,
                     dueDate = MOCK_DATE.minusDays(1),
                     expectedStatus = InvoiceStatus.DRAFT
@@ -142,7 +146,7 @@ class InvoicesServiceIT(
 
             { preconditionsInfra ->
                 InvoiceStatusTestData(
-                    preconditionsInfra = preconditionsInfra,
+                    entitiesFactory = EntitiesFactory(preconditionsInfra),
                     dateSent = MOCK_DATE,
                     expectedStatus = InvoiceStatus.SENT,
                 )
@@ -150,7 +154,7 @@ class InvoicesServiceIT(
 
             { preconditionsInfra ->
                 InvoiceStatusTestData(
-                    preconditionsInfra = preconditionsInfra,
+                    entitiesFactory = EntitiesFactory(preconditionsInfra),
                     datePaid = MOCK_DATE,
                     currentStatus = InvoiceStatus.DRAFT,
                     expectedStatus = InvoiceStatus.PAID,
@@ -159,7 +163,7 @@ class InvoicesServiceIT(
 
             { preconditionsInfra ->
                 InvoiceStatusTestData(
-                    preconditionsInfra = preconditionsInfra,
+                    entitiesFactory = EntitiesFactory(preconditionsInfra),
                     datePaid = MOCK_DATE,
                     dueDate = MOCK_DATE.minusDays(1),
                     currentStatus = InvoiceStatus.DRAFT,
@@ -169,7 +173,7 @@ class InvoicesServiceIT(
 
             { preconditionsInfra ->
                 InvoiceStatusTestData(
-                    preconditionsInfra = preconditionsInfra,
+                    entitiesFactory = EntitiesFactory(preconditionsInfra),
                     dateSent = MOCK_DATE,
                     dueDate = MOCK_DATE.minusDays(1),
                     expectedStatus = InvoiceStatus.OVERDUE,
@@ -178,7 +182,7 @@ class InvoicesServiceIT(
 
             { preconditionsInfra ->
                 InvoiceStatusTestData(
-                    preconditionsInfra = preconditionsInfra,
+                    entitiesFactory = EntitiesFactory(preconditionsInfra),
                     dateSent = MOCK_DATE,
                     dueDate = MOCK_DATE,
                     expectedStatus = InvoiceStatus.SENT,
@@ -187,7 +191,7 @@ class InvoicesServiceIT(
 
             { preconditionsInfra ->
                 InvoiceStatusTestData(
-                    preconditionsInfra = preconditionsInfra,
+                    entitiesFactory = EntitiesFactory(preconditionsInfra),
                     dateSent = MOCK_DATE,
                     dueDate = MOCK_DATE.plusDays(1),
                     expectedStatus = InvoiceStatus.SENT,
@@ -197,21 +201,21 @@ class InvoicesServiceIT(
     }
 
     class InvoiceStatusTestData(
-        preconditionsInfra: PreconditionsInfra,
+        entitiesFactory: EntitiesFactory,
         val dateSent: LocalDate? = null,
         val datePaid: LocalDate? = null,
         val dueDate: LocalDate = MOCK_DATE,
         val currentStatus: InvoiceStatus = InvoiceStatus.DRAFT,
         val expectedStatus: InvoiceStatus,
-    ) : Preconditions(preconditionsInfra) {
-        val fry = fry()
-        val workspace = workspace(owner = fry)
-        val invoice = invoice(
+    ) {
+        val fry = entitiesFactory.fry()
+        val workspace = entitiesFactory.workspace(owner = fry)
+        val invoice = entitiesFactory.invoice(
             dateSent = dateSent,
             datePaid = datePaid,
             dueDate = dueDate,
             status = currentStatus,
-            customer = customer(workspace = workspace),
+            customer = entitiesFactory.customer(workspace = workspace),
         )
     }
 }

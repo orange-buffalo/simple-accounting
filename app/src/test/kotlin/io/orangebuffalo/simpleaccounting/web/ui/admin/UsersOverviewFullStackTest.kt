@@ -2,19 +2,17 @@ package io.orangebuffalo.simpleaccounting.web.ui.admin
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.UserOverviewItem
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.toUserOverviewItem
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 
 @SimpleAccountingFullStackTest
 class UsersOverviewFullStackTest(
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
 
     @Test
@@ -114,34 +112,40 @@ class UsersOverviewFullStackTest(
             }
     }
 
-    private fun setupOverviewPreconditions() = object : Preconditions(preconditionsInfra) {
-        val farnsworth = farnsworth()
+    private fun setupOverviewPreconditions() = preconditionsFactory.setup {
+        object {
+            val farnsworth = farnsworth()
 
-        init {
-            platformUser(userName = "aUser", isAdmin = false, activated = true)
-            platformUser(userName = "B user", isAdmin = true, activated = false)
-            platformUser(userName = "C User", isAdmin = false, activated = false)
+            init {
+                platformUser(userName = "aUser", isAdmin = false, activated = true)
+                platformUser(userName = "B user", isAdmin = true, activated = false)
+                platformUser(userName = "C User", isAdmin = false, activated = false)
+            }
         }
     }
 
-    private fun setupPaginationPreconditions() = object : Preconditions(preconditionsInfra) {
-        var farnsworth = farnsworth()
+    private fun setupPaginationPreconditions() = preconditionsFactory.setup {
+        object {
+            var farnsworth = farnsworth()
 
-        init {
-            (1..15).forEach { platformUser(userName = "user $it") }
+            init {
+                (1..15).forEach { platformUser(userName = "user $it") }
+            }
         }
     }
 
-    private fun setupFilteringPreconditions() = object : Preconditions(preconditionsInfra) {
-        var farnsworth = farnsworth()
+    private fun setupFilteringPreconditions() = preconditionsFactory.setup {
+        object {
+            var farnsworth = farnsworth()
 
-        init {
-            platformUser(userName = "aBcDef")
-            platformUser(userName = "abcdef")
-            platformUser(userName = "ABCDEF")
-            platformUser(userName = "qwerty")
-            // some users to enable pagination
-            (1..10).forEach { platformUser(userName = "user $it") }
+            init {
+                platformUser(userName = "aBcDef")
+                platformUser(userName = "abcdef")
+                platformUser(userName = "ABCDEF")
+                platformUser(userName = "qwerty")
+                // some users to enable pagination
+                (1..10).forEach { platformUser(userName = "user $it") }
+            }
         }
     }
 }

@@ -29,6 +29,11 @@ class UsersApiController(
         @ParameterObject request: UsersFilteringRequest
     ): ApiPage<PlatformUserDto> = filteringApiExecutor.executeFiltering(request)
 
+    @GetMapping("/{userId}")
+    suspend fun getUser(
+        @PathVariable("userId") userId: Long
+    ): PlatformUserDto = userService.getUserByUserId(userId).mapToUserDto()
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @ApiErrorMapping(UserCreationException.UserAlreadyExistsException::class, "UserAlreadyExists")
@@ -39,8 +44,19 @@ class UsersApiController(
         )
         .mapToUserDto()
 
-    private val filteringApiExecutor =
-        filteringApiExecutorBuilder.executor<PlatformUser, PlatformUserDto, NoOpSorting, UsersFilteringRequest> {
+    @PutMapping("/{userId}")
+    @ApiErrorMapping(UserUpdateException.UserAlreadyExistsException::class, "UserAlreadyExists")
+    suspend fun updateUser(
+        @PathVariable userId: Long,
+        @RequestBody @Valid request: UpdateUserRequestDto
+    ): PlatformUserDto {
+        val user = userService.getUserByUserId(userId)
+        user.userName = request.userName
+        return userService.updateUser(user).mapToUserDto()
+    }
+
+    private val filteringApiExecutor = filteringApiExecutorBuilder
+        .executor<PlatformUser, PlatformUserDto, NoOpSorting, UsersFilteringRequest> {
             val platformUser = Tables.PLATFORM_USER
             query(platformUser) {
                 addDefaultSorting { lower(root.userName).asc() }
@@ -70,6 +86,10 @@ data class PlatformUserDto(
 data class CreateUserRequestDto(
     @field:NotBlank @field:Size(max = 255) var userName: String,
     var admin: Boolean,
+)
+
+data class UpdateUserRequestDto(
+    @field:NotBlank @field:Size(max = 255) var userName: String,
 )
 
 private fun PlatformUser.mapToUserDto() = PlatformUserDto(

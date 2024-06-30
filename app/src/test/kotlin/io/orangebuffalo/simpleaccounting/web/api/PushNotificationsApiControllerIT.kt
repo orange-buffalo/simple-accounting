@@ -2,8 +2,7 @@ package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.assertNextJsonIs
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -25,14 +24,15 @@ import java.time.temporal.ChronoUnit
 class PushNotificationsApiControllerIT(
     @Autowired private val client: WebTestClient,
     @Autowired private val pushNotificationService: PushNotificationService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     @WithMockFryUser
     fun `should receive a single broadcast event`() {
-        setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -62,7 +62,8 @@ class PushNotificationsApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should receive multiple broadcast events`() {
-        setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -105,7 +106,9 @@ class PushNotificationsApiControllerIT(
     @Test
     @WithMockFryUser
     fun `should not receive events addressed to another user`() {
-        val testData = setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
+
         val result = GlobalScope.async {
             client.get()
                 .uri("/api/push-notifications")
@@ -122,11 +125,11 @@ class PushNotificationsApiControllerIT(
             )
 
             pushNotificationService.sendPushNotification(
-                userId = testData.fry.id!!, eventName = "watch-tv"
+                userId = preconditions.fry.id!!, eventName = "watch-tv"
             )
 
             pushNotificationService.sendPushNotification(
-                userId = testData.bender.id!!, eventName = "kill-all-humans"
+                userId = preconditions.bender.id!!, eventName = "kill-all-humans"
             )
 
             pushNotificationService.sendPushNotification(
@@ -162,8 +165,10 @@ class PushNotificationsApiControllerIT(
         }
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = fry()
-        val bender = bender()
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
+            val bender = bender()
+        }
     }
 }

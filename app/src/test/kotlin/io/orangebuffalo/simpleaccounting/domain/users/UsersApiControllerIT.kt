@@ -2,10 +2,10 @@ package io.orangebuffalo.simpleaccounting.domain.users
 
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.*
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import kotlinx.serialization.json.addJsonObject
@@ -25,7 +25,7 @@ internal class UsersApiControllerIT(
     @Autowired private val client: ApiTestClient,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val timeService: TimeService,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
 
     /**
@@ -34,8 +34,8 @@ internal class UsersApiControllerIT(
     @Nested
     @DisplayName("GET /api/users")
     inner class GetUsers {
-        private val preconditions by lazy {
-            object : Preconditions(preconditionsInfra) {
+        private val preconditions by preconditionsFactory {
+            object {
                 val farnsworth = farnsworth()
                 val fry = fry()
                 val zoidberg = platformUser(
@@ -107,9 +107,8 @@ internal class UsersApiControllerIT(
     @Nested
     @DisplayName("POST /api/users")
     inner class CreateUser {
-
-        private val preconditions by lazy {
-            object : Preconditions(preconditionsInfra) {
+        private val preconditions by preconditionsFactory {
+            object {
                 val farnsworth = farnsworth()
                 val fry = fry()
             }
@@ -200,4 +199,142 @@ internal class UsersApiControllerIT(
             override val successResponseStatus = HttpStatus.CREATED
         }
     }
+
+    /**
+     * [UsersApiController.updateUser]
+     */
+    @Nested
+    @DisplayName("PUT /api/users/{userId}")
+    inner class UpdateUser {
+        private val preconditions by preconditionsFactory {
+            object {
+                val farnsworth = farnsworth()
+                val fry = fry()
+            }
+        }
+
+        private fun request(userId: Long?, userName: String = "Leela") = client
+            .put()
+            .uri("/api/users/${userId}")
+            .sendJson {
+                put("userName", userName)
+            }
+
+        @Test
+        fun `should prohibit anonymous access`() {
+            request(userId = preconditions.fry.id)
+                .fromAnonymous()
+                .exchange()
+                .expectStatus().isUnauthorized
+        }
+
+        @Test
+        fun `should prohibit regular user access`() {
+            request(userId = preconditions.fry.id)
+                .from(preconditions.fry)
+                .exchange()
+                .expectStatus().isForbidden
+        }
+
+        @Test
+        fun `should update user`() {
+            request(userId = preconditions.fry.id, userName = "Leela")
+                .from(preconditions.farnsworth)
+                .verifyOkAndJsonBodyEqualTo {
+                    put("userName", "Leela")
+                    put("id", preconditions.fry.id)
+                    put("version", 1)
+                    put("admin", false)
+                    put("activated", true)
+                }
+
+            aggregateTemplate.findAll<PlatformUser>()
+                .filter { it.id == preconditions.fry.id }
+                .shouldBeSingle()
+                .should {
+                    it.userName.shouldBe("Leela")
+                }
+        }
+
+        @Test
+        fun `should not allow to update to existing user name`() {
+            request(userId = preconditions.fry.id, userName = preconditions.farnsworth.userName)
+                .from(preconditions.farnsworth)
+                .verifyBadRequestAndJsonBodyEqualTo {
+                    put("error", "UserAlreadyExists")
+                    put("message", "User with name '${preconditions.farnsworth.userName}' already exists")
+                }
+        }
+
+        @Nested
+        inner class RequestsValidation : ApiRequestsValidationsTestBase() {
+            override val requestExecutionSpec = { requestBody: String ->
+                client
+                    .put()
+                    .uri("/api/users/${preconditions.fry.id}")
+                    .sendJson(requestBody)
+                    .from(preconditions.farnsworth)
+            }
+
+            override val requestBodySpec: ApiRequestsBodyConfiguration = {
+                string("userName", maxLength = 255, mandatory = true)
+            }
+        }
+    }
+
+    /**
+     * [UsersApiController.getUser]
+     */
+    @Nested
+    @DisplayName("GET /api/users/{userId}")
+    inner class GetUser {
+        private val preconditions by preconditionsFactory {
+            object {
+                val farnsworth = farnsworth()
+                val fry = fry()
+            }
+        }
+
+        private fun request(userId: Long = preconditions.fry.id!!) = client
+            .get()
+            .uri("/api/users/${userId}")
+
+        @Test
+        fun `should prohibit anonymous access`() {
+            request()
+                .fromAnonymous()
+                .exchange()
+                .expectStatus().isUnauthorized
+        }
+
+        @Test
+        fun `should prohibit access by regular users`() {
+            request()
+                .from(preconditions.fry)
+                .exchange()
+                .expectStatus().isForbidden
+        }
+
+        @Test
+        fun `should return 404 for unknown user`() {
+            request(userId = -42)
+                .from(preconditions.farnsworth)
+                .exchange()
+                .expectStatus().isNotFound
+        }
+
+        @Test
+        fun `should return valid user data`() {
+            request()
+                .from(preconditions.farnsworth)
+                .verifyOkAndJsonBodyEqualTo {
+                    put("userName", "Fry")
+                    put("id", preconditions.fry.id)
+                    put("version", 0)
+                    put("admin", false)
+                    put("activated", true)
+                }
+        }
+    }
+
 }

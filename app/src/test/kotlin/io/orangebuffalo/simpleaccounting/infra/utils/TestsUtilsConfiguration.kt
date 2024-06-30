@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.utils
 
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactoryInfra
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
@@ -13,10 +13,10 @@ import org.springframework.transaction.PlatformTransactionManager
 class TestsUtilsConfiguration {
 
     @Bean
-    fun preconditionsInfra(
+    fun entitiesFactoryInfra(
         platformTransactionManager: PlatformTransactionManager,
         jdbcAggregateTemplate: JdbcAggregateTemplate
-    ) = PreconditionsInfra(
+    ) = EntitiesFactoryInfra(
         platformTransactionManager = platformTransactionManager,
         jdbcAggregateTemplate = jdbcAggregateTemplate
     )

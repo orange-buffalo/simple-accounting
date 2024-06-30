@@ -39,6 +39,10 @@ class ApiTestClient(
     fun post() = webTestClient.post().also {
         it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
+
+    fun put() = webTestClient.put().also {
+        it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
+    }
 }
 
 /**

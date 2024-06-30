@@ -9,8 +9,7 @@ import io.orangebuffalo.simpleaccounting.infra.api.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.infra.api.urlEncodeParameter
 import io.orangebuffalo.simpleaccounting.infra.api.willReturnOkJson
-import io.orangebuffalo.simpleaccounting.infra.database.Preconditions
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsInfra
+import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
@@ -47,7 +46,7 @@ import java.util.function.Consumer
 internal class OAuth2ClientAuthorizationProviderIT(
     @Autowired private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
-    @Autowired private val preconditionsInfra: PreconditionsInfra,
+    preconditionsFactory: PreconditionsFactory,
 ) {
 
     @MockBean
@@ -68,7 +67,8 @@ internal class OAuth2ClientAuthorizationProviderIT(
     @Test
     @WithSaMockUser(userName = "Fry")
     fun `should create a valid authorization URL`() {
-        setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
 
         val actualUrl = runBlocking { clientAuthorizationProvider.buildAuthorizationUrl("test-client") }
 
@@ -92,7 +92,8 @@ internal class OAuth2ClientAuthorizationProviderIT(
     @Test
     @WithSaMockUser(userName = "Fry")
     fun `should add additional parameters to authorization URL`() {
-        setupPreconditions()
+        // trigger preconditions to be prepared - should be removed when JWT token client is used
+        preconditions.fry
 
         val actualUrl = runBlocking {
             clientAuthorizationProvider.buildAuthorizationUrl("test-client", mapOf("param1" to "value1"))
@@ -112,9 +113,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
 
     @Test
     fun `should emit OAuth2FailedEvent and throw exception if error is provided in the response`() {
-        val testData = setupPreconditions()
-
-        mockSavedRequest(testData.fry)
+        mockSavedRequest(preconditions.fry)
 
         assertThatThrownBy {
             handleAuthorizationResponse(
@@ -125,14 +124,12 @@ internal class OAuth2ClientAuthorizationProviderIT(
             )
         }
 
-        verifyAuthFailedEvent(testData.fry)
+        verifyAuthFailedEvent(preconditions.fry)
     }
 
     @Test
     fun `should emit OAuth2FailedEvent and throw exception if code is not provided in the response`() {
-        val testData = setupPreconditions()
-
-        mockSavedRequest(testData.fry)
+        mockSavedRequest(preconditions.fry)
 
         assertThatThrownBy {
             handleAuthorizationResponse(
@@ -143,28 +140,24 @@ internal class OAuth2ClientAuthorizationProviderIT(
             )
         }
 
-        verifyAuthFailedEvent(testData.fry)
+        verifyAuthFailedEvent(preconditions.fry)
     }
 
     @Test
     fun `should emit OAuth2FailedEvent and throw exception if token endpoint fails`() {
-        val testData = setupPreconditions()
-
-        mockSavedRequest(testData.fry)
+        mockSavedRequest(preconditions.fry)
         stubPostRequestTo("/token") {
             willReturn(badRequest().withBody("""{ "error": "some bad request" }"""))
         }
 
         assertThatThrownBy { handleAuthorizationResponse(callbackRequestProto()) }
 
-        verifyAuthFailedEvent(testData.fry)
+        verifyAuthFailedEvent(preconditions.fry)
     }
 
     @Test
     fun `should call token endpoint with proper parameters`() {
-        val testData = setupPreconditions()
-
-        mockSavedRequest(testData.fry)
+        mockSavedRequest(preconditions.fry)
 
         stubPostRequestTo("/token") {
             withRequestBody(containing(urlEncodeParameter("grant_type" to "authorization_code")))
@@ -187,9 +180,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
 
     @Test
     fun `should save persisted client and emit successful auth even on token response`() {
-        val testData = setupPreconditions()
-
-        mockSavedRequest(testData.fry)
+        mockSavedRequest(preconditions.fry)
 
         stubPostRequestTo("/token") {
             willReturnOkJson(
@@ -208,7 +199,7 @@ internal class OAuth2ClientAuthorizationProviderIT(
         verify(authEventTestListener).onSucceededAuth(capture(authSucceededEventCaptor))
         val succeededEvent = authSucceededEventCaptor.value
         assertThat(succeededEvent.clientRegistrationId).isEqualTo("test-client")
-        assertThat(succeededEvent.user).isEqualTo(testData.fry)
+        assertThat(succeededEvent.user).isEqualTo(preconditions.fry)
 
         val persistedClients = jdbcAggregateTemplate.findAll(PersistentOAuth2AuthorizedClient::class.java)
         assertThat(persistedClients).singleElement().satisfies(Consumer { client ->
@@ -254,8 +245,10 @@ internal class OAuth2ClientAuthorizationProviderIT(
         runBlocking { clientAuthorizationProvider.handleAuthorizationResponse(request) }
     }
 
-    private fun setupPreconditions() = object : Preconditions(preconditionsInfra) {
-        val fry = fry()
+    private val preconditions by preconditionsFactory {
+        object {
+            val fry = fry()
+        }
     }
 
     // workaround for https://github.com/spring-projects/spring-framework/issues/18907
