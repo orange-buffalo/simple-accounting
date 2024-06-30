@@ -281,4 +281,60 @@ internal class UsersApiControllerIT(
             }
         }
     }
+
+    /**
+     * [UsersApiController.getUser]
+     */
+    @Nested
+    @DisplayName("GET /api/users/{userId}")
+    inner class GetUser {
+        private val preconditions by preconditionsFactory {
+            object {
+                val farnsworth = farnsworth()
+                val fry = fry()
+            }
+        }
+
+        private fun request(userId: Long = preconditions.fry.id!!) = client
+            .get()
+            .uri("/api/users/${userId}")
+
+        @Test
+        fun `should prohibit anonymous access`() {
+            request()
+                .fromAnonymous()
+                .exchange()
+                .expectStatus().isUnauthorized
+        }
+
+        @Test
+        fun `should prohibit access by regular users`() {
+            request()
+                .from(preconditions.fry)
+                .exchange()
+                .expectStatus().isForbidden
+        }
+
+        @Test
+        fun `should return 404 for unknown user`() {
+            request(userId = -42)
+                .from(preconditions.farnsworth)
+                .exchange()
+                .expectStatus().isNotFound
+        }
+
+        @Test
+        fun `should return valid user data`() {
+            request()
+                .from(preconditions.farnsworth)
+                .verifyOkAndJsonBodyEqualTo {
+                    put("userName", "Fry")
+                    put("id", preconditions.fry.id)
+                    put("version", 0)
+                    put("admin", false)
+                    put("activated", true)
+                }
+        }
+    }
+
 }
