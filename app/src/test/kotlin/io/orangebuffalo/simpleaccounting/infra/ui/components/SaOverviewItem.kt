@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageableItems.Companion.pageableItems
+import io.orangebuffalo.simpleaccounting.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.infra.utils.innerTextTrimmed
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldNotBeVisible
@@ -13,7 +14,7 @@ class SaOverviewItem private constructor(
     val title: String?
         get() = panel.locator(".overview-item__title").innerTextOrNull()
 
-    val primaryAttributes : List<PrimaryAttribute>
+    val primaryAttributes: List<PrimaryAttribute>
         get() = panel.locator(".overview-item-primary-attribute").all().map {
             PrimaryAttribute(
                 icon = it.locator(".overview-item-primary-attribute__icon").getAttribute("data-icon"),
@@ -25,6 +26,12 @@ class SaOverviewItem private constructor(
 
     fun shouldNotHaveDetails() {
         detailsTrigger.shouldNotBeVisible()
+    }
+
+    fun executeAction(actionLinkText: String) {
+        panel
+            .locator("xpath=.//*[${XPath.hasClass("sa-action-link")} and .//*[${XPath.hasText(actionLinkText)}]]")
+            .click()
     }
 
     companion object {

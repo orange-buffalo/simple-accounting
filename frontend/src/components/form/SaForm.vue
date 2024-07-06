@@ -4,7 +4,7 @@
       ref="elForm"
       v-loading="loading"
       label-position="top"
-      :model="model"
+      :model="isLegacyApi ? props.model : formValues"
       :rules="rules"
     >
       <slot />
@@ -35,9 +35,9 @@
   import {
     ElForm, FormInstance, FormItemContext, FormRules,
   } from 'element-plus';
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { $t } from '@/services/i18n';
-  import { provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
+  import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ensureDefined, hasValue } from '@/services/utils.ts';
   import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
   import {
@@ -48,15 +48,21 @@
   import useNotifications from '@/components/notifications/use-notifications.ts';
 
   type SaFormProps = {
-    model: Record<string, unknown>,
+    // legacy API will provide this, while new API v-model
+    model?: FormValues,
+    // legacy API
     rules?: FormRules,
     onCancel?: () => Promise<unknown> | unknown,
     cancelButtonLabel?: string,
     submitButtonLabel?: string,
     submitButtonDisabled?: boolean,
+    onLoad?: () => Promise<unknown> | unknown,
     // optional to support legacy API
     onSubmit?: () => Promise<unknown> | unknown,
   };
+
+  // new API uses v-model
+  const formValues = defineModel<FormValues>();
 
   const props = withDefaults(defineProps<SaFormProps>(), {
     submitButtonDisabled: false,
@@ -66,6 +72,12 @@
 
   if (!isLegacyApi && props.rules) {
     throw new Error('Rules are not supported in the new API, use ClientSideValidationError instead.');
+  }
+  if (!isLegacyApi && (!formValues.value || props.model)) {
+    throw new Error('v-model must be used in the new API.');
+  }
+  if (isLegacyApi && (!props.model || formValues.value)) {
+    throw new Error('Model prop must be used in the legacy API.');
   }
 
   const elForm = ref<FormInstance | undefined>(undefined);
@@ -79,11 +91,13 @@
     unregisterFormItem: (prop: string) => {
       formItems.delete(prop);
     },
-    formValues: props.model,
+    formValues,
   });
 
   const { showWarningNotification } = useNotifications();
   const submitForm = async () => {
+    // legacy API - validations via rules
+
     // form validation throws an exception if validation fails
     if (props.rules) {
       try {
@@ -94,6 +108,7 @@
       }
     }
 
+    // modern API - validations via ClientSideValidationError in onSubmit
     loading.value = true;
     try {
       if (props.onSubmit) {
@@ -113,6 +128,17 @@
       loading.value = false;
     }
   };
+
+  onMounted(async () => {
+    if (props.onLoad) {
+      loading.value = true;
+      try {
+        await props.onLoad();
+      } finally {
+        loading.value = false;
+      }
+    }
+  });
 
   // legacy API - should not be used any longer
   const validate = async (): Promise<boolean> => {

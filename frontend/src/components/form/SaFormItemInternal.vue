@@ -33,7 +33,7 @@
     formItemContext.value?.clearValidate();
 
     const path = props.prop.split('.');
-    let current = saFormApi.formValues;
+    let current = saFormApi.formValues.value;
     for (let i = 0; i < path.length - 1; i += 1) {
       if (!current[path[i]]) {
         current[path[i]] = {};
@@ -44,7 +44,7 @@
   });
 
   // changes made to the form values must be reflected in the wrapped components
-  watch(() => saFormApi.formValues, (value) => {
+  watch(() => saFormApi.formValues.value, (value) => {
     formItemValue.value = undefined;
     const path = props.prop.split('.');
     let current = value;

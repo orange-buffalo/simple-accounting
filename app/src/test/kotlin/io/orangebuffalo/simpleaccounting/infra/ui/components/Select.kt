@@ -38,6 +38,10 @@ class Select<P : Any> private constructor(
         }
     }
 
+    fun shouldBeDisabled() {
+        input.shouldHaveClass("is-disabled")
+    }
+
     companion object {
         fun byContainer(container: Locator) = Select(container, Unit)
     }

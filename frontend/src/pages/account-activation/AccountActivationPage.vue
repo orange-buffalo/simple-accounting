@@ -21,7 +21,7 @@
     <br />
     <br />
     <SaForm
-      :model="form"
+      v-model="form"
       :on-submit="activateAccount"
       :submit-button-label="$t.accountActivationPage.form.submit()"
     >

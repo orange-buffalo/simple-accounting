@@ -4,6 +4,7 @@
       v-model="inputValue"
       :placeholder="props.placeholder"
       :clearable="props.clearable"
+      :disabled="props.disabled"
     >
       <slot />
     </ElSelect>
@@ -20,5 +21,6 @@
   const props = defineProps<SaFormComponentProps & {
     clearable?: boolean,
     placeholder?: string,
+    disabled?: boolean,
   }>();
 </script>
