@@ -2,12 +2,13 @@ package io.orangebuffalo.simpleaccounting.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.orangebuffalo.simpleaccounting.infra.ui.components.Paginator.Companion.twoSyncedPaginators
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldSatisfy
+import io.orangebuffalo.simpleaccounting.infra.utils.shouldWithClue
 
 class SaPageableItems<I, P : Any> private constructor(
     private val container: Locator,
@@ -36,8 +37,23 @@ class SaPageableItems<I, P : Any> private constructor(
     }
 
     /**
+     * Ensures that the item satisfying the predicate is present, and returns it.
+     */
+    fun shouldHaveItemSatisfying(itemPredicate: (item: I) -> Boolean): I {
+        var item: I? = null
+        container.shouldSatisfy {
+            staticItems
+                .filter { itemPredicate(it) }
+                .shouldWithClue("Exactly one item expected to satisfy the predicate") {
+                    item = shouldBeSingle()
+                }
+        }
+        return item!!
+    }
+
+    /**
      * Waits for the items to contain the provided values, which are mapped from the items.
-     * Only checks that all of the provided items are included, but allows extra items.
+     * Only checks that all the provided items are included, but allows extra items.
      */
     fun <T> shouldContainItems(vararg items: T, mapper: (item: I) -> T) {
         container.shouldSatisfy {

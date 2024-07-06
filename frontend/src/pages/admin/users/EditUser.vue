@@ -3,11 +3,12 @@
     <div class="sa-page-header">
       <h1>{{ pageHeader }}</h1>
     </div>
-    <SaForm :model="formValues" :on-submit="saveUser" :on-cancel="navigateToUsersOverview">
+    <SaForm v-model="formValues" :on-submit="saveUser" :on-load="loadUser" :on-cancel="navigateToUsersOverview">
       <SaFormInput prop="userName" :label="$t.editUser.form.userName.label()" />
       <SaFormSelect
         :label="$t.editUser.form.role.label()"
         prop="admin"
+        :disabled="editMode"
       >
         <ElOption :label="$t.editUser.form.role.options.user()" :value="false" />
         <ElOption :label="$t.editUser.form.role.options.admin()" :value="true" />
@@ -17,14 +18,13 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import SaForm from '@/components/form/SaForm.vue';
   import useNavigation from '@/services/use-navigation';
   import {
-    CreateUserRequestDto,
     UsersApiCreateUserErrors,
-    handleApiBusinessError,
+    handleApiBusinessError, UsersApiUpdateUserErrors,
   } from '@/services/api';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications.ts';
@@ -37,6 +37,8 @@
     id?: number
   }>();
 
+  const editMode = computed(() => props.id !== undefined);
+
   const { showSuccessNotification } = useNotifications();
 
   const { navigateByViewName } = useNavigation();
@@ -44,21 +46,34 @@
     await navigateByViewName('users-overview');
   };
 
-  const formValues = ref<CreateUserRequestDto>({
+  type FormValues = {
+    userName: string,
+    admin: boolean,
+  }
+
+  const formValues = ref<FormValues>({
     admin: false,
     userName: '',
   });
 
+  type UserApiErrors = UsersApiCreateUserErrors | UsersApiUpdateUserErrors;
   const saveUser = async () => {
     try {
-      await usersApi.createUser({
-        createUserRequestDto: formValues.value,
-      });
+      if (editMode.value) {
+        await usersApi.updateUser({
+          userId: props.id!,
+          updateUserRequestDto: formValues.value,
+        });
+      } else {
+        await usersApi.createUser({
+          createUserRequestDto: formValues.value,
+        });
+      }
       showSuccessNotification($t.value.editUser.successNotification(formValues.value.userName));
       await navigateToUsersOverview();
     } catch (e: unknown) {
       if (e instanceof ApiBusinessError) {
-        const error = handleApiBusinessError<UsersApiCreateUserErrors>(e);
+        const error = handleApiBusinessError<UserApiErrors>(e);
         if (error.error === 'UserAlreadyExists') {
           throw new ClientSideValidationError([{
             field: 'userName',
@@ -70,8 +85,14 @@
     }
   };
 
-  const pageHeader = props.id === undefined
-    ? $t.value.editUser.pageHeader.create()
-    : $t.value.editUser.pageHeader.edit();
+  const loadUser = editMode.value ? async () => {
+    formValues.value = await usersApi.getUser({
+      userId: props.id!,
+    });
+  } : undefined;
+
+  const pageHeader = editMode.value
+    ? $t.value.editUser.pageHeader.edit()
+    : $t.value.editUser.pageHeader.create();
 
 </script>

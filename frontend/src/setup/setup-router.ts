@@ -256,6 +256,12 @@ export default function setupRouter() {
             name: 'create-new-user',
             component: EditUser,
           },
+          {
+            path: 'admin/users/:id/edit',
+            name: 'edit-user',
+            component: EditUser,
+            props: ID_ROUTER_PARAM_PROCESSOR,
+          },
         ],
       },
 

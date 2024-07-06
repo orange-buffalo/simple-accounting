@@ -218,7 +218,7 @@ export const SaFormApi = defineStory(() => ({
   },
   template: `
     <h4>Defaults</h4>
-    <SaForm :model="formValues" :on-submit="onSubmit" :on-cancel="onCancel" id="validationForm">
+    <SaForm v-model="formValues" :on-submit="onSubmit" :on-cancel="onCancel" id="validationForm">
       <SaFormInput label="Name"
                    prop="details.name" />
       <SaFormSelect label="Role"
@@ -230,7 +230,7 @@ export const SaFormApi = defineStory(() => ({
     {{ JSON.stringify(formValues) }}
 
     <h4>Custom button labels</h4>
-    <SaForm :model="formValues"
+    <SaForm v-model="formValues"
             :on-submit="onSubmit"
             submit-button-label="Submit"
             :on-cancel="onCancel"
@@ -240,7 +240,7 @@ export const SaFormApi = defineStory(() => ({
     </SaForm>
 
     <h4>No cancel callback</h4>
-    <SaForm :model="formValues"
+    <SaForm v-model="formValues"
             :on-submit="onSubmit"
             submit-button-label="Submit"
     >

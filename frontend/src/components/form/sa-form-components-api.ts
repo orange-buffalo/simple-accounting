@@ -1,10 +1,14 @@
-import { inject, InjectionKey, provide } from 'vue';
+import {
+ inject, InjectionKey, provide, Ref,
+} from 'vue';
 import { FormItemContext } from 'element-plus';
+
+export type FormValues = Record<string, unknown>;
 
 export type SaFormComponentsApi = {
   registerFormItem: (prop: string, item: FormItemContext) => void;
   unregisterFormItem: (prop: string) => void;
-  formValues: Record<string, unknown>;
+  formValues: Ref<FormValues>;
 }
 
 const SaFormComponentsApiKey = Symbol('SaFormComponentsApi') as InjectionKey<SaFormComponentsApi>;

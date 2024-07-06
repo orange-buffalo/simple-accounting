@@ -7,14 +7,25 @@ import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.
 import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
 
-class CreateUserPage (page: Page) : SaPageBase<CreateUserPage>(page) {
-    private val header = components.pageHeader("Create New User")
+abstract class UserPageBase<T : UserPageBase<T>>(page: Page) : SaPageBase<T>(page) {
     val userName = components.formItemTextInputByLabel("Username")
     val role = components.formItemSelectByLabel("User role")
     val saveButton = components.buttonByText("Save")
     val cancelButton = components.buttonByText("Cancel")
+}
+
+class CreateUserPage(page: Page) : UserPageBase<CreateUserPage>(page) {
+    private val header = components.pageHeader("Create New User")
+
+    fun shouldBeOpen() = header.shouldBeVisible()
+}
+
+class EditUserPage(page: Page) : UserPageBase<EditUserPage>(page) {
+    private val header = components.pageHeader("Edit User")
 
     fun shouldBeOpen() = header.shouldBeVisible()
 }
 
 fun Page.shouldBeCreateUserPage(): CreateUserPage = CreateUserPage(this).shouldBeOpen()
+
+fun Page.shouldBeEditUserPage(): EditUserPage = EditUserPage(this).shouldBeOpen()
