@@ -41,6 +41,7 @@ class JwtService(
         try {
             jws = Jwts.parser()
                 .verifyWith(keyPair.public)
+                .clock { timeService.currentTime().toDate() }
                 .build()
                 .parseSignedClaims(token)
 

@@ -30,7 +30,7 @@ class FormItem<I : UiComponent<*, *>, P : Any> private constructor(
     }
 
     companion object {
-        private fun <P : SaPageBase<P>, I : UiComponent<*, *>> ComponentsAccessors<P>.formItemByLabel(
+        fun <P : SaPageBase<P>, I : UiComponent<*, *>> ComponentsAccessors<P>.formItemByLabel(
             label: String,
             inputProvider: (container: Locator) -> I
         ) = FormItem(

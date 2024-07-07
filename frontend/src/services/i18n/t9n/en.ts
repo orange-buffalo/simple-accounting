@@ -903,6 +903,13 @@ export default {
           admin: () => 'Admin user',
         },
       },
+      activationStatus: {
+        label: () => 'Activation status',
+        activated: () => 'Activated',
+        loading: () => 'Loading...',
+        notActivated: () => 'User account is not yet activated. Please share the link below with the user so they can setup their password.',
+        copied: () => 'Link copied to clipboard',
+      },
     },
     successNotification: (userName: string) => format('User {0} has been successfully saved', [userName]),
   },

@@ -29,7 +29,7 @@ class UserActivationTokensApiController(
      *
      * In case the token is not found, or is expired, 404 response is returned.
      */
-    @GetMapping(path = ["{userId}"], params = ["by=userId"])
+    @GetMapping("users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     suspend fun getTokenByUser(
         @PathVariable userId: Long

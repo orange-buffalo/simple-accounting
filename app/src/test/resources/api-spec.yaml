@@ -1570,25 +1570,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/DataBuffer"
-  /api/user-activation-tokens/{userId}:
-    get:
-      tags:
-      - user-activation-tokens-api-controller
-      operationId: getTokenByUser
-      parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserActivationTokenDto"
   /api/user-activation-tokens/{token}:
     get:
       tags:
@@ -1600,6 +1581,25 @@ paths:
         required: true
         schema:
           type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserActivationTokenDto"
+  /api/user-activation-tokens/users/{userId}:
+    get:
+      tags:
+      - user-activation-tokens-api-controller
+      operationId: getTokenByUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         "200":
           description: OK

@@ -15,6 +15,7 @@ import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.CreateUserPage
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeCreateUserPage
+import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeEditUserPage
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
@@ -32,12 +33,14 @@ class UserCreationFullStackTest(
     fun `should create a new user`(page: Page) {
         setupPreconditionsAndNavigateToCreatePage(page)
             .userName { input.fill("userX") }
+            .activationStatus { shouldNotBeVisible() }
             .saveButton { click() }
             .shouldHaveNotifications {
                 success("User userX has been successfully saved")
             }
 
-        page.shouldBeUsersOverviewPage()
+        page.shouldBeEditUserPage()
+            .activationStatus { shouldBeVisible() }
 
         entitiesTemplate.findAll<PlatformUser>()
             .shouldWithClue("Expected exactly one user created (and one pre-seeded with preconditions)") {
@@ -72,6 +75,7 @@ class UserCreationFullStackTest(
                 success()
             }
 
+        page.shouldBeEditUserPage().cancelButton { click() }
         val overviewPage = page.shouldBeUsersOverviewPage()
 
         entitiesTemplate.findAll<PlatformUser>()

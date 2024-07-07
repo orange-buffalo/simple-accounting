@@ -45,6 +45,28 @@ class SaStatusLabel<T : Any> private constructor(
         }
     }
 
+    /**
+     * Asserts that this label is of simplified success state.
+     * If [content] is not null, also asserts that the alert contains the given content.
+     */
+    fun shouldBeSimplifiedSuccess(content: String?) {
+        container.shouldHaveClass("sa-status-label_success-simplified")
+        if (content != null) {
+            container.shouldHaveText(content)
+        }
+    }
+
+    /**
+     * Asserts that this label is of simplified pending state.
+     * If [content] is not null, also asserts that the alert contains the given content.
+     */
+    fun shouldBeSimplifiedPending(content: String?) {
+        container.shouldHaveClass("sa-status-label_pending-simplified")
+        if (content != null) {
+            container.shouldHaveText(content)
+        }
+    }
+
     companion object {
         fun <T : SaPageBase<T>> ComponentsAccessors<T>.statusLabel(container: Locator? = null): SaStatusLabel<T> {
             val selector = ".sa-status-label"
