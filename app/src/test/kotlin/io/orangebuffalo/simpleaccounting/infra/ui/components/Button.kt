@@ -25,8 +25,18 @@ class Button<P : Any> private constructor(
 
     fun shouldNotBeVisible() = locator.shouldNotBeVisible()
 
+    fun shouldHaveLabelSatisfying(spec: (String) -> Unit) = locator.shouldSatisfy {
+        spec(this.innerText())
+    }
+
     companion object {
         fun <T : SaPageBase<T>> ComponentsAccessors<T>.buttonByText(label: String) =
             Button(page.locator("xpath=//button[${XPath.hasText(label)}]"), this.owner)
+
+        /**
+         * Assumes a single button in the container and returns it
+         */
+        fun <T : SaPageBase<T>> ComponentsAccessors<T>.buttonByContainer(container: Locator) =
+            Button(container.locator("button"), this.owner)
     }
 }

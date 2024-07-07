@@ -64,6 +64,13 @@ class SaPageableItems<I, P : Any> private constructor(
         }
     }
 
+    /**
+     * Loader is debounced and requires a tick to finish loading.
+     */
+    fun finishLoadingWhenTimeMocked() {
+        container.page().clock().runFor(1)
+    }
+
     companion object {
         fun <T : SaPageBase<T>, I> ComponentsAccessors<T>.pageableItems(
             itemFactory: (container: Locator) -> I

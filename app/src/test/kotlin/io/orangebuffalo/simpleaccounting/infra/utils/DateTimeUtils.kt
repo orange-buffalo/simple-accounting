@@ -1,5 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.utils
 
+import com.microsoft.playwright.Clock
+import com.microsoft.playwright.Page
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
@@ -17,6 +19,12 @@ fun mockCurrentTime(timeService: TimeService) {
 
 fun mockCurrentDate(timeService: TimeService) {
     whenever(timeService.currentDate()) doReturn MOCK_DATE
+}
+
+fun Page.mockCurrentTime() {
+    this.clock().install(
+        Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli())
+    )
 }
 
 val MOCK_DATE: LocalDate = LocalDate.of(1999, 3, 28)

@@ -46,7 +46,7 @@ class UserActivationTokensApiControllerIT(
      * [UserActivationTokensApiController.getTokenByUser]
      */
     @Nested
-    @DisplayName("GET /api/user-activation-tokens/{userId}?by=userId")
+    @DisplayName("GET /api/user-activation-tokens/users/{userId}")
     inner class GetUserActivationTokenByUserId {
         private val preconditions by preconditionsFactory {
             object {
@@ -68,7 +68,7 @@ class UserActivationTokensApiControllerIT(
         ): WebTestClient.RequestHeadersSpec<*> {
             return client
                 .get()
-                .uri("/api/user-activation-tokens/{userId}?by=userId", userId)
+                .uri("/api/user-activation-tokens/users/{userId}", userId)
         }
 
         @Test

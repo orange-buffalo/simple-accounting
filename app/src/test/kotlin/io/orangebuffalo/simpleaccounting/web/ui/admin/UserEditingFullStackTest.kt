@@ -1,13 +1,18 @@
 package io.orangebuffalo.simpleaccounting.web.ui.admin
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldNotBe
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.domain.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.infra.utils.findAll
-import io.orangebuffalo.simpleaccounting.infra.utils.shouldWithClue
-import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.*
+import io.orangebuffalo.simpleaccounting.infra.utils.*
+import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.EditUserPage
+import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeEditUserPage
+import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
@@ -17,7 +22,8 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 @SimpleAccountingFullStackTest
 class UserEditingFullStackTest(
     @Autowired private val entitiesTemplate: JdbcAggregateTemplate,
-    preconditionsFactory: PreconditionsFactory,
+    @Autowired private val timeService: TimeService,
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
     private val preconditions by preconditionsFactory {
         object {
@@ -126,15 +132,127 @@ class UserEditingFullStackTest(
             }
     }
 
-    private fun setupPreconditionsAndNavigateToEditPage(page: Page): EditUserPage {
-        page.loginAs(preconditions.farnsworth)
+    @Test
+    fun `should render activated status`(page: Page) {
+        setupPreconditionsAndNavigateToEditPage(page)
+            .activationStatus {
+                shouldBeVisible()
+                input { shouldBeActivated() }
+            }
+    }
+
+    @Test
+    fun `should retrieve valid activation token`(page: Page) {
+        mockCurrentTime(timeService)
+        page.mockCurrentTime()
+        val data = preconditionsFactory.setup {
+            object {
+                val farnsworth = farnsworth()
+                val user = platformUser(
+                    userName = "user",
+                    activated = false,
+                )
+
+                init {
+                    userActivationToken(
+                        user = user,
+                        token = "token-value",
+                        expiresAt = MOCK_TIME.plusSeconds(1),
+                    )
+                }
+            }
+        }
+        navigateToEditPage(page, data.farnsworth, data.user)
+            .activationStatus {
+                shouldBeVisible()
+                input {
+                    shouldBeNotActivated("token-value")
+                }
+            }
+
+        entitiesTemplate.findAll<UserActivationToken>()
+            .map { it.token }
+            .shouldWithClue("Should keep valid token intact") {
+                shouldContainExactly("token-value")
+            }
+    }
+
+    @Test
+    fun `should recreate activation token if expired`(page: Page) {
+        mockCurrentTime(timeService)
+        page.mockCurrentTime()
+        val data = preconditionsFactory.setup {
+            object {
+                val farnsworth = farnsworth()
+                val user = platformUser(
+                    userName = "user",
+                    activated = false,
+                )
+
+                init {
+                    userActivationToken(
+                        user = user,
+                        token = "token-value",
+                        expiresAt = MOCK_TIME.minusSeconds(1),
+                    )
+                }
+            }
+        }
+        navigateToEditPage(page, data.farnsworth, data.user)
+            .activationStatus {
+                shouldBeVisible()
+                input {
+                    val newToken = shouldEventually("Should recreate token") {
+                        entitiesTemplate.findAll<UserActivationToken>()
+                            .map { it.token }
+                            .shouldBeSingle()
+                            .shouldNotBe("token-value")
+                    }
+                    shouldBeNotActivated(newToken)
+                }
+            }
+    }
+
+    @Test
+    fun `should create activation token if not exists`(page: Page) {
+        mockCurrentTime(timeService)
+        page.mockCurrentTime()
+        val data = preconditionsFactory.setup {
+            object {
+                val farnsworth = farnsworth()
+                val user = platformUser(
+                    userName = "user",
+                    activated = false,
+                )
+            }
+        }
+        navigateToEditPage(page, data.farnsworth, data.user)
+            .activationStatus {
+                shouldBeVisible()
+                input {
+                    val newToken = shouldEventually("Should recreate token") {
+                        entitiesTemplate.findAll<UserActivationToken>()
+                            .map { it.token }
+                            .shouldBeSingle()
+                    }
+                    shouldBeNotActivated(newToken)
+                }
+            }
+    }
+
+    private fun setupPreconditionsAndNavigateToEditPage(page: Page): EditUserPage =
+        navigateToEditPage(page = page, admin = preconditions.farnsworth, userUnderEdit = preconditions.fry)
+
+    private fun navigateToEditPage(page: Page, admin: PlatformUser, userUnderEdit: PlatformUser): EditUserPage {
+        page.loginAs(admin)
         page.shouldHaveSideMenu().clickUsersOverview()
         page.shouldBeUsersOverviewPage()
             .pageItems {
-                val fryItem = shouldHaveItemSatisfying {
-                    it.title == preconditions.fry.userName
+                finishLoadingWhenTimeMocked()
+                val userUnderEditItem = shouldHaveItemSatisfying {
+                    it.title == userUnderEdit.userName
                 }
-                fryItem.executeAction("Edit")
+                userUnderEditItem.executeAction("Edit")
             }
         return page.shouldBeEditUserPage()
     }

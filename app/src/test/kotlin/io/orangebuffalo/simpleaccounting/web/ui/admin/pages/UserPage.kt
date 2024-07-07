@@ -1,15 +1,23 @@
 package io.orangebuffalo.simpleaccounting.web.ui.admin.pages
 
+import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
+import io.kotest.matchers.string.shouldEndWith
+import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByContainer
 import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.infra.ui.components.ComponentsAccessors
+import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemByLabel
 import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemSelectByLabel
 import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.infra.ui.components.SaStatusLabel.Companion.statusLabel
+import io.orangebuffalo.simpleaccounting.infra.ui.components.UiComponent
 
 abstract class UserPageBase<T : UserPageBase<T>>(page: Page) : SaPageBase<T>(page) {
     val userName = components.formItemTextInputByLabel("Username")
     val role = components.formItemSelectByLabel("User role")
+    val activationStatus = components.formItemByLabel("Activation status") { UserActivationStatus(it, components) }
     val saveButton = components.buttonByText("Save")
     val cancelButton = components.buttonByText("Cancel")
 }
@@ -29,3 +37,25 @@ class EditUserPage(page: Page) : UserPageBase<EditUserPage>(page) {
 fun Page.shouldBeCreateUserPage(): CreateUserPage = CreateUserPage(this).shouldBeOpen()
 
 fun Page.shouldBeEditUserPage(): EditUserPage = EditUserPage(this).shouldBeOpen()
+
+class UserActivationStatus<T : UserPageBase<T>>(
+    container: Locator,
+    components: ComponentsAccessors<T>,
+) : UiComponent<Unit, UserActivationStatus<T>>(Unit) {
+
+    private val status = components.statusLabel(container.locator("xpath=.."))
+    private val linkButton = components.buttonByContainer(container)
+
+    fun shouldBeActivated() {
+        status.shouldBeSimplifiedSuccess(null)
+        linkButton.shouldNotBeVisible()
+    }
+
+    fun shouldBeNotActivated(tokenValue: String) {
+        status.shouldBeSimplifiedPending(null)
+        linkButton.shouldBeVisible()
+        linkButton.shouldHaveLabelSatisfying { label ->
+            label.shouldEndWith("/$tokenValue")
+        }
+    }
+}
