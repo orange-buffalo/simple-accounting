@@ -313,13 +313,13 @@ describe('API Client', () => {
 
     vi.mock('@/services/events', () => ({
       LOGIN_REQUIRED_EVENT: {
-        emit: vi.fn<[], void>(),
+        emit: vi.fn(),
       },
       LOADING_STARTED_EVENT: {
-        emit: vi.fn<[], void>(),
+        emit: vi.fn(),
       },
       LOADING_FINISHED_EVENT: {
-        emit: vi.fn<[], void>(),
+        emit: vi.fn(),
       },
     }));
 
