@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
@@ -41,11 +42,10 @@ subprojects {
     }
     tasks {
         withType<KotlinCompile> {
-            kotlinOptions.freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
-            kotlinOptions.jvmTarget = "${Config.JVM_VERSION}"
-            // a workaround for https://github.com/assertj/assertj-core/issues/2357
-            // to be removed with upgrade to kotlin 7
-            kotlinOptions.languageVersion = "1.7"
+            compilerOptions {
+                freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
+                jvmTarget.set(JvmTarget.fromTarget(Config.JVM_VERSION.toString()))
+            }
         }
 
         withType<Test> {
