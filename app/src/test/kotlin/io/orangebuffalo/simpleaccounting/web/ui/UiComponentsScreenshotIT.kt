@@ -31,7 +31,7 @@ import javax.imageio.ImageIO
 import kotlin.math.max
 
 @ExtendWith(StorybookExtension::class)
-class UiComponentsScreenshotsIT {
+class UiComponentsScreenshotsTest {
 
     // we need to retry because rendering is flaky, especially when it comes to rendering fonts
 
