@@ -75,7 +75,7 @@ private fun getWireMockPort(): Int {
 }
 
 /**
- * JUnit extensions to configure the [WireMockServer] and handle its lifecycle.
+ * JUnit extension to configure the [WireMockServer] and handle its lifecycle.
  */
 class WireMockExtension : Extension, BeforeAllCallback, AfterAllCallback, AfterEachCallback, ParameterResolver {
     override fun afterAll(context: ExtensionContext?) {

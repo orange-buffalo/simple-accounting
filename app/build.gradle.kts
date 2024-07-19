@@ -123,7 +123,7 @@ jib {
     }
 }
 
-val screenshotsTestPattern = "*UiComponentsScreenshotsIT"
+val screenshotsTestPattern = "*UiComponentsScreenshotsTest"
 val e2eTestPattern = "*E2eTests"
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
