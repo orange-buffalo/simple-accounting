@@ -55,3 +55,16 @@ Refer to [Dropbox docs](https://www.dropbox.com/developers/reference/developer-g
 and get the credentials. You can then use
 [Postman](https://learning.postman.com/docs/sending-requests/authorization/oauth-20/#specifying-an-authorization-code)
 to obtain the initial access and refresh token.
+
+## Administration
+
+On the first start, the application will create a default admin user. Check the following logs to get the credentials:
+
+```
+Application database does not contain any admin users. Created a new user with login 'admin' and password '...'. It is highly recommended to change the generated password.
+```
+
+Please use these credentials to login and change the password. It is possible to rename the admin user using the 
+standard user editing functionality.
+
+Admin user can then create other admins and/or regular users.
