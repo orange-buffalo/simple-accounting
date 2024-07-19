@@ -45,7 +45,6 @@
 
   // changes made to the form values must be reflected in the wrapped components
   watch(() => saFormApi.formValues.value, (value) => {
-    formItemValue.value = undefined;
     const path = props.prop.split('.');
     let current = value;
     for (let i = 0; i < path.length; i += 1) {
