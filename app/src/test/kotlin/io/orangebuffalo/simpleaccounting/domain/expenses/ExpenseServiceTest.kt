@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.expenses
 
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
@@ -6,8 +6,6 @@ import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Expense
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat

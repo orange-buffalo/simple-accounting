@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus
+import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf

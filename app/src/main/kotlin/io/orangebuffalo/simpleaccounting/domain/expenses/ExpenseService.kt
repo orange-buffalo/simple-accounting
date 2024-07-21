@@ -1,13 +1,12 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.expenses
 
 import io.orangebuffalo.simpleaccounting.domain.categories.CategoryService
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.services.business.*
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpenseRepository
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.ExpensesStatistics
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 

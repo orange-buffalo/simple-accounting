@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
+import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.services.business.*
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
 import org.springframework.format.annotation.DateTimeFormat
