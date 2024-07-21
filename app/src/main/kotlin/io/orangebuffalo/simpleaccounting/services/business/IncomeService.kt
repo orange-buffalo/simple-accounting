@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.business
 
+import io.orangebuffalo.simpleaccounting.domain.categories.CategoryService
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoicesService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
