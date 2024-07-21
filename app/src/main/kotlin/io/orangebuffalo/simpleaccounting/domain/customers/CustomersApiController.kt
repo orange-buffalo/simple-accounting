@@ -1,10 +1,8 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.customers
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.simpleaccounting.services.business.CustomerService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Customer
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*

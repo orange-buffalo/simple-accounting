@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.support
 
+import io.orangebuffalo.simpleaccounting.domain.customers.Customer
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings

@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.database
 
+import io.orangebuffalo.simpleaccounting.domain.customers.Customer
 import io.orangebuffalo.simpleaccounting.domain.documents.Document
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceAttachment
