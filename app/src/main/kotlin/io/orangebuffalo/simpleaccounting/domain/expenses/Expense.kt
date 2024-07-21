@@ -1,5 +1,7 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.entities
+package io.orangebuffalo.simpleaccounting.domain.expenses
 
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import org.springframework.data.relational.core.mapping.Embedded
 import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.relational.core.mapping.Table

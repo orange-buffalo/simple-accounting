@@ -3,6 +3,9 @@ package io.orangebuffalo.simpleaccounting.infra.database
 import io.orangebuffalo.simpleaccounting.domain.categories.Category
 import io.orangebuffalo.simpleaccounting.domain.customers.Customer
 import io.orangebuffalo.simpleaccounting.domain.documents.Document
+import io.orangebuffalo.simpleaccounting.domain.expenses.Expense
+import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseAttachment
+import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceAttachment
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus

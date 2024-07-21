@@ -108,7 +108,7 @@ open class SaJooqCodeGenTask : DefaultTask() {
 
     private fun expenseStatusForcedType() = ForcedType()
         .withIncludeExpression("""EXPENSE\.STATUS""")
-        .withUserType("io.orangebuffalo.simpleaccounting.services.persistence.entities.ExpenseStatus")
+        .withUserType("io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus")
         .withEnumConverter(true)
 
     private fun timestampForcedType() = ForcedType()
