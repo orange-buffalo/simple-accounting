@@ -1,9 +1,9 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.customers
 
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Customer
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.CustomerRepository
 import io.orangebuffalo.simpleaccounting.support.toNullable
 import org.springframework.stereotype.Service
 
