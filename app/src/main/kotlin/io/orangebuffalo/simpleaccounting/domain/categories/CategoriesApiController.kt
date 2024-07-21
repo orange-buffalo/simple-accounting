@@ -1,7 +1,5 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.categories
 
-import io.orangebuffalo.simpleaccounting.services.business.CategoryService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Category
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import org.springdoc.core.annotations.ParameterObject

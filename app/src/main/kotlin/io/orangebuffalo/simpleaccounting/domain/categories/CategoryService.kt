@@ -1,9 +1,9 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.categories
 
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Category
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.CategoryRepository
 import org.springframework.stereotype.Service
 
 @Service
