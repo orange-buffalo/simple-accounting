@@ -5,6 +5,8 @@ import io.orangebuffalo.simpleaccounting.domain.customers.Customer
 import io.orangebuffalo.simpleaccounting.domain.expenses.Expense
 import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTax
+import io.orangebuffalo.simpleaccounting.domain.incomes.Income
+import io.orangebuffalo.simpleaccounting.domain.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings

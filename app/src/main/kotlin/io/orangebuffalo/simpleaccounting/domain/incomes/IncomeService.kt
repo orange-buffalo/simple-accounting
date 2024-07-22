@@ -1,17 +1,18 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.incomes
 
 import io.orangebuffalo.simpleaccounting.domain.categories.CategoryService
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTaxService
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoicesService
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.simpleaccounting.services.business.bpsBasePart
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeRepository
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomesStatistics
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 

@@ -1,13 +1,13 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
+package io.orangebuffalo.simpleaccounting.domain.incomes.impl
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
+import io.orangebuffalo.simpleaccounting.domain.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
 import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeRepositoryExt
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomesStatistics
+import io.orangebuffalo.simpleaccounting.domain.incomes.IncomeRepositoryExt
+import io.orangebuffalo.simpleaccounting.domain.incomes.IncomesStatistics
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.*
 import org.springframework.stereotype.Repository

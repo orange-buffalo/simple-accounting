@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.incomes
 
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
@@ -7,8 +7,6 @@ import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTax
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Income
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
