@@ -1,8 +1,8 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.generaltaxes
 
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.GeneralTaxRepository
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import org.springframework.stereotype.Service
 
