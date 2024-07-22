@@ -1,11 +1,10 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.incometaxpayments
 
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeTaxPayment
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeTaxPaymentRepository
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeTaxPaymentsStatistics
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
