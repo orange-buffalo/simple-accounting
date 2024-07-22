@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
+import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Income
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
 import kotlinx.coroutines.runBlocking

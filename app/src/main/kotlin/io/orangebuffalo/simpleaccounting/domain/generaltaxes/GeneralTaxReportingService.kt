@@ -1,9 +1,7 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.generaltaxes
 
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.GeneralTaxReport
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.GeneralTaxReportingRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.generaltaxes
 
 import assertk.assertThat
 import assertk.assertions.containsOnly
@@ -7,8 +7,6 @@ import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.FinalizedGeneralTaxSummaryItem
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.PendingGeneralTaxSummaryItem
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

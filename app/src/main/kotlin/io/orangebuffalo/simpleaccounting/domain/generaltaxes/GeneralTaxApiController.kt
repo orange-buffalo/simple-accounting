@@ -1,11 +1,9 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.generaltaxes
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.simpleaccounting.services.business.GeneralTaxService
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.GeneralTax
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import org.hibernate.validator.constraints.Length
