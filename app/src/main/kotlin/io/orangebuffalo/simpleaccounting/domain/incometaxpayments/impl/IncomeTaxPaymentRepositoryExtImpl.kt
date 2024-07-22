@@ -1,10 +1,10 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
+package io.orangebuffalo.simpleaccounting.domain.incometaxpayments.impl
 
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchExactlyOne
 import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeTaxPaymentRepositoryExt
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.IncomeTaxPaymentsStatistics
+import io.orangebuffalo.simpleaccounting.domain.incometaxpayments.IncomeTaxPaymentRepositoryExt
+import io.orangebuffalo.simpleaccounting.domain.incometaxpayments.IncomeTaxPaymentsStatistics
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.coalesce
 import org.jooq.impl.DSL.sum
