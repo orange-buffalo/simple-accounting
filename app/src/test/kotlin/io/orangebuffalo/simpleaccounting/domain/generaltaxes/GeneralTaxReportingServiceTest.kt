@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus
+import io.orangebuffalo.simpleaccounting.domain.incomes.IncomeStatus
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

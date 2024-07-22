@@ -98,7 +98,7 @@ open class SaJooqCodeGenTask : DefaultTask() {
 
     private fun incomeStatusForcedType() = ForcedType()
         .withIncludeExpression("""INCOME\.STATUS""")
-        .withUserType("io.orangebuffalo.simpleaccounting.services.persistence.entities.IncomeStatus")
+        .withUserType("io.orangebuffalo.simpleaccounting.domain.incomes.IncomeStatus")
         .withEnumConverter(true)
 
     private fun invoiceStatusForcedType() = ForcedType()
