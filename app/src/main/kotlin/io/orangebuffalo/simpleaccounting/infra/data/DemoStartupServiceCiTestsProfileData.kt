@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.support
+package io.orangebuffalo.simpleaccounting.infra.data
 
 import io.orangebuffalo.simpleaccounting.domain.categories.Category
 import io.orangebuffalo.simpleaccounting.domain.customers.Customer
@@ -13,7 +13,7 @@ import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.event.ContextRefreshedEvent

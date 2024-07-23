@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.persistence
+package io.orangebuffalo.simpleaccounting.infra.jooq
 
 import org.jooq.*
 import org.springframework.dao.IncorrectResultSizeDataAccessException

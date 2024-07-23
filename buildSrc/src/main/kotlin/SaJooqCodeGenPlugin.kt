@@ -114,12 +114,12 @@ open class SaJooqCodeGenTask : DefaultTask() {
     private fun timestampForcedType() = ForcedType()
         .withIncludeTypes("TIMESTAMP")
         .withUserType("java.time.Instant")
-        .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.InstantConverter")
+        .withConverter("io.orangebuffalo.simpleaccounting.infra.jooq.InstantConverter")
 
     private fun dateForcedType() = ForcedType()
         .withIncludeTypes("DATE")
         .withUserType("java.time.LocalDate")
-        .withConverter("io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq.LocalDateConverter")
+        .withConverter("io.orangebuffalo.simpleaccounting.infra.jooq.LocalDateConverter")
 }
 
 class SaGeneratorStrategy : DefaultGeneratorStrategy() {

@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.domain.workspaces.impl
 
 import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
+import io.orangebuffalo.simpleaccounting.infra.jooq.fetchListOf
+import io.orangebuffalo.simpleaccounting.infra.jooq.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceRepositoryExt
 import org.jooq.DSLContext

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.support
+package io.orangebuffalo.simpleaccounting.infra.data
 
 import io.orangebuffalo.simpleaccounting.domain.customers.Customer
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice

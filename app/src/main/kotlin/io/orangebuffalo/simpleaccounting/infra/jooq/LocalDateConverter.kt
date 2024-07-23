@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.integration.jooq
+package io.orangebuffalo.simpleaccounting.infra.jooq
 
 import org.jooq.impl.AbstractConverter
 import java.sql.Date

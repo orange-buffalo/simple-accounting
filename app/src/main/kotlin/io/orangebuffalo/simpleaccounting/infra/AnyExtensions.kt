@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.support
+package io.orangebuffalo.simpleaccounting.infra
 
 import java.util.*
 
