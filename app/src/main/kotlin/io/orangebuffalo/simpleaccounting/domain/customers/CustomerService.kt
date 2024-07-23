@@ -4,7 +4,7 @@ import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.support.toNullable
+import io.orangebuffalo.simpleaccounting.infra.toNullable
 import org.springframework.stereotype.Service
 
 @Service

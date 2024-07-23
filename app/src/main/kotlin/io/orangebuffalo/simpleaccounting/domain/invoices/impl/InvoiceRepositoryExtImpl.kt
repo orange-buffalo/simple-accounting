@@ -1,12 +1,12 @@
 package io.orangebuffalo.simpleaccounting.domain.invoices.impl
 
 import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
+import io.orangebuffalo.simpleaccounting.infra.jooq.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceRepositoryExt
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
+import io.orangebuffalo.simpleaccounting.infra.jooq.fetchListOf
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 

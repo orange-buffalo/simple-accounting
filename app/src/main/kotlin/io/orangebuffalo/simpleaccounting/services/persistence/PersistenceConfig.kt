@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.persistence
 
+import io.orangebuffalo.simpleaccounting.infra.jooq.set
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL

@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.domain.workspaces.impl
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
+import io.orangebuffalo.simpleaccounting.infra.jooq.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessTokenRepositoryExt
 import org.jooq.DSLContext

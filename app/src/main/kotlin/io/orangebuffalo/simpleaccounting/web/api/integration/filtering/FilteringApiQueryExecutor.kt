@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
+import io.orangebuffalo.simpleaccounting.infra.jooq.fetchListOf
 import org.jooq.*
 import org.jooq.impl.DSL
 import kotlin.reflect.KClass

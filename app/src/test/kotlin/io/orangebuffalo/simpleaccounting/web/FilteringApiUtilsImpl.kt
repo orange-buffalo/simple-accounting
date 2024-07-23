@@ -16,8 +16,8 @@ import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.support.kotlinEquals
-import io.orangebuffalo.simpleaccounting.support.kotlinHashCode
+import io.orangebuffalo.simpleaccounting.infra.kotlinEquals
+import io.orangebuffalo.simpleaccounting.infra.kotlinHashCode
 import org.springframework.test.web.reactive.server.WebTestClient
 import kotlin.math.max
 import kotlin.reflect.KClass

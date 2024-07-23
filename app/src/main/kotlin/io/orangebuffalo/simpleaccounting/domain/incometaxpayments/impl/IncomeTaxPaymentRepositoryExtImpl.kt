@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.domain.incometaxpayments.impl
 
-import io.orangebuffalo.simpleaccounting.services.persistence.fetchExactlyOne
-import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
+import io.orangebuffalo.simpleaccounting.infra.jooq.fetchExactlyOne
+import io.orangebuffalo.simpleaccounting.infra.jooq.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.domain.incometaxpayments.IncomeTaxPaymentRepositoryExt
 import io.orangebuffalo.simpleaccounting.domain.incometaxpayments.IncomeTaxPaymentsStatistics
