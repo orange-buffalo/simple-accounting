@@ -19,7 +19,7 @@ import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

@@ -7,7 +7,7 @@ import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.junit.jupiter.MockitoSettings

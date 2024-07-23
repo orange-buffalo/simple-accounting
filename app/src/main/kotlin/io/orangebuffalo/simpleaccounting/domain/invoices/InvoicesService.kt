@@ -3,6 +3,8 @@ package io.orangebuffalo.simpleaccounting.domain.invoices
 import io.orangebuffalo.simpleaccounting.domain.customers.CustomerService
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTaxService
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.business.*
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel

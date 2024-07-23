@@ -5,8 +5,9 @@ import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTax
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTaxService
 import io.orangebuffalo.simpleaccounting.domain.invoices.InvoicesService
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.business.bpsBasePart
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel

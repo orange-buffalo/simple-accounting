@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.domain.documents.storage.local
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest

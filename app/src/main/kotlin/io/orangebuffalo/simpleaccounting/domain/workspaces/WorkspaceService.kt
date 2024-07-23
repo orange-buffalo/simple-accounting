@@ -1,15 +1,9 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.domain.workspaces
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContextAsync
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.SavedWorkspaceAccessTokenRepository
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.WorkspaceAccessTokenRepository
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.WorkspaceRepository
 import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal

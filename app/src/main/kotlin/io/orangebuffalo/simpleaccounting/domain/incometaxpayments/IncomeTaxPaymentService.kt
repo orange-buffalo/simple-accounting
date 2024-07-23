@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.domain.incometaxpayments
 
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import org.springframework.stereotype.Service

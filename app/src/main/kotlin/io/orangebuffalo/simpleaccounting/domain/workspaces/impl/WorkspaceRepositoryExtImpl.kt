@@ -1,10 +1,10 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
+package io.orangebuffalo.simpleaccounting.domain.workspaces.impl
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.WorkspaceRepositoryExt
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceRepositoryExt
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.workspaces
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever

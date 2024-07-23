@@ -1,10 +1,6 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.workspaces
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessTokenService
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy

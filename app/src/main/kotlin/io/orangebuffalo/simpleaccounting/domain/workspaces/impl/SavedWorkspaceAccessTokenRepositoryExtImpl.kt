@@ -1,12 +1,12 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos.impl
+package io.orangebuffalo.simpleaccounting.domain.workspaces.impl
 
 import io.orangebuffalo.simpleaccounting.services.business.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.SavedWorkspaceAccessToken
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.SavedWorkspaceAccessToken
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchOneOrNull
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.SavedWorkspaceAccessTokenRepositoryExt
+import io.orangebuffalo.simpleaccounting.domain.workspaces.SavedWorkspaceAccessTokenRepositoryExt
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 

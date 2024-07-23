@@ -1,7 +1,6 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos
+package io.orangebuffalo.simpleaccounting.domain.workspaces
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.WorkspaceAccessToken
+import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
 
 interface WorkspaceAccessTokenRepository
     : AbstractEntityRepository<WorkspaceAccessToken>, WorkspaceAccessTokenRepositoryExt

@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2Clien
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2FailedEvent
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2SucceededEvent
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.*
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl.DriveFileNotFoundException
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.gdrive.impl.FolderResponse

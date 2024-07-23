@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.domain.incomes.impl
 
 import io.orangebuffalo.simpleaccounting.domain.incomes.IncomeStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
 import io.orangebuffalo.simpleaccounting.services.persistence.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables

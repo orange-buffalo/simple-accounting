@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.domain.expenses
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
 import java.time.LocalDate
