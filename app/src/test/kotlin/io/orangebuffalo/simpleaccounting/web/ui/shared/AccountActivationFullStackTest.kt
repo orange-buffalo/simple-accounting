@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.findSingle
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.openAccountActivationPage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.web.ui.user.pages.shouldBeWorkspaceSetupPage

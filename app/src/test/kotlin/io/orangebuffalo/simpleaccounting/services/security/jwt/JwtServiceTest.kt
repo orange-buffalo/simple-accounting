@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.services.security.jwt
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.createTransientUserPrincipal

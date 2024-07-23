@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.domain.workspaces.impl
 
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.domain.workspaces.SavedWorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.jooq.fetchListOf

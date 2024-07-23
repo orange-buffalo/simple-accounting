@@ -4,7 +4,7 @@ import com.microsoft.playwright.Clock
 import com.microsoft.playwright.Page
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId

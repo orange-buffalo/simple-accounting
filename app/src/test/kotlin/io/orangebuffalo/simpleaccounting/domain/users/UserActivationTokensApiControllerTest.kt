@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsBodyConfiguratio
 import io.orangebuffalo.simpleaccounting.infra.utils.ApiRequestsValidationsTestBase
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import net.javacrumbs.jsonunit.assertj.JsonAssert
