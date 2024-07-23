@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.utils
 
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Configuration
 

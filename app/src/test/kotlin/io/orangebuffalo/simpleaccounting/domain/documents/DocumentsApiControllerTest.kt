@@ -17,7 +17,7 @@ import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json

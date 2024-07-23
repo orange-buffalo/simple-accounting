@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.domain.workspaces
 
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.TokenGenerator
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import org.springframework.stereotype.Service

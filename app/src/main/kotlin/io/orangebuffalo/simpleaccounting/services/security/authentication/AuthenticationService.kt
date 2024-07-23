@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.services.security.authentication
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipalOrNull
 import org.springframework.security.authentication.BadCredentialsException

@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.domain.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.*
-import io.orangebuffalo.simpleaccounting.services.business.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.EditUserPage
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeEditUserPage
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
