@@ -18,6 +18,8 @@ import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.domain.users.UserActivationToken
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessToken
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.*

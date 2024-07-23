@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.GeneralTaxReportingService
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceService
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.FinalizedGeneralTaxSummaryItem
 import io.orangebuffalo.simpleaccounting.domain.generaltaxes.PendingGeneralTaxSummaryItem
 import org.springframework.format.annotation.DateTimeFormat

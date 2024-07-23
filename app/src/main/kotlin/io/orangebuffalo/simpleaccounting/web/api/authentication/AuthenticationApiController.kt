@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api.authentication
 
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessTokenService
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessTokenService
 import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.createTransientUserPrincipal
 import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService

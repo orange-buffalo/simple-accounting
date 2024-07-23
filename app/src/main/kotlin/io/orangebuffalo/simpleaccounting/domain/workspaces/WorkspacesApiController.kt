@@ -1,9 +1,6 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.domain.workspaces
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
 import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
 import org.springframework.web.bind.annotation.*
 import jakarta.validation.Valid

@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.domain.documents.storage
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer
 import reactor.core.publisher.Flux

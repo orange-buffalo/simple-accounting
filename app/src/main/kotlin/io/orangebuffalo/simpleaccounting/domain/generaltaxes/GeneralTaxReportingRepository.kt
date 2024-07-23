@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.domain.generaltaxes
 
 import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.domain.incomes.IncomeStatus
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.services.persistence.fetchListOf
 import io.orangebuffalo.simpleaccounting.services.persistence.fieldOrFail
 import io.orangebuffalo.simpleaccounting.services.persistence.mapTo

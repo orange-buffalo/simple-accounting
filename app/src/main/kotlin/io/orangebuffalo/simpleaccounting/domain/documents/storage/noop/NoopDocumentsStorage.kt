@@ -4,7 +4,7 @@ import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStora
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.domain.documents.storage.SaveDocumentResponse
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.Workspace
+import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

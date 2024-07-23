@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.domain.generaltaxes
 
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.services.business.WorkspaceService
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceService
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import org.springframework.stereotype.Service

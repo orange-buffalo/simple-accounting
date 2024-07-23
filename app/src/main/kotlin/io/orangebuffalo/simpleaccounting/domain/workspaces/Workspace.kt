@@ -1,5 +1,6 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.entities
+package io.orangebuffalo.simpleaccounting.domain.workspaces
 
+import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
 import org.springframework.data.relational.core.mapping.Table
 
 @Table
