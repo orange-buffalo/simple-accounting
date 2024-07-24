@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.web.api.authentication
 
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokenService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokensService
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshAuthenticationToken
-import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokenService
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.TOKEN_LIFETIME_IN_DAYS
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.HttpHeaders
@@ -26,8 +26,8 @@ import jakarta.validation.constraints.NotBlank
 class AuthenticationApiController(
     private val authenticationManager: ReactiveAuthenticationManager,
     private val jwtService: JwtService,
-    private val refreshTokenService: RefreshTokenService,
-    private val workspaceAccessTokenService: WorkspaceAccessTokenService
+    private val refreshTokensService: RefreshTokensService,
+    private val workspaceAccessTokensService: WorkspaceAccessTokensService
 ) {
 
     @PostMapping("login")
@@ -42,7 +42,7 @@ class AuthenticationApiController(
         if (loginRequest.rememberMe) {
             response
                 .withRefreshTokenCookie(
-                    refreshTokenService.generateRefreshToken(principal.userName),
+                    refreshTokensService.generateRefreshToken(principal.userName),
                     Duration.ofDays(TOKEN_LIFETIME_IN_DAYS)
                 )
         }
@@ -54,7 +54,7 @@ class AuthenticationApiController(
     suspend fun loginBySharedWorkspaceToken(
         @RequestParam("sharedWorkspaceToken") sharedWorkspaceToken: String
     ): TokenResponse {
-        val workspaceAccessToken = workspaceAccessTokenService.getValidToken(sharedWorkspaceToken)
+        val workspaceAccessToken = workspaceAccessTokensService.getValidToken(sharedWorkspaceToken)
             ?: throw BadCredentialsException("Token $sharedWorkspaceToken is not valid")
         val jwtToken = jwtService.buildJwtToken(
             createTransientUserPrincipal(workspaceAccessToken.token),
@@ -82,7 +82,7 @@ class AuthenticationApiController(
 
         val principal = authenticatedAuth.principal as SecurityPrincipal
         return if (principal.isTransient) {
-            val workspaceAccessToken = workspaceAccessTokenService.getValidToken(principal.userName)
+            val workspaceAccessToken = workspaceAccessTokensService.getValidToken(principal.userName)
                 ?: throw BadCredentialsException("Invalid workspace access token ${principal.userName}")
             TokenResponse(jwtService.buildJwtToken(principal, workspaceAccessToken.validTill))
         } else {

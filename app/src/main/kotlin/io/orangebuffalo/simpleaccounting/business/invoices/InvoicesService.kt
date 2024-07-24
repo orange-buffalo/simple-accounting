@@ -1,10 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
-import io.orangebuffalo.simpleaccounting.business.customers.CustomerService
+import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxService
+import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
@@ -20,10 +20,10 @@ private val logger = KotlinLogging.logger {}
 
 @Service
 class InvoicesService(
-    private val invoiceRepository: InvoiceRepository,
-    private val customerService: CustomerService,
-    private val generalTaxService: GeneralTaxService,
-    private val workspaceService: WorkspaceService,
+    private val invoicesRepository: InvoicesRepository,
+    private val customersService: CustomersService,
+    private val generalTaxesService: GeneralTaxesService,
+    private val workspacesService: WorkspacesService,
     private val documentsService: DocumentsService,
     private val timeService: TimeService,
     private val taskExecutor: AsyncTaskExecutor
@@ -41,11 +41,11 @@ class InvoicesService(
     fun moveInvoicesToOverdue() {
         logger.info { "Started moving invoices to overdue" }
         runBlocking {
-            val overdueInvoices = withDbContext { invoiceRepository.findAllOverdue() }
+            val overdueInvoices = withDbContext { invoicesRepository.findAllOverdue() }
             overdueInvoices.forEach { invoice ->
                 invoice.status = InvoiceStatus.OVERDUE
             }
-            withDbContext { invoiceRepository.saveAll(overdueInvoices) }
+            withDbContext { invoicesRepository.saveAll(overdueInvoices) }
         }
         logger.info { "All eligible invoices moved to overdue state" }
     }
@@ -56,17 +56,17 @@ class InvoicesService(
     suspend fun saveInvoice(invoice: Invoice, workspaceId: Long): Invoice {
         validateInvoice(invoice, workspaceId)
         updateInvoiceStatus(invoice)
-        return withDbContext { invoiceRepository.save(invoice) }
+        return withDbContext { invoicesRepository.save(invoice) }
     }
 
     suspend fun cancelInvoice(invoiceId: Long, workspaceId: Long): Invoice {
         val invoice = withDbContext {
-            invoiceRepository.findById(invoiceId)
+            invoicesRepository.findById(invoiceId)
                 .orElseThrow { throw EntityNotFoundException("Invoice $invoiceId is not found") }
         }
-        val customer = customerService.findById(invoice.customerId)
+        val customer = customersService.findById(invoice.customerId)
             ?: throw  EntityNotFoundException("Customer ${invoice.customerId} is not found")
-        workspaceService.validateWorkspaceAccess(
+        workspacesService.validateWorkspaceAccess(
             customer.workspaceId,
             WorkspaceAccessMode.READ_WRITE
         )
@@ -77,7 +77,7 @@ class InvoicesService(
 
         invoice.status = InvoiceStatus.CANCELLED
         invoice.timeCancelled = timeService.currentTime()
-        return withDbContext { invoiceRepository.save(invoice) }
+        return withDbContext { invoicesRepository.save(invoice) }
     }
 
     private fun updateInvoiceStatus(invoice: Invoice) {
@@ -101,13 +101,13 @@ class InvoicesService(
         workspaceId: Long
     ) = executeInParallel {
         step {
-            workspaceService.validateWorkspaceAccess(
+            workspacesService.validateWorkspaceAccess(
                 workspaceId,
                 WorkspaceAccessMode.READ_WRITE
             )
         }
         step { validateGeneralTax(invoice, workspaceId) }
-        step { customerService.validateCustomer(invoice.customerId, workspaceId) }
+        step { customersService.validateCustomer(invoice.customerId, workspaceId) }
         step { validateAttachments(invoice, workspaceId) }
     }
 
@@ -116,7 +116,7 @@ class InvoicesService(
         workspaceId: Long
     ) {
         if (invoice.generalTaxId != null) {
-            generalTaxService.validateGeneralTax(invoice.generalTaxId!!, workspaceId)
+            generalTaxesService.validateGeneralTax(invoice.generalTaxId!!, workspaceId)
         }
     }
 
@@ -128,6 +128,6 @@ class InvoicesService(
     }
 
     suspend fun getInvoiceByIdAndWorkspaceId(id: Long, workspaceId: Long): Invoice? = withDbContext {
-        invoiceRepository.findByIdAndWorkspaceId(id, workspaceId)
+        invoicesRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 }

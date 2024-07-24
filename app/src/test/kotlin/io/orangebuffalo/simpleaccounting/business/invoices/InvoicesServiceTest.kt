@@ -21,7 +21,7 @@ import java.util.stream.Stream
 @SimpleAccountingIntegrationTest
 class InvoicesServiceTest(
     @Autowired private val invoicesService: InvoicesService,
-    @Autowired private val invoiceRepository: InvoiceRepository,
+    @Autowired private val invoiceRepository: InvoicesRepository,
     @Autowired private val entitiesFactoryInfra: EntitiesFactoryInfra,
     private val preconditionsFactory: PreconditionsFactory,
 ) {

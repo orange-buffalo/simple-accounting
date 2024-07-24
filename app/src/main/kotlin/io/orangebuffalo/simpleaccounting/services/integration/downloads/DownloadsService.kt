@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.integration.downloads
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.services.integration.TokenGenerator
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
@@ -17,7 +17,7 @@ class DownloadsService(
     private val downloadsRepository: DownloadsRepository,
     private val tokenGenerator: TokenGenerator,
     @Lazy private val contentProviders: List<DownloadableContentProvider<*>>,
-    private val userService: PlatformUserService
+    private val userService: PlatformUsersService
 ) {
     suspend fun <T : Any> createDownloadToken(contentProvider: DownloadableContentProvider<T>, metadata: T): String =
         tokenGenerator.generateToken(tokenLength = 30)

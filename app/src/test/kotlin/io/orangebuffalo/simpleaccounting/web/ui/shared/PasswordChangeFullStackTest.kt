@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveNotifications
@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 @SimpleAccountingFullStackTest
 class PasswordChangeFullStackTest(
-    @Autowired private val repository: PlatformUserRepository,
+    @Autowired private val repository: PlatformUsersRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
     preconditionsFactory: PreconditionsFactory,
 ) {

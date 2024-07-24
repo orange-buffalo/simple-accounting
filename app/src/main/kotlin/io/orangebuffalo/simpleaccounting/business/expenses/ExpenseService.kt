@@ -1,12 +1,12 @@
 package io.orangebuffalo.simpleaccounting.business.expenses
 
-import io.orangebuffalo.simpleaccounting.business.categories.CategoryService
+import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
-import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxService
+import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.services.business.*
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
@@ -17,10 +17,10 @@ import java.time.LocalDate
 
 @Service
 class ExpenseService(
-    private val expenseRepository: ExpenseRepository,
-    private val workspaceService: WorkspaceService,
-    private val generalTaxService: GeneralTaxService,
-    private val categoryService: CategoryService,
+    private val expensesRepository: ExpensesRepository,
+    private val workspacesService: WorkspacesService,
+    private val generalTaxesService: GeneralTaxesService,
+    private val categoriesService: CategoriesService,
     private val documentsService: DocumentsService
 ) {
 
@@ -28,7 +28,7 @@ class ExpenseService(
      * Re-calculates the expense state (denormalized presentation).
      */
     suspend fun saveExpense(expense: Expense): Expense {
-        val workspace = workspaceService.getAccessibleWorkspace(expense.workspaceId, WorkspaceAccessMode.READ_WRITE)
+        val workspace = workspacesService.getAccessibleWorkspace(expense.workspaceId, WorkspaceAccessMode.READ_WRITE)
         validateCategoryAndAttachments(expense, workspace.id!!)
 
         val defaultCurrency = workspace.defaultCurrency
@@ -59,11 +59,11 @@ class ExpenseService(
             else -> ExpenseStatus.FINALIZED
         }
 
-        return withDbContext { expenseRepository.save(expense) }
+        return withDbContext { expensesRepository.save(expense) }
     }
 
     private suspend fun getGeneralTax(expense: Expense): GeneralTax? =
-        if (expense.generalTaxId == null) null else generalTaxService.getValidGeneralTax(
+        if (expense.generalTaxId == null) null else generalTaxesService.getValidGeneralTax(
             expense.generalTaxId!!,
             expense.workspaceId
         )
@@ -87,7 +87,7 @@ class ExpenseService(
         expense: Expense,
         workspaceId: Long
     ) {
-        if (expense.categoryId != null) categoryService.validateCategory(expense.categoryId!!, workspaceId)
+        if (expense.categoryId != null) categoriesService.validateCategory(expense.categoryId!!, workspaceId)
     }
 
     private fun calculateAdjustedAmounts(
@@ -115,7 +115,7 @@ class ExpenseService(
     }
 
     suspend fun getExpenseByIdAndWorkspace(id: Long, workspaceId: Long): Expense? = withDbContext {
-        expenseRepository.findByIdAndWorkspaceId(id, workspaceId)
+        expensesRepository.findByIdAndWorkspaceId(id, workspaceId)
     }
 
     suspend fun getExpensesStatistics(
@@ -123,11 +123,11 @@ class ExpenseService(
         toDate: LocalDate,
         workspaceId: Long
     ): List<ExpensesStatistics> = withDbContext {
-        expenseRepository.getStatistics(fromDate, toDate, workspaceId)
+        expensesRepository.getStatistics(fromDate, toDate, workspaceId)
     }
 
     suspend fun getCurrenciesUsageStatistics(workspace: Workspace): List<CurrenciesUsageStatistics> = withDbContext {
-        expenseRepository.getCurrenciesUsageStatistics(workspace)
+        expensesRepository.getCurrenciesUsageStatistics(workspace)
     }
 
     private data class AdjustedAmounts(

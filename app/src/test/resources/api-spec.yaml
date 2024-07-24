@@ -9,7 +9,7 @@ paths:
   /api/workspaces/{workspaceId}:
     put:
       tags:
-      - workspaces-api-controller
+      - workspaces-api
       operationId: editWorkspace
       parameters:
       - name: workspaceId
@@ -34,7 +34,7 @@ paths:
   /api/workspaces/{workspaceId}/invoices/{invoiceId}:
     get:
       tags:
-      - invoices-api-controller
+      - invoices-api
       operationId: getInvoice
       parameters:
       - name: workspaceId
@@ -58,7 +58,7 @@ paths:
                 $ref: "#/components/schemas/InvoiceDto"
     put:
       tags:
-      - invoices-api-controller
+      - invoices-api
       operationId: updateInvoice
       parameters:
       - name: workspaceId
@@ -89,7 +89,7 @@ paths:
   /api/workspaces/{workspaceId}/incomes/{incomeId}:
     get:
       tags:
-      - incomes-api-controller
+      - incomes-api
       operationId: getIncome
       parameters:
       - name: workspaceId
@@ -113,7 +113,7 @@ paths:
                 $ref: "#/components/schemas/IncomeDto"
     put:
       tags:
-      - incomes-api-controller
+      - incomes-api
       operationId: updateIncome
       parameters:
       - name: workspaceId
@@ -144,7 +144,7 @@ paths:
   /api/workspaces/{workspaceId}/income-tax-payments/{taxPaymentId}:
     get:
       tags:
-      - income-tax-payments-api-controller
+      - income-tax-payments-api
       operationId: getTaxPayment
       parameters:
       - name: workspaceId
@@ -168,7 +168,7 @@ paths:
                 $ref: "#/components/schemas/IncomeTaxPaymentDto"
     put:
       tags:
-      - income-tax-payments-api-controller
+      - income-tax-payments-api
       operationId: updateTaxPayment
       parameters:
       - name: workspaceId
@@ -199,7 +199,7 @@ paths:
   /api/workspaces/{workspaceId}/general-taxes/{taxId}:
     get:
       tags:
-      - general-tax-api-controller
+      - general-taxes-api
       operationId: getTax
       parameters:
       - name: workspaceId
@@ -223,7 +223,7 @@ paths:
                 $ref: "#/components/schemas/GeneralTaxDto"
     put:
       tags:
-      - general-tax-api-controller
+      - general-taxes-api
       operationId: updateTax
       parameters:
       - name: workspaceId
@@ -254,7 +254,7 @@ paths:
   /api/workspaces/{workspaceId}/expenses/{expenseId}:
     get:
       tags:
-      - expenses-api-controller
+      - expenses-api
       operationId: getExpense
       parameters:
       - name: workspaceId
@@ -278,7 +278,7 @@ paths:
                 $ref: "#/components/schemas/ExpenseDto"
     put:
       tags:
-      - expenses-api-controller
+      - expenses-api
       operationId: updateExpense
       parameters:
       - name: workspaceId
@@ -309,7 +309,7 @@ paths:
   /api/workspaces/{workspaceId}/customers/{customerId}:
     get:
       tags:
-      - customers-api-controller
+      - customers-api
       operationId: getCustomer
       parameters:
       - name: workspaceId
@@ -333,7 +333,7 @@ paths:
                 $ref: "#/components/schemas/CustomerDto"
     put:
       tags:
-      - customers-api-controller
+      - customers-api
       operationId: updateCustomer
       parameters:
       - name: workspaceId
@@ -364,7 +364,7 @@ paths:
   /api/users/{userId}:
     get:
       tags:
-      - users-api-controller
+      - users-api
       operationId: getUser
       parameters:
       - name: userId
@@ -382,7 +382,7 @@ paths:
                 $ref: "#/components/schemas/PlatformUserDto"
     put:
       tags:
-      - users-api-controller
+      - users-api
       operationId: updateUser
       parameters:
       - name: userId
@@ -442,7 +442,7 @@ paths:
   /api/workspaces:
     get:
       tags:
-      - workspaces-api-controller
+      - workspaces-api
       operationId: getWorkspaces
       responses:
         "200":
@@ -455,7 +455,7 @@ paths:
                   $ref: "#/components/schemas/WorkspaceDto"
     post:
       tags:
-      - workspaces-api-controller
+      - workspaces-api
       operationId: createWorkspace
       requestBody:
         content:
@@ -473,7 +473,7 @@ paths:
   /api/workspaces/{workspaceId}/workspace-access-tokens:
     get:
       tags:
-      - workspace-access-tokens-api-controller
+      - workspace-access-tokens-api
       operationId: getAccessTokens
       parameters:
       - name: workspaceId
@@ -491,7 +491,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageWorkspaceAccessTokenDto"
     post:
       tags:
-      - workspace-access-tokens-api-controller
+      - workspace-access-tokens-api
       operationId: createAccessToken
       parameters:
       - name: workspaceId
@@ -516,7 +516,7 @@ paths:
   /api/workspaces/{workspaceId}/invoices:
     get:
       tags:
-      - invoices-api-controller
+      - invoices-api
       operationId: getInvoices
       parameters:
       - name: workspaceId
@@ -579,7 +579,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageInvoiceDto"
     post:
       tags:
-      - invoices-api-controller
+      - invoices-api
       operationId: createInvoice
       parameters:
       - name: workspaceId
@@ -604,7 +604,7 @@ paths:
   /api/workspaces/{workspaceId}/invoices/{invoiceId}/cancel:
     post:
       tags:
-      - invoices-api-controller
+      - invoices-api
       operationId: cancelInvoice
       parameters:
       - name: workspaceId
@@ -629,7 +629,7 @@ paths:
   /api/workspaces/{workspaceId}/incomes:
     get:
       tags:
-      - incomes-api-controller
+      - incomes-api
       operationId: getIncomes
       parameters:
       - name: workspaceId
@@ -679,7 +679,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageIncomeDto"
     post:
       tags:
-      - incomes-api-controller
+      - incomes-api
       operationId: createIncome
       parameters:
       - name: workspaceId
@@ -704,7 +704,7 @@ paths:
   /api/workspaces/{workspaceId}/income-tax-payments:
     get:
       tags:
-      - income-tax-payments-api-controller
+      - income-tax-payments-api
       operationId: getTaxPayments
       parameters:
       - name: workspaceId
@@ -722,7 +722,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageIncomeTaxPaymentDto"
     post:
       tags:
-      - income-tax-payments-api-controller
+      - income-tax-payments-api
       operationId: createTaxPayment
       parameters:
       - name: workspaceId
@@ -747,7 +747,7 @@ paths:
   /api/workspaces/{workspaceId}/general-taxes:
     get:
       tags:
-      - general-tax-api-controller
+      - general-taxes-api
       operationId: getTaxes
       parameters:
       - name: workspaceId
@@ -792,7 +792,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageGeneralTaxDto"
     post:
       tags:
-      - general-tax-api-controller
+      - general-taxes-api
       operationId: createTax
       parameters:
       - name: workspaceId
@@ -817,7 +817,7 @@ paths:
   /api/workspaces/{workspaceId}/expenses:
     get:
       tags:
-      - expenses-api-controller
+      - expenses-api
       operationId: getExpenses
       parameters:
       - name: workspaceId
@@ -867,7 +867,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageExpenseDto"
     post:
       tags:
-      - expenses-api-controller
+      - expenses-api
       operationId: createExpense
       parameters:
       - name: workspaceId
@@ -892,7 +892,7 @@ paths:
   /api/workspaces/{workspaceId}/documents:
     get:
       tags:
-      - documents-api-controller
+      - documents-api
       operationId: getDocuments
       parameters:
       - name: workspaceId
@@ -951,7 +951,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageDocumentDto"
     post:
       tags:
-      - documents-api-controller
+      - documents-api
       operationId: uploadNewDocument
       parameters:
       - name: workspaceId
@@ -981,7 +981,7 @@ paths:
   /api/workspaces/{workspaceId}/customers:
     get:
       tags:
-      - customers-api-controller
+      - customers-api
       operationId: getCustomers
       parameters:
       - name: workspaceId
@@ -1026,7 +1026,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageCustomerDto"
     post:
       tags:
-      - customers-api-controller
+      - customers-api
       operationId: createCustomer
       parameters:
       - name: workspaceId
@@ -1051,7 +1051,7 @@ paths:
   /api/workspaces/{workspaceId}/categories:
     get:
       tags:
-      - categories-api-controller
+      - categories-api
       operationId: getCategories
       parameters:
       - name: workspaceId
@@ -1096,7 +1096,7 @@ paths:
                 $ref: "#/components/schemas/ApiPageCategoryDto"
     post:
       tags:
-      - categories-api-controller
+      - categories-api
       operationId: createCategory
       parameters:
       - name: workspaceId
@@ -1121,7 +1121,7 @@ paths:
   /api/users:
     get:
       tags:
-      - users-api-controller
+      - users-api
       operationId: getUsers
       parameters:
       - name: sortBy
@@ -1165,7 +1165,7 @@ paths:
                 $ref: "#/components/schemas/ApiPagePlatformUserDto"
     post:
       tags:
-      - users-api-controller
+      - users-api
       operationId: createUser
       requestBody:
         content:
@@ -1189,7 +1189,7 @@ paths:
   /api/user-activation-tokens:
     post:
       tags:
-      - user-activation-tokens-api-controller
+      - user-activation-tokens-api
       operationId: createToken
       requestBody:
         content:
@@ -1213,7 +1213,7 @@ paths:
   /api/user-activation-tokens/{token}/activate:
     post:
       tags:
-      - user-activation-tokens-api-controller
+      - user-activation-tokens-api
       operationId: activateUser
       parameters:
       - name: token
@@ -1239,7 +1239,7 @@ paths:
   /api/shared-workspaces:
     get:
       tags:
-      - workspaces-api-controller
+      - workspaces-api
       operationId: getSharedWorkspaces
       responses:
         "200":
@@ -1252,7 +1252,7 @@ paths:
                   $ref: "#/components/schemas/WorkspaceDto"
     post:
       tags:
-      - workspaces-api-controller
+      - workspaces-api
       operationId: saveSharedWorkspace
       requestBody:
         content:
@@ -1521,7 +1521,7 @@ paths:
   /api/workspaces/{workspaceId}/documents/{documentId}/download-token:
     get:
       tags:
-      - documents-api-controller
+      - documents-api
       operationId: getDownloadToken
       parameters:
       - name: workspaceId
@@ -1546,7 +1546,7 @@ paths:
   /api/workspaces/{workspaceId}/documents/{documentId}/content:
     get:
       tags:
-      - documents-api-controller
+      - documents-api
       operationId: getDocumentContent
       parameters:
       - name: workspaceId
@@ -1573,7 +1573,7 @@ paths:
   /api/user-activation-tokens/{token}:
     get:
       tags:
-      - user-activation-tokens-api-controller
+      - user-activation-tokens-api
       operationId: getToken
       parameters:
       - name: token
@@ -1591,7 +1591,7 @@ paths:
   /api/user-activation-tokens/users/{userId}:
     get:
       tags:
-      - user-activation-tokens-api-controller
+      - user-activation-tokens-api
       operationId: getTokenByUser
       parameters:
       - name: userId

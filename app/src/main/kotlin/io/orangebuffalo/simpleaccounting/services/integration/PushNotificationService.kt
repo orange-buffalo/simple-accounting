@@ -2,7 +2,7 @@
 
 package io.orangebuffalo.simpleaccounting.services.integration
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import mu.KotlinLogging
@@ -13,7 +13,7 @@ private val logger = KotlinLogging.logger {}
 
 @Service
 class PushNotificationService(
-    private val platformUserService: PlatformUserService
+    private val platformUsersService: PlatformUsersService
 ) {
     private val notificationsFlow = MutableSharedFlow<PushNotificationMessage>(
         extraBufferCapacity = 500,
@@ -21,7 +21,7 @@ class PushNotificationService(
     )
 
     suspend fun subscribeToEventsForCurrentUser(): Flow<PushNotificationMessage> {
-        val currentUserId = platformUserService.getCurrentUser().id
+        val currentUserId = platformUsersService.getCurrentUser().id
         val subscriberId = UUID.randomUUID().toString()
         logger.trace { "Subscribing $subscriberId (user: $currentUserId)" }
         return notificationsFlow

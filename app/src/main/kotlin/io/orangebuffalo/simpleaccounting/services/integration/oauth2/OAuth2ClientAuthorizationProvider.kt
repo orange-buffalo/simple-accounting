@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
@@ -35,7 +35,7 @@ private const val STATE_TOKEN_LENGTH = 20L
 class OAuth2ClientAuthorizationProvider(
     private val savedRequestRepository: SavedAuthorizationRequestRepository,
     private val clientRegistrationRepository: ReactiveClientRegistrationRepository,
-    private val userService: PlatformUserService,
+    private val userService: PlatformUsersService,
     private val accessTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>,
     private val persistentAuthorizedClientRepository: PersistentOAuth2AuthorizedClientRepository,
     private val eventPublisher: ApplicationEventPublisher

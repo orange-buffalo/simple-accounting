@@ -3,22 +3,22 @@ import {
   AuthenticationApiControllerApi,
   Configuration,
   ProfileApiControllerApi,
-  WorkspacesApiControllerApi,
-  CustomersApiControllerApi,
-  CategoriesApiControllerApi,
+  WorkspacesApiApi,
+  CustomersApiApi,
+  CategoriesApiApi,
   StatisticsApiControllerApi,
-  InvoicesApiControllerApi,
-  GeneralTaxApiControllerApi,
-  DocumentsApiControllerApi,
+  InvoicesApiApi,
+  GeneralTaxesApiApi,
+  DocumentsApiApi,
   GoogleDriveStorageApiControllerApi,
   OAuth2CallbackControllerApi,
-  ExpensesApiControllerApi,
-  IncomesApiControllerApi,
-  IncomeTaxPaymentsApiControllerApi,
+  ExpensesApiApi,
+  IncomesApiApi,
+  IncomeTaxPaymentsApiApi,
   ReportingApiControllerApi,
-  WorkspaceAccessTokensApiControllerApi,
-  UsersApiControllerApi,
-  UserActivationTokensApiControllerApi,
+  WorkspaceAccessTokensApiApi,
+  UsersApiApi,
+  UserActivationTokensApiApi,
 } from '@/services/api/generated';
 import type { ConfigurationParameters } from '@/services/api/generated';
 import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
@@ -49,20 +49,20 @@ export const authApi = new AuthenticationApiControllerApi(new Configuration({
   ],
 }));
 
-export const workspacesApi = new WorkspacesApiControllerApi(defaultConfig);
+export const workspacesApi = new WorkspacesApiApi(defaultConfig);
 export const profileApi = new ProfileApiControllerApi(defaultConfig);
-export const customersApi = new CustomersApiControllerApi(defaultConfig);
-export const categoriesApi = new CategoriesApiControllerApi(defaultConfig);
+export const customersApi = new CustomersApiApi(defaultConfig);
+export const categoriesApi = new CategoriesApiApi(defaultConfig);
 export const statisticsApi = new StatisticsApiControllerApi(defaultConfig);
-export const invoicesApi = new InvoicesApiControllerApi(defaultConfig);
-export const expensesApi = new ExpensesApiControllerApi(defaultConfig);
-export const incomesApi = new IncomesApiControllerApi(defaultConfig);
-export const documentsApi = new DocumentsApiControllerApi(defaultConfig);
-export const generalTaxesApi = new GeneralTaxApiControllerApi(defaultConfig);
+export const invoicesApi = new InvoicesApiApi(defaultConfig);
+export const expensesApi = new ExpensesApiApi(defaultConfig);
+export const incomesApi = new IncomesApiApi(defaultConfig);
+export const documentsApi = new DocumentsApiApi(defaultConfig);
+export const generalTaxesApi = new GeneralTaxesApiApi(defaultConfig);
 export const googleDriveStorageApi = new GoogleDriveStorageApiControllerApi(defaultConfig);
 export const oAuth2CallbackApi = new OAuth2CallbackControllerApi(defaultConfig);
-export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiControllerApi(defaultConfig);
+export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiApi(defaultConfig);
 export const reportingApi = new ReportingApiControllerApi(defaultConfig);
-export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiControllerApi(defaultConfig);
-export const usersApi = new UsersApiControllerApi(defaultConfig);
-export const userActivationTokensApi = new UserActivationTokensApiControllerApi(defaultConfig);
+export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiApi(defaultConfig);
+export const usersApi = new UsersApiApi(defaultConfig);
+export const userActivationTokensApi = new UserActivationTokensApiApi(defaultConfig);

@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.web.api
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.business.security.authentication.PasswordChangeException
 import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiErrorMapping
@@ -18,26 +18,26 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/profile")
 class ProfileApiController(
-    private val platformUserService: PlatformUserService,
+    private val platformUsersService: PlatformUsersService,
     private val documentsService: DocumentsService,
     private val authenticationService: AuthenticationService,
 ) {
     @GetMapping
-    suspend fun getProfile(): ProfileDto = platformUserService
+    suspend fun getProfile(): ProfileDto = platformUsersService
         .getCurrentUser()
         .mapToProfileDto()
 
     @PutMapping
     suspend fun updateProfile(
         @RequestBody @Valid request: UpdateProfileRequestDto
-    ): ProfileDto = platformUserService
+    ): ProfileDto = platformUsersService
         .getCurrentUser()
         .apply {
             documentsStorage = request.documentsStorage
             i18nSettings.language = request.i18n.language
             i18nSettings.locale = request.i18n.locale
         }
-        .let { platformUserService.save(it) }
+        .let { platformUsersService.save(it) }
         .mapToProfileDto()
 
     @GetMapping("/documents-storage")
