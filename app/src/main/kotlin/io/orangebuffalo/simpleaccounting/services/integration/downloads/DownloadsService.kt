@@ -1,10 +1,10 @@
 package io.orangebuffalo.simpleaccounting.services.integration.downloads
 
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.TokenGenerator
-import io.orangebuffalo.simpleaccounting.domain.security.getCurrentPrincipal
-import io.orangebuffalo.simpleaccounting.domain.security.runAs
-import io.orangebuffalo.simpleaccounting.domain.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 

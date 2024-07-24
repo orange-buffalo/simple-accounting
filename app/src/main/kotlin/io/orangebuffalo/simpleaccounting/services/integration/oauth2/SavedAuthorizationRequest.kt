@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 
 /**

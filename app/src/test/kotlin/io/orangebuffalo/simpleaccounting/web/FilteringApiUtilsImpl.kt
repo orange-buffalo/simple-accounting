@@ -12,10 +12,10 @@ import io.orangebuffalo.simpleaccounting.infra.security.asFarnsworth
 import io.orangebuffalo.simpleaccounting.infra.security.asFry
 import io.orangebuffalo.simpleaccounting.infra.utils.combine
 import io.orangebuffalo.simpleaccounting.infra.utils.logger
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactoryInfra
-import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
+import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.kotlinEquals
 import io.orangebuffalo.simpleaccounting.infra.kotlinHashCode
 import org.springframework.test.web.reactive.server.WebTestClient

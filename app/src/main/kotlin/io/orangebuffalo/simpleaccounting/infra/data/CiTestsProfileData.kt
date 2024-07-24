@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.infra.data
 
-import io.orangebuffalo.simpleaccounting.domain.customers.Customer
-import io.orangebuffalo.simpleaccounting.domain.invoices.Invoice
-import io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus
-import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.domain.workspaces.Workspace
+import io.orangebuffalo.simpleaccounting.business.customers.Customer
+import io.orangebuffalo.simpleaccounting.business.invoices.Invoice
+import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import org.springframework.context.annotation.Profile
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.context.event.EventListener

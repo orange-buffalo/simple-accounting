@@ -5,9 +5,9 @@ import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.domain.security.getCurrentPrincipal
-import io.orangebuffalo.simpleaccounting.domain.security.runAs
-import io.orangebuffalo.simpleaccounting.domain.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.runAs
+import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy

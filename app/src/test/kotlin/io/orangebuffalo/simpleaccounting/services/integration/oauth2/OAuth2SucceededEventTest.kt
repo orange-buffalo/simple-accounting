@@ -3,10 +3,10 @@ package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.domain.security.SecurityPrincipal
-import io.orangebuffalo.simpleaccounting.domain.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.EmptyCoroutineContext

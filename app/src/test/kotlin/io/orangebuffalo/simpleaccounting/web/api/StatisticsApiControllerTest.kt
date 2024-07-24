@@ -8,8 +8,8 @@ import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
-import io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus
-import io.orangebuffalo.simpleaccounting.domain.incomes.IncomeStatus
+import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
+import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

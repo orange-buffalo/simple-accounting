@@ -98,17 +98,17 @@ open class SaJooqCodeGenTask : DefaultTask() {
 
     private fun incomeStatusForcedType() = ForcedType()
         .withIncludeExpression("""INCOME\.STATUS""")
-        .withUserType("io.orangebuffalo.simpleaccounting.domain.incomes.IncomeStatus")
+        .withUserType("io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus")
         .withEnumConverter(true)
 
     private fun invoiceStatusForcedType() = ForcedType()
         .withIncludeExpression("""INVOICE\.STATUS""")
-        .withUserType("io.orangebuffalo.simpleaccounting.domain.invoices.InvoiceStatus")
+        .withUserType("io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus")
         .withEnumConverter(true)
 
     private fun expenseStatusForcedType() = ForcedType()
         .withIncludeExpression("""EXPENSE\.STATUS""")
-        .withUserType("io.orangebuffalo.simpleaccounting.domain.expenses.ExpenseStatus")
+        .withUserType("io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus")
         .withEnumConverter(true)
 
     private fun timestampForcedType() = ForcedType()

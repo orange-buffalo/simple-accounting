@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.shouldHaveNotifications

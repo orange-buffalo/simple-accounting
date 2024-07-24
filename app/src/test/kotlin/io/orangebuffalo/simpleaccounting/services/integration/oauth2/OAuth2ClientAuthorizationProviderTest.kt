@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 import com.github.tomakehurst.wiremock.client.WireMock.badRequest
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.nhaarman.mockitokotlin2.*
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.infra.api.stubPostRequestTo
