@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.domain.workspaces
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
-import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.getCurrentPrincipal
 import org.springframework.web.bind.annotation.*
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank

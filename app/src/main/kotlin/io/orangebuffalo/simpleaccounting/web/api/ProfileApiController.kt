@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
-import io.orangebuffalo.simpleaccounting.services.security.authentication.AuthenticationService
-import io.orangebuffalo.simpleaccounting.services.security.authentication.PasswordChangeException
+import io.orangebuffalo.simpleaccounting.domain.security.authentication.AuthenticationService
+import io.orangebuffalo.simpleaccounting.domain.security.authentication.PasswordChangeException
 import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiErrorMapping
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank

@@ -10,9 +10,9 @@ import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshTokenService
+import io.orangebuffalo.simpleaccounting.domain.security.createRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.domain.security.remeberme.RefreshTokenService
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put

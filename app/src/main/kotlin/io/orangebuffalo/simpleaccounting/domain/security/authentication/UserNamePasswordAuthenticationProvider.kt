@@ -1,8 +1,8 @@
-package io.orangebuffalo.simpleaccounting.services.security.authentication
+package io.orangebuffalo.simpleaccounting.domain.security.authentication
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.services.security.mono
-import io.orangebuffalo.simpleaccounting.services.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.mono
+import io.orangebuffalo.simpleaccounting.domain.security.toSecurityPrincipal
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel

@@ -4,9 +4,9 @@ import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContextAsync
-import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.SecurityPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.ensureRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.getCurrentPrincipal
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 

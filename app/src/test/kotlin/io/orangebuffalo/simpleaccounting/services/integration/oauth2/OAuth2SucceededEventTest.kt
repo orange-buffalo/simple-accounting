@@ -5,8 +5,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
 import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.getCurrentPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.SecurityPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.getCurrentPrincipal
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.EmptyCoroutineContext

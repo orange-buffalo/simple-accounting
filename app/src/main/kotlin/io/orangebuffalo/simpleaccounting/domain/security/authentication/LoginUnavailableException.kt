@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.security.authentication
+package io.orangebuffalo.simpleaccounting.domain.security.authentication
 
 import org.springframework.security.core.AuthenticationException
 

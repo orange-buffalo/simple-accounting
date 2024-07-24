@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.domain.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

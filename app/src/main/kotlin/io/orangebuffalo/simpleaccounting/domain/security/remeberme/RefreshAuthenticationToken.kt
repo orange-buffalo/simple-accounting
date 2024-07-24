@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.security.remeberme
+package io.orangebuffalo.simpleaccounting.domain.security.remeberme
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.userdetails.UserDetails

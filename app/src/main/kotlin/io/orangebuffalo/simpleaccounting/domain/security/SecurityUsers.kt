@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.security
+package io.orangebuffalo.simpleaccounting.domain.security
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
 import org.springframework.security.core.GrantedAuthority
@@ -18,7 +18,7 @@ interface SecurityPrincipal {
     val userName: String
 
     /**
-     * If transient, no [io.orangebuffalo.simpleaccounting.services.persistence.entities.PlatformUser]
+     * If transient, no [PlatformUser]
      * exists for current principal. This means current user is logged in via a shared
      * workspace token and [userName] should return the token user used
      * to login with.
