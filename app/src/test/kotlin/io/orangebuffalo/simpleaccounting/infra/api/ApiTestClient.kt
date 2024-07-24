@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.infra.api
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.services.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.services.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.domain.security.toSecurityPrincipal
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders

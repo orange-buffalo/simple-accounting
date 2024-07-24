@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.orangebuffalo.simpleaccounting.domain.workspaces.InvalidWorkspaceAccessTokenException
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
-import io.orangebuffalo.simpleaccounting.services.security.authentication.AccountIsTemporaryLockedException
-import io.orangebuffalo.simpleaccounting.services.security.authentication.LoginUnavailableException
+import io.orangebuffalo.simpleaccounting.domain.security.InsufficientUserType
+import io.orangebuffalo.simpleaccounting.domain.security.authentication.AccountIsTemporaryLockedException
+import io.orangebuffalo.simpleaccounting.domain.security.authentication.LoginUnavailableException
 import io.swagger.v3.oas.models.media.Schema
 import mu.KotlinLogging
 import org.springframework.core.NestedRuntimeException

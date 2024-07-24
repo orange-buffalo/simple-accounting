@@ -1,11 +1,11 @@
-package io.orangebuffalo.simpleaccounting.services.security.jwt
+package io.orangebuffalo.simpleaccounting.domain.security.jwt
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
+import io.orangebuffalo.simpleaccounting.domain.security.SecurityPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.createRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.createTransientUserPrincipal
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.createTransientUserPrincipal
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

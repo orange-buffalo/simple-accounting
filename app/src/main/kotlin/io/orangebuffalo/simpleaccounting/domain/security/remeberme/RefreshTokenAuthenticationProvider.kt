@@ -1,6 +1,6 @@
-package io.orangebuffalo.simpleaccounting.services.security.remeberme
+package io.orangebuffalo.simpleaccounting.domain.security.remeberme
 
-import io.orangebuffalo.simpleaccounting.services.security.mono
+import io.orangebuffalo.simpleaccounting.domain.security.mono
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component

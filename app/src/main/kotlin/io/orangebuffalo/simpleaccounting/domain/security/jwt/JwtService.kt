@@ -1,13 +1,13 @@
-package io.orangebuffalo.simpleaccounting.services.security.jwt
+package io.orangebuffalo.simpleaccounting.domain.security.jwt
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.security.SecurityPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.createRegularUserPrincipal
-import io.orangebuffalo.simpleaccounting.services.security.createTransientUserPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.SecurityPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.createRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.createTransientUserPrincipal
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -54,7 +54,11 @@ class JwtService(
             createTransientUserPrincipal(jws.payload.subject, token)
         } else {
             @Suppress("UNCHECKED_CAST")
-            createRegularUserPrincipal(jws.payload.subject, token, jws.payload["roles"] as List<String>)
+            (createRegularUserPrincipal(
+        jws.payload.subject,
+        token,
+        jws.payload["roles"] as List<String>
+    ))
         }
     }
 }

@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.web.api.integration
 
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.services.security.InsufficientUserType
+import io.orangebuffalo.simpleaccounting.domain.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiValidationException
 import org.junit.jupiter.api.DisplayName

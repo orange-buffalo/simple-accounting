@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.security
+package io.orangebuffalo.simpleaccounting.domain.security
 
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle

@@ -3,8 +3,8 @@ package io.orangebuffalo.simpleaccounting.domain.users
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.security.authentication.AuthenticationService
-import io.orangebuffalo.simpleaccounting.services.security.ensureRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.authentication.AuthenticationService
+import io.orangebuffalo.simpleaccounting.domain.security.ensureRegularUserPrincipal
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.data.repository.findByIdOrNull

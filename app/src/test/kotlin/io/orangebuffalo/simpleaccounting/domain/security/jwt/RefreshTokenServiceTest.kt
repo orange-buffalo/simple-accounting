@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.security.jwt
+package io.orangebuffalo.simpleaccounting.domain.security.jwt
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
@@ -6,9 +6,9 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.RefreshToken
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.RefreshTokenRepository
-import io.orangebuffalo.simpleaccounting.services.security.remeberme.RefreshTokenService
+import io.orangebuffalo.simpleaccounting.domain.security.remeberme.RefreshToken
+import io.orangebuffalo.simpleaccounting.domain.security.remeberme.RefreshTokenRepository
+import io.orangebuffalo.simpleaccounting.domain.security.remeberme.RefreshTokenService
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy

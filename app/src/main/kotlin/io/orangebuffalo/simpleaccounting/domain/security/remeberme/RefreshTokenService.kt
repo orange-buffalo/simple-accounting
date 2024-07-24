@@ -1,11 +1,9 @@
-package io.orangebuffalo.simpleaccounting.services.security.remeberme
+package io.orangebuffalo.simpleaccounting.domain.security.remeberme
 
 import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.RefreshToken
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.RefreshTokenRepository
-import io.orangebuffalo.simpleaccounting.services.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.domain.security.toSecurityPrincipal
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
