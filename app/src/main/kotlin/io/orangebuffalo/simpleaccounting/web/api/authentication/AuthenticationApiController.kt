@@ -1,12 +1,12 @@
 package io.orangebuffalo.simpleaccounting.web.api.authentication
 
-import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessTokenService
-import io.orangebuffalo.simpleaccounting.domain.security.SecurityPrincipal
-import io.orangebuffalo.simpleaccounting.domain.security.createTransientUserPrincipal
-import io.orangebuffalo.simpleaccounting.domain.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.domain.security.remeberme.RefreshAuthenticationToken
-import io.orangebuffalo.simpleaccounting.domain.security.remeberme.RefreshTokenService
-import io.orangebuffalo.simpleaccounting.domain.security.remeberme.TOKEN_LIFETIME_IN_DAYS
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokenService
+import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshAuthenticationToken
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokenService
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.TOKEN_LIFETIME_IN_DAYS
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie

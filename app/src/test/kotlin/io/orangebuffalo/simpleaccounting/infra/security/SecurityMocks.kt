@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.security
 
-import io.orangebuffalo.simpleaccounting.domain.security.createRegularUserPrincipal
-import io.orangebuffalo.simpleaccounting.domain.security.createTransientUserPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPrincipal
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder

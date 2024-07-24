@@ -4,10 +4,10 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.stub
 import com.nhaarman.mockitokotlin2.whenever
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.domain.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.domain.documents.storage.DocumentsStorageStatus
-import io.orangebuffalo.simpleaccounting.domain.users.I18nSettings
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
+import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.*
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory

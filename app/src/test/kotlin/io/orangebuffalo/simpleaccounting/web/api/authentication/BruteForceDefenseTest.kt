@@ -10,8 +10,8 @@ import assertk.assertions.isZero
 import assertk.fail
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.domain.users.LoginStatistics
-import io.orangebuffalo.simpleaccounting.domain.users.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUserRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory

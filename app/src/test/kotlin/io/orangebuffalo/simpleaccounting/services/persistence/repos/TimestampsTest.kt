@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.services.persistence.repos
 
-import io.orangebuffalo.simpleaccounting.domain.documents.DocumentRepository
+import io.orangebuffalo.simpleaccounting.business.documents.DocumentRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME

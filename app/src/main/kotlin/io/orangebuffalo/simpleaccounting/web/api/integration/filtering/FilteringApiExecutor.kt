@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
-import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.domain.workspaces.WorkspaceService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceService
 import org.jooq.DSLContext
 import org.jooq.Table
 import org.springframework.stereotype.Component
