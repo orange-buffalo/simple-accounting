@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
@@ -17,13 +17,13 @@ private val LOCKING_TIME_PROGRESSION_RATIO: BigDecimal = BigDecimal.valueOf(1.5)
 
 @Service
 class AuthenticationService(
-    private val platformUserService: PlatformUserService,
+    private val platformUsersService: PlatformUsersService,
     private val passwordEncoder: PasswordEncoder,
     private val timeService: TimeService,
 ) {
 
     suspend fun authenticate(userName: String, credentials: String): PlatformUser {
-        val user = platformUserService.getUserByUserName(userName)
+        val user = platformUsersService.getUserByUserName(userName)
             ?: throw BadCredentialsException("Invalid Credentials")
         validateActivated(user)
         validateTemporaryLock(user)
@@ -52,7 +52,7 @@ class AuthenticationService(
 
     private suspend fun resetLoginStatistics(user: PlatformUser) {
         user.loginStatistics.reset()
-        platformUserService.save(user)
+        platformUsersService.save(user)
     }
 
     private suspend fun validatePassword(
@@ -78,10 +78,10 @@ class AuthenticationService(
                 .min(MAX_LOCK_PERIOD_MS)
                 .toLong()
             loginStatistics.temporaryLockExpirationTime = timeService.currentTime().plusMillis(lockPeriodInMs)
-            platformUserService.save(user)
+            platformUsersService.save(user)
             throw AccountIsTemporaryLockedException(lockPeriodInMs / 1000)
         }
-        platformUserService.save(user)
+        platformUsersService.save(user)
     }
 
     suspend fun changeCurrentUserPassword(currentPassword: String, newPassword: String) {
@@ -90,13 +90,13 @@ class AuthenticationService(
         if (currentPrincipal.isTransient) {
             throw PasswordChangeException.TransientUserException()
         }
-        val user = platformUserService.getUserByUserName(currentPrincipal.userName)
+        val user = platformUsersService.getUserByUserName(currentPrincipal.userName)
             ?: throw IllegalStateException("Current principal is not resolved to a user")
         if (!checkCredentials(user, currentPassword)) {
             throw PasswordChangeException.InvalidCurrentPasswordException()
         }
         setUserPassword(user, newPassword)
-        platformUserService.save(user)
+        platformUsersService.save(user)
     }
 
     fun setUserPassword(user: PlatformUser, password: String) {

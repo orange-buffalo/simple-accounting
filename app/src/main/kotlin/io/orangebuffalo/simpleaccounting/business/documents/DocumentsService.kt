@@ -1,9 +1,9 @@
 package io.orangebuffalo.simpleaccounting.business.documents
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadContentResponse
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadableContentProvider
@@ -20,10 +20,10 @@ import org.springframework.stereotype.Service
 @Service
 class DocumentsService(
     private val documentsStorages: List<DocumentsStorage>,
-    private val documentRepository: DocumentRepository,
+    private val documentRepository: DocumentsRepository,
     private val timeService: TimeService,
-    private val workspaceService: WorkspaceService,
-    private val platformUserService: PlatformUserService,
+    private val workspacesService: WorkspacesService,
+    private val platformUsersService: PlatformUsersService,
     private val downloadsService: DownloadsService
 ) : DownloadableContentProvider<DocumentDownloadMetadata> {
 
@@ -45,7 +45,7 @@ class DocumentsService(
     }
 
     private suspend fun getDocumentStorageByUser(userId: Long): DocumentsStorage {
-        val user = platformUserService.getUserByUserId(userId)
+        val user = platformUsersService.getUserByUserId(userId)
         return documentsStorages.first { it.getId() == user.documentsStorage }
     }
 
@@ -57,7 +57,7 @@ class DocumentsService(
     }
 
     suspend fun getDocumentContent(document: Document): Flow<DataBuffer> {
-        val workspace = workspaceService.getWorkspace(document.workspaceId)
+        val workspace = workspacesService.getWorkspace(document.workspaceId)
         return getDocumentStorageById(document.storageId).getDocumentContent(
             workspace,
             document.storageLocation ?: throw IllegalStateException("$document has not location assigned")
@@ -78,12 +78,12 @@ class DocumentsService(
     }
 
     suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
-        val userStorage = getDocumentStorageByUser(platformUserService.getCurrentUser().id!!)
+        val userStorage = getDocumentStorageByUser(platformUsersService.getCurrentUser().id!!)
         return userStorage.getCurrentUserStorageStatus()
     }
 
     suspend fun getDownloadToken(workspaceId: Long, documentId: Long): String {
-        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         getDocumentByIdAndWorkspaceId(documentId, workspaceId)
             ?: throw EntityNotFoundException("Document $documentId is not found")
         return downloadsService.createDownloadToken(this, DocumentDownloadMetadata(documentId))

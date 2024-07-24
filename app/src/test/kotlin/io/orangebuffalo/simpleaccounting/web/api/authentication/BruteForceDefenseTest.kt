@@ -11,7 +11,7 @@ import assertk.fail
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserRepository
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
@@ -35,7 +35,7 @@ private val CURRENT_TIME = Instant.ofEpochMilli(424242)
 class BruteForceDefenseTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val transactionTemplate: TransactionTemplate,
-    @Autowired private val platformUserRepository: PlatformUserRepository,
+    @Autowired private val platformUsersRepository: PlatformUsersRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val timeService: TimeService,
     private val preconditionsFactory: PreconditionsFactory,
@@ -296,7 +296,7 @@ class BruteForceDefenseTest(
 
     private fun assertFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
         transactionTemplate.execute {
-            val loginStatistics = platformUserRepository.findByUserName("Fry")?.loginStatistics
+            val loginStatistics = platformUsersRepository.findByUserName("Fry")?.loginStatistics
                 ?: throw IllegalStateException("Fry is not found?!")
             loginStatistics.spec()
         }
@@ -304,10 +304,10 @@ class BruteForceDefenseTest(
 
     private fun setupFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
         transactionTemplate.execute {
-            val fry = platformUserRepository.findByUserName("Fry")
+            val fry = platformUsersRepository.findByUserName("Fry")
                 ?: throw IllegalStateException("Fry is not found?!")
             fry.loginStatistics.spec()
-            platformUserRepository.save(fry)
+            platformUsersRepository.save(fry)
         }
     }
 

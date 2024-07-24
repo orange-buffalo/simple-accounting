@@ -1,10 +1,10 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
-import io.orangebuffalo.simpleaccounting.business.incomes.IncomeService
+import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
@@ -14,9 +14,9 @@ import java.time.LocalDate
 @RequestMapping("/api/workspaces/{workspaceId}/statistics/")
 class StatisticsApiController(
     private val expenseService: ExpenseService,
-    private val incomeService: IncomeService,
+    private val incomesService: IncomesService,
     private val incomeTaxPaymentService: IncomeTaxPaymentService,
-    private val workspaceService: WorkspaceService
+    private val workspacesService: WorkspacesService
 ) {
 
     @GetMapping("expenses")
@@ -25,7 +25,7 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): IncomesExpensesStatisticsDto {
-        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expensesStatistics = expenseService.getExpensesStatistics(fromDate, toDate, workspaceId)
         return IncomesExpensesStatisticsDto(
             expensesStatistics.map {
@@ -46,8 +46,8 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): IncomesExpensesStatisticsDto {
-        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
-        val incomesStatistics = incomeService.getIncomesStatistics(fromDate, toDate, workspaceId)
+        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val incomesStatistics = incomesService.getIncomesStatistics(fromDate, toDate, workspaceId)
         return IncomesExpensesStatisticsDto(
             incomesStatistics.map {
                 IncomeExpensesStatisticsItemDto(
@@ -67,7 +67,7 @@ class StatisticsApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): IncomeTaxPaymentsStatisticsDto {
-        workspaceService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        workspacesService.validateWorkspaceAccess(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val incomeTaxPaymentsStatistics = incomeTaxPaymentService.getTaxPaymentStatistics(fromDate, toDate, workspaceId)
         return IncomeTaxPaymentsStatisticsDto(
             incomeTaxPaymentsStatistics.totalTaxPayments
@@ -76,9 +76,9 @@ class StatisticsApiController(
 
     @GetMapping("currencies-shortlist")
     suspend fun getCurrenciesShortlist(@PathVariable workspaceId: Long): List<String> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val expensesCurrencies = expenseService.getCurrenciesUsageStatistics(workspace)
-        val incomesCurrencies = incomeService.getCurrenciesUsageStatistics(workspace)
+        val incomesCurrencies = incomesService.getCurrenciesUsageStatistics(workspace)
         return (expensesCurrencies + incomesCurrencies).asSequence()
             .groupingBy(CurrenciesUsageStatistics::currency)
             .reduce { currency, accumulator, next ->

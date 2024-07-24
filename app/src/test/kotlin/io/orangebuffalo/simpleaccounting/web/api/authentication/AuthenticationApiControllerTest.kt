@@ -12,7 +12,7 @@ import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokenService
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
@@ -44,7 +44,7 @@ class AuthenticationApiControllerTest(
     lateinit var jwtService: JwtService
 
     @MockBean
-    lateinit var refreshTokenService: RefreshTokenService
+    lateinit var refreshTokensService: RefreshTokensService
 
     private val preconditions by preconditionsFactory {
         object {
@@ -275,7 +275,7 @@ class AuthenticationApiControllerTest(
         }, eq(null))) doReturn "jwtTokenForFry"
 
         runBlocking {
-            whenever(refreshTokenService.generateRefreshToken(preconditions.fry.userName)) doReturn "refreshTokenForFry"
+            whenever(refreshTokensService.generateRefreshToken(preconditions.fry.userName)) doReturn "refreshTokenForFry"
         }
 
         client.post().uri(LOGIN_PATH)
@@ -306,7 +306,7 @@ class AuthenticationApiControllerTest(
             val principal = createRegularUserPrincipal(preconditions.fry.userName, "", listOf("USER"))
 
             whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFry"
-            whenever(refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn principal
+            whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn principal
 
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
@@ -333,7 +333,7 @@ class AuthenticationApiControllerTest(
                 .expectBody()
                 .jsonPath("$.token").isEqualTo("jwtTokenForFry")
 
-            verifyNoMoreInteractions(refreshTokenService)
+            verifyNoMoreInteractions(refreshTokensService)
         }
     }
 
@@ -354,7 +354,7 @@ class AuthenticationApiControllerTest(
                 .expectBody()
                 .jsonPath("$.token").isEqualTo("jwtTokenForTransientUser")
 
-            verifyNoMoreInteractions(refreshTokenService)
+            verifyNoMoreInteractions(refreshTokensService)
         }
     }
 
@@ -362,7 +362,7 @@ class AuthenticationApiControllerTest(
     fun `should return 401 if refresh token is not valid and user is not authenticated`() {
         runBlocking {
             whenever(
-                refreshTokenService.validateTokenAndBuildUserDetails("refreshTokenForFry")
+                refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFry")
             ) doThrow BadCredentialsException("")
 
             client.post().uri(TOKEN_PATH)

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import org.jooq.DSLContext
 import org.jooq.Table
 import org.springframework.stereotype.Component
@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
  */
 class FilteringApiExecutor<E : Any, DTO : Any, SF : Enum<SF>, PR : ApiPageRequest<SF>>(
     private val queryExecutor: FilteringApiQueryExecutor<*, E, SF, PR>,
-    private val workspaceService: WorkspaceService,
+    private val workspacesService: WorkspacesService,
     private val mapper: suspend E.() -> DTO
 ) {
     suspend fun executeFiltering(
@@ -23,7 +23,7 @@ class FilteringApiExecutor<E : Any, DTO : Any, SF : Enum<SF>, PR : ApiPageReques
         workspaceId: Long,
         mode: WorkspaceAccessMode = WorkspaceAccessMode.READ_ONLY
     ): ApiPage<DTO> {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, mode)
+        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, mode)
         val entityPage = queryExecutor.executeFilteringQuery(request, workspace.id)
         return ApiPage(
             pageNumber = entityPage.pageNumber,
@@ -47,7 +47,7 @@ class FilteringApiExecutor<E : Any, DTO : Any, SF : Enum<SF>, PR : ApiPageReques
 @Component
 class FilteringApiExecutorBuilder(
     private val dslContext: DSLContext,
-    private val workspaceService: WorkspaceService
+    private val workspacesService: WorkspacesService
 ) {
     final inline fun <reified E : Any, DTO : Any, SF : Enum<SF>, PR : ApiPageRequest<SF>> executor(
         noinline spec: ExecutorConfig<E, DTO, SF, PR>.() -> Unit
@@ -84,7 +84,7 @@ class FilteringApiExecutorBuilder(
         internal fun createExecutor(): FilteringApiExecutor<E, DTO, SF, PR> {
             return FilteringApiExecutor(
                 queryExecutor = queryExecutor,
-                workspaceService = workspaceService,
+                workspacesService = workspacesService,
                 mapper = mapper
             )
         }

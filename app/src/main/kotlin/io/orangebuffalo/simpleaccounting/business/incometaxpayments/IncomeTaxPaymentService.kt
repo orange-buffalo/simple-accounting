@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.incometaxpayments
 
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
 import org.springframework.stereotype.Service
@@ -10,8 +10,8 @@ import java.time.LocalDate
 
 @Service
 class IncomeTaxPaymentService(
-    private val taxPaymentRepository: IncomeTaxPaymentRepository,
-    private val workspaceService: WorkspaceService,
+    private val taxPaymentRepository: IncomeTaxPaymentsRepository,
+    private val workspacesService: WorkspacesService,
     private val documentsService: DocumentsService
 ) {
 
@@ -22,7 +22,7 @@ class IncomeTaxPaymentService(
 
     private suspend fun validateTaxPayment(taxPayment: IncomeTaxPayment) {
         executeInParallel {
-            step { workspaceService.validateWorkspaceAccess(taxPayment.workspaceId, WorkspaceAccessMode.READ_WRITE) }
+            step { workspacesService.validateWorkspaceAccess(taxPayment.workspaceId, WorkspaceAccessMode.READ_WRITE) }
             step { validateAttachments(taxPayment) }
         }
     }

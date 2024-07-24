@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUserService
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2ClientAuthorizationProvider
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2FailedEvent
@@ -23,7 +23,7 @@ const val AUTH_EVENT_NAME = "storage.google-drive.auth"
 
 @Service
 class GoogleDriveDocumentsStorage(
-    private val userService: PlatformUserService,
+    private val userService: PlatformUsersService,
     private val repository: GoogleDriveStorageIntegrationRepository,
     private val pushNotificationService: PushNotificationService,
     private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider,

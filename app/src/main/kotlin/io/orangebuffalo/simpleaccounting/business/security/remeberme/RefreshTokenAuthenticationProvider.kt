@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono
 
 @Component
 class RefreshTokenAuthenticationProvider(
-    private val refreshTokenService: RefreshTokenService
+    private val refreshTokensService: RefreshTokensService
 ) : ReactiveAuthenticationManager {
 
     override fun authenticate(authentication: Authentication): Mono<Authentication> = authentication
@@ -16,7 +16,7 @@ class RefreshTokenAuthenticationProvider(
             val token = refreshAuthenticationToken.credentials as String
             RefreshAuthenticationToken(
                 token,
-                refreshTokenService.validateTokenAndBuildUserDetails(token)
+                refreshTokensService.validateTokenAndBuildUserDetails(token)
             )
         }
 }

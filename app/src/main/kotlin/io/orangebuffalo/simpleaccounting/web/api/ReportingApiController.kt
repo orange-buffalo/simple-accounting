@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.web.api
 
-import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxReportingService
+import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesReportingService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
-import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceService
+import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.FinalizedGeneralTaxSummaryItem
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.PendingGeneralTaxSummaryItem
 import org.springframework.format.annotation.DateTimeFormat
@@ -12,8 +12,8 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/reporting/")
 class ReportingApiController(
-    private val taxReportingService: GeneralTaxReportingService,
-    private val workspaceService: WorkspaceService
+    private val taxReportingService: GeneralTaxesReportingService,
+    private val workspacesService: WorkspacesService
 ) {
 
     @GetMapping("general-taxes")
@@ -22,7 +22,7 @@ class ReportingApiController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate
     ): GeneralTaxReportDto {
-        val workspace = workspaceService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
+        val workspace = workspacesService.getAccessibleWorkspace(workspaceId, WorkspaceAccessMode.READ_ONLY)
         val report = taxReportingService.getGeneralTaxReport(fromDate, toDate, workspace)
         return GeneralTaxReportDto(
             finalizedCollectedTaxes = report.finalizedCollectedTaxes.map(::convertFinalizedTaxItem),
