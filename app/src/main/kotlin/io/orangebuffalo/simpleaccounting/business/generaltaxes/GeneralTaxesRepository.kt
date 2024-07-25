@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.generaltaxes
 
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
+import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
 
 interface GeneralTaxesRepository : AbstractEntityRepository<GeneralTax> {
     fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): GeneralTax?

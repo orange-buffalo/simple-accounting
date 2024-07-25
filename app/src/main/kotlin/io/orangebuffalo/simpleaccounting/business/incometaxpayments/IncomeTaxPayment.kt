@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.incometaxpayments
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntity
 import org.springframework.data.relational.core.mapping.MappedCollection
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant

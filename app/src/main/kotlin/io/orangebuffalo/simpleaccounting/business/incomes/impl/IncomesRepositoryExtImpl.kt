@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.jooq.fetchListOf
 import io.orangebuffalo.simpleaccounting.infra.jooq.mapTo
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
+import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageStatistics
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesRepositoryExt
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesStatistics
 import org.jooq.DSLContext

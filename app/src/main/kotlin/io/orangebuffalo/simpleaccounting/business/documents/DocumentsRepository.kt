@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.documents
 
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
+import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
 
 interface DocumentsRepository : AbstractEntityRepository<Document>, DocumentsRepositoryExt {
     fun findByIdAndWorkspaceId(id: Long, workspaceId: Long): Document?

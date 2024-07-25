@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos
+package io.orangebuffalo.simpleaccounting.business.common.pesistence
 
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest

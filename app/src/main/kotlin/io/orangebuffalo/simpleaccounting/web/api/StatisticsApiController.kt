@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
 import io.orangebuffalo.simpleaccounting.business.incometaxpayments.IncomeTaxPaymentService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
+import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageStatistics
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate

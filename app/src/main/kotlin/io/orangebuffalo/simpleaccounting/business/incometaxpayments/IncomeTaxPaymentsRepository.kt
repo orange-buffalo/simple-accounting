@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.incometaxpayments
 
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
+import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
 import java.time.LocalDate
 
 interface IncomeTaxPaymentsRepository : AbstractEntityRepository<IncomeTaxPayment>, IncomeTaxPaymentsRepositoryExt {

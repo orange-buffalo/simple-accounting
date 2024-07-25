@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.entities
+package io.orangebuffalo.simpleaccounting.business.common.data
 
 data class AmountsInDefaultCurrency(
 

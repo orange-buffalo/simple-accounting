@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.expenses
 
 import io.orangebuffalo.simpleaccounting.business.categories.CategoriesService
+import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.common.bpsBasePart
 import io.orangebuffalo.simpleaccounting.business.common.percentPart
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
@@ -11,8 +12,7 @@ import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.*
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
+import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageStatistics
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
