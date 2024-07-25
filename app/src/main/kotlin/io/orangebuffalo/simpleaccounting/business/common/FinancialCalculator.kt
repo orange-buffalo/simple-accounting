@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.business.common
 
 import java.math.RoundingMode
 

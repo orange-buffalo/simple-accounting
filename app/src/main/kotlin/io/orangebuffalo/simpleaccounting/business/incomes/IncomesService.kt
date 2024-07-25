@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.invoices.InvoicesService
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.services.business.bpsBasePart
+import io.orangebuffalo.simpleaccounting.business.common.bpsBasePart
 import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
 import io.orangebuffalo.simpleaccounting.services.integration.withDbContext

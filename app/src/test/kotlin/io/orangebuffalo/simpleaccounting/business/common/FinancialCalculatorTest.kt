@@ -1,11 +1,11 @@
-package io.orangebuffalo.simpleaccounting.services.business
+package io.orangebuffalo.simpleaccounting.business.common
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 
-internal class CalculationServiceTest {
+internal class FinancialCalculatorTest {
 
     @ParameterizedTest
     @MethodSource("percentPartTestData")
