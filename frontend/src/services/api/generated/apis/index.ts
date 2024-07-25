@@ -13,7 +13,7 @@ export * from './IncomesApiApi';
 export * from './InvoicesApiApi';
 export * from './OAuth2CallbackControllerApi';
 export * from './ProfileApiControllerApi';
-export * from './PushNotificationsApiControllerApi';
+export * from './PushNotificationsApiApi';
 export * from './ReportingApiControllerApi';
 export * from './StatisticsApiControllerApi';
 export * from './UserActivationTokensApiApi';

@@ -1,10 +1,9 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.business.integration.pushnotifications
 
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.api.assertNextJsonIs
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -21,7 +20,7 @@ import java.time.temporal.ChronoUnit
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Push Notifications API ")
-class PushNotificationsApiControllerTest(
+class PushNotificationsApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val pushNotificationService: PushNotificationService,
     preconditionsFactory: PreconditionsFactory,

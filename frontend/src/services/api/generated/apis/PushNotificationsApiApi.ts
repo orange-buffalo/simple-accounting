@@ -25,7 +25,7 @@ import {
 /**
  * 
  */
-export class PushNotificationsApiControllerApi extends runtime.BaseAPI {
+export class PushNotificationsApiApi extends runtime.BaseAPI {
 
     /**
      */

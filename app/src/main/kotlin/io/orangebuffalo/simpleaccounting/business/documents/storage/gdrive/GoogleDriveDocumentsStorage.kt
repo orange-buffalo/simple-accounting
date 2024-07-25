@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
-import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
+import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2ClientAuthorizationProvider
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2FailedEvent
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2SucceededEvent
