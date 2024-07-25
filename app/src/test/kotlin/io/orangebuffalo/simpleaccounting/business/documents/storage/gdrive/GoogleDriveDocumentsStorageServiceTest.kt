@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.infra.api.*
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
-import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
+import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.*
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import kotlinx.coroutines.DelicateCoroutinesApi

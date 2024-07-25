@@ -1622,7 +1622,7 @@ paths:
   /api/push-notifications:
     get:
       tags:
-      - push-notifications-api-controller
+      - push-notifications-api
       operationId: getPushNotificationMessages
       responses:
         "200":

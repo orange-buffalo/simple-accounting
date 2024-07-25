@@ -1,6 +1,6 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE")
 
-package io.orangebuffalo.simpleaccounting.services.integration
+package io.orangebuffalo.simpleaccounting.business.integration.pushnotifications
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import kotlinx.coroutines.channels.BufferOverflow

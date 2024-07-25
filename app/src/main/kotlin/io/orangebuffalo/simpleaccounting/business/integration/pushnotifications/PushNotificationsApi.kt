@@ -1,7 +1,6 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.business.integration.pushnotifications
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.orangebuffalo.simpleaccounting.services.integration.PushNotificationService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.springframework.http.MediaType
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/push-notifications")
-class PushNotificationsApiController(
+class PushNotificationsApi(
     private val pushNotificationService: PushNotificationService
 ) {
 
