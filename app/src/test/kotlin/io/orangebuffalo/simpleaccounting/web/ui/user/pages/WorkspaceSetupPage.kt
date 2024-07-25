@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.web.ui.user.pages
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companion.pageHeader
-import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 
 class WorkspaceSetupPage(page: Page) : SaPageBase<WorkspaceSetupPage>(page) {
     private val header = components.pageHeader("Workspace")

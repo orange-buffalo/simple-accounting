@@ -2,11 +2,11 @@ package io.orangebuffalo.simpleaccounting.web.ui.shared.pages
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByText
-import io.orangebuffalo.simpleaccounting.infra.ui.components.Checkbox.Companion.checkboxByOwnLabel
-import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.infra.ui.components.TextInput.Companion.textInputByPlaceholder
-import io.orangebuffalo.simpleaccounting.infra.utils.navigateAndDisableAnimations
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Checkbox.Companion.checkboxByOwnLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
 
 class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
 

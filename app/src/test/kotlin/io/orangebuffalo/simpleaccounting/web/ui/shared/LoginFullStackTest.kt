@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.web.ui.shared
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
+import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.openLoginPage
 import io.orangebuffalo.simpleaccounting.web.ui.user.pages.shouldBeDashboardPage

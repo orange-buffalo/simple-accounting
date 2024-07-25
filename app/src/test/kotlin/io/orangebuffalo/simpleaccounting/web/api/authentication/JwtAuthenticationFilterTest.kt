@@ -2,8 +2,8 @@ package io.orangebuffalo.simpleaccounting.web.api.authentication
 
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean

@@ -3,16 +3,16 @@ package io.orangebuffalo.simpleaccounting.web.ui.admin.pages
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.matchers.string.shouldEndWith
-import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByContainer
-import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByText
-import io.orangebuffalo.simpleaccounting.infra.ui.components.ComponentsAccessors
-import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemByLabel
-import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemSelectByLabel
-import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
-import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companion.pageHeader
-import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.infra.ui.components.SaStatusLabel.Companion.statusLabel
-import io.orangebuffalo.simpleaccounting.infra.ui.components.UiComponent
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByContainer
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemSelectByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 
 abstract class UserPageBase<T : UserPageBase<T>>(page: Page) : SaPageBase<T>(page) {
     val userName = components.formItemTextInputByLabel("Username")

@@ -1,9 +1,9 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 
 import com.nhaarman.mockitokotlin2.*
-import io.orangebuffalo.simpleaccounting.infra.api.expectThatJsonBody
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.api.sendJson
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
+import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

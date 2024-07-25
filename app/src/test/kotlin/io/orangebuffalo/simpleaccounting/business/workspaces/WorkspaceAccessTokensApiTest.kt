@@ -2,16 +2,16 @@ package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
-import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
+import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName

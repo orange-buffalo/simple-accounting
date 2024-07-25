@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.e2e
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfig
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightExtension
 import org.junit.jupiter.api.Test

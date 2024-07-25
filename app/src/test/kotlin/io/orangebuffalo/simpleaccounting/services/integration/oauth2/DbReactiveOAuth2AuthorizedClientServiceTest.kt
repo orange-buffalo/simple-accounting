@@ -8,11 +8,11 @@ import assertk.assertions.isNull
 import assertk.assertions.prop
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -32,7 +32,7 @@ import java.time.Instant
 internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     @Autowired private val clientService: DbReactiveOAuth2AuthorizedClientService,
     @Autowired private val repository: PersistentOAuth2AuthorizedClientRepository,
-     private val preconditionsFactory: PreconditionsFactory,
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
 
     @field:MockBean

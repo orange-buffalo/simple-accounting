@@ -1,9 +1,9 @@
 package io.orangebuffalo.simpleaccounting.business.common.pesistence
 
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

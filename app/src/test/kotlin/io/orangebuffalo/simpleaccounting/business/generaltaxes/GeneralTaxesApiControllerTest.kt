@@ -1,13 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.generaltaxes
 
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.infra.api.verifyNotFound
-import io.orangebuffalo.simpleaccounting.infra.api.verifyOkAndJsonBody
-import io.orangebuffalo.simpleaccounting.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.infra.security.WithMockFarnsworthUser
-import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
+import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
+import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

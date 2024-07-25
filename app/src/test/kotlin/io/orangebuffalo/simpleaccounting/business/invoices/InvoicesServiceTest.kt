@@ -1,13 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactory
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.infra.database.EntitiesFactoryInfra
-import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
-import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.infra.TimeService
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
+import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

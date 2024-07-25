@@ -8,10 +8,10 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.infra.TimeService
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
+import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.openAccountActivationPage
 import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.web.ui.user.pages.shouldBeWorkspaceSetupPage
