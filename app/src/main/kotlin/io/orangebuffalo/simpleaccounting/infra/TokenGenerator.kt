@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration
+package io.orangebuffalo.simpleaccounting.infra
 
 import org.springframework.stereotype.Component
 

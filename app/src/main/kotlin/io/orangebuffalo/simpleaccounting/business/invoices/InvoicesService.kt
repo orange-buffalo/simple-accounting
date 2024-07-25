@@ -6,9 +6,9 @@ import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesServi
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.services.integration.executeInParallel
-import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.infra.executeInParallel
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.core.task.AsyncTaskExecutor

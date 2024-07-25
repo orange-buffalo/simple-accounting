@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.orangebuffalo.simpleaccounting.business.workspaces.InvalidWorkspaceAccessTokenException
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AccountIsTemporaryLockedException
 import io.orangebuffalo.simpleaccounting.business.security.authentication.LoginUnavailableException

@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
 
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.PersistentOAuth2AuthorizedClientRepository
-import io.orangebuffalo.simpleaccounting.services.integration.voidMono
-import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.infra.voidMono
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.mono
 import org.springframework.security.core.Authentication
