@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.security.remeberme
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UserDetails

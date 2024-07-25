@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.services.integration.getServerWebExchange
+import io.orangebuffalo.simpleaccounting.infra.getServerWebExchange
 import org.jooq.DSLContext
 import org.jooq.Table
 import org.springframework.core.convert.ConversionService

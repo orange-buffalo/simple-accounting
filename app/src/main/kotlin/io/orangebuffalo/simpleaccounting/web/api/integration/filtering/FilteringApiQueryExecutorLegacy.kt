@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
-import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.infra.jooq.fetchListOf
 import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiValidationException
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator.MultiArgumentsOperator

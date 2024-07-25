@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME_VALUE
-import io.orangebuffalo.simpleaccounting.services.integration.TokenGenerator
+import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName

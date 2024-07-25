@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.integration.TokenGenerator
-import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import org.springframework.stereotype.Service
 import java.time.Instant
 

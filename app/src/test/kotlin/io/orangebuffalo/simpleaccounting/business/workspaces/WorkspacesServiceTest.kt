@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.infra.security.*
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.AbstractThrowableAssert
 import org.assertj.core.api.Assertions.assertThatCode

@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.services.integration.oauth2
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle

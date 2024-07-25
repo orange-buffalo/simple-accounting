@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.business.security.ensureRegularUserPrincipal
 import org.apache.commons.lang3.RandomStringUtils

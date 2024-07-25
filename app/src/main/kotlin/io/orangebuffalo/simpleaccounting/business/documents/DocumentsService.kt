@@ -4,11 +4,11 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadContentResponse
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadableContentProvider
 import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
-import io.orangebuffalo.simpleaccounting.services.integration.withDbContext
+import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest

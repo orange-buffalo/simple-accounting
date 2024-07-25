@@ -4,7 +4,7 @@ import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.infra.utils.toDataBuffers
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal

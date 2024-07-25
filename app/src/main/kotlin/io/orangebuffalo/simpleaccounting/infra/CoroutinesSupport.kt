@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration
+package io.orangebuffalo.simpleaccounting.infra
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.reactor.ReactorContext

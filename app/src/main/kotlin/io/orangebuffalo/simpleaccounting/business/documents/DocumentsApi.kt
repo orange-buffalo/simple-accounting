@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.documents
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
-import io.orangebuffalo.simpleaccounting.services.integration.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import io.swagger.v3.oas.annotations.Parameter
