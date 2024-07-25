@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
+import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
 
 interface UserActivationTokensRepository : AbstractEntityRepository<UserActivationToken> {
 

@@ -1,6 +1,5 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos
+package io.orangebuffalo.simpleaccounting.business.common.pesistence
 
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.NoRepositoryBean
 

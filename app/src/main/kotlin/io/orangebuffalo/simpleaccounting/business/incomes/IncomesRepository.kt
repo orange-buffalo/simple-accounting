@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.incomes
 
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.AbstractEntityRepository
-import io.orangebuffalo.simpleaccounting.services.persistence.repos.CurrenciesUsageStatistics
+import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntityRepository
+import io.orangebuffalo.simpleaccounting.business.common.data.CurrenciesUsageStatistics
 import java.time.LocalDate
 
 interface IncomesRepository : AbstractEntityRepository<Income>, IncomesRepositoryExt {

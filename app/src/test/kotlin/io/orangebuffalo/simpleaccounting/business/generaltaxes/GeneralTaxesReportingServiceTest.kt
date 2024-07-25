@@ -4,7 +4,7 @@ import assertk.assertThat
 import assertk.assertions.containsOnly
 import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import kotlinx.coroutines.runBlocking

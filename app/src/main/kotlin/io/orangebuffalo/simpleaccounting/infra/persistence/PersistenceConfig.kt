@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.persistence
+package io.orangebuffalo.simpleaccounting.infra.persistence
 
 import io.orangebuffalo.simpleaccounting.infra.jooq.set
 import org.jooq.DSLContext

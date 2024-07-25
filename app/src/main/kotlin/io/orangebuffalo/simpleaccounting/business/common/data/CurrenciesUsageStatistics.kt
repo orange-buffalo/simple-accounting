@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.persistence.repos
+package io.orangebuffalo.simpleaccounting.business.common.data
 
 data class CurrenciesUsageStatistics(
     val currency: String,

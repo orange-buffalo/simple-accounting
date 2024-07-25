@@ -12,7 +12,7 @@ import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE_VALUE
 import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

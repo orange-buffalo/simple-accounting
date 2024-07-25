@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.infra.utils
 
 import io.kotest.assertions.withClue
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
-import io.orangebuffalo.simpleaccounting.services.persistence.entities.AbstractEntity
+import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntity
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import kotlin.reflect.KProperty
 
