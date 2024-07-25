@@ -4,9 +4,9 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import io.kotest.matchers.collections.shouldContainExactly
-import io.orangebuffalo.simpleaccounting.infra.api.stubPostRequestTo
-import io.orangebuffalo.simpleaccounting.infra.api.willReturnOkJson
-import io.orangebuffalo.simpleaccounting.infra.api.willReturnResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.api.stubPostRequestTo
+import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnOkJson
+import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnResponse
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.toInstant
 import org.junit.jupiter.api.BeforeEach

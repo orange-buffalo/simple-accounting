@@ -1,2 +1,2 @@
 org.springframework.test.context.ContextCustomizerFactory=\
-    io.orangebuffalo.simpleaccounting.infra.api.WireMockContextCustomizerFactory
+    io.orangebuffalo.simpleaccounting.tests.infra.api.WireMockContextCustomizerFactory

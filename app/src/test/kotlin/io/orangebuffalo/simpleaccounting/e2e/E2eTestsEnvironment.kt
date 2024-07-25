@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.e2e
 
 import com.microsoft.playwright.Browser
-import io.orangebuffalo.simpleaccounting.infra.environment.SaPlaywrightConfigurer
-import io.orangebuffalo.simpleaccounting.infra.environment.TestEnvironment
+import io.orangebuffalo.simpleaccounting.tests.infra.environment.SaPlaywrightConfigurer
+import io.orangebuffalo.simpleaccounting.tests.infra.environment.TestEnvironment
 import mu.KotlinLogging
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.Extension

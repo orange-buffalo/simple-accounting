@@ -11,11 +11,11 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.file.shouldExist
-import io.orangebuffalo.simpleaccounting.infra.ui.StorybookEnvironment
-import io.orangebuffalo.simpleaccounting.infra.ui.StorybookExtension
-import io.orangebuffalo.simpleaccounting.infra.ui.StorybookStory
-import io.orangebuffalo.simpleaccounting.infra.utils.StopWatch
-import io.orangebuffalo.simpleaccounting.infra.utils.logger
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.StorybookEnvironment
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.StorybookExtension
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.StorybookStory
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.StopWatch
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.logger
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.retry.backoff.NoBackOffPolicy

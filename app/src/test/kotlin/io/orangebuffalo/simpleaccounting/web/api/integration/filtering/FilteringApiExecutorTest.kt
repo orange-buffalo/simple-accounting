@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
 
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.jooq.Field

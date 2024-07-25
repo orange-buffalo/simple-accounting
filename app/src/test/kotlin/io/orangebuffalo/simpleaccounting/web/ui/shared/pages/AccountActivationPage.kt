@@ -1,13 +1,13 @@
 package io.orangebuffalo.simpleaccounting.web.ui.shared.pages
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByText
-import io.orangebuffalo.simpleaccounting.infra.ui.components.ComponentsAccessors
-import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
-import io.orangebuffalo.simpleaccounting.infra.ui.components.SaStatusLabel.Companion.statusLabel
-import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.infra.ui.components.UiComponent
-import io.orangebuffalo.simpleaccounting.infra.utils.navigateAndDisableAnimations
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
 
 class AccountActivationPage(page: Page) : SaPageBase<AccountActivationPage>(page) {
 

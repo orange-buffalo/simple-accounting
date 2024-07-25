@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.incomes
 
-import io.orangebuffalo.simpleaccounting.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_DATE
-import io.orangebuffalo.simpleaccounting.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.web.AbstractFilteringApiTest
 import io.orangebuffalo.simpleaccounting.web.generateFilteringApiTests
 

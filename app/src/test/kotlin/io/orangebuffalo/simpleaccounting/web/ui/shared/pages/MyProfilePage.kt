@@ -1,13 +1,13 @@
 package io.orangebuffalo.simpleaccounting.web.ui.shared.pages
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.ui.components.Button.Companion.buttonByText
-import io.orangebuffalo.simpleaccounting.infra.ui.components.ComponentsAccessors
-import io.orangebuffalo.simpleaccounting.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
-import io.orangebuffalo.simpleaccounting.infra.ui.components.PageHeader.Companion.pageHeader
-import io.orangebuffalo.simpleaccounting.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.infra.utils.shouldBeVisible
-import io.orangebuffalo.simpleaccounting.infra.utils.shouldNotBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldNotBeVisible
 
 class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
     private val header = components.pageHeader("My Profile")
