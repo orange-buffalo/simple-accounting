@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui
+package io.orangebuffalo.simpleaccounting.tests.ui
 
 import com.github.romankh3.image.comparison.ImageComparison
 import com.github.romankh3.image.comparison.model.ImageComparisonResult

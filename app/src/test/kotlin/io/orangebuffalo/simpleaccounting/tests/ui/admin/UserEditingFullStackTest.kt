@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui.admin
+package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
@@ -10,11 +10,11 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
-import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.EditUserPage
-import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeEditUserPage
-import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
-import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui.admin
+package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
 import io.kotest.assertions.withClue
@@ -13,12 +13,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
-import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.CreateUserPage
-import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeCreateUserPage
-import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeEditUserPage
-import io.orangebuffalo.simpleaccounting.web.ui.admin.pages.shouldBeUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.loginAs
-import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.CreateUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeCreateUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate

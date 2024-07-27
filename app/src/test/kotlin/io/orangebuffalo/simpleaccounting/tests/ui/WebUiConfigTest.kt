@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui
+package io.orangebuffalo.simpleaccounting.tests.ui
 
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import org.assertj.core.api.Assertions.assertThat
