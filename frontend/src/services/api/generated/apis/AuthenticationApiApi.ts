@@ -40,7 +40,7 @@ export interface RefreshTokenRequest {
 /**
  * 
  */
-export class AuthenticationApiControllerApi extends runtime.BaseAPI {
+export class AuthenticationApiApi extends runtime.BaseAPI {
 
     /**
      */

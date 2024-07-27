@@ -1,6 +1,6 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE")
 
-package io.orangebuffalo.simpleaccounting.web.api.authentication
+package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

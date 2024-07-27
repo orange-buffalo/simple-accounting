@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.infra
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import io.orangebuffalo.simpleaccounting.web.api.authentication.JwtTokenAuthenticationConverter
+import io.orangebuffalo.simpleaccounting.business.security.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest

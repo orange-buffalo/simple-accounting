@@ -1,6 +1,6 @@
 import qs from 'qs';
 import {
-  AuthenticationApiControllerApi,
+  AuthenticationApiApi,
   Configuration,
   ProfileApiControllerApi,
   WorkspacesApiApi,
@@ -39,7 +39,7 @@ const defaultConfigParameters: ConfigurationParameters = {
 };
 const defaultConfig = new Configuration(defaultConfigParameters);
 
-export const authApi = new AuthenticationApiControllerApi(new Configuration({
+export const authApi = new AuthenticationApiApi(new Configuration({
   ...defaultConfigParameters,
   middleware: [
     requestTimeoutInterceptor,
