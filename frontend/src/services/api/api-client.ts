@@ -6,7 +6,7 @@ import {
   WorkspacesApiApi,
   CustomersApiApi,
   CategoriesApiApi,
-  StatisticsApiControllerApi,
+  StatisticsApiApi,
   InvoicesApiApi,
   GeneralTaxesApiApi,
   DocumentsApiApi,
@@ -15,7 +15,7 @@ import {
   ExpensesApiApi,
   IncomesApiApi,
   IncomeTaxPaymentsApiApi,
-  ReportingApiControllerApi,
+  ReportingApiApi,
   WorkspaceAccessTokensApiApi,
   UsersApiApi,
   UserActivationTokensApiApi,
@@ -53,7 +53,7 @@ export const workspacesApi = new WorkspacesApiApi(defaultConfig);
 export const profileApi = new ProfileApiApi(defaultConfig);
 export const customersApi = new CustomersApiApi(defaultConfig);
 export const categoriesApi = new CategoriesApiApi(defaultConfig);
-export const statisticsApi = new StatisticsApiControllerApi(defaultConfig);
+export const statisticsApi = new StatisticsApiApi(defaultConfig);
 export const invoicesApi = new InvoicesApiApi(defaultConfig);
 export const expensesApi = new ExpensesApiApi(defaultConfig);
 export const incomesApi = new IncomesApiApi(defaultConfig);
@@ -62,7 +62,7 @@ export const generalTaxesApi = new GeneralTaxesApiApi(defaultConfig);
 export const googleDriveStorageApi = new GoogleDriveStorageApiControllerApi(defaultConfig);
 export const oAuth2CallbackApi = new OAuth2CallbackApiApi(defaultConfig);
 export const incomeTaxPaymentsApi = new IncomeTaxPaymentsApiApi(defaultConfig);
-export const reportingApi = new ReportingApiControllerApi(defaultConfig);
+export const reportingApi = new ReportingApiApi(defaultConfig);
 export const workspaceAccessTokensApi = new WorkspaceAccessTokensApiApi(defaultConfig);
 export const usersApi = new UsersApiApi(defaultConfig);
 export const userActivationTokensApi = new UserActivationTokensApiApi(defaultConfig);

@@ -31,7 +31,7 @@ export interface GetGeneralTaxReportRequest {
 /**
  * 
  */
-export class ReportingApiControllerApi extends runtime.BaseAPI {
+export class ReportingApiApi extends runtime.BaseAPI {
 
     /**
      */

@@ -1376,7 +1376,7 @@ paths:
   /api/workspaces/{workspaceId}/statistics/incomes:
     get:
       tags:
-      - statistics-api-controller
+      - statistics-api
       operationId: getIncomesStatistics
       parameters:
       - name: workspaceId
@@ -1407,7 +1407,7 @@ paths:
   /api/workspaces/{workspaceId}/statistics/income-tax-payments:
     get:
       tags:
-      - statistics-api-controller
+      - statistics-api
       operationId: getTaxPaymentsStatistics
       parameters:
       - name: workspaceId
@@ -1438,7 +1438,7 @@ paths:
   /api/workspaces/{workspaceId}/statistics/expenses:
     get:
       tags:
-      - statistics-api-controller
+      - statistics-api
       operationId: getExpensesStatistics
       parameters:
       - name: workspaceId
@@ -1469,7 +1469,7 @@ paths:
   /api/workspaces/{workspaceId}/statistics/currencies-shortlist:
     get:
       tags:
-      - statistics-api-controller
+      - statistics-api
       operationId: getCurrenciesShortlist
       parameters:
       - name: workspaceId
@@ -1490,7 +1490,7 @@ paths:
   /api/workspaces/{workspaceId}/reporting/general-taxes:
     get:
       tags:
-      - reporting-api-controller
+      - reporting-api
       operationId: getGeneralTaxReport
       parameters:
       - name: workspaceId

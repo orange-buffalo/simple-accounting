@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.business.analytics
 
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesReportingService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
@@ -11,7 +11,7 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/reporting/")
-class ReportingApiController(
+class ReportingApi(
     private val taxReportingService: GeneralTaxesReportingService,
     private val workspacesService: WorkspacesService
 ) {
