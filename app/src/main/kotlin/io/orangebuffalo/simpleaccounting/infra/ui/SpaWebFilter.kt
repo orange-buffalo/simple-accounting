@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui
+package io.orangebuffalo.simpleaccounting.infra.ui
 
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest
 import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher
