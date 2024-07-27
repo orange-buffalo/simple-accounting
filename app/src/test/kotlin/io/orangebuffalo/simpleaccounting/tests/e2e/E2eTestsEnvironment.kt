@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.e2e
+package io.orangebuffalo.simpleaccounting.tests.e2e
 
 import com.microsoft.playwright.Browser
 import io.orangebuffalo.simpleaccounting.tests.infra.environment.SaPlaywrightConfigurer

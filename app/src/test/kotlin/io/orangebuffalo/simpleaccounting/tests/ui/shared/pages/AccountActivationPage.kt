@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui.shared.pages
+package io.orangebuffalo.simpleaccounting.tests.ui.shared.pages
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText

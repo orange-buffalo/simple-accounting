@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui.admin.pages
+package io.orangebuffalo.simpleaccounting.tests.ui.admin.pages
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.ui.shared
+package io.orangebuffalo.simpleaccounting.tests.ui.shared
 
 import com.microsoft.playwright.Page
 import com.nhaarman.mockitokotlin2.doReturn
@@ -12,9 +12,9 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
-import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.openAccountActivationPage
-import io.orangebuffalo.simpleaccounting.web.ui.shared.pages.shouldBeLoginPage
-import io.orangebuffalo.simpleaccounting.web.ui.user.pages.shouldBeWorkspaceSetupPage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openAccountActivationPage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeLoginPage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeWorkspaceSetupPage
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
