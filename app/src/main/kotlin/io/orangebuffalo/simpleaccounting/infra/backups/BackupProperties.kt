@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.backups
+package io.orangebuffalo.simpleaccounting.infra.backups
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
