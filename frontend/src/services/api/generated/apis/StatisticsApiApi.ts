@@ -50,7 +50,7 @@ export interface GetTaxPaymentsStatisticsRequest {
 /**
  * 
  */
-export class StatisticsApiControllerApi extends runtime.BaseAPI {
+export class StatisticsApiApi extends runtime.BaseAPI {
 
     /**
      */

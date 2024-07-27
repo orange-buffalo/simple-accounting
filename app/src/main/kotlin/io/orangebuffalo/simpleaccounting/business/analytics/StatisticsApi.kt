@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.business.analytics
 
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseService
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomesService
@@ -12,7 +12,7 @@ import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/workspaces/{workspaceId}/statistics/")
-class StatisticsApiController(
+class StatisticsApi(
     private val expenseService: ExpenseService,
     private val incomesService: IncomesService,
     private val incomeTaxPaymentService: IncomeTaxPaymentService,

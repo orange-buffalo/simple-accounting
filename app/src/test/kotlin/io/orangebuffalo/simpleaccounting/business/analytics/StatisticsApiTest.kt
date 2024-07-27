@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.business.analytics
 
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
@@ -19,7 +19,7 @@ import java.time.LocalDate
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Statistics API ")
-internal class StatisticsApiControllerTest(
+internal class StatisticsApiTest(
     @Autowired private val client: WebTestClient,
     preconditionsFactory: PreconditionsFactory,
 ) {
