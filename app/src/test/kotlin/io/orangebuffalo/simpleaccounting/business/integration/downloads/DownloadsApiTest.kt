@@ -1,11 +1,9 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.business.integration.downloads
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.stub
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadContentResponse
-import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
@@ -21,7 +19,7 @@ import java.util.function.Consumer
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Downloads API")
-class DownloadsApiControllerTest(
+class DownloadsApiTest(
     @Autowired val client: WebTestClient
 ) {
 
