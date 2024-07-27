@@ -45,7 +45,7 @@ export interface UpdateProfileRequest {
 /**
  * 
  */
-export class ProfileApiControllerApi extends runtime.BaseAPI {
+export class ProfileApiApi extends runtime.BaseAPI {
 
     /**
      */

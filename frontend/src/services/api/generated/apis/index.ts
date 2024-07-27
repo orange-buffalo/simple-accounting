@@ -12,7 +12,7 @@ export * from './IncomeTaxPaymentsApiApi';
 export * from './IncomesApiApi';
 export * from './InvoicesApiApi';
 export * from './OAuth2CallbackApiApi';
-export * from './ProfileApiControllerApi';
+export * from './ProfileApiApi';
 export * from './PushNotificationsApiApi';
 export * from './ReportingApiControllerApi';
 export * from './StatisticsApiControllerApi';
