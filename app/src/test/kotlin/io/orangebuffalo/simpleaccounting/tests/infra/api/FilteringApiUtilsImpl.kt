@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web
+package io.orangebuffalo.simpleaccounting.tests.infra.api
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
@@ -11,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.kotlinEquals
 import io.orangebuffalo.simpleaccounting.infra.kotlinHashCode
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndBody
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.tests.infra.security.asFarnsworth

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web
+package io.orangebuffalo.simpleaccounting.tests.infra.api
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace

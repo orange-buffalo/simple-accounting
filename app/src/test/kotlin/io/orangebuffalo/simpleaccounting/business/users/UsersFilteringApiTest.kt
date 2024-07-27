@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.web.AbstractFilteringApiTest
-import io.orangebuffalo.simpleaccounting.web.generateFilteringApiTests
+import io.orangebuffalo.simpleaccounting.tests.infra.api.AbstractFilteringApiTest
+import io.orangebuffalo.simpleaccounting.tests.infra.api.generateFilteringApiTests
 
 @SimpleAccountingIntegrationTest
 class UsersFilteringApiTest : AbstractFilteringApiTest() {
