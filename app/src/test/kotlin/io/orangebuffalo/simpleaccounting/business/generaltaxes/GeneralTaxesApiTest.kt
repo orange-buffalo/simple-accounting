@@ -16,7 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Taxes API")
-internal class GeneralTaxesApiControllerTest(
+internal class GeneralTaxesApiTest(
     @Autowired private val client: WebTestClient,
     preconditionsFactory: PreconditionsFactory,
 ) {
