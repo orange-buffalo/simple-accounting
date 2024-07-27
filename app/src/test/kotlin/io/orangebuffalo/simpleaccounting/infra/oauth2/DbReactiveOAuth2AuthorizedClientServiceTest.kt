@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2
+package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import assertk.all
 import assertk.assertThat
@@ -8,9 +8,9 @@ import assertk.assertions.isNull
 import assertk.assertions.prop
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
+import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
+import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
+import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import org.junit.jupiter.api.BeforeEach

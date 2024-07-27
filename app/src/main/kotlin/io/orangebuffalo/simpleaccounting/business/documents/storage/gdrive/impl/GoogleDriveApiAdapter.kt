@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.impl
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentStorageException
 import io.orangebuffalo.simpleaccounting.business.documents.storage.StorageAuthorizationRequiredException
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.OAUTH2_CLIENT_REGISTRATION_ID
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.OAuth2WebClientBuilderProvider
+import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2WebClientBuilderProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull

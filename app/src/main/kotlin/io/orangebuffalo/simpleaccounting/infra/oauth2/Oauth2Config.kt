@@ -1,6 +1,6 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2
+package io.orangebuffalo.simpleaccounting.infra.oauth2
 
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
+import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService

@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2
+package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
@@ -11,7 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
-class OAuth2CallbackControllerTest(
+class OAuth2CallbackApiTest(
     @Autowired private val client: WebTestClient
 ) {
 

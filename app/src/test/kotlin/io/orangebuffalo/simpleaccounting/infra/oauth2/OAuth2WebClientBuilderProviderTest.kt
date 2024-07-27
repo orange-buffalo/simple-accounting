@@ -1,7 +1,7 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2
+package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
+import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory

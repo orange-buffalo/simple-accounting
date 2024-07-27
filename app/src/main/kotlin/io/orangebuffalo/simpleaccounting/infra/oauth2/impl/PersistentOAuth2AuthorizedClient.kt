@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
+package io.orangebuffalo.simpleaccounting.infra.oauth2.impl
 
 import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEntity
 import org.springframework.data.relational.core.mapping.Column

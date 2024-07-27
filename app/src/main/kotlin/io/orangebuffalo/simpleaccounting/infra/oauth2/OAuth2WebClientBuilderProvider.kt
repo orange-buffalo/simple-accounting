@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2
+package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction

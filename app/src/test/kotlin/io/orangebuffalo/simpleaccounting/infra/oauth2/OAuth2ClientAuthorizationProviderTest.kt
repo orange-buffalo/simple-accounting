@@ -1,11 +1,11 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2
+package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import com.github.tomakehurst.wiremock.client.WireMock.badRequest
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.ClientTokenScope
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl.PersistentOAuth2AuthorizedClient
+import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
+import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.tests.infra.api.stubPostRequestTo

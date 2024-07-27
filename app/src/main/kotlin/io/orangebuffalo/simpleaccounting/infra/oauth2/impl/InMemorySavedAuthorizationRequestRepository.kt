@@ -1,7 +1,7 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
+package io.orangebuffalo.simpleaccounting.infra.oauth2.impl
 
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.SavedAuthorizationRequest
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.SavedAuthorizationRequestRepository
+import io.orangebuffalo.simpleaccounting.infra.oauth2.SavedAuthorizationRequest
+import io.orangebuffalo.simpleaccounting.infra.oauth2.SavedAuthorizationRequestRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
