@@ -1,7 +1,7 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
+package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiValidationException
+import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiValidationException
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy

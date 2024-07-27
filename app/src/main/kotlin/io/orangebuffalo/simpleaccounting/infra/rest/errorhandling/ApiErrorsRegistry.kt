@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling
+package io.orangebuffalo.simpleaccounting.infra.rest.errorhandling
 
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus

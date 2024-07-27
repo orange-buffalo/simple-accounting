@@ -1,10 +1,10 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
+package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import io.orangebuffalo.simpleaccounting.infra.jooq.fetchListOf
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiValidationException
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator.MultiArgumentsOperator
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiPredicateOperator.SingleArgumentOperator
+import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiValidationException
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiPredicateOperator.MultiArgumentsOperator
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiPredicateOperator.SingleArgumentOperator
 import org.jooq.*
 import org.jooq.impl.DSL
 import org.springframework.core.convert.ConversionException

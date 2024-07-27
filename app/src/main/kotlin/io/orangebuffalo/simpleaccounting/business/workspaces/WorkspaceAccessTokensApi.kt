@@ -2,8 +2,8 @@ package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilderLegacy
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPage
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiExecutorBuilderLegacy
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import jakarta.validation.Valid

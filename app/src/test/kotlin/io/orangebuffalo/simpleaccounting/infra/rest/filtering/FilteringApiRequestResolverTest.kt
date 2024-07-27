@@ -1,8 +1,8 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
+package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiValidationException
+import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiValidationException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.DisplayName

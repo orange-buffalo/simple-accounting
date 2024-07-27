@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPage
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPageRequest
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.NoOpSorting
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import org.hibernate.validator.constraints.Length
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*

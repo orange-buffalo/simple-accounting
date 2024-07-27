@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration.filtering
+package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
 import io.swagger.v3.oas.annotations.Parameter
 import org.springdoc.core.annotations.ParameterObject
