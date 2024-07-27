@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.business.users
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.stub
@@ -6,8 +6,6 @@ import com.nhaarman.mockitokotlin2.whenever
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
-import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
@@ -25,7 +23,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
 @DisplayName("Profile API ")
-class ProfileApiControllerTest(
+class ProfileApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val testPasswordEncoder: PasswordEncoder,
     @Autowired private val userRepository: PlatformUsersRepository,

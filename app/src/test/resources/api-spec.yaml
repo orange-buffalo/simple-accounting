@@ -413,7 +413,7 @@ paths:
   /api/profile:
     get:
       tags:
-      - profile-api-controller
+      - profile-api
       operationId: getProfile
       responses:
         "200":
@@ -424,7 +424,7 @@ paths:
                 $ref: "#/components/schemas/ProfileDto"
     put:
       tags:
-      - profile-api-controller
+      - profile-api
       operationId: updateProfile
       requestBody:
         content:
@@ -1270,7 +1270,7 @@ paths:
   /api/profile/change-password:
     post:
       tags:
-      - profile-api-controller
+      - profile-api
       operationId: changePassword
       requestBody:
         content:
@@ -1636,7 +1636,7 @@ paths:
   /api/profile/documents-storage:
     get:
       tags:
-      - profile-api-controller
+      - profile-api
       operationId: getDocumentsStorageStatus
       responses:
         "200":

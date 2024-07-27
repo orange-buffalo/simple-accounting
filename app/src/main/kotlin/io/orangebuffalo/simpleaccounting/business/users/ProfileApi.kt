@@ -1,9 +1,7 @@
-package io.orangebuffalo.simpleaccounting.web.api
+package io.orangebuffalo.simpleaccounting.business.users
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.business.security.authentication.PasswordChangeException
 import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiErrorMapping
@@ -17,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/profile")
-class ProfileApiController(
+class ProfileApi(
     private val platformUsersService: PlatformUsersService,
     private val documentsService: DocumentsService,
     private val authenticationService: AuthenticationService,

@@ -2,7 +2,7 @@ import qs from 'qs';
 import {
   AuthenticationApiApi,
   Configuration,
-  ProfileApiControllerApi,
+  ProfileApiApi,
   WorkspacesApiApi,
   CustomersApiApi,
   CategoriesApiApi,
@@ -50,7 +50,7 @@ export const authApi = new AuthenticationApiApi(new Configuration({
 }));
 
 export const workspacesApi = new WorkspacesApiApi(defaultConfig);
-export const profileApi = new ProfileApiControllerApi(defaultConfig);
+export const profileApi = new ProfileApiApi(defaultConfig);
 export const customersApi = new CustomersApiApi(defaultConfig);
 export const categoriesApi = new CategoriesApiApi(defaultConfig);
 export const statisticsApi = new StatisticsApiControllerApi(defaultConfig);

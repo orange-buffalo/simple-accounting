@@ -15,7 +15,7 @@ import {
   ResourceNotFoundError,
 } from '@/services/api/api-errors';
 import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
-import type { ProfileApiControllerApi } from '@/services/api/generated/apis/ProfileApiControllerApi';
+import type { ProfileApiApi } from '@/services/api/generated/apis/ProfileApiApi';
 import type { RequestConfigReturn, RequestConfigParams } from '@/services/api/api-utils';
 
 // eslint-disable-next-line vue/max-len
@@ -31,7 +31,7 @@ describe('API Client', () => {
   let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
   let useAuth: () => Auth;
-  let profileApi: ProfileApiControllerApi;
+  let profileApi: ProfileApiApi;
   let useRequestConfig: (params: RequestConfigParams) => RequestConfigReturn;
 
   const assertRegularRequestEvents = () => {
