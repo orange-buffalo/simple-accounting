@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.thirdparty
+package io.orangebuffalo.simpleaccounting.infra.thirdparty.dropbox
 
 import io.ktor.client.*
 import io.ktor.client.call.*

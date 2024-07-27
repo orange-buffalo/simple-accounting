@@ -1,7 +1,7 @@
-package io.orangebuffalo.simpleaccounting.services.integration.backups
+package io.orangebuffalo.simpleaccounting.infra.backups
 
-import io.orangebuffalo.simpleaccounting.services.integration.backups.impl.DropboxBackupProvider
-import io.orangebuffalo.simpleaccounting.services.integration.backups.impl.NoOpBackupProvider
+import io.orangebuffalo.simpleaccounting.infra.backups.impl.DropboxBackupProvider
+import io.orangebuffalo.simpleaccounting.infra.backups.impl.NoOpBackupProvider
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean

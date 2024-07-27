@@ -1,9 +1,9 @@
-package io.orangebuffalo.simpleaccounting.services.integration.backups.impl
+package io.orangebuffalo.simpleaccounting.infra.backups.impl
 
-import io.orangebuffalo.simpleaccounting.services.integration.backups.BackupProperties
-import io.orangebuffalo.simpleaccounting.services.integration.backups.BackupProvider
-import io.orangebuffalo.simpleaccounting.services.integration.thirdparty.DropboxApiClient
-import io.orangebuffalo.simpleaccounting.services.integration.thirdparty.FileListFolderEntry
+import io.orangebuffalo.simpleaccounting.infra.backups.BackupProperties
+import io.orangebuffalo.simpleaccounting.infra.backups.BackupProvider
+import io.orangebuffalo.simpleaccounting.infra.thirdparty.dropbox.DropboxApiClient
+import io.orangebuffalo.simpleaccounting.infra.thirdparty.dropbox.FileListFolderEntry
 import java.nio.file.Path
 import kotlin.io.path.name
 

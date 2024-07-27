@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.backups
+package io.orangebuffalo.simpleaccounting.infra.backups
 
 import java.nio.file.Path
 

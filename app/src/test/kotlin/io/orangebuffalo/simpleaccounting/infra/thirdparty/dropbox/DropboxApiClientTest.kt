@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.thirdparty
+package io.orangebuffalo.simpleaccounting.infra.thirdparty.dropbox
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
