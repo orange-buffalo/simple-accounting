@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.downloads
+package io.orangebuffalo.simpleaccounting.business.integration.downloads
 
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal

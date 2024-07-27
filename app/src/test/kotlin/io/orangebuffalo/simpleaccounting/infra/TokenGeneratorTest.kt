@@ -1,8 +1,7 @@
-package io.orangebuffalo.simpleaccounting.services.integration
+package io.orangebuffalo.simpleaccounting.infra
 
 import assertk.assertThat
 import assertk.assertions.hasLength
-import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import org.junit.jupiter.api.Test
 
 internal class TokenGeneratorTest {

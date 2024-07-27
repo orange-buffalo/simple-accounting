@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsSto
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.services.integration.downloads.DownloadsService
+import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody

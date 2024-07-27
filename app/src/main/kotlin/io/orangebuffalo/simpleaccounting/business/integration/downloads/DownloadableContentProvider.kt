@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.downloads
+package io.orangebuffalo.simpleaccounting.business.integration.downloads
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.core.io.buffer.DataBuffer

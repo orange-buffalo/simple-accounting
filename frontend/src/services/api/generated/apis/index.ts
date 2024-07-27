@@ -4,7 +4,7 @@ export * from './AuthenticationApiControllerApi';
 export * from './CategoriesApiApi';
 export * from './CustomersApiApi';
 export * from './DocumentsApiApi';
-export * from './DownloadsApiControllerApi';
+export * from './DownloadsApiApi';
 export * from './ExpensesApiApi';
 export * from './GeneralTaxesApiApi';
 export * from './GoogleDriveStorageApiControllerApi';

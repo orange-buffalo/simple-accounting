@@ -1648,7 +1648,7 @@ paths:
   /api/downloads:
     get:
       tags:
-      - downloads-api-controller
+      - downloads-api
       operationId: getContent
       parameters:
       - name: token
