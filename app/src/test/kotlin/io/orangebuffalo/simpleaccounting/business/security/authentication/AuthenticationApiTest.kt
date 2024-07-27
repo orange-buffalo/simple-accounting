@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.authentication
+package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
@@ -34,7 +34,7 @@ private const val LOGIN_BY_TOKEN_PATH = "/api/auth/login-by-token"
 private const val TOKEN_PATH = "/api/auth/token"
 
 @SimpleAccountingIntegrationTest
-class AuthenticationApiControllerTest(
+class AuthenticationApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val timeService: TimeService,

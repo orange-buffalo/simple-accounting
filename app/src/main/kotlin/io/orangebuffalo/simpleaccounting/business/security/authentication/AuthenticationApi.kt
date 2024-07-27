@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.authentication
+package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokensService
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
@@ -23,7 +23,7 @@ import jakarta.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping("api/auth")
-class AuthenticationApiController(
+class AuthenticationApi(
     private val authenticationManager: ReactiveAuthenticationManager,
     private val jwtService: JwtService,
     private val refreshTokensService: RefreshTokensService,

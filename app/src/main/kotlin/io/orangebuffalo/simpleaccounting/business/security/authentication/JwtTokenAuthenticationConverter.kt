@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.authentication
+package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtAuthenticationToken
 import org.springframework.http.HttpHeaders

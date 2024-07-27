@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.authentication
+package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import com.nhaarman.mockitokotlin2.doThrow
 import com.nhaarman.mockitokotlin2.whenever
