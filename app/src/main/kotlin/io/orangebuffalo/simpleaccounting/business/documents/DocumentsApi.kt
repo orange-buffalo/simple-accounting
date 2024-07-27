@@ -4,8 +4,11 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocument
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPage
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPageRequest
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.NoOpSorting
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import io.swagger.v3.oas.annotations.Parameter
 import kotlinx.coroutines.flow.Flow
 import org.springdoc.core.annotations.ParameterObject

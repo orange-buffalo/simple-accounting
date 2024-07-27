@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiErrorMapping
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.ApiPageRequest
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.FilteringApiExecutorBuilder
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.NoOpSorting
+import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiErrorMapping
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPage
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPageRequest
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.NoOpSorting
 import io.swagger.v3.oas.annotations.Parameter
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank

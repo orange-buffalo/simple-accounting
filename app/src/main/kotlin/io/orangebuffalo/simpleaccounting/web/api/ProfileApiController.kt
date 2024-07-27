@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.business.security.authentication.PasswordChangeException
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiErrorMapping
+import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiErrorMapping
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty

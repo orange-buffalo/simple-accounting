@@ -1,7 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.categories
 
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPage
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPageRequest
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.NoOpSorting
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
-import io.orangebuffalo.simpleaccounting.web.api.integration.filtering.*
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import jakarta.validation.Valid

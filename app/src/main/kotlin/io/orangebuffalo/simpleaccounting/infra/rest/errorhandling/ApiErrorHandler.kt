@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling
+package io.orangebuffalo.simpleaccounting.infra.rest.errorhandling
 
 import io.swagger.v3.core.converter.AnnotatedType
 import io.swagger.v3.core.converter.ModelConverters

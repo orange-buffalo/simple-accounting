@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling
+package io.orangebuffalo.simpleaccounting.infra.rest.errorhandling
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.exc.MismatchedInputException

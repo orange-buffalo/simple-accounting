@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.web.api.integration.errorhandling.ApiErrorMapping
+import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiErrorMapping
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
