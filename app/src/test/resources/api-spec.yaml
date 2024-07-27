@@ -1308,7 +1308,7 @@ paths:
   /api/auth/oauth2/callback:
     post:
       tags:
-      - o-auth-2-callback-controller
+      - o-auth-2-callback-api
       operationId: authCallback
       requestBody:
         content:

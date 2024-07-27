@@ -32,7 +32,7 @@ export interface AuthCallbackRequest {
 /**
  * 
  */
-export class OAuth2CallbackControllerApi extends runtime.BaseAPI {
+export class OAuth2CallbackApiApi extends runtime.BaseAPI {
 
     /**
      */

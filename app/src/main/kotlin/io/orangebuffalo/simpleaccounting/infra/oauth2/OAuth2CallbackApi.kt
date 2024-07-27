@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2
+package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
@@ -10,7 +10,7 @@ const val AUTH_CALLBACK_PATH = "/api/auth/oauth2/callback"
 private val logger = KotlinLogging.logger {}
 
 @RestController
-class OAuth2CallbackController(
+class OAuth2CallbackApi(
     private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider
 ) {
 

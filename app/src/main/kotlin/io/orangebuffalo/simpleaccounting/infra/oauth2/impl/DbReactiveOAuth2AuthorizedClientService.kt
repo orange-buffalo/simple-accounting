@@ -1,6 +1,6 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
+package io.orangebuffalo.simpleaccounting.infra.oauth2.impl
 
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.PersistentOAuth2AuthorizedClientRepository
+import io.orangebuffalo.simpleaccounting.infra.oauth2.PersistentOAuth2AuthorizedClientRepository
 import io.orangebuffalo.simpleaccounting.infra.voidMono
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import kotlinx.coroutines.reactive.awaitSingle

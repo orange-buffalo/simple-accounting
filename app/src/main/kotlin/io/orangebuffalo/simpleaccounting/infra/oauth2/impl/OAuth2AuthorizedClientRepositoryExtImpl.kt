@@ -1,6 +1,6 @@
-package io.orangebuffalo.simpleaccounting.services.integration.oauth2.impl
+package io.orangebuffalo.simpleaccounting.infra.oauth2.impl
 
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.PersistentOAuth2AuthorizedClientRepositoryExt
+import io.orangebuffalo.simpleaccounting.infra.oauth2.PersistentOAuth2AuthorizedClientRepositoryExt
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository

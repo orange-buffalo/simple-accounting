@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.StorageAutho
 import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.PushNotificationService
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.services.integration.oauth2.*
+import io.orangebuffalo.simpleaccounting.infra.oauth2.*
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
