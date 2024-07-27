@@ -1610,7 +1610,7 @@ paths:
   /api/storage/google-drive/status:
     get:
       tags:
-      - google-drive-storage-api-controller
+      - google-drive-storage-api
       operationId: getIntegrationStatus
       responses:
         "200":

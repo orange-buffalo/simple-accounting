@@ -25,7 +25,7 @@ import {
 /**
  * 
  */
-export class GoogleDriveStorageApiControllerApi extends runtime.BaseAPI {
+export class GoogleDriveStorageApiApi extends runtime.BaseAPI {
 
     /**
      */
