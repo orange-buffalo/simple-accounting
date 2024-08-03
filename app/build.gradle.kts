@@ -45,7 +45,6 @@ dependencies {
 
     implementation(libs.jooq)
     implementation(libs.jjwt.api)
-    implementation(libs.arrow.core)
     implementation(libs.springdocOpenapi.starterCommon)
 
     implementation(libs.ktor.clientCore)
