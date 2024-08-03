@@ -1,9 +1,10 @@
 import {
- inject, InjectionKey, provide, Ref,
+  inject, InjectionKey, provide, Ref,
 } from 'vue';
 import { FormItemContext } from 'element-plus';
 
-export type FormValues = Record<string, unknown>;
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type FormValues = Exclude<object, Function | null>; // not a primitive and not a function
 
 export type SaFormComponentsApi = {
   registerFormItem: (prop: string, item: FormItemContext) => void;
