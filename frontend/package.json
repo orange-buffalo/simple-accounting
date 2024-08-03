@@ -30,7 +30,7 @@
     "lodash": "4.17.21",
     "marked": "13.0.2",
     "qs": "6.12.3",
-    "vue": "3.4.34",
+    "vue": "3.4.35",
     "vue-router": "4.4.0"
   },
   "devDependencies": {
