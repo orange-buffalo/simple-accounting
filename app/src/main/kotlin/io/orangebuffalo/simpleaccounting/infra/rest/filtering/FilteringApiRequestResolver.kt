@@ -1,7 +1,5 @@
 package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
-import arrow.core.getOrElse
-import io.orangebuffalo.simpleaccounting.infra.Maybe
 import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiValidationException
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
@@ -13,7 +11,7 @@ enum class FilteringApiRequestSortDirection {
 
     companion object {
         internal fun fromRequestString(value: String): FilteringApiRequestSortDirection? =
-            values().firstOrNull { it.name.lowercase() == value }
+            entries.firstOrNull { it.name.lowercase() == value }
     }
 }
 
@@ -152,15 +150,14 @@ class FilteringApiRequestResolver {
         if (param != null && param.size > 1) {
             throw ApiValidationException("Only a single '$paramName' parameter is supported")
         }
-        return Maybe.fromNullable(param)
-            .map { it[0] }
-            .map { paramValue ->
+        return param
+            ?.let { it[0] }
+            ?.let { paramValue ->
                 try {
                     paramValue.toInt()
                 } catch (e: NumberFormatException) {
                     throw ApiValidationException("Invalid '$paramName' parameter value '$paramValue'")
                 }
-            }
-            .getOrElse { defaultValue }
+            } ?: defaultValue
     }
 }

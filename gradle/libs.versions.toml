@@ -1,5 +1,4 @@
 [versions]
-arrow = "1.2.4"
 assertk = "0.28.1"
 awaitility = "4.2.1"
 guava = "33.2.1-jre"
@@ -30,7 +29,6 @@ zjsonpatch = "0.4.16"
 gitVersioningPlugin = "6.4.3"
 
 [libraries]
-arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 assertk = { module = "com.willowtreeapps.assertk:assertk-jvm", version.ref = "assertk" }
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
