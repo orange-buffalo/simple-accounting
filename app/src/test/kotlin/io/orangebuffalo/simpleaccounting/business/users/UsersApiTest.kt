@@ -108,11 +108,8 @@ internal class UsersApiTest(
                 executeAsAdmin = true
 
                 entityMatcher {
-                    responseFields("userName", "admin")
-                    entityFields(
-                        { user -> user.userName },
-                        { user -> user.isAdmin },
-                    )
+                    responseFieldToEntityField("userName", PlatformUser::userName)
+                    responseFieldToEntityField("admin", PlatformUser::isAdmin)
                 }
 
                 val freeSearchTextApiField = "freeSearchText"
