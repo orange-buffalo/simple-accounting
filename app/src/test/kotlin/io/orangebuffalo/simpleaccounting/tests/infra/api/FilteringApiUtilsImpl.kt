@@ -117,21 +117,16 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
     }
 
     private inner class EntityMatcherImpl : EntityMatcher<T> {
-        lateinit var entityFieldExtractors: List<(entity: T) -> Any?>
-        lateinit var responseFieldExtractors: List<(note: JsonNode) -> String>
-
-        override fun entityFields(vararg fieldExtractor: (entity: T) -> Any?) {
-            entityFieldExtractors = fieldExtractor.toList()
-        }
-
-        override fun responseFields(vararg fieldNames: String) {
-            responseFieldExtractors = fieldNames.asSequence()
-                .map(this::jsonFieldValueReader)
-                .toList()
-        }
+        var entityFieldExtractors: MutableList<(entity: T) -> Any?> = mutableListOf()
+        var responseFieldExtractors: MutableList<(note: JsonNode) -> String> = mutableListOf()
 
         private fun jsonFieldValueReader(fieldName: String): (note: JsonNode) -> String = { node ->
             node.get(fieldName)?.asText() ?: ""
+        }
+
+        override fun responseFieldToEntityField(responseField: String, entityField: (T) -> Any?) {
+            entityFieldExtractors.add(entityField)
+            responseFieldExtractors.add(jsonFieldValueReader(responseField))
         }
     }
 

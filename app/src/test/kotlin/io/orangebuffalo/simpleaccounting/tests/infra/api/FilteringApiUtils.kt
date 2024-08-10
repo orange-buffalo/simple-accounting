@@ -101,20 +101,11 @@ interface FilteringApiTestCasesBuilder<T : Any> {
 @FilteringTestApiDslMarker
 interface EntityMatcher<T : Any> {
     /**
-     * Configures the fields that are extracted from the response in order to construct an
+     * Configures the field that is extracted from the response in order to construct an
      * actual result entity. It is then matched against the same extraction from the
-     * preconditions entity as defined by [entityFields].
+     * preconditions entity as defined by [entityField].
      */
-    fun responseFields(vararg fieldNames: String)
-
-    /**
-     * Configures the fields that are extracted from the preconditions entity in order to construct an
-     * expected result entity. It is then matched against the same extraction from the
-     * response as defined by [responseFields].
-     *
-     * The order of the fields should match the order of the fields in [responseFields].
-     */
-    fun entityFields(vararg fieldExtractor: (entity: T) -> Any?)
+    fun responseFieldToEntityField(responseField: String, entityField: (T) -> Any?)
 }
 
 /**
