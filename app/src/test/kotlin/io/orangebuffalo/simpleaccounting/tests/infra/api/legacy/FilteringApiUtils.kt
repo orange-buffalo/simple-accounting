@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.tests.infra.api
+package io.orangebuffalo.simpleaccounting.tests.infra.api.legacy
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
@@ -8,26 +8,24 @@ import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.ArgumentsProvider
-import org.junit.jupiter.params.provider.ArgumentsSource
+import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.util.stream.Stream
 
 /**
  * Annotation to mark classes and interfaces that are part of the Filtering Test API DSL.
  */
 @DslMarker
+@Deprecated("Use new API from parent package")
 annotation class FilteringTestApiDslMarker
 
 /**
  * Generates a collection of FilteringApiTestCase instances based on the provided builder function.
  *
- * To be used in the companion object method "createTestCases" of a test class that extend [FilteringApiTestBase].
+ * To be used in the companion object method "createTestCases" of a test class that extend [AbstractFilteringApiTest].
  *
  * ```
  * @SimpleAccountingIntegrationTest
@@ -44,6 +42,7 @@ annotation class FilteringTestApiDslMarker
  * ```
  * @param init Specification of the filtering test cases.
  */
+@Deprecated("Use new API from parent package")
 inline fun <reified T : Any> generateFilteringApiTests(
     init: FilteringApiTestCasesBuilder<T>.() -> Unit
 ): Collection<FilteringApiTestCase> {
@@ -56,6 +55,7 @@ inline fun <reified T : Any> generateFilteringApiTests(
  * Interface for building filtering test cases.
  */
 @FilteringTestApiDslMarker
+@Deprecated("Use new API from parent package")
 interface FilteringApiTestCasesBuilder<T : Any> {
     /**
      * Base URL for the filtering API. Depending on the value of [workspaceBasedUrl],
@@ -99,6 +99,7 @@ interface FilteringApiTestCasesBuilder<T : Any> {
  * Configures how response entities are matched to the preconditions entities.
  */
 @FilteringTestApiDslMarker
+@Deprecated("Use new API from parent package")
 interface EntityMatcher<T : Any> {
     /**
      * Configures the fields that are extracted from the response in order to construct an
@@ -121,6 +122,7 @@ interface EntityMatcher<T : Any> {
  * Configures filtering specification.
  */
 @FilteringTestApiDslMarker
+@Deprecated("Use new API from parent package")
 interface FilteringTestCaseBuilder<T : Any> {
     /**
      * Registers a new entity in the preconditions and defines
@@ -132,6 +134,7 @@ interface FilteringTestCaseBuilder<T : Any> {
      * Configures a preconditions entity and defines how it reacts on different filters.
      */
     @FilteringTestApiDslMarker
+    @Deprecated("Use new API from parent package")
     interface FilteringEntityBuilder<T : Any> {
         /**
          * Adds an entity to the preconditions, and potentially created additionally required dependencies.
@@ -164,6 +167,7 @@ interface FilteringTestCaseBuilder<T : Any> {
  * Configures sorting specification.
  */
 @FilteringTestApiDslMarker
+@Deprecated("Use new API from parent package")
 interface SortingTestCaseBuilder<T : Any> {
     /**
      * Registers a new test case to execute sorting by the specified field in ascending order.
@@ -179,6 +183,7 @@ interface SortingTestCaseBuilder<T : Any> {
      * Configures a list of expected entities for the sorting test case.
      */
     @FilteringTestApiDslMarker
+    @Deprecated("Use new API from parent package")
     interface EntitiesBuilder<T : Any> {
         /**
          * Registers a new entity in the preconditions and adds it to the
@@ -195,6 +200,7 @@ interface SortingTestCaseBuilder<T : Any> {
  * to be properly persisted, or when filtering concerns related entities.
  */
 @FilteringTestApiDslMarker
+@Deprecated("Use new API from parent package")
 interface EntitiesRegistry {
     /**
      * The workspace for which tests are executed
@@ -218,6 +224,7 @@ interface EntitiesRegistry {
  * A filtering/sorting test case. Not intended to be used directly.
  * Use [generateFilteringApiTests] to create a collection of test cases and configure them.
  */
+@Deprecated("Use new API from parent package")
 abstract class FilteringApiTestCase {
     abstract fun execute(client: WebTestClient, entitiesFactoryInfra: EntitiesFactoryInfra)
 }
@@ -226,9 +233,11 @@ abstract class FilteringApiTestCase {
  * Base class for integration tests that test the filtering API.
  * See [generateFilteringApiTests] for more details and usage guidelines.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// todo #229: investigate why random port is not applied when specified only on a base class
 @SimpleAccountingIntegrationTest
-abstract class FilteringApiTestBase {
+@MockitoSettings(strictness = Strictness.LENIENT)
+@Deprecated("Use new API from parent package")
+abstract class AbstractFilteringApiTest {
 
     @Autowired
     lateinit var client: WebTestClient
@@ -240,21 +249,10 @@ abstract class FilteringApiTestBase {
     lateinit var entitiesFactoryInfra: EntitiesFactoryInfra
 
     @ParameterizedTest
-    @ArgumentsSource(FilteringApiTestArgumentsProvider::class)
+    @MethodSource("createTestCases")
     fun testFilteringApi(testCase: FilteringApiTestCase) {
         mockCurrentDate(timeService)
         mockCurrentTime(timeService)
         testCase.execute(client, entitiesFactoryInfra)
-    }
-
-    abstract fun createTestCases(): Collection<FilteringApiTestCase>
-
-    class FilteringApiTestArgumentsProvider : ArgumentsProvider {
-        override fun provideArguments(extensionContext: ExtensionContext): Stream<out Arguments> {
-            val testInstance = extensionContext.testInstance.get() as FilteringApiTestBase
-            return testInstance.createTestCases()
-                .stream()
-                .map { Arguments.of(it) }
-        }
     }
 }
