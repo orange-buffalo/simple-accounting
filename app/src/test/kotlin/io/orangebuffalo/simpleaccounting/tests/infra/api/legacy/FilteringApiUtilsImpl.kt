@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.tests.infra.api
+package io.orangebuffalo.simpleaccounting.tests.infra.api.legacy
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
@@ -11,6 +11,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.kotlinEquals
 import io.orangebuffalo.simpleaccounting.infra.kotlinHashCode
+import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.tests.infra.security.asFarnsworth
@@ -22,6 +23,7 @@ import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
+@Deprecated("Use new API from parent package")
 class FilteringApiTestCasesBuilderImpl<T : Any>(
     entityType: KClass<T>
 ) : FilteringApiTestCasesBuilder<T> {
