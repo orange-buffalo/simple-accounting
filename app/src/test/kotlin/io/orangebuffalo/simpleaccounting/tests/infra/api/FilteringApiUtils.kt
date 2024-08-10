@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import java.util.stream.Stream
 
 /**
@@ -210,7 +210,11 @@ interface EntitiesRegistry {
  * Use [generateFilteringApiTests] to create a collection of test cases and configure them.
  */
 abstract class FilteringApiTestCase {
-    abstract fun execute(client: WebTestClient, entitiesFactoryInfra: EntitiesFactoryInfra)
+    abstract fun execute(
+        client: ApiTestClient,
+        entitiesFactoryInfra: EntitiesFactoryInfra,
+        jdbcAggregateTemplate: JdbcAggregateTemplate
+    )
 }
 
 /**
@@ -222,7 +226,7 @@ abstract class FilteringApiTestCase {
 abstract class FilteringApiTestBase {
 
     @Autowired
-    lateinit var client: WebTestClient
+    lateinit var client: ApiTestClient
 
     @Autowired
     lateinit var timeService: TimeService
@@ -230,12 +234,15 @@ abstract class FilteringApiTestBase {
     @Autowired
     lateinit var entitiesFactoryInfra: EntitiesFactoryInfra
 
+    @Autowired
+    lateinit var jdbcAggregateTemplate: JdbcAggregateTemplate
+
     @ParameterizedTest
     @ArgumentsSource(FilteringApiTestArgumentsProvider::class)
     fun testFilteringApi(testCase: FilteringApiTestCase) {
         mockCurrentDate(timeService)
         mockCurrentTime(timeService)
-        testCase.execute(client, entitiesFactoryInfra)
+        testCase.execute(client, entitiesFactoryInfra, jdbcAggregateTemplate)
     }
 
     abstract fun createTestCases(): Collection<FilteringApiTestCase>

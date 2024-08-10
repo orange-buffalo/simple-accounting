@@ -13,11 +13,10 @@ import io.orangebuffalo.simpleaccounting.infra.kotlinEquals
 import io.orangebuffalo.simpleaccounting.infra.kotlinHashCode
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
-import io.orangebuffalo.simpleaccounting.tests.infra.security.asFarnsworth
-import io.orangebuffalo.simpleaccounting.tests.infra.security.asFry
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.combine
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.logger
-import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
@@ -236,7 +235,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
     private inner class FilteringTestCase : AbstractFilteringApiTestCase(
         initialUrl = baseUrl,
         workspaceBasedUrl = workspaceBasedUrl,
-        executeAsAdmin = executeAsAdmin
+        executeAsAdmin = executeAsAdmin,
     ) {
 
         private val filters: MutableList<String> = mutableListOf()
@@ -320,23 +319,31 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
 
         abstract fun generateData(entitiesRegistry: EntitiesRegistry)
 
-        override fun execute(client: WebTestClient, entitiesFactoryInfra: EntitiesFactoryInfra) {
-            val entitiesRegistry: EntitiesRegistry = EntitiesRegistryImpl(
+        override fun execute(
+            client: ApiTestClient,
+            entitiesFactoryInfra: EntitiesFactoryInfra,
+            jdbcAggregateTemplate: JdbcAggregateTemplate
+        ) {
+            val entitiesRegistry = EntitiesRegistryImpl(
                 skipWorkspaceEntities = !workspaceBasedUrl,
                 entitiesFactory = EntitiesFactory(entitiesFactoryInfra),
+                jdbcAggregateTemplate = jdbcAggregateTemplate,
             )
             generateData(entitiesRegistry)
 
-            logger.info { "Executing $this" }
+            val apiCaller = if (executeAsAdmin) entitiesRegistry.getOrCreateAdminUser()
+            else entitiesRegistry.targetWorkspaceOwner
+
+            logger.info { "Executing $this as ${apiCaller.userName}" }
             val requestUrl = if (workspaceBasedUrl) {
                 "/api/workspaces/${entitiesRegistry.targetWorkspace.id}/$url"
             } else {
                 "/api/$url"
             }
             client
-                .let { if (executeAsAdmin) it.asFarnsworth() else it.asFry() }
                 .get()
                 .uri(requestUrl)
+                .from(apiCaller)
                 .verifyOkAndBody { body ->
                     val objectMapper = ObjectMapper()
                     val jsonResponse = objectMapper.readTree(body)
@@ -373,6 +380,7 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
     private class EntitiesRegistryImpl(
         skipWorkspaceEntities: Boolean,
         override val entitiesFactory: EntitiesFactory,
+        private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     ) : EntitiesRegistry {
 
         private val _workspaceOwner: PlatformUser? = if (skipWorkspaceEntities) null
@@ -396,5 +404,13 @@ class FilteringApiTestCasesBuilderImpl<T : Any>(
                 }
                 return _workspace
             }
+
+        fun getOrCreateAdminUser(): PlatformUser {
+            val maybeAdmin = jdbcAggregateTemplate.findAll<PlatformUser>()
+                .firstOrNull { it.isAdmin }
+            if (maybeAdmin != null) return maybeAdmin
+
+            return entitiesFactory.platformUser(userName = "Admin (EntitiesRegistryImpl)", isAdmin = true)
+        }
     }
 }
