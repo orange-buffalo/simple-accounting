@@ -18,10 +18,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
@@ -203,7 +200,7 @@ class DocumentsApiTest(
             .bodyValue(preconditions.createDefaultFileToUpload().build())
             .verifyOkAndJsonBodyEqualTo {
                 put("name", "test-file.txt")
-                put("id", "\${json-unit.any-number}")
+                put("id", "${JsonValues.ANY_NUMBER}")
                 put("version", 0)
                 put("timeUploaded", MOCK_TIME_VALUE)
                 put("sizeInBytes", 42)

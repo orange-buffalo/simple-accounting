@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -136,7 +137,7 @@ internal class CustomersApiTest(
             .verifyOkAndJsonBody(
                 """{
                     name: "new space customer",
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0
                 }"""
             )

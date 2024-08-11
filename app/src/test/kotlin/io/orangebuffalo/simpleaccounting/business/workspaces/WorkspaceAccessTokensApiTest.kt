@@ -11,6 +11,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import kotlinx.serialization.json.addJsonObject
@@ -139,7 +140,7 @@ class WorkspaceAccessTokensApiTest(
             )
             .verifyOkAndJsonBody(
                 """{
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     validTill: "$ANOTHER_MOCK_TIME_VALUE",
                     revoked: false,

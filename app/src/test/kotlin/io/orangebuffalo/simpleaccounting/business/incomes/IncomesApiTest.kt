@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
@@ -240,7 +241,7 @@ internal class IncomesApiTest(
                     useDifferentExchangeRateForIncomeTaxPurposes: true,
                     attachments: [${preconditions.spaceDeliveryPayslip.id}],
                     notes: "delivery",
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     dateReceived: "$MOCK_DATE_VALUE",
                     timeRecorded: "$MOCK_TIME_VALUE",
@@ -291,7 +292,7 @@ internal class IncomesApiTest(
                         adjustedAmountInDefaultCurrency: 150
                     },
                     useDifferentExchangeRateForIncomeTaxPurposes: false,
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     dateReceived: "$MOCK_DATE_VALUE",
                     timeRecorded: "$MOCK_TIME_VALUE",

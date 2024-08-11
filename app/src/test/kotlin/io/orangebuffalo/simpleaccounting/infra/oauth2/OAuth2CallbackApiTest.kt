@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegration
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -80,7 +81,7 @@ class OAuth2CallbackApiTest(
             .expectThatJsonBody {
                 shouldBeEqualToJson(
                     """{
-                        "errorId": "#{json-unit.any-string}"    
+                        "errorId": "${JsonValues.ANY_STRING}"    
                     }"""
                 )
             }

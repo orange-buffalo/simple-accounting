@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
@@ -199,7 +200,7 @@ internal class InvoicesApiTest(
                     currency: "TGF",
                     amount: 400,
                     attachments: [${preconditions.spaceDeliveryInvoicePrint.id}],
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     dateIssued: "3000-02-01",
                     datePaid: "3000-02-04",
@@ -246,7 +247,7 @@ internal class InvoicesApiTest(
                     currency: "USD",
                     amount: 30000,
                     attachments: [],
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     dateIssued: "3000-02-01",
                     dueDate: "3000-02-02",

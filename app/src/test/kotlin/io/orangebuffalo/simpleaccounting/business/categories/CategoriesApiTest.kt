@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqua
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -114,7 +115,7 @@ internal class CategoriesApiTest(
             .verifyOkAndJsonBody(
                 """{
                     name: "1990s stuff",
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     description: "Stuff from the best time",
                     income: false,
