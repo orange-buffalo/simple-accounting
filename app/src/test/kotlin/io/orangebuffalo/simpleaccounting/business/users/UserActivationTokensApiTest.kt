@@ -9,15 +9,11 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.ApiRequestsBodyConfiguration
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.ApiRequestsValidationsTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import net.javacrumbs.jsonunit.kotest.configuration
 import org.assertj.core.matcher.AssertionMatcher
-import org.hamcrest.CustomMatcher
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -271,7 +267,7 @@ class UserActivationTokensApiTest(
                 .exchange()
                 .expectStatus().isCreated
                 .expectThatJsonBodyEqualTo(configuration = withDbTokenValueForUserMatcher(preconditions.userWithoutToken)) {
-                    put("token", "#{json-unit.matches:dbTokenValue}")
+                    put("token", JsonValues.matchingBy("dbTokenValue"))
                     put("expiresAt", "1999-03-29T04:01:02.042Z")
                 }
         }
@@ -283,7 +279,7 @@ class UserActivationTokensApiTest(
                 .exchange()
                 .expectStatus().isCreated
                 .expectThatJsonBodyEqualTo(configuration = withDbTokenValueForUserMatcher(preconditions.userWithToken)) {
-                    put("token", "#{json-unit.matches:dbTokenValue}")
+                    put("token", JsonValues.matchingBy("dbTokenValue"))
                     put("expiresAt", "1999-03-29T04:01:02.042Z")
                 }
 

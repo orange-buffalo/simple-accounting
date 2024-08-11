@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
@@ -262,7 +263,7 @@ internal class ExpensesApiTest(
                     attachments: [${preconditions.slurmReceipt.id}],
                     notes: "coffee",
                     percentOnBusiness: 100,
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     datePaid: "$MOCK_DATE_VALUE",
                     timeRecorded: "$MOCK_TIME_VALUE",
@@ -314,7 +315,7 @@ internal class ExpensesApiTest(
                     },
                     useDifferentExchangeRateForIncomeTaxPurposes: false,
                     percentOnBusiness: 100,
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     datePaid: "$MOCK_DATE_VALUE",
                     timeRecorded: "$MOCK_TIME_VALUE",

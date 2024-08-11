@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworth
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.serialization.json.addJsonObject
@@ -128,7 +129,7 @@ internal class WorkspacesApiTest(
             .verifyOkAndJsonBody(
                 """{
                     name: "wp",
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     taxEnabled: false,
                     multiCurrencyEnabled: true,

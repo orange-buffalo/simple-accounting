@@ -6,10 +6,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE_VALUE
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
@@ -178,7 +175,7 @@ internal class IncomeTaxPaymentsApiTest(
                     notes: "space delivery new tax payment",
                     datePaid: "$MOCK_DATE_VALUE",
                     reportingDate: "$MOCK_DATE_VALUE",
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     timeRecorded: "$MOCK_TIME_VALUE"
                 }"""
@@ -214,7 +211,7 @@ internal class IncomeTaxPaymentsApiTest(
                     attachments: [],
                     datePaid: "$MOCK_DATE_VALUE",
                     reportingDate: "$MOCK_DATE_VALUE",
-                    id: "#{json-unit.any-number}",
+                    id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
                     timeRecorded: "$MOCK_TIME_VALUE"
                 }"""

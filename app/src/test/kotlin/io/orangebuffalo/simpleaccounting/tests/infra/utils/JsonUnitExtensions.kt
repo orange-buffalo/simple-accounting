@@ -10,3 +10,10 @@ fun Any?.shouldBeJsonInteger(): Int {
         }
         .intValueExact()
 }
+
+object JsonValues {
+    const val ANY_NUMBER: String = "#{json-unit.any-number}"
+    const val ANY_STRING: String = "#{json-unit.any-string}"
+
+    fun matchingBy(matcher: String) = "#{json-unit.matches:$matcher}"
+}

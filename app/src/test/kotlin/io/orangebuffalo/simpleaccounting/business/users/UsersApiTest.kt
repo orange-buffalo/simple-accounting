@@ -230,7 +230,7 @@ internal class UsersApiTest(
                 .from(preconditions.farnsworth)
                 .verifyCreatedAndJsonBodyEqualTo {
                     put("userName", "Leela")
-                    put("id", "#{json-unit.any-number}")
+                    put("id", JsonValues.ANY_NUMBER)
                     put("version", 0)
                     put("admin", false)
                     put("activated", false)
