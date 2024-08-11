@@ -2,17 +2,17 @@ package io.orangebuffalo.simpleaccounting.business.invoices
 
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
+import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -47,48 +47,44 @@ internal class InvoicesApiTest(
 
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices")
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("2")
-
-                inPath("$.data").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            customer: ${preconditions.spaceCustomer.id},
-                            title: "first space invoice",
-                            currency: "THF",
-                            amount: 60,
-                            attachments: [${preconditions.spaceDeliveryInvoicePrint.id}],
-                            id: ${preconditions.firstSpaceInvoice.id},
-                            version: 0,
-                            dateIssued: "3000-01-01",
-                            datePaid: "3000-01-04",
-                            dateSent: "3000-01-03",
-                            dueDate: "3000-01-05",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "DRAFT",
-                            notes: "space notes",
-                            generalTax: ${preconditions.planetExpressTax.id}
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                            customer: ${preconditions.anotherSpaceCustomer.id},
-                            title: "second space invoice",
-                            currency: "ZXF",
-                            amount: 70,
-                            attachments: [],
-                            id: ${preconditions.secondSpaceInvoice.id},
-                            version: 0,
-                            dateIssued: "3000-01-06",
-                            dueDate: "3000-01-07",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "DRAFT"
-                    }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 2)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("customer", preconditions.anotherSpaceCustomer.id)
+                        put("title", "second space invoice")
+                        put("currency", "ZXF")
+                        put("amount", 70)
+                        putJsonArray("attachments") {}
+                        put("id", preconditions.secondSpaceInvoice.id)
+                        put("version", 0)
+                        put("dateIssued", "3000-01-06")
+                        put("dueDate", "3000-01-07")
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "DRAFT")
+                    }
+                    addJsonObject {
+                        put("customer", preconditions.spaceCustomer.id)
+                        put("title", "first space invoice")
+                        put("currency", "THF")
+                        put("amount", 60)
+                        putJsonArray("attachments") {
+                            add(preconditions.spaceDeliveryInvoicePrint.id)
+                        }
+                        put("id", preconditions.firstSpaceInvoice.id)
+                        put("version", 0)
+                        put("dateIssued", "3000-01-01")
+                        put("datePaid", "3000-01-04")
+                        put("dateSent", "3000-01-03")
+                        put("dueDate", "3000-01-05")
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "DRAFT")
+                        put("notes", "space notes")
+                        put("generalTax", preconditions.planetExpressTax.id)
+                    }
+                }
             }
     }
 
@@ -124,25 +120,21 @@ internal class InvoicesApiTest(
 
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices/${preconditions.secondSpaceInvoice.id}")
-            .verifyOkAndJsonBody {
-                inPath("$").isEqualTo(
-                    json(
-                        """{
-                            customer: ${preconditions.anotherSpaceCustomer.id},
-                            title: "second space invoice",
-                            currency: "ZXF",
-                            amount: 70,
-                            attachments: [],
-                            id: ${preconditions.secondSpaceInvoice.id},
-                            version: 0,
-                            dateIssued: "3000-01-06",
-                            dueDate: "3000-01-07",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "DRAFT"
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    customer: ${preconditions.anotherSpaceCustomer.id},
+                    title: "second space invoice",
+                    currency: "ZXF",
+                    amount: 70,
+                    attachments: [],
+                    id: ${preconditions.secondSpaceInvoice.id},
+                    version: 0,
+                    dateIssued: "3000-01-06",
+                    dueDate: "3000-01-07",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "DRAFT"
+                }"""
+            )
     }
 
     @Test
@@ -200,29 +192,25 @@ internal class InvoicesApiTest(
                     "generalTax": ${preconditions.planetExpressTax.id}
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            customer: ${preconditions.spaceCustomer.id},
-                            title: "new invoice",
-                            currency: "TGF",
-                            amount: 400,
-                            attachments: [${preconditions.spaceDeliveryInvoicePrint.id}],
-                            id: "#{json-unit.any-number}",
-                            version: 0,
-                            dateIssued: "3000-02-01",
-                            datePaid: "3000-02-04",
-                            dateSent: "3000-02-03",
-                            dueDate: "3000-02-05",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "PAID",
-                            notes: "new space notes",
-                            generalTax: ${preconditions.planetExpressTax.id}
-                        }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    customer: ${preconditions.spaceCustomer.id},
+                    title: "new invoice",
+                    currency: "TGF",
+                    amount: 400,
+                    attachments: [${preconditions.spaceDeliveryInvoicePrint.id}],
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    dateIssued: "3000-02-01",
+                    datePaid: "3000-02-04",
+                    dateSent: "3000-02-03",
+                    dueDate: "3000-02-05",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "PAID",
+                    notes: "new space notes",
+                    generalTax: ${preconditions.planetExpressTax.id}
+                }"""
+            )
     }
 
     @Test
@@ -251,25 +239,21 @@ internal class InvoicesApiTest(
                     "dueDate": "3000-02-02"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            customer: ${preconditions.spaceCustomer.id},
-                            title: "new invoice",
-                            currency: "USD",
-                            amount: 30000,
-                            attachments: [],
-                            id: "#{json-unit.any-number}",
-                            version: 0,
-                            dateIssued: "3000-02-01",
-                            dueDate: "3000-02-02",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "DRAFT"
-                        }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    customer: ${preconditions.spaceCustomer.id},
+                    title: "new invoice",
+                    currency: "USD",
+                    amount: 30000,
+                    attachments: [],
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    dateIssued: "3000-02-01",
+                    dueDate: "3000-02-02",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "DRAFT"
+                }"""
+            )
     }
 
     @Test
@@ -413,29 +397,25 @@ internal class InvoicesApiTest(
                     "generalTax": ${preconditions.planetExpressTax.id}
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            customer: ${preconditions.spaceCustomer.id},
-                            title: "updated invoice",
-                            currency: "TGF",
-                            amount: 400,
-                            attachments: [${preconditions.spaceDeliveryInvoicePrint.id}],
-                            id: ${preconditions.secondSpaceInvoice.id},
-                            version: 1,
-                            dateIssued: "3000-02-01",
-                            datePaid: "3000-02-04",
-                            dateSent: "3000-02-03",
-                            dueDate: "3000-02-05",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "PAID",
-                            notes: "new space notes",
-                            generalTax: ${preconditions.planetExpressTax.id}
-                        }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    customer: ${preconditions.spaceCustomer.id},
+                    title: "updated invoice",
+                    currency: "TGF",
+                    amount: 400,
+                    attachments: [${preconditions.spaceDeliveryInvoicePrint.id}],
+                    id: ${preconditions.secondSpaceInvoice.id},
+                    version: 1,
+                    dateIssued: "3000-02-01",
+                    datePaid: "3000-02-04",
+                    dateSent: "3000-02-03",
+                    dueDate: "3000-02-05",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "PAID",
+                    notes: "new space notes",
+                    generalTax: ${preconditions.planetExpressTax.id}
+                }"""
+            )
     }
 
     @Test
@@ -455,25 +435,21 @@ internal class InvoicesApiTest(
                     "dueDate": "3000-02-02"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            customer: ${preconditions.spaceCustomer.id},
-                            title: "updated invoice",
-                            currency: "USD",
-                            amount: 30000,
-                            attachments: [],
-                            id: ${preconditions.firstSpaceInvoice.id},
-                            version: 1,
-                            dateIssued: "3000-02-01",
-                            dueDate: "3000-02-02",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "DRAFT"
-                        }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    customer: ${preconditions.spaceCustomer.id},
+                    title: "updated invoice",
+                    currency: "USD",
+                    amount: 30000,
+                    attachments: [],
+                    id: ${preconditions.firstSpaceInvoice.id},
+                    version: 1,
+                    dateIssued: "3000-02-01",
+                    dueDate: "3000-02-02",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "DRAFT"
+                }"""
+            )
     }
 
     @Test
@@ -649,29 +625,25 @@ internal class InvoicesApiTest(
 
         client.post()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices/${preconditions.firstSpaceInvoice.id}/cancel")
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            customer: ${preconditions.spaceCustomer.id},
-                            title: "first space invoice",
-                            currency: "THF",
-                            amount: 60,
-                            attachments: [${preconditions.spaceDeliveryInvoicePrint.id}],
-                            id: ${preconditions.firstSpaceInvoice.id},
-                            version: 1,
-                            dateIssued: "3000-01-01",
-                            datePaid: "3000-01-04",
-                            dateSent: "3000-01-03",
-                            dueDate: "3000-01-05",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "CANCELLED",
-                            notes: "space notes",
-                            generalTax: ${preconditions.planetExpressTax.id}
-                        }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    customer: ${preconditions.spaceCustomer.id},
+                    title: "first space invoice",
+                    currency: "THF",
+                    amount: 60,
+                    attachments: [${preconditions.spaceDeliveryInvoicePrint.id}],
+                    id: ${preconditions.firstSpaceInvoice.id},
+                    version: 1,
+                    dateIssued: "3000-01-01",
+                    datePaid: "3000-01-04",
+                    dateSent: "3000-01-03",
+                    dueDate: "3000-01-05",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "CANCELLED",
+                    notes: "space notes",
+                    generalTax: ${preconditions.planetExpressTax.id}
+                }"""
+            )
     }
 
     private val preconditions by preconditionsFactory {

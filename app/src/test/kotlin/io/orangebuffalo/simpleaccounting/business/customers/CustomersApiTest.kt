@@ -1,14 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.customers
 
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
+import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,28 +32,22 @@ internal class CustomersApiTest(
     fun `should return customers of a workspace of current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/customers")
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("2")
-
-                inPath("$.data").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            name: "first space customer",
-                            id: ${preconditions.firstSpaceCustomer.id},
-                            version: 0
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                            name: "second space customer",
-                            id: ${preconditions.secondSpaceCustomer.id},
-                            version: 0
-                    }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 2)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("name", "second space customer")
+                        put("id", preconditions.secondSpaceCustomer.id)
+                        put("version", 0)
+                    }
+                    addJsonObject {
+                        put("name", "first space customer")
+                        put("id", preconditions.firstSpaceCustomer.id)
+                        put("version", 0)
+                    }
+                }
             }
     }
 
@@ -88,17 +81,13 @@ internal class CustomersApiTest(
     fun `should return customer by id for current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/customers/${preconditions.firstSpaceCustomer.id}")
-            .verifyOkAndJsonBody {
-                inPath("$").isEqualTo(
-                    json(
-                        """{
-                            name: "first space customer",
-                            id: ${preconditions.firstSpaceCustomer.id},
-                            version: 0
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    name: "first space customer",
+                    id: ${preconditions.firstSpaceCustomer.id},
+                    version: 0
+                }"""
+            )
     }
 
     @Test
@@ -144,17 +133,13 @@ internal class CustomersApiTest(
                     "name": "new space customer"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            name: "new space customer",
-                            id: "#{json-unit.any-number}",
-                            version: 0
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    name: "new space customer",
+                    id: "#{json-unit.any-number}",
+                    version: 0
+                }"""
+            )
     }
 
     @Test
@@ -183,17 +168,13 @@ internal class CustomersApiTest(
                     "name": "updated customer"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            name: "updated customer",
-                            id: ${preconditions.firstSpaceCustomer.id},
-                            version: 1
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    name: "updated customer",
+                    id: ${preconditions.firstSpaceCustomer.id},
+                    version: 1
+                }"""
+            )
     }
 
     private val preconditions by preconditionsFactory {

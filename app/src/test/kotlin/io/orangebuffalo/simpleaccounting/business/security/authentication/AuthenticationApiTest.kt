@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import com.nhaarman.mockitokotlin2.*
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
@@ -17,6 +18,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import net.javacrumbs.jsonunit.kotest.inPath
+import net.javacrumbs.jsonunit.kotest.shouldBeJsonString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -139,7 +142,7 @@ class AuthenticationApiTest(
             .exchange()
             .expectStatus().isUnauthorized
             .expectThatJsonBody {
-                inPath("$.error").isEqualTo("BadCredentials")
+                inPath("$.error").shouldBeJsonString().shouldBe("BadCredentials")
             }
     }
 
@@ -158,7 +161,7 @@ class AuthenticationApiTest(
             .exchange()
             .expectStatus().isUnauthorized
             .expectThatJsonBody {
-                inPath("$.error").isEqualTo("BadCredentials")
+                inPath("$.error").shouldBeJsonString().shouldBe("BadCredentials")
             }
     }
 
@@ -175,7 +178,7 @@ class AuthenticationApiTest(
             .exchange()
             .expectStatus().isUnauthorized
             .expectThatJsonBody {
-                inPath("$.error").isEqualTo("BadCredentials")
+                inPath("$.error").shouldBeJsonString().shouldBe("BadCredentials")
             }
     }
 

@@ -13,7 +13,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworth
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -144,15 +143,11 @@ class ProfileApiTest(
 
         client.get()
             .uri("/api/profile/documents-storage")
-            .verifyOkAndJsonBody {
-                inPath("$").isEqualTo(
-                    json(
-                        """{
-                            "active": true
-                        }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    "active": true
+                }"""
+            )
     }
 
     @Test

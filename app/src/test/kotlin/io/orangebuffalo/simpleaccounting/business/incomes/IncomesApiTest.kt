@@ -3,17 +3,14 @@ package io.orangebuffalo.simpleaccounting.business.incomes
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
+import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -45,82 +42,72 @@ internal class IncomesApiTest(
     fun `should return incomes of a workspace of current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/incomes")
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("3")
-
-                inPath("$.data").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            category: ${preconditions.spaceDeliveryCategory.id},
-                            title: "first space delivery",
-                            currency: "THF",
-                            originalAmount: 5000,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 520,
-                                adjustedAmountInDefaultCurrency: 500
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 450,
-                                adjustedAmountInDefaultCurrency: 430
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [],
-                            id: ${preconditions.firstSpaceIncome.id},
-                            version: 0,
-                            dateReceived: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED",
-                            generalTax: ${preconditions.spaceTax.id},
-                            generalTaxAmount: 20,
-                            generalTaxRateInBps: 12000,
-                            linkedInvoice: ${preconditions.firstSpaceInvoice.id}
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                            category: ${preconditions.spaceDeliveryCategory.id},
-                            title: "second space delivery",
-                            currency: "ZZB",
-                            originalAmount: 5100,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 510,
-                                adjustedAmountInDefaultCurrency: 510
-                            },
-                            incomeTaxableAmounts: {
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [${preconditions.spaceDeliveryPayslip.id}],
-                            notes: "nice!",
-                            id: ${preconditions.secondSpaceIncome.id},
-                            version: 0,
-                            dateReceived: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "PENDING_CONVERSION_FOR_TAXATION_PURPOSES"
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                            title: "third space delivery",
-                            currency: "ZZA",
-                            originalAmount: 200,
-                            convertedAmounts: {
-                            },
-                            incomeTaxableAmounts: {
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: false,
-                            attachments: [],
-                            id: ${preconditions.thirdSpaceIncome.id},
-                            version: 0,
-                            dateReceived: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "PENDING_CONVERSION"
-                    }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 3)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("category", preconditions.spaceDeliveryCategory.id)
+                        put("title", "first space delivery")
+                        put("currency", "THF")
+                        put("originalAmount", 5000)
+                        putJsonObject("convertedAmounts") {
+                            put("originalAmountInDefaultCurrency", 520)
+                            put("adjustedAmountInDefaultCurrency", 500)
+                        }
+                        putJsonObject("incomeTaxableAmounts") {
+                            put("originalAmountInDefaultCurrency", 450)
+                            put("adjustedAmountInDefaultCurrency", 430)
+                        }
+                        put("useDifferentExchangeRateForIncomeTaxPurposes", true)
+                        putJsonArray("attachments") {}
+                        put("id", preconditions.firstSpaceIncome.id)
+                        put("version", 0)
+                        put("dateReceived", MOCK_DATE_VALUE)
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "FINALIZED")
+                        put("generalTax", preconditions.spaceTax.id)
+                        put("generalTaxAmount", 20)
+                        put("generalTaxRateInBps", 12000)
+                        put("linkedInvoice", preconditions.firstSpaceInvoice.id)
+                    }
+                    addJsonObject {
+                        put("category", preconditions.spaceDeliveryCategory.id)
+                        put("title", "second space delivery")
+                        put("currency", "ZZB")
+                        put("originalAmount", 5100)
+                        putJsonObject("convertedAmounts") {
+                            put("originalAmountInDefaultCurrency", 510)
+                            put("adjustedAmountInDefaultCurrency", 510)
+                        }
+                        putJsonObject("incomeTaxableAmounts") {}
+                        put("useDifferentExchangeRateForIncomeTaxPurposes", true)
+                        putJsonArray("attachments") {
+                            add(preconditions.spaceDeliveryPayslip.id)
+                        }
+                        put("notes", "nice!")
+                        put("id", preconditions.secondSpaceIncome.id)
+                        put("version", 0)
+                        put("dateReceived", MOCK_DATE_VALUE)
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "PENDING_CONVERSION_FOR_TAXATION_PURPOSES")
+                    }
+                    addJsonObject {
+                        put("title", "third space delivery")
+                        put("currency", "ZZA")
+                        put("originalAmount", 200)
+                        putJsonObject("convertedAmounts") {}
+                        putJsonObject("incomeTaxableAmounts") {}
+                        put("useDifferentExchangeRateForIncomeTaxPurposes", false)
+                        putJsonArray("attachments") {}
+                        put("id", preconditions.thirdSpaceIncome.id)
+                        put("version", 0)
+                        put("dateReceived", MOCK_DATE_VALUE)
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "PENDING_CONVERSION")
+                    }
+                }
             }
     }
 
@@ -154,37 +141,33 @@ internal class IncomesApiTest(
     fun `should return income by id for current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/incomes/${preconditions.firstSpaceIncome.id}")
-            .verifyOkAndJsonBody {
-                inPath("$").isEqualTo(
-                    json(
-                        """{
-                            category: ${preconditions.spaceDeliveryCategory.id},
-                            title: "first space delivery",
-                            currency: "THF",
-                            originalAmount: 5000,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 520,
-                                adjustedAmountInDefaultCurrency: 500
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 450,
-                                adjustedAmountInDefaultCurrency: 430
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [],
-                            id: ${preconditions.firstSpaceIncome.id},
-                            version: 0,
-                            dateReceived: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED",
-                            generalTax: ${preconditions.spaceTax.id},
-                            generalTaxAmount: 20,
-                            generalTaxRateInBps: 12000,
-                            linkedInvoice: ${preconditions.firstSpaceInvoice.id}
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    category: ${preconditions.spaceDeliveryCategory.id},
+                    title: "first space delivery",
+                    currency: "THF",
+                    originalAmount: 5000,
+                    convertedAmounts: {
+                        originalAmountInDefaultCurrency: 520,
+                        adjustedAmountInDefaultCurrency: 500
+                    },
+                    incomeTaxableAmounts: {
+                        originalAmountInDefaultCurrency: 450,
+                        adjustedAmountInDefaultCurrency: 430
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: true,
+                    attachments: [],
+                    id: ${preconditions.firstSpaceIncome.id},
+                    version: 0,
+                    dateReceived: "$MOCK_DATE_VALUE",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "FINALIZED",
+                    generalTax: ${preconditions.spaceTax.id},
+                    generalTaxAmount: 20,
+                    generalTaxRateInBps: 12000,
+                    linkedInvoice: ${preconditions.firstSpaceInvoice.id}
+                }"""
+            )
     }
 
     @Test
@@ -240,37 +223,33 @@ internal class IncomesApiTest(
                     "generalTax": ${preconditions.planetExpressTax.id}
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            category: ${preconditions.spaceDeliveryCategory.id},
-                            title: "new space delivery",
-                            currency: "AUD",
-                            originalAmount: 30000,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 42000,
-                                adjustedAmountInDefaultCurrency: 38182
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 37727,
-                                adjustedAmountInDefaultCurrency: 34297
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [${preconditions.spaceDeliveryPayslip.id}],
-                            notes: "delivery",
-                            id: "#{json-unit.any-number}",
-                            version: 0,
-                            dateReceived: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED",
-                            generalTax: ${preconditions.planetExpressTax.id},
-                            generalTaxRateInBps: 1000,
-                            generalTaxAmount: 3430
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    category: ${preconditions.spaceDeliveryCategory.id},
+                    title: "new space delivery",
+                    currency: "AUD",
+                    originalAmount: 30000,
+                    convertedAmounts: {
+                        originalAmountInDefaultCurrency: 42000,
+                        adjustedAmountInDefaultCurrency: 38182
+                    },
+                    incomeTaxableAmounts: {
+                        originalAmountInDefaultCurrency: 37727,
+                        adjustedAmountInDefaultCurrency: 34297
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: true,
+                    attachments: [${preconditions.spaceDeliveryPayslip.id}],
+                    notes: "delivery",
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    dateReceived: "$MOCK_DATE_VALUE",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "FINALIZED",
+                    generalTax: ${preconditions.planetExpressTax.id},
+                    generalTaxRateInBps: 1000,
+                    generalTaxAmount: 3430
+                }"""
+            )
     }
 
     @Test
@@ -297,33 +276,29 @@ internal class IncomesApiTest(
                     "dateReceived": "$MOCK_DATE_VALUE"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            category: ${preconditions.spaceDeliveryCategory.id},
-                            title: "new income",
-                            currency: "USD",
-                            originalAmount: 150,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 150,
-                                adjustedAmountInDefaultCurrency: 150
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 150,
-                                adjustedAmountInDefaultCurrency: 150
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: false,
-                            id: "#{json-unit.any-number}",
-                            version: 0,
-                            dateReceived: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            attachments: [],
-                            status: "FINALIZED"
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    category: ${preconditions.spaceDeliveryCategory.id},
+                    title: "new income",
+                    currency: "USD",
+                    originalAmount: 150,
+                    convertedAmounts: {
+                        originalAmountInDefaultCurrency: 150,
+                        adjustedAmountInDefaultCurrency: 150
+                    },
+                    incomeTaxableAmounts: {
+                        originalAmountInDefaultCurrency: 150,
+                        adjustedAmountInDefaultCurrency: 150
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: false,
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    dateReceived: "$MOCK_DATE_VALUE",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    attachments: [],
+                    status: "FINALIZED"
+                }"""
+            )
     }
 
     @Test
@@ -476,38 +451,34 @@ internal class IncomesApiTest(
                     "linkedInvoice": ${preconditions.secondSpaceInvoice.id}
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            category: ${preconditions.pensionCategory.id},
-                            title: "space -> pension",
-                            currency: "HHD",
-                            originalAmount: 20000,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 30000,
-                                adjustedAmountInDefaultCurrency: 27273
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 32727,
-                                adjustedAmountInDefaultCurrency: 29752
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [],
-                            notes: "pension",
-                            id: ${preconditions.firstSpaceIncome.id},
-                            version: 1,
-                            dateReceived: "3000-02-02",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED",
-                            generalTax: ${preconditions.planetExpressTax.id},
-                            generalTaxRateInBps: 1000,
-                            generalTaxAmount: 2975,
-                            linkedInvoice: ${preconditions.secondSpaceInvoice.id}
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    category: ${preconditions.pensionCategory.id},
+                    title: "space -> pension",
+                    currency: "HHD",
+                    originalAmount: 20000,
+                    convertedAmounts: {
+                        originalAmountInDefaultCurrency: 30000,
+                        adjustedAmountInDefaultCurrency: 27273
+                    },
+                    incomeTaxableAmounts: {
+                        originalAmountInDefaultCurrency: 32727,
+                        adjustedAmountInDefaultCurrency: 29752
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: true,
+                    attachments: [],
+                    notes: "pension",
+                    id: ${preconditions.firstSpaceIncome.id},
+                    version: 1,
+                    dateReceived: "3000-02-02",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "FINALIZED",
+                    generalTax: ${preconditions.planetExpressTax.id},
+                    generalTaxRateInBps: 1000,
+                    generalTaxAmount: 2975,
+                    linkedInvoice: ${preconditions.secondSpaceInvoice.id}
+                }"""
+            )
     }
 
     @Test
@@ -524,28 +495,24 @@ internal class IncomesApiTest(
                     "dateReceived": "3000-02-02"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            title: "delivery updated",
-                            currency: "HHD",
-                            originalAmount: 20000,
-                            attachments: [],
-                            id: ${preconditions.firstSpaceIncome.id},
-                            version: 1,
-                            dateReceived: "3000-02-02",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "PENDING_CONVERSION",
-                            convertedAmounts: {
-                            },
-                            incomeTaxableAmounts: {
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: false
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    title: "delivery updated",
+                    currency: "HHD",
+                    originalAmount: 20000,
+                    attachments: [],
+                    id: ${preconditions.firstSpaceIncome.id},
+                    version: 1,
+                    dateReceived: "3000-02-02",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "PENDING_CONVERSION",
+                    convertedAmounts: {
+                    },
+                    incomeTaxableAmounts: {
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: false
+                }"""
+            )
     }
 
     @Test

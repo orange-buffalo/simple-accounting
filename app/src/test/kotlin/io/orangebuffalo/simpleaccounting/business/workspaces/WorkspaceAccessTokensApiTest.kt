@@ -6,13 +6,16 @@ import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -62,32 +65,26 @@ class WorkspaceAccessTokensApiTest(
     fun `should return tokens of current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/workspace-access-tokens")
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("2")
-
-                inPath("$.data").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            id: ${preconditions.firstFryToken.id},
-                            version: 0,
-                            validTill: "$MOCK_TIME_VALUE",
-                            revoked: false,
-                            token: "test-token-one"
-                        }"""
-                    ),
-
-                    json(
-                        """{
-                            id: ${preconditions.secondFryToken.id},
-                            version: 0,
-                            validTill: "$ANOTHER_MOCK_TIME_VALUE",
-                            revoked: true,
-                            token: "test-token-two"
-                        }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 2)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("id", preconditions.secondFryToken.id)
+                        put("version", 0)
+                        put("validTill", ANOTHER_MOCK_TIME_VALUE)
+                        put("revoked", true)
+                        put("token", "test-token-two")
+                    }
+                    addJsonObject {
+                        put("id", preconditions.firstFryToken.id)
+                        put("version", 0)
+                        put("validTill", MOCK_TIME_VALUE)
+                        put("revoked", false)
+                        put("token", "test-token-one")
+                    }
+                }
             }
     }
 
@@ -96,11 +93,11 @@ class WorkspaceAccessTokensApiTest(
     fun `should filter by workspace on GET`() {
         client.get()
             .uri("/api/workspaces/${preconditions.emptyFryWorkspace.id}/workspace-access-tokens")
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("0")
-                inPath("$.data").isArray.isEmpty()
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 0)
+                putJsonArray("data") {}
             }
     }
 
@@ -140,19 +137,15 @@ class WorkspaceAccessTokensApiTest(
                     "validTill": "$ANOTHER_MOCK_TIME_VALUE"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                        id: "#{json-unit.any-number}",
-                        version: 0,
-                        validTill: "$ANOTHER_MOCK_TIME_VALUE",
-                        revoked: false,
-                        token: "new-token"
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    validTill: "$ANOTHER_MOCK_TIME_VALUE",
+                    revoked: false,
+                    token: "new-token"
+                }"""
+            )
     }
 
     private val preconditions by preconditionsFactory {

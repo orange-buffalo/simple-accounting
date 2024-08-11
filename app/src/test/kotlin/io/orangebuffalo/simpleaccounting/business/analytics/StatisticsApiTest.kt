@@ -1,16 +1,22 @@
 package io.orangebuffalo.simpleaccounting.business.analytics
 
+import io.kotest.matchers.equals.shouldBeEqual
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeJsonInteger
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
+import net.javacrumbs.jsonunit.kotest.inPath
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,31 +48,27 @@ internal class StatisticsApiTest(
                 "/api/workspaces/${preconditions.workspace.id}/statistics/expenses" +
                         "?fromDate=3000-04-10&toDate=3000-10-01"
             )
-            .verifyOkAndJsonBody {
-                inPath("$.totalAmount").isNumber.isEqualTo("12110")
-                inPath("$.finalizedCount").isNumber.isEqualTo("4")
-                inPath("$.pendingCount").isNumber.isEqualTo("3")
-                inPath("$.currencyExchangeDifference").isNumber.isEqualTo("-1000")
-                inPath("$.items").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            "categoryId": ${preconditions.firstCategory.id},
-                            "totalAmount": 2100,
-                            "finalizedCount": 2,
-                            "pendingCount": 0,
-                            "currencyExchangeDifference": -1000
-                        }"""
-                    ),
-                    json(
-                        """{
-                            "categoryId": ${preconditions.secondCategory.id},
-                            "totalAmount": 10010,
-                            "finalizedCount": 2,
-                            "pendingCount": 3,
-                            "currencyExchangeDifference": 0
-                        }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("totalAmount", 12110)
+                put("finalizedCount", 4)
+                put("pendingCount", 3)
+                put("currencyExchangeDifference", -1000)
+                putJsonArray("items") {
+                    addJsonObject {
+                        put("categoryId", preconditions.firstCategory.id)
+                        put("totalAmount", 2100)
+                        put("finalizedCount", 2)
+                        put("pendingCount", 0)
+                        put("currencyExchangeDifference", -1000)
+                    }
+                    addJsonObject {
+                        put("categoryId", preconditions.secondCategory.id)
+                        put("totalAmount", 10010)
+                        put("finalizedCount", 2)
+                        put("pendingCount", 3)
+                        put("currencyExchangeDifference", 0)
+                    }
+                }
             }
     }
 
@@ -112,31 +114,27 @@ internal class StatisticsApiTest(
                 "/api/workspaces/${preconditions.workspace.id}/statistics/incomes" +
                         "?fromDate=3010-04-21&toDate=3010-09-15"
             )
-            .verifyOkAndJsonBody {
-                inPath("$.totalAmount").isNumber.isEqualTo("1220")
-                inPath("$.finalizedCount").isNumber.isEqualTo("3")
-                inPath("$.pendingCount").isNumber.isEqualTo("2")
-                inPath("$.currencyExchangeDifference").isNumber.isEqualTo("-110")
-                inPath("$.items").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            "categoryId": ${preconditions.firstCategory.id},
-                            "totalAmount": 220,
-                            "finalizedCount": 2,
-                            "pendingCount": 0,
-                            "currencyExchangeDifference": -110
-                        }"""
-                    ),
-                    json(
-                        """{
-                            "categoryId": ${preconditions.secondCategory.id},
-                            "totalAmount": 1000,
-                            "finalizedCount": 1,
-                            "pendingCount": 2,
-                            "currencyExchangeDifference": 0
-                        }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("totalAmount", 1220)
+                put("finalizedCount", 3)
+                put("pendingCount", 2)
+                put("currencyExchangeDifference", -110)
+                putJsonArray("items") {
+                    addJsonObject {
+                        put("categoryId", preconditions.firstCategory.id)
+                        put("totalAmount", 220)
+                        put("finalizedCount", 2)
+                        put("pendingCount", 0)
+                        put("currencyExchangeDifference", -110)
+                    }
+                    addJsonObject {
+                        put("categoryId", preconditions.secondCategory.id)
+                        put("totalAmount", 1000)
+                        put("finalizedCount", 1)
+                        put("pendingCount", 2)
+                        put("currencyExchangeDifference", 0)
+                    }
+                }
             }
     }
 
@@ -183,7 +181,7 @@ internal class StatisticsApiTest(
                         "?fromDate=3005-07-02&toDate=3005-08-01"
             )
             .verifyOkAndJsonBody {
-                inPath("$.totalTaxPayments").isNumber.isEqualTo("77")
+                inPath("$.totalTaxPayments").shouldBeJsonInteger().shouldBeEqual(77)
             }
     }
 

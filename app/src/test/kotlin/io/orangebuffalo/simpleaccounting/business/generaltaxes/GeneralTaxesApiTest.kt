@@ -1,21 +1,18 @@
 package io.orangebuffalo.simpleaccounting.business.generaltaxes
 
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
+import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
-import org.junit.jupiter.api.DisplayName
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SimpleAccountingIntegrationTest
-@DisplayName("Taxes API")
 internal class GeneralTaxesApiTest(
     @Autowired private val client: WebTestClient,
     preconditionsFactory: PreconditionsFactory,
@@ -33,31 +30,25 @@ internal class GeneralTaxesApiTest(
     fun `should return taxes of a workspace of current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/general-taxes")
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("2")
-
-                inPath("$.data").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            title: "first space tax",
-                            id: ${preconditions.firstSpaceTax.id},
-                            version: 0,
-                            rateInBps: 4503
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                            title: "second space tax",
-                            id: ${preconditions.secondSpaceTax.id},
-                            rateInBps: 3,
-                            description: "second tax description",
-                            version: 0
-                    }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 2)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("title", "second space tax")
+                        put("id", preconditions.secondSpaceTax.id)
+                        put("version", 0)
+                        put("rateInBps", 3)
+                        put("description", "second tax description")
+                    }
+                    addJsonObject {
+                        put("title", "first space tax")
+                        put("id", preconditions.firstSpaceTax.id)
+                        put("version", 0)
+                        put("rateInBps", 4503)
+                    }
+                }
             }
     }
 
@@ -91,18 +82,14 @@ internal class GeneralTaxesApiTest(
     fun `should return tax by id for current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/general-taxes/${preconditions.firstSpaceTax.id}")
-            .verifyOkAndJsonBody {
-                inPath("$").isEqualTo(
-                    json(
-                        """{
-                            title: "first space tax",
-                            id: ${preconditions.firstSpaceTax.id},
-                            rateInBps: 4503,
-                            version: 0
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    title: "first space tax",
+                    id: ${preconditions.firstSpaceTax.id},
+                    rateInBps: 4503,
+                    version: 0
+                }"""
+            )
     }
 
     @Test
@@ -150,19 +137,15 @@ internal class GeneralTaxesApiTest(
                     "rateInBps": 42
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            title: "new space tax",
-                            id: "#{json-unit.any-number}",
-                            description: "new space tax description",
-                            rateInBps: 42,
-                            version: 0
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    title: "new space tax",
+                    id: "#{json-unit.any-number}",
+                    description: "new space tax description",
+                    rateInBps: 42,
+                    version: 0
+                }"""
+            )
     }
 
     @Test
@@ -176,18 +159,14 @@ internal class GeneralTaxesApiTest(
                     "rateInBps": 42
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            title: "new space tax",
-                            id: "#{json-unit.any-number}",
-                            rateInBps: 42,
-                            version: 0
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    title: "new space tax",
+                    id: "#{json-unit.any-number}",
+                    rateInBps: 42,
+                    version: 0
+                }"""
+            )
     }
 
     @Test
@@ -218,19 +197,15 @@ internal class GeneralTaxesApiTest(
                     "description": "updated description"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            title: "updated tax",
-                            id: ${preconditions.firstSpaceTax.id},
-                            rateInBps: 42,
-                            description: "updated description",
-                            version: 1
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    title: "updated tax",
+                    id: ${preconditions.firstSpaceTax.id},
+                    rateInBps: 42,
+                    description: "updated description",
+                    version: 1
+                }"""
+            )
     }
 
     private val preconditions by preconditionsFactory {

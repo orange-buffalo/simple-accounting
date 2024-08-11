@@ -15,9 +15,9 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
+import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import kotlinx.coroutines.*
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -67,11 +67,13 @@ class BruteForceDefenseTest(
 
         client.executeLoginForFry()
             .expectStatus().isUnauthorized
-            .assertJsonResponse(
-                """{
-                    "error": "BadCredentials"
-                }"""
-            )
+            .expectThatJsonBody {
+                shouldBeEqualToJson(
+                    """{
+                        "error": "BadCredentials"
+                    }"""
+                )
+            }
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(1)
@@ -108,12 +110,14 @@ class BruteForceDefenseTest(
 
         client.executeLoginForFry()
             .expectStatus().isUnauthorized
-            .assertJsonResponse(
-                """{
-                    "error": "AccountLocked",
-                    "lockExpiresInSec": 0
-                }"""
-            )
+            .expectThatJsonBody {
+                shouldBeEqualToJson(
+                    """{
+                        "error": "AccountLocked",
+                        "lockExpiresInSec": 0
+                    }"""
+                )
+            }
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
@@ -131,12 +135,14 @@ class BruteForceDefenseTest(
 
         client.executeLoginForFry()
             .expectStatus().isUnauthorized
-            .assertJsonResponse(
-                """{
-                    "error": "AccountLocked",
-                    "lockExpiresInSec": 4
-                }"""
-            )
+            .expectThatJsonBody {
+                shouldBeEqualToJson(
+                    """{
+                        "error": "AccountLocked",
+                        "lockExpiresInSec": 4
+                    }"""
+                )
+            }
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
@@ -156,11 +162,13 @@ class BruteForceDefenseTest(
 
         client.executeLoginForFry()
             .expectStatus().isUnauthorized
-            .assertJsonResponse(
-                """{
-                    "error": "BadCredentials"
-                }"""
-            )
+            .expectThatJsonBody {
+                shouldBeEqualToJson(
+                    """{
+                        "error": "BadCredentials"
+                    }"""
+                )
+            }
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(5)
@@ -180,12 +188,14 @@ class BruteForceDefenseTest(
 
         client.executeLoginForFry()
             .expectStatus().isUnauthorized
-            .assertJsonResponse(
-                """{
-                    "error": "AccountLocked",
-                    "lockExpiresInSec": 60
-                }"""
-            )
+            .expectThatJsonBody {
+                shouldBeEqualToJson(
+                    """{
+                        "error": "AccountLocked",
+                        "lockExpiresInSec": 60
+                    }"""
+                )
+            }
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(6)
@@ -205,12 +215,14 @@ class BruteForceDefenseTest(
 
         client.executeLoginForFry()
             .expectStatus().isUnauthorized
-            .assertJsonResponse(
-                """{
-                    "error": "AccountLocked",
-                    "lockExpiresInSec": 135
-                }"""
-            )
+            .expectThatJsonBody {
+                shouldBeEqualToJson(
+                    """{
+                        "error": "AccountLocked",
+                        "lockExpiresInSec": 135
+                    }"""
+                )
+            }
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(8)
@@ -230,12 +242,14 @@ class BruteForceDefenseTest(
 
         client.executeLoginForFry()
             .expectStatus().isUnauthorized
-            .assertJsonResponse(
-                """{
-                    "error": "AccountLocked",
-                    "lockExpiresInSec": 86400
-                }"""
-            )
+            .expectThatJsonBody {
+                shouldBeEqualToJson(
+                    """{
+                        "error": "AccountLocked",
+                        "lockExpiresInSec": 86400
+                    }"""
+                )
+            }
 
         assertFryLoginStatistics {
             assertThat(failedAttemptsCount).isEqualTo(101)
@@ -308,12 +322,6 @@ class BruteForceDefenseTest(
                 ?: throw IllegalStateException("Fry is not found?!")
             fry.loginStatistics.spec()
             platformUsersRepository.save(fry)
-        }
-    }
-
-    private fun WebTestClient.ResponseSpec.assertJsonResponse(json: String) {
-        expectThatJsonBody {
-            isEqualTo(json(json))
         }
     }
 

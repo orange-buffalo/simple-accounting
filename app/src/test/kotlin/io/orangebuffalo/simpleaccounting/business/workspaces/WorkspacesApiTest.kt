@@ -1,8 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
+import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
@@ -12,7 +14,10 @@ import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUs
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.put
+import net.javacrumbs.jsonunit.kotest.shouldBeJsonArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -45,19 +50,17 @@ internal class WorkspacesApiTest(
         client.get()
             .uri("/api/workspaces")
             .verifyOkAndJsonBody {
-                inPath("$").isArray.containsExactly(
-                    json(
-                        """{
-                            name: "Property of Philip J. Fry",
-                            id: ${preconditions.fryWorkspace.id},
-                            version: 0,
-                            taxEnabled: false,
-                            multiCurrencyEnabled: false,
-                            defaultCurrency: "USD",
-                            editable: true
-                        }"""
-                    )
-                )
+                shouldBeEqualToJson(buildJsonArray {
+                    addJsonObject {
+                        put("name", "Property of Philip J. Fry")
+                        put("id", preconditions.fryWorkspace.id)
+                        put("version", 0)
+                        put("taxEnabled", false)
+                        put("multiCurrencyEnabled", false)
+                        put("defaultCurrency", "USD")
+                        put("editable", true)
+                    }
+                }.toString())
             }
     }
 
@@ -70,7 +73,7 @@ internal class WorkspacesApiTest(
         client.get()
             .uri("/api/workspaces")
             .verifyOkAndJsonBody {
-                inPath("$").isArray.isEmpty()
+                shouldBeJsonArray().shouldBeEmpty()
             }
     }
 
@@ -85,19 +88,17 @@ internal class WorkspacesApiTest(
         client.get()
             .uri("/api/workspaces")
             .verifyOkAndJsonBody {
-                inPath("$").isArray.containsExactly(
-                    json(
-                        """{
-                            name: "Property of Philip J. Fry",
-                            id: ${preconditions.fryWorkspace.id},
-                            version: 0,
-                            taxEnabled: false,
-                            multiCurrencyEnabled: false,
-                            defaultCurrency: "USD",
-                            editable: false
-                        }"""
-                    )
-                )
+                shouldBeEqualToJson(buildJsonArray {
+                    addJsonObject {
+                        put("name", "Property of Philip J. Fry")
+                        put("id", preconditions.fryWorkspace.id)
+                        put("version", 0)
+                        put("taxEnabled", false)
+                        put("multiCurrencyEnabled", false)
+                        put("defaultCurrency", "USD")
+                        put("editable", false)
+                    }
+                }.toString())
             }
     }
 
@@ -124,21 +125,17 @@ internal class WorkspacesApiTest(
                     "defaultCurrency": "GPB"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                        name: "wp",
-                        id: "#{json-unit.any-number}",
-                        version: 0,
-                        taxEnabled: false,
-                        multiCurrencyEnabled: true,
-                        defaultCurrency: "GPB",
-                        editable: true
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    name: "wp",
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    taxEnabled: false,
+                    multiCurrencyEnabled: true,
+                    defaultCurrency: "GPB",
+                    editable: true
+                }"""
+            )
     }
 
     @Test
@@ -162,21 +159,17 @@ internal class WorkspacesApiTest(
                     "defaultCurrency": "AUD"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                        name: "wp",
-                        id: ${preconditions.fryWorkspace.id},
-                        version: 1,
-                        taxEnabled: false,
-                        multiCurrencyEnabled: false,
-                        defaultCurrency: "USD",
-                        editable: true
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    name: "wp",
+                    id: ${preconditions.fryWorkspace.id},
+                    version: 1,
+                    taxEnabled: false,
+                    multiCurrencyEnabled: false,
+                    defaultCurrency: "USD",
+                    editable: true
+                }"""
+            )
     }
 
 
@@ -219,7 +212,7 @@ internal class WorkspacesApiTest(
         client.get()
             .uri("/api/shared-workspaces")
             .verifyOkAndJsonBody {
-                inPath("$").isArray.isEmpty()
+                shouldBeJsonArray().isEmpty()
             }
     }
 
@@ -234,19 +227,17 @@ internal class WorkspacesApiTest(
         client.get()
             .uri("/api/shared-workspaces")
             .verifyOkAndJsonBody {
-                inPath("$").isArray.containsExactly(
-                    json(
-                        """{
-                            name: "Laboratory",
-                            id: ${preconditions.farnsworthWorkspace.id},
-                            version: 0,
-                            taxEnabled: false,
-                            multiCurrencyEnabled: false,
-                            defaultCurrency: "USD",
-                            editable: false
-                        }"""
-                    )
-                )
+                shouldBeEqualToJson(buildJsonArray {
+                    addJsonObject {
+                        put("name", "Laboratory")
+                        put("id", preconditions.farnsworthWorkspace.id)
+                        put("version", 0)
+                        put("taxEnabled", false)
+                        put("multiCurrencyEnabled", false)
+                        put("defaultCurrency", "USD")
+                        put("editable", false)
+                    }
+                }.toString())
             }
     }
 
@@ -262,21 +253,17 @@ internal class WorkspacesApiTest(
                     "token": "${preconditions.fryWorkspaceAccessToken.token}"
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            name: "Property of Philip J. Fry",
-                            id: ${preconditions.fryWorkspace.id},
-                            version: 0,
-                            taxEnabled: false,
-                            multiCurrencyEnabled: false,
-                            defaultCurrency: "USD",
-                            editable: false
-                        }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    name: "Property of Philip J. Fry",
+                    id: ${preconditions.fryWorkspace.id},
+                    version: 0,
+                    taxEnabled: false,
+                    multiCurrencyEnabled: false,
+                    defaultCurrency: "USD",
+                    editable: false
+                }"""
+            )
     }
 
     @Test

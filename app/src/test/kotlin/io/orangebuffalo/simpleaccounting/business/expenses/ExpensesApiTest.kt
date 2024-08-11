@@ -3,17 +3,14 @@ package io.orangebuffalo.simpleaccounting.business.expenses
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
-import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
+import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import kotlinx.serialization.json.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -45,110 +42,95 @@ internal class ExpensesApiTest(
     fun `should return expenses of a workspace of current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses")
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("4")
-
-                inPath("$.data").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                            category: ${preconditions.slurmCategory.id},
-                            title: "best ever slurm",
-                            currency: "THF",
-                            originalAmount: 5000,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 500,
-                                adjustedAmountInDefaultCurrency: 500
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 500,
-                                adjustedAmountInDefaultCurrency: 500
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: false,
-                            attachments: [],
-                            percentOnBusiness: 100,
-                            id: ${preconditions.firstSlurm.id},
-                            version: 0,
-                            datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED"
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                            category: ${preconditions.slurmCategory.id},
-                            title: "another great slurm",
-                            currency: "ZZB",
-                            originalAmount: 5100,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 510,
-                                adjustedAmountInDefaultCurrency: 505
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 460,
-                                adjustedAmountInDefaultCurrency: 455
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [${preconditions.slurmReceipt.id}],
-                            notes: "nice!",
-                            percentOnBusiness: 99,
-                            id: ${preconditions.secondSlurm.id},
-                            version: 0,
-                            datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED"
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                            category: ${preconditions.slurmCategory.id},
-                            title: "slurm is never enough",
-                            currency: "ZZB",
-                            originalAmount: 5100,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 510,
-                                adjustedAmountInDefaultCurrency: 459
-                            },
-                            incomeTaxableAmounts: {
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [],
-                            percentOnBusiness: 99,
-                            id: ${preconditions.thirdSlurm.id},
-                            version: 0,
-                            datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "PENDING_CONVERSION_FOR_TAXATION_PURPOSES",
-                            generalTax: ${preconditions.slurmTax.id},
-                            generalTaxRateInBps: 1000,
-                            generalTaxAmount: 46
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                            category: ${preconditions.slurmCategory.id},
-                            title: "need more slurm",
-                            currency: "ZZB",
-                            originalAmount: 5100,
-                            convertedAmounts: {
-                            },
-                            incomeTaxableAmounts: {
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: false,
-                            attachments: [],
-                            percentOnBusiness: 100,
-                            id: ${preconditions.fourthSlurm.id},
-                            version: 0,
-                            datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "PENDING_CONVERSION"
-                    }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 4)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("category", preconditions.slurmCategory.id)
+                        put("title", "best ever slurm")
+                        put("currency", "THF")
+                        put("originalAmount", 5000)
+                        putJsonObject("convertedAmounts") {
+                            put("originalAmountInDefaultCurrency", 500)
+                            put("adjustedAmountInDefaultCurrency", 500)
+                        }
+                        putJsonObject("incomeTaxableAmounts") {
+                            put("originalAmountInDefaultCurrency", 500)
+                            put("adjustedAmountInDefaultCurrency", 500)
+                        }
+                        put("useDifferentExchangeRateForIncomeTaxPurposes", false)
+                        putJsonArray("attachments") {}
+                        put("percentOnBusiness", 100)
+                        put("id", preconditions.firstSlurm.id)
+                        put("version", 0)
+                        put("datePaid", MOCK_DATE_VALUE)
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "FINALIZED")
+                    }
+                    addJsonObject {
+                        put("category", preconditions.slurmCategory.id)
+                        put("title", "another great slurm")
+                        put("currency", "ZZB")
+                        put("originalAmount", 5100)
+                        putJsonObject("convertedAmounts") {
+                            put("originalAmountInDefaultCurrency", 510)
+                            put("adjustedAmountInDefaultCurrency", 505)
+                        }
+                        putJsonObject("incomeTaxableAmounts") {
+                            put("originalAmountInDefaultCurrency", 460)
+                            put("adjustedAmountInDefaultCurrency", 455)
+                        }
+                        put("useDifferentExchangeRateForIncomeTaxPurposes", true)
+                        putJsonArray("attachments") { add(preconditions.slurmReceipt.id) }
+                        put("notes", "nice!")
+                        put("percentOnBusiness", 99)
+                        put("id", preconditions.secondSlurm.id)
+                        put("version", 0)
+                        put("datePaid", MOCK_DATE_VALUE)
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "FINALIZED")
+                    }
+                    addJsonObject {
+                        put("category", preconditions.slurmCategory.id)
+                        put("title", "slurm is never enough")
+                        put("currency", "ZZB")
+                        put("originalAmount", 5100)
+                        putJsonObject("convertedAmounts") {
+                            put("originalAmountInDefaultCurrency", 510)
+                            put("adjustedAmountInDefaultCurrency", 459)
+                        }
+                        putJsonObject("incomeTaxableAmounts") {}
+                        put("useDifferentExchangeRateForIncomeTaxPurposes", true)
+                        putJsonArray("attachments") {}
+                        put("percentOnBusiness", 99)
+                        put("id", preconditions.thirdSlurm.id)
+                        put("version", 0)
+                        put("datePaid", MOCK_DATE_VALUE)
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "PENDING_CONVERSION_FOR_TAXATION_PURPOSES")
+                        put("generalTax", preconditions.slurmTax.id)
+                        put("generalTaxRateInBps", 1000)
+                        put("generalTaxAmount", 46)
+                    }
+                    addJsonObject {
+                        put("category", preconditions.slurmCategory.id)
+                        put("title", "need more slurm")
+                        put("currency", "ZZB")
+                        put("originalAmount", 5100)
+                        putJsonObject("convertedAmounts") {}
+                        putJsonObject("incomeTaxableAmounts") {}
+                        put("useDifferentExchangeRateForIncomeTaxPurposes", false)
+                        putJsonArray("attachments") {}
+                        put("percentOnBusiness", 100)
+                        put("id", preconditions.fourthSlurm.id)
+                        put("version", 0)
+                        put("datePaid", MOCK_DATE_VALUE)
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("status", "PENDING_CONVERSION")
+                    }
+                }
             }
     }
 
@@ -182,34 +164,30 @@ internal class ExpensesApiTest(
     fun `should return expense by id for current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/expenses/${preconditions.firstSlurm.id}")
-            .verifyOkAndJsonBody {
-                inPath("$").isEqualTo(
-                    json(
-                        """{
-                            category: ${preconditions.slurmCategory.id},
-                            title: "best ever slurm",
-                            currency: "THF",
-                            originalAmount: 5000,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 500,
-                                adjustedAmountInDefaultCurrency: 500
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 500,
-                                adjustedAmountInDefaultCurrency: 500
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: false,
-                            attachments: [],
-                            percentOnBusiness: 100,
-                            id: ${preconditions.firstSlurm.id},
-                            version: 0,
-                            datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED"
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    category: ${preconditions.slurmCategory.id},
+                    title: "best ever slurm",
+                    currency: "THF",
+                    originalAmount: 5000,
+                    convertedAmounts: {
+                        originalAmountInDefaultCurrency: 500,
+                        adjustedAmountInDefaultCurrency: 500
+                    },
+                    incomeTaxableAmounts: {
+                        originalAmountInDefaultCurrency: 500,
+                        adjustedAmountInDefaultCurrency: 500
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: false,
+                    attachments: [],
+                    percentOnBusiness: 100,
+                    id: ${preconditions.firstSlurm.id},
+                    version: 0,
+                    datePaid: "$MOCK_DATE_VALUE",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "FINALIZED"
+                }"""
+            )
     }
 
     @Test
@@ -266,38 +244,34 @@ internal class ExpensesApiTest(
                     "generalTax": ${preconditions.slurmTax.id}
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            category: ${preconditions.slurmCategory.id},
-                            title: "ever best drink",
-                            currency: "AUD",
-                            originalAmount: 30000,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 42000,
-                                adjustedAmountInDefaultCurrency: 38182
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 41500,
-                                adjustedAmountInDefaultCurrency: 37727
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [${preconditions.slurmReceipt.id}],
-                            notes: "coffee",
-                            percentOnBusiness: 100,
-                            id: "#{json-unit.any-number}",
-                            version: 0,
-                            datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED",
-                            generalTax: ${preconditions.slurmTax.id},
-                            generalTaxRateInBps: 1000,
-                            generalTaxAmount: 3773
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    category: ${preconditions.slurmCategory.id},
+                    title: "ever best drink",
+                    currency: "AUD",
+                    originalAmount: 30000,
+                    convertedAmounts: {
+                        originalAmountInDefaultCurrency: 42000,
+                        adjustedAmountInDefaultCurrency: 38182
+                    },
+                    incomeTaxableAmounts: {
+                        originalAmountInDefaultCurrency: 41500,
+                        adjustedAmountInDefaultCurrency: 37727
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: true,
+                    attachments: [${preconditions.slurmReceipt.id}],
+                    notes: "coffee",
+                    percentOnBusiness: 100,
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    datePaid: "$MOCK_DATE_VALUE",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "FINALIZED",
+                    generalTax: ${preconditions.slurmTax.id},
+                    generalTaxRateInBps: 1000,
+                    generalTaxAmount: 3773
+                }"""
+            )
     }
 
     @Test
@@ -324,34 +298,30 @@ internal class ExpensesApiTest(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            category: ${preconditions.slurmCategory.id},
-                            title: "ever best drink",
-                            currency: "USD",
-                            originalAmount: 150,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 150,
-                                adjustedAmountInDefaultCurrency: 150
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 150,
-                                adjustedAmountInDefaultCurrency: 150
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: false,
-                            percentOnBusiness: 100,
-                            id: "#{json-unit.any-number}",
-                            version: 0,
-                            datePaid: "$MOCK_DATE_VALUE",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            attachments: [],
-                            status: "FINALIZED"
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    category: ${preconditions.slurmCategory.id},
+                    title: "ever best drink",
+                    currency: "USD",
+                    originalAmount: 150,
+                    convertedAmounts: {
+                        originalAmountInDefaultCurrency: 150,
+                        adjustedAmountInDefaultCurrency: 150
+                    },
+                    incomeTaxableAmounts: {
+                        originalAmountInDefaultCurrency: 150,
+                        adjustedAmountInDefaultCurrency: 150
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: false,
+                    percentOnBusiness: 100,
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    datePaid: "$MOCK_DATE_VALUE",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    attachments: [],
+                    status: "FINALIZED"
+                }"""
+            )
     }
 
     @Test
@@ -492,38 +462,34 @@ internal class ExpensesApiTest(
                     "generalTax": ${preconditions.slurmTax.id}
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            category: ${preconditions.beerCategory.id},
-                            title: "slurm -> beer",
-                            currency: "HHD",
-                            originalAmount: 20000,
-                            convertedAmounts: {
-                                originalAmountInDefaultCurrency: 30000,
-                                adjustedAmountInDefaultCurrency: 24545
-                            },
-                            incomeTaxableAmounts: {
-                                originalAmountInDefaultCurrency: 40000,
-                                adjustedAmountInDefaultCurrency: 32727
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: true,
-                            attachments: [],
-                            notes: "beer",
-                            percentOnBusiness: 90,
-                            id: ${preconditions.firstSlurm.id},
-                            version: 1,
-                            datePaid: "3000-02-02",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "FINALIZED",
-                            generalTax: ${preconditions.slurmTax.id},
-                            generalTaxRateInBps: 1000,
-                            generalTaxAmount: 3273
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    category: ${preconditions.beerCategory.id},
+                    title: "slurm -> beer",
+                    currency: "HHD",
+                    originalAmount: 20000,
+                    convertedAmounts: {
+                        originalAmountInDefaultCurrency: 30000,
+                        adjustedAmountInDefaultCurrency: 24545
+                    },
+                    incomeTaxableAmounts: {
+                        originalAmountInDefaultCurrency: 40000,
+                        adjustedAmountInDefaultCurrency: 32727
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: true,
+                    attachments: [],
+                    notes: "beer",
+                    percentOnBusiness: 90,
+                    id: ${preconditions.firstSlurm.id},
+                    version: 1,
+                    datePaid: "3000-02-02",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "FINALIZED",
+                    generalTax: ${preconditions.slurmTax.id},
+                    generalTaxRateInBps: 1000,
+                    generalTaxAmount: 3273
+                }"""
+            )
     }
 
     @Test
@@ -540,29 +506,25 @@ internal class ExpensesApiTest(
                     "useDifferentExchangeRateForIncomeTaxPurposes": false
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                            title: "slurm updated",
-                            currency: "HHD",
-                            originalAmount: 20000,
-                            attachments: [],
-                            id: ${preconditions.firstSlurm.id},
-                            version: 1,
-                            datePaid: "3000-02-02",
-                            timeRecorded: "$MOCK_TIME_VALUE",
-                            status: "PENDING_CONVERSION",
-                            convertedAmounts: {
-                            },
-                            incomeTaxableAmounts: {
-                            },
-                            useDifferentExchangeRateForIncomeTaxPurposes: false,
-                            percentOnBusiness: 100
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    title: "slurm updated",
+                    currency: "HHD",
+                    originalAmount: 20000,
+                    attachments: [],
+                    id: ${preconditions.firstSlurm.id},
+                    version: 1,
+                    datePaid: "3000-02-02",
+                    timeRecorded: "$MOCK_TIME_VALUE",
+                    status: "PENDING_CONVERSION",
+                    convertedAmounts: {
+                    },
+                    incomeTaxableAmounts: {
+                    },
+                    useDifferentExchangeRateForIncomeTaxPurposes: false,
+                    percentOnBusiness: 100
+                }"""
+            )
     }
 
     @Test

@@ -68,7 +68,7 @@ dependencies {
     }
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation(libs.jsonUnit.assertj)
+    testImplementation(libs.jsonUnit.kotest)
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.mockito.junitJupiter)
     testImplementation("org.flywaydb:flyway-core")
