@@ -1,10 +1,11 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.api
 
+import io.kotest.matchers.should
+import io.kotest.matchers.string.shouldNotBeBlank
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonObject
-import net.javacrumbs.jsonunit.assertj.JsonAssert
-import net.javacrumbs.jsonunit.assertj.JsonAssertions
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import net.javacrumbs.jsonunit.core.Configuration
+import net.javacrumbs.jsonunit.kotest.equalJson
 import org.assertj.core.api.Assertions
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -12,20 +13,18 @@ import org.springframework.test.web.reactive.server.expectBody
 import reactor.test.StepVerifier
 
 fun WebTestClient.ResponseSpec.expectThatJsonBody(
-    spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
+    spec: String.() -> Unit
 ) = expectHeader().contentType(MediaType.APPLICATION_JSON)
     .expectBody<String>().consumeWith { body ->
-        val responseJson = body.responseBody
-        Assertions.assertThat(responseJson).isNotBlank()
-
-        val jsonAssert = JsonAssertions.assertThatJson(responseJson!!)
-        jsonAssert.spec()
+        val responseJson = body.responseBody.shouldNotBeBlank()!!
+        spec(responseJson)
     }
 
 fun WebTestClient.ResponseSpec.expectThatJsonBodyEqualTo(
+    configuration: Configuration = Configuration.empty(),
     spec: JsonObjectBuilder.() -> Unit
 ) = expectThatJsonBody {
-    isEqualToJson(spec)
+    shouldBeEqualToJson(configuration, spec)
 }
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyUnauthorized(): WebTestClient.ResponseSpec =
@@ -36,7 +35,7 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyNotFound(errorMessage: String) = e
     .expectBody<String>().isEqualTo(errorMessage)
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
-    spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
+    spec: String.() -> Unit
 ) = exchange()
     .expectStatus().isOk
     .expectThatJsonBody(spec)
@@ -45,7 +44,7 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBodyEqualTo(
     spec: JsonObjectBuilder.() -> Unit
 ) {
     verifyOkAndJsonBody {
-        isEqualToJson(spec)
+        shouldBeEqualToJson(spec = spec)
     }
 }
 
@@ -55,18 +54,18 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyCreatedAndJsonBodyEqualTo(
     exchange()
         .expectStatus().isCreated
         .expectThatJsonBody {
-            isEqualToJson(spec)
+            shouldBeEqualToJson(spec = spec)
         }
 }
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndJsonBody(
     jsonBody: String
 ) = verifyOkAndJsonBody {
-    isEqualTo(jsonBody)
+    shouldBeEqualToJson(jsonBody)
 }
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBody(
-    spec: JsonAssert.ConfigurableJsonAssert.() -> Unit
+    spec: String.() -> Unit
 ) = exchange()
     .expectStatus().isBadRequest
     .expectThatJsonBody(spec)
@@ -74,13 +73,13 @@ fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBody(
 fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBody(
     jsonBody: String
 ) = verifyBadRequestAndJsonBody {
-    isEqualTo(jsonBody)
+    shouldBeEqualToJson(jsonBody)
 }
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyBadRequestAndJsonBodyEqualTo(
     spec: JsonObjectBuilder.() -> Unit
 ) = verifyBadRequestAndJsonBody {
-    isEqualToJson(spec)
+    shouldBeEqualToJson(spec = spec)
 }
 
 fun WebTestClient.RequestHeadersSpec<*>.verifyOkAndBody(
@@ -107,24 +106,25 @@ fun WebTestClient.RequestBodySpec.sendJson(spec: JsonObjectBuilder.() -> Unit): 
     return sendJson(jsonElement.toString())
 }
 
-fun <T> StepVerifier.Step<T>.assertNextJson(
-    consumer: JsonAssert.ConfigurableJsonAssert.() -> Unit
+fun <T> StepVerifier.Step<T>.assertNextJsonIs(
+    jsonObject: String
 ): StepVerifier.Step<T> {
     return assertNext { data ->
         Assertions.assertThat(data).isNotNull
-        JsonAssertions.assertThatJson(data!!).consumer()
+        data.should(equalJson(jsonObject))
     }
 }
 
-fun <T> StepVerifier.Step<T>.assertNextJsonIs(jsonObject: String): StepVerifier.Step<T> {
-    return assertNextJson {
-        isEqualTo(json(jsonObject))
-    }
-}
-
-fun JsonAssert.isEqualToJson(spec: JsonObjectBuilder.() -> Unit) {
+fun String.shouldBeEqualToJson(
+    configuration: Configuration = Configuration.empty(),
+    spec: JsonObjectBuilder.() -> Unit
+) {
     val jsonElement = buildJsonObject {
         spec(this)
     }
-    isEqualTo(json(jsonElement.toString()))
+    this.should(equalJson(jsonElement.toString(), configuration))
+}
+
+fun String.shouldBeEqualToJson(expectedJson: String) {
+    this.should(equalJson(expectedJson))
 }

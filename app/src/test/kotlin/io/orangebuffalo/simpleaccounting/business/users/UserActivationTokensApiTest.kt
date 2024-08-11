@@ -4,6 +4,7 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
@@ -14,7 +15,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import net.javacrumbs.jsonunit.assertj.JsonAssert
+import net.javacrumbs.jsonunit.kotest.configuration
+import org.assertj.core.matcher.AssertionMatcher
 import org.hamcrest.CustomMatcher
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -268,12 +270,9 @@ class UserActivationTokensApiTest(
                 .from(preconditions.farnsworth)
                 .exchange()
                 .expectStatus().isCreated
-                .expectThatJsonBody {
-                    withDbTokenValueForUserMatcher(preconditions.userWithoutToken)
-                        .isEqualToJson {
-                            put("token", "#{json-unit.matches:dbTokenValue}")
-                            put("expiresAt", "1999-03-29T04:01:02.042Z")
-                        }
+                .expectThatJsonBodyEqualTo(configuration = withDbTokenValueForUserMatcher(preconditions.userWithoutToken)) {
+                    put("token", "#{json-unit.matches:dbTokenValue}")
+                    put("expiresAt", "1999-03-29T04:01:02.042Z")
                 }
         }
 
@@ -283,12 +282,9 @@ class UserActivationTokensApiTest(
                 .from(preconditions.farnsworth)
                 .exchange()
                 .expectStatus().isCreated
-                .expectThatJsonBody {
-                    withDbTokenValueForUserMatcher(preconditions.userWithToken)
-                        .isEqualToJson {
-                            put("token", "#{json-unit.matches:dbTokenValue}")
-                            put("expiresAt", "1999-03-29T04:01:02.042Z")
-                        }
+                .expectThatJsonBodyEqualTo(configuration = withDbTokenValueForUserMatcher(preconditions.userWithToken)) {
+                    put("token", "#{json-unit.matches:dbTokenValue}")
+                    put("expiresAt", "1999-03-29T04:01:02.042Z")
                 }
 
             withClue("Existing token should be removed") {
@@ -404,12 +400,13 @@ class UserActivationTokensApiTest(
         }
     }
 
-    private fun JsonAssert.ConfigurableJsonAssert.withDbTokenValueForUserMatcher(user: PlatformUser) =
-        withMatcher("dbTokenValue", object : CustomMatcher<String>("dbTokenValue") {
-            override fun matches(item: Any): Boolean {
+    private fun withDbTokenValueForUserMatcher(user: PlatformUser) = configuration {
+        withMatcher("dbTokenValue", object : AssertionMatcher<String>() {
+            override fun assertion(actual: String?) {
                 val token = aggregateTemplate.findAll(UserActivationToken::class.java)
                     .single { it.userId == user.id }
-                return item == token.token
+                actual.shouldBe(token.token)
             }
         })
+    }
 }

@@ -40,7 +40,7 @@ jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
 jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
 jooq-codegen = { module = "org.jooq:jooq-codegen", version.ref = "jooq" }
 jooq-metaExtensions = { module = "org.jooq:jooq-meta-extensions", version.ref = "jooq" }
-jsonUnit-assertj = { module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "jsonUnit" }
+jsonUnit-kotest = { module = "net.javacrumbs.json-unit:json-unit-kotest", version.ref = "jsonUnit" }
 kotest-assertionsCore = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
 kotlin-allopen = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

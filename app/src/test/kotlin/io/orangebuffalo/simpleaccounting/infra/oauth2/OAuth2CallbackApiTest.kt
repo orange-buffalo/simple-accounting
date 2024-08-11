@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.*
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -78,7 +78,7 @@ class OAuth2CallbackApiTest(
             .exchange()
             .expectStatus().isBadRequest
             .expectThatJsonBody {
-                json(
+                shouldBeEqualToJson(
                     """{
                         "errorId": "#{json-unit.any-string}"    
                     }"""

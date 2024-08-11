@@ -4,14 +4,16 @@ import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.stub
 import com.nhaarman.mockitokotlin2.whenever
+import io.kotest.matchers.equals.shouldBeEqual
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
+import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
@@ -20,7 +22,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
+import net.javacrumbs.jsonunit.kotest.inPath
+import net.javacrumbs.jsonunit.kotest.shouldBeJsonString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -36,7 +43,6 @@ import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.util.InMemoryResource
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
 
@@ -70,31 +76,26 @@ class DocumentsApiTest(
     fun `should return documents of a workspace of current user`() {
         client.get()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("2")
-                inPath("$.data").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                        "name": "unknown",
-                        "id": ${preconditions.cheesePizzaAndALargeSodaReceipt.id},
-                        "version": 0,
-                        "timeUploaded": "$MOCK_TIME_VALUE",
-                        "sizeInBytes": null
-                    }"""
-                    ),
-
-                    json(
-                        """{
-                        "name": "100_cups.pdf",
-                        "id": ${preconditions.coffeeReceipt.id},
-                        "version": 0,
-                        "timeUploaded": "$MOCK_TIME_VALUE",
-                        "sizeInBytes": 42
-                    }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 2)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("name", "unknown")
+                        put("id", preconditions.cheesePizzaAndALargeSodaReceipt.id)
+                        put("version", 0)
+                        put("timeUploaded", MOCK_TIME_VALUE)
+                        put("sizeInBytes", JsonNull)
+                    }
+                    addJsonObject {
+                        put("name", "100_cups.pdf")
+                        put("id", preconditions.coffeeReceipt.id)
+                        put("version", 0)
+                        put("timeUploaded", MOCK_TIME_VALUE)
+                        put("sizeInBytes", 42)
+                    }
+                }
             }
     }
 
@@ -200,12 +201,12 @@ class DocumentsApiTest(
         client.post()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents")
             .bodyValue(preconditions.createDefaultFileToUpload().build())
-            .verifyOkAndJsonBody {
-                node("name").isString.isEqualTo("test-file.txt")
-                node("id").isNumber.isNotNull
-                node("version").isNumber.isEqualTo(BigDecimal.ZERO)
-                node("timeUploaded").isString.isEqualTo(MOCK_TIME_VALUE)
-                node("sizeInBytes").isNumber.isEqualTo(42.toBigDecimal())
+            .verifyOkAndJsonBodyEqualTo {
+                put("name", "test-file.txt")
+                put("id", "\${json-unit.any-number}")
+                put("version", 0)
+                put("timeUploaded", MOCK_TIME_VALUE)
+                put("sizeInBytes", 42)
             }
     }
 
@@ -229,22 +230,19 @@ class DocumentsApiTest(
                     .queryParam("id[eq]", "${preconditions.cheesePizzaAndALargeSodaReceipt.id}")
                     .build()
             }
-            .verifyOkAndJsonBody {
-                inPath("$.pageNumber").isNumber.isEqualTo("1")
-                inPath("$.pageSize").isNumber.isEqualTo("10")
-                inPath("$.totalElements").isNumber.isEqualTo("1")
-
-                inPath("$.data").isArray.containsExactlyInAnyOrder(
-                    json(
-                        """{
-                        "name": "unknown",
-                        "id": ${preconditions.cheesePizzaAndALargeSodaReceipt.id},
-                        "version": 0,
-                        "timeUploaded": "$MOCK_TIME_VALUE",
-                        "sizeInBytes": null
-                    }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 1)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("name", "unknown")
+                        put("id", preconditions.cheesePizzaAndALargeSodaReceipt.id)
+                        put("version", 0)
+                        put("timeUploaded", MOCK_TIME_VALUE)
+                        put("sizeInBytes", JsonNull)
+                    }
+                }
             }
     }
 
@@ -294,7 +292,7 @@ class DocumentsApiTest(
         client.get()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/download-token")
             .verifyOkAndJsonBody {
-                node("token").isString.isEqualTo("token")
+                inPath("token").shouldBeJsonString().shouldBeEqual("token")
             }
     }
 

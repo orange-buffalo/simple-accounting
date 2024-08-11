@@ -3,10 +3,13 @@ package io.orangebuffalo.simpleaccounting.business.categories
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
+import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.json
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -51,28 +54,28 @@ internal class CategoriesApiTest(
     fun `should get categories of current user workspace`() {
         client.get()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/categories")
-            .verifyOkAndJsonBody {
-                inPath("$.data").isArray.containsExactly(
-                    json(
-                        """{
-                        name: "PlanetExpress",
-                        id: ${preconditions.planetExpressCategory.id},
-                        version: 0,
-                        description: "...",
-                        income: true,
-                        expense: false
-                    }"""
-                    ), json(
-                        """{
-                        name: "Slurm",
-                        id: ${preconditions.slurmCategory.id},
-                        version: 0,
-                        description: "..",
-                        income: false,
-                        expense: true
-                    }"""
-                    )
-                )
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 10)
+                put("totalElements", 2)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("name", "PlanetExpress")
+                        put("id", preconditions.planetExpressCategory.id)
+                        put("version", 0)
+                        put("description", "...")
+                        put("income", true)
+                        put("expense", false)
+                    }
+                    addJsonObject {
+                        put("name", "Slurm")
+                        put("id", preconditions.slurmCategory.id)
+                        put("version", 0)
+                        put("description", "..")
+                        put("income", false)
+                        put("expense", true)
+                    }
+                }
             }
     }
 
@@ -108,20 +111,16 @@ internal class CategoriesApiTest(
                     "expense": true
                 }"""
             )
-            .verifyOkAndJsonBody {
-                isEqualTo(
-                    json(
-                        """{
-                        name: "1990s stuff",
-                        id: "#{json-unit.any-number}",
-                        version: 0,
-                        description: "Stuff from the best time",
-                        income: false,
-                        expense: true
-                    }"""
-                    )
-                )
-            }
+            .verifyOkAndJsonBody(
+                """{
+                    name: "1990s stuff",
+                    id: "#{json-unit.any-number}",
+                    version: 0,
+                    description: "Stuff from the best time",
+                    income: false,
+                    expense: true
+                }"""
+            )
     }
 
     @Test

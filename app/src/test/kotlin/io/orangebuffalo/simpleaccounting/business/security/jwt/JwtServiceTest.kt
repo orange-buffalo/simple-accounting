@@ -2,11 +2,19 @@ package io.orangebuffalo.simpleaccounting.business.security.jwt
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.whenever
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPrincipal
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeJsonInteger
+import net.javacrumbs.jsonunit.kotest.inPath
+import net.javacrumbs.jsonunit.kotest.shouldBeJsonArray
+import net.javacrumbs.jsonunit.kotest.shouldBeJsonBoolean
+import net.javacrumbs.jsonunit.kotest.shouldBeJsonString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -22,7 +30,7 @@ import java.util.*
 private const val BAD_TOKEN =
     "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJGcnkiLCJhdXRob3JpdGllcyI6WyJST0xFX0RFTElWRVJZX0JPWSJdfQ.invalid"
 
-private val VALID_TILL : Instant = ZonedDateTime.now().plusDays(2).toInstant()
+private val VALID_TILL: Instant = ZonedDateTime.now().plusDays(2).toInstant()
 
 @ExtendWith(MockitoExtension::class)
 class JwtServiceTest {
@@ -45,17 +53,13 @@ class JwtServiceTest {
 
         val jwtBody = String(Base64.getUrlDecoder().decode(actualToken.split(".")[1]))
 
-        assertThatJson(jwtBody)
-            .node("sub").isString.isEqualTo("Fry")
+        jwtBody.inPath("sub").shouldBeJsonString().shouldBe("Fry")
 
-        assertThatJson(jwtBody)
-            .node("roles").isArray.containsExactlyInAnyOrder("DELIVERY_BOY")
+        jwtBody.inPath("roles").shouldBeJsonArray().shouldContainExactlyInAnyOrder("DELIVERY_BOY")
 
-        assertThatJson(jwtBody)
-            .node("transient").isBoolean.isEqualTo(false)
+        jwtBody.inPath("transient").shouldBeJsonBoolean().shouldBeFalse()
 
-        assertThatJson(jwtBody)
-            .node("exp").isNumber.isEqualTo((VALID_TILL.epochSecond + 600).toBigDecimal())
+        jwtBody.inPath("exp").shouldBeJsonInteger().shouldBe(VALID_TILL.epochSecond + 600)
     }
 
     @Test
@@ -69,17 +73,13 @@ class JwtServiceTest {
 
         val jwtBody = String(Base64.getUrlDecoder().decode(actualToken.split(".")[1]))
 
-        assertThatJson(jwtBody)
-            .node("sub").isString.isEqualTo("workspaceAccessToken")
+        jwtBody.inPath("sub").shouldBeJsonString().shouldBe("workspaceAccessToken")
 
-        assertThatJson(jwtBody)
-            .node("roles").isArray.containsExactlyInAnyOrder("USER")
+        jwtBody.inPath("roles").shouldBeJsonArray().shouldContainExactlyInAnyOrder("USER")
 
-        assertThatJson(jwtBody)
-            .node("transient").isBoolean.isEqualTo(true)
+        jwtBody.inPath("transient").shouldBeJsonBoolean().shouldBeTrue()
 
-        assertThatJson(jwtBody)
-            .node("exp").isNumber.isEqualTo((VALID_TILL.epochSecond + 600).toBigDecimal())
+        jwtBody.inPath("exp").shouldBeJsonInteger().shouldBe(VALID_TILL.epochSecond + 600)
     }
 
     @Test
@@ -92,17 +92,13 @@ class JwtServiceTest {
 
         val jwtBody = String(Base64.getUrlDecoder().decode(actualToken.split(".")[1]))
 
-        assertThatJson(jwtBody)
-            .node("sub").isString.isEqualTo("Fry")
+        jwtBody.inPath("sub").shouldBeJsonString().shouldBe("Fry")
 
-        assertThatJson(jwtBody)
-            .node("roles").isArray.containsExactlyInAnyOrder("DELIVERY_BOY")
+        jwtBody.inPath("roles").shouldBeJsonArray().shouldContainExactlyInAnyOrder("DELIVERY_BOY")
 
-        assertThatJson(jwtBody)
-            .node("transient").isBoolean.isEqualTo(false)
+        jwtBody.inPath("transient").shouldBeJsonBoolean().shouldBeFalse()
 
-        assertThatJson(jwtBody)
-            .node("exp").isNumber.isEqualTo((VALID_TILL.epochSecond).toBigDecimal())
+        jwtBody.inPath("exp").shouldBeJsonInteger().shouldBe(VALID_TILL.epochSecond)
     }
 
     @Test
