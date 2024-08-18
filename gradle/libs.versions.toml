@@ -26,7 +26,7 @@ testContainers = "1.20.1"
 testContainersPlaywirght = "0.11.10"
 wireMock = "3.0.1"
 zjsonpatch = "0.4.16"
-gitVersioningPlugin = "6.4.3"
+gitVersioningPlugin = "6.4.4"
 
 [libraries]
 assertk = { module = "com.willowtreeapps.assertk:assertk-jvm", version.ref = "assertk" }
