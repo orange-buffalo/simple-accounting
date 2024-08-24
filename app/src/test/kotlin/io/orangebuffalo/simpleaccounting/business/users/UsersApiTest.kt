@@ -19,8 +19,10 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpStatus
 import java.time.Instant
 
+/**
+ * See [UsersApi] for the test subject.
+ */
 @SimpleAccountingIntegrationTest
-@DisplayName("Users API")
 internal class UsersApiTest(
     @Autowired private val client: ApiTestClient,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,

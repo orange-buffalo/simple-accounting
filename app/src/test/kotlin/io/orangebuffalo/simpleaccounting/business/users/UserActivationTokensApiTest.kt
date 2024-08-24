@@ -27,7 +27,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
  * See [UserActivationTokensApi] for the test subject.
  */
 @SimpleAccountingIntegrationTest
-@DisplayName("User Activation Token API ")
 class UserActivationTokensApiTest(
     @Autowired private val client: ApiTestClient,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,

@@ -1,5 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.api
 
+import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
+import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
@@ -49,16 +51,28 @@ class ApiTestClient(
  * A helper method to enrich a [WebTestClient.RequestHeadersSpec] with JWT authentication.
  * Important: this method should only be used for specs created from [ApiTestClient].
  */
-fun WebTestClient.RequestHeadersSpec<*>.from(platformUser: PlatformUser): WebTestClient.RequestHeadersSpec<*> =
-    attributes {
+fun <T : WebTestClient.RequestHeadersSpec<*>> T.from(platformUser: PlatformUser): T =
+    this.usingPrincipal(platformUser.toSecurityPrincipal())
+
+/**
+ * A helper method to enrich a [WebTestClient.RequestHeadersSpec] with JWT authentication.
+ * Important: this method should only be used for specs created from [ApiTestClient].
+ */
+fun <T : WebTestClient.RequestHeadersSpec<*>> T.usingSharedWorkspaceToken(workspaceToken: String): T =
+    this.usingPrincipal(createTransientUserPrincipal(workspaceToken))
+
+private fun <T : WebTestClient.RequestHeadersSpec<*>> T.usingPrincipal(principal: SecurityPrincipal): T {
+   attributes {
         val jwtService = it[JWT_SERVICE_ATTRIBUTE_NAME] as JwtService?
             ?: error("This method is only allowed for specs created from ApiTestClient")
         val token = jwtService.buildJwtToken(
-            principal = platformUser.toSecurityPrincipal(),
+            principal = principal,
             validTill = Instant.now().plusSeconds(Duration.ofDays(100).toSeconds())
         )
         header(HttpHeaders.AUTHORIZATION, "Bearer $token")
     }
+    return this
+}
 
 /**
  * A helper method to add semantics to the request spec to indicate that the request is anonymous.

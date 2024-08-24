@@ -1,275 +1,359 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
 import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.stub
 import com.nhaarman.mockitokotlin2.whenever
-import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
+import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
-import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
-import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.data.jdbc.core.JdbcAggregateTemplate
+import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.test.web.reactive.server.WebTestClient
 
+/**
+ * See [ProfileApi] for the test subject.
+ */
 @SimpleAccountingIntegrationTest
-@DisplayName("Profile API ")
 class ProfileApiTest(
-    @Autowired private val client: WebTestClient,
+    @Autowired private val client: ApiTestClient,
     @Autowired private val testPasswordEncoder: PasswordEncoder,
-    @Autowired private val userRepository: PlatformUsersRepository,
-    preconditionsFactory: PreconditionsFactory,
+    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
+    private val preconditionsFactory: PreconditionsFactory,
 ) {
 
-    @MockBean
-    private lateinit var documentsService: DocumentsService
-
-    @Test
-    fun `should return 401 for unauthorized requests`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-        client.get()
-            .uri("/api/profile")
-            .verifyUnauthorized()
-    }
-
-    @Test
-    @WithMockFryUser
-    fun `should return data for full profile`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-        client.get()
-            .uri("/api/profile")
-            .verifyOkAndJsonBody(
-                """{
-                    "userName": "Fry",
-                    "documentsStorage": "google-drive",
-                    "i18n": {
-                        "locale": "en_AU",
-                        "language": "en"
-                    }
-                }"""
-            )
-    }
-
-    @Test
-    @WithMockZoidbergUser
-    fun `should return data for minimum profile`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-        client.get()
-            .uri("/api/profile")
-            .verifyOkAndJsonBody(
-                """{
-                    "userName": "Zoidberg",
-                    "i18n": {
-                        "locale": "en_US",
-                        "language": "en"
-                    }
-                }"""
-            )
-    }
-
-    @Test
-    @WithMockFryUser
-    fun `should clear documents storage setting`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-        client.put()
-            .uri("/api/profile")
-            .sendJson(
-                """{
-                    "i18n": {
-                        "locale": "en_AU",
-                        "language": "en"
-                    }
-                }"""
-            )
-            .verifyOkAndJsonBody(
-                """{
-                    "userName": "Fry",
-                    "i18n": {
-                        "locale": "en_AU",
-                        "language": "en"
-                    }
-                }"""
-            )
-    }
-
-    @Test
-    @WithMockZoidbergUser
-    fun `should update profile`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-        client.put()
-            .uri("/api/profile")
-            .sendJson(
-                """{
-                   "documentsStorage": "new-storage",
-                    "i18n": {
-                                "locale": "el",
-                                "language": "uk"
-                            }
-                }"""
-            )
-            .verifyOkAndJsonBody(
-                """{
-                    "userName": "Zoidberg",
-                    "documentsStorage": "new-storage",
-                    "i18n": {
-                        "locale": "el",
-                        "language": "uk"
-                    }
-                }"""
-            )
-    }
-
-    @Test
-    @WithMockZoidbergUser
-    fun `should delegate to Documents Service on storage request`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-        documentsService.stub {
-            onBlocking { getCurrentUserStorageStatus() } doReturn DocumentsStorageStatus(true)
+    /**
+     * [ProfileApi.getProfile]
+     */
+    @Nested
+    @DisplayName("GET /api/profile")
+    inner class GetProfile {
+        private val preconditions by preconditionsFactory {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    documentsStorage = "google-drive",
+                    i18nSettings = I18nSettings(
+                        locale = "en_AU",
+                        language = "en",
+                    )
+                )
+                val zoidberg = platformUser(
+                    userName = "Zoidberg",
+                    i18nSettings = I18nSettings(locale = "en_US", language = "en")
+                )
+            }
         }
 
-        client.get()
-            .uri("/api/profile/documents-storage")
-            .verifyOkAndJsonBody(
-                """{
-                    "active": true
-                }"""
-            )
+        private fun request() = client.get()
+            .uri("/api/profile")
+
+        @Test
+        fun `should return 401 for unauthorized requests`() {
+            request().verifyUnauthorized()
+        }
+
+        @Test
+        fun `should return data for full profile`() {
+            request()
+                .from(preconditions.fry)
+                .verifyOkAndJsonBodyEqualTo {
+                    put("userName", "Fry")
+                    put("documentsStorage", "google-drive")
+                    putJsonObject("i18n") {
+                        put("locale", "en_AU")
+                        put("language", "en")
+                    }
+                }
+        }
+
+        @Test
+        fun `should return data for minimum profile`() {
+            request()
+                .from(preconditions.zoidberg)
+                .verifyOkAndJsonBodyEqualTo {
+                    put("userName", "Zoidberg")
+                    putJsonObject("i18n") {
+                        put("locale", "en_US")
+                        put("language", "en")
+                    }
+                }
+        }
     }
 
-    @Test
-    fun `should return 401 for unauthorized requests to change password`() {
-        client.post()
-            .uri("/api/profile/change-password")
-            .sendJson(
-                """{
-                    "currentPassword": "${preconditions.fry.passwordHash}",
-                    "newPassword": "new password"
-                }"""
-            )
-            .verifyUnauthorized()
-    }
-
-    @Test
-    @WithSaMockUser(transient = true, workspaceAccessToken = "wsToken")
-    fun `should return 400 when changing password by a transient user`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-        client.post()
-            .uri("/api/profile/change-password")
-            .sendJson(
-                """{
-                    "currentPassword": "password",
-                    "newPassword": "new password"
-                }"""
-            )
-            .verifyBadRequestAndJsonBody(
-                """{
-                    "error": "TransientUser",
-                    "message": "Cannot change password for transient user"
-                }"""
-            )
-    }
-
-    @Test
-    @WithMockFarnsworthUser
-    fun `should return 400 when password does not match`() {
-        whenever(testPasswordEncoder.matches("password", preconditions.farnsworth.passwordHash)) doReturn false
-
-        client.post()
-            .uri("/api/profile/change-password")
-            .sendJson(
-                """{
-                    "currentPassword": "password",
-                    "newPassword": "new password"
-                }"""
-            )
-            .verifyBadRequestAndJsonBody(
-                """{
-                    "error": "CurrentPasswordMismatch",
-                    "message": "Invalid current password"
-                }"""
-            )
-    }
-
-    @Test
-    @WithMockZoidbergUser
-    fun `should change password for regular user`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-
-        whenever(testPasswordEncoder.encode("new password")) doReturn "new password hash"
-
-        client.post()
-            .uri("/api/profile/change-password")
-            .sendJson(
-                """{
-                    "currentPassword": "password",
-                    "newPassword": "new password"
-                }"""
-            )
-            .verifyOkNoContent()
-
-        userRepository.findByUserName(preconditions.zoidberg.userName)
-            ?.passwordHash
-            .shouldBe("new password hash")
-    }
-
-    @Test
-    @WithMockFarnsworthUser
-    fun `should change password for admin user`() {
-        // trigger preconditions to be prepared - should be removed when JWT token client is used
-        preconditions.fry
-
-        whenever(testPasswordEncoder.encode("new password")) doReturn "new password hash"
-
-        client.post()
-            .uri("/api/profile/change-password")
-            .sendJson(
-                """{
-                    "currentPassword": "password",
-                    "newPassword": "new password"
-                }"""
-            )
-            .verifyOkNoContent()
-
-        userRepository.findByUserName(preconditions.farnsworth.userName)
-            ?.passwordHash
-            .shouldBe("new password hash")
-    }
-
-    private val preconditions by preconditionsFactory {
-        object {
-
-            val fry = platformUser(
-                userName = "Fry",
-                passwordHash = "qwertyHash",
-                isAdmin = false,
-                documentsStorage = "google-drive",
-                i18nSettings = I18nSettings(
-                    locale = "en_AU",
-                    language = "en",
+    /**
+     * [ProfileApi.updateProfile]
+     */
+    @Nested
+    @DisplayName("PUT /api/profile")
+    inner class UpdateProfile {
+        private val preconditions by preconditionsFactory {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    documentsStorage = "google-drive",
+                    i18nSettings = I18nSettings(
+                        locale = "en_AU",
+                        language = "en",
+                    )
                 )
-            )
+            }
+        }
 
-            val zoidberg = platformUser(
-                userName = "Zoidberg",
-                i18nSettings = I18nSettings(locale = "en_US", language = "en")
-            )
-            val farnsworth = farnsworth()
+        private fun request() = client.put()
+            .uri("/api/profile")
+
+        @Test
+        fun `should return 401 for unauthorized requests`() {
+            request()
+                .sendJson {
+                    putJsonObject("i18n") {
+                        put("locale", "el")
+                        put("language", "uk")
+                    }
+                }
+                .verifyUnauthorized()
+        }
+
+        @Test
+        fun `should update profile`() {
+            request()
+                .from(preconditions.fry)
+                .sendJson {
+                    put("documentsStorage", "new-storage")
+                    putJsonObject("i18n") {
+                        put("locale", "el")
+                        put("language", "uk")
+                    }
+                }
+                .verifyOkAndJsonBodyEqualTo {
+                    put("userName", "Fry")
+                    put("documentsStorage", "new-storage")
+                    putJsonObject("i18n") {
+                        put("locale", "el")
+                        put("language", "uk")
+                    }
+                }
+            aggregateTemplate.findAll<PlatformUser>()
+                .filter { it.id == preconditions.fry.id }
+                .shouldBeSingle()
+                .shouldBeEntityWithFields(
+                    PlatformUser(
+                        documentsStorage = "new-storage",
+                        i18nSettings = I18nSettings(locale = "el", language = "uk"),
+                        activated = preconditions.fry.activated,
+                        userName = preconditions.fry.userName,
+                        passwordHash = preconditions.fry.passwordHash,
+                        isAdmin = preconditions.fry.isAdmin,
+                    )
+                )
+        }
+
+        @Test
+        fun `should clear documents storage setting`() {
+            request()
+                .from(preconditions.fry)
+                .sendJson {
+                    putJsonObject("i18n") {
+                        put("locale", "el")
+                        put("language", "uk")
+                    }
+                }
+                .verifyOkAndJsonBodyEqualTo {
+                    put("userName", "Fry")
+                    putJsonObject("i18n") {
+                        put("locale", "el")
+                        put("language", "uk")
+                    }
+                }
+
+            aggregateTemplate.findAll<PlatformUser>()
+                .filter { it.id == preconditions.fry.id }
+                .shouldBeSingle()
+                .should {
+                    it.documentsStorage.shouldBeNull()
+                }
+        }
+
+        @Nested
+        inner class RequestsValidation : ApiRequestsValidationsTestBase() {
+            override val requestExecutionSpec = { requestBody: String ->
+                request()
+                    .from(preconditions.fry)
+                    .sendJson(requestBody)
+            }
+
+            override val requestBodySpec: ApiRequestsBodyConfiguration = {
+                string("documentsStorage", maxLength = 255, mandatory = false)
+                nested("i18n", mandatory = true) {
+                    string("locale", maxLength = 36, mandatory = true)
+                    string("language", maxLength = 36, mandatory = true)
+                }
+            }
+        }
+    }
+
+    /**
+     * [ProfileApi.getDocumentsStorageStatus]
+     */
+    @Nested
+    @DisplayName("GET /api/profile/documents-storage")
+    inner class GetDocumentsStorageStatus {
+        private val preconditions by preconditionsFactory {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    documentsStorage = "noop",
+                )
+                val zoidberg = platformUser(
+                    userName = "Zoidberg",
+                    documentsStorage = null,
+                )
+            }
+        }
+
+        private fun request() = client.get()
+            .uri("/api/profile/documents-storage")
+
+        @Test
+        fun `should return 401 for unauthorized requests`() {
+            request().verifyUnauthorized()
+        }
+
+        @Test
+        fun `should return document storage state when set`() {
+            request()
+                .from(preconditions.fry)
+                .verifyOkAndJsonBodyEqualTo {
+                    put("active", true)
+                }
+        }
+
+        @Test
+        fun `should return document storage state when not set`() {
+            request()
+                .from(preconditions.zoidberg)
+                .verifyOkAndJsonBodyEqualTo {
+                    put("active", false)
+                }
+        }
+    }
+
+    /**
+     * [ProfileApi.changePassword]
+     */
+    @Nested
+    @DisplayName("POST /api/profile/change-password")
+    inner class ChangePassword {
+        private val preconditions by preconditionsFactory {
+            object {
+                val fry = fry()
+                val workspaceAccessToken = workspaceAccessToken()
+                val farnsworth = farnsworth()
+            }
+        }
+
+        private fun request() = client.post()
+            .uri("/api/profile/change-password")
+
+        @Test
+        fun `should return 401 for unauthorized requests`() {
+            request()
+                .sendJson {
+                    put("currentPassword", preconditions.fry.passwordHash)
+                    put("newPassword", "new-password")
+                }
+                .verifyUnauthorized()
+        }
+
+        @Test
+        fun `should return 400 when changing password by a transient user`() {
+            request()
+                .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
+                .sendJson {
+                    put("currentPassword", preconditions.fry.passwordHash)
+                    put("newPassword", "new-password")
+                }
+                .verifyBadRequestAndJsonBodyEqualTo {
+                    put("error", "TransientUser")
+                    put("message", "Cannot change password for transient user")
+                }
+        }
+
+        @Test
+        fun `should return 400 when password does not match`() {
+            whenever(testPasswordEncoder.matches("password", preconditions.fry.passwordHash)) doReturn false
+
+            request()
+                .from(preconditions.fry)
+                .sendJson {
+                    put("currentPassword", "password")
+                    put("newPassword", "new-password")
+                }
+                .verifyBadRequestAndJsonBodyEqualTo {
+                    put("error", "CurrentPasswordMismatch")
+                    put("message", "Invalid current password")
+                }
+        }
+
+        @Test
+        fun `should change password for regular user`() {
+            whenever(testPasswordEncoder.encode("new-password")) doReturn "new password hash"
+
+            request()
+                .from(preconditions.fry)
+                .sendJson {
+                    put("currentPassword", preconditions.fry.passwordHash)
+                    put("newPassword", "new-password")
+                }
+                .verifyOkNoContent()
+
+            aggregateTemplate.findAll<PlatformUser>()
+                .filter { it.id == preconditions.fry.id }
+                .shouldBeSingle()
+                .passwordHash.shouldBeEqual("new password hash")
+        }
+
+        @Test
+        fun `should change password for admin user`() {
+            whenever(testPasswordEncoder.encode("new-password")) doReturn "new password hash"
+
+            request()
+                .from(preconditions.farnsworth)
+                .sendJson {
+                    put("currentPassword", preconditions.farnsworth.passwordHash)
+                    put("newPassword", "new-password")
+                }
+                .verifyOkNoContent()
+
+            aggregateTemplate.findAll<PlatformUser>()
+                .filter { it.id == preconditions.farnsworth.id }
+                .shouldBeSingle()
+                .passwordHash.shouldBeEqual("new password hash")
+        }
+
+        @Nested
+        inner class RequestsValidation : ApiRequestsValidationsTestBase() {
+            override val requestExecutionSpec = { requestBody: String ->
+                request()
+                    .from(preconditions.fry)
+                    .sendJson(requestBody)
+            }
+
+            override val requestBodySpec: ApiRequestsBodyConfiguration = {
+                string("currentPassword", mandatory = true, maxLength = 100)
+                string("newPassword", mandatory = true, maxLength = 100)
+            }
+
+            override val successResponseStatus = HttpStatus.NO_CONTENT
         }
     }
 }
