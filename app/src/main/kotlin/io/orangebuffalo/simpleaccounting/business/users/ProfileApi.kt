@@ -70,8 +70,8 @@ data class ProfileDto(
 )
 
 data class I18nSettingsDto(
-    @field:NotBlank val locale: String,
-    @field:NotBlank val language: String
+    @field:NotBlank @field:Size(max = 36) val locale: String,
+    @field:NotBlank @field:Size(max = 36) val language: String
 )
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -81,6 +81,6 @@ data class UpdateProfileRequestDto(
 )
 
 data class ChangePasswordRequestDto(
-    @field:NotNull @field:NotEmpty val currentPassword: String,
-    @field:NotNull @field:NotEmpty val newPassword: String,
+    @field:NotBlank @field:Size(max = 100) val currentPassword: String,
+    @field:NotBlank @field:Size(max = 100) val newPassword: String,
 )

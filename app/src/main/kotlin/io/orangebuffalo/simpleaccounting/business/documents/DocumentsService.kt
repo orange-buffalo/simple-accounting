@@ -29,6 +29,7 @@ class DocumentsService(
 
     suspend fun saveDocument(request: SaveDocumentRequest): Document {
         val documentStorage = getDocumentStorageByUser(request.workspace.ownerId)
+            ?: throw IllegalStateException("User ${request.workspace.ownerId} has no documents storage")
         val response = documentStorage.saveDocument(request)
         return withDbContext {
             documentRepository.save(
@@ -44,9 +45,9 @@ class DocumentsService(
         }
     }
 
-    private suspend fun getDocumentStorageByUser(userId: Long): DocumentsStorage {
+    private suspend fun getDocumentStorageByUser(userId: Long): DocumentsStorage? {
         val user = platformUsersService.getUserByUserId(userId)
-        return documentsStorages.first { it.getId() == user.documentsStorage }
+        return documentsStorages.firstOrNull { it.getId() == user.documentsStorage }
     }
 
     suspend fun getDocumentByIdAndWorkspaceId(
@@ -79,7 +80,7 @@ class DocumentsService(
 
     suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus {
         val userStorage = getDocumentStorageByUser(platformUsersService.getCurrentUser().id!!)
-        return userStorage.getCurrentUserStorageStatus()
+        return userStorage?.getCurrentUserStorageStatus() ?: DocumentsStorageStatus(false)
     }
 
     suspend fun getDownloadToken(workspaceId: Long, documentId: Long): String {

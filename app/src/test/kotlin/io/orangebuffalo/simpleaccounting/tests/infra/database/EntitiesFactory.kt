@@ -36,7 +36,7 @@ import java.time.LocalDate
  */
 class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun platformUser(
-        userName: String = "Farnsworth",
+        userName: String = "Nibbler",
         passwordHash: String = "nopassword",
         isAdmin: Boolean = false,
         documentsStorage: String? = null,
