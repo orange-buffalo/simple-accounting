@@ -7,8 +7,7 @@ import com.microsoft.playwright.Page
 import com.microsoft.playwright.options.ScreenshotAnimations
 import com.microsoft.playwright.options.ScreenshotCaret
 import com.microsoft.playwright.options.ScreenshotType
-import io.kotest.assertions.assertSoftly
-import io.kotest.assertions.withClue
+import io.kotest.assertions.fail
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.file.shouldExist
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.StorybookEnvironment
@@ -16,63 +15,48 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.StorybookExtension
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.StorybookStory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.StopWatch
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.logger
+import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.parallel.Execution
+import org.junit.jupiter.api.parallel.ExecutionMode
 import org.springframework.retry.backoff.NoBackOffPolicy
 import org.springframework.retry.policy.SimpleRetryPolicy
 import org.springframework.retry.support.RetryTemplate
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.File
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
-import kotlin.math.max
 
 @ExtendWith(StorybookExtension::class)
 class UiComponentsScreenshotsTest {
 
-    // we need to retry because rendering is flaky, especially when it comes to rendering fonts
-
-    // the outer retry is restarting the whole page, to cover flaky browser startup issues
-    private val storyPageRetryTemplate = RetryTemplate().also {
-        it.setRetryPolicy(SimpleRetryPolicy(5))
-        it.setBackOffPolicy(NoBackOffPolicy())
-    }
-
     @Test
-    fun `should have all stories screenshots valid`(env: StorybookEnvironment) {
+    fun `all committed screenshots must have stories in storybook`(env: StorybookEnvironment) {
         val context = ScreenshotsContext(env)
-
-        // limiting the max number of threads - too many of them produce flaky results without significant boost in speed
-        val worker = Executors.newFixedThreadPool(max(Runtime.getRuntime().availableProcessors() - 1, 1))
-
-        val futures = env.stories.map { story ->
-            CompletableFuture.runAsync({
-                executeStoryTest(story, context)
-            }, worker)
-        }
-        CompletableFuture.allOf(*futures.toTypedArray()).get(10, TimeUnit.MINUTES)
-        worker.shutdown()
-
         val deletedStories = context.committedScreenshots.subtract(context.expectedScreenshots)
         if (env.shouldUpdateCommittedScreenshots) {
             logger.info { "Deleting non existing stories $deletedStories" }
             deletedStories.forEach { File(context.committedScreenshotsDir, it).delete() }
         }
+        deletedStories.shouldBeEmpty()
+    }
 
-        assertSoftly {
-            withClue("All screenshots must be committed") {
-                context.newStories.shouldBeEmpty()
-            }
+    @Test
+    fun `all stories in storybook must have committed screenshots`(env: StorybookEnvironment) {
+        val context = ScreenshotsContext(env)
+        val newStories = context.expectedScreenshots.subtract(context.committedScreenshots)
+        newStories.shouldBeEmpty()
+    }
 
-            withClue("All committed screenshots must have stories in storybook") {
-                deletedStories.shouldBeEmpty()
-            }
-
-            withClue("All screenshots must be up to date") {
-                context.failedScreenshots.shouldBeEmpty()
+    @TestFactory
+    @Execution(ExecutionMode.CONCURRENT)
+    fun `should have all stories screenshots valid`(env: StorybookEnvironment): List<DynamicTest> {
+        val context = ScreenshotsContext(env)
+        return env.stories.map { story ->
+            DynamicTest.dynamicTest("${story.title}/${story.name} (id=${story.id})") {
+                executeStoryTest(story, context)
             }
         }
     }
@@ -84,6 +68,12 @@ class UiComponentsScreenshotsTest {
         logger.info { "Processing story $story" }
         val stopWatch = StopWatch()
 
+        // we need to retry because rendering is flaky, especially when it comes to rendering fonts
+        val storyPageRetryTemplate = RetryTemplate().also {
+            it.setRetryPolicy(SimpleRetryPolicy(5))
+            it.setBackOffPolicy(NoBackOffPolicy())
+        }
+
         val committedScreenshotFile = File(context.committedScreenshotsDir, story.screenshotFileName())
         val generatedScreenshotFile = File(context.generatedScreenshotsDirectory, story.screenshotFileName())
         var imageComparison: ImageComparisonResult? = null
@@ -94,6 +84,7 @@ class UiComponentsScreenshotsTest {
                 page.onConsoleMessage { consoleMessage ->
                     browserConsoleLog += "${consoleMessage.type()}: ${consoleMessage.text()}\n"
                 }
+                // the outer retry is restarting the whole page, to cover flaky browser startup issues
                 storyPageRetryTemplate.execute<Unit, ScreenshotRetryException> { storyPageRetry ->
                     if (storyPageRetry.retryCount > 0) {
                         logger.warn { "Retrying page load ${storyPageRetry.retryCount} time" }
@@ -147,7 +138,6 @@ class UiComponentsScreenshotsTest {
             logger.info { "Screenshot for story $story eventually does not match" }
             logger.info { "Browser console log:\n$browserConsoleLog" }
 
-            context.failedScreenshots.add(story.screenshotFileName())
             imageComparison!!.result.write(File(context.diffDirectory, "${story.id}-diff.png"))
             logger.info { "Saved diff ${stopWatch.tick()}ms" }
 
@@ -158,6 +148,8 @@ class UiComponentsScreenshotsTest {
                 committedScreenshotFile.writeBytes(generatedScreenshot!!)
                 logger.info { "Updated committed screenshot ${stopWatch.tick()}ms" }
             }
+
+            fail("${story.name} has failed screenshot comparison")
         } catch (e: Exception) {
             logger.error(e) { "Failed to process story $story" }
             logger.error { "Browser console log:\n$browserConsoleLog" }
@@ -189,7 +181,6 @@ class UiComponentsScreenshotsTest {
         val committedScreenshotsDir: File = File("src/test/resources/__screenshots_test_images")
         val generatedScreenshotsDirectory: File
         val newStories: Set<String>
-        val failedScreenshots: MutableList<String>
         val diffDirectory: File
         val committedScreenshots: Set<String>
         val expectedScreenshots: Set<String>
@@ -201,7 +192,6 @@ class UiComponentsScreenshotsTest {
             this.expectedScreenshots = env.stories.asSequence().map { it.screenshotFileName() }.toSet()
 
             this.newStories = expectedScreenshots.subtract(committedScreenshots)
-            this.failedScreenshots = mutableListOf()
 
             val (generatedScreenshotsDirectory, diffDirectory) = getGeneratedScreenshotsDirectories()
             this.generatedScreenshotsDirectory = generatedScreenshotsDirectory
