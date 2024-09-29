@@ -5,7 +5,6 @@ import { storybookData } from '@/__storybook__/storybook-data';
 import type { ApiPage, InvoiceDto } from '@/services/api';
 import SaInvoiceSelect from '@/components/entity-select/SaInvoiceSelect.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import { allOf, openSelectDropdown } from '@/__storybook__/screenshots';
 import { onGetToDefaultWorkspacePath } from '@/__storybook__/api-mocks';
 
 export default {
@@ -56,14 +55,10 @@ export const Default = defineStory(() => ({
     <SaInvoiceSelect
       style="width: 400px"
       v-model="prefilledSelectedInvoice"
+      id="screenshotTarget"
     />
     <br /> Selected invoice: {{prefilledSelectedInvoice}}
   `,
 }), {
-  screenshotPreparation: allOf(
-    openSelectDropdown('.el-select'),
-    // cannot open dropdown due to https://github.com/element-plus/element-plus/issues/10103
-    // waitForText('Entity 0'),
-  ),
   useRealTime: true,
 });

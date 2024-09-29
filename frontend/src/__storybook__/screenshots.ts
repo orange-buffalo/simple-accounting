@@ -44,18 +44,6 @@ export function clickOnElement(selector: string): SaStoryScreenshotPreparation {
   });
 }
 
-export function openSelectDropdown(selector: string): SaStoryScreenshotPreparation {
-  return skipWhenSucceededOnce(() => {
-    const element = document.querySelector(selector);
-    if (!element) return false;
-
-    element.dispatchEvent(new MouseEvent('mouseenter'));
-    element.dispatchEvent(new MouseEvent('click'));
-
-    return true;
-  });
-}
-
 export function waitForElementToBeVisible(selector: string): SaStoryScreenshotPreparation {
   return skipWhenSucceededOnce(() => {
     const elements = document.querySelectorAll(selector);

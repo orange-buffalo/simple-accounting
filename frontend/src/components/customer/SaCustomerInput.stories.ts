@@ -1,14 +1,8 @@
 // noinspection JSUnusedGlobalSymbols
 
-import {
-  neverEndingGetRequest,
-  onGetToDefaultWorkspacePath,
-} from '@/__storybook__/api-mocks';
+import { neverEndingGetRequest, onGetToDefaultWorkspacePath } from '@/__storybook__/api-mocks';
 import SaCustomerInput from '@/components/customer/SaCustomerInput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import {
-  allOf, openSelectDropdown, waitForElementToBeVisible, waitForText,
-} from '@/__storybook__/screenshots';
 import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
@@ -39,13 +33,7 @@ export const Default = defineStory(() => ({
     {{ presetCustomerId }}
   `,
   ...storybookData.storyComponentConfig,
-}), {
-  screenshotPreparation: allOf(
-    waitForElementToBeVisible('#preset-select > .el-select'),
-    openSelectDropdown('#initially-empty-select > .el-select'),
-    waitForText(storybookData.customers.democraticOrderOfPlanets.name),
-  ),
-});
+}));
 
 export const Loading = defineStory(() => ({
   components: { SaCustomerInput },

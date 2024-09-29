@@ -2,13 +2,10 @@
 
 import { action } from '@storybook/addon-actions';
 import { ref } from 'vue';
-import type {
-  ApiPage, ApiPageRequest, HasOptionalId,
-} from '@/services/api';
+import type { ApiPage, ApiPageRequest, HasOptionalId } from '@/services/api';
 import { delay } from '@/__storybook__/stories-utils';
 import SaEntitySelect from '@/components/entity-select/SaEntitySelect.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import { allOf, openSelectDropdown } from '@/__storybook__/screenshots';
 
 export default {
   title: 'Components/Basic/SaEntitySelect',
@@ -146,10 +143,5 @@ export const Default = defineStory(() => ({
     <br /> Selected value: {{entity7}}
   `,
 }), {
-  screenshotPreparation: allOf(
-    openSelectDropdown('#screenshotTarget .el-select'),
-    // cannot open dropdown due to https://github.com/element-plus/element-plus/issues/10103
-    // waitForText('Entity 0'),
-  ),
   useRealTime: true,
 });

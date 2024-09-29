@@ -6,9 +6,6 @@ import {
 } from '@/__storybook__/api-mocks';
 import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import {
-  allOf, openSelectDropdown, waitForElementToBeVisible, waitForText,
-} from '@/__storybook__/screenshots';
 import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
@@ -39,13 +36,7 @@ export const Default = defineStory(() => ({
     {{ presetTaxId }}
   `,
   ...storybookData.storyComponentConfig,
-}), {
-  screenshotPreparation: allOf(
-    waitForElementToBeVisible('#preset-select > .el-select'),
-    openSelectDropdown('#initially-empty-select > .el-select'),
-    waitForText(storybookData.generalTaxes.planetExpressTax.title),
-  ),
-});
+}));
 
 export const Loading = defineStory(() => ({
   components: { SaGeneralTaxInput },
