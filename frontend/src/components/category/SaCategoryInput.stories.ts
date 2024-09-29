@@ -6,9 +6,6 @@ import {
 } from '@/__storybook__/api-mocks';
 import SaCategoryInput from '@/components/category/SaCategoryInput.vue';
 import { defineStory } from '@/__storybook__/sa-storybook';
-import {
-  allOf, openSelectDropdown, waitForElementToBeVisible,
-} from '@/__storybook__/screenshots';
 import { storybookData } from '@/__storybook__/storybook-data';
 
 export default {
@@ -39,13 +36,7 @@ export const Default = defineStory(() => ({
     {{ presetCategoryId }}
   `,
   ...storybookData.storyComponentConfig,
-}), {
-  screenshotPreparation: allOf(
-    waitForElementToBeVisible('#preset-select > .el-select'),
-    openSelectDropdown('#initially-empty-select > .el-select'),
-    waitForElementToBeVisible(storybookData.categories.slurmCategory.name),
-  ),
-});
+}));
 
 export const Loading = defineStory(() => ({
   components: { SaCategoryInput },
