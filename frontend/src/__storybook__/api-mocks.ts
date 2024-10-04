@@ -1,4 +1,4 @@
-import fetchMockClient from 'fetch-mock/esm/client';
+import fetchMockClient from 'fetch-mock';
 import type {
  MockOptionsMethodGet, MockOptionsMethodPost, MockResponse, MockResponseFunction,
 } from 'fetch-mock';
