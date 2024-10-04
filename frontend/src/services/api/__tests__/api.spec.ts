@@ -3,7 +3,7 @@ import {
 } from 'vitest';
 import type { InspectionFilter, InspectionOptions } from 'fetch-mock';
 import 'whatwg-fetch';
-import fetchMock from 'fetch-mock/esm/client';
+import fetchMock from 'fetch-mock';
 import {
   ApiAuthError,
   ApiBusinessError,
