@@ -39,18 +39,6 @@ export interface WorkspaceDto {
     name: string;
     /**
      * 
-     * @type {boolean}
-     * @memberof WorkspaceDto
-     */
-    taxEnabled: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof WorkspaceDto
-     */
-    multiCurrencyEnabled: boolean;
-    /**
-     * 
      * @type {string}
      * @memberof WorkspaceDto
      */
@@ -69,8 +57,6 @@ export interface WorkspaceDto {
 export function instanceOfWorkspaceDto(value: object): value is WorkspaceDto {
     if (!('version' in value) || value['version'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
-    if (!('taxEnabled' in value) || value['taxEnabled'] === undefined) return false;
-    if (!('multiCurrencyEnabled' in value) || value['multiCurrencyEnabled'] === undefined) return false;
     if (!('defaultCurrency' in value) || value['defaultCurrency'] === undefined) return false;
     if (!('editable' in value) || value['editable'] === undefined) return false;
     return true;
@@ -89,8 +75,6 @@ export function WorkspaceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'id': json['id'] == null ? undefined : json['id'],
         'version': json['version'],
         'name': json['name'],
-        'taxEnabled': json['taxEnabled'],
-        'multiCurrencyEnabled': json['multiCurrencyEnabled'],
         'defaultCurrency': json['defaultCurrency'],
         'editable': json['editable'],
     };
@@ -105,8 +89,6 @@ export function WorkspaceDtoToJSON(value?: WorkspaceDto | null): any {
         'id': value['id'],
         'version': value['version'],
         'name': value['name'],
-        'taxEnabled': value['taxEnabled'],
-        'multiCurrencyEnabled': value['multiCurrencyEnabled'],
         'defaultCurrency': value['defaultCurrency'],
         'editable': value['editable'],
     };

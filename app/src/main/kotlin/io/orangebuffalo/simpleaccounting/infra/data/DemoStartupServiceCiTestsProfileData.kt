@@ -56,8 +56,6 @@ class DemoStartupServiceCiTestsProfileData(private val jdbcAggregateTemplate: Jd
         val planetExpressWorkspace = Workspace(
             name = "Planet Express",
             ownerId = fry.id!!,
-            taxEnabled = true,
-            multiCurrencyEnabled = false,
             defaultCurrency = "USD"
         ).also { jdbcAggregateTemplate.insert(it) }
 

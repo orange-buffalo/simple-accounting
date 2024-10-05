@@ -35,8 +35,6 @@ class WorkspacesApi(
         .createWorkspace(
             Workspace(
                 name = createWorkspaceRequest.name,
-                taxEnabled = false,
-                multiCurrencyEnabled = true,
                 defaultCurrency = createWorkspaceRequest.defaultCurrency,
                 ownerId = platformUsersService.getCurrentUser().id!!
             )
@@ -68,8 +66,6 @@ data class WorkspaceDto(
     var id: Long?,
     var version: Int,
     var name: String,
-    var taxEnabled: Boolean,
-    var multiCurrencyEnabled: Boolean,
     var defaultCurrency: String,
     var editable: Boolean
 )
@@ -94,8 +90,6 @@ private fun Workspace.mapToWorkspaceDto(editable: Boolean) = WorkspaceDto(
     name = name,
     id = id,
     version = version!!,
-    taxEnabled = taxEnabled,
-    multiCurrencyEnabled = multiCurrencyEnabled,
     defaultCurrency = defaultCurrency,
     editable = editable
 )

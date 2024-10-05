@@ -31,12 +31,17 @@ import java.time.Instant
 import java.time.LocalDate
 
 /**
+ * To avoid failures on default values for columns with unique constraints.
+ */
+private var sequenceValue = 1
+
+/**
  * API for creating entities in tests, first of all if not always - for tests preconditions.
  * It is rarely used standalone, but mostly indirectly via [PreconditionsFactory].
  */
 class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun platformUser(
-        userName: String = "Nibbler",
+        userName: String = "Nibbler ${sequenceValue++}",
         passwordHash: String = "nopassword",
         isAdmin: Boolean = false,
         documentsStorage: String? = null,
@@ -115,16 +120,12 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun workspace(
         name: String = "Planet Express",
         owner: PlatformUser? = null,
-        taxEnabled: Boolean = true,
-        multiCurrencyEnabled: Boolean = true,
         defaultCurrency: String = "USD"
     ): Workspace {
         val ownerId = if (owner == null) platformUser().id else owner.id
         return Workspace(
             name = name,
             ownerId = ownerId!!,
-            taxEnabled = taxEnabled,
-            multiCurrencyEnabled = multiCurrencyEnabled,
             defaultCurrency = defaultCurrency
         ).save()
     }
