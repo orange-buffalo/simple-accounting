@@ -1687,9 +1687,7 @@ components:
       required:
       - defaultCurrency
       - editable
-      - multiCurrencyEnabled
       - name
-      - taxEnabled
       - version
       type: object
       properties:
@@ -1701,10 +1699,6 @@ components:
           format: int32
         name:
           type: string
-        taxEnabled:
-          type: boolean
-        multiCurrencyEnabled:
-          type: boolean
         defaultCurrency:
           type: string
         editable:

@@ -8,9 +8,7 @@ export const DEFAULT_STORIES_WORKSPACE: WorkspaceDto = {
   defaultCurrency: 'AUD',
   editable: true,
   version: 0,
-  taxEnabled: true,
   name: 'Workspace',
-  multiCurrencyEnabled: true,
 };
 
 function mockWorkspace(workspace: WorkspaceDto) {

@@ -56,8 +56,6 @@ internal class WorkspacesApiTest(
                         put("name", "Property of Philip J. Fry")
                         put("id", preconditions.fryWorkspace.id)
                         put("version", 0)
-                        put("taxEnabled", false)
-                        put("multiCurrencyEnabled", false)
                         put("defaultCurrency", "USD")
                         put("editable", true)
                     }
@@ -94,8 +92,6 @@ internal class WorkspacesApiTest(
                         put("name", "Property of Philip J. Fry")
                         put("id", preconditions.fryWorkspace.id)
                         put("version", 0)
-                        put("taxEnabled", false)
-                        put("multiCurrencyEnabled", false)
                         put("defaultCurrency", "USD")
                         put("editable", false)
                     }
@@ -131,8 +127,6 @@ internal class WorkspacesApiTest(
                     name: "wp",
                     id: "${JsonValues.ANY_NUMBER}",
                     version: 0,
-                    taxEnabled: false,
-                    multiCurrencyEnabled: true,
                     defaultCurrency: "GPB",
                     editable: true
                 }"""
@@ -155,8 +149,6 @@ internal class WorkspacesApiTest(
                 """{
                     "id": ${preconditions.farnsworthWorkspace.id},
                     "name": "wp",
-                    "taxEnabled": true,
-                    "multiCurrencyEnabled": true,
                     "defaultCurrency": "AUD"
                 }"""
             )
@@ -165,8 +157,6 @@ internal class WorkspacesApiTest(
                     name: "wp",
                     id: ${preconditions.fryWorkspace.id},
                     version: 1,
-                    taxEnabled: false,
-                    multiCurrencyEnabled: false,
                     defaultCurrency: "USD",
                     editable: true
                 }"""
@@ -233,8 +223,6 @@ internal class WorkspacesApiTest(
                         put("name", "Laboratory")
                         put("id", preconditions.farnsworthWorkspace.id)
                         put("version", 0)
-                        put("taxEnabled", false)
-                        put("multiCurrencyEnabled", false)
                         put("defaultCurrency", "USD")
                         put("editable", false)
                     }
@@ -259,8 +247,6 @@ internal class WorkspacesApiTest(
                     name: "Property of Philip J. Fry",
                     id: ${preconditions.fryWorkspace.id},
                     version: 0,
-                    taxEnabled: false,
-                    multiCurrencyEnabled: false,
                     defaultCurrency: "USD",
                     editable: false
                 }"""
@@ -293,16 +279,12 @@ internal class WorkspacesApiTest(
             val fryWorkspace = workspace(
                 name = "Property of Philip J. Fry",
                 owner = fry,
-                taxEnabled = false,
-                multiCurrencyEnabled = false,
                 defaultCurrency = "USD"
             )
 
             val farnsworthWorkspace = workspace(
                 name = "Laboratory",
                 owner = farnsworth,
-                taxEnabled = false,
-                multiCurrencyEnabled = false,
                 defaultCurrency = "USD"
             )
 
