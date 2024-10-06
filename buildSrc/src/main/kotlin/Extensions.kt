@@ -6,7 +6,15 @@ fun Project.printTestDescriptionDuringBuild(testDescriptor: TestDescriptor) {
 }
 
 fun ifCi(action: () -> Unit) {
-    if (System.getenv("CI") == "true") {
+    if (isCi()) {
         action()
     }
 }
+
+fun ifLocal(action: () -> Unit) {
+    if (!isCi()) {
+        action()
+    }
+}
+
+private fun isCi() = System.getenv("CI") == "true"

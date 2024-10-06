@@ -141,9 +141,12 @@ tasks.jacocoTestReport {
 }
 
 tasks.withType<Test>().configureEach {
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
-        .coerceAtLeast(1)
-        .coerceAtMost(5)
+    // CI machines are not powerful enough to run multiple UI test suites in parallel, they get flaky
+    ifLocal {
+        maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
+            .coerceAtLeast(1)
+            .coerceAtMost(5)
+    }
 }
 
 tasks.register<Test>("screenshotsTest") {
