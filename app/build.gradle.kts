@@ -140,6 +140,12 @@ tasks.jacocoTestReport {
     }
 }
 
+tasks.withType<Test>().configureEach {
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
+        .coerceAtLeast(1)
+        .coerceAtMost(5)
+}
+
 tasks.register<Test>("screenshotsTest") {
     description = "Runs screenshot tests for UI components"
     filter {
