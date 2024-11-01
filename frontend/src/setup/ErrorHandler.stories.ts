@@ -9,12 +9,12 @@ export default {
 export const FatalApiError = () => ({
   setup() {
     onMounted(async () => {
-      fetchMock.get('api/profile', { status: 500 });
+      fetchMock.get('/api/profile', { status: 500 });
       await profileApi.getProfile();
     });
 
     onUnmounted(() => {
-      fetchMock.reset();
+      fetchMock.removeRoutes();
     });
   },
   template: `
@@ -30,12 +30,12 @@ export const CancelledRequest = () => ({
     } = useRequestConfig({});
     onMounted(async () => {
       cancelRequest();
-      fetchMock.get('api/profile', { delay: 20000 });
+      fetchMock.get('/api/profile', { delay: 20000 });
       await profileApi.getProfile(requestConfig);
     });
 
     onUnmounted(() => {
-      fetchMock.reset();
+      fetchMock.removeRoutes();
     });
   },
   template: `
@@ -46,7 +46,7 @@ export const CancelledRequest = () => ({
 export const ApiAuthError = () => ({
   setup() {
     onMounted(async () => {
-      fetchMock.get('api/profile', { status: 401 });
+      fetchMock.get('/api/profile', { status: 401 });
       fetchMock.post('/api/auth/token', {
       status: 401,
     });
@@ -54,7 +54,7 @@ export const ApiAuthError = () => ({
     });
 
     onUnmounted(() => {
-      fetchMock.reset();
+      fetchMock.removeRoutes();
     });
   },
   template: `
