@@ -1,7 +1,7 @@
 import {
   afterEach, beforeEach, describe, expect, test, vi,
 } from 'vitest';
-import type { InspectionFilter, InspectionOptions } from 'fetch-mock';
+import type { CallHistoryFilter, UserRouteConfig } from 'fetch-mock';
 import 'whatwg-fetch';
 import fetchMock from 'fetch-mock';
 import {
@@ -21,6 +21,8 @@ import type { RequestConfigReturn, RequestConfigParams } from '@/services/api/ap
 // eslint-disable-next-line vue/max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
 const API_TIME = new Date('2020-01-04T00:00:00');
+
+fetchMock.mockGlobal();
 
 type TestBusinessErrorDto = SaApiErrorDto & {
   someData: string;
@@ -86,9 +88,9 @@ describe('API Client', () => {
   });
 
   test('tries autologin when 401 is received for a request', async () => {
-    fetchMock.get(apiCallPath, (_, request) => {
-      if (!request || !request.headers) throw new Error();
-      return new Headers(request.headers).get('Authorization')
+    fetchMock.get(apiCallPath, ({ options }) => {
+      if (!options || !options.headers) throw new Error();
+      return new Headers(options.headers).get('Authorization')
         ? {
           status: 200,
           body: {
@@ -108,15 +110,12 @@ describe('API Client', () => {
       .eq('someUser');
     expect(loginRequiredEventMock)
       .toHaveBeenCalledTimes(0);
-    const calls = fetchMock.calls();
+    const calls = fetchMock.callHistory.calls();
     expect(calls)
       .length(3);
-    expect(calls[0][0])
-      .eq(apiCallPath);
-    expect(calls[1][0])
-      .eq('/api/auth/token');
-    expect(calls[2][0])
-      .eq(apiCallPath);
+    const paths = calls.map((call) => call.args[0]);
+    expect(paths)
+      .toEqual([apiCallPath, '/api/auth/token', apiCallPath]);
   });
 
   test('throws ApiAuthError and triggers events when 401 is received', async () => {
@@ -338,12 +337,13 @@ describe('API Client', () => {
     vi.useRealTimers();
     vi.resetAllMocks();
     vi.resetModules();
-    fetchMock.restore();
+    fetchMock.removeRoutes();
+    fetchMock.clearHistory();
   });
 });
 
-function safeGetCallOptions(filter?: InspectionFilter, options?: InspectionOptions): RequestInit {
-  const calls = fetchMock.calls(filter, options);
+function safeGetCallOptions(filter?: CallHistoryFilter, options?: UserRouteConfig): RequestInit {
+  const calls = fetchMock.callHistory.calls(filter, options);
   expect(calls)
     .to
     .have
@@ -351,7 +351,7 @@ function safeGetCallOptions(filter?: InspectionFilter, options?: InspectionOptio
   const call = calls[0];
   expect(call)
     .toBeDefined();
-  const [, callOptions] = call;
+  const callOptions = call.options;
   expect(callOptions)
     .toBeDefined();
   // eslint-disable-next-line

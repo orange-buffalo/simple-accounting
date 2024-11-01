@@ -220,9 +220,11 @@ export const SaFormApi = defineStory(() => ({
     <h4>Defaults</h4>
     <SaForm v-model="formValues" :on-submit="onSubmit" :on-cancel="onCancel" id="validationForm">
       <SaFormInput label="Name"
-                   prop="details.name" />
+                   prop="details.name"
+      />
       <SaFormSelect label="Role"
-                    prop="role">
+                    prop="role"
+      >
         <ElOption label="User" value="USER" />
         <ElOption label="Admin" value="ADMIN" />
       </SaFormSelect>
