@@ -66,6 +66,7 @@ const StoryForm = defineComponent({
       <SaForm :model="fry"
               :rules="rules"
               ref="formRef"
+              :initially-loading="neverEndingLoading"
       >
         <ElFormItem
           label="Name"
