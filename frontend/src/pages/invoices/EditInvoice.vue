@@ -28,6 +28,7 @@
       ref="formRef"
       :model="invoice"
       :rules="invoiceValidationRules"
+      :initially-loading="id !== undefined"
     >
       <template #default>
         <div class="row">

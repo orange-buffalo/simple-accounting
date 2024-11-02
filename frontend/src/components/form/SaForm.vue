@@ -48,10 +48,18 @@
   import useNotifications from '@/components/notifications/use-notifications.ts';
 
   type SaFormProps = {
-    // legacy API will provide this, while new API v-model
+    /**
+     * @deprecated legacy API will provide this, while new API v-model
+     */
     model?: FormValues,
-    // legacy API
+    /**
+     * @deprecated legacy API: use backend validations or ClientSideValidationError instead
+     */
     rules?: FormRules,
+    /**
+     * @deprecated legacy API: workaround for "create" use case
+     */
+    initiallyLoading?: boolean,
     onCancel?: () => Promise<unknown> | unknown,
     cancelButtonLabel?: string,
     submitButtonLabel?: string,
@@ -81,7 +89,8 @@
   }
 
   const elForm = ref<FormInstance | undefined>(undefined);
-  const loading = ref(isLegacyApi);
+  // false for modern API, complex logic for legacy API
+  const loading = ref(isLegacyApi ? (props.initiallyLoading ?? true) : false);
 
   const formItems = new Map<string, FormItemContext>();
   provideSaFormComponentsApi({

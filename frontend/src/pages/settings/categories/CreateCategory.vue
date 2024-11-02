@@ -8,6 +8,7 @@
       ref="formRef"
       :model="category"
       :rules="categoryValidationRules"
+      :initially-loading="false"
     >
       <template #default>
         <ElFormItem

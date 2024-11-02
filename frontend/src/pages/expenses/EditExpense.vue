@@ -8,6 +8,7 @@
       ref="formRef"
       :model="expense"
       :rules="expenseValidationRules"
+      :initially-loading="id !== undefined || prototype !== undefined"
     >
       <template #default>
         <div class="row">
