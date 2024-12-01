@@ -61,6 +61,30 @@ internal class SaOpenApiCustomizer(
                     .schema
             )
         }
+
+        workAroundIssue2798(openApi)
+    }
+
+    /**
+     * Workaround for https://github.com/springdoc/springdoc-openapi/issues/2798
+     */
+    private fun workAroundIssue2798(openApi: OpenAPI) {
+        openApi.components.schemas.remove("Unit")
+        openApi.paths.forEach { _, path ->
+            path.readOperations().forEach { operation ->
+                operation.responses.forEach { _, response ->
+                    var toBeRemoved = false
+                    response.content?.forEach { (_, mediaType) ->
+                        if (mediaType.schema?.`$ref` == "#/components/schemas/Unit") {
+                            toBeRemoved = true
+                        }
+                    }
+                    if (toBeRemoved) {
+                        response.content = null
+                    }
+                }
+            }
+        }
     }
 }
 
