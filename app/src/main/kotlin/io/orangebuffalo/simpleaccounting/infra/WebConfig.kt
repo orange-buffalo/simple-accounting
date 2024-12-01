@@ -59,12 +59,12 @@ class WebConfig : WebFluxConfigurer {
             .addResourceLocations("classpath:META-INF/resources/assets/")
             .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
 
-        registry.addResourceHandler("/*favicon.ico")
-            .addResourceLocations("classpath:META-INF/resources/favicon.ico")
+        registry.addResourceHandler("/favicon.ico")
+            .addResourceLocations("classpath:META-INF/resources/")
             .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS))
 
-        registry.addResourceHandler("/*index.html")
-            .addResourceLocations("classpath:META-INF/resources/index.html")
+        registry.addResourceHandler("/index.html")
+            .addResourceLocations("classpath:META-INF/resources/")
             .setCacheControl(CacheControl.noCache())
     }
 
