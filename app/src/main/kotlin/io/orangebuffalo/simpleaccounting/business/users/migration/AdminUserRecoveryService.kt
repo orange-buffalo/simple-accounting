@@ -1,9 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.users.migration
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
 import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,7 +22,7 @@ private val log = KotlinLogging.logger {}
 @Service
 class AdminUserRecoveryService(private val aggregateTemplate: JdbcAggregateTemplate) {
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent::class)
     @Transactional
     fun recoverAdminUser() {
         log.info { "Starting admin user recovery" }

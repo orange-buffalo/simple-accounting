@@ -51,6 +51,7 @@ subprojects {
         withType<Test> {
             useJUnitPlatform()
             beforeTest(KotlinClosure1<TestDescriptor, Any>(project::printTestDescriptionDuringBuild))
+            afterTest(KotlinClosure2<TestDescriptor, TestResult, Any>(project::printTestResultDuringBuild))
             testLogging {
                 showStandardStreams = true
             }

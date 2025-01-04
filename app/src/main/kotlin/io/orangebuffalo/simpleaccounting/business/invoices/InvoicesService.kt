@@ -1,20 +1,21 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
+import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.customers.CustomersService
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTaxesService
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessMode
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.infra.executeInParallel
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.core.task.AsyncTaskExecutor
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import jakarta.annotation.PostConstruct
 
 private val logger = KotlinLogging.logger {}
 
@@ -29,7 +30,7 @@ class InvoicesService(
     private val taskExecutor: AsyncTaskExecutor
 ) {
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent::class)
     fun init() {
         // todo #246: investigate and execute in the same thread if possible
         taskExecutor.submit {

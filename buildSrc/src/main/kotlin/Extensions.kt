@@ -1,8 +1,13 @@
 import org.gradle.api.Project
 import org.gradle.api.tasks.testing.TestDescriptor
+import org.gradle.api.tasks.testing.TestResult
 
 fun Project.printTestDescriptionDuringBuild(testDescriptor: TestDescriptor) {
     logger.lifecycle("Running test: $testDescriptor")
+}
+
+fun Project.printTestResultDuringBuild(testDescriptor: TestDescriptor, testResult: TestResult) {
+    logger.lifecycle("Test $testDescriptor finished with result: $testResult")
 }
 
 fun ifCi(action: () -> Unit) {
