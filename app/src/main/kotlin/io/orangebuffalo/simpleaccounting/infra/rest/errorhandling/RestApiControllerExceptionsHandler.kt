@@ -2,12 +2,13 @@ package io.orangebuffalo.simpleaccounting.infra.rest.errorhandling
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import io.orangebuffalo.simpleaccounting.business.workspaces.InvalidWorkspaceAccessTokenException
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AccountIsTemporaryLockedException
 import io.orangebuffalo.simpleaccounting.business.security.authentication.LoginUnavailableException
-import io.swagger.v3.oas.models.media.Schema
+import io.orangebuffalo.simpleaccounting.business.workspaces.InvalidWorkspaceAccessTokenException
+import io.swagger.v3.oas.models.media.ObjectSchema
+import io.swagger.v3.oas.models.media.StringSchema
 import mu.KotlinLogging
 import org.springframework.core.NestedRuntimeException
 import org.springframework.core.codec.CodecException
@@ -307,19 +308,16 @@ internal class SimpleApiErrorHandler(
             typeName = "${apiName}${endpointNameCapitalized}Errors",
             schemaProvider = {
                 // SimpleApiErrorDto but with "dynamic" enum for error field
-                Schema<Any>()
-                    .type("object")
+                ObjectSchema()
                     .required(listOf(SimpleApiErrorDto::error.name))
                     .addProperty(
                         SimpleApiErrorDto::error.name,
-                        Schema<String>()
-                            .type("string")
-                            ._enum(apiErrorMappings.map { it.apiError })
+                        StringSchema()
+                            ._enum(apiErrorMappings.map { it.apiError }),
                     )
                     .addProperty(
                         SimpleApiErrorDto::message.name,
-                        Schema<String>()
-                            .type("string")
+                        StringSchema(),
                     )
             }
         )
