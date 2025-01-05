@@ -32,7 +32,7 @@ jobs:
 
     - uses: actions/cache@v4
       with:
-        key: ${{ runner.os }}-${{ hashFiles('frontend/bun.lockb', 'frontend/package.json') }}
+        key: ${{ runner.os }}-${{ hashFiles('frontend/bun.lock', 'frontend/package.json') }}
         path: ~/.bun/install/cache
 
     - name: Setup Gradle

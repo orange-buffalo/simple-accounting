@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "node build-config/post-install/post-install.js",
+    "postinstall": "bun build-config/post-install/post-install.js",
     "dev": "vite",
     "build": "bun run typecheck && vite build",
     "test:unit": "vitest --run",
