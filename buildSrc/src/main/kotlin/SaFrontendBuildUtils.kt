@@ -9,12 +9,19 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
+import org.gradle.process.ExecOperations
 import java.io.File
+import javax.inject.Inject
 
 abstract class SaFrontendTask : DefaultTask() {
 
+    @get:Inject
+    open lateinit var execOperations: ExecOperations
+
     @Input
     val args: Property<String> = project.objects.property(String::class.java)
+
+    private val workDir = project.projectDir
 
     private val fullCommandLine = args.map { userInput ->
         listOf(
@@ -29,7 +36,8 @@ abstract class SaFrontendTask : DefaultTask() {
 
     @TaskAction
     fun executeFrontendTask() {
-        project.exec {
+        execOperations.exec {
+            workingDir(workDir)
             commandLine(fullCommandLine.get())
         }
     }
