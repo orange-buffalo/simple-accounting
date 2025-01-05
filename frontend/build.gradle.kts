@@ -1,6 +1,6 @@
 val prodConfigs = arrayOf(
     ".eslintignore", ".eslintrc.cjs", "package.json",
-    "bun.lockb", "build-config/vite-plugins.ts", "vite.config.ts",
+    "bun.lock", "build-config/vite-plugins.ts", "vite.config.ts",
 )
 val storybookConfigs = arrayOf(".babelrc", "build-config/storybook/**")
 

@@ -6,8 +6,8 @@ on:
       - "frontend/package.json"
 
 jobs:
-  update-bun-lockb:
-    name: "Update bun.lockb"
+  update-bun-lock:
+    name: "Update bun.lock"
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -19,14 +19,14 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           token: ${{ secrets.DEPENDABOT_AUTO_REBASE_TOKEN }}
 
-      - name: "Update bun.lockb"
+      - name: "Update bun.lock"
         run: |
           cd frontend
           bun install
 
       - name: "Commit and push changes"
         run: |
-          git add frontend/bun.lockb
+          git add frontend/bun.lock
           git config --global user.name 'dependabot[bot]'
           git config --global user.email 'dependabot[bot]@users.noreply.github.com'
           git commit --amend --no-edit 
