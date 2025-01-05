@@ -87,7 +87,7 @@ data class ApiErrorResponseBodyDescriptor(
             return ApiErrorResponseBodyDescriptor(
                 typeName = klass.simpleName ?: throw IllegalArgumentException("Cannot get simple name for $klass"),
                 schemaProvider = {
-                    ModelConverters.getInstance()
+                    ModelConverters.getInstance(true)
                         .resolveAsResolvedSchema(AnnotatedType(klass.java))
                         .schema
                 }
