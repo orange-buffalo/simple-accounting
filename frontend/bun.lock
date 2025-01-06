@@ -57,7 +57,7 @@
         "flat": "6.0.1",
         "js-yaml": "4.1.0",
         "jsdom": "25.0.1",
-        "rollup-plugin-visualizer": "5.13.1",
+        "rollup-plugin-visualizer": "5.14.0",
         "sass": "1.83.1",
         "storybook": "7.6.17",
         "typescript": "5.7.2",
@@ -1768,7 +1768,7 @@
 
     "rollup": ["rollup@4.28.0", "", { "dependencies": { "@types/estree": "1.0.6" }, "optionalDependencies": { "@rollup/rollup-android-arm-eabi": "4.28.0", "@rollup/rollup-android-arm64": "4.28.0", "@rollup/rollup-darwin-arm64": "4.28.0", "@rollup/rollup-darwin-x64": "4.28.0", "@rollup/rollup-freebsd-arm64": "4.28.0", "@rollup/rollup-freebsd-x64": "4.28.0", "@rollup/rollup-linux-arm-gnueabihf": "4.28.0", "@rollup/rollup-linux-arm-musleabihf": "4.28.0", "@rollup/rollup-linux-arm64-gnu": "4.28.0", "@rollup/rollup-linux-arm64-musl": "4.28.0", "@rollup/rollup-linux-powerpc64le-gnu": "4.28.0", "@rollup/rollup-linux-riscv64-gnu": "4.28.0", "@rollup/rollup-linux-s390x-gnu": "4.28.0", "@rollup/rollup-linux-x64-gnu": "4.28.0", "@rollup/rollup-linux-x64-musl": "4.28.0", "@rollup/rollup-win32-arm64-msvc": "4.28.0", "@rollup/rollup-win32-ia32-msvc": "4.28.0", "@rollup/rollup-win32-x64-msvc": "4.28.0", "fsevents": "~2.3.2" }, "bin": { "rollup": "dist/bin/rollup" } }, "sha512-G9GOrmgWHBma4YfCcX8PjH0qhXSdH8B4HDE2o4/jaxj93S4DPCIDoLcXz99eWMji4hB29UFCEd7B2gwGJDR9cQ=="],
 
-    "rollup-plugin-visualizer": ["rollup-plugin-visualizer@5.13.1", "", { "dependencies": { "open": "^8.4.0", "picomatch": "^4.0.2", "source-map": "^0.7.4", "yargs": "^17.5.1" }, "peerDependencies": { "rolldown": "1.x", "rollup": "2.x || 3.x || 4.x" }, "optionalPeers": ["rolldown", "rollup"], "bin": { "rollup-plugin-visualizer": "dist/bin/cli.js" } }, "sha512-vMg8i6BprL8aFm9DKvL2c8AwS8324EgymYQo9o6E26wgVvwMhsJxS37aNL6ZsU7X9iAcMYwdME7gItLfG5fwJg=="],
+    "rollup-plugin-visualizer": ["rollup-plugin-visualizer@5.14.0", "", { "dependencies": { "open": "^8.4.0", "picomatch": "^4.0.2", "source-map": "^0.7.4", "yargs": "^17.5.1" }, "peerDependencies": { "rolldown": "1.x", "rollup": "2.x || 3.x || 4.x" }, "optionalPeers": ["rolldown", "rollup"], "bin": { "rollup-plugin-visualizer": "dist/bin/cli.js" } }, "sha512-VlDXneTDaKsHIw8yzJAFWtrzguoJ/LnQ+lMpoVfYJ3jJF4Ihe5oYLAqLklIK/35lgUY+1yEzCkHyZ1j4A5w5fA=="],
 
     "rrweb-cssom": ["rrweb-cssom@0.7.1", "", {}, "sha512-TrEMa7JGdVm0UThDJSx7ddw5nVm3UJS9o9CCIZ72B1vSyEZoziDqBYP3XIoi/12lKrJR8rE3jeFHMok2F/Mnsg=="],
 
