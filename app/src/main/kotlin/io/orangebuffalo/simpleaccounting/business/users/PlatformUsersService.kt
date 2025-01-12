@@ -70,7 +70,7 @@ class PlatformUsersService(
         val user = save(
             PlatformUser(
                 userName = userName,
-                passwordHash = RandomStringUtils.random(100),
+                passwordHash = RandomStringUtils.secure().next(100),
                 isAdmin = isAdmin,
                 i18nSettings = I18nSettings(locale = "en_AU", language = "en"),
                 activated = false
@@ -149,7 +149,7 @@ class PlatformUsersService(
         userActivationTokensRepository.save(
             UserActivationToken(
                 userId = userId,
-                token = RandomStringUtils.randomAlphanumeric(100),
+                token = RandomStringUtils.secure().nextAlphanumeric(100),
                 expiresAt = timeService.currentTime().plus(
                     userManagementProperties.activation.tokenTtlInHours.toLong(),
                     ChronoUnit.HOURS,
