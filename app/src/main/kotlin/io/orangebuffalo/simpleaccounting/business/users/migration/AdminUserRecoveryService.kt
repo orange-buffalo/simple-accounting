@@ -30,7 +30,7 @@ class AdminUserRecoveryService(private val aggregateTemplate: JdbcAggregateTempl
             .findAll(PlatformUser::class.java)
             .find { it.isAdmin }
         if (adminUser == null) {
-            val password = RandomStringUtils.randomAlphanumeric(15)
+            val password = RandomStringUtils.secure().nextAlphanumeric(15)
             val userName = "admin"
             aggregateTemplate.insert(
                 PlatformUser(
