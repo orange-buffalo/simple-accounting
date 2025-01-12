@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnOkJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnResponse
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.toInstant
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -169,8 +169,8 @@ internal class DropboxApiClientTest {
                 path = "/file1",
                 pathDisplay = "/File1",
                 id = "id_1",
-                clientModified = "2021-09-01T00:00:00Z".toInstant(),
-                serverModified = "2021-09-01T00:00:00Z".toInstant(),
+                clientModified = Instant.parse("2021-09-01T00:00:00Z"),
+                serverModified = Instant.parse("2021-09-01T00:00:00Z"),
                 revision = "123",
                 size = 1024,
                 contentHash = "hash1"
@@ -181,8 +181,8 @@ internal class DropboxApiClientTest {
                 path = "/file2",
                 pathDisplay = "/File2",
                 id = "id_2",
-                clientModified = "2021-09-02T00:00:00Z".toInstant(),
-                serverModified = "2021-09-02T00:00:00Z".toInstant(),
+                clientModified = Instant.parse("2021-09-02T00:00:00Z"),
+                serverModified = Instant.parse("2021-09-02T00:00:00Z"),
                 revision = "124",
                 size = 2048,
                 contentHash = "hash2"
@@ -230,8 +230,8 @@ internal class DropboxApiClientTest {
                 path = "/file1",
                 pathDisplay = "/File1",
                 id = "id_1",
-                clientModified = "2021-09-01T00:00:00Z".toInstant(),
-                serverModified = "2021-09-01T00:00:00Z".toInstant(),
+                clientModified = Instant.parse("2021-09-01T00:00:00Z"),
+                serverModified = Instant.parse("2021-09-01T00:00:00Z"),
                 revision = "123",
                 size = 1024,
                 contentHash = "hash1"
@@ -352,8 +352,8 @@ internal class DropboxApiClientTest {
                 path = "/file1",
                 pathDisplay = "/File1",
                 id = "id_1",
-                clientModified = "2022-09-02T00:00:00Z".toInstant(),
-                serverModified = "2022-09-02T00:00:01Z".toInstant(),
+                clientModified = Instant.parse("2022-09-02T00:00:00Z"),
+                serverModified = Instant.parse("2022-09-02T00:00:01Z"),
                 revision = "1",
                 size = 100,
                 contentHash = "hash_1"
@@ -364,8 +364,8 @@ internal class DropboxApiClientTest {
                 path = "/file2",
                 pathDisplay = "/File2",
                 id = "id_2",
-                clientModified = "2022-09-02T00:00:02Z".toInstant(),
-                serverModified = "2022-09-02T00:00:03Z".toInstant(),
+                clientModified = Instant.parse("2022-09-02T00:00:02Z"),
+                serverModified = Instant.parse("2022-09-02T00:00:03Z"),
                 revision = "2",
                 size = 200,
                 contentHash = "hash_2"
@@ -376,8 +376,8 @@ internal class DropboxApiClientTest {
                 path = "/file3",
                 pathDisplay = "/File3",
                 id = "id_3",
-                clientModified = "2022-09-02T00:00:04Z".toInstant(),
-                serverModified = "2022-09-02T00:00:05Z".toInstant(),
+                clientModified = Instant.parse("2022-09-02T00:00:04Z"),
+                serverModified = Instant.parse("2022-09-02T00:00:05Z"),
                 revision = "3",
                 size = 300,
                 contentHash = "hash_3"
