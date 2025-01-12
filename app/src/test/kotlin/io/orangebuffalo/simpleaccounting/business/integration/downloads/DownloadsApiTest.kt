@@ -11,8 +11,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.ContentDisposition
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
@@ -23,7 +23,7 @@ class DownloadsApiTest(
     @Autowired val client: WebTestClient
 ) {
 
-    @MockBean
+    @MockitoBean
     lateinit var downloadsService: DownloadsService
 
     @Test

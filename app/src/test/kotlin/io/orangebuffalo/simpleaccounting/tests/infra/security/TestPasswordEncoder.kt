@@ -1,11 +1,9 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.security
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.annotation.Configuration
+import com.nhaarman.mockitokotlin2.*
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.TestExecutionListener
 
@@ -15,12 +13,17 @@ import org.springframework.test.context.TestExecutionListener
  *
  * Works in conjunction with [TestPasswordEncoderListener].
  */
-@Configuration
+@TestConfiguration
 class TestPasswordEncoderConfig {
 
-    @Suppress("unused") // creates a mock
-    @MockBean
-    lateinit var passwordEncoder: PasswordEncoder
+    /**
+     * See Spring limitation described in https://github.com/spring-projects/spring-framework/issues/33934#issuecomment-2512136161.
+     * Waiting for https://github.com/spring-projects/spring-framework/issues/33925 to be available - we then
+     * can convert this workaround with primary bean into a meta-annotation.
+     */
+    @Bean
+    @Primary
+    fun testPasswordEncoder(): PasswordEncoder = mock { }
 }
 
 /**

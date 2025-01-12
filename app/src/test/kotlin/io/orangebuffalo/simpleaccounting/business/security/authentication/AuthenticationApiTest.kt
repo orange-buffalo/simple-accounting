@@ -23,11 +23,11 @@ import net.javacrumbs.jsonunit.kotest.shouldBeJsonString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
@@ -43,10 +43,10 @@ class AuthenticationApiTest(
     @Autowired private val timeService: TimeService,
     preconditionsFactory: PreconditionsFactory,
 ) {
-    @MockBean
+    @MockitoBean
     lateinit var jwtService: JwtService
 
-    @MockBean
+    @MockitoBean
     lateinit var refreshTokensService: RefreshTokensService
 
     private val preconditions by preconditionsFactory {

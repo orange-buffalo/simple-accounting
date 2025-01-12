@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.event.EventListener
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
@@ -49,10 +49,10 @@ internal class OAuth2ClientAuthorizationProviderTest(
     preconditionsFactory: PreconditionsFactory,
 ) {
 
-    @MockBean
+    @MockitoBean
     lateinit var authEventTestListener: AuthEventTestListener
 
-    @MockBean
+    @MockitoBean
     lateinit var savedAuthorizationRequestRepository: SavedAuthorizationRequestRepository
 
     @Captor
