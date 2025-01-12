@@ -7,15 +7,15 @@ import com.flipkart.zjsonpatch.JsonDiff
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.whenever
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
+import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.web.server.ServerWebExchange
@@ -42,7 +42,7 @@ class ApiSpecTest(
     @Autowired val client: WebTestClient
 ) {
 
-    @MockBean
+    @MockitoBean
     private lateinit var spaWebFilter: SpaWebFilter
 
     @Test

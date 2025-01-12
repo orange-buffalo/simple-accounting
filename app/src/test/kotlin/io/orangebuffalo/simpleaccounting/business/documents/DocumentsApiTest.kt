@@ -32,13 +32,13 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Bean
 import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.util.InMemoryResource
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
@@ -52,7 +52,7 @@ class DocumentsApiTest(
     preconditionsFactory: PreconditionsFactory,
 ) {
 
-    @MockBean
+    @MockitoBean
     lateinit var downloadsService: DownloadsService
 
     @BeforeEach

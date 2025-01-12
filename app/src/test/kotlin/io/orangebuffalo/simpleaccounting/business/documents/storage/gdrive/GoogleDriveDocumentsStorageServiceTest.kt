@@ -24,7 +24,6 @@ import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.io.buffer.DataBuffer
 import org.springframework.core.io.buffer.DataBufferUtils
@@ -33,6 +32,7 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.io.ByteArrayInputStream
 import java.util.function.Consumer
 
@@ -52,13 +52,13 @@ class GoogleDriveDocumentsStorageServiceTest(
     preconditionsFactory: PreconditionsFactory,
 ) {
 
-    @MockBean
+    @MockitoBean
     lateinit var webClientBuilderProvider: OAuth2WebClientBuilderProvider
 
-    @MockBean
+    @MockitoBean
     lateinit var clientAuthorizationProvider: OAuth2ClientAuthorizationProvider
 
-    @MockBean
+    @MockitoBean
     lateinit var pushNotificationService: PushNotificationService
 
     @AfterEach
