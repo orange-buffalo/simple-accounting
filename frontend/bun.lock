@@ -42,7 +42,7 @@
         "@types/lodash": "4.17.14",
         "@types/marked": "6.0.0",
         "@types/node": "22.10.6",
-        "@types/qs": "6.9.17",
+        "@types/qs": "6.9.18",
         "@types/sinonjs__fake-timers": "8.1.5",
         "@vitejs/plugin-vue": "5.2.1",
         "@vue/eslint-config-airbnb": "8.0.0",
@@ -642,7 +642,7 @@
 
     "@types/pretty-hrtime": ["@types/pretty-hrtime@1.0.3", "", {}, "sha512-nj39q0wAIdhwn7DGUyT9irmsKK1tV0bd5WFEhgpqNTMFZ8cE+jieuTphCW0tfdm47S2zVT5mr09B28b1chmQMA=="],
 
-    "@types/qs": ["@types/qs@6.9.17", "", {}, "sha512-rX4/bPcfmvxHDv0XjfJELTTr+iB+tn032nPILqHm5wbthUUUuVtNGGqzhya9XUxjTP8Fpr0qYgSZZKxGY++svQ=="],
+    "@types/qs": ["@types/qs@6.9.18", "", {}, "sha512-kK7dgTYDyGqS+e2Q4aK9X3D7q234CIZ1Bv0q/7Z5IwRDoADNU81xXJK/YVyLbLTZCoIwUoDoffFeF+p/eIklAA=="],
 
     "@types/range-parser": ["@types/range-parser@1.2.7", "", {}, "sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ=="],
 
