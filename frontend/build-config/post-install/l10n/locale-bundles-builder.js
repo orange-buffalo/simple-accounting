@@ -20,11 +20,14 @@ function mergeAndSaveCldrJsonFiles(baseDir, jsonFiles, outputFile) {
 }
 
 const baseCodeGenDir = 'src/services/i18n/l10n';
-// should use import.meta.resolve('cldr-data'), but does not work in bun
-const baseCldrDataDir = 'node_modules/cldr-data/';
+const baseCldrDataDir = import.meta.resolve('cldr-data')
+  .replace('file://', '')
+  .replace('index.js', '');
 
 function prepareCodeGenDir() {
-  fs.mkdirSync(baseCodeGenDir, { recursive: true });
+  if (!fs.existsSync(baseCodeGenDir)) {
+    fs.mkdirSync(baseCodeGenDir, { recursive: true });
+  }
 }
 
 function generateBaseLocalBundleJson() {
