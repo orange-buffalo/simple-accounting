@@ -2792,7 +2792,8 @@ components:
       properties:
         eventName:
           type: string
-        data: {}
+        data:
+          type: object
       required:
       - eventName
     DocumentsStorageStatus:
