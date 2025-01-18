@@ -7,7 +7,7 @@ import { getSupportedLanguages } from '@/services/i18n';
 describe('translation files', () => {
   test('should provide same keys and shape for all languages', async () => {
     const bundles = await Promise.all(getSupportedLanguages()
-      .map((language) => import(`@/services/i18n/t9n/${language.languageCode}`)
+      .map((language) => import(`@/services/i18n/t9n/${language.languageCode}.ts`)
         .then((module) => ({
           messages: module.default,
           language: language.languageCode,
