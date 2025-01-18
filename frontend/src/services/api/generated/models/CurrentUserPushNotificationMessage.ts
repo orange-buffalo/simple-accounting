@@ -27,10 +27,10 @@ export interface CurrentUserPushNotificationMessage {
     eventName: string;
     /**
      * 
-     * @type {any}
+     * @type {object}
      * @memberof CurrentUserPushNotificationMessage
      */
-    data?: any;
+    data?: object;
 }
 
 /**
