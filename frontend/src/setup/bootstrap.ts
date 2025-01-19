@@ -1,8 +1,9 @@
 import { removeLoader } from '@/setup/loader';
 import { ANONYMOUS_PAGES_PATH_PREFIXES } from '@/setup/setup-router.ts';
+import { profileApi, useAuth } from '@/services/api';
+import { initWorkspace } from '@/services/workspaces.ts';
 
 export async function bootstrapApp() {
-  const { useAuth } = await import('@/services/api');
   const { tryAutoLogin } = useAuth();
   const targetRoute = window.location.pathname;
 
@@ -27,7 +28,6 @@ export async function bootstrapApp() {
         .push(targetRoute);
     }
   } else if (await tryAutoLogin()) {
-    const { profileApi } = await import('@/services/api');
     const profile = await profileApi.getProfile();
     await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
 
@@ -36,7 +36,6 @@ export async function bootstrapApp() {
         .push(targetRoute);
     }
 
-    const { initWorkspace } = await import('@/services/workspaces');
     await initWorkspace();
   } else {
     await setLocaleFromBrowser();
