@@ -3,6 +3,7 @@
 // No text alignment with justified container classes (center-xs, for example)
 @use "_grid-variables.scss" as *;
 @use "_grid-mixins.scss" as *;
+@use 'sass:list';
 
 .row {
   @include row();
@@ -110,8 +111,8 @@
 
 // Mixin to run inside of for loop - creates col/breakpoint classes
 
-@for $i from 1 through length($breakpoint-up-prefixes) {
-  $thisPrefix: nth($breakpoint-up-prefixes, $i);
+@for $i from 1 through list.length($breakpoint-up-prefixes) {
+  $thisPrefix: list.nth($breakpoint-up-prefixes, $i);
   @if $thisPrefix == "xs" {
     @include col-factory($thisPrefix);
   } @else if $thisPrefix == "sm" {

@@ -1,5 +1,6 @@
 @use "vars" as *;
 @use "mixins" as *;
+@use 'sass:color';
 @import url("https://fonts.googleapis.com/css?family=Muli");
 
 $loader-color: $accent-contrast-color;
@@ -45,7 +46,7 @@ $loader-color: $accent-contrast-color;
     .app-loader:before {
       content: "";
       position: absolute;
-      background-color: fade_out($loader-color, .3);
+      background-color: color.adjust($loader-color, $alpha: -0.3);
       top: 0;
       left: -25px;
       height: 12px;
@@ -56,7 +57,7 @@ $loader-color: $accent-contrast-color;
     .app-loader:after {
       content: "";
       position: absolute;
-      background-color: fade_out($loader-color, .3);
+      background-color: color.adjust($loader-color, $alpha: -0.3);
       top: 0;
       left: 25px;
       height: 12px;

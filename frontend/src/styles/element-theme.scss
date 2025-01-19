@@ -26,6 +26,7 @@
 @use 'element-plus/theme-chalk/el-table-column.css';
 @use 'element-plus/theme-chalk/el-step.css';
 @use 'element-plus/theme-chalk/el-steps.css';
+@use 'sass:color';
 
 :root {
   --el-component-size: #{$sa-input-height};
@@ -89,11 +90,11 @@
     padding: 0;
 
     &:hover {
-      color: lighten($components-color, 7%);
+      color: color.adjust($components-color, $lightness: 7%);
     }
 
     &:focus, &:active, &:visited, &:focus:active {
-      color: darken($components-color, 7%);
+      color: color.adjust($components-color, $lightness: -7%);
     }
   }
 }
