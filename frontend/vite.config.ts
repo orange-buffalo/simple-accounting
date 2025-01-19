@@ -41,4 +41,11 @@ export default defineConfig({
   optimizeDeps: {
     include: ['jwt-decode'],
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        quietDeps: true,
+      },
+    },
+  },
 });
