@@ -6,7 +6,7 @@ interface Index {
 
 const iconComponents = import.meta.glob<FunctionalComponent<SVGAttributes>>('./svg/*.svg', {
   eager: true,
-  as: 'component',
+  query: '?component',
 });
 const icons: Index = {};
 
