@@ -73,7 +73,7 @@
     "sass": "1.83.4",
     "storybook": "7.6.17",
     "typescript": "5.7.3",
-    "vite": "6.0.9",
+    "vite": "6.1.0",
     "vite-svg-loader": "5.1.0",
     "vitest": "2.1.8",
     "vue-tsc": "2.2.0",
