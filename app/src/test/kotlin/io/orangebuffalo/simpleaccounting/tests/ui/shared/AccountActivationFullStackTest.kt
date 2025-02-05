@@ -14,7 +14,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFacto
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openAccountActivationPage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeLoginPage
-import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeWorkspaceSetupPage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeAccountSetupPage
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -175,7 +175,7 @@ class AccountActivationFullStackTest(
                     click()
                 }
 
-            page.shouldBeWorkspaceSetupPage()
+            page.shouldBeAccountSetupPage()
         }
     }
 }

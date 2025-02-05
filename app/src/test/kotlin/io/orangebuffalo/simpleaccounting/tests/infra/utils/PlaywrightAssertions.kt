@@ -50,7 +50,7 @@ fun Locator.shouldBeVisible() = this.shouldSatisfy(
 /**
  * Asserts that the locator is hidden.
  */
-fun Locator.shouldNotBeVisible() = this.shouldSatisfy(
+fun Locator.shouldBeHidden() = this.shouldSatisfy(
     "Element is not hidden"
 ) {
     this.isHidden.shouldBeTrue()

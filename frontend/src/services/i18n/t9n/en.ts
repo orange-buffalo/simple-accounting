@@ -917,4 +917,13 @@ export default {
   saForm: {
     inputValidationFailed: () => 'Some of the fields have not been filled correctly. Please check the form and try again.',
   },
+
+  accountSetup: {
+    welcomeMessage: () => 'Welcome to simple-accounting! We now will create a new workspace for you - a place where the data of your business is stored. If you have multiple businesses, each of them can be represented as a separate workspace. You will be able to setup other workspaces, if needed, after the initial configuration.',
+    workspaceNameLabel: () => 'Workspace Name',
+    workspaceNamePlaceholder: () => 'Provide a name for your workspace',
+    defaultCurrencyLabel: () => 'Main (default) Currency',
+    defaultCurrencyPlaceholder: () => 'Provide the main currency of this workspace',
+    submitButton: () => 'Complete setup',
+  },
 };

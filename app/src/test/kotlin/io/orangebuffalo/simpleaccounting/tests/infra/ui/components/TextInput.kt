@@ -4,7 +4,7 @@ import com.microsoft.playwright.Locator
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldNotBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 class TextInput<P : Any> private constructor(
@@ -16,7 +16,7 @@ class TextInput<P : Any> private constructor(
 
     fun shouldBeVisible() = input.shouldBeVisible()
 
-    fun shouldNotBeVisible() = input.shouldNotBeVisible()
+    fun shouldNotBeVisible() = input.shouldBeHidden()
 
     fun shouldHaveValue(value: String) = input.shouldSatisfy("Expecting input to have value [$value]") {
         this.inputValue() shouldBe value

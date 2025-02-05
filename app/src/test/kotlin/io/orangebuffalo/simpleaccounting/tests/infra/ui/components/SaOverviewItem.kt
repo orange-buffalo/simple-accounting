@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableIte
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextTrimmed
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldNotBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
 
 class SaOverviewItem private constructor(
     private val panel: Locator,
@@ -25,7 +25,7 @@ class SaOverviewItem private constructor(
     private val detailsTrigger = panel.locator(".overview-item__details-trigger")
 
     fun shouldNotHaveDetails() {
-        detailsTrigger.shouldNotBeVisible()
+        detailsTrigger.shouldBeHidden()
     }
 
     fun executeAction(actionLinkText: String) {

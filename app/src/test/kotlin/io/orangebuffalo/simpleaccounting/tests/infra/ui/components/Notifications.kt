@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveText
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldNotBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
 
 class Notifications(
     private val page: Page,
@@ -15,7 +15,7 @@ class Notifications(
             successContainer.locator(".el-message__content").shouldHaveText(message)
         }
         successContainer.locator(".el-message__closeBtn").click()
-        successContainer.shouldNotBeVisible()
+        successContainer.shouldBeHidden()
     }
 
     fun validationFailed() {
@@ -25,6 +25,6 @@ class Notifications(
             "Some of the fields have not been filled correctly. Please check the form and try again."
         )
         validationErrorContainer.locator(".el-message__closeBtn").click()
-        validationErrorContainer.shouldNotBeVisible()
+        validationErrorContainer.shouldBeHidden()
     }
 }

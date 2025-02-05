@@ -12,7 +12,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFacto
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeMyProfilePage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -154,7 +154,7 @@ class PasswordChangeFullStackTest(
         object {
             val fry = fry()
 
-            // TODO #23: workspace should not be required?
+            // TODO #1628: workspace should not be required?
             val workspace = workspace(owner = fry)
             val farnsworth = farnsworth()
         }

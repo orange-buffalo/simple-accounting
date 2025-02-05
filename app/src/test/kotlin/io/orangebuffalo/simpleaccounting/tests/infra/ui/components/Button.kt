@@ -4,7 +4,7 @@ import com.microsoft.playwright.Locator
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldNotBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 class Button<P : Any> private constructor(
@@ -23,7 +23,7 @@ class Button<P : Any> private constructor(
 
     fun shouldBeVisible() = locator.shouldBeVisible()
 
-    fun shouldNotBeVisible() = locator.shouldNotBeVisible()
+    fun shouldNotBeVisible() = locator.shouldBeHidden()
 
     fun shouldHaveLabelSatisfying(spec: (String) -> Unit) = locator.shouldSatisfy {
         spec(this.innerText())

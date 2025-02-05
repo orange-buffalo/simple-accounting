@@ -1,15 +1,18 @@
-package io.orangebuffalo.simpleaccounting.tests.ui.shared.pages
+package io.orangebuffalo.simpleaccounting.tests.ui.shared.components
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainInOrder
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.hasClass
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 
 class NavigationMenu(private val page: Page) {
     private val container = page.locator(".side-menu")
     fun shouldBeVisible(): NavigationMenu {
         container.shouldBeVisible()
+        return this
+    }
+
+    fun shouldBeHidden(): NavigationMenu {
+        container.shouldBeHidden()
         return this
     }
 
@@ -34,7 +37,15 @@ class NavigationMenu(private val page: Page) {
         menuItems.shouldContainInOrder(*expectedItems)
     }
 
+    fun shouldHaveWorkspaceName(name: String) {
+        container.locator(".side-menu__workspace-name").shouldHaveText(name)
+    }
+
     data class MenuItem(val label: String?, val isSectionHeader: Boolean)
 }
 
 fun Page.shouldHaveSideMenu(): NavigationMenu = NavigationMenu(this).shouldBeVisible()
+
+fun Page.shouldHaveSideMenuHidden() {
+    NavigationMenu(this).shouldBeHidden()
+}

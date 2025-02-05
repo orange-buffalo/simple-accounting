@@ -191,7 +191,7 @@
         await navigateByViewName('dashboard');
       }
     } else {
-      await navigateByViewName('workspace-setup');
+      await navigateByViewName('account-setup');
     }
   };
 
