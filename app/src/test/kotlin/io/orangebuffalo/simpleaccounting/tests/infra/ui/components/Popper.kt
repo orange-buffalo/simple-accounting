@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.matchers.string.shouldNotBeBlank
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldNotBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 /**
@@ -16,7 +16,7 @@ class Popper(
     val rootLocator : Locator = page.locator("#$id")
 
     fun shouldBeClosed() {
-        rootLocator.shouldNotBeVisible()
+        rootLocator.shouldBeHidden()
     }
 
     companion object {

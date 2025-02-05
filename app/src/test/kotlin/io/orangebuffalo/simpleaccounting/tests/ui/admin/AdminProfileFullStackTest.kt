@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTe
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeMyProfilePage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 
 @SimpleAccountingFullStackTest

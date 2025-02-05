@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
-import org.springframework.web.bind.annotation.*
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/")
@@ -71,11 +71,8 @@ data class WorkspaceDto(
 )
 
 data class CreateWorkspaceDto(
-    @field:NotBlank var name: String,
-    // todo #92: multicurrency is probably redundant; tax to be enabled later
-    //@field:NotNull var taxEnabled: Boolean,
-    //@field:NotNull var multiCurrencyEnabled: Boolean,
-    @field:NotBlank val defaultCurrency: String
+    @field:NotBlank @field:Size(max = 255) val name: String,
+    @field:NotBlank @field:Size(max = 3) val defaultCurrency: String
 )
 
 data class EditWorkspaceDto(

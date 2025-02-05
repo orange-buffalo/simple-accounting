@@ -15,7 +15,7 @@ class Select<P : Any> private constructor(
 
     fun shouldBeVisible() = input.shouldBeVisible()
 
-    fun shouldNotBeVisible() = input.shouldNotBeVisible()
+    fun shouldNotBeVisible() = input.shouldBeHidden()
 
     fun selectOption(option: String) {
         val popper = Popper.openOrLocateByTrigger(input)

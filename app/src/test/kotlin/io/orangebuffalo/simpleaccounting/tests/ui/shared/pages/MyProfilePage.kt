@@ -7,7 +7,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldNotBeVisible
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
 
 class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
     private val header = components.pageHeader("My Profile")
@@ -65,7 +65,7 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
         }
 
         fun shouldBeHidden() {
-            documentStorageSectionHeader.shouldNotBeVisible()
+            documentStorageSectionHeader.shouldBeHidden()
         }
     }
 

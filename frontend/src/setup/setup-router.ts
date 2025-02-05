@@ -23,7 +23,6 @@ import EditGeneralTax from '@/pages/settings/general-taxes/EditGeneralTax.vue';
 import WorkspacesOverview from '@/pages/settings/workspaces/WorkspacesOverview.vue';
 import WorkspaceEditor from '@/pages/settings/workspaces/WorkspaceEditor.vue';
 import LoginByLink from '@/pages/LoginByLink.vue';
-import WorkspaceSetup from '@/pages/settings/workspaces/WorkspaceSetup.vue';
 import { useAuth } from '@/services/api';
 import { useLastView } from '@/services/use-last-view';
 import { LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT } from '@/services/events';
@@ -31,6 +30,7 @@ import UsersOverview from '@/pages/admin/users/UsersOverview.vue';
 import AccountActivationPage from '@/pages/account-activation/AccountActivationPage.vue';
 import SaUnauthenticatedPage from '@/components/unauthenticated-page/SaUnauthenticatedPage.vue';
 import EditUser from '@/pages/admin/users/EditUser.vue';
+import AccountSetupPage from '@/pages/account-setup/AccountSetupPage.vue';
 
 const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: Number(route.params.id) });
 
@@ -94,9 +94,9 @@ export default function setupRouter() {
         props: true,
       },
       {
-        path: '/workspace-setup',
-        name: 'workspace-setup',
-        component: WorkspaceSetup,
+        path: '/account-setup',
+        name: 'account-setup',
+        component: AccountSetupPage,
       },
       {
         path: '/oauth-callback',

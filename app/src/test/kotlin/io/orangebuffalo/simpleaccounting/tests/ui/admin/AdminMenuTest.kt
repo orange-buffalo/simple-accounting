@@ -3,9 +3,9 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.NavigationMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.NavigationMenu
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 
 @SimpleAccountingFullStackTest

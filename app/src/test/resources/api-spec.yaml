@@ -2257,8 +2257,12 @@ components:
       properties:
         name:
           type: string
+          maxLength: 255
+          minLength: 0
         defaultCurrency:
           type: string
+          maxLength: 3
+          minLength: 0
       required:
       - defaultCurrency
       - name
