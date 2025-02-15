@@ -14,7 +14,6 @@
     "storybook": "storybook dev -p 6006 -c build-config/storybook",
     "build-storybook": "bun run typecheck-storybook && storybook build -c build-config/storybook -o build/storybook"
   },
-  "packageManager": "bun@1.2.2",
   "dependencies": {
     "@element-plus/icons-vue": "2.3.1",
     "@messageformat/core": "3.4.0",
