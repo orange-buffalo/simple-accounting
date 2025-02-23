@@ -1,6 +1,6 @@
 [versions]
 assertk = "0.28.1"
-awaitility = "4.2.2"
+awaitility = "4.3.0"
 guava = "33.4.0-jre"
 imageComparison = "4.4.0"
 javaxEl = "3.0.1-b12"
