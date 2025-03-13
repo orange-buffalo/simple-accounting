@@ -52,7 +52,7 @@
         "cldrjs": "0.5.5",
         "eslint": "8.57.1",
         "eslint-plugin-storybook": "0.11.4",
-        "eslint-plugin-vue": "9.32.0",
+        "eslint-plugin-vue": "10.0.0",
         "fetch-mock": "12.5.1",
         "flat": "6.0.1",
         "js-yaml": "4.1.0",
@@ -1122,7 +1122,7 @@
 
     "eslint-plugin-storybook": ["eslint-plugin-storybook@0.11.4", "", { "dependencies": { "@storybook/csf": "^0.1.11", "@typescript-eslint/utils": "^8.8.1", "ts-dedent": "^2.2.0" }, "peerDependencies": { "eslint": ">=8", "typescript": ">=4.8.4 <5.8.0" } }, "sha512-OvLf1ljpDQ6Y/U2kM7hT5hESn+hg0vq/nh62+YiPFWdRIEjuQM9ivmwoTP9nRBExH8fT2VPqM5t/RB68lqTWJw=="],
 
-    "eslint-plugin-vue": ["eslint-plugin-vue@9.32.0", "", { "dependencies": { "@eslint-community/eslint-utils": "^4.4.0", "globals": "^13.24.0", "natural-compare": "^1.4.0", "nth-check": "^2.1.1", "postcss-selector-parser": "^6.0.15", "semver": "^7.6.3", "vue-eslint-parser": "^9.4.3", "xml-name-validator": "^4.0.0" }, "peerDependencies": { "eslint": "^6.2.0 || ^7.0.0 || ^8.0.0 || ^9.0.0" } }, "sha512-b/Y05HYmnB/32wqVcjxjHZzNpwxj1onBOvqW89W+V+XNG1dRuaFbNd3vT9CLbr2LXjEoq+3vn8DanWf7XU22Ug=="],
+    "eslint-plugin-vue": ["eslint-plugin-vue@10.0.0", "", { "dependencies": { "@eslint-community/eslint-utils": "^4.4.0", "natural-compare": "^1.4.0", "nth-check": "^2.1.1", "postcss-selector-parser": "^6.0.15", "semver": "^7.6.3", "xml-name-validator": "^4.0.0" }, "peerDependencies": { "eslint": "^8.57.0 || ^9.0.0", "vue-eslint-parser": "^10.0.0" } }, "sha512-XKckedtajqwmaX6u1VnECmZ6xJt+YvlmMzBPZd+/sI3ub2lpYZyFnsyWo7c3nMOQKJQudeyk1lw/JxdgeKT64w=="],
 
     "eslint-plugin-vuejs-accessibility": ["eslint-plugin-vuejs-accessibility@2.2.1", "", { "dependencies": { "aria-query": "^5.3.0", "emoji-regex": "^10.0.0", "vue-eslint-parser": "^9.0.1" }, "peerDependencies": { "eslint": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0" } }, "sha512-+QpTYEb4UcVD5+RIfKs3YVPoH1mfUj3nadTixmpPw9+kYp6AFAiZ3CQ/HMiexAAgFGBgL3Np5/nwbqcfQomdEQ=="],
 
