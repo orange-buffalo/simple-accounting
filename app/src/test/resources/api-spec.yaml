@@ -1711,6 +1711,7 @@ components:
       properties:
         title:
           type: string
+          minLength: 1
         customer:
           type: integer
           format: int64
@@ -1731,6 +1732,7 @@ components:
           format: date
         currency:
           type: string
+          minLength: 1
         amount:
           type: integer
           format: int64
@@ -1828,8 +1830,10 @@ components:
           format: date
         title:
           type: string
+          minLength: 1
         currency:
           type: string
+          minLength: 1
         originalAmount:
           type: integer
           format: int64
@@ -1961,6 +1965,7 @@ components:
           type: string
         title:
           type: string
+          minLength: 1
       required:
       - amount
       - datePaid
@@ -2009,6 +2014,7 @@ components:
       properties:
         title:
           type: string
+          minLength: 1
         description:
           type: string
         rateInBps:
@@ -2051,8 +2057,10 @@ components:
           format: date
         title:
           type: string
+          minLength: 1
         currency:
           type: string
+          minLength: 1
         originalAmount:
           type: integer
           format: int64
@@ -2169,6 +2177,7 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
       required:
       - name
     CustomerDto:
@@ -2323,6 +2332,7 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
         description:
           type: string
         income:
@@ -2400,6 +2410,7 @@ components:
       properties:
         token:
           type: string
+          minLength: 1
       required:
       - token
     ChangePasswordRequestDto:
@@ -2439,8 +2450,10 @@ components:
       properties:
         userName:
           type: string
+          minLength: 1
         password:
           type: string
+          minLength: 1
         rememberMe:
           type: boolean
       required:
