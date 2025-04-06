@@ -20,7 +20,7 @@
     "@messageformat/parser": "5.1.1",
     "@popperjs/core": "^2.11.8",
     "copy-to-clipboard": "3.3.3",
-    "dompurify": "3.2.4",
+    "dompurify": "3.2.5",
     "dropzone": "6.0.0-beta.2",
     "element-plus": "2.9.7",
     "event-source-polyfill": "1.0.31",
