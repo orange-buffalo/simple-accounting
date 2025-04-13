@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.infra.oauth2
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import org.mockito.internal.util.MockUtil
 import org.springframework.http.HttpHeaders
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException

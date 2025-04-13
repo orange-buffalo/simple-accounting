@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.nhaarman.mockitokotlin2.*
+import org.mockito.kotlin.*
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.business.documents.storage.StorageAuthorizationRequiredException

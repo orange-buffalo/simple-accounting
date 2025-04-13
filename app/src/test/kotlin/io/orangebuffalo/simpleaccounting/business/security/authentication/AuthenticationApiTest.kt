@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
-import com.nhaarman.mockitokotlin2.*
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
@@ -22,6 +21,7 @@ import net.javacrumbs.jsonunit.kotest.inPath
 import net.javacrumbs.jsonunit.kotest.shouldBeJsonString
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON

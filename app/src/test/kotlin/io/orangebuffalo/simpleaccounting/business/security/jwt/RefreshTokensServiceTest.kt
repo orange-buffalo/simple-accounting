@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.security.jwt
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensRepository
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService

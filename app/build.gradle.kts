@@ -130,6 +130,8 @@ tasks.test {
         excludeTestsMatching(screenshotsTestPattern)
         excludeTestsMatching(e2eTestPattern)
     }
+    // to support mocking libraries via byte-buddy agent
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 tasks.jacocoTestReport {
