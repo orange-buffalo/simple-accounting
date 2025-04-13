@@ -17,7 +17,7 @@ kotlinSerializationPlugin = "2.1.20"
 kotlinxDatetime = "0.6.2"
 ktorVersion = "3.1.2"
 mockito = "5.17.0"
-mockitoKotlin = "2.2.0"
+mockitoKotlin = "5.4.0"
 snakeYaml = "2.4"
 springBoot = "3.4.4"
 springDependencyManagement = "1.1.7"
@@ -57,7 +57,7 @@ ktor-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", 
 ktor-kotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
 ktor-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktorVersion" }
 mockito-junitJupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
-mockitoKotlin = { module = "com.nhaarman.mockitokotlin2:mockito-kotlin", version.ref = "mockitoKotlin" }
+mockitoKotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
 springdocOpenapi-starterCommon = { module = "org.springdoc:springdoc-openapi-starter-common", version.ref = "springdocOpenapi" }
 springdocOpenapi-webfluxApi = { module = "org.springdoc:springdoc-openapi-starter-webflux-api", version.ref = "springdocOpenapi" }

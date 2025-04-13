@@ -1,15 +1,11 @@
 package io.orangebuffalo.simpleaccounting.business.documents
 
-import com.nhaarman.mockitokotlin2.argThat
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.stub
-import com.nhaarman.mockitokotlin2.whenever
 import io.kotest.matchers.equals.shouldBeEqual
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
-import io.orangebuffalo.simpleaccounting.business.integration.downloads.DownloadsService
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.TimeService
+import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
@@ -30,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -38,7 +35,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.security.util.InMemoryResource
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
@@ -49,11 +45,9 @@ class DocumentsApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
     @Autowired private val timeService: TimeService,
+    @Autowired private val tokenGenerator: TokenGenerator,
     preconditionsFactory: PreconditionsFactory,
 ) {
-
-    @MockitoBean
-    lateinit var downloadsService: DownloadsService
 
     @BeforeEach
     fun setup() {
@@ -125,7 +119,7 @@ class DocumentsApiTest(
     @Test
     @WithMockFryUser
     fun `should GET document content`() {
-        testDocumentsStorage.stub {
+        testDocumentsStorage.mock.stub {
             onBlocking {
                 getDocumentContent(preconditions.fryWorkspace, "test-location")
             } doReturn "test-content".toDataBuffers()
@@ -277,14 +271,7 @@ class DocumentsApiTest(
     @Test
     @WithMockFryUser
     fun `should return document download token`() {
-        downloadsService.stub {
-            onBlocking {
-                createDownloadToken<DocumentDownloadMetadata>(
-                    argThat { this is DocumentsService },
-                    argThat { this.documentId == preconditions.coffeeReceipt.id }
-                )
-            } doReturn "token"
-        }
+        whenever(tokenGenerator.generateToken(any())) doReturn "token"
 
         client.get()
             .uri("/api/workspaces/${preconditions.fryWorkspace.id}/documents/${preconditions.coffeeReceipt.id}/download-token")

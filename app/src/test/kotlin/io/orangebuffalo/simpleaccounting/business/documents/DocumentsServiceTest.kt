@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.documents
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.stub
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.stub
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest

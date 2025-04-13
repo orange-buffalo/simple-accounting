@@ -2,11 +2,10 @@ package io.orangebuffalo.simpleaccounting.tests.infra
 
 import io.orangebuffalo.simpleaccounting.tests.infra.database.DatabaseCleanupExtension
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactoryExtension
-import io.orangebuffalo.simpleaccounting.tests.infra.security.TestPasswordEncoderConfig
-import io.orangebuffalo.simpleaccounting.tests.infra.security.TestPasswordEncoderListener
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.FullStackTestsPlaywrightConfigurer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.FullStackTestsSpringContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsMocksConfiguration
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsUtilsConfiguration
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfig
 import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightExtension
@@ -26,9 +25,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 )
 @PlaywrightConfig(configurer = FullStackTestsPlaywrightConfigurer::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@Import(TestPasswordEncoderConfig::class, TestsMocksConfiguration::class, TestsUtilsConfiguration::class)
+@Import(TestsMocksConfiguration::class, TestsUtilsConfiguration::class)
 @TestExecutionListeners(
-    listeners = [TestPasswordEncoderListener::class],
+    listeners = [TestsMocksListener::class],
     mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
 )
 @ContextConfiguration(initializers = [FullStackTestsSpringContextInitializer::class])

@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.integration.downloads
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.doThrow
-import com.nhaarman.mockitokotlin2.stub
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.stub
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound

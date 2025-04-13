@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson

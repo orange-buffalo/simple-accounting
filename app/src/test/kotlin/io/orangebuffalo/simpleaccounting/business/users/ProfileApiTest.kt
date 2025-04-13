@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should

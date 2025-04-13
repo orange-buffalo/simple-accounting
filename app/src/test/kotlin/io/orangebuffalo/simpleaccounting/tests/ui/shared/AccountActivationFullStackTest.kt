@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.shared
 
 import com.microsoft.playwright.Page
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.should
@@ -153,7 +153,7 @@ class AccountActivationFullStackTest(
         val loginPage = page.shouldBeLoginPage()
 
         // reset time to generate valid JWT token on login
-        Mockito.reset(timeServiceSpy)
+        whenever(timeServiceSpy.currentTime()) doReturn Instant.now()
 
         withClue("Should update database with activated user") {
             aggregateTemplate.findSingle<PlatformUser>().should {

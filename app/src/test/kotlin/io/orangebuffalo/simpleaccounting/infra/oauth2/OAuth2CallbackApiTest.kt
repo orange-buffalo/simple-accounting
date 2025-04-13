@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.oauth2
 
-import com.nhaarman.mockitokotlin2.*
+import org.mockito.kotlin.*
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson

@@ -2,8 +2,8 @@ package io.orangebuffalo.simpleaccounting.tests.infra.utils
 
 import com.microsoft.playwright.Clock
 import com.microsoft.playwright.Page
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import java.time.Instant
 import java.time.LocalDate
