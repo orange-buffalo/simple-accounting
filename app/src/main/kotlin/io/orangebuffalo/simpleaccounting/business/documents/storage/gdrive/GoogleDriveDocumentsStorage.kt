@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service
 const val OAUTH2_CLIENT_REGISTRATION_ID = "google-drive"
 const val AUTH_EVENT_NAME = "storage.google-drive.auth"
 
+private val log = mu.KotlinLogging.logger {}
+
 @Service
 class GoogleDriveDocumentsStorage(
     private val userService: PlatformUsersService,
@@ -125,21 +127,26 @@ class GoogleDriveDocumentsStorage(
         }
 
     private suspend fun ensureRootFolder(integration: GoogleDriveStorageIntegration): FolderResponse {
-        val rooFolder = try {
+        log.debug { "Ensuring root folder for Google Drive integration $integration" }
+
+        val rootFolder = try {
             integration.folderId?.let { rootFolderId -> googleDriveApi.getFolderById(rootFolderId) }
         } catch (e: DriveFileNotFoundException) {
+            log.debug { "Root folder not found: ${e.message}" }
             null
         }
-        return rooFolder ?: googleDriveApi
+        return rootFolder ?: googleDriveApi
             .createFolder(folderName = "simple-accounting", parentFolderId = null)
             .also { driveFolder ->
                 integration.folderId = driveFolder.id
                 repository.save(integration)
+                log.debug { "Root folder created $driveFolder and saved to integration $integration" }
             }
     }
 
     suspend fun getCurrentUserIntegrationStatus(): GoogleDriveStorageIntegrationStatus {
         val currentUser = userService.getCurrentUser()
+        log.debug { "Getting Google Drive integration status for user ${currentUser.id}" }
 
         val integration = withDbContext {
             repository.findByUserId(currentUser.id!!)
@@ -155,11 +162,14 @@ class GoogleDriveDocumentsStorage(
         val rootFolder = try {
             ensureRootFolder(integration)
         } catch (_: StorageAuthorizationRequiredException) {
+            log.debug { "Authorization required for Google Drive integration" }
             return integrationStatus.copy(
                 authorizationUrl = buildAuthorizationUrl(),
                 authorizationRequired = true
             )
         }
+
+        log.debug { "Google Drive integration status for user ${currentUser.id} is $integrationStatus" }
 
         return integrationStatus.copy(
             folderName = rootFolder.name,

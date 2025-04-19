@@ -2,6 +2,8 @@ package io.orangebuffalo.simpleaccounting.tests.infra
 
 import io.orangebuffalo.simpleaccounting.tests.infra.database.DatabaseCleanupExtension
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactoryExtension
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
+import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.FullStackTestsPlaywrightConfigurer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.FullStackTestsSpringContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsMocksConfiguration
@@ -27,10 +29,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(TestsMocksConfiguration::class, TestsUtilsConfiguration::class)
 @TestExecutionListeners(
-    listeners = [TestsMocksListener::class],
+    listeners = [TestsMocksListener::class, ThirdPartyApisMocksListener::class],
     mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
 )
-@ContextConfiguration(initializers = [FullStackTestsSpringContextInitializer::class])
+@ContextConfiguration(
+    initializers = [
+        FullStackTestsSpringContextInitializer::class,
+        ThirdPartyApisMocksContextInitializer::class,
+    ]
+)
 @TestPropertySource(properties = ["spring.profiles.active=test"])
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)

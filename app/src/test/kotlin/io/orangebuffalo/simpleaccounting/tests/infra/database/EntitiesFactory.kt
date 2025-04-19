@@ -363,6 +363,15 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
     fun <T : Any> save(vararg entities: T) = entities.forEach { infra.save(it) }
 
     fun <T : Any> T.save(): T = infra.save(this)
+
+    /**
+     * Most of the functionality requires workspace to be setup for a user.
+     * This shortcut allows to configure this as part of the preconditions
+     * with minimum overheads.
+     */
+    fun PlatformUser.withWorkspace() : PlatformUser = this.also {
+        workspace(owner = this)
+    }
 }
 
 /**

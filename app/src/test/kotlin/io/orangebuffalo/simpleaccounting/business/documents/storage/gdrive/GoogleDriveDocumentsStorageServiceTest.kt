@@ -38,6 +38,11 @@ import java.util.function.Consumer
 
 private val bufferFactory = DefaultDataBufferFactory()
 
+/**
+ * TODO: this test is mostly covered by [io.orangebuffalo.simpleaccounting.tests.ui.user.UserProfileGoogleDriveDocumentStorageFullStackTest].
+ * The remaining parts to be covered by the pages that use upload / download functionality.
+ */
+@Deprecated("Uses excessive mocking, should be replaced with a full stack test")
 @SimpleAccountingIntegrationTest
 @NeedsWireMock
 @TestPropertySource(

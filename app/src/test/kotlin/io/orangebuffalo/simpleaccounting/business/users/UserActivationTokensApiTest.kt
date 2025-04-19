@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
-import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotContain
@@ -99,7 +98,7 @@ class UserActivationTokensApiTest(
                 .exchange()
                 .expectStatus().isNotFound
 
-            withClue("Expired token should be removed") {
+            withHint("Expired token should be removed") {
                 aggregateTemplate.findAll(UserActivationToken::class.java)
                     .shouldContainOnly(preconditions.activeToken)
             }
@@ -171,7 +170,7 @@ class UserActivationTokensApiTest(
                 .exchange()
                 .expectStatus().isNotFound
 
-            withClue("Expired token should be removed") {
+            withHint("Expired token should be removed") {
                 aggregateTemplate.findAll(UserActivationToken::class.java)
                     .shouldContainOnly(preconditions.activeToken)
             }
@@ -282,7 +281,7 @@ class UserActivationTokensApiTest(
                     put("expiresAt", "1999-03-29T04:01:02.042Z")
                 }
 
-            withClue("Existing token should be removed") {
+            withHint("Existing token should be removed") {
                 aggregateTemplate.findAll(UserActivationToken::class.java)
                     .shouldNotContain(preconditions.existingToken)
             }
@@ -359,7 +358,7 @@ class UserActivationTokensApiTest(
                     put("message", "Token expired")
                 }
 
-            withClue("Expired token should be removed") {
+            withHint("Expired token should be removed") {
                 aggregateTemplate.findAll(UserActivationToken::class.java)
                     .shouldContainOnly(preconditions.activeToken)
             }
@@ -370,12 +369,12 @@ class UserActivationTokensApiTest(
             request(preconditions.activeToken.token)
                 .verifyOkNoContent()
 
-            withClue("User should be activated") {
+            withHint("User should be activated") {
                 val user = aggregateTemplate.findById(preconditions.user.id!!, PlatformUser::class.java)
                 user.activated.shouldBeTrue()
             }
 
-            withClue("Token should be removed") {
+            withHint("Token should be removed") {
                 aggregateTemplate.findAll(UserActivationToken::class.java)
                     .shouldNotContain(preconditions.activeToken)
             }

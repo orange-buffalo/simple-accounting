@@ -73,7 +73,15 @@ jobs:
         path: "**/build/reports/tests/**/"
         if-no-files-found: "ignore"
 
-    - name: "Save Failed Screenshots"
+    - name: "Save Rendering Report"
+      uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: rendering-report
+        path: app/build/rendering-report
+        if-no-files-found: "ignore"
+
+    - name: "Save Failed Screenshots (Legacy)"
       uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
