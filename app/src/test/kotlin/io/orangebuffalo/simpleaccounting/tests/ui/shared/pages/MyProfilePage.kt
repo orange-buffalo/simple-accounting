@@ -1,18 +1,25 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.shared.pages
 
+import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Companion.switchByContainer
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveText
 
 class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
     private val header = components.pageHeader("My Profile")
     private val passwordChangeForm = PasswordChangeForm(page, components)
-    private val documentsStorageSection = DocumentStorageSection(page)
+    private val documentsStorageSection = DocumentStorageSection(components)
     private val languagePreferencesSection = LanguagePreferencesSection(page)
 
     fun shouldBeOpen(): MyProfilePage = header.shouldBeVisible()
@@ -38,6 +45,12 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
         return this
     }
 
+    fun shouldHaveDocumentsStorageSectionVisible(spec: DocumentStorageSection.() -> Unit): MyProfilePage {
+        documentsStorageSection.shouldBeVisible()
+        documentsStorageSection.spec()
+        return this
+    }
+
     fun shouldHaveDocumentsStorageSectionHidden(): MyProfilePage {
         documentsStorageSection.shouldBeHidden()
         return this
@@ -56,16 +69,67 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
         }
     }
 
-    class DocumentStorageSection(page: Page) {
+    @UiComponentMarker
+    class DocumentStorageSection(components: ComponentsAccessors<MyProfilePage>) {
         private val documentStorageSectionHeader =
-            page.locator("//*[contains(@class, 'el-form')]//h2[text()='Documents Storage']")
+           components.page.locator("//*[contains(@class, 'el-form')]//h2[text()='Documents Storage']")
+        private val googleDriveConfig =
+            DocumentStorageConfig(components, "google-drive", "Google Drive") { container ->
+                GoogleDriveSettings(components, container, this)
+            }
 
         fun shouldBeVisible() {
             documentStorageSectionHeader.shouldBeVisible()
         }
 
+        fun shouldHaveGoogleDriveConfigVisible(spec: DocumentStorageConfig<GoogleDriveSettings>.() -> Unit) {
+            googleDriveConfig.shouldBeVisible()
+            googleDriveConfig.spec()
+        }
+
         fun shouldBeHidden() {
             documentStorageSectionHeader.shouldBeHidden()
+        }
+
+        class DocumentStorageConfig<T>(
+            components: ComponentsAccessors<MyProfilePage>,
+            storageId: String,
+            private val title: String,
+            settingsProvider: (Locator) -> T,
+        ) : UiComponent<MyProfilePage, DocumentStorageConfig<T>>(components.owner) {
+            private val container = components.page.locator("#storage-config_$storageId")
+            private val header = container.locator("h4")
+            val switch = components.switchByContainer(container)
+            val settings = settingsProvider(container)
+
+            fun shouldBeVisible() {
+                container.shouldBeVisible()
+                header.shouldHaveText(title)
+                switch.shouldBeVisible()
+            }
+
+            fun reportRendering(name: String) {
+                container.reportRendering(name)
+            }
+        }
+
+        class GoogleDriveSettings(
+            components: ComponentsAccessors<MyProfilePage>,
+            parentEl: Locator,
+            parent: DocumentStorageSection
+        ) : UiComponent<DocumentStorageSection, GoogleDriveSettings>(parent) {
+            private val container = parentEl.locator(".sa-gdrive-integration")
+            val status = components.statusLabel(container)
+            val startAuthorizationButton = components.buttonByText("Start authorization now")
+            val detailsMessage: Locator = container.locator(".sa-gdrive-integration__status__details")
+
+            fun shouldBeHidden() {
+                container.shouldBeHidden()
+            }
+
+            fun shouldBeVisible() {
+                container.shouldBeVisible()
+            }
         }
     }
 

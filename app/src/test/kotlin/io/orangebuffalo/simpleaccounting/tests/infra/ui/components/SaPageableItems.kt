@@ -8,7 +8,7 @@ import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Paginator.Companion.twoSyncedPaginators
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithHint
 
 class SaPageableItems<I, P : Any> private constructor(
     private val container: Locator,
@@ -44,7 +44,7 @@ class SaPageableItems<I, P : Any> private constructor(
         container.shouldSatisfy {
             staticItems
                 .filter { itemPredicate(it) }
-                .shouldWithClue("Exactly one item expected to satisfy the predicate") {
+                .shouldWithHint("Exactly one item expected to satisfy the predicate") {
                     item = shouldBeSingle()
                 }
         }

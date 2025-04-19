@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.infra
 
 import io.orangebuffalo.simpleaccounting.infra.thirdparty.JbrWorkaround
 import org.springframework.stereotype.Component
+import java.util.*
 
 private val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
 
@@ -11,6 +12,8 @@ interface TokenGenerator {
         .map { kotlin.random.Random.nextInt(0, charPool.size) }
         .map(charPool::get)
         .joinToString("")
+
+    fun generateUuid() = UUID.randomUUID().toString()
 }
 
 @JbrWorkaround
