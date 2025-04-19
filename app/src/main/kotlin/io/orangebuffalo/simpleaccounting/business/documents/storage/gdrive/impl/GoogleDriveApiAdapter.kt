@@ -21,6 +21,8 @@ import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 
+private val log = mu.KotlinLogging.logger {}
+
 @Component
 class GoogleDriveApiAdapter(
     private val webClientBuilderProvider: OAuth2WebClientBuilderProvider,
@@ -109,29 +111,37 @@ class GoogleDriveApiAdapter(
     suspend fun createFolder(
         folderName: String,
         parentFolderId: String?
-    ): FolderResponse = createWebClient()
-        .post()
-        .uri { builder ->
-            builder.path("/drive/v3/files")
-                .queryParam("fields", "id, name")
-                .build()
-        }
-        .bodyValue(
-            GDriveCreateFileRequest(
-                name = folderName,
-                mimeType = "application/vnd.google-apps.folder",
-                parents = if (parentFolderId == null) emptyList() else listOf(parentFolderId)
+    ): FolderResponse {
+        log.debug { "Creating folder $folderName under $parentFolderId" }
+        return createWebClient()
+            .post()
+            .uri { builder ->
+                builder.path("/drive/v3/files")
+                    .queryParam("fields", "id, name")
+                    .build()
+            }
+            .bodyValue(
+                GDriveCreateFileRequest(
+                    name = folderName,
+                    mimeType = "application/vnd.google-apps.folder",
+                    parents = if (parentFolderId == null) emptyList() else listOf(parentFolderId)
+                )
             )
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .executeDriveRequest { errorJson ->
-            "Error while creating folder $folderName: $errorJson"
-        }
-        .bodyToMono(GDriveFile::class.java)
-        .map { driveFile -> driveFile.toFolderResponse() }
-        .awaitSingle()
+            .accept(MediaType.APPLICATION_JSON)
+            .executeDriveRequest { errorJson ->
+                log.debug { "Error while creating folder $folderName: $errorJson" }
+                "Error while creating folder $folderName: $errorJson"
+            }
+            .bodyToMono(GDriveFile::class.java)
+            .map { driveFile -> driveFile.toFolderResponse() }
+            .awaitSingle()
+            .also {
+                log.debug { "Folder $folderName created: $it" }
+            }
+    }
 
     suspend fun getFolderById(folderId: String): FolderResponse? {
+        log.debug { "Retrieving folder by id $folderId" }
         return createWebClient()
             .get()
             .uri { builder ->
@@ -141,12 +151,16 @@ class GoogleDriveApiAdapter(
             }
             .accept(MediaType.APPLICATION_JSON)
             .executeDriveRequest { errorJson ->
+                log.debug { "Error while retrieving folder $folderId: $errorJson" }
                 "Error while retrieving folder $folderId: $errorJson"
             }
             .bodyToMono(GDriveFile::class.java)
             .filter { driveFile -> !driveFile.trashed!! }
             .map { driveFile -> driveFile.toFolderResponse() }
             .awaitFirstOrNull()
+            .also {
+                log.debug { "Folder $folderId retrieved: $it" }
+            }
     }
 
     private fun createWebClient() = webClientBuilderProvider
@@ -157,25 +171,30 @@ class GoogleDriveApiAdapter(
     private suspend inline fun WebClient.RequestHeadersSpec<*>.executeDriveRequest(
         errorDescriptor: (errorJson: String?) -> String
     ): ClientResponse {
+        log.debug { "Executing request: $this" }
         val clientResponse = try {
             @Suppress("DEPRECATION")
             // Spring 5.3 does not provide coroutine-compatible API to achieve the sameSecurityUtils
             this.exchange().awaitSingle()
         } catch (e: OAuth2AuthorizationException) {
+            log.debug { "Authorization error: ${e.message}" }
             throw StorageAuthorizationRequiredException(cause = e)
         }
 
         val statusCode = clientResponse.statusCode()
         if (statusCode == HttpStatus.UNAUTHORIZED || statusCode == HttpStatus.FORBIDDEN) {
+            log.debug { "Authorization required: $statusCode" }
             throw StorageAuthorizationRequiredException(message = "Not authorized: $statusCode")
         } else if (statusCode != HttpStatus.OK) {
             val errorJson = clientResponse.bodyToMono(String::class.java).awaitFirstOrNull()
+            log.debug { "Error response with code $statusCode: $errorJson" }
             if (statusCode == HttpStatus.NOT_FOUND) {
                 throw DriveFileNotFoundException(errorJson)
             } else {
                 throw DocumentStorageException(errorDescriptor(errorJson))
             }
         }
+        log.debug { "Request executed successfully: $statusCode" }
 
         return clientResponse
     }

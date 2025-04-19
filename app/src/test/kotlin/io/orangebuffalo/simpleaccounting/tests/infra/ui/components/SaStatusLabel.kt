@@ -16,7 +16,7 @@ class SaStatusLabel<T : Any> private constructor(
      * Asserts that this label is of error (failure) state.
      * If [content] is not null, also asserts that the alert contains the given content.
      */
-    fun shouldBeError(content: String?) {
+    fun shouldBeError(content: String? = null) {
         container.shouldHaveClass("sa-status-label_failure")
         if (content != null) {
             container.shouldHaveText(content)
@@ -27,8 +27,19 @@ class SaStatusLabel<T : Any> private constructor(
      * Asserts that this label is of regular state.
      * If [content] is not null, also asserts that the alert contains the given content.
      */
-    fun shouldBeRegular(content: String?) {
+    fun shouldBeRegular(content: String? = null) {
         container.shouldHaveClass("sa-status-label_regular")
+        if (content != null) {
+            container.shouldHaveText(content)
+        }
+    }
+
+    /**
+     * Asserts that this label is of pending state.
+     * If [content] is not null, also asserts that the alert contains the given content.
+     */
+    fun shouldBePending(content: String? = null) {
+        container.shouldHaveClass("sa-status-label_pending")
         if (content != null) {
             container.shouldHaveText(content)
         }

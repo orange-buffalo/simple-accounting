@@ -57,6 +57,7 @@ class TestsMocksListener : TestExecutionListener {
         val mock = applicationContext.getBean(TokenGenerator::class.java)
         reset(mock)
         whenever(mock.generateToken(any())) doAnswer { original.generateToken(it.arguments[0] as Int) }
+        whenever(mock.generateUuid()) doAnswer { original.generateUuid() }
     }
 
     @JbrWorkaround
