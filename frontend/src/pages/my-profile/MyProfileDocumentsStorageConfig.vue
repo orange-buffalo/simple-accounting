@@ -1,5 +1,5 @@
 <template>
-  <div class="documents-storage-config">
+  <div class="documents-storage-config" :id="`storage-config_${storageId}`">
     <div class="documents-storage-config__header">
       <ElSwitch
         v-model="enabled"
