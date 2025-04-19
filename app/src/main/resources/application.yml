@@ -14,7 +14,7 @@ spring:
             provider: "google"
             scope:
               - "https://www.googleapis.com/auth/drive.file"
-            redirect-uri: "https://simple-accounting.orange-buffalo.io/oauth-callback"
+            redirect-uri: "${simpleaccounting.public-url}/oauth-callback"
             client-id: "<replace>"
             client-secret: "<replace>"
 
@@ -37,6 +37,7 @@ server:
       enabled: false
 
 simpleaccounting:
+  public-url: "https://simple-accounting.orange-buffalo.io"
   documents:
     storage:
       local-fs:
