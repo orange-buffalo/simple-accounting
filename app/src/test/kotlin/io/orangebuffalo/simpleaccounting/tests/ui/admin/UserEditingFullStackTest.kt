@@ -53,7 +53,7 @@ class UserEditingFullStackTest(
 
         val actualUsers = entitiesTemplate.findAll<PlatformUser>()
         actualUsers.map { user -> user.userName }
-            .shouldWithClue("Should update Fry user") {
+            .shouldWithHint("Should update Fry user") {
                 shouldContainExactlyInAnyOrder("fryX", preconditions.farnsworth.userName)
             }
     }
@@ -172,7 +172,7 @@ class UserEditingFullStackTest(
 
         entitiesTemplate.findAll<UserActivationToken>()
             .map { it.token }
-            .shouldWithClue("Should keep valid token intact") {
+            .shouldWithHint("Should keep valid token intact") {
                 shouldContainExactly("token-value")
             }
     }

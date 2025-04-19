@@ -17,6 +17,7 @@ data class TestConfig(
 
 data class ScreenshotsConfig(
     val replaceCommittedFiles: Boolean = false,
+    val failOnDiff: Boolean = true,
     val useCompliedStorybook: Boolean = true,
 )
 
