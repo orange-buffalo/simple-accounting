@@ -74,7 +74,7 @@ dependencies {
     testImplementation("org.flywaydb:flyway-core")
     testImplementation(libs.guava)
     testImplementation(libs.assertk)
-    testImplementation(libs.wiremock.jre8Standalone)
+    testImplementation(libs.wiremock.standalone)
     testImplementation(libs.awaitility)
     testImplementation(libs.zjsonpatch)
     testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
@@ -84,6 +84,7 @@ dependencies {
     testImplementation(libs.imageComparison)
     testImplementation("org.springframework.retry:spring-retry")
     testImplementation(libs.kotest.assertionsCore)
+    testImplementation("no.nav.security:mock-oauth2-server:2.1.10")
 
     testRuntimeOnly(libs.springdocOpenapi.webfluxApi)
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")

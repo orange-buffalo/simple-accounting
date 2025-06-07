@@ -16,26 +16,23 @@
       Authorization successfully completed! You can close this window now.
     </SaStatusLabel>
 
-    <ElAlert
+    <SaStatusLabel
       v-else
-      type="error"
-      :closable="false"
+      status="failure"
+      class="oauth-callback-page__message"
     >
-      <template #title>
-        <SaIcon icon="error" />
-        Authorization failed. Please try again or contact us.
-      </template>
-      <template #default>
-        Error reference is '{{ errorId }}'
-      </template>
-    </ElAlert>
+      <div>
+        <b>Authorization failed. Please try again or contact us.</b>
+        <br />
+        <span v-if="errorId">Error reference is '{{ errorId }}'</span>
+      </div>
+    </SaStatusLabel>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
   import LogoLogin from '@/assets/logo-login.svg?component';
-  import SaIcon from '@/components/SaIcon.vue';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import { oAuth2CallbackApi } from '@/services/api';
   import type { ErrorResponse } from '@/services/api';
@@ -96,9 +93,12 @@
       margin-bottom: 40px;
     }
 
-    .el-alert {
-      display: inline-flex;
-      width: auto;
+    &__message {
+      padding: 10px;
+
+      div {
+        padding-left: 5px;
+      }
     }
   }
 </style>

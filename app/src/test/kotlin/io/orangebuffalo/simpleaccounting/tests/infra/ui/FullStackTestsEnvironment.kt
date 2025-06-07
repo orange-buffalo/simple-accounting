@@ -46,10 +46,17 @@ private val springContextPort: Int by lazy {
 
 private const val viteDevServerPort: Int = 5173
 
+private val targetPort = if (TestEnvironment.config.fullStackTestsConfig.useViteDevServer)
+    viteDevServerPort
+else springContextPort
+private val browserUrl = "http://${browserStrategy.appHostName}:$targetPort"
+
 class FullStackTestsSpringContextInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
         TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
-            applicationContext, "server.port=$springContextPort"
+            applicationContext,
+            "server.port=$springContextPort",
+            "simpleaccounting.public-url=$browserUrl",
         )
     }
 }
@@ -57,13 +64,9 @@ class FullStackTestsSpringContextInitializer : ApplicationContextInitializer<Con
 class FullStackTestsPlaywrightConfigurer : SaPlaywrightConfigurer() {
 
     override fun createBrowserContextOptions(): Browser.NewContextOptions? {
-        val targetPort = if (TestEnvironment.config.fullStackTestsConfig.useViteDevServer)
-            viteDevServerPort
-        else springContextPort
-
         @Suppress("HttpUrlsUsage")
         return Browser.NewContextOptions()
-            .setBaseURL("http://${browserStrategy.appHostName}:$targetPort/")
+            .setBaseURL(browserUrl)
             .setViewportSize(1920, 1080)
     }
 

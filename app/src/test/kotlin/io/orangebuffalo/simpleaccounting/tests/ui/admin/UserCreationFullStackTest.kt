@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
-import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldHaveSize
@@ -9,10 +8,7 @@ import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.CreateUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeCreateUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
@@ -43,7 +39,7 @@ class UserCreationFullStackTest(
             .activationStatus { shouldBeVisible() }
 
         entitiesTemplate.findAll<PlatformUser>()
-            .shouldWithClue("Expected exactly one user created (and one pre-seeded with preconditions)") {
+            .shouldWithHint("Expected exactly one user created (and one pre-seeded with preconditions)") {
                 shouldHaveSize(2)
             }
             .filter { it.userName == "userX" }
@@ -63,7 +59,7 @@ class UserCreationFullStackTest(
     fun `should support user role`(page: Page) {
         setupPreconditionsAndNavigateToCreatePage(page)
             .role {
-                withClue("By default, regular user should be pre-selected") {
+                withHint("By default, regular user should be pre-selected") {
                     input.shouldHaveSelectedValue("User")
                 }
                 input.shouldHaveOptions("User", "Admin user")
