@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.support.TestPropertySourceUtils
 import org.springframework.test.util.TestSocketUtils
+import java.nio.file.Path
 
 private val springContextPort: Int by lazy {
     if (TestConfig.instance.fullStackTestsConfig.useViteDevServer)
@@ -40,4 +41,6 @@ class FullStackTestsPlaywrightOptions : OptionsFactory {
                 .setViewportSize(1920, 1080)
         )
         .setHeadless(TestConfig.instance.fullStackTestsConfig.useHeadlessBrowser)
+        .setTrace(Options.Trace.RETAIN_ON_FAILURE)
+        .setOutputDir(Path.of("build", "playwright-traces"))
 }
