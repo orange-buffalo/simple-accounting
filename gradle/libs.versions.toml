@@ -2,7 +2,6 @@
 assertk = "0.28.1"
 awaitility = "4.3.0"
 guava = "33.4.8-jre"
-imageComparison = "4.4.0"
 javaxEl = "3.0.1-b12"
 jib = "3.4.5"
 jjwt = "0.12.6"
@@ -18,12 +17,13 @@ kotlinxDatetime = "0.6.2"
 ktorVersion = "3.1.3"
 mockito = "5.17.0"
 mockitoKotlin = "5.4.0"
+mockOoauth2Server = "2.1.10"
+playwright = "1.52.0"
 snakeYaml = "2.4"
 springBoot = "3.4.5"
 springDependencyManagement = "1.1.7"
 springdocOpenapi = "2.8.6"
 testContainers = "1.21.0"
-testContainersPlaywirght = "0.11.14"
 wireMock = "3.12.1"
 zjsonpatch = "0.4.16"
 gitVersioningPlugin = "6.4.4"
@@ -32,7 +32,6 @@ gitVersioningPlugin = "6.4.4"
 assertk = { module = "com.willowtreeapps.assertk:assertk-jvm", version.ref = "assertk" }
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
-imageComparison = { module = "com.github.romankh3:image-comparison", version.ref = "imageComparison" }
 javax-el = { module = "org.glassfish:javax.el", version.ref = "javaxEl" }
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
@@ -58,12 +57,13 @@ ktor-kotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version
 ktor-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktorVersion" }
 mockito-junitJupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
 mockitoKotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+mockOauth2Server = { module = "no.nav.security:mock-oauth2-server", version.ref = "mockOoauth2Server" }
+playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
 snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
 springdocOpenapi-starterCommon = { module = "org.springdoc:springdoc-openapi-starter-common", version.ref = "springdocOpenapi" }
 springdocOpenapi-webfluxApi = { module = "org.springdoc:springdoc-openapi-starter-webflux-api", version.ref = "springdocOpenapi" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
 testcontainers-nginx = { module = "org.testcontainers:nginx", version.ref = "testContainers" }
-testcontainers-playwright = { module = "io.orange-buffalo:testcontainers-playwright", version.ref = "testContainersPlaywirght" }
 wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref = "wireMock" }
 zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjsonpatch" }
 

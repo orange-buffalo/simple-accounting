@@ -75,19 +75,16 @@ jobs:
 
     - name: "Save Rendering Report"
       uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
       with:
         name: rendering-report
         path: app/build/rendering-report
         if-no-files-found: "ignore"
 
-    - name: "Save Failed Screenshots (Legacy)"
-      uses: actions/upload-artifact@v4
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v5
       if: ${{ failure() }}
       with:
-        name: Screenshots Diff Files
-        path: app/build/screenshotsTest
-        if-no-files-found: "ignore"
+        report_paths: "**/build/reports/tests/**/"
 
     - name: "Report Test Coverage"
       uses: codecov/codecov-action@v5

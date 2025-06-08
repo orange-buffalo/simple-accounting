@@ -1,16 +1,15 @@
 package io.orangebuffalo.simpleaccounting.tests.infra
 
+import com.microsoft.playwright.junit.UsePlaywright
 import io.orangebuffalo.simpleaccounting.tests.infra.database.DatabaseCleanupExtension
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactoryExtension
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.FullStackTestsPlaywrightConfigurer
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.FullStackTestsPlaywrightOptions
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.FullStackTestsSpringContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsMocksConfiguration
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsUtilsConfiguration
-import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfig
-import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightExtension
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
@@ -22,10 +21,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(
     SpringExtension::class,
     DatabaseCleanupExtension::class,
-    PlaywrightExtension::class,
     PreconditionsFactoryExtension::class
 )
-@PlaywrightConfig(configurer = FullStackTestsPlaywrightConfigurer::class)
+@UsePlaywright(FullStackTestsPlaywrightOptions::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(TestsMocksConfiguration::class, TestsUtilsConfiguration::class)
 @TestExecutionListeners(
