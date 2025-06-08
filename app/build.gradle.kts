@@ -80,11 +80,10 @@ dependencies {
     testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     testImplementation(libs.testcontainers)
     testImplementation(libs.testcontainers.nginx)
-    testImplementation(libs.testcontainers.playwright)
-    testImplementation(libs.imageComparison)
+    testImplementation(libs.playwright)
     testImplementation("org.springframework.retry:spring-retry")
     testImplementation(libs.kotest.assertionsCore)
-    testImplementation("no.nav.security:mock-oauth2-server:2.1.10")
+    testImplementation(libs.mockOauth2Server)
 
     testRuntimeOnly(libs.springdocOpenapi.webfluxApi)
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")

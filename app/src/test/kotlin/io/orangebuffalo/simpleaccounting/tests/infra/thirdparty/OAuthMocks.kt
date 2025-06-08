@@ -10,7 +10,6 @@ import io.kotest.matchers.string.shouldStartWith
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.tests.infra.environment.TestEnvironment
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithHint
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -42,14 +41,8 @@ object OAuthMocks {
     /**
      * Authorization URL for the given issuer ID as accessible from the test browser.
      */
-    fun authorizationUrl(issuerId: String): String {
-        val host = if (TestEnvironment.config.fullStackTestsConfig.useLocalBrowser) {
-            "localhost"
-        } else {
-            "host.docker.internal"
-        }
-        return "http://${host}:${mockOAuthServer.config.httpServer.port()}/$issuerId/authorize"
-    }
+    fun authorizationUrl(issuerId: String): String =
+        mockOAuthServer.authorizationEndpointUrl(issuerId).toString()
 
     // workaround - MockOAuth2Server does not provide API to clear the queue
     private fun resetCurrentTokensQueue() {
