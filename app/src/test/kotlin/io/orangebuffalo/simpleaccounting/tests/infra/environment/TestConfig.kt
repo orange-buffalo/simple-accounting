@@ -20,7 +20,7 @@ data class ScreenshotsConfig(
 )
 
 data class FullStackTestsConfig(
-    val useHeadlessBrowser: Boolean = false,
+    val useHeadlessBrowser: Boolean = true,
     val useViteDevServer: Boolean = false,
     val viteDevServerSpringContextPort: Int = 5174,
 )

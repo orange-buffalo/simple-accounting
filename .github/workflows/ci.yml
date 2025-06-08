@@ -73,6 +73,13 @@ jobs:
         path: "**/build/reports/tests/**/"
         if-no-files-found: "ignore"
 
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v5
+      if: ${{ failure() }}
+      with:
+        report_paths: "**/build/test-results/**/TEST-*.xml"
+        require_tests: false
+
     - name: "Save Rendering Report"
       uses: actions/upload-artifact@v4
       with:
@@ -80,11 +87,12 @@ jobs:
         path: app/build/rendering-report
         if-no-files-found: "ignore"
 
-    - name: Publish Test Report
-      uses: mikepenz/action-junit-report@v5
-      if: ${{ failure() }}
+    - name: "Save Playwright Traces"
+      uses: actions/upload-artifact@v4
       with:
-        report_paths: "**/build/reports/tests/**/"
+        name: playwright-traces
+        path: app/build/playwright-traces
+        if-no-files-found: "ignore"
 
     - name: "Report Test Coverage"
       uses: codecov/codecov-action@v5
