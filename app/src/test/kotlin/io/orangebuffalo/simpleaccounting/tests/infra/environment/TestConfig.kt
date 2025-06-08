@@ -11,18 +11,16 @@ data class TestConfig(
     val hostIpInDockerContainer: String = "172.17.0.1",
 ) {
     companion object {
-        fun load(): TestConfig = loadTestConfig()
+        val instance: TestConfig by lazy { loadTestConfig() }
     }
 }
 
 data class ScreenshotsConfig(
-    val replaceCommittedFiles: Boolean = false,
-    val failOnDiff: Boolean = true,
     val useCompliedStorybook: Boolean = true,
 )
 
 data class FullStackTestsConfig(
-    val useLocalBrowser: Boolean = false,
+    val useHeadlessBrowser: Boolean = false,
     val useViteDevServer: Boolean = false,
     val viteDevServerSpringContextPort: Int = 5174,
 )

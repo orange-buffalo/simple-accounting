@@ -2,15 +2,11 @@ package io.orangebuffalo.simpleaccounting.tests.e2e
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
+import com.microsoft.playwright.junit.UsePlaywright
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
-import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightConfig
-import io.orangebuffalo.testcontainers.playwright.junit.PlaywrightExtension
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(E2eTestsExtension::class)
-@ExtendWith(PlaywrightExtension::class)
-@PlaywrightConfig(configurer = E2eTestsPlaywrightConfigurer::class)
+@UsePlaywright(E2eTestsPlaywrightOptions::class)
 class E2eTests {
 
     @Test
