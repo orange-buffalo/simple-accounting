@@ -5,7 +5,7 @@ import net.javacrumbs.jsonunit.kotest.shouldBeJsonNumber
 
 fun Any?.shouldBeJsonInteger(): Int {
     return this.shouldBeJsonNumber()
-        .shouldWithClue("Expected an integer") {
+        .shouldWithHint("Expected an integer") {
             this.shouldHaveScale(0)
         }
         .intValueExact()

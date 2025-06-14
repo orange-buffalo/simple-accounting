@@ -1,9 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.shared
 
 import com.microsoft.playwright.Page
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.whenever
-import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -12,11 +9,13 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openAccountActivationPage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeAccountSetupPage
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import java.time.Instant
@@ -87,7 +86,7 @@ class AccountActivationFullStackTest(
     @Test
     fun `should validate user input`(page: Page) {
         page.openAccountActivationPage(preconditions.token.token).form {
-            withClue("Should validate password match when confirmation is not provided") {
+            withHint("Should validate password match when confirmation is not provided") {
                 newPassword.input.fill("abc")
                 activateAccountButton.click()
                 shouldBeVisible()
@@ -95,7 +94,7 @@ class AccountActivationFullStackTest(
                 newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
             }
 
-            withClue("Should validate password match when confirmation is provided") {
+            withHint("Should validate password match when confirmation is provided") {
                 newPassword.input.fill("abc")
                 newPasswordConfirmation.input.fill("def")
                 activateAccountButton.click()
@@ -104,7 +103,7 @@ class AccountActivationFullStackTest(
                 newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
             }
 
-            withClue("Should prohibit empty password") {
+            withHint("Should prohibit empty password") {
                 newPassword.input.fill("")
                 newPasswordConfirmation.input.fill("")
                 activateAccountButton.click()
@@ -113,7 +112,7 @@ class AccountActivationFullStackTest(
                 newPasswordConfirmation.shouldNotHaveValidationErrors()
             }
 
-            withClue("Should prohibit blank password") {
+            withHint("Should prohibit blank password") {
                 newPassword.input.fill("  ")
                 newPasswordConfirmation.input.fill("  ")
                 activateAccountButton.click()
@@ -122,7 +121,7 @@ class AccountActivationFullStackTest(
                 newPasswordConfirmation.shouldNotHaveValidationErrors()
             }
 
-            withClue("Should prohibit too long passwords") {
+            withHint("Should prohibit too long passwords") {
                 newPassword.input.fill("a".repeat(101))
                 newPasswordConfirmation.input.fill("a".repeat(101))
                 activateAccountButton.click()
@@ -155,7 +154,7 @@ class AccountActivationFullStackTest(
         // reset time to generate valid JWT token on login
         whenever(timeServiceSpy.currentTime()) doReturn Instant.now()
 
-        withClue("Should update database with activated user") {
+        withHint("Should update database with activated user") {
             aggregateTemplate.findSingle<PlatformUser>().should {
                 it.activated.shouldBeTrue()
                 // test password encoder saves value as is
@@ -163,7 +162,7 @@ class AccountActivationFullStackTest(
             }
         }
 
-        withClue("Should login after activation") {
+        withHint("Should login after activation") {
             loginPage
                 .loginInput {
                     fill(preconditions.user.userName)

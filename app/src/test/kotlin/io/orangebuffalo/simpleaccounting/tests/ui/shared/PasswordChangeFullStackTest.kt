@@ -3,13 +3,13 @@ package io.orangebuffalo.simpleaccounting.tests.ui.shared
 import com.microsoft.playwright.Page
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
-import io.kotest.assertions.withClue
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
 import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeMyProfilePage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
@@ -116,7 +116,7 @@ class PasswordChangeFullStackTest(
             }
         }
 
-        withClue("Password should not be changed") {
+        withHint("Password should not be changed") {
             repository.findByUserName(preconditions.fry.userName)
                 .shouldNotBeNull()
                 .passwordHash.shouldBe(preconditions.fry.passwordHash)
