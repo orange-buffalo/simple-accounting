@@ -89,6 +89,7 @@ jobs:
 
     - name: "Save Playwright Traces"
       uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
       with:
         name: playwright-traces
         path: app/build/playwright-traces
