@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui
 
 import com.microsoft.playwright.*
+import com.microsoft.playwright.impl.AssertionsTimeout
 import io.orangebuffalo.simpleaccounting.tests.infra.environment.TestConfig
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.UI_ASSERTIONS_TIMEOUT_MS
 import org.junit.jupiter.api.extension.*
@@ -48,9 +49,12 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
             val browser = playwright.chromium().launch(
                 BrowserType.LaunchOptions()
                     .setHeadless(TestConfig.instance.fullStackTestsConfig.useHeadlessBrowser)
+                    .setSlowMo(TestConfig.instance.fullStackTestsConfig.slowMoMs.toDouble())
             )
             playwrightContext = PlaywrightContext(playwright, browser)
             threadLocalPlaywrightContext.set(playwrightContext)
+            // setup assertions timeout
+            AssertionsTimeout.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
         }
 
         val browserContext = playwrightContext.browser.newContext(
