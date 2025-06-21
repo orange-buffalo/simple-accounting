@@ -16,12 +16,6 @@ class OAuthAuthorizationPopup(page: Page) : SaPageBase<OAuthAuthorizationPopup>(
     private val pageContainer = page.locator(".oauth-callback-page")
     private val status = components.statusLabel()
 
-    init {
-        // workaround for https://github.com/microsoft/playwright/issues/36392 - sometimes
-        // the popup is not opened immediately, so we need to wait for it
-        page.setDefaultTimeout(10_000.0)
-    }
-
     private fun shouldHaveLoadingState() {
         withHint("OAuth authorization popup should be loading") {
             pageContainer.shouldBeVisible()
