@@ -2,6 +2,9 @@ package io.orangebuffalo.simpleaccounting.tests.ui.shared.pages
 
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
@@ -12,9 +15,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Companion.switchByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveText
 
 class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
     private val header = components.pageHeader("My Profile")

@@ -2,11 +2,11 @@ package io.orangebuffalo.simpleaccounting.tests.ui.shared.pages
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import org.mockito.kotlin.doReturn
@@ -15,6 +15,12 @@ import org.mockito.kotlin.whenever
 class OAuthAuthorizationPopup(page: Page) : SaPageBase<OAuthAuthorizationPopup>(page) {
     private val pageContainer = page.locator(".oauth-callback-page")
     private val status = components.statusLabel()
+
+    init {
+        // workaround for https://github.com/microsoft/playwright/issues/36392 - sometimes
+        // the popup is not opened immediately, so we need to wait for it
+        page.setDefaultTimeout(10_000.0)
+    }
 
     private fun shouldHaveLoadingState() {
         withHint("OAuth authorization popup should be loading") {

@@ -1,9 +1,9 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveText
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 
 class FormItem<I : UiComponent<*, *>, P : Any> private constructor(
     private val rootLocator: Locator,
@@ -17,7 +17,7 @@ class FormItem<I : UiComponent<*, *>, P : Any> private constructor(
 
     fun shouldBeVisible () = rootLocator.shouldBeVisible()
 
-    fun shouldNotBeVisible() = rootLocator.shouldBeHidden()
+    fun shouldBeHidden() = rootLocator.shouldBeHidden()
 
     fun shouldHaveValidationError(message: String): P {
         validationErrorLocator.shouldBeVisible()

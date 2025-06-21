@@ -48,7 +48,7 @@ class UserActivationStatus<T : UserPageBase<T>>(
 
     fun shouldBeActivated() {
         status.shouldBeSimplifiedSuccess(null)
-        linkButton.shouldNotBeVisible()
+        linkButton.shouldBeHidden()
     }
 
     fun shouldBeNotActivated(tokenValue: String) {

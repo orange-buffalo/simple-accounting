@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveClass
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveText
+import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 
 /**
  * A wrapper around `SaStatusLabel` component.
@@ -17,7 +17,7 @@ class SaStatusLabel<T : Any> private constructor(
      * If [content] is not null, also asserts that the alert contains the given content.
      */
     fun shouldBeError(content: String? = null) {
-        container.shouldHaveClass("sa-status-label_failure")
+        container.shouldContainClass("sa-status-label_failure")
         if (content != null) {
             container.shouldHaveText(content)
         }
@@ -28,7 +28,7 @@ class SaStatusLabel<T : Any> private constructor(
      * If [content] is not null, also asserts that the alert contains the given content.
      */
     fun shouldBeRegular(content: String? = null) {
-        container.shouldHaveClass("sa-status-label_regular")
+        container.shouldContainClass("sa-status-label_regular")
         if (content != null) {
             container.shouldHaveText(content)
         }
@@ -39,7 +39,7 @@ class SaStatusLabel<T : Any> private constructor(
      * If [content] is not null, also asserts that the alert contains the given content.
      */
     fun shouldBePending(content: String? = null) {
-        container.shouldHaveClass("sa-status-label_pending")
+        container.shouldContainClass("sa-status-label_pending")
         if (content != null) {
             container.shouldHaveText(content)
         }
@@ -50,7 +50,7 @@ class SaStatusLabel<T : Any> private constructor(
      * If [content] is not null, also asserts that the alert contains the given content.
      */
     fun shouldBeSuccess(content: String?) {
-        container.shouldHaveClass("sa-status-label_success")
+        container.shouldContainClass("sa-status-label_success")
         if (content != null) {
             container.shouldHaveText(content)
         }
@@ -61,7 +61,7 @@ class SaStatusLabel<T : Any> private constructor(
      * If [content] is not null, also asserts that the alert contains the given content.
      */
     fun shouldBeSimplifiedSuccess(content: String?) {
-        container.shouldHaveClass("sa-status-label_success-simplified")
+        container.shouldContainClass("sa-status-label_success-simplified")
         if (content != null) {
             container.shouldHaveText(content)
         }
@@ -72,7 +72,7 @@ class SaStatusLabel<T : Any> private constructor(
      * If [content] is not null, also asserts that the alert contains the given content.
      */
     fun shouldBeSimplifiedPending(content: String?) {
-        container.shouldHaveClass("sa-status-label_pending-simplified")
+        container.shouldContainClass("sa-status-label_pending-simplified")
         if (content != null) {
             container.shouldHaveText(content)
         }

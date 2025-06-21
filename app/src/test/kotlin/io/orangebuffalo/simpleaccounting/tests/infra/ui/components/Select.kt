@@ -5,6 +5,10 @@ import com.google.gson.reflect.TypeToken
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 
 class Select<P : Any> private constructor(
@@ -15,7 +19,7 @@ class Select<P : Any> private constructor(
 
     fun shouldBeVisible() = input.shouldBeVisible()
 
-    fun shouldNotBeVisible() = input.shouldBeHidden()
+    fun shouldBeHidden() = input.shouldBeHidden()
 
     fun selectOption(option: String) {
         val popper = Popper.openOrLocateByTrigger(input)
@@ -27,7 +31,8 @@ class Select<P : Any> private constructor(
     }
 
     fun shouldHaveSelectedValue(value: String) {
-        input.locator("xpath=//*[${XPath.hasClass("el-select__selected-item")}]/span").shouldHaveText(value)
+        input.locator("xpath=//*[${XPath.hasClass("el-select__selected-item")}]/span")
+            .shouldHaveText(value)
     }
 
     fun shouldHaveOptions(vararg options: String) {
@@ -52,7 +57,6 @@ class Select<P : Any> private constructor(
         popper.rootLocator.shouldSatisfy {
             // JS evaluation for performance reasons
             // language=javascript
-            @Suppress("UNCHECKED_CAST")
             val actualGroupsJson = evaluate(
                 """
                 (popper) => JSON.stringify(Array.from(popper
@@ -70,7 +74,7 @@ class Select<P : Any> private constructor(
     }
 
     fun shouldBeDisabled() {
-        input.shouldHaveClass("is-disabled")
+        input.shouldContainClass("is-disabled")
     }
 
     companion object {

@@ -1,29 +1,26 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.kotest.matchers.booleans.shouldBeTrue
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 class Button<P : Any> private constructor(
     private val locator: Locator,
     parent: P,
 ) : UiComponent<P, Button<P>>(parent) {
-    fun shouldBeDisabled() = locator.shouldSatisfy {
-        this.isDisabled.shouldBeTrue()
-    }
+    fun shouldBeDisabled() = locator.shouldBeDisabled()
 
-    fun shouldBeEnabled() = locator.shouldSatisfy {
-        this.isEnabled.shouldBeTrue()
-    }
+    fun shouldBeEnabled() = locator.shouldBeEnabled()
 
     fun click() = locator.click()
 
     fun shouldBeVisible() = locator.shouldBeVisible()
 
-    fun shouldNotBeVisible() = locator.shouldBeHidden()
+    fun shouldBeHidden() = locator.shouldBeHidden()
 
     fun shouldHaveLabelSatisfying(spec: (String) -> Unit) = locator.shouldSatisfy {
         spec(this.innerText())
