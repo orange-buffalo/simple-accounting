@@ -2726,8 +2726,7 @@ components:
           type: string
       required:
       - token
-    DataBuffer:
-      type: object
+    DataBuffer: {}
     ApiPageCustomerDto:
       type: object
       properties:
@@ -2809,8 +2808,7 @@ components:
       properties:
         eventName:
           type: string
-        data:
-          type: object
+        data: {}
       required:
       - eventName
     DocumentsStorageStatus:
