@@ -26,7 +26,7 @@ export class DownloadsApiApi extends runtime.BaseAPI {
 
     /**
      */
-    async getContentRaw(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<object>>> {
+    async getContentRaw(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<any>>> {
         if (requestParameters['token'] == null) {
             throw new runtime.RequiredError(
                 'token',
@@ -54,7 +54,7 @@ export class DownloadsApiApi extends runtime.BaseAPI {
 
     /**
      */
-    async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<object>> {
+    async getContent(requestParameters: GetContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<any>> {
         const response = await this.getContentRaw(requestParameters, initOverrides);
         return await response.value();
     }

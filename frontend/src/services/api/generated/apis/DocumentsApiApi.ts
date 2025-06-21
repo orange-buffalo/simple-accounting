@@ -60,7 +60,7 @@ export class DocumentsApiApi extends runtime.BaseAPI {
 
     /**
      */
-    async getDocumentContentRaw(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<object>>> {
+    async getDocumentContentRaw(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<any>>> {
         if (requestParameters['workspaceId'] == null) {
             throw new runtime.RequiredError(
                 'workspaceId',
@@ -91,7 +91,7 @@ export class DocumentsApiApi extends runtime.BaseAPI {
 
     /**
      */
-    async getDocumentContent(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<object>> {
+    async getDocumentContent(requestParameters: GetDocumentContentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<any>> {
         const response = await this.getDocumentContentRaw(requestParameters, initOverrides);
         return await response.value();
     }
