@@ -47,9 +47,9 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest(
                 "**/status",
                 initiator = {
                     switch.toggle()
-                    settings.status.shouldBeRegular("Verifying integration status...")
                 },
                 blockedRequestSpec = {
+                    settings.status.shouldBeRegular("Verifying integration status...")
                     reportRendering("profile.documents-storage.google.loading-status")
                 }
             )

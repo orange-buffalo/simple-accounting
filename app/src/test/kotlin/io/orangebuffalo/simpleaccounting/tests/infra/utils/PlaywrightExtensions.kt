@@ -62,7 +62,7 @@ fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
  * hence using Kotest.
  */
 fun shouldSatisfy(spec: () -> Unit) = runBlocking {
-    eventually(10.seconds) {
+    eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
         spec()
     }
 }
@@ -70,7 +70,8 @@ fun shouldSatisfy(spec: () -> Unit) = runBlocking {
 /**
  * Intercepts the API call started by the [initiator]. Upon call execution,
  * blocks the response and executes the provided [blockedRequestSpec].
- * Then resumes the request with the original response.
+ * Then resumes the request with the original response. The method is blocked
+ * until both the [initiator] and [blockedRequestSpec] are executed.
  *
  * **Important**: [initiator] must invoke an assertion on a locator that ensures the request is initiated;
  * without this, the [blockedRequestSpec] will be only invoked on the next locator interaction, which

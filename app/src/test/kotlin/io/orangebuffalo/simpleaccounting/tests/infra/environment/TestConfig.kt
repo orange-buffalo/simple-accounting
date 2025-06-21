@@ -23,6 +23,7 @@ data class FullStackTestsConfig(
     val useHeadlessBrowser: Boolean = true,
     val useViteDevServer: Boolean = false,
     val viteDevServerSpringContextPort: Int = 5174,
+    val slowMoMs: Int = 0,
 )
 
 private fun loadTestConfig(): TestConfig {
