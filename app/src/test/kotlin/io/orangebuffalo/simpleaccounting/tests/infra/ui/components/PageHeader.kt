@@ -1,8 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
 
 class PageHeader<P : Any> private constructor(
     private val locator: Locator,

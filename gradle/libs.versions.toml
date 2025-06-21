@@ -8,6 +8,7 @@ jjwt = "0.12.6"
 jooq = "3.20.4"
 jsonUnit = "4.1.0"
 kotest = "5.9.1"
+kotestPlaywrightAssertions = "0.1.1"
 kotlin = "2.1.20"
 kotlinCoroutines = "1.10.2"
 kotlinLogging = "3.0.5"
@@ -41,6 +42,7 @@ jooq-codegen = { module = "org.jooq:jooq-codegen", version.ref = "jooq" }
 jooq-metaExtensions = { module = "org.jooq:jooq-meta-extensions", version.ref = "jooq" }
 jsonUnit-kotest = { module = "net.javacrumbs.json-unit:json-unit-kotest", version.ref = "jsonUnit" }
 kotest-assertionsCore = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
+kotest-assertionsPlaywright = { module = "io.orange-buffalo:kotest-playwright-assertions", version.ref = "kotestPlaywrightAssertions" }
 kotlin-allopen = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-noarg = { module = "org.jetbrains.kotlin:kotlin-noarg", version.ref = "kotlin" }

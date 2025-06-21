@@ -49,7 +49,7 @@ class AccountActivationFullStackTest(
             .userMessage {
                 shouldBeError("Provided token is invalid or expired. Please request a new one.")
             }
-            .loginButton { shouldNotBeVisible() }
+            .loginButton { shouldBeHidden() }
             .form { shouldNotBeVisible() }
     }
 
@@ -60,7 +60,7 @@ class AccountActivationFullStackTest(
                 shouldBeRegular("Please provide your new password. You will then need to login using your username and new password.")
             }
             .form { shouldBeVisible() }
-            .loginButton { shouldNotBeVisible() }
+            .loginButton { shouldBeHidden() }
             .then {
                 // now, token is expired - to simulate token expiration during activation
                 whenever(timeServiceSpy.currentTime()) doReturn preconditions.token.expiresAt.plusSeconds(1)
@@ -80,7 +80,7 @@ class AccountActivationFullStackTest(
             .userMessage {
                 shouldBeError("Provided token is invalid or expired. Please request a new one.")
             }
-            .loginButton { shouldNotBeVisible() }
+            .loginButton { shouldBeHidden() }
     }
 
     @Test

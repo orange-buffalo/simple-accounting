@@ -84,6 +84,7 @@ dependencies {
     testImplementation("org.springframework.retry:spring-retry")
     testImplementation(libs.kotest.assertionsCore)
     testImplementation(libs.mockOauth2Server)
+    testImplementation(libs.kotest.assertionsPlaywright)
 
     testRuntimeOnly(libs.springdocOpenapi.webfluxApi)
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")

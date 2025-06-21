@@ -29,7 +29,7 @@ class UserCreationFullStackTest(
     fun `should create a new user`(page: Page) {
         setupPreconditionsAndNavigateToCreatePage(page)
             .userName { input.fill("userX") }
-            .activationStatus { shouldNotBeVisible() }
+            .activationStatus { shouldBeHidden() }
             .saveButton { click() }
             .shouldHaveNotifications {
                 success("User userX has been successfully saved")

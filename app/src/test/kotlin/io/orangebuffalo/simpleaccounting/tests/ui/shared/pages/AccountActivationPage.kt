@@ -22,9 +22,9 @@ class AccountActivationPage(page: Page) : SaPageBase<AccountActivationPage>(page
         val activateAccountButton = components.buttonByText("Activate Account")
 
         fun shouldNotBeVisible() {
-            newPassword.shouldNotBeVisible()
-            newPasswordConfirmation.shouldNotBeVisible()
-            activateAccountButton.shouldNotBeVisible()
+            newPassword.shouldBeHidden()
+            newPasswordConfirmation.shouldBeHidden()
+            activateAccountButton.shouldBeHidden()
         }
 
         fun shouldBeVisible() {

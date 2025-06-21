@@ -2,6 +2,9 @@ package io.orangebuffalo.simpleaccounting.tests.ui.shared.components
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainInOrder
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 
 class NavigationMenu(private val page: Page) {

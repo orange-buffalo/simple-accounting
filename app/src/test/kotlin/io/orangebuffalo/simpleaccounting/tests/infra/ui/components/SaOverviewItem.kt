@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextTrimmed
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeHidden
 
 class SaOverviewItem private constructor(
     private val panel: Locator,

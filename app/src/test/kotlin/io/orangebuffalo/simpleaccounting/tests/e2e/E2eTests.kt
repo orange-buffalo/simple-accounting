@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.e2e
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.junit.UsePlaywright
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import org.junit.jupiter.api.Test
 
 @UsePlaywright(E2eTestsPlaywrightOptions::class)
