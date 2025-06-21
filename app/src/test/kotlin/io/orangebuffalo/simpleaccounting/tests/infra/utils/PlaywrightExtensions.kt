@@ -7,7 +7,10 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
 import kotlinx.coroutines.runBlocking
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+
+const val UI_ASSERTIONS_TIMEOUT_MS = 10_000
 
 object XPath {
     fun hasClass(className: String): String = "contains(concat(' ', normalize-space(@class), ' '), ' $className ')"
@@ -119,3 +122,14 @@ fun Page.withBlockedApiResponse(
         blockedRequestExecuted.shouldBeTrue()
     }
 }
+
+/**
+ * Asserts that the locator satisfies the provided spec,
+ * retrying the assertion until it succeeds or the timeout is reached.
+ */
+fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) =
+    withHint(message ?: "Spec is not satisfied on ($this)") {
+        eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
+            spec()
+        }
+    }
