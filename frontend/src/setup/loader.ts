@@ -1,6 +1,12 @@
 import '@/styles/loader.scss';
+import { isRunningInTest } from '@/setup/tests-support.ts';
 
 export function createLoader() {
+  if (isRunningInTest()) {
+    console.log('Skipping loader creation in test environment');
+    return;
+  }
+
   const appDiv = document.getElementById('simple-accounting');
   if (appDiv == null) {
     throw new Error('Broken setup');
@@ -23,6 +29,11 @@ export function createLoader() {
 }
 
 export function removeLoader() {
+  if (isRunningInTest()) {
+    console.log('Skipping loader creation in test environment');
+    return;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const loaderDiv = document.getElementById('app-loader-screen')!;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

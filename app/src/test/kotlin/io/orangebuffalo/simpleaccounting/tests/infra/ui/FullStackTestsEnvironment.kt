@@ -68,6 +68,10 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
                 .setSnapshots(true)
         )
         browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
+        browserContext.addInitScript("""
+            window.saRunningInTest = true;
+            console.info("Playwright test environment initialized");
+        """.trimIndent())
         playwrightContext.browserContext = browserContext
 
         playwrightContext.page = browserContext.newPage()
