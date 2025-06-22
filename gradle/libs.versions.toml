@@ -1,11 +1,14 @@
 [versions]
 assertk = "0.28.1"
 awaitility = "4.3.0"
+# version pinned as newer has major JGit changed which is not compatible with jreleaser
+gitSemverPlugin = "0.13.0"
 guava = "33.4.8-jre"
 javaxEl = "3.0.1-b12"
 jib = "3.4.5"
 jjwt = "0.12.6"
 jooq = "3.20.4"
+jreleaser = "1.18.0"
 jsonUnit = "4.1.0"
 kotest = "5.9.1"
 kotestPlaywrightAssertions = "0.1.1"
@@ -27,7 +30,6 @@ springdocOpenapi = "2.8.8"
 testContainers = "1.21.0"
 wireMock = "3.12.1"
 zjsonpatch = "0.4.16"
-gitVersioningPlugin = "6.4.4"
 
 [libraries]
 assertk = { module = "com.willowtreeapps.assertk:assertk-jvm", version.ref = "assertk" }
@@ -70,11 +72,12 @@ wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref
 zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjsonpatch" }
 
 [plugins]
+gitSemverPlugin = { id = "com.github.jmongard.git-semver-plugin", version.ref = "gitSemverPlugin" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "jib" }
+jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationPlugin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
 spring-dependencyManagement = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
 springBoot = { id = "org.springframework.boot", version.ref = "springBoot" }
-gitVersioning = { id = "me.qoomon.git-versioning", version.ref = "gitVersioningPlugin" }

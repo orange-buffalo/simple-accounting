@@ -31,3 +31,6 @@ updates:
     rebase-strategy: "disabled"
     commit-message:
       prefix: "chore(deps)"
+    ignore:
+      # until JReleaser migrates to JGit 7x
+      - dependency-name: "com.github.jmongard.git-semver-plugin"
