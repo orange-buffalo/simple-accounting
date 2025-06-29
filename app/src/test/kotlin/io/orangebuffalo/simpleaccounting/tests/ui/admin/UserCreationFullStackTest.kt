@@ -6,24 +6,17 @@ import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.CreateUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeCreateUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 
-@SimpleAccountingFullStackTest
-class UserCreationFullStackTest(
-    @Autowired private val entitiesTemplate: JdbcAggregateTemplate,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+class UserCreationFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should create a new user`(page: Page) {
@@ -38,7 +31,7 @@ class UserCreationFullStackTest(
         page.shouldBeEditUserPage()
             .activationStatus { shouldBeVisible() }
 
-        entitiesTemplate.findAll<PlatformUser>()
+        aggregateTemplate.findAll<PlatformUser>()
             .shouldWithHint("Expected exactly one user created (and one pre-seeded with preconditions)") {
                 shouldHaveSize(2)
             }
@@ -74,7 +67,7 @@ class UserCreationFullStackTest(
         page.shouldBeEditUserPage().cancelButton { click() }
         val overviewPage = page.shouldBeUsersOverviewPage()
 
-        entitiesTemplate.findAll<PlatformUser>()
+        aggregateTemplate.findAll<PlatformUser>()
             .filter { it.userName == "user" }
             .shouldBeSingle()
             .should {
@@ -93,7 +86,7 @@ class UserCreationFullStackTest(
                 success()
             }
 
-        entitiesTemplate.findAll<PlatformUser>()
+        aggregateTemplate.findAll<PlatformUser>()
             .filter { it.userName == "new-admin" }
             .shouldBeSingle()
             .should {
@@ -159,7 +152,7 @@ class UserCreationFullStackTest(
         return page.shouldBeCreateUserPage()
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val farnsworth = platformUser(
                 userName = "admin",

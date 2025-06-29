@@ -4,8 +4,7 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenuHidden
@@ -13,14 +12,8 @@ import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeAccountSetupPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeDashboardPage
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 
-@SimpleAccountingFullStackTest
-class UserAccountSetupTest(
-    preconditionsFactory: LegacyPreconditionsFactory,
-    @Autowired val aggregateTemplate: JdbcAggregateTemplate,
-) {
+class UserAccountSetupTest : SaFullStackTestBase() {
 
     @Test
     fun `should setup new account successfully`(page: Page) {
@@ -65,7 +58,7 @@ class UserAccountSetupTest(
             .defaultCurrency { shouldHaveValidationError("The length of this value should be no longer than 3 characters") }
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             // no workspace yet - setup is required

@@ -6,8 +6,7 @@ import org.mockito.kotlin.whenever
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
@@ -17,12 +16,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 
-@SimpleAccountingFullStackTest
 class PasswordChangeFullStackTest(
-    @Autowired private val repository: PlatformUsersRepository,
-    @Autowired private val passwordEncoder: PasswordEncoder,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+    @param:Autowired private val repository: PlatformUsersRepository,
+    @param:Autowired private val passwordEncoder: PasswordEncoder,
+) : SaFullStackTestBase() {
 
     @Test
     fun `should change password for regular user`(page: Page) {
@@ -150,7 +147,7 @@ class PasswordChangeFullStackTest(
             .passwordHash.shouldBe("newPasswordHash")
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
 

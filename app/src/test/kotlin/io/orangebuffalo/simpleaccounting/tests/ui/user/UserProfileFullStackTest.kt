@@ -1,17 +1,13 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeMyProfilePage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 
-@SimpleAccountingFullStackTest
-class UserProfileFullStackTest(
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+class UserProfileFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should render My Profile page with proper sections`(page: Page) {
@@ -25,7 +21,7 @@ class UserProfileFullStackTest(
             .shouldHavePasswordChangeSectionVisible()
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
 

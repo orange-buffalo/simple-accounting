@@ -1,17 +1,13 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.shared
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openLoginPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeDashboardPage
 import org.junit.jupiter.api.Test
 
-@SimpleAccountingFullStackTest
-class LoginFullStackTest(
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+class LoginFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should login as regular user`(page: Page) {
@@ -43,7 +39,7 @@ class LoginFullStackTest(
         page.shouldBeUsersOverviewPage()
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val workspace = workspace(owner = fry)

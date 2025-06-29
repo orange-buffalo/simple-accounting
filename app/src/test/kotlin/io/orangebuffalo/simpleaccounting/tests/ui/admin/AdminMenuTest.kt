@@ -1,18 +1,14 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.NavigationMenu
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 
-@SimpleAccountingFullStackTest
-class AdminMenuTest(
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
-    private val preconditions by preconditionsFactory {
+class AdminMenuTest : SaFullStackTestBase() {
+    private val preconditions by lazyPreconditions {
         object {
             val admin = farnsworth()
         }
