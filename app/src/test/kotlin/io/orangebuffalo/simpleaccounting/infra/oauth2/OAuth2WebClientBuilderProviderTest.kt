@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -41,7 +41,7 @@ class OAuth2WebClientBuilderProviderTest(
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val transactionTemplate: TransactionTemplate,
     @WireMockPort private val wireMockPort: Int,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @Test

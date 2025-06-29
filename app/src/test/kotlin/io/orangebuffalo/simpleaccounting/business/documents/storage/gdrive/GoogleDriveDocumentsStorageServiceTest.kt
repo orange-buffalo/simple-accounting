@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.oauth2.*
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -54,7 +54,7 @@ class GoogleDriveDocumentsStorageServiceTest(
     @Autowired private val documentsStorage: GoogleDriveDocumentsStorage,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val applicationEventPublisher: ApplicationEventPublisher,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @MockitoBean

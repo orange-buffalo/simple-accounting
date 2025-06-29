@@ -5,7 +5,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenuHidden
@@ -18,7 +18,7 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 
 @SimpleAccountingFullStackTest
 class UserAccountSetupTest(
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
     @Autowired val aggregateTemplate: JdbcAggregateTemplate,
 ) {
 

@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
@@ -36,7 +36,7 @@ const val ANOTHER_MOCK_TIME_VALUE = "1999-06-28T22:01:02.053Z"
 @DisplayName("Workspace Access Tokens API ")
 class WorkspaceAccessTokensApiTest(
     @Autowired private val client: WebTestClient,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @MockitoBean

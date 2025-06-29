@@ -4,19 +4,20 @@ import org.junit.jupiter.api.extension.*
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import kotlin.reflect.KProperty
 
-private val namespace = ExtensionContext.Namespace.create(PreconditionsFactoryExtension::class.java)
+private val namespace = ExtensionContext.Namespace.create(LegacyPreconditionsFactoryExtension::class.java)
 private const val factoryKey = "preconditions-factory"
 
 /**
- * Extension to manage [PreconditionsFactory].
+ * Extension to manage [LegacyPreconditionsFactory].
  */
-class PreconditionsFactoryExtension : Extension, ParameterResolver, AfterEachCallback, BeforeEachCallback {
+@Deprecated("Use Spring Bean instead")
+class LegacyPreconditionsFactoryExtension : Extension, ParameterResolver, AfterEachCallback, BeforeEachCallback {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
-        return parameterContext.parameter.type == PreconditionsFactory::class.java
+        return parameterContext.parameter.type == LegacyPreconditionsFactory::class.java
     }
 
     /**
-     * [PreconditionsFactory] state is safe to be shared between tests, in generally between
+     * [LegacyPreconditionsFactory] state is safe to be shared between tests, in generally between
      * different test classes as well. This resolver will create a new instance only once,
      * and then reuse it for all child contexts.
      */
@@ -25,24 +26,24 @@ class PreconditionsFactoryExtension : Extension, ParameterResolver, AfterEachCal
         if (existingFactory != null) {
             return existingFactory
         }
-        val factory = PreconditionsFactory()
+        val factory = LegacyPreconditionsFactory()
         extensionContext.getStore(namespace).put(factoryKey, factory)
         return factory
     }
 
     override fun afterEach(context: ExtensionContext) {
-        val factory = context.getStore(namespace).get(factoryKey) as PreconditionsFactory?
+        val factory = context.getStore(namespace).get(factoryKey) as LegacyPreconditionsFactory?
         factory?.afterEach()
     }
 
     override fun beforeEach(context: ExtensionContext) {
-        val factory = context.getStore(namespace).get(factoryKey) as PreconditionsFactory?
+        val factory = context.getStore(namespace).get(factoryKey) as LegacyPreconditionsFactory?
         factory?.beforeEach(context)
     }
 }
 
 /**
- * API for setting up preconditions for tests. Available as JUnit parameter via [PreconditionsFactoryExtension].
+ * API for setting up preconditions for tests. Available as JUnit parameter via [LegacyPreconditionsFactoryExtension].
  *
  * The responsibility of this component is to ensure preconditions are created when they are expected by tests,
  * e.g. after database reset between tests, handling nested tests, etc.
@@ -73,9 +74,10 @@ class PreconditionsFactoryExtension : Extension, ParameterResolver, AfterEachCal
  *      }
  *   }
  */
-class PreconditionsFactory {
+@Deprecated("Use Spring Bean instead")
+class LegacyPreconditionsFactory {
 
-    private val lazyPreconditions = mutableListOf<LazyRepeatablePreconditionsDelegate<*>>()
+    private val lazyPreconditions = mutableListOf<LegacyLazyRepeatablePreconditionsDelegate<*>>()
     private var currentTestContext: ExtensionContext? = null
 
     /**
@@ -84,8 +86,8 @@ class PreconditionsFactory {
      * Useful for shared preconditions.
      * See class-level docs for usage example.
      */
-    operator fun <T> invoke(spec: EntitiesFactory.() -> T): LazyRepeatablePreconditionsDelegate<T> {
-        val lazyPreconditionsInstance = LazyRepeatablePreconditionsDelegate(spec)
+    operator fun <T> invoke(spec: EntitiesFactory.() -> T): LegacyLazyRepeatablePreconditionsDelegate<T> {
+        val lazyPreconditionsInstance = LegacyLazyRepeatablePreconditionsDelegate(spec)
         lazyPreconditions.add(lazyPreconditionsInstance)
         return lazyPreconditionsInstance
     }
@@ -119,9 +121,10 @@ class PreconditionsFactory {
 
 /**
  * Delegate for lazy repeatable preconditions.
- * See [PreconditionsFactory.invoke] for details.
+ * See [LegacyPreconditionsFactory.invoke] for details.
  */
-class LazyRepeatablePreconditionsDelegate<P>(private val preconditionsSpec: EntitiesFactory.() -> P) {
+@Deprecated("Use Spring Bean instead")
+class LegacyLazyRepeatablePreconditionsDelegate<P>(private val preconditionsSpec: EntitiesFactory.() -> P) {
     private var preconditions: P? = null
     private var entitiesFactory: EntitiesFactory? = null
 

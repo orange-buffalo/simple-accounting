@@ -7,7 +7,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.CreateUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeCreateUserPage
@@ -22,7 +22,7 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 @SimpleAccountingFullStackTest
 class UserCreationFullStackTest(
     @Autowired private val entitiesTemplate: JdbcAggregateTemplate,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @Test

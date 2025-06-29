@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
@@ -23,7 +23,7 @@ import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 class UserEditingFullStackTest(
     @Autowired private val entitiesTemplate: JdbcAggregateTemplate,
     @Autowired private val timeService: TimeService,
-    private val preconditionsFactory: PreconditionsFactory,
+    private val preconditionsFactory: LegacyPreconditionsFactory,
 ) {
     private val preconditions by preconditionsFactory {
         object {

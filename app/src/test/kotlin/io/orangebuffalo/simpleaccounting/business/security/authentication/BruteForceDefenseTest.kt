@@ -16,7 +16,7 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import kotlinx.coroutines.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,7 +38,7 @@ class BruteForceDefenseTest(
     @Autowired private val platformUsersRepository: PlatformUsersRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val timeService: TimeService,
-    private val preconditionsFactory: PreconditionsFactory,
+    private val preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @BeforeEach

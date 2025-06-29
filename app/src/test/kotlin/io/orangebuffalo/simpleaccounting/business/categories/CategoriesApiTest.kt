@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import kotlinx.serialization.json.addJsonObject
@@ -22,7 +22,7 @@ import org.springframework.test.web.reactive.server.expectBody
 @DisplayName("Categories API")
 internal class CategoriesApiTest(
     @Autowired private val client: WebTestClient,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
     private val preconditions by preconditionsFactory {
         object {

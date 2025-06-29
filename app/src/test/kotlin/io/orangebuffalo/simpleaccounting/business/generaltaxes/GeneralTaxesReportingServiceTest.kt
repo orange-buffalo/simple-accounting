@@ -6,7 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +15,7 @@ import java.time.LocalDate
 @SimpleAccountingIntegrationTest
 internal class GeneralTaxesReportingServiceTest(
     @Autowired private val taxReportingService: GeneralTaxesReportingService,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @Test

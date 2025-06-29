@@ -7,7 +7,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
@@ -27,7 +27,7 @@ class ProfileApiTest(
     @Autowired private val client: ApiTestClient,
     @Autowired private val testPasswordEncoder: PasswordEncoder,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
-    private val preconditionsFactory: PreconditionsFactory,
+    private val preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     /**
