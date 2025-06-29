@@ -27,6 +27,7 @@ plugins {
 apply<SaJooqCodeGenPlugin>()
 apply<SaHotReloadPlugin>()
 
+val mockitoAgent = configurations.create("mockitoAgent")
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -90,6 +91,8 @@ dependencies {
 
     testRuntimeOnly(libs.springdocOpenapi.webfluxApi)
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+
+    mockitoAgent("org.mockito:mockito-core") { isTransitive = false }
 }
 
 val frontendBuildTaskName = ":frontend:buildFrontend"
@@ -133,8 +136,8 @@ tasks.test {
         excludeTestsMatching(screenshotsTestPattern)
         excludeTestsMatching(e2eTestPattern)
     }
-    // to support mocking libraries via byte-buddy agent
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    // Mockito requires a Java agent
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
 }
 
 tasks.jacocoTestReport {
