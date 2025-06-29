@@ -60,6 +60,7 @@ ktor-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", 
 ktor-kotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
 ktor-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktorVersion" }
 mockito-junitJupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+mockito-subclass = { module = "org.mockito:mockito-subclass", version.ref = "mockito" }
 mockitoKotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 mockOauth2Server = { module = "no.nav.security:mock-oauth2-server", version.ref = "mockOoauth2Server" }
 playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
