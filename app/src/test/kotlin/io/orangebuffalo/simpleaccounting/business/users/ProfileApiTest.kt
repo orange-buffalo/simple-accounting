@@ -1,34 +1,29 @@
 package io.orangebuffalo.simpleaccounting.business.users
 
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.whenever
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 
 /**
  * See [ProfileApi] for the test subject.
  */
-@SimpleAccountingIntegrationTest
 class ProfileApiTest(
     @Autowired private val client: ApiTestClient,
     @Autowired private val testPasswordEncoder: PasswordEncoder,
-    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     /**
      * [ProfileApi.getProfile]
@@ -36,7 +31,7 @@ class ProfileApiTest(
     @Nested
     @DisplayName("GET /api/profile")
     inner class GetProfile {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val fry = platformUser(
                     userName = "Fry",
@@ -95,7 +90,7 @@ class ProfileApiTest(
     @Nested
     @DisplayName("PUT /api/profile")
     inner class UpdateProfile {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val fry = platformUser(
                     userName = "Fry",
@@ -207,7 +202,7 @@ class ProfileApiTest(
     @Nested
     @DisplayName("GET /api/profile/documents-storage")
     inner class GetDocumentsStorageStatus {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val fry = platformUser(
                     userName = "Fry",
@@ -253,7 +248,7 @@ class ProfileApiTest(
     @Nested
     @DisplayName("POST /api/profile/change-password")
     inner class ChangePassword {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val fry = fry()
                 val workspaceAccessToken = workspaceAccessToken()

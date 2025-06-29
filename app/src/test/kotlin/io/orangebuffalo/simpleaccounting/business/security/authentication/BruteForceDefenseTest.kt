@@ -13,10 +13,9 @@ import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import kotlinx.coroutines.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,15 +30,13 @@ import java.time.Instant
 private const val LOGIN_PATH = "/api/auth/login"
 private val CURRENT_TIME = Instant.ofEpochMilli(424242)
 
-@SimpleAccountingIntegrationTest
 class BruteForceDefenseTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val transactionTemplate: TransactionTemplate,
     @Autowired private val platformUsersRepository: PlatformUsersRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val timeService: TimeService,
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @BeforeEach
     fun setupCurrentTime() {
@@ -336,7 +333,7 @@ class BruteForceDefenseTest(
         )
         .exchange()
 
-    private fun setupPreconditions() = preconditionsFactory.setup {
+    private fun setupPreconditions() = preconditions {
         fry()
     }
 }

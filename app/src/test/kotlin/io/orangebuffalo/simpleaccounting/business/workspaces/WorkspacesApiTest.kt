@@ -2,12 +2,11 @@ package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
@@ -27,13 +26,11 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Workspaces API ")
 internal class WorkspacesApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val timeService: TimeService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     fun `should allow GET access only for logged in users`() {
@@ -270,7 +267,7 @@ internal class WorkspacesApiTest(
             .expectBody<String>().isEqualTo("Token ${preconditions.fryWorkspaceAccessTokenExpired.token} is not valid")
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val farnsworth = farnsworth()

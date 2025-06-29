@@ -4,9 +4,8 @@ import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
@@ -15,20 +14,16 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpStatus
 import java.time.Instant
 
 /**
  * See [UsersApi] for the test subject.
  */
-@SimpleAccountingIntegrationTest
 internal class UsersApiTest(
     @Autowired private val client: ApiTestClient,
-    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val timeService: TimeService,
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     /**
      * [UsersApi.getUsers]
@@ -36,7 +31,7 @@ internal class UsersApiTest(
     @Nested
     @DisplayName("GET /api/users")
     inner class GetUsers {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val farnsworth = farnsworth()
                 val fry = fry()
@@ -193,7 +188,7 @@ internal class UsersApiTest(
     @Nested
     @DisplayName("POST /api/users")
     inner class CreateUser {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val farnsworth = farnsworth()
                 val fry = fry()
@@ -292,7 +287,7 @@ internal class UsersApiTest(
     @Nested
     @DisplayName("PUT /api/users/{userId}")
     inner class UpdateUser {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val farnsworth = farnsworth()
                 val fry = fry()
@@ -374,7 +369,7 @@ internal class UsersApiTest(
     @Nested
     @DisplayName("GET /api/users/{userId}")
     inner class GetUser {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val farnsworth = farnsworth()
                 val fry = fry()

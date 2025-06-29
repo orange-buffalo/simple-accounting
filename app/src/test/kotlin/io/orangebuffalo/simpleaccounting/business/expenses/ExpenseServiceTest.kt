@@ -2,8 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.expenses
 
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.generaltaxes.GeneralTax
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -12,15 +11,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-
-@SimpleAccountingIntegrationTest
 @DisplayName("ExpenseService")
 internal class ExpenseServiceTest(
-    @Autowired private val expenseService: ExpenseService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+    @Autowired private val expenseService: ExpenseService
+) : SaIntegrationTestBase() {
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val nonDefaultCurrency = "CC2"
             val fry = fry()

@@ -11,8 +11,7 @@ import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.DbReactiveOAuth2AuthorizedClientService
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -25,17 +24,16 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.OAuth2AccessToken
 import org.springframework.security.oauth2.core.OAuth2RefreshToken
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import reactor.core.publisher.Mono
 import java.time.Instant
 
-@SimpleAccountingIntegrationTest
 internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     @Autowired private val clientService: DbReactiveOAuth2AuthorizedClientService,
     @Autowired private val repository: PersistentOAuth2AuthorizedClientRepository,
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
-    @field:MockBean
+    @field:MockitoBean
     lateinit var clientRegistrationRepository: ReactiveClientRegistrationRepository
 
     val clientRegistration: ClientRegistration = ClientRegistration.withRegistrationId("clientRegistration")
@@ -351,7 +349,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
         }
     }
 
-    private fun setupPreconditions() = preconditionsFactory.setup {
+    private fun setupPreconditions() = preconditions {
         object {
             val refreshTokenIssueTime: Instant = Instant.ofEpochMilli(47733)
             val accessTokenIssueTime: Instant = Instant.ofEpochMilli(47734)

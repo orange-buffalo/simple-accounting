@@ -5,23 +5,24 @@ import assertk.assertions.containsOnly
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 
-@SimpleAccountingIntegrationTest
 internal class GeneralTaxesReportingServiceTest(
     @Autowired private val taxReportingService: GeneralTaxesReportingService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     fun `should calculate general tax report`() {
         val actualReport = runBlocking {
-            taxReportingService.getGeneralTaxReport(preconditions.dateFrom, preconditions.dateTo, preconditions.planetExpress)
+            taxReportingService.getGeneralTaxReport(
+                preconditions.dateFrom,
+                preconditions.dateTo,
+                preconditions.planetExpress
+            )
         }
 
         assertThat(actualReport.finalizedCollectedTaxes).containsOnly(
@@ -70,7 +71,7 @@ internal class GeneralTaxesReportingServiceTest(
         )
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val dateFrom: LocalDate = LocalDate.of(3000, 1, 1)
             val dateTo: LocalDate = LocalDate.of(3010, 1, 1)

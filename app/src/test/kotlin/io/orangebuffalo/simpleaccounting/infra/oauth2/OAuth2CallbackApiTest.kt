@@ -1,20 +1,19 @@
 package io.orangebuffalo.simpleaccounting.infra.oauth2
 
-import org.mockito.kotlin.*
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 
-@SimpleAccountingIntegrationTest
 class OAuth2CallbackApiTest(
     @Autowired private val client: WebTestClient
-) {
+) : SaIntegrationTestBase() {
 
     @MockitoBean
     lateinit var authorizationProvider: OAuth2ClientAuthorizationProvider

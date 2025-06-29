@@ -6,18 +6,13 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 
-@SimpleAccountingIntegrationTest
 class AdminUserRecoveryServiceTest(
-    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val adminUserRecoveryService: AdminUserRecoveryService,
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     fun `should create admin user on empty database`() {
@@ -35,7 +30,7 @@ class AdminUserRecoveryServiceTest(
 
     @Test
     fun `should not create admin user if it already exists`() {
-        preconditionsFactory.setup {
+        preconditions {
             platformUser(userName = "test-admin", isAdmin = true, passwordHash = "test-password")
         }
 
@@ -52,7 +47,7 @@ class AdminUserRecoveryServiceTest(
 
     @Test
     fun `should create admin user if regular user exists`() {
-        preconditionsFactory.setup {
+        preconditions {
             platformUser(userName = "test-user", isAdmin = false)
         }
 

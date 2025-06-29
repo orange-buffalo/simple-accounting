@@ -5,9 +5,8 @@ import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -18,20 +17,16 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.test.web.reactive.server.WebTestClient
 
 /**
  * See [UserActivationTokensApi] for the test subject.
  */
-@SimpleAccountingIntegrationTest
 class UserActivationTokensApiTest(
     @Autowired private val client: ApiTestClient,
-    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val timeService: TimeService,
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @BeforeEach
     fun setup() {
@@ -44,7 +39,7 @@ class UserActivationTokensApiTest(
     @Nested
     @DisplayName("GET /api/user-activation-tokens/users/{userId}")
     inner class GetUserActivationTokenByUserId {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val fry = fry()
                 val farnsworth = farnsworth()
@@ -121,7 +116,7 @@ class UserActivationTokensApiTest(
     @Nested
     @DisplayName("GET /api/user-activation-tokens/{token}")
     inner class GetUserActivationToken {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val fry = fry()
                 val expiredToken = userActivationToken(
@@ -192,7 +187,7 @@ class UserActivationTokensApiTest(
     @Nested
     @DisplayName("POST /api/user-activation-tokens")
     inner class CreateToken {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val userWithoutToken = platformUser(
                     activated = false
@@ -294,7 +289,7 @@ class UserActivationTokensApiTest(
     @Nested
     @DisplayName("POST /api/user-activation-tokens/{token}/activate")
     inner class ActivateUser {
-        private val preconditions by preconditionsFactory {
+        private val preconditions by lazyPreconditions {
             object {
                 val expiredToken = userActivationToken(
                     token = "expired-token",

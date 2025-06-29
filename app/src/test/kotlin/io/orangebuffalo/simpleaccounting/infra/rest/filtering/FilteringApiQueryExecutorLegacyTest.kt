@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiValidationException
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -19,12 +19,11 @@ import org.springframework.jdbc.core.JdbcTemplate
 import reactor.core.publisher.Mono
 import java.util.stream.Stream
 
-@SimpleAccountingIntegrationTest
 internal class FilteringApiQueryExecutorLegacyTest(
     @Autowired val jdbcTemplate: JdbcTemplate,
     @Autowired val dslContext: DSLContext,
     @Autowired val conversionService: ConversionService
-) {
+) : SaIntegrationTestBase() {
     lateinit var filteringApiQueryExecutor: FilteringApiQueryExecutorLegacy<TestDummyTable, TestDummy>
 
     companion object {

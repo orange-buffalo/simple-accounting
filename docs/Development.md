@@ -64,7 +64,7 @@ in `frontend` directory to run the tests or develop new ones.
 #### API tests
 
 All our APIs are covered with tests, including security and data access restrictions. This is done via regular
-Spring Boot tests in `app` module. See `SimpleAccountingIntegrationTest` annotation.
+Spring Boot tests in `app` module. See tests extending `SaIntegrationTestBase`.
 
 #### Tests config
 

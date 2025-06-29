@@ -37,25 +37,18 @@ Here's a breakdown of the key relationships:
 
 ## Preconditions setup
 
-To set up test preconditions, you should use the `PreconditionsFactory`. An instance of the factory is automatically
-injected into your test class if you add it as a constructor parameter.
-
-The recommended way to define preconditions is to use a lazy delegate. This approach ensures that the preconditions are
-created only when they are first accessed and are automatically reset between tests. This is particularly useful for
-preconditions that are shared across multiple test methods.
+To set up test preconditions, you should use either `preconditions` or `lazyPreconditions` method from the base class. The letter is particularly useful for preconditions that are shared across multiple test methods.
 
 ### Example
 
 Here is an example of how to define and use preconditions in a test class:
 
 ```kotlin
-@SimpleAccountingIntegrationTest
-class MyApiTest(
-    private val preconditionsFactory: PreconditionsFactory,
+class MyTest(
     // ... other dependencies
-) {
+) : SaIntegrationTestBase() {
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val workspace = workspace(owner = fry)
@@ -75,11 +68,12 @@ class MyApiTest(
 
 In this example:
 
-1. `PreconditionsFactory` is injected into the test class constructor.
-2. A `preconditions` property is defined using a lazy delegate provided by `preconditionsFactory`.
-3. Inside the lambda, you can use the methods from `EntitiesFactory` to create the required entities for your tests
+1. The test class extends `SaIntegrationTestBase` instead of using an annotation.
+2. Dependencies are injected via constructor parameters where needed.
+3. A `preconditions` property is defined using a lazy delegate provided by `lazyPreconditions` from the base class.
+4. Inside the lambda, you can use the methods from `EntitiesFactory` to create the required entities for your tests
    (e.g., `fry()`, `workspace()`, `category()`).
-4. In your test methods, you can access the created entities through the `preconditions` property.
+5. In your test methods, you can access the created entities through the `preconditions` property.
 
 ## REST API Testing
 
@@ -91,11 +85,10 @@ Organize tests using nested classes that correspond to the API endpoints. Each e
 named after the HTTP method and path pattern:
 
 ```kotlin
-@SimpleAccountingIntegrationTest
 class MyApiTest(
     @Autowired private val client: ApiTestClient,
-    private val preconditionsFactory: PreconditionsFactory,
-) {
+    // ... other dependencies  
+) : SaIntegrationTestBase() {
 
     @Nested
     @DisplayName("GET /api/my-resource/{id}")

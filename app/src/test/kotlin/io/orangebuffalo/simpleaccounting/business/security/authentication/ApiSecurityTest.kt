@@ -1,13 +1,13 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -21,11 +21,10 @@ import org.springframework.web.bind.annotation.RestController
 
 private const val API_PATH = "/api"
 
-@SimpleAccountingIntegrationTest
 @DisplayName("When requesting $API_PATH, ")
 class ApiAuthenticationTest(
-    @Autowired val client: WebTestClient,
-) {
+    @Autowired val client: WebTestClient
+) : SaIntegrationTestBase() {
 
     @MockitoBean
     lateinit var jwtService: JwtService

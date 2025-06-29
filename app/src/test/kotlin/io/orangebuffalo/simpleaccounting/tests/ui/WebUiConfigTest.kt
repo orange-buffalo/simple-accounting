@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.ui
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,10 +10,9 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Duration
 
-@SimpleAccountingIntegrationTest
 internal class WebUiConfigTest(
     @Autowired val client: WebTestClient
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     fun `should serve favicon`() {

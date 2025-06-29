@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.api
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
@@ -222,8 +222,7 @@ abstract class FilteringApiTestCase {
  * See [generateFilteringApiTests] for more details and usage guidelines.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@SimpleAccountingIntegrationTest
-abstract class FilteringApiTestBase {
+abstract class FilteringApiTestBase : SaIntegrationTestBase() {
 
     @Autowired
     lateinit var client: ApiTestClient
