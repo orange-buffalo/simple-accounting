@@ -144,21 +144,17 @@ automation. These tests should follow the Page Object pattern for maintainable a
 
 ### Test Structure
 
-Use the `@SimpleAccountingFullStackTest` annotation and structure tests around business scenarios:
+Extend `SaFullStackTestBase` and structure tests around business scenarios:
 
 ```kotlin
-@SimpleAccountingFullStackTest
-class MyFeatureFullStackTest(
-    preconditionsFactory: PreconditionsFactory,
-    @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
-) {
+class MyFeatureFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should perform complete business workflow`(page: Page) {
         // Test implementation using page objects
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val user = platformUser(userName = "testUser").withWorkspace()
         }

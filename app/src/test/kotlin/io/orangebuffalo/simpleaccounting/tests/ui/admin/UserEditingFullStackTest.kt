@@ -7,25 +7,20 @@ import io.kotest.matchers.shouldNotBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 
-@SimpleAccountingFullStackTest
 class UserEditingFullStackTest(
-    @Autowired private val entitiesTemplate: JdbcAggregateTemplate,
-    @Autowired private val timeService: TimeService,
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
-    private val preconditions by preconditionsFactory {
+    @param:Autowired private val timeService: TimeService,
+) : SaFullStackTestBase() {
+    private val preconditions by lazyPreconditions {
         object {
             val farnsworth = farnsworth()
             val fry = fry()
@@ -51,7 +46,7 @@ class UserEditingFullStackTest(
 
         page.shouldBeUsersOverviewPage()
 
-        val actualUsers = entitiesTemplate.findAll<PlatformUser>()
+        val actualUsers = aggregateTemplate.findAll<PlatformUser>()
         actualUsers.map { user -> user.userName }
             .shouldWithHint("Should update Fry user") {
                 shouldContainExactlyInAnyOrder("fryX", preconditions.farnsworth.userName)
@@ -145,7 +140,7 @@ class UserEditingFullStackTest(
     fun `should retrieve valid activation token`(page: Page) {
         mockCurrentTime(timeService)
         page.mockCurrentTime()
-        val data = preconditionsFactory.setup {
+        val data = preconditions {
             object {
                 val farnsworth = farnsworth()
                 val user = platformUser(
@@ -170,7 +165,7 @@ class UserEditingFullStackTest(
                 }
             }
 
-        entitiesTemplate.findAll<UserActivationToken>()
+        aggregateTemplate.findAll<UserActivationToken>()
             .map { it.token }
             .shouldWithHint("Should keep valid token intact") {
                 shouldContainExactly("token-value")
@@ -181,7 +176,7 @@ class UserEditingFullStackTest(
     fun `should recreate activation token if expired`(page: Page) {
         mockCurrentTime(timeService)
         page.mockCurrentTime()
-        val data = preconditionsFactory.setup {
+        val data = preconditions {
             object {
                 val farnsworth = farnsworth()
                 val user = platformUser(
@@ -203,7 +198,7 @@ class UserEditingFullStackTest(
                 shouldBeVisible()
                 input {
                     val newToken = shouldEventually("Should recreate token") {
-                        entitiesTemplate.findAll<UserActivationToken>()
+                        aggregateTemplate.findAll<UserActivationToken>()
                             .map { it.token }
                             .shouldBeSingle()
                             .shouldNotBe("token-value")
@@ -217,7 +212,7 @@ class UserEditingFullStackTest(
     fun `should create activation token if not exists`(page: Page) {
         mockCurrentTime(timeService)
         page.mockCurrentTime()
-        val data = preconditionsFactory.setup {
+        val data = preconditions {
             object {
                 val farnsworth = farnsworth()
                 val user = platformUser(
@@ -231,7 +226,7 @@ class UserEditingFullStackTest(
                 shouldBeVisible()
                 input {
                     val newToken = shouldEventually("Should recreate token") {
-                        entitiesTemplate.findAll<UserActivationToken>()
+                        aggregateTemplate.findAll<UserActivationToken>()
                             .map { it.token }
                             .shouldBeSingle()
                     }

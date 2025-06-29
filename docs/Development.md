@@ -76,7 +76,7 @@ behavior will be followed based on the configs.
 #### Full stack tests
 
 We test UIs via so-called full stack tests, which use Playwright to interact with a browser for steps and assertions.
-See tests annotated with `SimpleAccountingFullStackTest`.
+See tests extending `SaFullStackTestBase`.
 
 By default, the tests will run against a Testcontainers-managed browser and serve compiled (built by `frontend` Gradle 
 module) frontend code.

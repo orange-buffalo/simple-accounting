@@ -1,8 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UserOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.toUserOverviewItem
@@ -10,10 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 
-@SimpleAccountingFullStackTest
-class UsersOverviewFullStackTest(
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
+class UsersOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should provide users overview`(page: Page) {
@@ -112,7 +108,7 @@ class UsersOverviewFullStackTest(
             }
     }
 
-    private fun setupOverviewPreconditions() = preconditionsFactory.setup {
+    private fun setupOverviewPreconditions() = preconditions {
         object {
             val farnsworth = farnsworth()
 
@@ -124,7 +120,7 @@ class UsersOverviewFullStackTest(
         }
     }
 
-    private fun setupPaginationPreconditions() = preconditionsFactory.setup {
+    private fun setupPaginationPreconditions() = preconditions {
         object {
             var farnsworth = farnsworth()
 
@@ -134,7 +130,7 @@ class UsersOverviewFullStackTest(
         }
     }
 
-    private fun setupFilteringPreconditions() = preconditionsFactory.setup {
+    private fun setupFilteringPreconditions() = preconditions {
         object {
             var farnsworth = farnsworth()
 

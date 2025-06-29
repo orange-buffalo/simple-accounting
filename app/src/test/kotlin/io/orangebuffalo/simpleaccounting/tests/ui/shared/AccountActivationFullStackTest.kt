@@ -6,8 +6,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openAccountActivationPage
@@ -17,16 +16,12 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 import java.time.Instant
 
-@SimpleAccountingFullStackTest
 class AccountActivationFullStackTest(
     @Autowired private val timeServiceSpy: TimeService,
-    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
-    private val preconditions by preconditionsFactory {
+) : SaFullStackTestBase() {
+    private val preconditions by lazyPreconditions {
         object {
             val user = platformUser(
                 activated = false,
