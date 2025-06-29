@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra
 
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClientConfig
 import io.orangebuffalo.simpleaccounting.tests.infra.database.DatabaseCleanupExtension
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactoryExtension
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactoryExtension
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsMocksConfiguration
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsMocksListener
 import org.junit.jupiter.api.extension.ExtendWith
@@ -13,7 +13,7 @@ import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@ExtendWith(SpringExtension::class, DatabaseCleanupExtension::class, PreconditionsFactoryExtension::class)
+@ExtendWith(SpringExtension::class, DatabaseCleanupExtension::class, LegacyPreconditionsFactoryExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @TestPropertySource(properties = ["spring.profiles.active=test"])

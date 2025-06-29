@@ -4,7 +4,7 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
@@ -23,7 +23,7 @@ class InvoicesServiceTest(
     @Autowired private val invoicesService: InvoicesService,
     @Autowired private val invoiceRepository: InvoicesRepository,
     @Autowired private val entitiesFactoryInfra: EntitiesFactoryInfra,
-    private val preconditionsFactory: PreconditionsFactory,
+    private val preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @field:MockBean

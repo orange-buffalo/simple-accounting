@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Bean
 class DownloadsServiceTest(
     @Autowired private val downloadsService: DownloadsService,
     @Autowired private val testContentProvider: TestContentProvider,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @Test

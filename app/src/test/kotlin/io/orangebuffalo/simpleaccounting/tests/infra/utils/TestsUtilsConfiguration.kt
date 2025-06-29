@@ -12,6 +12,7 @@ import org.springframework.transaction.PlatformTransactionManager
 @Configuration
 class TestsUtilsConfiguration {
 
+    // TODO move to the base test class once all tests migrated to the new infra
     @Bean
     fun entitiesFactoryInfra(
         platformTransactionManager: PlatformTransactionManager,

@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra
 
 import io.orangebuffalo.simpleaccounting.tests.infra.database.DatabaseCleanupExtension
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactoryExtension
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactoryExtension
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.FullStackTestsSpringContextInitializer
@@ -20,7 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(
     SpringExtension::class,
     DatabaseCleanupExtension::class,
-    PreconditionsFactoryExtension::class
+    LegacyPreconditionsFactoryExtension::class
 )
 @ExtendWith(SaPlaywrightExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)

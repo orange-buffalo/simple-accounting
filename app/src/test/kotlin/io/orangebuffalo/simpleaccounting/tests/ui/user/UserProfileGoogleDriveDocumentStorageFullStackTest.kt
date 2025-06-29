@@ -10,11 +10,10 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive.GoogleDriveStorageIntegration
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleDriveApiMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.OAuthRecordedRequest
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.DocumentStorageSection.DocumentStorageConfig
@@ -25,14 +24,10 @@ import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeMyProfilePage
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate
 
-@SimpleAccountingFullStackTest
 class UserProfileGoogleDriveDocumentStorageFullStackTest(
-    preconditionsFactory: PreconditionsFactory,
-    @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
-    @Autowired private val tokenGenerator: TokenGenerator,
-) {
+    @param:Autowired private val tokenGenerator: TokenGenerator,
+) : SaFullStackTestBase() {
     @Test
     fun `should enable Google Drive storage if was not previously configured`(
         page: Page
@@ -429,7 +424,7 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest(
             .shouldNotBeNull()
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val scruffy = platformUser(
                 userName = "scruffy",

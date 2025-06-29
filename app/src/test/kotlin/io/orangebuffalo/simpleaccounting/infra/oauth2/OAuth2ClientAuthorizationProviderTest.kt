@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.tests.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.urlEncodeParameter
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnOkJson
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.*
@@ -46,7 +46,7 @@ import java.util.function.Consumer
 internal class OAuth2ClientAuthorizationProviderTest(
     @Autowired private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
 
     @MockitoBean

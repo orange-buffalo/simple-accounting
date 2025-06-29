@@ -7,7 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingFullStackTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.PreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openAccountActivationPage
@@ -24,7 +24,7 @@ import java.time.Instant
 class AccountActivationFullStackTest(
     @Autowired private val timeServiceSpy: TimeService,
     @Autowired private val aggregateTemplate: JdbcAggregateTemplate,
-    preconditionsFactory: PreconditionsFactory,
+    preconditionsFactory: LegacyPreconditionsFactory,
 ) {
     private val preconditions by preconditionsFactory {
         object {
