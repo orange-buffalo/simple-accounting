@@ -74,6 +74,8 @@ dependencies {
     testImplementation(libs.jsonUnit.kotest)
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.mockito.junitJupiter)
+    // workaround for https://github.com/JetBrains/JetBrainsRuntime/issues/259
+    testImplementation(libs.mockito.subclass)
     testImplementation("org.flywaydb:flyway-core")
     testImplementation(libs.guava)
     testImplementation(libs.assertk)
