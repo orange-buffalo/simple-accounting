@@ -1,14 +1,11 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
@@ -20,6 +17,8 @@ import kotlinx.serialization.json.putJsonArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -32,12 +31,10 @@ val ANOTHER_MOCK_TIME: Instant =
     ZonedDateTime.of(1999, 6, 28, 18, 1, 2, 53000000, ZoneId.of("America/New_York")).toInstant()
 const val ANOTHER_MOCK_TIME_VALUE = "1999-06-28T22:01:02.053Z"
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Workspace Access Tokens API ")
 class WorkspaceAccessTokensApiTest(
     @Autowired private val client: WebTestClient,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @MockitoBean
     lateinit var tokenGenerator: TokenGenerator
@@ -149,7 +146,7 @@ class WorkspaceAccessTokensApiTest(
             )
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val farnsworth = farnsworth()

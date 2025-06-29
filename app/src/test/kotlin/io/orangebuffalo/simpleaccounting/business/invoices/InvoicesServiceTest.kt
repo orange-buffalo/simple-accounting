@@ -1,10 +1,9 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
@@ -14,19 +13,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.time.LocalDate
 import java.util.stream.Stream
 
-@SimpleAccountingIntegrationTest
 class InvoicesServiceTest(
     @Autowired private val invoicesService: InvoicesService,
     @Autowired private val invoiceRepository: InvoicesRepository,
     @Autowired private val entitiesFactoryInfra: EntitiesFactoryInfra,
-    private val preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
-    @field:MockBean
+    @field:MockitoBean
     private lateinit var timeService: TimeService
 
     @Test
@@ -51,7 +48,7 @@ class InvoicesServiceTest(
         }
     }
 
-    private fun setupOverdueTestPreconditions() = preconditionsFactory.setup {
+    private fun setupOverdueTestPreconditions() = preconditions {
         object {
             val firstOwner = platformUser()
             val secondOwner = platformUser()

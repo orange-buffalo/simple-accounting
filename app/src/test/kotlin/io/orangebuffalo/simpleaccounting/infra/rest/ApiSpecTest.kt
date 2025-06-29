@@ -8,7 +8,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -28,7 +28,6 @@ import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
-@SimpleAccountingIntegrationTest
 @TestPropertySource(
     properties = [
         "springdoc.api-docs.path=/api-docs",
@@ -40,7 +39,7 @@ private val logger = KotlinLogging.logger {}
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class ApiSpecTest(
     @Autowired val client: WebTestClient
-) {
+) : SaIntegrationTestBase() {
 
     @MockitoBean
     private lateinit var spaWebFilter: SpaWebFilter

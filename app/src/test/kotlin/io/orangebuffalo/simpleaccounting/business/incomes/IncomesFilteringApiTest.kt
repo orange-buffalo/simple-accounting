@@ -1,12 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.incomes
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.api.legacy.AbstractFilteringApiTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.legacy.generateFilteringApiTests
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 
-@SimpleAccountingIntegrationTest
 class IncomesFilteringApiTest : AbstractFilteringApiTest() {
 
     companion object {

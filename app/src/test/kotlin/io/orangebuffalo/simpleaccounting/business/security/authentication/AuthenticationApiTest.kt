@@ -5,10 +5,9 @@ import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrin
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBodyEqualTo
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -36,20 +35,18 @@ private const val LOGIN_PATH = "/api/auth/login"
 private const val LOGIN_BY_TOKEN_PATH = "/api/auth/login-by-token"
 private const val TOKEN_PATH = "/api/auth/token"
 
-@SimpleAccountingIntegrationTest
 class AuthenticationApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val passwordEncoder: PasswordEncoder,
     @Autowired private val timeService: TimeService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
     @MockitoBean
     lateinit var jwtService: JwtService
 
     @MockitoBean
     lateinit var refreshTokensService: RefreshTokensService
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val farnsworth = farnsworth()

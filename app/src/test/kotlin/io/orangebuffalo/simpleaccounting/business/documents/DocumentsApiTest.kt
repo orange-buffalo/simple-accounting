@@ -6,12 +6,11 @@ import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocument
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
@@ -39,15 +38,13 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Documents API ")
 class DocumentsApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
     @Autowired private val timeService: TimeService,
     @Autowired private val tokenGenerator: TokenGenerator,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @BeforeEach
     fun setup() {
@@ -280,7 +277,7 @@ class DocumentsApiTest(
             }
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
             val fryWorkspace = workspace(owner = fry)

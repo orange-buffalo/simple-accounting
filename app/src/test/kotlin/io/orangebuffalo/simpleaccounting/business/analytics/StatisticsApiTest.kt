@@ -4,12 +4,11 @@ import io.kotest.matchers.equals.shouldBeEqual
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeJsonInteger
@@ -23,12 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Statistics API ")
 internal class StatisticsApiTest(
     @Autowired private val client: WebTestClient,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     fun `should allow access to expenses statistics only for authenticated users`() {
@@ -209,7 +206,7 @@ internal class StatisticsApiTest(
             .verifyNotFound("Workspace ${preconditions.workspace.id} is not found")
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val farnsworth = farnsworth()

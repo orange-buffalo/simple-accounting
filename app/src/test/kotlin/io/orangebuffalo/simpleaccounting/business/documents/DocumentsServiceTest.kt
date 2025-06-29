@@ -4,8 +4,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.stub
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorageStatus
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString
@@ -18,12 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
-@SimpleAccountingIntegrationTest
 class DocumentsServiceTest(
     @Autowired private val documentsService: DocumentsService,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     @WithMockFryUser
@@ -69,7 +66,7 @@ class DocumentsServiceTest(
         override fun getId() = "mock-storage"
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = platformUser(
                 userName = "Fry",
@@ -87,5 +84,3 @@ class DocumentsServiceTest(
         }
     }
 }
-
-

@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.api.legacy
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
@@ -28,8 +28,8 @@ annotation class FilteringTestApiDslMarker
  * To be used in the companion object method "createTestCases" of a test class that extend [AbstractFilteringApiTest].
  *
  * ```
- * @SimpleAccountingIntegrationTest
- * class AggregateApiIT : AbstractFilteringApiTest() {
+ *
+ * class AggregateApiIT : AbstractFilteringApiTest() : SaIntegrationTestBase() {
  *
  *      companion object {
  *          @Suppress("unused")
@@ -58,7 +58,7 @@ inline fun <reified T : Any> generateFilteringApiTests(
 @Deprecated("Use new API from parent package")
 interface FilteringApiTestCasesBuilder<T : Any> {
     /**
-     * Base URL for the filtering API. Depending on the value of [workspaceBasedUrl],
+     * Base URL for the filtering API. Depending on the value of [workspaceBasedUrl]
      * the URL will be constructed as "/api/workspaces/{workspaceId}/{baseUrl}" or "/api/{baseUrl}".
      */
     var baseUrl: String
@@ -79,7 +79,7 @@ interface FilteringApiTestCasesBuilder<T : Any> {
     var executeAsAdmin: Boolean
 
     /**
-     * Configures how response entities are matched to the preconditions entities,
+     * Configures how response entities are matched to the preconditions entities
      * which is basically the fields mapping between the aggregate and the response.
      */
     fun entityMatcher(init: EntityMatcher<T>.() -> Unit)
@@ -234,10 +234,9 @@ abstract class FilteringApiTestCase {
  * See [generateFilteringApiTests] for more details and usage guidelines.
  */
 // todo #229: investigate why random port is not applied when specified only on a base class
-@SimpleAccountingIntegrationTest
 @MockitoSettings(strictness = Strictness.LENIENT)
 @Deprecated("Use new API from parent package")
-abstract class AbstractFilteringApiTest {
+abstract class AbstractFilteringApiTest : SaIntegrationTestBase() {
 
     @Autowired
     lateinit var client: WebTestClient

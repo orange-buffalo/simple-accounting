@@ -1,9 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
@@ -21,13 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Invoices API ")
 internal class InvoicesApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val timeService: TimeService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @BeforeEach
     fun setup() {
@@ -647,7 +644,7 @@ internal class InvoicesApiTest(
             )
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val farnsworth = farnsworth()

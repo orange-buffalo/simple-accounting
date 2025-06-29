@@ -4,7 +4,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.stub
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
 import org.assertj.core.api.Assertions.assertThat
@@ -17,11 +17,10 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Downloads API")
 class DownloadsApiTest(
     @Autowired val client: WebTestClient
-) {
+) : SaIntegrationTestBase() {
 
     @MockitoBean
     lateinit var downloadsService: DownloadsService

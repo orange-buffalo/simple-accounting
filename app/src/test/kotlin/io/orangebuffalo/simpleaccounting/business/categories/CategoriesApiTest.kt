@@ -1,11 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.categories
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import kotlinx.serialization.json.addJsonObject
@@ -18,13 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Categories API")
 internal class CategoriesApiTest(
     @Autowired private val client: WebTestClient,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
-    private val preconditions by preconditionsFactory {
+) : SaIntegrationTestBase() {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val farnsworth = farnsworth()

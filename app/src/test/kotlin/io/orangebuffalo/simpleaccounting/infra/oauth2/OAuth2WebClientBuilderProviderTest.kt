@@ -2,9 +2,8 @@ package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -24,7 +23,6 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
 import java.util.function.Consumer
 
-@SimpleAccountingIntegrationTest
 @TestPropertySource(
     properties = [
         "spring.security.oauth2.client.registration.test-client.provider=test-provider",
@@ -41,8 +39,7 @@ class OAuth2WebClientBuilderProviderTest(
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val transactionTemplate: TransactionTemplate,
     @WireMockPort private val wireMockPort: Int,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     @WithSaMockUser(userName = "Fry")
@@ -181,7 +178,7 @@ class OAuth2WebClientBuilderProviderTest(
         }
         .block(Duration.ofSeconds(20))
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
         }

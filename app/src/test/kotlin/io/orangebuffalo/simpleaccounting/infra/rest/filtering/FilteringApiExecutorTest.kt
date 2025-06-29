@@ -1,6 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.rest.filtering
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.jooq.Field
@@ -18,11 +18,10 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.jdbc.core.JdbcTemplate
 import java.util.stream.Stream
 
-@SimpleAccountingIntegrationTest
 internal class FilteringApiExecutorTest(
     @Autowired val jdbcTemplate: JdbcTemplate,
     @Autowired val filteringApiExecutorBuilder: FilteringApiExecutorBuilder
-) {
+) : SaIntegrationTestBase() {
     lateinit var filteringApiExecutor: FilteringApiExecutor<TestDummy, TestDummyDto, TestDummySortFields, TestDummyApiPageRequest>
 
     companion object {

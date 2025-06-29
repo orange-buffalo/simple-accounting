@@ -1,8 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.integration.pushnotifications
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.assertNextJsonIs
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -18,13 +17,11 @@ import reactor.test.StepVerifier
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Push Notifications API ")
 class PushNotificationsApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val pushNotificationService: PushNotificationService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @OptIn(DelicateCoroutinesApi::class)
     @Test
@@ -164,7 +161,7 @@ class PushNotificationsApiTest(
         }
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val bender = bender()

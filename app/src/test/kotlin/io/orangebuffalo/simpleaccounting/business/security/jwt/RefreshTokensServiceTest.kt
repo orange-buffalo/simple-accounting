@@ -1,18 +1,17 @@
 package io.orangebuffalo.simpleaccounting.business.security.jwt
 
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensRepository
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -20,13 +19,11 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.function.Consumer
 
-@SimpleAccountingIntegrationTest
 class RefreshTokensServiceTest(
     @Autowired private val refreshTokensService: RefreshTokensService,
     @Autowired private val refreshTokensRepository: RefreshTokensRepository,
     @Autowired private val timeService: TimeService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     fun `should generate a new refresh token`() {
@@ -94,7 +91,7 @@ class RefreshTokensServiceTest(
         assertThat(updatedToken.expirationTime).isEqualTo(MOCK_TIME.minus(70, ChronoUnit.DAYS))
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val refreshToken = RefreshToken(

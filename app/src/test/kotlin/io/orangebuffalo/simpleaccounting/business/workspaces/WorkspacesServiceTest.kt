@@ -5,8 +5,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.security.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
@@ -20,13 +19,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Duration
 
-@SimpleAccountingIntegrationTest
 @DisplayName("WorkspaceService ")
 internal class WorkspacesServiceTest(
     @Autowired private val workspacesService: WorkspacesService,
     @Autowired private val timeService: TimeService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @BeforeEach
     fun setup() {
@@ -46,7 +43,10 @@ internal class WorkspacesServiceTest(
     fun `should fail to provide read-write workspace access if user is not authenticated`() {
         assertThatThrownBy {
             runBlocking {
-                workspacesService.getAccessibleWorkspace(preconditions.fryWorkspace.id!!, WorkspaceAccessMode.READ_WRITE)
+                workspacesService.getAccessibleWorkspace(
+                    preconditions.fryWorkspace.id!!,
+                    WorkspaceAccessMode.READ_WRITE
+                )
             }
         }.hasMessage("Authentication is not set")
     }
@@ -267,7 +267,7 @@ internal class WorkspacesServiceTest(
         workspaceAssertions(assertThat(workspace))
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val farnsworth = farnsworth()

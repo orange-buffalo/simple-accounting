@@ -4,8 +4,7 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.runAs
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.toDataBuffers
 import kotlinx.coroutines.runBlocking
@@ -16,12 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
-@SimpleAccountingIntegrationTest
 class DownloadsServiceTest(
     @Autowired private val downloadsService: DownloadsService,
     @Autowired private val testContentProvider: TestContentProvider,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     fun `should generate download token`() {
@@ -85,7 +82,7 @@ class DownloadsServiceTest(
         fun testContentProvider() = TestContentProvider()
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
         }

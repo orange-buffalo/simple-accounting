@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.documents.storage.gdrive
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import org.mockito.kotlin.*
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentRequest
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.business.documents.storage.StorageAuthorizationRequiredException
@@ -9,9 +8,8 @@ import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.oauth2.*
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -23,6 +21,7 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.io.buffer.DataBuffer
@@ -43,7 +42,6 @@ private val bufferFactory = DefaultDataBufferFactory()
  * The remaining parts to be covered by the pages that use upload / download functionality.
  */
 @Deprecated("Uses excessive mocking, should be replaced with a full stack test")
-@SimpleAccountingIntegrationTest
 @NeedsWireMock
 @TestPropertySource(
     properties = [
@@ -54,8 +52,7 @@ class GoogleDriveDocumentsStorageServiceTest(
     @Autowired private val documentsStorage: GoogleDriveDocumentsStorage,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
     @Autowired private val applicationEventPublisher: ApplicationEventPublisher,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @MockitoBean
     lateinit var webClientBuilderProvider: OAuth2WebClientBuilderProvider
@@ -498,7 +495,7 @@ class GoogleDriveDocumentsStorageServiceTest(
         )
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val workspace = workspace(owner = fry)

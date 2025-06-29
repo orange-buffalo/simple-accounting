@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.infra.rest.errorhandling
 
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.InsufficientUserType
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -18,11 +18,10 @@ private const val PATH_VALIDATION_EXCEPTION = "/api/auth/api-controller-advice-t
 private const val PATH_ENTITY_NOT_FOUND_EXCEPTION = "/api/auth/api-controller-advice-test-not-found"
 private const val PATH_INSUFFICIENT_USER_TYPE_EXCEPTION = "/api/auth/api-controller-advice-test-insufficient-user-type"
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Any API controller")
 internal class RestApiControllerExceptionsHandlerTest(
     @Autowired val client: WebTestClient
-) {
+) : SaIntegrationTestBase() {
 
     @Test
     fun `should return 400 and a valid message when ApiValidationException is thrown`() {

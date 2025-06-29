@@ -1,10 +1,8 @@
 package io.orangebuffalo.simpleaccounting.business.documents
 
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.legacy.AbstractFilteringApiTest
 import io.orangebuffalo.simpleaccounting.tests.infra.api.legacy.generateFilteringApiTests
 
-@SimpleAccountingIntegrationTest
 class DocumentsFilteringApiTest : AbstractFilteringApiTest() {
 
     companion object {

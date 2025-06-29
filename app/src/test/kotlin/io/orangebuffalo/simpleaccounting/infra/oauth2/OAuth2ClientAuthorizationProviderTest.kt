@@ -2,22 +2,21 @@ package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import com.github.tomakehurst.wiremock.client.WireMock.badRequest
 import com.github.tomakehurst.wiremock.client.WireMock.containing
-import org.mockito.kotlin.*
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.NeedsWireMock
 import io.orangebuffalo.simpleaccounting.tests.infra.api.stubPostRequestTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.urlEncodeParameter
 import io.orangebuffalo.simpleaccounting.tests.infra.api.willReturnOkJson
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
+import org.mockito.kotlin.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.event.EventListener
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
@@ -29,7 +28,6 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
 import java.util.function.Consumer
 
-@SimpleAccountingIntegrationTest
 @TestPropertySource(
     properties = [
         "spring.security.oauth2.client.registration.test-client.provider=test-provider",
@@ -46,8 +44,7 @@ import java.util.function.Consumer
 internal class OAuth2ClientAuthorizationProviderTest(
     @Autowired private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider,
     @Autowired private val jdbcAggregateTemplate: JdbcAggregateTemplate,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @MockitoBean
     lateinit var authEventTestListener: AuthEventTestListener
@@ -245,7 +242,7 @@ internal class OAuth2ClientAuthorizationProviderTest(
         runBlocking { clientAuthorizationProvider.handleAuthorizationResponse(request) }
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
         }

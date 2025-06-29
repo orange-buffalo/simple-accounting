@@ -2,9 +2,8 @@ package io.orangebuffalo.simpleaccounting.business.expenses
 
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SimpleAccountingIntegrationTest
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.database.LegacyPreconditionsFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
@@ -18,13 +17,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 
-@SimpleAccountingIntegrationTest
 @DisplayName("Expenses API")
 internal class ExpensesApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val timeService: TimeService,
-    preconditionsFactory: LegacyPreconditionsFactory,
-) {
+) : SaIntegrationTestBase() {
 
     @BeforeEach
     fun setup() {
@@ -687,7 +684,7 @@ internal class ExpensesApiTest(
             .verifyNotFound("Documents [${preconditions.coffeeReceipt.id}] are not found")
     }
 
-    private val preconditions by preconditionsFactory {
+    private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val farnsworth = farnsworth()
