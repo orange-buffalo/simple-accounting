@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.tests.infra.api.legacy
 
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
@@ -240,12 +239,6 @@ abstract class AbstractFilteringApiTest : SaIntegrationTestBase() {
 
     @Autowired
     lateinit var client: WebTestClient
-
-    @Autowired
-    lateinit var timeService: TimeService
-
-    @Autowired
-    lateinit var entitiesFactoryInfra: EntitiesFactoryInfra
 
     @ParameterizedTest
     @MethodSource("createTestCases")

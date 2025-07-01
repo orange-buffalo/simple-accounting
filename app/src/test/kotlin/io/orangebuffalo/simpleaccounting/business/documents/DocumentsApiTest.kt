@@ -4,8 +4,6 @@ import io.kotest.matchers.equals.shouldBeEqual
 import io.orangebuffalo.simpleaccounting.business.documents.storage.DocumentsStorage
 import io.orangebuffalo.simpleaccounting.business.documents.storage.SaveDocumentResponse
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
-import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
@@ -42,8 +40,6 @@ import java.util.function.Consumer
 class DocumentsApiTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val testDocumentsStorage: TestDocumentsStorage,
-    @Autowired private val timeService: TimeService,
-    @Autowired private val tokenGenerator: TokenGenerator,
 ) : SaIntegrationTestBase() {
 
     @BeforeEach

@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
@@ -23,7 +22,6 @@ import java.time.LocalDate
 @DisplayName("Invoices API ")
 internal class InvoicesApiTest(
     @Autowired private val client: WebTestClient,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
 
     @BeforeEach

@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.TestsMocksListener
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
@@ -15,7 +14,7 @@ import org.springframework.test.context.TestExecutionListeners
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ExtendWith(SaPlaywrightExtension::class)
 @TestExecutionListeners(
-    listeners = [TestsMocksListener::class, ThirdPartyApisMocksListener::class],
+    listeners = [ThirdPartyApisMocksListener::class],
     mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
 )
 @ContextConfiguration(

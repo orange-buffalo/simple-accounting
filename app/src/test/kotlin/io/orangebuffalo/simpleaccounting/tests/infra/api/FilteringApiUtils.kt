@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.tests.infra.api
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.TimeService
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
@@ -16,6 +15,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate
+import org.springframework.transaction.PlatformTransactionManager
 import java.util.stream.Stream
 
 /**
@@ -219,10 +219,12 @@ abstract class FilteringApiTestCase {
 
 /**
  * Base class for integration tests that test the filtering API.
+ * Must be a nested test in the Spring Boot test.
  * See [generateFilteringApiTests] for more details and usage guidelines.
  */
+@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-abstract class FilteringApiTestBase : SaIntegrationTestBase() {
+abstract class FilteringApiTestBase {
 
     @Autowired
     lateinit var client: ApiTestClient
@@ -231,17 +233,24 @@ abstract class FilteringApiTestBase : SaIntegrationTestBase() {
     lateinit var timeService: TimeService
 
     @Autowired
-    lateinit var entitiesFactoryInfra: EntitiesFactoryInfra
+    lateinit var aggregateTemplate: JdbcAggregateTemplate
 
     @Autowired
-    lateinit var jdbcAggregateTemplate: JdbcAggregateTemplate
+    lateinit var platformTransactionManager: PlatformTransactionManager
 
     @ParameterizedTest
     @ArgumentsSource(FilteringApiTestArgumentsProvider::class)
     fun testFilteringApi(testCase: FilteringApiTestCase) {
         mockCurrentDate(timeService)
         mockCurrentTime(timeService)
-        testCase.execute(client, entitiesFactoryInfra, jdbcAggregateTemplate)
+        testCase.execute(
+            client = client,
+            entitiesFactoryInfra = EntitiesFactoryInfra(
+                platformTransactionManager,
+                aggregateTemplate
+            ),
+            jdbcAggregateTemplate = aggregateTemplate
+        )
     }
 
     abstract fun createTestCases(): Collection<FilteringApiTestCase>

@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.security.jwt
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensRepository
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.coroutines.runBlocking
@@ -22,7 +21,6 @@ import java.util.function.Consumer
 class RefreshTokensServiceTest(
     @Autowired private val refreshTokensService: RefreshTokensService,
     @Autowired private val refreshTokensRepository: RefreshTokensRepository,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
 
     @Test

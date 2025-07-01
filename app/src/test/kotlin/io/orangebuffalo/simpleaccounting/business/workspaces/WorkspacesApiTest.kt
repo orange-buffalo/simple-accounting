@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
@@ -29,7 +28,6 @@ import java.time.Duration
 @DisplayName("Workspaces API ")
 internal class WorkspacesApiTest(
     @Autowired private val client: WebTestClient,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
 
     @Test

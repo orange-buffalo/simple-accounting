@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.incometaxpayments
 
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
@@ -19,7 +18,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @DisplayName("Income Tax Payments API ")
 internal class IncomeTaxPaymentsApiTest(
     @Autowired private val client: WebTestClient,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
 
     @BeforeEach

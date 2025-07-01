@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldNotBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage
@@ -15,11 +14,8 @@ import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverv
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 
-class UserEditingFullStackTest(
-    @param:Autowired private val timeService: TimeService,
-) : SaFullStackTestBase() {
+class UserEditingFullStackTest : SaFullStackTestBase() {
     private val preconditions by lazyPreconditions {
         object {
             val farnsworth = farnsworth()
