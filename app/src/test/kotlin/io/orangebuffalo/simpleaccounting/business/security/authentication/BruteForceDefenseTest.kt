@@ -8,20 +8,18 @@ import assertk.assertions.isGreaterThan
 import assertk.assertions.isNull
 import assertk.assertions.isZero
 import assertk.fail
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.whenever
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.shouldBeEqualToJson
 import kotlinx.coroutines.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.transaction.support.TransactionTemplate
@@ -34,8 +32,6 @@ class BruteForceDefenseTest(
     @Autowired private val client: WebTestClient,
     @Autowired private val transactionTemplate: TransactionTemplate,
     @Autowired private val platformUsersRepository: PlatformUsersRepository,
-    @Autowired private val passwordEncoder: PasswordEncoder,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
 
     @BeforeEach

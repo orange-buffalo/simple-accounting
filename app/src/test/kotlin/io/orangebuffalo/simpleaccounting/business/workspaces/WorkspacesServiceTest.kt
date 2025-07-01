@@ -4,7 +4,6 @@ import assertk.Assert
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.security.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -22,7 +21,6 @@ import java.time.Duration
 @DisplayName("WorkspaceService ")
 internal class WorkspacesServiceTest(
     @Autowired private val workspacesService: WorkspacesService,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
 
     @BeforeEach

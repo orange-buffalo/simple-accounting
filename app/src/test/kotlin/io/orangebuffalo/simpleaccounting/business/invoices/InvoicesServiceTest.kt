@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.invoices
 
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
@@ -13,18 +12,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import java.time.LocalDate
 import java.util.stream.Stream
 
 class InvoicesServiceTest(
     @Autowired private val invoicesService: InvoicesService,
     @Autowired private val invoiceRepository: InvoicesRepository,
-    @Autowired private val entitiesFactoryInfra: EntitiesFactoryInfra,
 ) : SaIntegrationTestBase() {
-
-    @field:MockitoBean
-    private lateinit var timeService: TimeService
 
     @Test
     fun `should move proper invoices into Overdue`() {

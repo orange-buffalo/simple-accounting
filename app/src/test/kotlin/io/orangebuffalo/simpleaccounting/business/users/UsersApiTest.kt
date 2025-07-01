@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.business.users
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
@@ -22,7 +21,6 @@ import java.time.Instant
  */
 internal class UsersApiTest(
     @Autowired private val client: ApiTestClient,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
 
     /**

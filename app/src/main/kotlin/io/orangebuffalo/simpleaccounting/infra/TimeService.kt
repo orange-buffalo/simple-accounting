@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.infra
 
-import io.orangebuffalo.simpleaccounting.infra.thirdparty.JbrWorkaround
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.LocalDate
@@ -11,11 +10,8 @@ import java.time.LocalDate
  * Main purpose of this class is to support maintainable mocking of time-related operations
  * in the test code.
  */
-interface TimeService {
+@Service
+class TimeService {
     fun currentTime(): Instant = Instant.now()
     fun currentDate(): LocalDate = LocalDate.now()
 }
-
-@JbrWorkaround
-@Service
-class TimeServiceImpl : TimeService

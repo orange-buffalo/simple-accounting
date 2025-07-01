@@ -4,7 +4,6 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBody
 import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBodyEqualTo
@@ -25,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
@@ -37,8 +35,6 @@ private const val TOKEN_PATH = "/api/auth/token"
 
 class AuthenticationApiTest(
     @Autowired private val client: WebTestClient,
-    @Autowired private val passwordEncoder: PasswordEncoder,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
     @MockitoBean
     lateinit var jwtService: JwtService

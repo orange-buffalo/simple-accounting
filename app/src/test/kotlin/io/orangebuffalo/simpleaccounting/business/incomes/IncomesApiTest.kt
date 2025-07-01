@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.incomes
 
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
-import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
@@ -20,7 +19,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @DisplayName("Incomes API")
 internal class IncomesApiTest(
     @Autowired private val client: WebTestClient,
-    @Autowired private val timeService: TimeService,
 ) : SaIntegrationTestBase() {
 
     @BeforeEach

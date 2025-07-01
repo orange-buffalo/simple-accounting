@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.business.workspaces
 
-import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyOkAndJsonBody
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import java.time.Instant
@@ -35,9 +33,6 @@ const val ANOTHER_MOCK_TIME_VALUE = "1999-06-28T22:01:02.053Z"
 class WorkspaceAccessTokensApiTest(
     @Autowired private val client: WebTestClient,
 ) : SaIntegrationTestBase() {
-
-    @MockitoBean
-    lateinit var tokenGenerator: TokenGenerator
 
     @Test
     fun `should allow GET access only for logged in users`() {
