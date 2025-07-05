@@ -3,10 +3,8 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UserOverviewItem
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.openUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.toUserOverviewItem
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
 import org.junit.jupiter.api.Test
 
 class UsersOverviewFullStackTest : SaFullStackTestBase() {
@@ -14,9 +12,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should provide users overview`(page: Page) {
         val preconditions = setupOverviewPreconditions()
-        page.loginAs(preconditions.farnsworth)
-        page.shouldHaveSideMenu().clickUsersOverview()
-        page.shouldBeUsersOverviewPage()
+        page.authenticateViaCookie(preconditions.farnsworth)
+        page.openUsersOverviewPage()
             .pageItems {
                 shouldHaveExactItems(
                     UserOverviewItem(
@@ -51,13 +48,12 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should support pagination`(page: Page) {
         val preconditions = setupPaginationPreconditions()
-        page.loginAs(preconditions.farnsworth)
-        page.shouldHaveSideMenu().clickUsersOverview()
+        page.authenticateViaCookie(preconditions.farnsworth)
         val firsPageUsers = arrayOf(
             "Farnsworth", "user 1", "user 10", "user 11", "user 12",
             "user 13", "user 14", "user 15", "user 2", "user 3"
         )
-        page.shouldBeUsersOverviewPage()
+        page.openUsersOverviewPage()
             .pageItems {
                 shouldHaveExactItems(*firsPageUsers) { it.title }
                 paginator {
@@ -82,9 +78,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should support filtering`(page: Page) {
         val preconditions = setupFilteringPreconditions()
-        page.loginAs(preconditions.farnsworth)
-        page.shouldHaveSideMenu().clickUsersOverview()
-        page.shouldBeUsersOverviewPage()
+        page.authenticateViaCookie(preconditions.farnsworth)
+        page.openUsersOverviewPage()
             .pageItems {
                 // ensure all targeted items visible by default
                 shouldContainItems(

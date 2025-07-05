@@ -26,6 +26,8 @@ private val targetPort = if (TestConfig.instance.fullStackTestsConfig.useViteDev
 else springContextPort
 private val browserUrl = "http://localhost:$targetPort"
 
+fun getBrowserUrl(): String = browserUrl
+
 class FullStackTestsSpringContextInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
         TestPropertySourceUtils.addInlinedPropertiesToEnvironment(

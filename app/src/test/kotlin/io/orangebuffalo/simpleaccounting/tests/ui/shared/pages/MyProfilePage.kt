@@ -143,4 +143,7 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
     }
 }
 
-fun Page.shouldBeMyProfilePage(): MyProfilePage = MyProfilePage(this).shouldBeOpen()
+fun Page.openMyProfilePage(): MyProfilePage {
+    this.navigate("/my-profile")
+    return MyProfilePage(this).shouldBeOpen()
+}

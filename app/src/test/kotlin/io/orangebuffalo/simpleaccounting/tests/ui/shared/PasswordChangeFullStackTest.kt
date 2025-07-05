@@ -7,9 +7,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeMyProfilePage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openMyProfilePage
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
@@ -23,9 +21,8 @@ class PasswordChangeFullStackTest(
     fun `should change password for regular user`(page: Page) {
         whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
 
-        page.loginAs(preconditions.fry)
-        page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+        page.authenticateViaCookie(preconditions.fry)
+        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
                 input { fill("currentPassword") }
             }
@@ -49,9 +46,8 @@ class PasswordChangeFullStackTest(
 
     @Test
     fun `should prevent submit if inputs not provided`(page: Page) {
-        page.loginAs(preconditions.fry)
-        page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+        page.authenticateViaCookie(preconditions.fry)
+        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
             changePasswordButton { shouldBeDisabled() }
             currentPassword {
                 input { fill("currentPassword") }
@@ -70,9 +66,8 @@ class PasswordChangeFullStackTest(
 
     @Test
     fun `should validate that confirmation matches the new password`(page: Page) {
-        page.loginAs(preconditions.fry)
-        page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+        page.authenticateViaCookie(preconditions.fry)
+        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
                 input { fill("currentPassword") }
             }
@@ -93,9 +88,8 @@ class PasswordChangeFullStackTest(
     fun `should validate that current password matches`(page: Page) {
         whenever(passwordEncoder.matches("currentPassword", preconditions.fry.passwordHash)) doReturn false
 
-        page.loginAs(preconditions.fry)
-        page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+        page.authenticateViaCookie(preconditions.fry)
+        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
                 input { fill("currentPassword") }
             }
@@ -122,9 +116,8 @@ class PasswordChangeFullStackTest(
     fun `should change password for admin user`(page: Page) {
         whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
 
-        page.loginAs(preconditions.farnsworth)
-        page.shouldHaveSideMenu().clickMyProfile()
-        page.shouldBeMyProfilePage().shouldHavePasswordChangeSectionVisible {
+        page.authenticateViaCookie(preconditions.farnsworth)
+        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
             currentPassword {
                 input { fill("currentPassword") }
             }
@@ -147,10 +140,7 @@ class PasswordChangeFullStackTest(
 
     private val preconditions by lazyPreconditions {
         object {
-            val fry = fry()
-
-            // TODO #1628: workspace should not be required?
-            val workspace = workspace(owner = fry)
+            val fry = fry().withWorkspace()
             val farnsworth = farnsworth()
         }
     }
