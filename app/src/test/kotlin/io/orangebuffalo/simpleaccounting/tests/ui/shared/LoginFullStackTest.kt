@@ -41,8 +41,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
 
     private val preconditions by lazyPreconditions {
         object {
-            val fry = fry()
-            val workspace = workspace(owner = fry)
+            val fry = fry().withWorkspace()
             val farnsworth = farnsworth()
         }
     }

@@ -9,10 +9,9 @@ import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.openUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import org.junit.jupiter.api.Test
 
 class UserEditingFullStackTest : SaFullStackTestBase() {
@@ -235,9 +234,8 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
         navigateToEditPage(page = page, admin = preconditions.farnsworth, userUnderEdit = preconditions.fry)
 
     private fun navigateToEditPage(page: Page, admin: PlatformUser, userUnderEdit: PlatformUser): EditUserPage {
-        page.loginAs(admin)
-        page.shouldHaveSideMenu().clickUsersOverview()
-        page.shouldBeUsersOverviewPage()
+        page.authenticateViaCookie(admin)
+        page.openUsersOverviewPage()
             .pageItems {
                 finishLoadingWhenTimeMocked()
                 val userUnderEditItem = shouldHaveItemSatisfying {

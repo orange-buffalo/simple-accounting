@@ -8,12 +8,7 @@ import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.CreateUserPage
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeCreateUserPage
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.*
 import org.junit.jupiter.api.Test
 
 class UserCreationFullStackTest : SaFullStackTestBase() {
@@ -145,10 +140,8 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
     }
 
     private fun setupPreconditionsAndNavigateToCreatePage(page: Page): CreateUserPage {
-        page.loginAs(preconditions.farnsworth)
-        page.shouldHaveSideMenu().clickUsersOverview()
-        page.shouldBeUsersOverviewPage()
-            .createUserButton.click()
+        page.authenticateViaCookie(preconditions.farnsworth)
+        page.openUsersOverviewPage().createUserButton.click()
         return page.shouldBeCreateUserPage()
     }
 
