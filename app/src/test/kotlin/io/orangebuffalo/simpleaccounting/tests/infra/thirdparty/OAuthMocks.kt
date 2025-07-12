@@ -10,7 +10,6 @@ import io.kotest.matchers.string.shouldStartWith
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.ClientTokenScope
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithHint
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
@@ -128,7 +127,7 @@ object OAuthMocks {
         do {
             recordedRequest = try {
                 mockOAuthServer.takeRequest(timeout = 0, unit = TimeUnit.MILLISECONDS)
-            } catch (e: RuntimeException) {
+            } catch (_: RuntimeException) {
                 // mockOAuthServer does not support nullable return result, they throw an exception
                 null
             }
@@ -192,7 +191,7 @@ object OAuthMocks {
             expectedRequestsCount: Int,
         ): OAuthMocksToken {
             resetCurrentTokensQueue()
-            for (i in 0 until expectedRequestsCount) {
+            repeat(expectedRequestsCount) {
                 mockOAuthServer.enqueueCallback(mockServerCallback)
             }
             return this
@@ -200,9 +199,9 @@ object OAuthMocks {
 
         override fun persist(user: PlatformUser, expired: Boolean, refreshToken: String?): OAuthMocksToken {
             val aggregateTemplate = applicationContext
-                .shouldWithHint("This method can only be invoked within the test method execution") {
+                .withHint("This method can only be invoked within the test method execution") {
                     shouldNotBeNull()
-                }!!.getBean(JdbcAggregateTemplate::class.java)
+                }.getBean(JdbcAggregateTemplate::class.java)
 
             val now = Instant.now()
             aggregateTemplate.insert(

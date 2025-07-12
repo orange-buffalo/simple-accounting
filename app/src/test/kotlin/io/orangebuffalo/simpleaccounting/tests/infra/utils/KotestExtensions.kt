@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.utils
 
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.should
 import kotlinx.coroutines.runBlocking
@@ -12,38 +13,34 @@ import kotlin.time.Duration.Companion.seconds
 fun <T> Iterable<T>.shouldBeSingle(): T = shouldBeSingleton().single()
 
 /**
- * Executes the given spec on current object with the provided clue
+ * Executes the given spec on current object with the provided clue.
+ * Same [withClue], but is an extension function that allows using it in a call chain.
  */
-fun <T> T.shouldWithHint(clue: String, spec: T.() -> Unit): T {
-    withHint(clue) {
+fun <T> T.shouldWithClue(clue: String, spec: T.() -> Unit): T {
+    withClue(clue) {
         this.should(spec)
     }
     return this
 }
 
 /**
+ * Executes the given action on current object with the provided clue.
+ * Same [withClue], but is an extension function that allows using it in a call chain.
+ */
+fun <T : Any?, R> T.withHint(
+    message: String,
+    action: T.() -> R
+): R = withClue(message) {
+    this.action()
+}
+
+/**
  * Repeats the assertions until satisfied or timeout is reached.
  */
 fun <T> shouldEventually(message: String? = null, spec: () -> T): T = runBlocking {
-    withHint(message ?: "Spec is not satisfied on ($this)") {
+    withClue(message ?: "Spec is not satisfied on ($this)") {
         eventually(10.seconds) {
             spec()
         }
     }
-}
-
-/**
- * `withClue` of Kotest is only integrated with Kotest assertions,
- * and if the closure fails with anything else (e.g. an exception),
- * it does not provide the proper clue. This function is a workaround
- * to provide a clue for any exception thrown during the execution of the action.
- */
-fun <T> withHint(
-    message: String? = null,
-    action: suspend () -> T
-): T = try {
-    runBlocking { action() }
-} catch (e: Throwable) {
-    logger.error(e) { "'$message' failed" }
-    throw e
 }

@@ -37,7 +37,7 @@ class Select<P : Any> private constructor(
 
     fun shouldHaveOptions(vararg options: String) {
         shouldHaveOptions { actualOptions ->
-            actualOptions.shouldWithHint("Expected options: $options") {
+            actualOptions.shouldWithClue("Expected options: $options") {
                 shouldContainExactly(*options)
             }
         }

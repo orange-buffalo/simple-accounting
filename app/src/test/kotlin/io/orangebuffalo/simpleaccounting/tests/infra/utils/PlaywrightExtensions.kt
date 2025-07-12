@@ -4,11 +4,11 @@ import com.microsoft.playwright.ElementHandle
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.assertions.nondeterministic.eventually
+import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 const val UI_ASSERTIONS_TIMEOUT_MS = 10_000
 
@@ -116,7 +116,7 @@ fun Page.withBlockedApiResponse(
     // so we need to check if the blockedRequestSpec has thrown an exception,
     // so that the test receives the proper failure
     if (blockedRequestFailure != null) {
-        throw blockedRequestFailure!!
+        throw blockedRequestFailure
     }
 
     withHint("The contract of this function requires the initiator to trigger the request") {
@@ -128,9 +128,10 @@ fun Page.withBlockedApiResponse(
  * Asserts that the locator satisfies the provided spec,
  * retrying the assertion until it succeeds or the timeout is reached.
  */
-fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) =
-    withHint(message ?: "Spec is not satisfied on ($this)") {
+fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) = runBlocking {
+    withClue(message ?: "Spec is not satisfied on ($this)") {
         eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
             spec()
         }
     }
+}

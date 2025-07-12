@@ -27,7 +27,7 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
             .activationStatus { shouldBeVisible() }
 
         aggregateTemplate.findAll<PlatformUser>()
-            .shouldWithHint("Expected exactly one user created (and one pre-seeded with preconditions)") {
+            .shouldWithClue("Expected exactly one user created (and one pre-seeded with preconditions)") {
                 shouldHaveSize(2)
             }
             .filter { it.userName == "userX" }
