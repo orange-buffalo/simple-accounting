@@ -49,6 +49,9 @@ jobs:
         proc_trace_chart_show: false
         theme: dark
 
+    - name: "Setup Playwright"
+      run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
+
     - name: "Build"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"

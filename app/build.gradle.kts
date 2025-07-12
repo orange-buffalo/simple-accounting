@@ -238,3 +238,13 @@ jreleaser {
         active = Active.NEVER
     }
 }
+
+// Reduces the number of Playwright browsers installed by default
+// and separates installation from the test execution
+tasks.register<JavaExec>("installPlaywrightDependencies") {
+    group = "playwright"
+    description = "Installs Playwright dependencies."
+    classpath = configurations.testRuntimeClasspath.get()
+    mainClass.set("com.microsoft.playwright.CLI")
+    args("install", "chromium", "--only-shell")
+}
