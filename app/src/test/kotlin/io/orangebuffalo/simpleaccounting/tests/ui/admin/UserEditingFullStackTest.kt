@@ -43,7 +43,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
 
         val actualUsers = aggregateTemplate.findAll<PlatformUser>()
         actualUsers.map { user -> user.userName }
-            .shouldWithHint("Should update Fry user") {
+            .shouldWithClue("Should update Fry user") {
                 shouldContainExactlyInAnyOrder("fryX", preconditions.farnsworth.userName)
             }
     }
@@ -162,7 +162,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findAll<UserActivationToken>()
             .map { it.token }
-            .shouldWithHint("Should keep valid token intact") {
+            .shouldWithClue("Should keep valid token intact") {
                 shouldContainExactly("token-value")
             }
     }
