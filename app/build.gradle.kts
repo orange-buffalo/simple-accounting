@@ -138,8 +138,19 @@ tasks.test {
         excludeTestsMatching(screenshotsTestPattern)
         excludeTestsMatching(e2eTestPattern)
     }
-    // Mockito requires a Java agent
-    jvmArgs("-javaagent:${mockitoAgent.asPath}")
+
+    // Default logging for tests is too verbose for CI; reduce extra load on the infrastructure
+    val loggingProperties = mutableListOf<String>()
+    ifCi {
+        loggingProperties.add("-Dlogging.level.org.jooq.tools.LoggerListener=warn")
+        loggingProperties.add("-Dlogging.level.io.orangebuffalo.simpleaccounting=warn")
+        loggingProperties.add("-Dlogging.level.org.springframework.test.context.cache=warn")
+    }
+    jvmArgs(
+        // Mockito requires a Java agent
+        "-javaagent:${mockitoAgent.asPath}",
+        *loggingProperties.toTypedArray(),
+    )
 }
 
 tasks.jacocoTestReport {
