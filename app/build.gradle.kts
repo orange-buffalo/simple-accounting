@@ -151,6 +151,9 @@ tasks.test {
         "-javaagent:${mockitoAgent.asPath}",
         *loggingProperties.toTypedArray(),
     )
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
+        .coerceAtLeast(1)
+        .coerceAtMost(5)
 }
 
 tasks.jacocoTestReport {
@@ -158,15 +161,6 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         csv.required.set(false)
         html.required.set(false)
-    }
-}
-
-tasks.withType<Test>().configureEach {
-    // CI machines are not powerful enough to run multiple UI test suites in parallel, they get flaky
-    ifLocal {
-        maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
-            .coerceAtLeast(1)
-            .coerceAtMost(5)
     }
 }
 
