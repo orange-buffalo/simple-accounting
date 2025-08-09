@@ -80,6 +80,7 @@ class WebConfig : WebFluxConfigurer {
                 authorizeExchange
                     .matchers(EndpointRequest.to(HealthEndpoint::class.java)).permitAll()
                     .matchers(EndpointRequest.toAnyEndpoint()).denyAll()
+                    .pathMatchers("/api/graphql/**").permitAll()
                     .pathMatchers("/api/auth/**").permitAll()
                     .pathMatchers("/api/downloads/**").permitAll()
                     .matchers(userActivationTokensApiControllerPublicEndpointsMatcher()).permitAll()

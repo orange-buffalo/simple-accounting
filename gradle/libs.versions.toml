@@ -1,8 +1,10 @@
 [versions]
 assertk = "0.28.1"
 awaitility = "4.3.0"
+dsgCodegen = "8.1.1"
 # version pinned as newer has major JGit changed which is not compatible with jreleaser
 gitSemverPlugin = "0.13.0"
+graphqlKotlin = "8.8.1"
 guava = "33.4.8-jre"
 javaxEl = "3.0.1-b12"
 jib = "3.4.5"
@@ -34,6 +36,9 @@ zjsonpatch = "0.4.16"
 [libraries]
 assertk = { module = "com.willowtreeapps.assertk:assertk-jvm", version.ref = "assertk" }
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
+dsgCodegen-gradle = { module = "com.netflix.graphql.dgs.codegen:graphql-dgs-codegen-gradle", version.ref = "dsgCodegen" }
+dsgCodegen-core = { module = "com.netflix.graphql.dgs.codegen:graphql-dgs-codegen-shared-core", version.ref = "dsgCodegen" }
+graphqlKotlin-springServer = { module = "com.expediagroup:graphql-kotlin-spring-server", version.ref = "graphqlKotlin" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 javax-el = { module = "org.glassfish:javax.el", version.ref = "javaxEl" }
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }

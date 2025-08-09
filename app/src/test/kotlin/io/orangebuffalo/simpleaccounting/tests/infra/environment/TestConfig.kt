@@ -7,7 +7,8 @@ import java.io.File
 
 data class TestConfig(
     val screenshots: ScreenshotsConfig = ScreenshotsConfig(),
-    val fullStackTestsConfig: FullStackTestsConfig = FullStackTestsConfig(),
+    val fullStackTests: FullStackTestsConfig = FullStackTestsConfig(),
+    val apiContracts: ApiContractsConfig = ApiContractsConfig(),
     val hostIpInDockerContainer: String = "172.17.0.1",
 ) {
     companion object {
@@ -24,6 +25,10 @@ data class FullStackTestsConfig(
     val useViteDevServer: Boolean = false,
     val viteDevServerSpringContextPort: Int = 5174,
     val slowMoMs: Int = 0,
+)
+
+data class ApiContractsConfig(
+    val overrideCommittedSchema: Boolean = false,
 )
 
 private fun loadTestConfig(): TestConfig {

@@ -34,15 +34,15 @@ class ApiTestClient(
     private val jwtService: JwtService,
 ) {
 
-    fun get() = webTestClient.get().also {
+    fun get(): WebTestClient.RequestHeadersUriSpec<*> = webTestClient.get().also {
         it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
 
-    fun post() = webTestClient.post().also {
+    fun post(): WebTestClient.RequestBodyUriSpec = webTestClient.post().also {
         it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
 
-    fun put() = webTestClient.put().also {
+    fun put(): WebTestClient.RequestBodyUriSpec = webTestClient.put().also {
         it.attribute(JWT_SERVICE_ATTRIBUTE_NAME, jwtService)
     }
 }

@@ -1,3 +1,4 @@
+import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jreleaser.model.Active
@@ -26,6 +27,7 @@ plugins {
 
 apply<SaJooqCodeGenPlugin>()
 apply<SaHotReloadPlugin>()
+apply<SaDgsCodegenPlugin>()
 
 val mockitoAgent = configurations.create("mockitoAgent")
 dependencies {
@@ -49,6 +51,7 @@ dependencies {
     implementation(libs.jooq)
     implementation(libs.jjwt.api)
     implementation(libs.springdocOpenapi.starterCommon)
+    implementation(libs.graphqlKotlin.springServer)
 
     implementation(libs.ktor.clientCore)
     implementation(libs.ktor.clientCio)
@@ -90,6 +93,7 @@ dependencies {
     testImplementation(libs.kotest.assertionsCore)
     testImplementation(libs.mockOauth2Server)
     testImplementation(libs.kotest.assertionsPlaywright)
+    testImplementation(libs.dsgCodegen.core)
 
     testRuntimeOnly(libs.springdocOpenapi.webfluxApi)
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
@@ -252,4 +256,20 @@ tasks.register<JavaExec>("installPlaywrightDependencies") {
     classpath = configurations.testRuntimeClasspath.get()
     mainClass.set("com.microsoft.playwright.CLI")
     args("install", "chromium", "--only-shell")
+}
+
+// DGS Codegen taskd for test GraphQL client generation
+tasks.withType<GenerateJavaTask> {
+    language = "kotlin"
+    schemaPaths = mutableListOf("src/test/resources/api-schema.graphqls")
+    packageName = "io.orangebuffalo.simpleaccounting.infra.graphql"
+    subPackageNameClient = "client"
+    subPackageNameTypes = "client.types"
+    generateClient = true
+    generateKotlinNullableClasses = true
+    generateKotlinClosureProjections = true
+}
+
+tasks.compileTestKotlin {
+    dependsOn("generateJava")
 }
