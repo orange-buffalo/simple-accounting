@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.jooq.codegen)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.snakeYaml)
+    implementation(libs.dsgCodegen.gradle)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
