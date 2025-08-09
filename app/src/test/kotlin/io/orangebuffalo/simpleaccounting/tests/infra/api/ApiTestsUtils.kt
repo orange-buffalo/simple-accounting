@@ -2,8 +2,10 @@ package io.orangebuffalo.simpleaccounting.tests.infra.api
 
 import io.kotest.matchers.should
 import io.kotest.matchers.string.shouldNotBeBlank
-import kotlinx.serialization.json.JsonObjectBuilder
-import kotlinx.serialization.json.buildJsonObject
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsClient
+import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
+import kotlinx.serialization.json.*
 import net.javacrumbs.jsonunit.core.Configuration
 import net.javacrumbs.jsonunit.kotest.equalJson
 import org.assertj.core.api.Assertions
@@ -127,4 +129,52 @@ fun String.shouldBeEqualToJson(
 
 fun String.shouldBeEqualToJson(expectedJson: String) {
     this.should(equalJson(expectedJson))
+}
+
+fun ApiTestClient.graphql(querySpec: QueryProjection.() -> QueryProjection): GraphqlClientRequestExecutor = this
+    .post()
+    .uri("/api/graphql")
+    .sendJson {
+        val query = DgsClient.buildQuery(_projection = querySpec)
+            .lines()
+            // DGS adds __typename to every object, which we cannot control and do not need;
+            // to simplify testing we remove it here (so we do not need to expect it in assertions)
+            .filter { line -> line.trim() != ("__typename") }
+            .joinToString("\n")
+        put("query", query)
+    }
+    .let {
+        GraphqlClientRequestExecutor(it)
+    }
+
+/**
+ * Handles GraphQL requests execution and assertions.
+ */
+class GraphqlClientRequestExecutor(
+    private var requestSpec: WebTestClient.RequestHeadersSpec<*>,
+) {
+    fun from(platformUser: PlatformUser): GraphqlClientRequestExecutor {
+        requestSpec = requestSpec.from(platformUser)
+        return this
+    }
+
+    fun usingSharedWorkspaceToken(workspaceToken: String): GraphqlClientRequestExecutor {
+        requestSpec = requestSpec.usingSharedWorkspaceToken(workspaceToken)
+        return this
+    }
+
+    fun executeAndVerifySuccessResponse(
+        vararg dataItems: Pair<String, JsonObject>,
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBodyEqualTo {
+                putJsonObject("data") {
+                    dataItems.forEach { (key, value) ->
+                        put(key, value)
+                    }
+                }
+            }
+    }
 }
