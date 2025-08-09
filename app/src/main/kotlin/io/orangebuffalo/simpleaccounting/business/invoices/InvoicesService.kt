@@ -11,6 +11,8 @@ import io.orangebuffalo.simpleaccounting.infra.executeInParallel
 import io.orangebuffalo.simpleaccounting.infra.withDbContext
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.core.task.AsyncTaskExecutor
@@ -27,6 +29,7 @@ class InvoicesService(
     private val workspacesService: WorkspacesService,
     private val documentsService: DocumentsService,
     private val timeService: TimeService,
+    @param:Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     private val taskExecutor: AsyncTaskExecutor
 ) {
 
@@ -66,7 +69,7 @@ class InvoicesService(
                 .orElseThrow { throw EntityNotFoundException("Invoice $invoiceId is not found") }
         }
         val customer = customersService.findById(invoice.customerId)
-            ?: throw  EntityNotFoundException("Customer ${invoice.customerId} is not found")
+            ?: throw EntityNotFoundException("Customer ${invoice.customerId} is not found")
         workspacesService.validateWorkspaceAccess(
             customer.workspaceId,
             WorkspaceAccessMode.READ_WRITE
