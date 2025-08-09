@@ -49,6 +49,16 @@ simpleaccounting:
     scheduling-delay-in-hours: 12
     dropbox:
       active: false
+graphql:
+  packages:
+    - "io.orangebuffalo.simpleaccounting"
+  endpoint: "/api/graphql"
+  graphiql:
+    enabled: false
+  sdl:
+    endpoint: "/api/graphql/schema"
+  subscriptions:
+    endpoint: "/api/graphql/subscriptions"
 ---
 
 spring:

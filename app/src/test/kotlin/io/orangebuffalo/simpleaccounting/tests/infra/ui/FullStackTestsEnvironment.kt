@@ -14,14 +14,14 @@ import java.nio.file.Path
 private val log = mu.KotlinLogging.logger {}
 
 private val springContextPort: Int by lazy {
-    if (TestConfig.instance.fullStackTestsConfig.useViteDevServer)
-        TestConfig.instance.fullStackTestsConfig.viteDevServerSpringContextPort
+    if (TestConfig.instance.fullStackTests.useViteDevServer)
+        TestConfig.instance.fullStackTests.viteDevServerSpringContextPort
     else TestSocketUtils.findAvailableTcpPort()
 }
 
 private const val viteDevServerPort: Int = 5173
 
-private val targetPort = if (TestConfig.instance.fullStackTestsConfig.useViteDevServer)
+private val targetPort = if (TestConfig.instance.fullStackTests.useViteDevServer)
     viteDevServerPort
 else springContextPort
 private val browserUrl = "http://localhost:$targetPort"
@@ -50,8 +50,8 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
             })
             val browser = playwright.chromium().launch(
                 BrowserType.LaunchOptions()
-                    .setHeadless(TestConfig.instance.fullStackTestsConfig.useHeadlessBrowser)
-                    .setSlowMo(TestConfig.instance.fullStackTestsConfig.slowMoMs.toDouble())
+                    .setHeadless(TestConfig.instance.fullStackTests.useHeadlessBrowser)
+                    .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
             )
             playwrightContext = PlaywrightContext(playwright, browser)
             threadLocalPlaywrightContext.set(playwrightContext)
