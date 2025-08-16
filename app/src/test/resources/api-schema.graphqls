@@ -49,12 +49,12 @@ type I18nSettingsDto {
   locale: String!
 }
 
-type MyProfileDto {
+type Query {
+  userProfile: UserProfileDto!
+}
+
+type UserProfileDto {
   documentsStorage: String
   i18n: I18nSettingsDto!
   userName: String!
-}
-
-type Query {
-  myProfile: MyProfileDto!
 }

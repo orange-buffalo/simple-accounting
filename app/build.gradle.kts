@@ -260,8 +260,15 @@ tasks.register<JavaExec>("installPlaywrightDependencies") {
 
 // DGS Codegen taskd for test GraphQL client generation
 tasks.withType<GenerateJavaTask> {
+    // Remove any previously generated sources, e.g. if we renamed something in the schema
+    doFirst {
+        delete(layout.buildDirectory.map {
+            it.dir("generated/sources/dgs-codegen")
+        })
+    }
+
     language = "kotlin"
-    schemaPaths = mutableListOf("src/test/resources/api-schema.graphqls")
+    schemaPaths = mutableListOf(project.file("src/test/resources/api-schema.graphqls"))
     packageName = "io.orangebuffalo.simpleaccounting.infra.graphql"
     subPackageNameClient = "client"
     subPackageNameTypes = "client.types"
