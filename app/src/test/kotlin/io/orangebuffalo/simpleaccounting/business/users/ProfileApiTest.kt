@@ -30,7 +30,7 @@ class ProfileApiTest(
 
         client
             .graphql {
-                myProfile {
+                userProfile {
                     userName
                     i18n {
                         locale
@@ -40,7 +40,7 @@ class ProfileApiTest(
             }
             .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
-                DgsConstants.QUERY.MyProfile to buildJsonObject {
+                DgsConstants.QUERY.UserProfile to buildJsonObject {
                     put("userName", "Fry")
                     put("i18n", buildJsonObject {
                         put("locale", "en_AU")
