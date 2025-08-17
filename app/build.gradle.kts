@@ -155,9 +155,13 @@ tasks.test {
         "-javaagent:${mockitoAgent.asPath}",
         *loggingProperties.toTypedArray(),
     )
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
-        .coerceAtLeast(1)
-        .coerceAtMost(5)
+    // CI has limited resources (we've seen OOM), so we limit the number of parallel test forks
+    ifCi { maxParallelForks = 2 }
+    ifLocal {
+        maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
+            .coerceAtLeast(1)
+            .coerceAtMost(5)
+    }
 }
 
 tasks.jacocoTestReport {
