@@ -44,17 +44,25 @@ directive @specifiedBy(
     url: String!
   ) on SCALAR
 
-type I18nSettingsDto {
+"Internationalization settings of the user profile."
+type I18nSettings {
+  "The language of the user profile, e.g. 'en'. Used for translations."
   language: String!
+  "The locale of the user profile, e.g. 'en-US'. Used for formatting dates, numbers, etc."
   locale: String!
 }
 
 type Query {
-  userProfile: UserProfileDto!
+  "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
+  userProfile: UserProfile!
 }
 
-type UserProfileDto {
+"Information about the user profile."
+type UserProfile {
+  "The identifier of the documents storage used by the user."
   documentsStorage: String
-  i18n: I18nSettingsDto!
+  "Internationalization settings of the user."
+  i18n: I18nSettings!
+  "The user name / login of the user."
   userName: String!
 }
