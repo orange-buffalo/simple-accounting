@@ -163,6 +163,11 @@ class GraphqlClientRequestExecutor(
         return this
     }
 
+    fun fromAnonymous(): GraphqlClientRequestExecutor {
+        requestSpec = requestSpec.fromAnonymous()
+        return this
+    }
+
     fun executeAndVerifySuccessResponse(
         vararg dataItems: Pair<String, JsonObject>,
     ) {
@@ -174,6 +179,37 @@ class GraphqlClientRequestExecutor(
                     dataItems.forEach { (key, value) ->
                         put(key, value)
                     }
+                }
+            }
+    }
+
+    fun executeAndVerifySingleError(
+        message: String,
+        errorType: String,
+        locationColumn: Int,
+        locationLine: Int,
+        path: String,
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBodyEqualTo {
+                putJsonArray("errors") {
+                    add(buildJsonObject {
+                        put("message", message)
+                        put("extensions", buildJsonObject {
+                            put("errorType", errorType)
+                        })
+                        putJsonArray("locations") {
+                            add(buildJsonObject {
+                                put("column", locationColumn)
+                                put("line", locationLine)
+                            })
+                        }
+                        putJsonArray("path") {
+                            add(path)
+                        }
+                    })
                 }
             }
     }
