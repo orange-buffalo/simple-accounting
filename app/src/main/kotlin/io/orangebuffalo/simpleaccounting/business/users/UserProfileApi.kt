@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.users
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.infra.graphql.RequiredAuth
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 
@@ -20,6 +21,7 @@ class UserProfileApi {
             "Returns the current user profile information. " +
                     "Current is defined as the user that is authenticated in the current request."
         )
+        @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED)
         suspend fun userProfile(): UserProfile {
             return platformUsersService
                 .getCurrentUser()

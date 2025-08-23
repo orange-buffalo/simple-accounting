@@ -3,6 +3,9 @@ schema @contact(description : "For any questions, issues or feature requests, pl
   query: Query
 }
 
+"Defines the authorization requirements for the request. If a request context does not satisfy the requirements, it will be rejected with an error code `NOT_AUTHORIZED`."
+directive @auth(type: AuthType!) on FIELD_DEFINITION
+
 "Provides contact information of the owner responsible for this subgraph schema."
 directive @contact(description: String!, name: String!, url: String!) on SCHEMA
 
@@ -54,7 +57,7 @@ type I18nSettings {
 
 type Query {
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
-  userProfile: UserProfile!
+  userProfile: UserProfile! @auth(type : AUTHENTICATED)
 }
 
 "Information about the user profile."
@@ -65,4 +68,16 @@ type UserProfile {
   i18n: I18nSettings!
   "The user name / login of the user."
   userName: String!
+}
+
+"Defines the type of authorization required to execute the request. This is used in conjunction with the `@auth` directive."
+enum AuthType {
+  "Requires a request to be executed by an admin user, i.e. authenticated and has admin privileges."
+  ADMIN_USER
+  "Allows a request to be executed by an anonymous user, i.e. not authenticated at all. With this restriction, any authenticated user is allowed to execute the request too. "
+  ANONYMOUS
+  "Allows a request to be executed by any authenticated user."
+  AUTHENTICATED
+  "Requires a request to be executed by a regular user, i.e. authenticated and not an admin user."
+  REGULAR_USER
 }
