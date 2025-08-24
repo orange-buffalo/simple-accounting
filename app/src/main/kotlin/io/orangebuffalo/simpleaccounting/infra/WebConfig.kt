@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.infra
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
+import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
 import org.springframework.beans.factory.annotation.Qualifier
@@ -84,7 +85,7 @@ class WebConfig : WebFluxConfigurer {
                     .pathMatchers("/api/auth/**").permitAll()
                     .pathMatchers("/api/downloads/**").permitAll()
                     .matchers(userActivationTokensApiControllerPublicEndpointsMatcher()).permitAll()
-                    .pathMatchers("/api/users/**").hasRole("ADMIN")
+                    .pathMatchers("/api/users/**").hasRole(SaUserRoles.ADMIN)
                     .pathMatchers("/api/**").authenticated()
                     .pathMatchers("/**").permitAll()
             }
