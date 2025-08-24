@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
+import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyUnauthorized
@@ -51,7 +52,7 @@ class ApiAuthenticationTest(
     @Test
     fun `should return successful response if token belongs to an admin`() {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
-            .roles("ADMIN")
+            .roles(SaUserRoles.ADMIN)
             .username("Professor Farnsworth")
             .password("token")
             .build()
@@ -65,7 +66,7 @@ class ApiAuthenticationTest(
     @Test
     fun `should return successful response if token belongs to a user`() {
         whenever(jwtService.validateTokenAndBuildUserDetails("token")) doReturn User.builder()
-            .roles("USER")
+            .roles(SaUserRoles.USER)
             .username("Fry")
             .password("token")
             .build()
