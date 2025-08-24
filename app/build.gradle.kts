@@ -155,8 +155,8 @@ tasks.test {
         "-javaagent:${mockitoAgent.asPath}",
         *loggingProperties.toTypedArray(),
     )
-    // CI has limited resources (we've seen OOM), so we limit the number of parallel test forks
-    ifCi { maxParallelForks = 2 }
+    // CI has limited resources (we've seen OOM), so we have to run tests sequentially
+    ifCi { maxParallelForks = 1 }
     ifLocal {
         maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
             .coerceAtLeast(1)
