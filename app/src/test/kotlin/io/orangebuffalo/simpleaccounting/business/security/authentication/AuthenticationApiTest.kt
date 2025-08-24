@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.security.authentication
 
 import io.kotest.matchers.shouldBe
+import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
@@ -79,7 +80,7 @@ class AuthenticationApiTest(
         whenever(jwtService.buildJwtToken(argThat {
             userName == preconditions.fry.userName
                     && roles.size == 1
-                    && roles.contains("USER")
+                    && roles.contains(SaUserRoles.USER)
         }, eq(null))) doReturn "jwtTokenForFry"
 
         client.post().uri(LOGIN_PATH)
@@ -104,7 +105,7 @@ class AuthenticationApiTest(
         whenever(jwtService.buildJwtToken(argThat {
             userName == preconditions.farnsworth.userName
                     && roles.size == 1
-                    && roles.contains("ADMIN")
+                    && roles.contains(SaUserRoles.ADMIN)
         }, eq(null))) doReturn "jwtTokenForFarnsworth"
 
         client.post().uri(LOGIN_PATH)
@@ -267,7 +268,7 @@ class AuthenticationApiTest(
         whenever(jwtService.buildJwtToken(argThat {
             userName == preconditions.fry.userName
                     && roles.size == 1
-                    && roles.contains("USER")
+                    && roles.contains(SaUserRoles.USER)
         }, eq(null))) doReturn "jwtTokenForFry"
 
         runBlocking {
@@ -299,7 +300,7 @@ class AuthenticationApiTest(
     @Test
     fun `should return a JWT token when token endpoint is hit and cookie is valid`() {
         runBlocking {
-            val principal = createRegularUserPrincipal(preconditions.fry.userName, "", listOf("USER"))
+            val principal = createRegularUserPrincipal(preconditions.fry.userName, "", listOf(SaUserRoles.USER))
 
             whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFry"
             whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn principal
@@ -414,7 +415,7 @@ class AuthenticationApiTest(
             userName == preconditions.validAccessToken.token
                     && isTransient
                     && roles.size == 1
-                    && roles.contains("USER")
+                    && roles.contains(SaUserRoles.USER)
         }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForSharedWorkspace"
 
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.validAccessToken.token}")
