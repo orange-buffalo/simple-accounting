@@ -7,6 +7,7 @@ import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.generator.extensions.get
 import graphql.introspection.Introspection
 import graphql.schema.GraphQLFieldDefinition
+import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
@@ -45,9 +46,16 @@ annotation class RequiredAuth(
         ANONYMOUS,
 
         @GraphQLDescription(
-            "Allows a request to be executed by any authenticated user."
+            "Allows a request to be executed by any authenticated actor, " +
+                    "including by workspace access token."
         )
-        AUTHENTICATED,
+        AUTHENTICATED_ACTOR,
+
+        @GraphQLDescription(
+            "Allows a request to be executed by any authenticated user, " +
+                    "be it admin or regular user, but not via workspace access token."
+        )
+        AUTHENTICATED_USER,
 
         @GraphQLDescription(
             "Requires a request to be executed by a regular user, " +
@@ -85,13 +93,41 @@ class RequiredAuthDirectiveWiring : KotlinSchemaDirectiveWiring {
                 val principal = runBlocking(coroutineScope.coroutineContext) {
                     getCurrentPrincipalOrNull()
                 }
+                var authCheckSucceeded = true
                 if (principal == null) {
-                    throw SaGrapQlException(
-                        message = "User is not authenticated",
-                        errorType = SaGrapQlErrorType.NOT_AUTHORIZED,
-                    )
+                    authCheckSucceeded = false
+                } else {
+                    if (authType == RequiredAuth.AuthType.AUTHENTICATED_ACTOR) {
+                        log.trace { "This operation requires authenticated actor, principal is found, continue with data fetching" }
+                    } else if (authType == RequiredAuth.AuthType.AUTHENTICATED_USER) {
+                        // any authenticated user is allowed
+                        if (principal.isTransient) {
+                            authCheckSucceeded = false
+                            log.trace {
+                                "This operation requires authenticated user, but principal is transient"
+                            }
+                        }
+                    } else if (authType == RequiredAuth.AuthType.REGULAR_USER) {
+                        // only regular users are allowed
+                        if (principal.isTransient || !principal.roles.contains(SaUserRoles.USER)) {
+                            authCheckSucceeded = false
+                            log.trace { "This operation requires regular user, but principal is transient or has no USER role" }
+                        }
+                    } else if (authType == RequiredAuth.AuthType.ADMIN_USER) {
+                        // only admin users are allowed
+                        if (principal.isTransient || !principal.roles.contains(SaUserRoles.ADMIN)) {
+                            authCheckSucceeded = false
+                            log.trace { "This operation requires admin user, but principal is transient or has no ADMIN role" }
+                        }
+                    }
                 }
-                originalDataFetcher.get(env)
+                if (authCheckSucceeded) {
+                    return@setDataFetcher originalDataFetcher.get(env)
+                }
+                throw SaGrapQlException(
+                    message = "User is not authenticated",
+                    errorType = SaGrapQlErrorType.NOT_AUTHORIZED,
+                )
             }
         }
         return environment.element

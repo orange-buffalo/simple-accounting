@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.security
 
+import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPrincipal
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -61,14 +62,14 @@ class SaMockSecurityContextFactory : WithSecurityContextFactory<WithSaMockUser> 
 
 @Deprecated("Use ApiTestClient for actual JWT auth")
 fun WebTestClient.asFarnsworth(): WebTestClient {
-    val principal = createRegularUserPrincipal("Farnsworth", "", listOf("ADMIN"))
+    val principal = createRegularUserPrincipal("Farnsworth", "", listOf(SaUserRoles.ADMIN))
     val authentication = UsernamePasswordAuthenticationToken(principal, "", principal.authorities)
     return this.mutateWith(mockAuthentication(authentication))
 }
 
 @Deprecated("Use ApiTestClient for actual JWT auth")
 fun WebTestClient.asFry(): WebTestClient {
-    val principal = createRegularUserPrincipal("Fry", "", listOf("USER"))
+    val principal = createRegularUserPrincipal("Fry", "", listOf(SaUserRoles.USER))
     val authentication = UsernamePasswordAuthenticationToken(principal, "", principal.authorities)
     return this.mutateWith(mockAuthentication(authentication))
 }

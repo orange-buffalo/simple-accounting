@@ -21,7 +21,7 @@ class UserProfileApi {
             "Returns the current user profile information. " +
                     "Current is defined as the user that is authenticated in the current request."
         )
-        @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED)
+        @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
         suspend fun userProfile(): UserProfile {
             return platformUsersService
                 .getCurrentUser()

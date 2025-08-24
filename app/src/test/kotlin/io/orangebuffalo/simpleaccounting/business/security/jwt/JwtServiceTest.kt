@@ -6,6 +6,7 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.createRegularUserPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPrincipal
@@ -75,7 +76,7 @@ class JwtServiceTest {
 
         jwtBody.inPath("sub").shouldBeJsonString().shouldBe("workspaceAccessToken")
 
-        jwtBody.inPath("roles").shouldBeJsonArray().shouldContainExactlyInAnyOrder("USER")
+        jwtBody.inPath("roles").shouldBeJsonArray().shouldContainExactlyInAnyOrder(SaUserRoles.USER)
 
         jwtBody.inPath("transient").shouldBeJsonBoolean().shouldBeTrue()
 

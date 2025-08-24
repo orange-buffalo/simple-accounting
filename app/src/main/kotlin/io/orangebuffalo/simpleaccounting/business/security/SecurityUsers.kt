@@ -44,7 +44,7 @@ fun createTransientUserPrincipal(sharedWorkspaceToken: String, password: String?
     SecurityPrincipalImpl(
         userName = sharedWorkspaceToken,
         password = password ?: sharedWorkspaceToken,
-        authorities = listOf(SimpleGrantedAuthority("ROLE_USER")),
+        authorities = listOf(SimpleGrantedAuthority("ROLE_${SaUserRoles.USER}")),
         isTransient = true
     )
 
@@ -56,7 +56,7 @@ interface SpringSecurityPrincipal : SecurityPrincipal, UserDetails
 fun PlatformUser.toSecurityPrincipal(): SpringSecurityPrincipal = createRegularUserPrincipal(
     userName = this.userName,
     password = this.passwordHash,
-    roles = listOf(if (isAdmin) "ADMIN" else "USER")
+    roles = listOf(if (isAdmin) SaUserRoles.ADMIN else SaUserRoles.USER)
 )
 
 private class SecurityPrincipalImpl(
@@ -76,3 +76,8 @@ private class SecurityPrincipalImpl(
 }
 
 class InsufficientUserType : RuntimeException()
+
+object SaUserRoles {
+    const val ADMIN = "ADMIN"
+    const val USER = "USER"
+}
