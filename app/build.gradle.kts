@@ -142,7 +142,6 @@ tasks.test {
         excludeTestsMatching(screenshotsTestPattern)
         excludeTestsMatching(e2eTestPattern)
     }
-
     // Default logging for tests is too verbose for CI; reduce extra load on the infrastructure
     val loggingProperties = mutableListOf<String>()
     ifCi {
@@ -155,13 +154,13 @@ tasks.test {
         "-javaagent:${mockitoAgent.asPath}",
         *loggingProperties.toTypedArray(),
     )
-    // CI has limited resources (we've seen OOM), so we have to run tests sequentially
-    ifCi { maxParallelForks = 1 }
-    ifLocal {
-        maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
-            .coerceAtLeast(1)
-            .coerceAtMost(5)
-    }
+    // let enough memory for contexts to cache
+    maxHeapSize = "1g"
+    // still reset every once in a while to avoid contexts cache overgrowth
+    forkEvery = 1000
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
+        .coerceAtLeast(1)
+        .coerceAtMost(5)
 }
 
 tasks.jacocoTestReport {
