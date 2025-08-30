@@ -25,6 +25,7 @@ import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.shaded.com.google.common.io.Files
 import java.io.File
+import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -56,7 +57,12 @@ class ApiSpecTest(
 
         val committedSpec = File("src/test/resources/api-spec.yaml")
 
-        client.get()
+        client
+            .mutate()
+            // default timeout of 5s is not enough on CI sometimes (concurrent JVMs running test, limited CPU resource)
+            .responseTimeout(Duration.ofSeconds(10))
+            .build()
+            .get()
             .uri("/api-docs.yaml")
             .exchange()
             .expectStatus().isOk
