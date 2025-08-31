@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "bun build-config/post-install/post-install.js",
+    "postinstall": "bun build-config/post-install/post-install.js && bun graphql-codegen",
     "dev": "bun run --bun vite",
     "build": "bun run --bun typecheck && bun run --bun vite build",
     "test:unit": "vitest --run",
@@ -12,19 +12,22 @@
     "typecheck-storybook": "bun run --bun vue-tsc --noEmit -p tsconfig.storybook-config.json --composite false",
     "lint": "bun run --bun eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "storybook": "storybook dev -p 6006 -c build-config/storybook",
-    "build-storybook": "bun run typecheck-storybook && storybook build -c build-config/storybook -o build/storybook"
+    "build-storybook": "bun run typecheck-storybook && storybook build -c build-config/storybook -o build/storybook",
+    "codegen": "graphql-codegen"
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",
     "@messageformat/core": "3.4.0",
     "@messageformat/parser": "5.1.1",
     "@popperjs/core": "^2.11.8",
+    "@urql/vue": "^2.0.0",
     "copy-to-clipboard": "3.3.3",
     "dompurify": "3.2.6",
     "dropzone": "6.0.0-beta.2",
     "element-plus": "2.11.1",
     "event-source-polyfill": "1.0.31",
     "globalize": "1.7.0",
+    "graphql": "^16.11.0",
     "imask": "6.6.3",
     "jwt-decode": "4.0.0",
     "lodash": "4.17.21",
@@ -34,6 +37,8 @@
     "vue-router": "4.5.1"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/client-preset": "^4.8.3",
     "@rushstack/eslint-patch": "1.12.0",
     "@sinonjs/fake-timers": "14.0.0",
     "@storybook/addon-actions": "8.1.11",

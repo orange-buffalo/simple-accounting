@@ -44,3 +44,5 @@ components.d.ts
 
 .pnp.loader.mjs
 .pnp.cjs
+
+src/services/api/gql
