@@ -20,7 +20,12 @@ spring:
   datasource:
     url: jdbc:h2:mem:tests
   lifecycle:
+    # this is needed to speed up tests context shutdown
     timeout-per-shutdown-phase: 1ms
+  reactor:
+    netty:
+      # this disables unnecessary graceful shutdown handling in tests (2 seconds overhead per context)
+      shutdown-quiet-period: 0ms
 
 logging:
   level:
