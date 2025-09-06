@@ -103,10 +103,6 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-    - name: CP
-      run: git status
-
-
     - name: "Publish (Pre-) Release"
       if: ${{ github.ref == 'refs/heads/master' }}
       env:
