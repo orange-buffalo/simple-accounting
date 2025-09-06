@@ -49,42 +49,24 @@ jobs:
         proc_trace_chart_show: false
         theme: dark
 
-    - name: CP1
-      run: git status
-
     - name: "Setup Playwright"
       run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
-
-    - name: CP2
-      run: git status
 
     - name: "Build"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
       run: ./gradlew assemble --scan --console=plain --build-cache
 
-    - name: CP3
-      run: git status
-
     - name: "Test"
       run: ./gradlew check --scan --console=plain --build-cache
-
-    - name: CP4
-      run: git status
 
     - name: "Test (screenshots)"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
       run: ./gradlew screenshotsTest --scan --console=plain --build-cache
 
-    - name: CP5
-      run: git status
-
     - name: "Test (end-to-end)"
       run: ./gradlew e2eTest --scan --console=plain --build-cache
-
-    - name: CP6
-      run: git status
 
     - name: "Save Tests Results"
       uses: actions/upload-artifact@v4
@@ -120,9 +102,6 @@ jobs:
       uses: codecov/codecov-action@v5
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-    - name: CP6
-      run: git status
 
     - name: "Publish (Pre-) Release"
       if: ${{ github.ref == 'refs/heads/master' }}
