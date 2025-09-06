@@ -22,3 +22,8 @@ frontend/coverage
 .java-version
 
 **/.kotlin/sessions
+
+# Workaround for https://github.com/codecov/codecov-action/issues/1851
+codecov
+codecov.SHA256SUM
+codecov.SHA256SUM.sig
