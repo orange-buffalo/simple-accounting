@@ -4,11 +4,15 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Mutation
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshAuthenticationToken
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessTokensService
 import io.orangebuffalo.simpleaccounting.infra.graphql.RequiredAuth
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
+import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.CookieValue
 
 /**
  * A namespace for the authentication GraphQL API.
@@ -20,7 +24,8 @@ class AuthenticationGqlApi {
     @Component
     class AuthenticationMutation(
         private val jwtService: JwtService,
-        private val workspaceAccessTokensService: WorkspaceAccessTokensService
+        private val workspaceAccessTokensService: WorkspaceAccessTokensService,
+        private val authenticationManager: ReactiveAuthenticationManager
     ) : Mutation {
 
         @Suppress("unused")
@@ -29,14 +34,27 @@ class AuthenticationGqlApi {
                     "Returns a response with either a valid access token or null if authentication fails."
         )
         @RequiredAuth(RequiredAuth.AuthType.ANONYMOUS)
-        suspend fun refreshAccessToken(): RefreshAccessTokenResponse {
+        suspend fun refreshAccessToken(
+            @CookieValue("refreshToken", required = false) refreshToken: String? = null
+        ): RefreshAccessTokenResponse {
             val currentAuth = ReactiveSecurityContextHolder.getContext()
                 .map { it.authentication }
                 .awaitFirstOrNull()
 
-            val authenticatedAuth = if (currentAuth != null && currentAuth.isAuthenticated) {
-                currentAuth
-            } else {
+            val authenticatedAuth = when {
+                currentAuth != null && currentAuth.isAuthenticated -> currentAuth
+                refreshToken != null -> {
+                    try {
+                        val authenticationToken = RefreshAuthenticationToken(refreshToken)
+                        authenticationManager.authenticate(authenticationToken).awaitSingle()
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                else -> null
+            }
+
+            if (authenticatedAuth == null) {
                 return RefreshAccessTokenResponse(accessToken = null)
             }
 

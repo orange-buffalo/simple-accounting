@@ -4,15 +4,19 @@ import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPr
 import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsClient
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
+import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBodyEqualTo
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
+import io.orangebuffalo.simpleaccounting.tests.infra.api.sendJson
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
@@ -71,11 +75,39 @@ class AuthenticationGqlApiTest(
         }
 
         @Test
-        suspend fun `should return JWT token when user is authenticated with regular user`() {
+        suspend fun `should return JWT token when token endpoint is hit and cookie is valid`() {
             val principal = preconditions.fry.toSecurityPrincipal()
 
             whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFry"
             whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn principal
+
+            client
+                .post()
+                .uri("/api/graphql")
+                .cookie("refreshToken", "refreshTokenForFry")
+                .sendJson {
+                    val query = DgsClient.buildMutation { refreshAccessTokenMutation() }
+                        .lines()
+                        .filter { line -> line.trim() != ("__typename") }
+                        .joinToString("\n")
+                    put("query", query)
+                }
+                .exchange()
+                .expectStatus().isOk
+                .expectThatJsonBodyEqualTo {
+                    putJsonObject("data") {
+                        put("refreshAccessToken", buildJsonObject {
+                            put("accessToken", "jwtTokenForFry")
+                        })
+                    }
+                }
+        }
+
+        @Test
+        suspend fun `should return JWT token when user is authenticated with regular user`() {
+            val principal = preconditions.fry.toSecurityPrincipal()
+
+            whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFry"
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -92,7 +124,6 @@ class AuthenticationGqlApiTest(
             val principal = preconditions.farnsworth.toSecurityPrincipal()
 
             whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFarnsworth"
-            whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFarnsworth")) doReturn principal
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
