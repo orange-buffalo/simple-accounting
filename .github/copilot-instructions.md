@@ -49,6 +49,26 @@ Key point about the GraphQL API setup:
 6. We use `uqrl` framework with its `graphql-codegen` and Vue 3 integration to call the API from the frontend.
   See `frontend/src/services/api/gql-api-client.ts` for the entry point.
 
+## GraphQL API Implementation Guidelines
+1. **Structure Pattern**: Follow the pattern established by `UserProfileApi.kt`:
+   - Create a namespace class (e.g., `AuthenticationGqlApi`)
+   - Create inner `@Component` classes for Query or Mutation that implement `Query` or `Mutation` interfaces
+   - Use `@GraphQLDescription` annotations extensively for schema documentation
+   - Use `@RequiredAuth` for access control
+
+2. **Testing Mutations**: 
+   - Extend `ApiTestsUtils.kt` with `graphqlMutation()` method for mutation testing
+   - Use `DgsClient.buildMutation()` for generating mutation strings
+   - When mocking `JwtService`, mock both `buildJwtToken()` and `validateTokenAndBuildUserDetails()` to handle JWT authentication properly
+   - Use proper `SecurityPrincipal` instances in mocks (e.g., `platformUser.toSecurityPrincipal()`, `createTransientUserPrincipal()`)
+
+3. **Schema Generation**:
+   - After adding new GraphQL operations, run `GraphqlSchemaTest` to generate updated schema
+   - Update `app/src/test/resources/api-schema.graphqls` manually if needed
+   - Run `./gradlew :app:generateJava` to regenerate DGS client code for testing
+
+4. **Error Handling**: GraphQL mutations should handle errors gracefully by returning appropriate response objects with nullable fields rather than throwing exceptions for user-facing errors.
+
 # Testing
 
 ## Preconditions setup
