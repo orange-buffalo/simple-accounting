@@ -139,14 +139,8 @@ class AuthenticationGqlApiTest(
         fun `should return JWT token when user is authenticated with transient user`() {
             mockCurrentTime(timeService)
 
-            // Create a proper mock for the transient user details
-            val mockUserDetails = createTransientUserPrincipal(preconditions.validAccessToken.token)
-
-            // Mock the JWT service for both token creation and validation
-            whenever(jwtService.buildJwtToken(any(), any())) doReturn "tempJwtTokenForSetup"
-            whenever(jwtService.validateTokenAndBuildUserDetails("tempJwtTokenForSetup")) doReturn mockUserDetails
             whenever(jwtService.buildJwtToken(argThat {
-                userName == "validToken"
+                userName == "validToken" && isTransient
             }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForTransientUser"
 
             client
@@ -163,13 +157,6 @@ class AuthenticationGqlApiTest(
         fun `should return null token when transient user token is revoked`() {
             mockCurrentTime(timeService)
 
-            // Create a proper mock for the transient user details
-            val mockUserDetails = createTransientUserPrincipal(preconditions.revokedAccessToken.token)
-
-            // Mock the JWT service for authentication setup
-            whenever(jwtService.buildJwtToken(any(), any())) doReturn "tempJwtTokenForSetup"
-            whenever(jwtService.validateTokenAndBuildUserDetails("tempJwtTokenForSetup")) doReturn mockUserDetails
-
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
                 .usingSharedWorkspaceToken(preconditions.revokedAccessToken.token)
@@ -183,13 +170,6 @@ class AuthenticationGqlApiTest(
         @Test
         fun `should return null token when transient user token is expired`() {
             mockCurrentTime(timeService)
-
-            // Create a proper mock for the transient user details
-            val mockUserDetails = createTransientUserPrincipal(preconditions.expiredAccessToken.token)
-
-            // Mock the JWT service for authentication setup
-            whenever(jwtService.buildJwtToken(any(), any())) doReturn "tempJwtTokenForSetup"
-            whenever(jwtService.validateTokenAndBuildUserDetails("tempJwtTokenForSetup")) doReturn mockUserDetails
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
