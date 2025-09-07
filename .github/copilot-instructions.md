@@ -33,6 +33,22 @@ Here's a breakdown of the key relationships:
     - `GeneralTax`: Defines general taxes like VAT or Sales Tax.
     - `Document`: Represents a file or a document, such as a receipt or an invoice.
 
+# Migration from REST API
+We are currently mirating from REST API (using standard Spring WebFlux controllers) to GraphQL API.
+Key point about the GraphQL API setup:
+1. In production code, we use `graphql-kotlin` library with their Spring Server integration. It means we have
+  code-first approach: we define GraphQL schema using Kotlin classes and annotations.
+2. We then generate the schema from the running Spring Boot application and store it in `app/src/test/resources/api-schema.graphqls` file. `GraphqlSchemaTest` is responsible for starting the
+  application and generating the schema file.
+3. We have a number of customizations / infrastructure code in `io.orangebuffalo.simpleaccounting.infra.graphql` package.
+4. On the testing side, we use DGS Gradle plugin to generate Kotlin type-safe query builders, and then only
+  generate the queries strings using DGS. The execution of the requests in standard Spring test client with
+  customization on top (see `ApiTestClient` and `ApiTestUtils.kt` for the extensions).
+5. We then generate TypeScript code from the schema as part of post-install step in `frontend` package. It is
+  leveraging `graphql-codegen` tool for type-safe queries on the frontend side.
+6. We use `uqrl` framework with its `graphql-codegen` and Vue 3 integration to call the API from the frontend.
+  See `frontend/src/services/api/gql-api-client.ts` for the entry point.
+
 # Testing
 
 ## Preconditions setup
@@ -276,3 +292,9 @@ assertExternalServiceRequests(expectedRequest1, expectedRequest2)
 4. **Authorization Flows**: OAuth, external service integrations
 5. **State Persistence**: Verify changes are saved and restored correctly
 6. **UI Feedback**: Loading states, success/error messages, proper status updates
+
+# Commits and Pull Requests
+1. We follow Conventional Commits specification for commit messages.
+2. We prefer single-line commit messages with a reference to the issue at the end, e.g.
+  `fix: Correct calculation of tax amounts (#123)`.
+3. As we squash pull requests when merging, the title of the pull request should also follow the same convention.
