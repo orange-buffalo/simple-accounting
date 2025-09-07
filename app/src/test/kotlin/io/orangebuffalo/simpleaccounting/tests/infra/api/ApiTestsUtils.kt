@@ -4,6 +4,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsClient
+import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import kotlinx.serialization.json.*
 import net.javacrumbs.jsonunit.core.Configuration
@@ -136,6 +137,22 @@ fun ApiTestClient.graphql(querySpec: QueryProjection.() -> QueryProjection): Gra
     .uri("/api/graphql")
     .sendJson {
         val query = DgsClient.buildQuery(_projection = querySpec)
+            .lines()
+            // DGS adds __typename to every object, which we cannot control and do not need;
+            // to simplify testing we remove it here (so we do not need to expect it in assertions)
+            .filter { line -> line.trim() != ("__typename") }
+            .joinToString("\n")
+        put("query", query)
+    }
+    .let {
+        GraphqlClientRequestExecutor(it)
+    }
+
+fun ApiTestClient.graphqlMutation(mutationSpec: MutationProjection.() -> MutationProjection): GraphqlClientRequestExecutor = this
+    .post()
+    .uri("/api/graphql")
+    .sendJson {
+        val query = DgsClient.buildMutation(_projection = mutationSpec)
             .lines()
             // DGS adds __typename to every object, which we cannot control and do not need;
             // to simplify testing we remove it here (so we do not need to expect it in assertions)

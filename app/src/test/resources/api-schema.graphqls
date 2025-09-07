@@ -1,6 +1,7 @@
 "GraphQL schema for Simple Accounting application"
 schema @contact(description : "For any questions, issues or feature requests, please open an issue or discussion on GitHub.", name : "Simple Accounting", url : "https://github.com/orange-buffalo/simple-accounting/issues"){
   query: Query
+  mutation: Mutation
 }
 
 "Defines the authorization requirements for the request. If a request context does not satisfy the requirements, it will be rejected with an error code `NOT_AUTHORIZED`."
@@ -55,9 +56,20 @@ type I18nSettings {
   locale: String!
 }
 
+type Mutation {
+  "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
+  refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
+}
+
 type Query {
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
   userProfile: UserProfile! @auth(type : AUTHENTICATED_USER)
+}
+
+"Response for refreshing access token."
+type RefreshAccessTokenResponse {
+  "The new access token if authentication was successful, null otherwise."
+  accessToken: String
 }
 
 "Information about the user profile."
