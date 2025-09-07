@@ -36,10 +36,6 @@ class AuthenticationGqlApiTest(
             object {
                 val fry = fry()
                 val farnsworth = farnsworth()
-                val inactiveUser = platformUser(
-                    userName = "Inactive",
-                    activated = false
-                )
                 val fryWorkspace = workspace(owner = fry)
                 val revokedAccessToken = workspaceAccessToken(
                     workspace = fryWorkspace,
@@ -75,16 +71,11 @@ class AuthenticationGqlApiTest(
         }
 
         @Test
-        fun `should return JWT token when user is authenticated with regular user`() {
-            // Create a proper mock for the JWT token and user details
-            val mockUserDetails = preconditions.fry.toSecurityPrincipal()
-            
-            // Mock the JWT service for both token creation and validation
-            whenever(jwtService.buildJwtToken(any(), any())) doReturn "tempJwtTokenForSetup"
-            whenever(jwtService.validateTokenAndBuildUserDetails("tempJwtTokenForSetup")) doReturn mockUserDetails
-            whenever(jwtService.buildJwtToken(argThat {
-                userName == preconditions.fry.userName
-            }, eq(null))) doReturn "jwtTokenForFry"
+        suspend fun `should return JWT token when user is authenticated with regular user`() {
+            val principal = preconditions.fry.toSecurityPrincipal()
+
+            whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFry"
+            whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn principal
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -97,16 +88,11 @@ class AuthenticationGqlApiTest(
         }
 
         @Test
-        fun `should return JWT token when user is authenticated with admin user`() {
-            // Create a proper mock for the JWT token and user details
-            val mockUserDetails = preconditions.farnsworth.toSecurityPrincipal()
-            
-            // Mock the JWT service for both token creation and validation
-            whenever(jwtService.buildJwtToken(any(), any())) doReturn "tempJwtTokenForSetup"
-            whenever(jwtService.validateTokenAndBuildUserDetails("tempJwtTokenForSetup")) doReturn mockUserDetails
-            whenever(jwtService.buildJwtToken(argThat {
-                userName == preconditions.farnsworth.userName
-            }, eq(null))) doReturn "jwtTokenForFarnsworth"
+        suspend fun `should return JWT token when user is authenticated with admin user`() {
+            val principal = preconditions.farnsworth.toSecurityPrincipal()
+
+            whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFarnsworth"
+            whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFarnsworth")) doReturn principal
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
@@ -124,7 +110,7 @@ class AuthenticationGqlApiTest(
 
             // Create a proper mock for the transient user details
             val mockUserDetails = createTransientUserPrincipal(preconditions.validAccessToken.token)
-            
+
             // Mock the JWT service for both token creation and validation
             whenever(jwtService.buildJwtToken(any(), any())) doReturn "tempJwtTokenForSetup"
             whenever(jwtService.validateTokenAndBuildUserDetails("tempJwtTokenForSetup")) doReturn mockUserDetails
@@ -148,7 +134,7 @@ class AuthenticationGqlApiTest(
 
             // Create a proper mock for the transient user details
             val mockUserDetails = createTransientUserPrincipal(preconditions.revokedAccessToken.token)
-            
+
             // Mock the JWT service for authentication setup
             whenever(jwtService.buildJwtToken(any(), any())) doReturn "tempJwtTokenForSetup"
             whenever(jwtService.validateTokenAndBuildUserDetails("tempJwtTokenForSetup")) doReturn mockUserDetails
@@ -169,7 +155,7 @@ class AuthenticationGqlApiTest(
 
             // Create a proper mock for the transient user details
             val mockUserDetails = createTransientUserPrincipal(preconditions.expiredAccessToken.token)
-            
+
             // Mock the JWT service for authentication setup
             whenever(jwtService.buildJwtToken(any(), any())) doReturn "tempJwtTokenForSetup"
             whenever(jwtService.validateTokenAndBuildUserDetails("tempJwtTokenForSetup")) doReturn mockUserDetails
@@ -188,11 +174,4 @@ class AuthenticationGqlApiTest(
             accessToken
         }
     }
-    
-    // Note: Cookie-based refresh token functionality from the REST API is not yet implemented 
-    // in GraphQL context due to limitations in accessing HTTP cookies directly in GraphQL operations.
-    // This could be implemented in future by:
-    // 1. Adding ServerWebExchange parameter to the mutation method
-    // 2. Extracting refresh token from cookies in the mutation implementation
-    // 3. Following the same authentication logic as in AuthenticationApi.refreshToken()
 }

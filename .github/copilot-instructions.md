@@ -57,17 +57,12 @@ Key point about the GraphQL API setup:
    - Use `@RequiredAuth` for access control
 
 2. **Testing Mutations**: 
-   - Extend `ApiTestsUtils.kt` with `graphqlMutation()` method for mutation testing
    - Use `DgsClient.buildMutation()` for generating mutation strings
-   - When mocking `JwtService`, mock both `buildJwtToken()` and `validateTokenAndBuildUserDetails()` to handle JWT authentication properly
-   - Use proper `SecurityPrincipal` instances in mocks (e.g., `platformUser.toSecurityPrincipal()`, `createTransientUserPrincipal()`)
 
 3. **Schema Generation**:
    - After adding new GraphQL operations, run `GraphqlSchemaTest` to generate updated schema
    - Update `app/src/test/resources/api-schema.graphqls` manually if needed
    - Run `./gradlew :app:generateJava` to regenerate DGS client code for testing
-
-4. **Error Handling**: GraphQL mutations should handle errors gracefully by returning appropriate response objects with nullable fields rather than throwing exceptions for user-facing errors.
 
 # Testing
 
