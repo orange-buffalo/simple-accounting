@@ -64,6 +64,12 @@ Key point about the GraphQL API setup:
    - Update `app/src/test/resources/api-schema.graphqls` manually if needed
    - Run `./gradlew :app:generateJava` to regenerate DGS client code for testing
 
+4. **Exception Handling**:
+   - Never catch generic exceptions (e.g., `Exception`, `RuntimeException`) in business code
+   - Only catch specific exception types that you can meaningfully handle
+   - Generic exception handling should only be used in cross-cutting concerns infrastructure code
+   - Let the framework's generic exception handling deal with unexpected errors rather than silently suppressing them
+
 # Testing
 
 ## Preconditions setup

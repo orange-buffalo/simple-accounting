@@ -78,14 +78,8 @@ class AuthenticationGqlApi {
         }
 
         private fun extractRefreshTokenFromRequest(env: DataFetchingEnvironment): String? {
-            return try {
-                // Try to get the ServerHttpRequest from the GraphQL context
-                val request = env.graphQlContext.get<ServerHttpRequest>("serverHttpRequest")
-                request?.cookies?.getFirst("refreshToken")?.value
-            } catch (e: Exception) {
-                // If we can't access the request, return null
-                null
-            }
+            val request = env.graphQlContext.get<ServerHttpRequest>("serverHttpRequest")
+            return request?.cookies?.getFirst("refreshToken")?.value
         }
     }
 
