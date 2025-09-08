@@ -146,6 +146,10 @@ class AuthenticationGqlApiTest(
         fun `should return JWT token when user is authenticated with transient user`() {
             mockCurrentTime(timeService)
 
+            // Mock JWT validation for the valid token
+            whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn 
+                createTransientUserPrincipal(preconditions.validAccessToken.token)
+
             whenever(jwtService.buildJwtToken(argThat {
                 userName == "validToken" && isTransient
             }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForTransientUser"
@@ -164,6 +168,10 @@ class AuthenticationGqlApiTest(
         fun `should return null token when transient user token is revoked`() {
             mockCurrentTime(timeService)
 
+            // Mock JWT validation for the revoked token
+            whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn 
+                createTransientUserPrincipal(preconditions.revokedAccessToken.token)
+
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
                 .usingSharedWorkspaceToken(preconditions.revokedAccessToken.token)
@@ -177,6 +185,10 @@ class AuthenticationGqlApiTest(
         @Test
         fun `should return null token when transient user token is expired`() {
             mockCurrentTime(timeService)
+
+            // Mock JWT validation for the expired token
+            whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn 
+                createTransientUserPrincipal(preconditions.expiredAccessToken.token)
 
             client
                 .graphqlMutation { refreshAccessTokenMutation() }
