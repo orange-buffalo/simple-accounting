@@ -93,6 +93,24 @@ class AuthenticationGqlApiTest(
         }
 
         @Test
+        suspend fun `should return JWT token when token endpoint is hit and cookie is valid for admin user`() {
+            val principal = preconditions.farnsworth.toSecurityPrincipal()
+
+            whenever(jwtService.buildJwtToken(principal)) doReturn "jwtTokenForFarnsworth"
+            whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFarnsworth")) doReturn principal
+
+            client
+                .graphqlMutation { refreshAccessTokenMutation() }
+                .fromAnonymous()
+                .cookie("refreshToken", "refreshTokenForFarnsworth")
+                .executeAndVerifySuccessResponse(
+                    "refreshAccessToken" to buildJsonObject {
+                        put("accessToken", "jwtTokenForFarnsworth")
+                    }
+                )
+        }
+
+        @Test
         suspend fun `should return JWT token when user is authenticated with regular user`() {
             val principal = preconditions.fry.toSecurityPrincipal()
 

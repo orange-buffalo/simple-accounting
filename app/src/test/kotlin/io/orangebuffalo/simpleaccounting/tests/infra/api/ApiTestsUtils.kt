@@ -132,27 +132,17 @@ fun String.shouldBeEqualToJson(expectedJson: String) {
     this.should(equalJson(expectedJson))
 }
 
-fun ApiTestClient.graphql(querySpec: QueryProjection.() -> QueryProjection): GraphqlClientRequestExecutor = this
-    .post()
-    .uri("/api/graphql")
-    .sendJson {
-        val query = DgsClient.buildQuery(_projection = querySpec)
-            .lines()
-            // DGS adds __typename to every object, which we cannot control and do not need;
-            // to simplify testing we remove it here (so we do not need to expect it in assertions)
-            .filter { line -> line.trim() != ("__typename") }
-            .joinToString("\n")
-        put("query", query)
-    }
-    .let {
-        GraphqlClientRequestExecutor(it)
-    }
+fun ApiTestClient.graphql(querySpec: QueryProjection.() -> QueryProjection): GraphqlClientRequestExecutor =
+    buildGraphqlRequest { DgsClient.buildQuery(_projection = querySpec) }
 
-fun ApiTestClient.graphqlMutation(mutationSpec: MutationProjection.() -> MutationProjection): GraphqlClientRequestExecutor = this
+fun ApiTestClient.graphqlMutation(mutationSpec: MutationProjection.() -> MutationProjection): GraphqlClientRequestExecutor =
+    buildGraphqlRequest { DgsClient.buildMutation(_projection = mutationSpec) }
+
+private fun ApiTestClient.buildGraphqlRequest(queryBuilder: () -> String): GraphqlClientRequestExecutor = this
     .post()
     .uri("/api/graphql")
     .sendJson {
-        val query = DgsClient.buildMutation(_projection = mutationSpec)
+        val query = queryBuilder()
             .lines()
             // DGS adds __typename to every object, which we cannot control and do not need;
             // to simplify testing we remove it here (so we do not need to expect it in assertions)
