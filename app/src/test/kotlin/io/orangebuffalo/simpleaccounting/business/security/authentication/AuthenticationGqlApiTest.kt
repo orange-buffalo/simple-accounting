@@ -82,25 +82,14 @@ class AuthenticationGqlApiTest(
             whenever(refreshTokensService.validateTokenAndBuildUserDetails("refreshTokenForFry")) doReturn principal
 
             client
-                .post()
-                .uri("/api/graphql")
+                .graphqlMutation { refreshAccessTokenMutation() }
+                .fromAnonymous()
                 .cookie("refreshToken", "refreshTokenForFry")
-                .sendJson {
-                    val query = DgsClient.buildMutation { refreshAccessTokenMutation() }
-                        .lines()
-                        .filter { line -> line.trim() != ("__typename") }
-                        .joinToString("\n")
-                    put("query", query)
-                }
-                .exchange()
-                .expectStatus().isOk
-                .expectThatJsonBodyEqualTo {
-                    putJsonObject("data") {
-                        put("refreshAccessToken", buildJsonObject {
-                            put("accessToken", "jwtTokenForFry")
-                        })
+                .executeAndVerifySuccessResponse(
+                    "refreshAccessToken" to buildJsonObject {
+                        put("accessToken", "jwtTokenForFry")
                     }
-                }
+                )
         }
 
         @Test

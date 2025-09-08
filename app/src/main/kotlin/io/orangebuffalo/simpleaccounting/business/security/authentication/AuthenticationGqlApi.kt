@@ -10,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.infra.graphql.RequiredAuth
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.security.authentication.ReactiveAuthenticationManager
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.CookieValue
@@ -47,7 +48,7 @@ class AuthenticationGqlApi {
                     try {
                         val authenticationToken = RefreshAuthenticationToken(refreshToken)
                         authenticationManager.authenticate(authenticationToken).awaitSingle()
-                    } catch (e: Exception) {
+                    } catch (e: AuthenticationException) {
                         null
                     }
                 }

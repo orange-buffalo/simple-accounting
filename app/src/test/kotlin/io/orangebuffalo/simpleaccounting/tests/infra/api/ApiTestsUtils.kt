@@ -185,6 +185,11 @@ class GraphqlClientRequestExecutor(
         return this
     }
 
+    fun cookie(name: String, value: String): GraphqlClientRequestExecutor {
+        requestSpec = requestSpec.cookie(name, value)
+        return this
+    }
+
     fun executeAndVerifySuccessResponse(
         vararg dataItems: Pair<String, JsonObject>,
     ) {
