@@ -4,6 +4,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.graphql.DgsClient
+import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.QueryProjection
 import kotlinx.serialization.json.*
 import net.javacrumbs.jsonunit.core.Configuration
@@ -131,11 +132,17 @@ fun String.shouldBeEqualToJson(expectedJson: String) {
     this.should(equalJson(expectedJson))
 }
 
-fun ApiTestClient.graphql(querySpec: QueryProjection.() -> QueryProjection): GraphqlClientRequestExecutor = this
+fun ApiTestClient.graphql(querySpec: QueryProjection.() -> QueryProjection): GraphqlClientRequestExecutor =
+    buildGraphqlRequest { DgsClient.buildQuery(_projection = querySpec) }
+
+fun ApiTestClient.graphqlMutation(mutationSpec: MutationProjection.() -> MutationProjection): GraphqlClientRequestExecutor =
+    buildGraphqlRequest { DgsClient.buildMutation(_projection = mutationSpec) }
+
+private fun ApiTestClient.buildGraphqlRequest(queryBuilder: () -> String): GraphqlClientRequestExecutor = this
     .post()
     .uri("/api/graphql")
     .sendJson {
-        val query = DgsClient.buildQuery(_projection = querySpec)
+        val query = queryBuilder()
             .lines()
             // DGS adds __typename to every object, which we cannot control and do not need;
             // to simplify testing we remove it here (so we do not need to expect it in assertions)
@@ -165,6 +172,11 @@ class GraphqlClientRequestExecutor(
 
     fun fromAnonymous(): GraphqlClientRequestExecutor {
         requestSpec = requestSpec.fromAnonymous()
+        return this
+    }
+
+    fun cookie(name: String, value: String): GraphqlClientRequestExecutor {
+        requestSpec = requestSpec.cookie(name, value)
         return this
     }
 
