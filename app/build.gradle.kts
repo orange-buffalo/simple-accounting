@@ -261,6 +261,33 @@ tasks.register<JavaExec>("installPlaywrightDependencies") {
     args("install", "chromium", "--only-shell")
 }
 
+// GraphQL schema update task
+tasks.register<Test>("updateGraphqlSchema") {
+    group = "verification"
+    description = "Updates the Git-managed GraphQL schema by running GraphqlSchemaTest with override enabled."
+    
+    filter {
+        includeTestsMatching("*GraphqlSchemaTest*")
+    }
+    
+    systemProperty("simpleaccounting.graphql.updateSchema", "true")
+    
+    // Ensure the test runs even if it was previously successful
+    outputs.upToDateWhen { false }
+    
+    // Set the same JVM args as the regular test task
+    jvmArgs(
+        "-javaagent:${mockitoAgent.asPath}",
+    )
+    maxHeapSize = "1g"
+    
+    // Make sure this task doesn't trigger frontend builds
+    doFirst {
+        // Explicitly set that we don't need frontend resources for schema generation
+        logger.info("Running GraphQL schema update - bypassing frontend dependencies")
+    }
+}
+
 // DGS Codegen taskd for test GraphQL client generation
 tasks.withType<GenerateJavaTask> {
     // Remove any previously generated sources, e.g. if we renamed something in the schema

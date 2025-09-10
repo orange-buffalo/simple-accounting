@@ -25,7 +25,10 @@ class GraphqlSchemaTest(
             .expectStatus().isOk
             .expectBody<String>().consumeWith { body ->
                 val actualSchema = body.responseBody.shouldNotBeNull()
-                if (TestConfig.instance.apiContracts.overrideCommittedSchema) {
+                val shouldOverrideSchema = System.getProperty("simpleaccounting.graphql.updateSchema")?.toBoolean() ?: false
+                        || TestConfig.instance.apiContracts.overrideCommittedSchema
+                
+                if (shouldOverrideSchema) {
                     Files.writeString(
                         Path.of(COMMITTED_SCHEMA_PATH),
                         actualSchema,

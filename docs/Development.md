@@ -128,6 +128,36 @@ can be customized via `.test-config.yaml` file:
 You can run the screenshot tests with `./gradlew screenshotsTest`. `.test-config.yaml` will take effect here as well,
 and your Storybook code will not be built automatically unless `CI=true` is set in environment variables.
 
+### GraphQL Schema Management
+
+Simple Accounting uses `graphql-kotlin` with a code-first approach to define the GraphQL API. The schema is automatically
+generated from the Kotlin classes and stored as `app/src/test/resources/api-schema.graphqls` for version control.
+
+#### Updating the GraphQL Schema
+
+When you make changes to the GraphQL API (add new queries, mutations, or modify types), you need to update the
+committed schema file. Use the following Gradle task:
+
+```bash
+./gradlew :app:updateGraphqlSchema
+```
+
+This task:
+* Runs `GraphqlSchemaTest` with schema override enabled
+* Updates `app/src/test/resources/api-schema.graphqls` with the current schema
+* Should be run before frontend installation (for TypeScript regeneration) and before running tests (for DGS builders regeneration)
+
+**Important**: Always run this task after making GraphQL API changes to keep the schema file in sync.
+
+#### Manual Alternative
+
+If you prefer the previous approach, you can still manually create `app/src/test/.test-config.yaml` with:
+```yaml
+apiContracts:
+  overrideCommittedSchema: true
+```
+And then run the regular test: `./gradlew :app:test --tests "*GraphqlSchemaTest*"`
+
 #### Load Tests
 
 At this point we decided to not include load test into the CI pipeline. Load test are executed on demand locally.
