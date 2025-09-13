@@ -52,7 +52,8 @@ function scheduleTokenRefresh() {
 }
 
 async function refreshToken() {
-  if (await tryAutoLogin()) {
+  // Try GraphQL refresh first for better integration
+  if (await tryAutoLoginWithGraphQL()) {
     scheduleTokenRefresh();
   } else {
     LOGIN_REQUIRED_EVENT.emit();
@@ -77,6 +78,26 @@ export async function tryAutoLogin() {
       return false;
     }
     throw error;
+  }
+}
+
+export async function tryAutoLoginWithGraphQL(): Promise<boolean> {
+  cancelTokenRefresh();
+
+  try {
+    // Import here to avoid circular dependency
+    const { refreshAccessToken } = await import('@/services/api/gql-api-client');
+    const newToken = await refreshAccessToken();
+    
+    if (newToken) {
+      updateApiToken(newToken);
+      scheduleTokenRefresh();
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    return false;
   }
 }
 
@@ -132,6 +153,8 @@ export interface Auth {
   isCurrentUserTransient: () => boolean;
 
   tryAutoLogin: () => Promise<boolean>;
+  
+  tryAutoLoginWithGraphQL: () => Promise<boolean>;
 
   isLoggedIn(): boolean;
 
@@ -150,6 +173,7 @@ export function useAuth(): Auth {
       return apiToken.jwtToken;
     },
     tryAutoLogin,
+    tryAutoLoginWithGraphQL,
     login,
     logout,
     loginBySharedToken,
