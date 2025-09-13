@@ -14,15 +14,11 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "Building in context of $GITHUB_CONTEXT"
 
-    - name: "Checkout"
-      uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
-
     - name: "Setup Project Environment"
       uses: ./.github/actions/setup-project-environment
-      with:
-        setup-playwright: 'true'
+
+    - name: "Setup Playwright"
+      run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
 
     - name: Collect Workflow Telemetry
       uses: catchpoint/workflow-telemetry-action@v2
