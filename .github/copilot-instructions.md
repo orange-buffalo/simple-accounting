@@ -1,4 +1,171 @@
-# General
+# Simple Accounting Development Environment
+
+**ALWAYS follow these instructions first. Only search for additional information or use bash commands if these instructions are incomplete or found to be incorrect.**
+
+## Critical Build Requirements
+
+**NEVER CANCEL builds or long-running commands.** Build and test commands can take significant time:
+- `./gradlew assemble`: ~2 minutes (NEVER CANCEL - use 180+ second timeout)
+- `./gradlew check`: ~3-4 minutes for unit/integration tests (NEVER CANCEL - use 300+ second timeout) 
+- Full test suites (with Playwright): ~5-10 minutes (NEVER CANCEL - use 600+ second timeout)
+
+## Environment Setup
+
+Required dependencies (pre-installed in CI environment):
+- **Java 21** (Temurin distribution) - verified working
+- **Latest Bun** (package manager for frontend) - verified working  
+- **Docker** - required for integration tests and demo mode
+
+## Project Structure
+
+Simple Accounting is a **Spring Boot + Vue.js** application:
+- **Backend**: `/app` - Kotlin, Spring Boot 3, WebFlux, GraphQL, JOOQ, H2 database
+- **Frontend**: `/frontend` - Vue 3, TypeScript, Vite, Element Plus, Urql GraphQL client
+- **Build system**: Gradle multi-module with Bun for frontend dependencies
+
+## Build Commands (VALIDATED)
+
+### Bootstrap and Build (CRITICAL)
+```bash
+# Full build including frontend - NEVER CANCEL, takes ~2 minutes
+./gradlew assemble --console=plain --build-cache
+```
+
+### Testing Commands
+```bash
+# Unit and integration tests - NEVER CANCEL, takes ~3-4 minutes
+./gradlew check --console=plain --build-cache
+
+# Frontend unit tests only (fast) - ~5 seconds
+cd frontend && bun run test:unit
+
+# Frontend linting - ~8 seconds
+cd frontend && bun run lint
+
+# GraphQL schema generation - ~20 seconds
+./gradlew :app:updateGraphqlSchema --console=plain
+```
+
+### Development Commands
+```bash
+# Run application in demo mode (VALIDATED - works)
+docker run --rm -e SA_DEMO_ENABLED=true -p 9393:9393 orangebuffalo/simple-accounting
+# Access at http://localhost:9393 
+# Login: Fry/password (regular user) or Hermes/password (admin)
+
+# Frontend development server with hot reload
+cd frontend && bun dev
+# Runs on Vite dev server, proxies API to Spring Boot on port 9393
+```
+
+## Known Issues and Workarounds
+
+### Playwright Installation Issues
+**IMPORTANT**: Playwright browser installation may fail in some environments with network connectivity issues. This affects:
+- `./gradlew installPlaywrightDependencies` (may fail)
+- Full stack UI tests (`*FullStackTest*`) 
+- Screenshot tests (`./gradlew screenshotsTest`)
+
+**Workaround**: Core functionality testing works without Playwright. Use Docker demo mode for manual validation.
+
+### Test Configuration
+Create `app/src/test/.test-config.yaml` for development customizations:
+```yaml
+screenshots:
+  replaceCommittedFiles: false
+  useCompliedStorybook: true
+fullStackTestsConfig:
+  useLocalBrowser: false  
+  useViteDevServer: false
+```
+
+## Validation Workflow
+
+After making changes, ALWAYS run this validation sequence:
+
+1. **Build and compile** (NEVER CANCEL - 180+ second timeout):
+   ```bash
+   ./gradlew assemble --console=plain --build-cache
+   ```
+
+2. **Run unit tests** (NEVER CANCEL - 300+ second timeout):
+   ```bash
+   ./gradlew check --console=plain --build-cache
+   ```
+
+3. **Validate functionality**:
+   ```bash
+   # Start demo application
+   docker run --rm -e SA_DEMO_ENABLED=true -p 9393:9393 orangebuffalo/simple-accounting
+   # Test: curl http://localhost:9393 should return 200
+   # Manual test: Login with Fry/password and verify basic functionality
+   ```
+
+4. **Frontend validation**:
+   ```bash
+   cd frontend && bun run lint && bun run test:unit
+   ```
+
+## GraphQL API Development
+
+**Code-first GraphQL** with schema generation:
+- After GraphQL changes, run: `./gradlew :app:updateGraphqlSchema`
+- Regenerates `app/src/test/resources/api-schema.graphqls`
+- Frontend TypeScript types auto-generated via `bun graphql-codegen`
+
+## File Locations
+
+### Key Build Files
+- Root build: `/build.gradle.kts` (multi-module setup)
+- Backend build: `/app/build.gradle.kts` (Spring Boot, Kotlin, JOOQ)
+- Frontend build: `/frontend/build.gradle.kts` (Bun tasks)
+- Frontend deps: `/frontend/package.json` (Bun dependencies)
+
+### Configuration Files  
+- Main app: `/app/src/main/kotlin/io/orangebuffalo/simpleaccounting/SimpleAccountingApplication.kt`
+- Test config template: `/app/src/test/.test-config.template.yaml`
+- Frontend config: `/frontend/vite.config.ts`
+
+### Documentation
+- Main: `/README.md` 
+- Development: `/docs/Development.md`
+- Deployment: `/docs/Deployment.md`
+- Contributing: `/docs/CONTRIBUTING.md`
+
+## Common Development Tasks
+
+### After changing GraphQL API:
+```bash
+./gradlew :app:updateGraphqlSchema
+cd frontend && bun graphql-codegen
+```
+
+### Before committing changes:
+```bash
+./gradlew assemble check  # NEVER CANCEL - allow 5+ minutes
+cd frontend && bun run lint
+```
+
+### Testing specific functionality:
+- Use Docker demo mode for end-to-end validation
+- Unit/integration tests for business logic
+- Avoid Playwright-dependent tests in environments with connectivity issues
+
+## Architecture Notes
+
+### Testing Strategy
+- **Unit tests**: Spring Boot integration tests (API-focused)
+- **Frontend tests**: Vitest for complex logic 
+- **Full stack tests**: Playwright (may fail due to browser installation)
+- **Screenshot tests**: Storybook + Playwright (may fail)
+
+### Migration Context
+- Migrating from REST to GraphQL API
+- Uses code-first GraphQL with kotlin-graphql library
+- DGS codegen for test client generation
+- Vue 3 frontend with TypeScript and GraphQL codegen
+
+# General Coding Guidelines
 
 1. Be concise and clear in your responses. Avoid extra details unless specifically requested.
 2. Do not provide summaries of the executed actions unless there is a specific reason to do so.
