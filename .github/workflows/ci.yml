@@ -1,6 +1,6 @@
 name: "Continuous Integration"
 
-on: [push]
+on: [ push ]
 
 jobs:
   build:
@@ -8,101 +8,75 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+      - name: "Checkout"
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
-    - name: "Context"
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "Building in context of $GITHUB_CONTEXT"
+      - name: "Setup Project Environment"
+        uses: ./.github/actions/setup-project-environment
 
-    - name: "Checkout"
-      uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
+      - name: Setup Workflow Telemetry
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          comment_on_pr: false
+          proc_trace_chart_show: false
+          theme: dark
 
-    - name: "Set up JDK"
-      uses: actions/setup-java@v5
-      with:
-        distribution: 'temurin'
-        java-version: '21'
+      - name: "Setup Playwright"
+        run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
 
-    - name: "Setup Bun"
-      uses: oven-sh/setup-bun@v2
-      with:
-        bun-version: latest
+      - name: "Build"
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: ./gradlew assemble --scan --console=plain --build-cache
 
-    - uses: actions/cache@v4
-      with:
-        key: ${{ runner.os }}-${{ hashFiles('frontend/bun.lock', 'frontend/package.json') }}
-        path: ~/.bun/install/cache
+      - name: "Test"
+        run: ./gradlew check --scan --console=plain --build-cache
 
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: wrapper
-        # disable reading from cache on re-runs to fix possible caching issues
-        cache-write-only: ${{ fromJSON(github.run_attempt) != 1 }}
+      - name: "Test (screenshots)"
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: ./gradlew screenshotsTest --scan --console=plain --build-cache
 
-    - name: Collect Workflow Telemetry
-      uses: catchpoint/workflow-telemetry-action@v2
-      with:
-        comment_on_pr: false
-        proc_trace_chart_show: false
-        theme: dark
+      - name: "Test (end-to-end)"
+        run: ./gradlew e2eTest --scan --console=plain --build-cache
 
-    - name: "Setup Playwright"
-      run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: success() || failure()
+        with:
+          report_paths: "**/build/test-results/**/TEST-*.xml"
+          require_tests: false
+          detailed_summary: true
 
-    - name: "Build"
-      env:
-        NODE_OPTIONS: "--max_old_space_size=4096"
-      run: ./gradlew assemble --scan --console=plain --build-cache
+      - name: "Save Rendering Report"
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendering-report
+          path: app/build/rendering-report
+          if-no-files-found: "ignore"
 
-    - name: "Test"
-      run: ./gradlew check --scan --console=plain --build-cache
+      - name: "Save Playwright Traces"
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: playwright-traces
+          path: app/build/playwright-traces
+          if-no-files-found: "ignore"
 
-    - name: "Test (screenshots)"
-      env:
-        NODE_OPTIONS: "--max_old_space_size=4096"
-      run: ./gradlew screenshotsTest --scan --console=plain --build-cache
+      - name: "Report Test Coverage"
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-    - name: "Test (end-to-end)"
-      run: ./gradlew e2eTest --scan --console=plain --build-cache
-
-    - name: Publish Test Report
-      uses: mikepenz/action-junit-report@v5
-      if: success() || failure()
-      with:
-        report_paths: "**/build/test-results/**/TEST-*.xml"
-        require_tests: false
-        detailed_summary: true
-
-    - name: "Save Rendering Report"
-      uses: actions/upload-artifact@v4
-      with:
-        name: rendering-report
-        path: app/build/rendering-report
-        if-no-files-found: "ignore"
-
-    - name: "Save Playwright Traces"
-      uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: playwright-traces
-        path: app/build/playwright-traces
-        if-no-files-found: "ignore"
-
-    - name: "Report Test Coverage"
-      uses: codecov/codecov-action@v5
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-    - name: "Publish (Pre-) Release"
-      if: ${{ github.ref == 'refs/heads/master' }}
-      env:
-        JRELEASER_CONFIG_CONTENT: ${{ secrets.JRELEASER_CONFIG_CONTENT }}
-      run: |
-        mkdir -p ~/.jreleaser
-        echo "$JRELEASER_CONFIG_CONTENT" > ~/.jreleaser/config.toml
-        ./gradlew jib jreleaserFullRelease --scan --console=plain --build-cache \
-              -Djib.to.auth.username=orangebuffalo \
-              -Djib.to.auth.password="${{ secrets.dockerhub_token }}"
+      - name: "Publish (Pre-) Release"
+        if: ${{ github.ref == 'refs/heads/master' }}
+        env:
+          JRELEASER_CONFIG_CONTENT: ${{ secrets.JRELEASER_CONFIG_CONTENT }}
+        run: |
+          mkdir -p ~/.jreleaser
+          echo "$JRELEASER_CONFIG_CONTENT" > ~/.jreleaser/config.toml
+          ./gradlew jib jreleaserFullRelease --scan --console=plain --build-cache \
+                -Djib.to.auth.username=orangebuffalo \
+                -Djib.to.auth.password="${{ secrets.dockerhub_token }}"
