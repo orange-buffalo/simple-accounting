@@ -80,6 +80,26 @@ export async function tryAutoLogin() {
   }
 }
 
+export async function tryAutoLoginWithGraphQL(): Promise<boolean> {
+  cancelTokenRefresh();
+
+  try {
+    // Import here to avoid circular dependency
+    const { refreshAccessToken } = await import('@/services/api/gql-api-client');
+    const newToken = await refreshAccessToken();
+    
+    if (newToken) {
+      updateApiToken(newToken);
+      scheduleTokenRefresh();
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    return false;
+  }
+}
+
 export function getAuthorizationHeader(): string | null {
   if (apiToken.jwtToken) {
     return `Bearer ${apiToken.jwtToken}`;
