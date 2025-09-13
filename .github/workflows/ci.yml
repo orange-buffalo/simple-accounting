@@ -14,33 +14,10 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "Building in context of $GITHUB_CONTEXT"
 
-    - name: "Checkout"
-      uses: actions/checkout@v5
+    - name: "Setup Project Environment"
+      uses: ./.github/actions/setup-project-environment
       with:
-        fetch-depth: 0
-
-    - name: "Set up JDK"
-      uses: actions/setup-java@v5
-      with:
-        distribution: 'temurin'
-        java-version: '21'
-
-    - name: "Setup Bun"
-      uses: oven-sh/setup-bun@v2
-      with:
-        bun-version: latest
-
-    - uses: actions/cache@v4
-      with:
-        key: ${{ runner.os }}-${{ hashFiles('frontend/bun.lock', 'frontend/package.json') }}
-        path: ~/.bun/install/cache
-
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: wrapper
-        # disable reading from cache on re-runs to fix possible caching issues
-        cache-write-only: ${{ fromJSON(github.run_attempt) != 1 }}
+        setup-playwright: 'true'
 
     - name: Collect Workflow Telemetry
       uses: catchpoint/workflow-telemetry-action@v2
@@ -48,9 +25,6 @@ jobs:
         comment_on_pr: false
         proc_trace_chart_show: false
         theme: dark
-
-    - name: "Setup Playwright"
-      run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
 
     - name: "Build"
       env:
