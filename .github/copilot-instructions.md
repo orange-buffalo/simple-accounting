@@ -434,3 +434,57 @@ assertExternalServiceRequests(expectedRequest1, expectedRequest2)
 2. We prefer single-line commit messages with a reference to the issue at the end, e.g.
   `fix: Correct calculation of tax amounts (#123)`.
 3. As we squash pull requests when merging, the title of the pull request should also follow the same convention.
+
+# GraphQL API Implementation
+
+## Frontend GraphQL Infrastructure
+
+The frontend uses URQL (https://urql.dev/) as the GraphQL client with a custom exchange pipeline that mirrors the functionality of the REST API client.
+
+### Build and Test Commands
+
+- **Frontend build**: `./gradlew :frontend:buildFrontend` or `cd frontend && bun run build`
+- **Frontend tests**: `./gradlew :frontend:testFrontend` or `cd frontend && bun run test:unit`
+- **GraphQL code generation**: `cd frontend && bun graphql-codegen` (runs automatically during postinstall)
+- **Type checking**: `cd frontend && bun run typecheck`
+
+### GraphQL Client Setup
+
+The GraphQL client is configured in `frontend/src/services/api/gql-api-client.ts` with the following URQL exchanges (analogous to REST middleware):
+
+1. **timeoutExchange**: Adds default timeout to GraphQL requests
+2. **authExchange**: Injects JWT authorization headers
+3. **loadingExchange**: Emits loading start/finish events
+4. **authRetryExchange**: Handles GraphQL authorization errors
+5. **errorExchange**: Processes errors and maintains consistency with REST error handling
+6. **fetchExchange**: Core URQL exchange for HTTP requests
+
+### Key Differences from REST API
+
+1. **No HTTP 401 responses**: GraphQL API returns errors in the response with `errorType: 'NOT_AUTHORIZED'` extension instead of HTTP status codes
+2. **Token refresh**: Uses `refreshAccessToken` GraphQL mutation instead of REST endpoint
+3. **Simplified error handling**: No business case for non-successful HTTP status codes since GraphQL uses 200 OK with errors in response body
+
+### Usage Examples
+
+```typescript
+// Setup (typically in main app setup)
+import { setupGqlClient } from '@/services/api';
+setupGqlClient();
+
+// Token refresh
+import { refreshAccessToken, tryAutoLoginWithGraphQL } from '@/services/api';
+const newToken = await refreshAccessToken(); // Returns string token or null
+const success = await tryAutoLoginWithGraphQL(); // Returns boolean
+
+// Direct client usage
+import { gqlClient } from '@/services/api';
+const result = await gqlClient.query(myQuery, variables).toPromise();
+```
+
+### Testing GraphQL API
+
+- GraphQL client tests are in `frontend/src/services/api/__tests__/gql-api.spec.ts`
+- Use `fetchMock.post('/api/graphql', responseData)` to mock GraphQL endpoints
+- Test the `refreshAccessToken` function with various response scenarios
+- Focus on testing the exchange functionality (auth, loading events, error handling)
