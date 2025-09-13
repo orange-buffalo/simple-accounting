@@ -149,15 +149,6 @@ This task:
 
 **Important**: Always run this task after making GraphQL API changes to keep the schema file in sync.
 
-#### Manual Alternative
-
-If you prefer the previous approach, you can still manually create `app/src/test/.test-config.yaml` with:
-```yaml
-apiContracts:
-  overrideCommittedSchema: true
-```
-And then run the regular test: `./gradlew :app:test --tests "*GraphqlSchemaTest*"`
-
 #### Load Tests
 
 At this point we decided to not include load test into the CI pipeline. Load test are executed on demand locally.

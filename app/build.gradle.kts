@@ -149,13 +149,7 @@ tasks.test {
         loggingProperties.add("-Dlogging.level.io.orangebuffalo.simpleaccounting=warn")
         loggingProperties.add("-Dlogging.level.org.springframework.test.context.cache=warn")
     }
-    jvmArgs(
-        // Mockito requires a Java agent
-        "-javaagent:${mockitoAgent.asPath}",
-        *loggingProperties.toTypedArray(),
-    )
-    // let enough memory for contexts to cache
-    maxHeapSize = "1g"
+    configureTestTask(mockitoAgent, loggingProperties)
     // still reset every once in a while to avoid contexts cache overgrowth
     forkEvery = 1000
     maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
@@ -261,7 +255,6 @@ tasks.register<JavaExec>("installPlaywrightDependencies") {
     args("install", "chromium", "--only-shell")
 }
 
-// GraphQL schema update task
 tasks.register<Test>("updateGraphqlSchema") {
     group = "verification"
     description = "Updates the Git-managed GraphQL schema by running GraphqlSchemaTest with override enabled."
@@ -275,17 +268,7 @@ tasks.register<Test>("updateGraphqlSchema") {
     // Ensure the test runs even if it was previously successful
     outputs.upToDateWhen { false }
     
-    // Set the same JVM args as the regular test task
-    jvmArgs(
-        "-javaagent:${mockitoAgent.asPath}",
-    )
-    maxHeapSize = "1g"
-    
-    // Make sure this task doesn't trigger frontend builds
-    doFirst {
-        // Explicitly set that we don't need frontend resources for schema generation
-        logger.info("Running GraphQL schema update - bypassing frontend dependencies")
-    }
+    configureTestTask(mockitoAgent)
 }
 
 // DGS Codegen taskd for test GraphQL client generation
