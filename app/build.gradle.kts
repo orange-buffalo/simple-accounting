@@ -149,13 +149,7 @@ tasks.test {
         loggingProperties.add("-Dlogging.level.io.orangebuffalo.simpleaccounting=warn")
         loggingProperties.add("-Dlogging.level.org.springframework.test.context.cache=warn")
     }
-    jvmArgs(
-        // Mockito requires a Java agent
-        "-javaagent:${mockitoAgent.asPath}",
-        *loggingProperties.toTypedArray(),
-    )
-    // let enough memory for contexts to cache
-    maxHeapSize = "1g"
+    configureTestTask(mockitoAgent, loggingProperties)
     // still reset every once in a while to avoid contexts cache overgrowth
     forkEvery = 1000
     maxParallelForks = (Runtime.getRuntime().availableProcessors() - 1)
@@ -259,6 +253,22 @@ tasks.register<JavaExec>("installPlaywrightDependencies") {
     classpath = configurations.testRuntimeClasspath.get()
     mainClass.set("com.microsoft.playwright.CLI")
     args("install", "chromium", "--only-shell")
+}
+
+tasks.register<Test>("updateGraphqlSchema") {
+    group = "verification"
+    description = "Updates the Git-managed GraphQL schema by running GraphqlSchemaTest with override enabled."
+    
+    filter {
+        includeTestsMatching("*GraphqlSchemaTest*")
+    }
+    
+    systemProperty("simpleaccounting.graphql.updateSchema", "true")
+    
+    // Ensure the test runs even if it was previously successful
+    outputs.upToDateWhen { false }
+    
+    configureTestTask(mockitoAgent)
 }
 
 // DGS Codegen taskd for test GraphQL client generation

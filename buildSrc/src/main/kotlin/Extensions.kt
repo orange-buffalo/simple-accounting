@@ -1,4 +1,6 @@
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestResult
 import java.time.Instant
@@ -11,6 +13,14 @@ fun Project.printTestResultDuringBuild(testDescriptor: TestDescriptor, testResul
     logger.lifecycle("${Instant.now()}  [Test finished] [$testDescriptor] " +
             "[time: ${testResult.endTime - testResult.startTime}ms] " +
             "[result: $testResult]")
+}
+
+fun Test.configureTestTask(mockitoAgent: Configuration, additionalJvmArgs: List<String> = emptyList()) {
+    jvmArgs(
+        "-javaagent:${mockitoAgent.asPath}",
+        *additionalJvmArgs.toTypedArray(),
+    )
+    maxHeapSize = "1g"
 }
 
 fun ifCi(action: () -> Unit) {
