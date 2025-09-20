@@ -163,6 +163,8 @@ Key point about the GraphQL API setup:
   leveraging `graphql-codegen` tool for type-safe queries on the frontend side.
 6. We use `uqrl` framework with its `graphql-codegen` and Vue 3 integration to call the API from the frontend.
   See `frontend/src/services/api/gql-api-client.ts` for the entry point.
+  Whenever a query is wrapped into `grapql` for type-safe access to the API, execute `bun run graphql-codegen`
+  to regenerate the types.
 
 ## GraphQL API Implementation Guidelines
 1. **Structure Pattern**: Follow the pattern established by `UserProfileApi.kt`:

@@ -363,11 +363,11 @@ async function expectToFailWith<T>(
 ): Promise<T> {
   try {
     await executionSpec();
-    expect(null, 'API call expected to fail')
-      .toBeDefined();
   } catch (e) {
     expect(e)
       .toHaveProperty('name', expectedErrorName);
     return e as T;
   }
+  expect('API call expected to fail', 'API call expected to fail')
+      .toBeDefined();
 }

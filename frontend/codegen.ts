@@ -3,7 +3,7 @@ import { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
   schema: '../app/src/test/resources/api-schema.graphqls',
-  documents: ['src/**/*.vue'],
+  documents: ['src/**/*.vue', 'src/**/*.ts'],
   ignoreNoDocuments: true,
   generates: {
     './src/services/api/gql/': {
