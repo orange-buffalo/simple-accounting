@@ -74,6 +74,15 @@ After making changes, ALWAYS run this validation sequence:
 - Regenerates `app/src/test/resources/api-schema.graphqls`
 - Frontend TypeScript types auto-generated via `bun graphql-codegen`
 
+### Frontend GraphQL Client
+
+The frontend uses URQL client configured in `frontend/src/services/api/gql-api-client.ts` with custom exchanges for:
+- **Authorization**: JWT token injection and automatic refresh
+- **Error handling**: Converts GraphQL errors with `errorType: 'NOT_AUTHORIZED'` to login events
+- **Loading states**: Emits loading events for consistent UI behavior
+
+Key difference: GraphQL API uses error extensions instead of HTTP status codes for authorization errors.
+
 ## File Locations
 
 ### Key Build Files
@@ -434,3 +443,5 @@ assertExternalServiceRequests(expectedRequest1, expectedRequest2)
 2. We prefer single-line commit messages with a reference to the issue at the end, e.g.
   `fix: Correct calculation of tax amounts (#123)`.
 3. As we squash pull requests when merging, the title of the pull request should also follow the same convention.
+
+

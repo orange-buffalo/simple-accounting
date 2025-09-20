@@ -22,3 +22,4 @@ export type { Auth } from './auth';
 export * from './api-utils';
 export type { RequestConfigParams, RequestConfigReturn } from './api-utils';
 export { ResponseError, FetchError } from './generated';
+export { gqlClient, setupGqlClient } from './gql-api-client';
