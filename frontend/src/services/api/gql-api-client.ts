@@ -85,7 +85,7 @@ const loadingExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
-// Exchange to handle authorization errors and token refresh
+// Exchange to handle authorization errors and trigger login events
 const authRetryExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
     ops$,
@@ -98,8 +98,7 @@ const authRetryExchange: Exchange = ({ forward }) => (ops$) => {
         );
         
         if (hasAuthError) {
-          // For GraphQL, we'll handle token refresh outside the exchange
-          // and let the application layer retry if needed
+          // Emit login required event for auth errors
           LOGIN_REQUIRED_EVENT.emit();
         }
       }
@@ -123,10 +122,17 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
           );
           
           if (hasAuthError) {
-            // Don't throw here - URQL will handle the error in the result
-            // Just ensure the LOGIN_REQUIRED_EVENT gets emitted in authRetryExchange
+            // Auth errors are handled by authRetryExchange
             return result;
           }
+          
+          // For non-auth errors, throw an exception
+          throw new ClientApiError('GraphQL error occurred', result.error);
+        }
+        
+        // Handle network errors
+        if (result.error.networkError) {
+          throw new ClientApiError('Network error occurred', result.error);
         }
       }
       
@@ -152,26 +158,3 @@ export function setupGqlClient() {
 }
 
 export { client as gqlClient };
-
-// Helper function to attempt token refresh using GraphQL
-export async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const query = `
-      mutation RefreshAccessToken {
-        refreshAccessToken {
-          accessToken
-        }
-      }
-    `;
-    
-    const response = await client.mutation(query, {}).toPromise();
-    
-    if (response.data?.refreshAccessToken?.accessToken) {
-      return response.data.refreshAccessToken.accessToken;
-    }
-    
-    return null;
-  } catch (error) {
-    return null;
-  }
-}
