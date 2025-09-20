@@ -74,7 +74,6 @@ async function loadLanguage(language: string) {
   currentTranslationsRef.value = await translationFilesDeferred[language]();
   currentLanguage = language;
   supportedLocales = (await import(`./l10n/locales-display-names-${language}.json`)).default;
-
   setTranslationsFormatter((messageTemplate: string, values?: Record<string, unknown> | unknown[]) => {
     return formatMessage(messageTemplate, values);
   });

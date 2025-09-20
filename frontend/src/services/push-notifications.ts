@@ -35,7 +35,6 @@ function init() {
     notifyListeners(message.eventName, message.data);
   });
 
-
   eventSource.addEventListener('error', async (event: any) => {
     if (event.status && event.status === 401 && eventSource) {
       eventSource.close();

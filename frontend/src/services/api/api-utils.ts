@@ -30,7 +30,6 @@ export async function consumeAllPages<T>(
   const pageSize = 100;
   let totalElements = 1000;
   while ((pageNumber - 1) * pageSize < totalElements) {
-     
     const response = await requestExecutor({
       pageSize,
       pageNumber,

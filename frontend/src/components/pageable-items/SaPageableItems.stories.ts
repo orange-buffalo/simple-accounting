@@ -53,7 +53,6 @@ function setupStory(requestExecutor: (request: ResourceRequest) => Promise<ApiPa
       const pageProvider = async (request: ApiPageRequest, config: RequestInit) => {
         action('request with filter')(request, filter.value);
         if (config.signal) {
-           
           config.signal.onabort = () => action('request-aborted')(request);
         }
         return (await requestExecutor(request)) as ApiPage<ResourceResponse>;

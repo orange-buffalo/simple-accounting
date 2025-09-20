@@ -34,9 +34,7 @@ export function removeLoader() {
     return;
   }
 
-
   const loaderDiv = document.getElementById('app-loader-screen')!;
-
   const appDiv = document.getElementById('simple-accounting')!;
   loaderDiv.setAttribute('style', 'opacity: 0');
   setTimeout(() => loaderDiv.remove(), 500);

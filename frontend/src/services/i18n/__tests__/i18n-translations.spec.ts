@@ -30,7 +30,6 @@ describe('translation files', () => {
           .to
           .be
           .a('function', `All values in message bundle ${zeroBundle.language} should be functions`);
-         
         const argumentsLength = (zeroBundleValue as Function).length;
 
         const otherBundleValue = otherBundleMessages[bundleKey];
