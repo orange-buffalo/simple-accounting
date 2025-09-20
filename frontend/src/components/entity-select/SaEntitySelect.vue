@@ -113,7 +113,7 @@
           label: $t.value.saEntitySelect.moreElements.text(providerData.totalElements - itemsToDisplay),
         });
       }
-    } catch (thrown) {
+    } catch (_thrown) {
       // TODO #458 cancellation
       // if (!api.isCancel(thrown)) {
       //   availableValues.value = [];
@@ -149,7 +149,7 @@
       try {
         const initialEntity = await props.optionProvider(entityId, {});
         selectedValue.value = props.labelProvider(initialEntity);
-      } catch (e) {
+      } catch (_e) {
         selectedValueLoadingState.value.error = true;
       } finally {
         selectedValueLoadingState.value.loading = false;

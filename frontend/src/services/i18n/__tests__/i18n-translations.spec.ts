@@ -30,7 +30,7 @@ describe('translation files', () => {
           .to
           .be
           .a('function', `All values in message bundle ${zeroBundle.language} should be functions`);
-        // eslint-disable-next-line @typescript-eslint/ban-types
+         
         const argumentsLength = (zeroBundleValue as Function).length;
 
         const otherBundleValue = otherBundleMessages[bundleKey];

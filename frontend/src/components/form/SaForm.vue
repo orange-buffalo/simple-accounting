@@ -112,7 +112,7 @@
       try {
         await ensureDefined(elForm.value)
           .validate();
-      } catch (e: unknown) {
+      } catch (_e: unknown) {
         return;
       }
     }

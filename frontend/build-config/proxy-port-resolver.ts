@@ -11,7 +11,7 @@ export function resolveProxyPort(): number {
   }
 
   const yamlString = fs.readFileSync(yamlFilePath, 'utf8');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const yamlObject = yaml.load(yamlString) as any;
 
   if (yamlObject?.fullStackTestsConfig?.useViteDevServer === true) {

@@ -73,7 +73,7 @@
 </template>
 
 <script lang="ts" setup>
-  /* eslint-disable no-restricted-globals */
+   
   import {
     computed, onMounted, onUnmounted, ref,
   } from 'vue';

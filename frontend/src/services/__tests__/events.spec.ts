@@ -3,7 +3,7 @@ import {
 } from 'vitest';
 
 describe('an event', () => {
-  // eslint-disable-next-line
+   
   let loginRequiredEvent : any;
 
   beforeEach(async () => {

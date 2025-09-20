@@ -71,7 +71,7 @@ export async function tryAutoLogin() {
     scheduleTokenRefresh();
 
     return true;
-    // eslint-disable-next-line
+     
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
       return false;
@@ -111,7 +111,7 @@ async function loginBySharedToken(sharedToken: string) {
     updateApiToken(tokenLoginResponse.token);
 
     return true;
-    // eslint-disable-next-line
+     
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
       return false;

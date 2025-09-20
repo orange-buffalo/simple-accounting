@@ -21,9 +21,9 @@ const storybookConfig: StorybookConfig = {
   async viteFinal(config, { configType }) {
     // @ts-ignore
     const { config: userConfig } = await loadConfigFromFile(
-      /* eslint-disable @typescript-eslint/no-explicit-any */
+       
       configType as any as ConfigEnv,
-      // eslint-disable-next-line @typescript-eslint/no-var-requires,global-require
+       
       resolve(__dirname, '../../vite.config.ts'),
     );
 
