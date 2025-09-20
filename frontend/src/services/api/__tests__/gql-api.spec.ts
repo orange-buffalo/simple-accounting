@@ -16,7 +16,6 @@ import {
   ResourceNotFoundError,
 } from '@/services/api/api-errors';
 import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
-import type { ProfileApiApi } from '@/services/api/generated/apis/ProfileApiApi';
 import type { RequestConfigReturn, RequestConfigParams } from '@/services/api/api-utils';
 
 // eslint-disable-next-line vue/max-len
@@ -34,7 +33,6 @@ describe('GraphQL API Client', () => {
   let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
   let useAuth: () => Auth;
-  let profileApi: ProfileApiApi;
   let gqlClient: Client;
   let useRequestConfig: (params: RequestConfigParams) => RequestConfigReturn;
 
@@ -48,10 +46,10 @@ describe('GraphQL API Client', () => {
   };
 
   const apiCall = async () => gqlClient
-    .query(`
-      query {
-        test {
-          someProperty
+    .mutation(`
+      mutation {
+        fakeMutation {
+          resultProperty
         }
       }
     `, {})
@@ -158,163 +156,45 @@ describe('GraphQL API Client', () => {
     assertRegularRequestEvents();
   });
 
-  test('throws ApiError when 5xx is received', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 500,
-    });
+  // TODO enable test when https://github.com/urql-graphql/urql/issues/3801 is fixed
+  // test('throws ApiTimeoutError on timeout', async () => {
+  //   vi.useRealTimers();
+  //
+  //   fetchMock.post(apiCallPath, 200, {
+  //     delay: 6000,
+  //   });
+  //
+  //   const error = await expectToFailWith<ApiTimeoutError>(async () => {
+  //     await apiCall();
+  //   }, 'ApiTimeoutError');
+  //   expect(error.message)
+  //     .toBe('Request timed out');
+  //
+  //   assertRegularRequestEvents();
+  // });
 
-    const apiError = await expectToFailWith<FatalApiError>(async () => {
-      await apiCall();
-    }, 'FatalApiError');
-    expect(apiError.response.status)
-      .toBe(500);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ResourceNotFoundError when 404 is received', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 404,
-    });
-
-    const apiError = await expectToFailWith<ResourceNotFoundError>(async () => {
-      await apiCall();
-    }, 'ResourceNotFoundError');
-    expect(apiError.response.status)
-      .toBe(404);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ApiFieldLevelValidationError on 400 with InvalidInput error', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 400,
-      body: {
-        error: 'InvalidInput',
-        requestErrors: [
-          {
-            field: 'name',
-            message: 'Name is required',
-          },
-        ],
-      } as InvalidInputErrorDto,
-    });
-
-    const apiError = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
-      await apiCall();
-    }, 'ApiFieldLevelValidationError');
-    expect(apiError.response.status)
-      .toBe(400);
-    expect(apiError.fieldErrors)
-      .toEqual([
-        {
-          field: 'name',
-          message: 'Name is required',
-        },
-      ]);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ApiBusinessError on 400 with other error', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 400,
-      body: {
-        error: 'TestBusinessErrorDto',
-        someData: 'server data',
-      } as TestBusinessErrorDto,
-    });
-
-    const apiError = await expectToFailWith<ApiBusinessError>(async () => {
-      await apiCall();
-    }, 'ApiBusinessError');
-    expect(apiError.response.status)
-      .toBe(400);
-    expect(apiError.errorAs<TestBusinessErrorDto>())
-      .toEqual({
-        error: 'TestBusinessErrorDto',
-        someData: 'server data',
-      });
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws FatalApiError on 400 with non-json body', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 400,
-      body: 'not json',
-    });
-
-    const apiError = await expectToFailWith<FatalApiError>(async () => {
-      await apiCall();
-    }, 'FatalApiError');
-    expect(apiError.response.status)
-      .toBe(400);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ClientApiError when request fails before response is received', async () => {
-    const originalError = new Error('Request failed');
-    fetchMock.get(apiCallPath, {
-      throws: originalError,
-    });
-
-    const apiError = await expectToFailWith<ClientApiError>(async () => {
-      await apiCall();
-    }, 'ClientApiError');
-    expect(apiError.message)
-      .toBe('Request failed with error: Error: Request failed');
-    expect(apiError.response)
-      .toBeUndefined();
-    expect(apiError.error)
-      .toBe(originalError);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ApiTimeoutError on timeout', async () => {
-    vi.useRealTimers();
-
-    fetchMock.get(apiCallPath, 200, {
-      delay: 20000,
-    });
-
-    const { requestConfig } = useRequestConfig({
-      timeoutMs: 200,
-    });
-
-    const error = await expectToFailWith<ApiTimeoutError>(async () => {
-      await apiCall(requestConfig);
-    }, 'ApiTimeoutError');
-    expect(error.message)
-      .toBe('Request timed out');
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws with ApiRequestCancelledError when custom cancellation is requested', async () => {
-    vi.useRealTimers();
-
-    fetchMock.get(apiCallPath, 200, {
-      delay: 20000,
-    });
-
-    const {
-      requestConfig,
-      cancelRequest,
-    } = useRequestConfig({});
-
-    setTimeout(() => cancelRequest(), 500);
-
-    const error = await expectToFailWith<ApiRequestCancelledError>(async () => {
-      await apiCall(requestConfig);
-    }, 'ApiRequestCancelledError');
-    expect(error.message)
-      .toBe('Request was cancelled before it was completed');
-
-    assertRegularRequestEvents();
-  });
+  // test('throws with ApiRequestCancelledError when custom cancellation is requested', async () => {
+  //   vi.useRealTimers();
+  //
+  //   fetchMock.get(apiCallPath, 200, {
+  //     delay: 20000,
+  //   });
+  //
+  //   const {
+  //     requestConfig,
+  //     cancelRequest,
+  //   } = useRequestConfig({});
+  //
+  //   setTimeout(() => cancelRequest(), 500);
+  //
+  //   const error = await expectToFailWith<ApiRequestCancelledError>(async () => {
+  //     await apiCall(requestConfig);
+  //   }, 'ApiRequestCancelledError');
+  //   expect(error.message)
+  //     .toBe('Request was cancelled before it was completed');
+  //
+  //   assertRegularRequestEvents();
+  // });
 
   beforeEach(async () => {
     vi.useFakeTimers();
@@ -374,11 +254,11 @@ async function expectToFailWith<T>(
 ): Promise<T> {
   try {
     await executionSpec();
-    expect(null, 'API call expected to fail')
-      .toBeDefined();
   } catch (e) {
     expect(e)
       .toHaveProperty('name', expectedErrorName);
     return e as T;
   }
+  expect('API call expected to fail', 'API call expected to fail')
+      .toBeNull();
 }

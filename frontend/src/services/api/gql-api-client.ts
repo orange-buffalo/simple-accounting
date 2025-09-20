@@ -15,6 +15,12 @@ const loadingEventsExchange: Exchange = ({ forward }) => (operations$) => {
 export const gqlClient = new Client({
   url: '/api/graphql',
   exchanges: [loadingEventsExchange, fetchExchange],
+  fetchOptions: {
+    credentials: 'include',
+    // TODO add signal: AbortSignal.timeout(15000) when https://github.com/urql-graphql/urql/issues/3801 is fixed
+  },
+  preferGetMethod: false,
+  requestPolicy: 'network-only',
 });
 
 export function setupGqlClient() {
