@@ -21,7 +21,7 @@ const apiToken: ApiToken = {
   isTransient: false,
 };
 
-function updateApiToken(jwtToken: string | null) {
+export function updateApiToken(jwtToken: string | null) {
   apiToken.jwtToken = jwtToken;
   apiToken.isAdmin = false;
   apiToken.isTransient = false;

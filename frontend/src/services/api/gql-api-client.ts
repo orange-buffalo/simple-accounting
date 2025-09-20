@@ -3,35 +3,33 @@ import {
 } from '@urql/vue';
 import type { Exchange } from '@urql/core';
 import { pipe, tap, map } from 'wonka';
-import { getAuthorizationHeader } from '@/services/api/auth';
+import { getAuthorizationHeader, tryAutoLogin } from '@/services/api/auth';
 import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 import { getGlobalRequestTimeout } from '@/services/api';
 import {
-  ApiAuthError,
-  ApiRequestCancelledError,
-  ApiTimeoutError,
   ClientApiError,
 } from '@/services/api/api-errors';
 
-// Exchange to add authorization headers
+// Exchange to add authorization headers cleanly
 const authExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
     ops$,
     map((operation: Operation) => {
       const authHeader = getAuthorizationHeader();
       if (authHeader) {
-        const currentOptions = typeof operation.context.fetchOptions === 'function' 
-          ? operation.context.fetchOptions() 
-          : operation.context.fetchOptions || {};
+        const currentFetchOptions = operation.context.fetchOptions || {};
+        const fetchOptions = typeof currentFetchOptions === 'function' 
+          ? currentFetchOptions() 
+          : currentFetchOptions;
           
         return {
           ...operation,
           context: {
             ...operation.context,
             fetchOptions: {
-              ...currentOptions,
+              ...fetchOptions,
               headers: {
-                ...currentOptions.headers,
+                ...fetchOptions.headers,
                 Authorization: authHeader,
               },
             },
@@ -44,28 +42,26 @@ const authExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
-// Exchange to handle timeouts
+// Exchange to handle timeouts using fetchOptions
 const timeoutExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
     ops$,
     map((operation: Operation) => {
-      const currentOptions = typeof operation.context.fetchOptions === 'function'
-        ? operation.context.fetchOptions()
-        : operation.context.fetchOptions || {};
+      const currentFetchOptions = operation.context.fetchOptions || {};
+      const fetchOptions = typeof currentFetchOptions === 'function' 
+        ? currentFetchOptions() 
+        : currentFetchOptions;
         
-      if (!currentOptions.signal) {
-        return {
-          ...operation,
-          context: {
-            ...operation.context,
-            fetchOptions: {
-              ...currentOptions,
-              signal: AbortSignal.timeout(getGlobalRequestTimeout()),
-            },
+      return {
+        ...operation,
+        context: {
+          ...operation.context,
+          fetchOptions: {
+            ...fetchOptions,
+            signal: fetchOptions.signal || AbortSignal.timeout(getGlobalRequestTimeout()),
           },
-        };
-      }
-      return operation;
+        },
+      };
     }),
     forward,
   );
@@ -85,7 +81,8 @@ const loadingExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
-// Exchange to handle authorization errors and trigger login events
+// Exchange to handle authorization errors - for now just emit login event
+// TODO: Implement proper retry logic with token refresh
 const authRetryExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
     ops$,
@@ -98,8 +95,15 @@ const authRetryExchange: Exchange = ({ forward }) => (ops$) => {
         );
         
         if (hasAuthError) {
-          // Emit login required event for auth errors
-          LOGIN_REQUIRED_EVENT.emit();
+          // For now, try auto login in background and emit login event
+          tryAutoLogin().then((refreshSuccessful) => {
+            if (!refreshSuccessful) {
+              LOGIN_REQUIRED_EVENT.emit();
+            }
+            // TODO: Implement proper retry mechanism
+          }).catch(() => {
+            LOGIN_REQUIRED_EVENT.emit();
+          });
         }
       }
       
@@ -115,22 +119,19 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
     forward,
     map((result: OperationResult) => {
       if (result.error) {
-        // Handle authorization errors - convert to consistent error structure
+        // Handle non-auth GraphQL errors only
         if (result.error.graphQLErrors) {
           const hasAuthError = result.error.graphQLErrors.some(
             (error: any) => error.extensions?.errorType === 'NOT_AUTHORIZED'
           );
           
-          if (hasAuthError) {
-            // Auth errors are handled by authRetryExchange
-            return result;
+          // Only throw for non-auth errors since auth errors are handled by authRetryExchange
+          if (!hasAuthError) {
+            throw new ClientApiError('GraphQL error occurred', result.error);
           }
-          
-          // For non-auth errors, throw an exception
-          throw new ClientApiError('GraphQL error occurred', result.error);
         }
         
-        // Handle network errors
+        // Handle network errors  
         if (result.error.networkError) {
           throw new ClientApiError('Network error occurred', result.error);
         }

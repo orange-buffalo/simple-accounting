@@ -20,6 +20,8 @@
     "@messageformat/core": "3.4.0",
     "@messageformat/parser": "5.1.1",
     "@popperjs/core": "^2.11.8",
+    "@urql/exchange-context": "^1.0.0",
+    "@urql/exchange-retry": "^2.0.0",
     "@urql/vue": "^2.0.0",
     "copy-to-clipboard": "3.3.3",
     "dompurify": "3.2.6",

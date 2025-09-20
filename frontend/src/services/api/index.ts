@@ -17,7 +17,7 @@ export {
   workspaceAccessTokensApi,
   userActivationTokensApi,
 } from './api-client';
-export { useAuth } from './auth';
+export { useAuth, updateApiToken } from './auth';
 export type { Auth } from './auth';
 export * from './api-utils';
 export type { RequestConfigParams, RequestConfigReturn } from './api-utils';
