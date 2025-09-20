@@ -7,6 +7,7 @@
         "@messageformat/core": "3.4.0",
         "@messageformat/parser": "5.1.1",
         "@popperjs/core": "^2.11.8",
+        "@urql/exchange-auth": "^3.0.0",
         "@urql/exchange-context": "^1.0.0",
         "@urql/exchange-retry": "^2.0.0",
         "@urql/vue": "^2.0.0",
@@ -827,6 +828,8 @@
     "@ungap/structured-clone": ["@ungap/structured-clone@1.2.0", "", {}, "sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ=="],
 
     "@urql/core": ["@urql/core@6.0.1", "", { "dependencies": { "@0no-co/graphql.web": "^1.0.13", "wonka": "^6.3.2" } }, "sha512-FZDiQk6jxbj5hixf2rEPv0jI+IZz0EqqGW8mJBEug68/zHTtT+f34guZDmyjJZyiWbj0vL165LoMr/TkeDHaug=="],
+
+    "@urql/exchange-auth": ["@urql/exchange-auth@3.0.0", "", { "dependencies": { "@urql/core": "^6.0.0", "wonka": "^6.3.2" } }, "sha512-tj09xiOR2f1J2h8TE9uZWjRZipCdmDoTewEytOacDQ+0Teo+yIZxm3ppHxolQtiA51OHrGYiNTkMte8HtfvaBw=="],
 
     "@urql/exchange-context": ["@urql/exchange-context@1.0.0", "", { "dependencies": { "@urql/core": "^6.0.0", "wonka": "^6.3.2" } }, "sha512-lxLIfGAvvbAQm+CEAmpicBDeuDFJFougpit6N96cyRZDTajfYOerUcfxTJ8EwXJx+XSUSOPJa7OAxLzeipNLEA=="],
 

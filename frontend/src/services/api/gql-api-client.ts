@@ -3,15 +3,16 @@ import {
 } from '@urql/vue';
 import type { Exchange } from '@urql/core';
 import { pipe, tap, map } from 'wonka';
-import { getAuthorizationHeader, tryAutoLogin } from '@/services/api/auth';
+import { authExchange } from '@urql/exchange-auth';
+import { getAuthorizationHeader, updateApiToken } from '@/services/api/auth';
 import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT, LOGIN_REQUIRED_EVENT } from '@/services/events';
 import { getGlobalRequestTimeout } from '@/services/api';
 import {
   ClientApiError,
 } from '@/services/api/api-errors';
 
-// Exchange to add authorization headers cleanly
-const authExchange: Exchange = ({ forward }) => (ops$) => {
+// Exchange to add authorization headers
+const contextHeaderExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
     ops$,
     map((operation: Operation) => {
@@ -42,31 +43,6 @@ const authExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
-// Exchange to handle timeouts using fetchOptions
-const timeoutExchange: Exchange = ({ forward }) => (ops$) => {
-  return pipe(
-    ops$,
-    map((operation: Operation) => {
-      const currentFetchOptions = operation.context.fetchOptions || {};
-      const fetchOptions = typeof currentFetchOptions === 'function' 
-        ? currentFetchOptions() 
-        : currentFetchOptions;
-        
-      return {
-        ...operation,
-        context: {
-          ...operation.context,
-          fetchOptions: {
-            ...fetchOptions,
-            signal: fetchOptions.signal || AbortSignal.timeout(getGlobalRequestTimeout()),
-          },
-        },
-      };
-    }),
-    forward,
-  );
-};
-
 // Exchange to emit loading events
 const loadingExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -81,52 +57,21 @@ const loadingExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
-// Exchange to handle authorization errors - for now just emit login event
-// TODO: Implement proper retry logic with token refresh
-const authRetryExchange: Exchange = ({ forward }) => (ops$) => {
-  return pipe(
-    ops$,
-    forward,
-    map((result: OperationResult) => {
-      // Check for authorization errors in GraphQL response
-      if (result.error?.graphQLErrors) {
-        const hasAuthError = result.error.graphQLErrors.some(
-          (error: any) => error.extensions?.errorType === 'NOT_AUTHORIZED'
-        );
-        
-        if (hasAuthError) {
-          // For now, try auto login in background and emit login event
-          tryAutoLogin().then((refreshSuccessful) => {
-            if (!refreshSuccessful) {
-              LOGIN_REQUIRED_EVENT.emit();
-            }
-            // TODO: Implement proper retry mechanism
-          }).catch(() => {
-            LOGIN_REQUIRED_EVENT.emit();
-          });
-        }
-      }
-      
-      return result;
-    }),
-  );
-};
-
 // Exchange to handle errors and transform them to standard API errors  
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
     ops$,
     forward,
-    map((result: OperationResult) => {
+    tap((result: OperationResult) => {
       if (result.error) {
-        // Handle non-auth GraphQL errors only
-        if (result.error.graphQLErrors) {
-          const hasAuthError = result.error.graphQLErrors.some(
-            (error: any) => error.extensions?.errorType === 'NOT_AUTHORIZED'
+        // Handle GraphQL errors (non-auth errors are thrown, auth errors are handled by authExchange)
+        if (result.error.graphQLErrors && result.error.graphQLErrors.length > 0) {
+          // Check if any error is NOT an auth error
+          const hasNonAuthError = result.error.graphQLErrors.some(
+            (error: any) => error.extensions?.errorType !== 'NOT_AUTHORIZED'
           );
           
-          // Only throw for non-auth errors since auth errors are handled by authRetryExchange
-          if (!hasAuthError) {
+          if (hasNonAuthError) {
             throw new ClientApiError('GraphQL error occurred', result.error);
           }
         }
@@ -136,19 +81,69 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
           throw new ClientApiError('Network error occurred', result.error);
         }
       }
-      
-      return result;
     }),
   );
 };
 
 const client = createClient({
   url: '/api/graphql',
+  fetchOptions: {
+    signal: AbortSignal.timeout(getGlobalRequestTimeout()),
+  },
   exchanges: [
-    timeoutExchange,
-    authExchange,
+    contextHeaderExchange,
     loadingExchange,
-    authRetryExchange,
+    authExchange(async (utils) => {
+      let token = getAuthorizationHeader()?.replace('Bearer ', '') || null;
+      
+      return {
+        addAuthToOperation(operation) {
+          if (!token) return operation;
+          
+          return utils.appendHeaders(operation, {
+            Authorization: `Bearer ${token}`,
+          });
+        },
+        
+        didAuthError(error) {
+          return error.graphQLErrors?.some(
+            (e: any) => e.extensions?.errorType === 'NOT_AUTHORIZED'
+          ) || false;
+        },
+        
+        async refreshAuth() {
+          try {
+            const refreshMutation = `
+              mutation RefreshAccessToken {
+                refreshAccessToken {
+                  accessToken
+                }
+              }
+            `;
+            
+            const result = await utils.mutate(refreshMutation, {});
+            
+            if (result.data?.refreshAccessToken?.accessToken) {
+              token = result.data.refreshAccessToken.accessToken;
+              updateApiToken(token);
+            } else {
+              // Refresh failed
+              token = null;
+              LOGIN_REQUIRED_EVENT.emit();
+            }
+          } catch (error) {
+            // Refresh failed
+            token = null;
+            LOGIN_REQUIRED_EVENT.emit();
+          }
+        },
+        
+        willAuthError() {
+          // We can't predict auth errors in GraphQL
+          return false;
+        },
+      };
+    }),
     errorExchange,
     fetchExchange,
   ],
