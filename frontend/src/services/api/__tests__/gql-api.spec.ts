@@ -1,320 +1,143 @@
-import {
-  afterEach, beforeEach, describe, expect, test, vi,
-} from 'vitest';
-import type { CallHistoryFilter, UserRouteConfig } from 'fetch-mock';
-import 'whatwg-fetch';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import fetchMock from 'fetch-mock';
-import { Client } from '@urql/vue';
-import {
-  ApiAuthError,
-  ApiBusinessError,
-  ApiFieldLevelValidationError,
-  ApiRequestCancelledError,
-  ApiTimeoutError,
-  ClientApiError,
-  FatalApiError,
-  ResourceNotFoundError,
-} from '@/services/api/api-errors';
-import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
-import type { ProfileApiApi } from '@/services/api/generated/apis/ProfileApiApi';
-import type { RequestConfigReturn, RequestConfigParams } from '@/services/api/api-utils';
+import 'whatwg-fetch';
+import { Client, OperationResult } from '@urql/vue';
+import type { Auth } from '@/services/api';
 
 // eslint-disable-next-line vue/max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
-const API_TIME = new Date('2020-01-04T00:00:00');
+const TOKEN_EXP_EPOCH_SECONDS = 1578116455;
+// eslint-disable-next-line vue/max-len
+const NEW_TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY5NTV9.new-token-signature';
+const API_TIME = new Date(0);
+API_TIME.setUTCSeconds(TOKEN_EXP_EPOCH_SECONDS - 3 * 60); // 3 minutes before token expiration
+
+type MockedRequestAssertions = (options: RequestInit) => void;
+type MockedRequest = {
+  requestAssertions: MockedRequestAssertions;
+  responseBody: any;
+}
 
 fetchMock.mockGlobal();
-
-type TestBusinessErrorDto = SaApiErrorDto & {
-  someData: string;
-}
 
 describe('GraphQL API Client', () => {
   let loadingStartedEventMock: () => void;
   let loadingFinishedEventMock: () => void;
   let loginRequiredEventMock: () => void;
   let useAuth: () => Auth;
-  let profileApi: ProfileApiApi;
   let gqlClient: Client;
-  let useRequestConfig: (params: RequestConfigParams) => RequestConfigReturn;
-
-  const assertRegularRequestEvents = () => {
-    expect(loginRequiredEventMock)
-      .toHaveBeenCalledTimes(0);
-    expect(loadingStartedEventMock)
-      .toHaveBeenCalledOnce();
-    expect(loadingFinishedEventMock)
-      .toHaveBeenCalledOnce();
-  };
-
-  const apiCall = async () => gqlClient
-    .query(`
-      query {
-        test {
-          someProperty
-        }
-      }
-    `, {})
-    .toPromise();
+  let mockedRequests: Array<MockedRequest> = [];
   const apiCallPath = '/api/graphql';
 
-  test('does not set Authorization token when not logged in', async () => {
-    fetchMock.post(apiCallPath, {});
+  test('does refresh access token if not yet set', async () => {
+    mockRequest(refreshTokenAssertions(), refreshTokenResponse(TOKEN));
+    mockRequest(apiQueryAssertions(TOKEN), successApiQueryResponse());
 
-    await apiCall();
+    const response = await executeApiCall();
 
-    const options = safeGetCallOptions();
-    expect(new Headers(options.headers).get('Authorization'))
-      .toBeNull();
+    assertSuccessResponse(response);
+    assertRegularRequestEvents();
+    assertAuthHasToken(TOKEN);
   });
 
-  test('adds a token to headers after successful autologin', async () => {
-    fetchMock.post('/api/auth/token', {
-      token: TOKEN,
-    });
+  test('uses existing access token if valid and does not refresh', async () => {
+    await setApiToken(TOKEN);
 
-    fetchMock.get(apiCallPath, {
-      userName: 'testUser',
-    }, {
-      headers: {
-        Authorization: `Bearer ${TOKEN}`,
-      },
-    });
+    mockRequest(apiQueryAssertions(TOKEN), successApiQueryResponse());
 
-    const autologin = await useAuth()
-      .tryAutoLogin();
+    const response = await executeApiCall();
 
-    expect(autologin)
-      .equal(true);
-    expect(useAuth()
-      .getToken())
-      .toBe(TOKEN);
-
-    const response = await apiCall();
-    expect(response)
-      .toBeDefined();
-    expect(response.userName)
-      .toEqual('testUser');
+    assertSuccessResponse(response);
+    assertRegularRequestEvents();
+    assertAuthHasToken(TOKEN);
   });
 
-  test('tries autologin when 401 is received for a request', async () => {
-    fetchMock.get(apiCallPath, ({ options }) => {
-      if (!options || !options.headers) throw new Error();
-      return new Headers(options.headers).get('Authorization')
-        ? {
-          status: 200,
-          body: {
-            userName: 'someUser',
-          },
-        } : {
-          status: 401,
-        };
-    });
-    fetchMock.post('/api/auth/token', {
-      token: TOKEN,
-    });
+  test('refreshes access token if close to expiration', async () => {
+    // eslint-disable-next-line vue/max-len
+    const EXPIRING_TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTYyOTV9.mock-signature-for-expiring-token';
+    await setApiToken(EXPIRING_TOKEN);
 
-    const { userName } = await apiCall();
+    mockRequest(refreshTokenAssertions(), refreshTokenResponse(TOKEN));
+    // should use the new token for the request
+    mockRequest(apiQueryAssertions(TOKEN), successApiQueryResponse());
 
-    expect(userName)
-      .eq('someUser');
-    expect(loginRequiredEventMock)
-      .toHaveBeenCalledTimes(0);
-    const calls = fetchMock.callHistory.calls();
-    expect(calls)
-      .length(3);
-    const paths = calls.map((call) => call.args[0]);
-    expect(paths)
-      .toEqual([apiCallPath, '/api/auth/token', apiCallPath]);
+    const response = await executeApiCall();
+
+    assertSuccessResponse(response);
+    assertRegularRequestEvents();
+    assertAuthHasToken(TOKEN);
   });
 
-  test('throws ApiAuthError and triggers events when 401 is received', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 401,
-    });
-    fetchMock.post('/api/auth/token', {
-      status: 401,
-    });
+  test('refreshes access token if was valid but unauthorized error received', async () => {
+    await setApiToken(TOKEN);
 
-    const error = await expectToFailWith<ApiAuthError>(async () => {
-      await apiCall();
-    }, 'ApiAuthError');
-    expect(error.response.status)
-      .toBe(401);
+    // First request with original token returns unauthorized error
+    mockRequest(apiQueryAssertions(TOKEN), unauthorizedApiQueryResponse());
+    // Token refresh request returns new token
+    mockRequest(refreshTokenAssertions(), refreshTokenResponse(NEW_TOKEN));
+    // Retry the original request with new token
+    mockRequest(apiQueryAssertions(NEW_TOKEN), successApiQueryResponse());
 
-    expect(loginRequiredEventMock)
-      .toHaveBeenCalledOnce();
-    expect(loadingStartedEventMock)
-      .toHaveBeenCalledTimes(2);
-    expect(loadingFinishedEventMock)
-      .toHaveBeenCalledTimes(2);
+    const response = await executeApiCall();
+
+    assertSuccessResponse(response);
+    assertRegularRequestEvents();
+    assertAuthHasToken(NEW_TOKEN);
   });
 
-  test('fires events on successful responses', async () => {
-    fetchMock.get(apiCallPath, {});
+  test('executes the initial request even if refresh token returns no token', async () => {
+    await setApiToken(null);
 
-    await apiCall();
+    // Refresh token request returns null/undefined token
+    mockRequest(refreshTokenAssertions(), refreshTokenResponse(null));
+    // Original request should be executed without auth header and return unauthorized
+    mockRequest(apiQueryAssertions(null), unauthorizedApiQueryResponse());
 
+    const response = await executeApiCall();
+
+    assertUnauthorizedResponse(response);
     assertRegularRequestEvents();
   });
 
-  test('throws ApiError when 5xx is received', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 500,
-    });
+  // TODO enable test when https://github.com/urql-graphql/urql/issues/3801 is fixed
+  // test('throws ApiTimeoutError on timeout', async () => {
+  //   vi.useRealTimers();
+  //
+  //   fetchMock.post(apiCallPath, 200, {
+  //     delay: 6000,
+  //   });
+  //
+  //   const error = await expectToFailWith<ApiTimeoutError>(async () => {
+  //     await apiCall();
+  //   }, 'ApiTimeoutError');
+  //   expect(error.message)
+  //     .toBe('Request timed out');
+  //
+  //   assertRegularRequestEvents();
+  // });
 
-    const apiError = await expectToFailWith<FatalApiError>(async () => {
-      await apiCall();
-    }, 'FatalApiError');
-    expect(apiError.response.status)
-      .toBe(500);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ResourceNotFoundError when 404 is received', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 404,
-    });
-
-    const apiError = await expectToFailWith<ResourceNotFoundError>(async () => {
-      await apiCall();
-    }, 'ResourceNotFoundError');
-    expect(apiError.response.status)
-      .toBe(404);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ApiFieldLevelValidationError on 400 with InvalidInput error', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 400,
-      body: {
-        error: 'InvalidInput',
-        requestErrors: [
-          {
-            field: 'name',
-            message: 'Name is required',
-          },
-        ],
-      } as InvalidInputErrorDto,
-    });
-
-    const apiError = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
-      await apiCall();
-    }, 'ApiFieldLevelValidationError');
-    expect(apiError.response.status)
-      .toBe(400);
-    expect(apiError.fieldErrors)
-      .toEqual([
-        {
-          field: 'name',
-          message: 'Name is required',
-        },
-      ]);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ApiBusinessError on 400 with other error', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 400,
-      body: {
-        error: 'TestBusinessErrorDto',
-        someData: 'server data',
-      } as TestBusinessErrorDto,
-    });
-
-    const apiError = await expectToFailWith<ApiBusinessError>(async () => {
-      await apiCall();
-    }, 'ApiBusinessError');
-    expect(apiError.response.status)
-      .toBe(400);
-    expect(apiError.errorAs<TestBusinessErrorDto>())
-      .toEqual({
-        error: 'TestBusinessErrorDto',
-        someData: 'server data',
-      });
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws FatalApiError on 400 with non-json body', async () => {
-    fetchMock.get(apiCallPath, {
-      status: 400,
-      body: 'not json',
-    });
-
-    const apiError = await expectToFailWith<FatalApiError>(async () => {
-      await apiCall();
-    }, 'FatalApiError');
-    expect(apiError.response.status)
-      .toBe(400);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ClientApiError when request fails before response is received', async () => {
-    const originalError = new Error('Request failed');
-    fetchMock.get(apiCallPath, {
-      throws: originalError,
-    });
-
-    const apiError = await expectToFailWith<ClientApiError>(async () => {
-      await apiCall();
-    }, 'ClientApiError');
-    expect(apiError.message)
-      .toBe('Request failed with error: Error: Request failed');
-    expect(apiError.response)
-      .toBeUndefined();
-    expect(apiError.error)
-      .toBe(originalError);
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws ApiTimeoutError on timeout', async () => {
-    vi.useRealTimers();
-
-    fetchMock.get(apiCallPath, 200, {
-      delay: 20000,
-    });
-
-    const { requestConfig } = useRequestConfig({
-      timeoutMs: 200,
-    });
-
-    const error = await expectToFailWith<ApiTimeoutError>(async () => {
-      await apiCall(requestConfig);
-    }, 'ApiTimeoutError');
-    expect(error.message)
-      .toBe('Request timed out');
-
-    assertRegularRequestEvents();
-  });
-
-  test('throws with ApiRequestCancelledError when custom cancellation is requested', async () => {
-    vi.useRealTimers();
-
-    fetchMock.get(apiCallPath, 200, {
-      delay: 20000,
-    });
-
-    const {
-      requestConfig,
-      cancelRequest,
-    } = useRequestConfig({});
-
-    setTimeout(() => cancelRequest(), 500);
-
-    const error = await expectToFailWith<ApiRequestCancelledError>(async () => {
-      await apiCall(requestConfig);
-    }, 'ApiRequestCancelledError');
-    expect(error.message)
-      .toBe('Request was cancelled before it was completed');
-
-    assertRegularRequestEvents();
-  });
+  // test('throws with ApiRequestCancelledError when custom cancellation is requested', async () => {
+  //   vi.useRealTimers();
+  //
+  //   fetchMock.get(apiCallPath, 200, {
+  //     delay: 20000,
+  //   });
+  //
+  //   const {
+  //     requestConfig,
+  //     cancelRequest,
+  //   } = useRequestConfig({});
+  //
+  //   setTimeout(() => cancelRequest(), 500);
+  //
+  //   const error = await expectToFailWith<ApiRequestCancelledError>(async () => {
+  //     await apiCall(requestConfig);
+  //   }, 'ApiRequestCancelledError');
+  //   expect(error.message)
+  //     .toBe('Request was cancelled before it was completed');
+  //
+  //   assertRegularRequestEvents();
+  // });
 
   beforeEach(async () => {
     vi.useFakeTimers();
@@ -338,9 +161,31 @@ describe('GraphQL API Client', () => {
     loginRequiredEventMock = events.LOGIN_REQUIRED_EVENT.emit;
     ({
       useAuth,
-      useRequestConfig,
     } = await import('@/services/api'));
     ({ gqlClient } = await import('@/services/api/gql-api-client'));
+
+    mockedRequests = [];
+    let currentRequestIndex = 0;
+    fetchMock.post(apiCallPath, ({ options }) => {
+      if (currentRequestIndex >= mockedRequests.length) {
+        console.error(
+          `[mockedRequests] Received more requests (${currentRequestIndex + 1}) than expected. Current request body`,
+          options.body);
+        throw new Error();
+      }
+      const mockedRequest = mockedRequests[currentRequestIndex];
+      currentRequestIndex++;
+      try {
+        mockedRequest.requestAssertions(options);
+      } catch (e) {
+        console.error(`[mockedRequests] Request assertions failed on request #${currentRequestIndex}`, e);
+        throw e;
+      }
+      return {
+        status: 200,
+        body: mockedRequest.responseBody,
+      };
+    });
   });
 
   afterEach(() => {
@@ -350,35 +195,134 @@ describe('GraphQL API Client', () => {
     fetchMock.removeRoutes();
     fetchMock.clearHistory();
   });
+
+  function assertRegularRequestEvents() {
+    expect(loginRequiredEventMock)
+      .toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock)
+      .toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock)
+      .toHaveBeenCalledOnce();
+  }
+
+  function assertAuthHasToken(token: string | null) {
+    const auth = useAuth();
+    expect(auth.getToken())
+      .toBe(token);
+  }
+
+  async function executeApiCall() {
+    return await gqlClient
+      .query(`
+      query {
+        fakeGetter {
+          someProperty
+        }
+      }
+    `, {})
+      .toPromise();
+  }
+
+  function mockRequest(requestAssertions: MockedRequestAssertions, responseBody: any) {
+    mockedRequests.push({
+      requestAssertions,
+      responseBody,
+    });
+  }
+
+  async function setApiToken(token: string | null) {
+    const { updateApiToken } = await import('@/services/api/auth');
+    updateApiToken(token);
+  }
 });
 
-function safeGetCallOptions(filter?: CallHistoryFilter, options?: UserRouteConfig): RequestInit {
-  const calls = fetchMock.callHistory.calls(filter, options);
-  expect(calls)
-    .to
-    .have
-    .length(1);
-  const call = calls[0];
-  expect(call)
-    .toBeDefined();
-  const callOptions = call.options;
-  expect(callOptions)
-    .toBeDefined();
-  // eslint-disable-next-line
-  return callOptions!;
+function refreshTokenAssertions(): MockedRequestAssertions {
+  return (options: RequestInit) => {
+    expect(options.body)
+      .toBeTypeOf('string');
+    const body = JSON.parse(options.body as string);
+    expect(body)
+      .toEqual(
+        {
+          'operationName': 'refreshAccessToken',
+          'query': 'mutation refreshAccessToken {\n  refreshAccessToken {\n    accessToken\n  }\n}',
+          'variables': {},
+        });
+  };
 }
 
-async function expectToFailWith<T>(
-  executionSpec: () => Promise<void>,
-  expectedErrorName: string,
-): Promise<T> {
-  try {
-    await executionSpec();
-    expect(null, 'API call expected to fail')
+function refreshTokenResponse(token: string | null): any {
+  return {
+    data: {
+      refreshAccessToken: {
+        accessToken: token,
+      },
+    },
+  };
+}
+
+function unauthorizedApiQueryResponse(): any {
+  return {
+    errors: [{
+      message: 'Unauthorized',
+      extensions: {
+        errorType: 'NOT_AUTHORIZED',
+      },
+    }],
+  };
+}
+
+function apiQueryAssertions(expectedToken: string | null): MockedRequestAssertions {
+  return (options) => {
+    expect(options.body)
+      .toBeTypeOf('string');
+    const body = JSON.parse(options.body as string);
+    expect(body)
+      .toEqual(
+        {
+          query: '{\n  fakeGetter {\n    someProperty\n  }\n}',
+          'variables': {},
+        });
+
+    expect(options.headers)
       .toBeDefined();
-  } catch (e) {
-    expect(e)
-      .toHaveProperty('name', expectedErrorName);
-    return e as T;
-  }
+    const authHeader = new Headers(options.headers).get('Authorization');
+    if (expectedToken) {
+      expect(authHeader)
+        .toBe(`Bearer ${expectedToken}`);
+    } else {
+      expect(authHeader)
+        .toBeNull();
+    }
+  };
+}
+
+function successApiQueryResponse(): any {
+  return {
+    data: {
+      fakeGetter: {
+        someProperty: 'someValue',
+      },
+    },
+  };
+}
+
+function assertSuccessResponse(response: OperationResult) {
+  expect(response.error)
+    .toBeUndefined();
+  expect(response.data)
+    .toStrictEqual({
+      fakeGetter: {
+        someProperty: 'someValue',
+      },
+    });
+}
+
+function assertUnauthorizedResponse(response: OperationResult) {
+  expect(response.error)
+      .toBeDefined();
+    expect(response.error!.graphQLErrors)
+      .toHaveLength(1);
+    expect(response.error!.graphQLErrors[0].extensions?.errorType)
+      .toBe('NOT_AUTHORIZED');
 }

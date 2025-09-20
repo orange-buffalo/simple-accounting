@@ -13,13 +13,14 @@
     "lint": "bun run --bun eslint . --fix",
     "storybook": "storybook dev -p 6006 -c build-config/storybook",
     "build-storybook": "bun run typecheck-storybook && storybook build -c build-config/storybook -o build/storybook",
-    "codegen": "graphql-codegen"
+    "graphql-codegen": "graphql-codegen"
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",
     "@messageformat/core": "3.4.0",
     "@messageformat/parser": "5.1.1",
     "@popperjs/core": "^2.11.8",
+    "@urql/exchange-auth": "^3.0.0",
     "@urql/vue": "^2.0.0",
     "copy-to-clipboard": "3.3.3",
     "dompurify": "3.2.6",
