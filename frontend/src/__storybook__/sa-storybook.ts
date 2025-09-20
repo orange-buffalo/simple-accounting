@@ -14,7 +14,6 @@ export interface SaStoryParameters {
 }
 
 export function defineStory(storyComponent: () => SaStoryComponent, parameters?: SaStoryParameters) {
-  // eslint-disable-next-line
   const story: any = storyComponent;
   story.parameters = parameters;
   return story;

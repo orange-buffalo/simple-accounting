@@ -3,7 +3,6 @@ import {
 } from 'vue';
 import { FormItemContext } from 'element-plus';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type FormValues = Exclude<object, Function | null>; // not a primitive and not a function
 
 export type SaFormComponentsApi = {

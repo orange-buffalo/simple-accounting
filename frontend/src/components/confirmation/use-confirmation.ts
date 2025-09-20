@@ -9,7 +9,7 @@ export function useConfirmation(
   return async () => {
     try {
       await ElMessageBox.confirm(message, options);
-    } catch (e) {
+    } catch (_) {
       return;
     }
     await onConfirm();

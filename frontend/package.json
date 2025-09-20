@@ -10,7 +10,7 @@
     "test:unit:watch": "vitest",
     "typecheck": "bun run --bun vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "typecheck-storybook": "bun run --bun vue-tsc --noEmit -p tsconfig.storybook-config.json --composite false",
-    "lint": "bun run --bun eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "lint": "bun run --bun eslint . --fix",
     "storybook": "storybook dev -p 6006 -c build-config/storybook",
     "build-storybook": "bun run typecheck-storybook && storybook build -c build-config/storybook -o build/storybook",
     "codegen": "graphql-codegen"
@@ -37,6 +37,7 @@
     "vue-router": "4.5.1"
   },
   "devDependencies": {
+    "@eslint/js": "9.36.0",
     "@graphql-codegen/cli": "^6.0.0",
     "@graphql-codegen/client-preset": "^5.0.0",
     "@rushstack/eslint-patch": "1.12.0",
@@ -61,17 +62,21 @@
     "@types/node": "24.4.0",
     "@types/qs": "6.14.0",
     "@types/sinonjs__fake-timers": "8.1.5",
+    "@typescript-eslint/eslint-plugin": "8.44.0",
+    "@typescript-eslint/parser": "8.44.0",
     "@vitejs/plugin-vue": "6.0.1",
     "@vue/eslint-config-airbnb": "8.0.0",
     "@vue/eslint-config-typescript": "13.0.0",
     "@vue/test-utils": "2.4.6",
     "cldr-data": "36.0.4",
     "cldrjs": "0.5.5",
-    "eslint": "8.57.1",
+    "eslint": "9.36.0",
+    "eslint-plugin-import": "2.32.0",
     "eslint-plugin-storybook": "0.12.0",
     "eslint-plugin-vue": "9.33.0",
     "fetch-mock": "12.5.4",
     "flat": "6.0.1",
+    "globals": "16.4.0",
     "js-yaml": "4.1.0",
     "jsdom": "26.1.0",
     "rollup-plugin-visualizer": "6.0.3",
@@ -81,6 +86,7 @@
     "vite": "7.1.5",
     "vite-svg-loader": "5.1.0",
     "vitest": "3.2.4",
+    "vue-eslint-parser": "10.2.0",
     "vue-tsc": "3.0.6",
     "whatwg-fetch": "3.6.20"
   }
