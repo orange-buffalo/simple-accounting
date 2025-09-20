@@ -28,7 +28,7 @@
     "event-source-polyfill": "1.0.31",
     "globalize": "1.7.0",
     "graphql": "^16.11.0",
-    "imask": "6.6.3",
+    "imask": "7.6.1",
     "jwt-decode": "4.0.0",
     "lodash": "4.17.21",
     "marked": "16.3.0",
