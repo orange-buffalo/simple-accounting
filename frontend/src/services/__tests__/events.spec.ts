@@ -3,7 +3,7 @@ import {
 } from 'vitest';
 
 describe('an event', () => {
-   
+
   let loginRequiredEvent : any;
 
   beforeEach(async () => {

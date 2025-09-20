@@ -5,7 +5,7 @@ import { ApiAuthError, ApiRequestCancelledError } from '@/services/api/api-error
 
 export default function setupErrorHandler(app: App) {
   const { showErrorNotification } = useNotifications();
-   
+
   app.config.errorHandler = (err, vm, info) => {
     if (err instanceof ApiRequestCancelledError) {
       // Do not show notification for cancelled requests

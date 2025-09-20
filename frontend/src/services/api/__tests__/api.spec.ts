@@ -354,7 +354,7 @@ function safeGetCallOptions(filter?: CallHistoryFilter, options?: UserRouteConfi
   const callOptions = call.options;
   expect(callOptions)
     .toBeDefined();
-   
+
   return callOptions!;
 }
 

@@ -4,7 +4,7 @@ export function lookupClosestLocale(requestedLocale: string, availableLocales: s
     return requestedLocale;
   }
   const locales = ([] as string[]).concat([requestedLocale]);
-   
+
   for (let l = 0, ll = locales.length; l < ll; ++l) {
     const current = locales[l].split('-');
     while (current.length) {

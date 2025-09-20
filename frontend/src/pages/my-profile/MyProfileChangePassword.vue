@@ -92,7 +92,7 @@
     newPasswordConfirmation: '',
   });
 
-   
+
   const validateConfirmation = (_: any, value: any, callback: any) => {
     if (value !== passwordData.newPassword) {
       callback(new Error($t.value.myProfile.changePassword.validations.confirmationDoesNotMatch()));

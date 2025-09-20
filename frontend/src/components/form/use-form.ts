@@ -34,7 +34,7 @@ function useFormInternal(
     try {
       await form()
         .validate();
-    } catch (_e) {
+    } catch (_) {
       stopLoading();
       return;
     }

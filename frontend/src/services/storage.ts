@@ -31,7 +31,7 @@ class StorageAccessor<T> {
           if (storageValue.data) {
             this.value = storageValue.data;
           }
-        } catch (_e) {
+        } catch (_) {
           // no op
         }
       }
