@@ -10,6 +10,102 @@ updates:
     rebase-strategy: "disabled"
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      # Vue.js ecosystem dependencies
+      vue-ecosystem:
+        patterns:
+          - "vue"
+          - "vue-router"
+          - "@vue/*"
+          - "@vitejs/plugin-vue*"
+          - "vue-eslint-parser"
+          - "vue-tsc"
+      # Storybook related dependencies
+      storybook:
+        patterns:
+          - "@storybook/*"
+          - "storybook"
+      # TypeScript and ESLint related dependencies
+      typescript-eslint:
+        patterns:
+          - "typescript"
+          - "@typescript-eslint/*"
+          - "eslint*"
+          - "@eslint/*"
+          - "eslint-plugin-*"
+          - "@rushstack/eslint-patch"
+      # Testing related dependencies
+      testing:
+        patterns:
+          - "vitest"
+          - "jsdom"
+          - "@types/jsdom"
+          - "@sinonjs/fake-timers"
+          - "@types/sinonjs__fake-timers"
+          - "fetch-mock"
+          - "whatwg-fetch"
+      # GraphQL related dependencies
+      graphql:
+        patterns:
+          - "graphql"
+          - "@urql/*"
+          - "@graphql-codegen/*"
+      # Element Plus UI components
+      element-plus:
+        patterns:
+          - "element-plus"
+          - "@element-plus/*"
+          - "@popperjs/core"
+      # Build tools and Vite ecosystem
+      build-tools:
+        patterns:
+          - "vite*"
+          - "rollup-plugin-*"
+          - "sass"
+          - "vite-svg-loader"
+      # Type definitions (grouped separately as they're usually safe to update together)
+      types:
+        patterns:
+          - "@types/*"
+        exclude-patterns:
+          - "@types/jsdom"
+          - "@types/sinonjs__fake-timers"
+      # Utility libraries
+      utilities:
+        patterns:
+          - "lodash"
+          - "@types/lodash"
+          - "qs"
+          - "@types/qs"
+          - "jwt-decode"
+          - "copy-to-clipboard"
+          - "dompurify"
+          - "@types/dompurify"
+          - "dropzone"
+          - "@types/dropzone"
+          - "event-source-polyfill"
+          - "@types/event-source-polyfill"
+          - "imask"
+          - "marked"
+          - "@types/marked"
+      # Internationalization (i18n) dependencies
+      i18n:
+        patterns:
+          - "@messageformat/*"
+          - "globalize"
+          - "@types/globalize"
+          - "cldr-data"
+          - "cldrjs"
+          - "@types/cldrjs"
+          - "flat"
+          - "@types/flat"
+          - "js-yaml"
+          - "@types/js-yaml"
+      # Node.js and build configuration
+      node-build:
+        patterns:
+          - "@types/node"
+          - "globals"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -34,3 +130,63 @@ updates:
     ignore:
       # until JReleaser migrates to JGit 7x
       - dependency-name: "com.github.jmongard.git-semver-plugin"
+    groups:
+      # Spring Boot ecosystem
+      spring-boot:
+        patterns:
+          - "org.springframework.boot:spring-boot-*"
+          - "org.springframework:spring-*"
+          - "org.springframework.security:spring-security-*"
+          - "org.springframework.retry:spring-retry"
+      # Kotlin ecosystem
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlinx:*"
+          - "io.github.microutils:kotlin-logging"
+      # JOOQ database toolkit
+      jooq:
+        patterns:
+          - "org.jooq:*"
+      # GraphQL related dependencies
+      graphql-backend:
+        patterns:
+          - "com.expediagroup:graphql-kotlin-*"
+          - "com.netflix.graphql.dgs*:*"
+      # JWT dependencies
+      jwt:
+        patterns:
+          - "io.jsonwebtoken:jjwt-*"
+      # Ktor HTTP client
+      ktor:
+        patterns:
+          - "io.ktor:*"
+      # Testing framework dependencies
+      testing-backend:
+        patterns:
+          - "org.junit.jupiter:*"
+          - "org.mockito:*"
+          - "org.mockito.kotlin:*"
+          - "io.kotest:*"
+          - "io.orange-buffalo:kotest-*"
+          - "com.willowtreeapps.assertk:*"
+          - "org.awaitility:*"
+          - "org.testcontainers:*"
+          - "org.wiremock:*"
+          - "com.microsoft.playwright:*"
+          - "no.nav.security:mock-*"
+          - "net.javacrumbs.json-unit:*"
+          - "com.flipkart.zjsonpatch:*"
+      # Documentation and OpenAPI
+      documentation:
+        patterns:
+          - "org.springdoc:*"
+      # Build and deployment tools
+      build-deployment:
+        patterns:
+          - "org.flywaydb:*"
+          - "com.h2database:*"
+          - "org.glassfish:*"
+          - "com.google.guava:*"
+          - "org.yaml:*"
+          - "com.fasterxml.jackson*:*"
