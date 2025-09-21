@@ -7,15 +7,14 @@
         <span>&nbsp;</span>
 
         <!--suppress HtmlDeprecatedAttribute -->
-        <!-- TODO #459: translations -->
         <ElDatePicker
           v-model="selectedDateRange"
           type="daterange"
           align="right"
           unlink-panels
-          range-separator="To"
-          start-placeholder="Start date"
-          end-placeholder="End date"
+          :range-separator="$t.dashboard.dateRange.separator()"
+          :start-placeholder="$t.dashboard.dateRange.startPlaceholder()"
+          :end-placeholder="$t.dashboard.dateRange.endPlaceholder()"
         />
       </div>
     </div>

@@ -10,13 +10,12 @@
         :amountInCents="expenses.totalAmount"
       />
 
-      <!--      TODO #459: translations -->
-      <span class="sa-dashboard__card__header__finalized">Total of {{ expenses.finalizedCount }} expenses</span>
+      <span class="sa-dashboard__card__header__finalized">{{ $t.dashboard.cards.expenses.totalHeader(expenses.finalizedCount) }}</span>
 
       <span
         v-if="expenses.pendingCount"
         class="sa-dashboard__card__header__pending"
-      >Pending {{ expenses.pendingCount }} more</span>
+      >{{ $t.dashboard.cards.expenses.pendingHeader(expenses.pendingCount) }}</span>
       <span
         v-if="!expenses.pendingCount"
         class="sa-dashboard__card__header__pending"
@@ -49,6 +48,7 @@
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
+  import { $t } from '@/services/i18n';
 
   const props = defineProps<{
     fromDate: Date,

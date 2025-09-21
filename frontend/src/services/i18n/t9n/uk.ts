@@ -92,6 +92,39 @@ export default {
 
   dashboard: {
     header: () => 'Кокпіт',
+    dateRange: {
+      separator: () => 'До',
+      startPlaceholder: () => 'Дата початку',
+      endPlaceholder: () => 'Дата закінчення',
+    },
+    cards: {
+      expenses: {
+        totalHeader: (count: number) => format('Усього {0, number} витрат', [count]),
+        pendingHeader: (count: number) => format('В очікуванні ще {0, number}', [count]),
+      },
+      incomes: {
+        totalHeader: (count: number) => format('Усього {0, number} доходів', [count]),
+        pendingHeader: (count: number) => format('В очікуванні ще {0, number}', [count]),
+      },
+      profit: {
+        taxableAmount: () => 'Оподатковувана Сума',
+        currencyExchangeDifference: () => 'Різниця валютного курсу',
+        incomeTaxPayments: () => 'Виплати Податку на Прибуток',
+        estimatedTax: () => 'Розрахунковий Податок',
+        estimatedTaxPlaceholder: () => 'незабаром..',
+        profit: () => 'Прибуток',
+      },
+      invoice: {
+        to: () => 'Кому',
+        issueDate: () => 'Дата Випуску',
+        dateSent: () => 'Дата Відправки',
+        dueDate: () => 'Дата Сплати',
+        status: {
+          overdue: () => 'Прострочено',
+          pending: () => 'В очікуванні',
+        },
+      },
+    },
   },
 
   editExpense: {
@@ -924,5 +957,54 @@ export default {
     defaultCurrencyLabel: () => 'Основна (за замовчуванням) валюта',
     defaultCurrencyPlaceholder: () => 'Вкажіть основну валюту цього робочого простору',
     submitButton: () => 'Завершити налаштування',
+  },
+
+  reporting: {
+    header: () => 'Звітність',
+    wizard: {
+      steps: {
+        selectReport: {
+          title: () => 'Оберіть звіт',
+          description: {
+            select: () => 'Будь ласка, оберіть звіт',
+            selected: () => 'Податковий Звіт',
+            unknown: () => 'Невідомий Звіт o_O',
+          },
+        },
+        selectDates: {
+          title: () => 'Оберіть дати звітності',
+          description: {
+            select: () => 'Будь ласка, оберіть період звітності',
+            selected: (fromDate: string, toDate: string) => format('{0} до {1}', [fromDate, toDate]),
+          },
+        },
+        viewReport: {
+          title: () => 'Переглянути звіт',
+          description: {
+            loading: () => 'Завантаження..',
+            ready: () => 'Готово',
+          },
+        },
+      },
+      reports: {
+        generalTax: {
+          title: () => 'Звіт Загального Податку',
+          description: () => 'Зібрані та сплачені загальні податки',
+        },
+      },
+      dateRange: {
+        separator: () => 'До',
+        startPlaceholder: () => 'Дата початку',
+        endPlaceholder: () => 'Дата закінчення',
+      },
+      buttons: {
+        select: () => 'Обрати',
+        next: () => 'Далі',
+      },
+    },
+  },
+
+  saPageableItems: {
+    emptyResults: () => 'Тут немає результатів',
   },
 };
