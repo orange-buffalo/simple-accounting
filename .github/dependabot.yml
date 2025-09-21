@@ -25,23 +25,35 @@ updates:
         patterns:
           - "@storybook/*"
           - "storybook"
-      # TypeScript and ESLint related dependencies
-      typescript-eslint:
+      # TypeScript related dependencies
+      typescript:
         patterns:
           - "typescript"
           - "@typescript-eslint/*"
+      # ESLint related dependencies
+      eslint:
+        patterns:
           - "eslint*"
           - "@eslint/*"
           - "eslint-plugin-*"
           - "@rushstack/eslint-patch"
-      # Testing related dependencies
-      testing:
+      # Vitest testing framework
+      vitest:
         patterns:
           - "vitest"
+      # jsdom DOM simulation
+      jsdom:
+        patterns:
           - "jsdom"
           - "@types/jsdom"
+      # SinonJS testing utilities
+      sinonjs:
+        patterns:
           - "@sinonjs/fake-timers"
           - "@types/sinonjs__fake-timers"
+      # Fetch polyfills and mocking
+      fetch-utilities:
+        patterns:
           - "fetch-mock"
           - "whatwg-fetch"
       # GraphQL related dependencies
