@@ -1008,4 +1008,35 @@ export default {
   saPageableItems: {
     emptyResults: () => 'No results here',
   },
+
+  customersOverview: {
+    header: () => 'Customers',
+    filters: {
+      announcement: () => 'Filters coming soon',
+    },
+    create: () => 'Add new',
+    edit: () => 'Edit',
+  },
+
+  generalTaxReport: {
+    emptyData: () => 'No data to show',
+    columns: {
+      tax: () => 'Tax',
+      taxableIncome: () => 'Taxable Income',
+      taxCollected: () => 'Tax Collected',
+      taxPaid: () => 'Tax Paid',
+      balance: () => 'Balance',
+    },
+    sections: {
+      collected: () => 'Collected',
+      paid: () => 'Paid',
+      total: () => 'Total',
+    },
+    tableColumns: {
+      tax: () => 'Tax',
+      numberOfItems: () => 'Number of Items',
+      itemsAmount: () => 'Items Amount',
+      taxAmount: () => 'Tax Amount',
+    },
+  },
 };

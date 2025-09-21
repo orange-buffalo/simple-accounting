@@ -1,12 +1,11 @@
 <template>
-  <!--  TODO #459: translations-->
   <div>
     <div class="sa-page-header">
-      <h1>Customers</h1>
+      <h1>{{ $t.customersOverview.header() }}</h1>
 
       <div class="sa-header-options">
         <div>
-          <span>Filters coming soon</span>
+          <span>{{ $t.customersOverview.filters.announcement() }}</span>
         </div>
 
         <ElButton
@@ -14,7 +13,7 @@
           @click="navigateToCreateCustomerView"
         >
           <SaIcon icon="plus-thin" />
-          Add new
+          {{ $t.customersOverview.create() }}
         </ElButton>
       </div>
     </div>
@@ -36,6 +35,7 @@
   import CustomersOverviewPanel from '@/pages/settings/customers/CustomersOverviewPanel.vue';
   import type { ApiPageRequest, CustomerDto } from '@/services/api';
   import { customersApi } from '@/services/api';
+  import { $t } from '@/services/i18n';
 
   const { navigateByViewName } = useNavigation();
   const navigateToCreateCustomerView = () => navigateByViewName('create-new-customer');

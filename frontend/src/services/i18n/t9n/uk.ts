@@ -1007,4 +1007,35 @@ export default {
   saPageableItems: {
     emptyResults: () => 'Тут немає результатів',
   },
+
+  customersOverview: {
+    header: () => 'Клієнти',
+    filters: {
+      announcement: () => 'Фільтри незабаром',
+    },
+    create: () => 'Додати новий',
+    edit: () => 'Редагувати',
+  },
+
+  generalTaxReport: {
+    emptyData: () => 'Немає даних для відображення',
+    columns: {
+      tax: () => 'Податок',
+      taxableIncome: () => 'Оподатковуваний Дохід',
+      taxCollected: () => 'Зібрано Податку',
+      taxPaid: () => 'Сплачено Податку',
+      balance: () => 'Баланс',
+    },
+    sections: {
+      collected: () => 'Зібрано',
+      paid: () => 'Сплачено',
+      total: () => 'Усього',
+    },
+    tableColumns: {
+      tax: () => 'Податок',
+      numberOfItems: () => 'Кількість Елементів',
+      itemsAmount: () => 'Сума Елементів',
+      taxAmount: () => 'Сума Податку',
+    },
+  },
 };
