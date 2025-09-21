@@ -10,6 +10,41 @@ updates:
     rebase-strategy: "disabled"
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      # Vue.js ecosystem (same organization/team)
+      vue:
+        patterns:
+          - "vue"
+          - "vue-router"
+          - "@vue/*"
+          - "vue-eslint-parser"
+          - "vue-tsc"
+      # Storybook ecosystem (same organization)
+      storybook:
+        patterns:
+          - "@storybook/*"
+          - "storybook"
+      # TypeScript ESLint project (same project/team)
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+      # GraphQL Code Generator project (same organization)
+      graphql-codegen:
+        patterns:
+          - "@graphql-codegen/*"
+      # MessageFormat organization
+      messageformat:
+        patterns:
+          - "@messageformat/*"
+      # Element Plus organization
+      element-plus:
+        patterns:
+          - "element-plus"
+          - "@element-plus/*"
+      # URQL GraphQL client (same organization)
+      urql:
+        patterns:
+          - "@urql/*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -34,3 +69,54 @@ updates:
     ignore:
       # until JReleaser migrates to JGit 7x
       - dependency-name: "com.github.jmongard.git-semver-plugin"
+    groups:
+      # Spring Boot ecosystem (same organization)
+      spring:
+        patterns:
+          - "org.springframework.boot:*"
+          - "org.springframework:*"
+          - "org.springframework.security:*"
+          - "org.springframework.retry:*"
+      # JetBrains Kotlin ecosystem
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlinx:*"
+      # JOOQ organization
+      jooq:
+        patterns:
+          - "org.jooq:*"
+      # Expedia Group GraphQL Kotlin
+      graphql-kotlin:
+        patterns:
+          - "com.expediagroup:graphql-kotlin-*"
+      # Netflix DGS
+      dgs:
+        patterns:
+          - "com.netflix.graphql.dgs*:*"
+      # JSON Web Token (same project)
+      jjwt:
+        patterns:
+          - "io.jsonwebtoken:jjwt-*"
+      # JetBrains Ktor
+      ktor:
+        patterns:
+          - "io.ktor:*"
+      # JUnit organization
+      junit:
+        patterns:
+          - "org.junit.jupiter:*"
+      # Mockito organization
+      mockito:
+        patterns:
+          - "org.mockito:*"
+          - "org.mockito.kotlin:*"
+      # Kotest organization
+      kotest:
+        patterns:
+          - "io.kotest:*"
+          - "io.orange-buffalo:kotest-*"
+      # TestContainers organization
+      testcontainers:
+        patterns:
+          - "org.testcontainers:*"
