@@ -7,6 +7,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Checkbox.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 
 class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
 
@@ -14,6 +15,7 @@ class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
     val passwordInput = components.textInputByPlaceholder("Password")
     val loginButton = components.buttonByText("Login")
     val rememberMeCheckbox = components.checkboxByOwnLabel("Remember me for 30 days")
+    val errorMessage = page.locator(".login-page__login-error")
 
     fun loginAs(user: PlatformUser) {
         loginInput.fill(user.userName)
@@ -25,6 +27,16 @@ class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
         loginInput.shouldBeVisible()
         passwordInput.shouldBeVisible()
         loginButton.shouldBeVisible()
+        return this
+    }
+
+    fun shouldHaveErrorMessage(expectedMessage: String): LoginPage {
+        errorMessage.shouldHaveText(expectedMessage)
+        return this
+    }
+
+    fun shouldHaveNoErrorMessage(): LoginPage {
+        errorMessage.shouldHaveText("")
         return this
     }
 }
