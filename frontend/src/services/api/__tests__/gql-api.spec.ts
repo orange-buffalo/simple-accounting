@@ -79,6 +79,25 @@ describe('GraphQL API Client', () => {
     assertAuthHasToken(NEW_TOKEN);
   });
 
+  test('mutation: smoke test for success path', async () => {
+    mockRequest(refreshTokenAssertions(), refreshTokenResponse(TOKEN));
+    mockRequest(apiMutationAssertions(TOKEN), successApiMutationResponse());
+
+    const response = await executeApiMutation();
+
+    assertSuccessMutationResponse(response);
+    assertAuthHasToken(TOKEN);
+  });
+
+  test('mutation: smoke test for exception case', async () => {
+    mockRequest(refreshTokenAssertions(), refreshTokenResponse(null));
+    mockRequest(apiMutationAssertions(null), unauthorizedApiQueryResponse());
+
+    await expectToFailWith<ApiAuthError>(async () => {
+      await executeApiMutation();
+    }, 'ApiAuthError');
+  });
+
   test('executes the initial request even if refresh token returns no token', async () => {
     await setApiToken(null);
 
@@ -202,6 +221,17 @@ describe('GraphQL API Client', () => {
     `, {});
   }
 
+  async function executeApiMutation() {
+    return await gqlClient
+      .mutation(`
+      mutation {
+        fakeMutation {
+          success
+        }
+      }
+    `, {});
+  }
+
   function mockRequest(requestAssertions: MockedRequestAssertions, responseBody: any) {
     mockedRequests.push({
       requestAssertions,
@@ -252,28 +282,10 @@ function unauthorizedApiQueryResponse(): any {
 }
 
 function apiQueryAssertions(expectedToken: string | null): MockedRequestAssertions {
-  return (options) => {
-    expect(options.body)
-      .toBeTypeOf('string');
-    const body = JSON.parse(options.body as string);
-    expect(body)
-      .toEqual(
-        {
-          query: '{\n  fakeGetter {\n    someProperty\n  }\n}',
-          'variables': {},
-        });
-
-    expect(options.headers)
-      .toBeDefined();
-    const authHeader = new Headers(options.headers).get('Authorization');
-    if (expectedToken) {
-      expect(authHeader)
-        .toBe(`Bearer ${expectedToken}`);
-    } else {
-      expect(authHeader)
-        .toBeNull();
-    }
-  };
+  return apiRequestAssertions(expectedToken, {
+    query: '{\n  fakeGetter {\n    someProperty\n  }\n}',
+    'variables': {},
+  });
 }
 
 function successApiQueryResponse(): any {
@@ -291,6 +303,53 @@ function assertSuccessResponse(response: any) {
     .toStrictEqual({
       fakeGetter: {
         someProperty: 'someValue',
+      },
+    });
+}
+
+function apiMutationAssertions(expectedToken: string | null): MockedRequestAssertions {
+  return apiRequestAssertions(expectedToken, {
+    query: 'mutation {\n  fakeMutation {\n    success\n  }\n}',
+    variables: {},
+  });
+}
+
+function apiRequestAssertions(expectedToken: string | null, expectedBody: any): MockedRequestAssertions {
+  return (options) => {
+    expect(options.body)
+      .toBeTypeOf('string');
+    const body = JSON.parse(options.body as string);
+    expect(body)
+      .toEqual(expectedBody);
+
+    expect(options.headers)
+      .toBeDefined();
+    const authHeader = new Headers(options.headers).get('Authorization');
+    if (expectedToken) {
+      expect(authHeader)
+        .toBe(`Bearer ${expectedToken}`);
+    } else {
+      expect(authHeader)
+        .toBeNull();
+    }
+  };
+}
+
+function successApiMutationResponse(): any {
+  return {
+    data: {
+      fakeMutation: {
+        success: true,
+      },
+    },
+  };
+}
+
+function assertSuccessMutationResponse(response: any) {
+  expect(response)
+    .toStrictEqual({
+      fakeMutation: {
+        success: true,
       },
     });
 }
