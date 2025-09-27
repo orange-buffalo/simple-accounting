@@ -224,7 +224,7 @@
   import SaActionLink from '@/components/SaActionLink.vue';
   import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
   import useNavigation from '@/services/use-navigation';
@@ -282,7 +282,7 @@
     isOverdue?: boolean,
     statusIcon?: string,
     // TODO #461: export type from status label
-    statusValue: 'success' | 'pending' | 'regular' | 'failure',
+    statusValue: StatusLabelStatus,
     statusText?: string
   }>(() => {
     switch (props.invoice.status) {
