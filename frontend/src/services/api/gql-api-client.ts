@@ -1,11 +1,10 @@
-import { Client, fetchExchange, provideClient } from '@urql/vue';
+import { AnyVariables, Client, fetchExchange, DocumentInput, OperationContext, OperationResult } from '@urql/core';
 
-import type { Exchange } from '@urql/core';
-import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT } from '@/services/events';
 import { graphql } from '@/services/api/gql';
 import { updateApiToken, useAuth } from '@/services/api/auth.ts';
 import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
+import { ApiAuthError, ApiError, ClientApiError } from '@/services/api/api-errors.ts';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
     mutation refreshAccessToken {
@@ -15,19 +14,10 @@ const refreshTokenMutation = graphql(/* GraphQL */ `
     }
 `);
 
-const loadingEventsExchange: Exchange = ({ forward }) => (operations$) => {
-  LOADING_STARTED_EVENT.emit();
-  try {
-    return forward(operations$);
-  } finally {
-    LOADING_FINISHED_EVENT.emit();
-  }
-};
-
 const getJwtToken = () => {
-    const { getToken } = useAuth();
-    return getToken();
-}
+  const { getToken } = useAuth();
+  return getToken();
+};
 
 const jwtAuthExchange = authExchange(async utils => {
   // noinspection JSUnusedGlobalSymbols
@@ -70,9 +60,9 @@ const jwtAuthExchange = authExchange(async utils => {
   };
 });
 
-export const gqlClient = new Client({
+const gqlNativeClient = new Client({
   url: '/api/graphql',
-  exchanges: [loadingEventsExchange, jwtAuthExchange, fetchExchange],
+  exchanges: [jwtAuthExchange, fetchExchange],
   fetchOptions: {
     // to enable refresh token cookie
     credentials: 'include',
@@ -82,6 +72,54 @@ export const gqlClient = new Client({
   requestPolicy: 'network-only',
 });
 
-export function setupGqlClient() {
-  provideClient(gqlClient);
+export interface GrapQlClient {
+  query<Data = any, Variables extends AnyVariables = AnyVariables>(
+    query: DocumentInput<Data, Variables>,
+    variables: Variables,
+    context?: Partial<OperationContext>,
+  ): Promise<Data>;
+
+  mutation<Data = any, Variables extends AnyVariables = AnyVariables>(
+    query: DocumentInput<Data, Variables>,
+    variables: Variables,
+    context?: Partial<OperationContext>,
+  ): Promise<Data>;
 }
+
+async function executeGqlRequestAndHandleErrors<Data>(
+  operation: () => Promise<OperationResult<Data>>,
+): Promise<Data> {
+  const result = await operation();
+  if (result.error) {
+    if (result.error.networkError) {
+      throw new ClientApiError(`Network error`, result.error.networkError);
+    }
+    if (result.error.graphQLErrors.length > 1) {
+      throw new ApiError(
+        `Multiple errors received, which is not supported: ${JSON.stringify(result.error.graphQLErrors)}`);
+    }
+    if (result.error.graphQLErrors.length === 0) {
+      throw new ApiError('Unknown error');
+    }
+    const graphQLError = result.error.graphQLErrors[0];
+    if (graphQLError.extensions?.errorType === 'NOT_AUTHORIZED') {
+      throw new ApiAuthError();
+    }
+
+    throw new ApiError(
+      `Unsupported error received: ${JSON.stringify(graphQLError)}`);
+  }
+  return result.data;
+}
+
+export const gqlClient: GrapQlClient = {
+  async query(query, variables, context) {
+    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.query(query, variables, context)
+      .toPromise());
+  },
+
+  async mutation(query, variables, context) {
+    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.mutation(query, variables, context)
+      .toPromise());
+  },
+};

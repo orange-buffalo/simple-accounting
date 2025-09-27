@@ -31,12 +31,12 @@ export class ClientApiError extends ApiError {
  * Indicates an error that occurred on the server side, when the response is available.
  */
 export class ServerApiError extends ApiError {
-  response: Response;
+  response?: Response;
 
   constructor(message: string, response: Response) {
     super(message);
     this.name = 'ServerApiError';
-    this.response = response.clone();
+    this.response = response?.clone();
   }
 }
 
@@ -114,7 +114,7 @@ export class ApiRequestCancelledError extends ApiError {
  * Indicates that authentication is required for the API.
  */
 export class ApiAuthError extends ServerApiError {
-  constructor(response: Response) {
+  constructor(response?: Response) {
     super('Authentication is required', response);
     this.name = 'ApiAuthError';
   }
