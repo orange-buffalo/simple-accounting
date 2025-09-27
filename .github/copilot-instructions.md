@@ -434,3 +434,26 @@ assertExternalServiceRequests(expectedRequest1, expectedRequest2)
 2. We prefer single-line commit messages with a reference to the issue at the end, e.g.
   `fix: Correct calculation of tax amounts (#123)`.
 3. As we squash pull requests when merging, the title of the pull request should also follow the same convention.
+
+
+# Internationalization (i18n)
+
+The frontend uses a custom i18n framework for user-facing text translations.
+
+## Translation Framework
+- **Location**: `frontend/src/services/i18n/`
+- **Languages**: English (`en.ts`) and Ukrainian (`uk.ts`)
+- **Usage**: Import `$t` from `@/services/i18n` and use function-based translations
+
+## Translation File Structure
+- Translation files are located in `frontend/src/services/i18n/t9n/`. Always add translations for all supported languages.
+- Structure follows logical page/component hierarchy
+- Each translation is a function that returns a string
+- Functions can accept parameters for dynamic content
+
+## Formatting Guidelines
+- Use `format()` function for dynamic content with ICU MessageFormat syntax
+- Numbers: `{0, number}` for basic numbers, `{0, number, percent}` for percentages
+- Dates: `{0, date, medium}` for dates
+- File sizes: `{0, fileSize, pretty}` for file sizes
+- Currency: Use existing `amount.withCurrency` formatter
