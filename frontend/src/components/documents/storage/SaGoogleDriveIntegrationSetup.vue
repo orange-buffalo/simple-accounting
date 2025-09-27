@@ -138,7 +138,6 @@
   loadIntegrationStatus();
 
   const uiState = computed(() => {
-    // TODO use type from status label
     let statusType: StatusLabelStatus = 'regular';
     let statusText = null;
     let statusCustomIcon;

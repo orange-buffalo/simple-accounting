@@ -290,7 +290,6 @@
 
   type IncomeStatus = {
     isSuccess: boolean,
-    // TODO #461: use StatusLabel type
     value: StatusLabelStatus,
     shortText: string,
     fullText: string

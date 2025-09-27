@@ -281,7 +281,6 @@
     isSent?: boolean,
     isOverdue?: boolean,
     statusIcon?: string,
-    // TODO #461: export type from status label
     statusValue: StatusLabelStatus,
     statusText?: string
   }>(() => {
