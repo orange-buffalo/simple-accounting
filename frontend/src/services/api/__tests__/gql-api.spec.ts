@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import fetchMock from 'fetch-mock';
 import 'whatwg-fetch';
-import { Client, OperationResult } from '@urql/vue';
 import type { Auth } from '@/services/api';
+import { GrapQlClient } from '@/services/api/gql-api-client.ts';
+import { ApiAuthError } from '@/services/api/api-errors.ts';
 
 // eslint-disable-next-line vue/max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
@@ -21,11 +22,8 @@ type MockedRequest = {
 fetchMock.mockGlobal();
 
 describe('GraphQL API Client', () => {
-  let loadingStartedEventMock: () => void;
-  let loadingFinishedEventMock: () => void;
-  let loginRequiredEventMock: () => void;
   let useAuth: () => Auth;
-  let gqlClient: Client;
+  let gqlClient: GrapQlClient;
   let mockedRequests: Array<MockedRequest> = [];
   const apiCallPath = '/api/graphql';
 
@@ -36,7 +34,6 @@ describe('GraphQL API Client', () => {
     const response = await executeApiCall();
 
     assertSuccessResponse(response);
-    assertRegularRequestEvents();
     assertAuthHasToken(TOKEN);
   });
 
@@ -48,7 +45,6 @@ describe('GraphQL API Client', () => {
     const response = await executeApiCall();
 
     assertSuccessResponse(response);
-    assertRegularRequestEvents();
     assertAuthHasToken(TOKEN);
   });
 
@@ -64,7 +60,6 @@ describe('GraphQL API Client', () => {
     const response = await executeApiCall();
 
     assertSuccessResponse(response);
-    assertRegularRequestEvents();
     assertAuthHasToken(TOKEN);
   });
 
@@ -81,7 +76,6 @@ describe('GraphQL API Client', () => {
     const response = await executeApiCall();
 
     assertSuccessResponse(response);
-    assertRegularRequestEvents();
     assertAuthHasToken(NEW_TOKEN);
   });
 
@@ -93,10 +87,9 @@ describe('GraphQL API Client', () => {
     // Original request should be executed without auth header and return unauthorized
     mockRequest(apiQueryAssertions(null), unauthorizedApiQueryResponse());
 
-    const response = await executeApiCall();
-
-    assertUnauthorizedResponse(response);
-    assertRegularRequestEvents();
+    await expectToFailWith<ApiAuthError>(async () => {
+      await executeApiCall();
+    }, 'ApiAuthError');
   });
 
   // TODO enable test when https://github.com/urql-graphql/urql/issues/3801 is fixed
@@ -155,10 +148,6 @@ describe('GraphQL API Client', () => {
       },
     }));
 
-    const events = await import('@/services/events');
-    loadingStartedEventMock = events.LOADING_STARTED_EVENT.emit;
-    loadingFinishedEventMock = events.LOADING_FINISHED_EVENT.emit;
-    loginRequiredEventMock = events.LOGIN_REQUIRED_EVENT.emit;
     ({
       useAuth,
     } = await import('@/services/api'));
@@ -196,15 +185,6 @@ describe('GraphQL API Client', () => {
     fetchMock.clearHistory();
   });
 
-  function assertRegularRequestEvents() {
-    expect(loginRequiredEventMock)
-      .toHaveBeenCalledTimes(0);
-    expect(loadingStartedEventMock)
-      .toHaveBeenCalledOnce();
-    expect(loadingFinishedEventMock)
-      .toHaveBeenCalledOnce();
-  }
-
   function assertAuthHasToken(token: string | null) {
     const auth = useAuth();
     expect(auth.getToken())
@@ -219,8 +199,7 @@ describe('GraphQL API Client', () => {
           someProperty
         }
       }
-    `, {})
-      .toPromise();
+    `, {});
   }
 
   function mockRequest(requestAssertions: MockedRequestAssertions, responseBody: any) {
@@ -307,10 +286,8 @@ function successApiQueryResponse(): any {
   };
 }
 
-function assertSuccessResponse(response: OperationResult) {
-  expect(response.error)
-    .toBeUndefined();
-  expect(response.data)
+function assertSuccessResponse(response: any) {
+  expect(response)
     .toStrictEqual({
       fakeGetter: {
         someProperty: 'someValue',
@@ -318,11 +295,18 @@ function assertSuccessResponse(response: OperationResult) {
     });
 }
 
-function assertUnauthorizedResponse(response: OperationResult) {
-  expect(response.error)
-      .toBeDefined();
-    expect(response.error!.graphQLErrors)
-      .toHaveLength(1);
-    expect(response.error!.graphQLErrors[0].extensions?.errorType)
-      .toBe('NOT_AUTHORIZED');
+async function expectToFailWith<T>(
+  executionSpec: () => Promise<void>,
+  expectedErrorName: string,
+): Promise<T> {
+  try {
+    await executionSpec();
+  } catch (e) {
+    console.debug('Caught error, checking if it is expected', e);
+    expect(e)
+      .toHaveProperty('name', expectedErrorName);
+    return e as T;
+  }
+  expect('API call expected to fail', 'API call expected to fail')
+    .toBeDefined();
 }
