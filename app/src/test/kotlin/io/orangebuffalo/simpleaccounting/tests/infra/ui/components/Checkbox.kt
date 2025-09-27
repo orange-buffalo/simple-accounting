@@ -8,6 +8,8 @@ class Checkbox<P : Any> private constructor(
     parent: P,
 ) : UiComponent<P, Checkbox<P>>(parent) {
     fun shouldBeChecked() = locator.shouldBeChecked()
+    fun uncheck() = locator.uncheck()
+    fun check() = locator.check()
 
     companion object {
         fun <T : SaPageBase<T>> ComponentsAccessors<T>.checkboxByOwnLabel(label: String) =
