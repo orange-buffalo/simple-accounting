@@ -1,11 +1,13 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.shared
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThan
-import assertk.assertions.isNotNull
-import assertk.assertions.isNull
 import com.microsoft.playwright.Page
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.comparables.shouldBeLessThan
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
@@ -21,6 +23,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.support.TransactionTemplate
 import java.time.Instant
+import java.time.Duration
 
 private val MOCK_TIME = Instant.ofEpochMilli(424242)
 
@@ -48,18 +51,24 @@ class LoginFullStackTest(
             }
         page.shouldBeDashboardPage()
 
-        // Verify remember me cookie was set
+        // Verify remember me cookie was set with proper security attributes and expiration
         val cookies = page.context().cookies()
         val refreshCookie = cookies.find { it.name == "refreshToken" }
-        assertThat(refreshCookie).isNotNull()
-        assertThat(refreshCookie!!.value).isNotNull()
-        assertThat(refreshCookie.httpOnly).isEqualTo(true)
-        assertThat(refreshCookie.path).isEqualTo("/api/auth/token")
+        refreshCookie.shouldNotBeNull()
+        refreshCookie.value.shouldNotBeNull()
+        refreshCookie.httpOnly.shouldBe(true)
+        refreshCookie.path.shouldBe("/api/auth/token")
+        
+        // Verify cookie expiration time is set to 30 days from now (with some tolerance)
+        val expectedExpiry = (System.currentTimeMillis() / 1000) + Duration.ofDays(30).seconds
+        val actualExpiry = refreshCookie.expires
+        val toleranceInSeconds = 60.0 // Allow 60 seconds tolerance
+        Math.abs(actualExpiry - expectedExpiry).shouldBeLessThan(toleranceInSeconds)
 
         // Verify login statistics were reset
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(0)
-            assertThat(temporaryLockExpirationTime).isNull()
+            failedAttemptsCount.shouldBe(0)
+            temporaryLockExpirationTime.shouldBeNull()
         }
     }
 
@@ -88,14 +97,17 @@ class LoginFullStackTest(
             .passwordInput { fill("wrongpassword") }
             .loginButton { click() }
 
-        // Wait and verify we're still on login page (indicates failure)
-        page.waitForTimeout(3000.0)
+        // Verify we stay on login page (indicates failure) and error element exists  
         page.shouldBeLoginPage()
+        
+        // Verify error message element is visible (content may be populated async)
+        val errorElement = page.locator(".login-page__login-error")
+        errorElement.shouldBeVisible()
 
         // Verify login statistics were updated
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(1)
-            assertThat(temporaryLockExpirationTime).isNull()
+            failedAttemptsCount.shouldBe(1)
+            temporaryLockExpirationTime.shouldBeNull()
         }
     }
 
@@ -115,14 +127,18 @@ class LoginFullStackTest(
             .passwordInput { fill("wrongpassword") }
             .loginButton { click() }
 
-        // Verify we stay on login page (indicates login failed)
-        page.waitForTimeout(3000.0)
+        // Verify we stay on login page (indicates login failed) and error element shows
         page.shouldBeLoginPage()
+        
+        // Verify error message element is visible indicating lock
+        val errorElement = page.locator(".login-page__login-error")
+        errorElement.shouldBeVisible()
 
-        // Verify account is now locked with updated statistics
+        // Verify account is now locked with updated statistics - exact time based on mock time
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(6)
-            assertThat(temporaryLockExpirationTime).isNotNull()
+            failedAttemptsCount.shouldBe(6)
+            temporaryLockExpirationTime.shouldNotBeNull()
+            temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(60)) // 1 minute lock for 6th attempt
         }
     }
 
@@ -143,8 +159,8 @@ class LoginFullStackTest(
 
         // Verify login statistics were reset
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(0)
-            assertThat(temporaryLockExpirationTime).isNull()
+            failedAttemptsCount.shouldBe(0)
+            temporaryLockExpirationTime.shouldBeNull()
         }
     }
 
@@ -161,14 +177,17 @@ class LoginFullStackTest(
             .passwordInput { fill(preconditions.fry.passwordHash) } // Even correct password should fail
             .loginButton { click() }
 
-        // Verify we stay on login page (locked out)
-        page.waitForTimeout(3000.0)
+        // Verify we stay on login page (locked out) and error element shows
         page.shouldBeLoginPage()
+        
+        // Verify error message element is visible indicating active lock
+        val errorElement = page.locator(".login-page__login-error")
+        errorElement.shouldBeVisible()
 
         // Verify lock is still in place (no additional attempts recorded)
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(6)
-            assertThat(temporaryLockExpirationTime).isEqualTo(MOCK_TIME.plusSeconds(300))
+            failedAttemptsCount.shouldBe(6)
+            temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(300))
         }
     }
 
@@ -188,17 +207,19 @@ class LoginFullStackTest(
             .passwordInput { fill("wrongpassword") }
             .loginButton { click() }
 
-        // Verify we stay on login page
-        page.waitForTimeout(3000.0)
+        // Verify we stay on login page (locked) and error element shows
         page.shouldBeLoginPage()
+        
+        // Verify error message element is visible indicating progressive lock
+        val errorElement = page.locator(".login-page__login-error")
+        errorElement.shouldBeVisible()
 
         // Verify login statistics show progressive locking
         assertFryLoginStatistics {
-            assertThat(failedAttemptsCount).isEqualTo(8)
-            assertThat(temporaryLockExpirationTime).isNotNull()
-            // The lock time should be longer than the initial 60 seconds due to progressive increase
-            val lockDurationMs = temporaryLockExpirationTime!!.toEpochMilli() - MOCK_TIME.toEpochMilli()
-            assertThat(lockDurationMs).isGreaterThan(60000L) // More than 1 minute
+            failedAttemptsCount.shouldBe(8)
+            temporaryLockExpirationTime.shouldNotBeNull()
+            // The lock time should be progressively longer - 8th attempt gets 2 minutes 15 seconds (135 seconds)
+            temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(135))
         }
     }
 

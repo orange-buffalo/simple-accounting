@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 
 class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
 
@@ -36,7 +37,7 @@ class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
     }
 
     fun shouldHaveNoErrorMessage(): LoginPage {
-        errorMessage.shouldHaveText("")
+        errorMessage.shouldBeHidden()
         return this
     }
 }
