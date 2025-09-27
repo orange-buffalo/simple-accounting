@@ -26,3 +26,7 @@ runs:
         gradle-version: wrapper
         # disable reading from cache on re-runs to fix possible caching issues
         cache-write-only: ${{ fromJSON(github.run_attempt) != 1 }}
+
+    - name: "Setup Playwright"
+      run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
+      shell: bash
