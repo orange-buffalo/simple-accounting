@@ -13,9 +13,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Setup Project Environment"
-        uses: ./.github/actions/setup-project-environment
-
       - name: Setup Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
         with:
@@ -23,8 +20,8 @@ jobs:
           proc_trace_chart_show: false
           theme: dark
 
-      - name: "Setup Playwright"
-        run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
+      - name: "Setup Project Environment"
+        uses: ./.github/actions/setup-project-environment
 
       - name: "Build"
         env:

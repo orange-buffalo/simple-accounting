@@ -76,7 +76,7 @@
   import {
     computed, onMounted, onUnmounted, ref,
   } from 'vue';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import SaI18n from '@/components/SaI18n.vue';
   import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '@/services/push-notifications';
@@ -138,8 +138,7 @@
   loadIntegrationStatus();
 
   const uiState = computed(() => {
-    // TODO use type from status label
-    let statusType: 'success' | 'pending' | 'regular' | 'failure' = 'regular';
+    let statusType: StatusLabelStatus = 'regular';
     let statusText = null;
     let statusCustomIcon;
     let iconName = null;

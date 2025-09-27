@@ -270,7 +270,7 @@
   import SaActionLink from '@/components/SaActionLink.vue';
   import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
   import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
   import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
   import { $t } from '@/services/i18n';
@@ -290,8 +290,7 @@
 
   type IncomeStatus = {
     isSuccess: boolean,
-    // TODO #461: use StatusLabel type
-    value: 'success' | 'pending' | 'regular' | 'failure',
+    value: StatusLabelStatus,
     shortText: string,
     fullText: string
   }

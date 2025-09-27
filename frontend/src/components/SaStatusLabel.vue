@@ -16,7 +16,7 @@
   import { computed } from 'vue';
   import SaIcon from '@/components/SaIcon.vue';
 
-  type StatusLabelStatus = 'success' | 'pending' | 'regular' | 'failure';
+  export type StatusLabelStatus = 'success' | 'pending' | 'regular' | 'failure';
 
   interface SaStatusLabelProps {
     status: StatusLabelStatus,
