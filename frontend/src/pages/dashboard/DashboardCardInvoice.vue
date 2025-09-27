@@ -16,24 +16,23 @@
     </template>
 
     <template #content>
-      <!--      TODO #459: translations-->
       <div class="sa-dashboard__card__details__item">
-        <span>To</span>
+        <span>{{ $t.dashboard.cards.invoice.to() }}</span>
         <span><SaCustomerOutput :customer-id="invoice.customer" /></span>
       </div>
 
       <div class="sa-dashboard__card__details__item">
-        <span>Issue Date</span>
+        <span>{{ $t.dashboard.cards.invoice.issueDate() }}</span>
         <span>{{ $t.common.date.medium(invoice.dateIssued) }}</span>
       </div>
 
       <div class="sa-dashboard__card__details__item">
-        <span>Date Sent</span>
+        <span>{{ $t.dashboard.cards.invoice.dateSent() }}</span>
         <span>{{ $t.common.date.medium(invoice.dateSent) }}</span>
       </div>
 
       <div class="sa-dashboard__card__details__item">
-        <span>Due Date</span>
+        <span>{{ $t.dashboard.cards.invoice.dueDate() }}</span>
         <span>{{ $t.common.date.medium(invoice.dueDate) }}</span>
       </div>
     </template>
@@ -52,11 +51,10 @@
     invoice: InvoiceDto,
   }>();
 
-  // TODO #459: translations
   const invoiceStatus = computed(() => {
     if (props.invoice.status === 'OVERDUE') {
-      return 'Overdue';
+      return $t.value.dashboard.cards.invoice.status.overdue();
     }
-    return 'Pending';
+    return $t.value.dashboard.cards.invoice.status.pending();
   });
 </script>

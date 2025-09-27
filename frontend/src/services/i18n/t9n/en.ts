@@ -92,6 +92,39 @@ export default {
 
   dashboard: {
     header: () => 'Dashboard',
+    dateRange: {
+      separator: () => 'To',
+      startPlaceholder: () => 'Start date',
+      endPlaceholder: () => 'End date',
+    },
+    cards: {
+      expenses: {
+        totalHeader: (count: number) => format('Total of {0, number} expenses', [count]),
+        pendingHeader: (count: number) => format('Pending {0, number} more', [count]),
+      },
+      incomes: {
+        totalHeader: (count: number) => format('Total of {0, number} incomes', [count]),
+        pendingHeader: (count: number) => format('Pending {0, number} more', [count]),
+      },
+      profit: {
+        taxableAmount: () => 'Taxable Amount',
+        currencyExchangeDifference: () => 'Currency exchange rate difference',
+        incomeTaxPayments: () => 'Income Tax Payments',
+        estimatedTax: () => 'Estimated Tax',
+        estimatedTaxPlaceholder: () => 'coming soon..',
+        profit: () => 'Profit',
+      },
+      invoice: {
+        to: () => 'To',
+        issueDate: () => 'Issue Date',
+        dateSent: () => 'Date Sent',
+        dueDate: () => 'Due Date',
+        status: {
+          overdue: () => 'Overdue',
+          pending: () => 'Pending',
+        },
+      },
+    },
   },
 
   editExpense: {
@@ -925,5 +958,85 @@ export default {
     defaultCurrencyLabel: () => 'Main (default) Currency',
     defaultCurrencyPlaceholder: () => 'Provide the main currency of this workspace',
     submitButton: () => 'Complete setup',
+  },
+
+  reporting: {
+    header: () => 'Reporting',
+    wizard: {
+      steps: {
+        selectReport: {
+          title: () => 'Select a report',
+          description: {
+            select: () => 'Please select a report',
+            selected: () => 'Tax Report',
+            unknown: () => 'Unknown Report o_O',
+          },
+        },
+        selectDates: {
+          title: () => 'Select reporting dates',
+          description: {
+            select: () => 'Please select reporting date range',
+            selected: (fromDate: string, toDate: string) => format('{0} to {1}', [fromDate, toDate]),
+          },
+        },
+        viewReport: {
+          title: () => 'View the report',
+          description: {
+            loading: () => 'Loading..',
+            ready: () => 'Ready',
+          },
+        },
+      },
+      reports: {
+        generalTax: {
+          title: () => 'General Tax Report',
+          description: () => 'Collected and paid general taxes',
+        },
+      },
+      dateRange: {
+        separator: () => 'To',
+        startPlaceholder: () => 'Start date',
+        endPlaceholder: () => 'End date',
+      },
+      buttons: {
+        select: () => 'Select',
+        next: () => 'Next',
+      },
+    },
+  },
+
+  saPageableItems: {
+    emptyResults: () => 'No results here',
+  },
+
+  customersOverview: {
+    header: () => 'Customers',
+    filters: {
+      announcement: () => 'Filters coming soon',
+    },
+    create: () => 'Add new',
+    edit: () => 'Edit',
+  },
+
+  generalTaxReport: {
+    emptyData: () => 'No data to show',
+    columns: {
+      tax: () => 'Tax',
+      taxableIncome: () => 'Taxable Income',
+      taxCollected: () => 'Tax Collected',
+      taxPaid: () => 'Tax Paid',
+      balance: () => 'Balance',
+    },
+    sections: {
+      collected: () => 'Collected',
+      paid: () => 'Paid',
+      total: () => 'Total',
+    },
+    tableColumns: {
+      tax: () => 'Tax',
+      numberOfItems: () => 'Number of Items',
+      itemsAmount: () => 'Items Amount',
+      taxAmount: () => 'Tax Amount',
+    },
   },
 };

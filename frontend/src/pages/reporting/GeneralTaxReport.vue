@@ -1,14 +1,13 @@
 <template>
-  <!--  TODO #459: translations-->
   <div>
-    <h2>Collected</h2>
+    <h2>{{ $t.generalTaxReport.sections.collected() }}</h2>
     <GeneralTaxReportTable :data="collectedTaxes" />
     <div
       v-if="report"
       class="text-right"
     >
       <br>
-      <b>Total:
+      <b>{{ $t.generalTaxReport.sections.total() }}:
         <SaMoneyOutput
           :currency="defaultCurrency"
           :amount-in-cents="totalCollectedAmount"
@@ -17,14 +16,14 @@
     </div>
     <br>
 
-    <h2>Paid</h2>
+    <h2>{{ $t.generalTaxReport.sections.paid() }}</h2>
     <GeneralTaxReportTable :data="paidTaxes" />
     <div
       v-if="report"
       class="text-right"
     >
       <br>
-      <b>Total:
+      <b>{{ $t.generalTaxReport.sections.total() }}:
         <SaMoneyOutput
           :currency="defaultCurrency"
           :amount-in-cents="totalPaidAmount"
@@ -48,6 +47,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
   import { reportingApi } from '@/services/api';
+  import { $t } from '@/services/i18n';
 
   function transformTaxes(finalizedTaxes: FinalizedTaxSummaryItemDto[], pendingTaxes: PendingTaxSummaryItemDto[]) {
     let taxes: GeneralTaxReportItem[] = finalizedTaxes.map((tax) => ({

@@ -31,8 +31,7 @@
         :size="48"
         class="sa-pageable-items__empty-results__icon"
       />
-      <!--      TODO #459: i18n -->
-      <span>No results here</span>
+      <span>{{ $t.saPageableItems.emptyResults() }}</span>
     </div>
 
     <div
@@ -63,6 +62,7 @@
   import { throttle } from 'lodash';
   import type { HasOptionalId, ApiPageRequest, ApiPage } from '@/services/api';
   import SaIcon from '@/components/SaIcon.vue';
+  import { $t } from '@/services/i18n';
 
   function useLoading() {
     let loadingRequestsCount = 0;

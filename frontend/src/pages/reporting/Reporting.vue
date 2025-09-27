@@ -1,8 +1,7 @@
 <template>
   <div>
-    <!--    TODO #459: translations-->
     <div class="sa-page-header">
-      <h1>Reporting</h1>
+      <h1>{{ $t.reporting.header() }}</h1>
     </div>
 
     <!-- todo #64: navigation between steps-->
@@ -14,15 +13,15 @@
         finish-status="success"
       >
         <ElStep
-          title="Select a report"
+          :title="$t.reporting.wizard.steps.selectReport.title()"
           :description="reportSelectionStepDescription"
         />
         <ElStep
-          title="Select reporting dates"
+          :title="$t.reporting.wizard.steps.selectDates.title()"
           :description="datesSelectionStepDescription"
         />
         <ElStep
-          title="View the report"
+          :title="$t.reporting.wizard.steps.viewReport.title()"
           :description="viewReportStepDescription"
           :status="viewReportStepStatus"
         />
@@ -34,13 +33,13 @@
       >
         <div
           class="reporting-panel--report-selector"
-          data-title="Select"
+          :data-title="$t.reporting.wizard.buttons.select()"
           @click="selectTaxReport"
         >
           <SaIcon icon="tax" />
           <div>
-            <h4>General Tax Report</h4>
-            <span>Collected and paid general taxes</span>
+            <h4>{{ $t.reporting.wizard.reports.generalTax.title() }}</h4>
+            <span>{{ $t.reporting.wizard.reports.generalTax.description() }}</span>
           </div>
         </div>
       </div>
@@ -54,9 +53,9 @@
           type="daterange"
           align="right"
           unlink-panels
-          range-separator="To"
-          start-placeholder="Start date"
-          end-placeholder="End date"
+          :range-separator="$t.reporting.wizard.dateRange.separator()"
+          :start-placeholder="$t.reporting.wizard.dateRange.startPlaceholder()"
+          :end-placeholder="$t.reporting.wizard.dateRange.endPlaceholder()"
         />
         <br>
         <br>
@@ -66,7 +65,7 @@
           :disabled="selectedDateRange.length !== 2"
           @click="navigateToViewReportStep"
         >
-          Next
+          {{ $t.reporting.wizard.buttons.next() }}
         </ElButton>
       </div>
 
@@ -88,6 +87,7 @@
   import GeneralTaxReport from '@/pages/reporting/GeneralTaxReport.vue';
   import SaIcon from '@/components/SaIcon.vue';
   import { apiDateString } from '@/services/api';
+  import { $t } from '@/services/i18n';
 
   const SELECT_REPORT_STEP = 0;
   const SELECT_DATES_STEP = 1;
@@ -109,21 +109,23 @@
 
   const reportSelectionStepDescription = computed(() => {
     if (reportSelectionActive.value) {
-      return 'Please select a report';
+      return $t.value.reporting.wizard.steps.selectReport.description.select();
     }
     if (selectedReport.value === TAX_REPORT) {
-      return 'Tax Report';
+      return $t.value.reporting.wizard.steps.selectReport.description.selected();
     }
-    return 'Unknown Report o_O';
+    return $t.value.reporting.wizard.steps.selectReport.description.unknown();
   });
 
   const datesSelectionStepDescription = computed(() => {
     if (datesSelectionActive.value) {
-      return 'Please select reporting date range';
+      return $t.value.reporting.wizard.steps.selectDates.description.select();
     }
     if (viewReportActive.value) {
-      // todo #64: localize
-      return `${apiDateString(selectedDateRange.value[0])} to ${apiDateString(selectedDateRange.value[1])}`;
+      return $t.value.reporting.wizard.steps.selectDates.description.selected(
+        apiDateString(selectedDateRange.value[0]), 
+        apiDateString(selectedDateRange.value[1])
+      );
     }
     return null;
   });
@@ -140,10 +142,10 @@
 
   const viewReportStepDescription = computed(() => {
     if (activeWizardStep.value === VIEW_REPORT_STEP && reportGenerationInProgress.value) {
-      return 'Loading..';
+      return $t.value.reporting.wizard.steps.viewReport.description.loading();
     }
     if (activeWizardStep.value === VIEW_REPORT_STEP) {
-      return 'Ready';
+      return $t.value.reporting.wizard.steps.viewReport.description.ready();
     }
     return null;
   });

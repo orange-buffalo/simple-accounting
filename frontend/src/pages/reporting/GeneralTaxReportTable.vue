@@ -1,5 +1,4 @@
 <template>
-  <!--  TODO #459: translations-->
   <div>
     <!--todo #89: highlight pending items differently-->
     <ElTable :data="data">
@@ -7,7 +6,7 @@
         #default="{ row: item }"
         align="left"
         header-align="left"
-        label="Tax"
+        :label="$t.generalTaxReport.tableColumns.tax()"
       >
         <SaGeneralTaxOutput :general-tax-id="item.taxId" />
       </ElTableColumn>
@@ -16,7 +15,7 @@
         align="right"
         header-align="right"
         prop="includedItemsNumber"
-        label="Number of Items"
+        :label="$t.generalTaxReport.tableColumns.numberOfItems()"
         #default="{ row: item }"
       >
         <span v-if="item.finalized">{{ item.includedItemsNumber }}</span>
@@ -26,7 +25,7 @@
       <ElTableColumn
         align="right"
         header-align="right"
-        label="Items Amount"
+        :label="$t.generalTaxReport.tableColumns.itemsAmount()"
         #default="{ row }"
       >
         <SaMoneyOutput
@@ -39,7 +38,7 @@
       <ElTableColumn
         align="right"
         header-align="right"
-        label="Tax Amount"
+        :label="$t.generalTaxReport.tableColumns.taxAmount()"
         #default="{ row }"
       >
         <SaMoneyOutput
@@ -58,6 +57,7 @@
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
+  import { $t } from '@/services/i18n';
 
   defineProps<{
     data: GeneralTaxReportItem[]

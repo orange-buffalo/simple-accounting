@@ -1,5 +1,4 @@
 <template>
-  <!--  TODO #459: translations-->
   <div class="customer-panel">
     <div class="customer-info">
       <div class="sa-item-title-panel">
@@ -9,7 +8,7 @@
           <ElButton
             link
             @click="navigateToCustomerEdit"
-          >Edit</ElButton>
+          >{{ $t.customersOverview.edit() }}</ElButton>
         </span>
       </div>
     </div>
@@ -20,6 +19,7 @@
   import SaIcon from '@/components/SaIcon.vue';
   import useNavigation from '@/services/use-navigation';
   import type { CustomerDto } from '@/services/api';
+  import { $t } from '@/services/i18n';
 
   const props = defineProps<{
     customer: CustomerDto
