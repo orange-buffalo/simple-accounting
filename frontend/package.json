@@ -25,7 +25,7 @@
     "copy-to-clipboard": "3.3.3",
     "dompurify": "3.2.6",
     "dropzone": "6.0.0-beta.2",
-    "element-plus": "2.11.3",
+    "element-plus": "2.11.4",
     "event-source-polyfill": "1.0.31",
     "globalize": "1.7.0",
     "graphql": "^16.11.0",
