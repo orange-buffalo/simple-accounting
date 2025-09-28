@@ -41,19 +41,28 @@ class LoginFullStackTest(
 
     @Test
     fun `should login as regular user and verify remember me cookie`(page: Page) {
-        page.openLoginPage()
+        val loginPage = page.openLoginPage()
+            .reportRendering("login.initial-state")
             .loginButton { shouldBeDisabled() }
             .rememberMeCheckbox { shouldBeChecked() }
             .loginInput { fill(preconditions.fry.userName) }
             .loginButton { shouldBeDisabled() }
             .passwordInput { fill(preconditions.fry.passwordHash) }
-            .loginButton {
-                shouldBeEnabled()
-                click()
+            .loginButton { shouldBeEnabled() }
+
+        page.withBlockedApiResponse(
+            "**/login",
+            initiator = {
+                loginPage.loginButton { click() }
+            },
+            blockedRequestSpec = {
+                loginPage.loginButton.shouldBeDisabled()
+                loginPage.reportRendering("login.loading-state")
             }
+        )
+
         page.shouldBeDashboardPage()
 
-        // Verify remember me cookie was set with proper security attributes and expiration
         val cookies = page.context().cookies()
         val refreshCookie = cookies.find { it.name == "refreshToken" }
         refreshCookie.shouldNotBeNull()
@@ -61,13 +70,9 @@ class LoginFullStackTest(
         refreshCookie.httpOnly.shouldBe(true)
         refreshCookie.path.shouldBe("/api/auth/token")
         
-        // Verify cookie expiration time is set to 30 days from now (with some tolerance) 
-        val expectedExpiry = (timeService.currentTime().toEpochMilli() / 1000) + Duration.ofDays(30).seconds
-        val actualExpiry = refreshCookie.expires
-        val toleranceInSeconds = 60.0 // Allow 60 seconds tolerance
-        Math.abs(actualExpiry - expectedExpiry).shouldBeLessThan(toleranceInSeconds)
+        val expectedExpiry = (MOCK_TIME.toEpochMilli() / 1000) + Duration.ofDays(30).seconds
+        refreshCookie.expires.shouldBe(expectedExpiry)
 
-        // Verify login statistics were reset
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(0)
             temporaryLockExpirationTime.shouldBeNull()
@@ -101,8 +106,8 @@ class LoginFullStackTest(
 
         page.shouldBeLoginPage()
             .shouldHaveErrorMessage("Login attempt failed. Please make sure login and password is correct")
+            .reportRendering("login.error-state")
 
-        // Verify login statistics were updated
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(1)
             temporaryLockExpirationTime.shouldBeNull()
@@ -128,11 +133,10 @@ class LoginFullStackTest(
         page.shouldBeLoginPage()
             .shouldHaveErrorMessage("Account is temporary locked. It will be unlocked in 1 min")
 
-        // Verify account is now locked with updated statistics - exact time based on mock time
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(6)
             temporaryLockExpirationTime.shouldNotBeNull()
-            temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(60)) // 1 minute lock for 6th attempt
+            temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(60))
         }
     }
 
@@ -174,7 +178,6 @@ class LoginFullStackTest(
         page.shouldBeLoginPage()
             .shouldHaveErrorMessage("Account is temporary locked. It will be unlocked in 5 min")
 
-        // Verify lock is still in place (no additional attempts recorded)
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(6)
             temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(300))
@@ -200,49 +203,11 @@ class LoginFullStackTest(
         page.shouldBeLoginPage()
             .shouldHaveErrorMessage("Account is temporary locked. It will be unlocked in 2 min 15 sec")
 
-        // Verify login statistics show progressive locking
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(8)
             temporaryLockExpirationTime.shouldNotBeNull()
-            // The lock time should be progressively longer - 8th attempt gets 2 minutes 15 seconds (135 seconds)
             temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(135))
         }
-    }
-
-    @Test
-    fun `should capture screenshots for UI verification`(page: Page) {
-        // Screenshot 1: Initial loading state once UI is rendered
-        val loginPage = page.openLoginPage()
-        page.locator(".login-page").reportRendering("login.initial-state")
-
-        // Screenshot 2: Loading state of the login button (while login API request is being processed)
-        page.withBlockedApiResponse(
-            "**/login",
-            initiator = {
-                loginPage
-                    .loginInput { fill(preconditions.fry.userName) }
-                    .passwordInput { fill(preconditions.fry.passwordHash) }
-                    .loginButton { click() }
-            },
-            blockedRequestSpec = {
-                loginPage.loginButton.shouldBeDisabled()
-                page.locator(".login-page").reportRendering("login.loading-state")
-            }
-        )
-
-        // After successful login, navigate back to get error state
-        page.openLoginPage()
-
-        // Screenshot 3: Error message after failed login attempt
-        whenever(passwordEncoder.matches("wrongpassword", preconditions.fry.passwordHash)) doReturn false
-        
-        loginPage
-            .loginInput { fill(preconditions.fry.userName) }
-            .passwordInput { fill("wrongpassword") }
-            .loginButton { click() }
-        
-        loginPage.shouldHaveErrorMessage("Login attempt failed. Please make sure login and password is correct")
-        page.locator(".login-page").reportRendering("login.error-state")
     }
 
     private fun assertFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
