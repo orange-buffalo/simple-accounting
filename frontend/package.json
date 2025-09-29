@@ -42,7 +42,7 @@
     "@graphql-codegen/cli": "^6.0.0",
     "@graphql-codegen/client-preset": "^5.0.0",
     "@rushstack/eslint-patch": "1.12.0",
-    "@sinonjs/fake-timers": "14.0.0",
+    "@sinonjs/fake-timers": "15.0.0",
     "@storybook/addon-actions": "8.1.11",
     "@storybook/addons": "7.6.17",
     "@storybook/builder-vite": "9.1.8",
