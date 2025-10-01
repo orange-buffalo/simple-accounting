@@ -81,7 +81,7 @@
     "js-yaml": "4.1.0",
     "jsdom": "26.1.0",
     "rollup-plugin-visualizer": "6.0.3",
-    "sass": "1.92.1",
+    "sass": "1.93.2",
     "storybook": "7.6.17",
     "typescript": "5.9.2",
     "vite": "7.1.7",
