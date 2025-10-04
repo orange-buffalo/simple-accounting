@@ -13,8 +13,8 @@ export function resolveProxyPort(): number {
   const yamlString = fs.readFileSync(yamlFilePath, 'utf8');
   const yamlObject = yaml.load(yamlString) as any;
 
-  if (yamlObject?.fullStackTestsConfig?.useViteDevServer === true) {
-    let { viteDevServerSpringContextPort } = yamlObject.fullStackTestsConfig;
+  if (yamlObject?.fullStackTests?.useViteDevServer === true) {
+    let { viteDevServerSpringContextPort } = yamlObject.fullStackTests;
     if (!viteDevServerSpringContextPort) {
       viteDevServerSpringContextPort = 5174;
     }

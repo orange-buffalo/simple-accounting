@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -34,7 +35,7 @@ class AuthenticationService(
 
     private fun validateActivated(user: PlatformUser) {
         if (!user.activated) {
-            throw BadCredentialsException("User is not activated")
+            throw UserNotActivatedException()
         }
     }
 
@@ -109,3 +110,5 @@ sealed class PasswordChangeException(message: String) : RuntimeException(message
     class InvalidCurrentPasswordException : PasswordChangeException("Invalid current password")
     class UserNotAuthenticatedException : PasswordChangeException("User is not authenticated")
 }
+
+class UserNotActivatedException : AuthenticationException("User is not activated")
