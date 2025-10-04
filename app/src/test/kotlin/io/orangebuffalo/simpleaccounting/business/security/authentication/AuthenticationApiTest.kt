@@ -172,7 +172,7 @@ class AuthenticationApiTest(
             .exchange()
             .expectStatus().isUnauthorized
             .expectThatJsonBody {
-                inPath("$.error").shouldBeJsonString().shouldBe("BadCredentials")
+                inPath("$.error").shouldBeJsonString().shouldBe("UserNotActivated")
             }
     }
 
