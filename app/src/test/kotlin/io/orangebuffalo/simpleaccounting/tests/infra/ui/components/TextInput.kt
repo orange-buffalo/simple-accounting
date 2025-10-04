@@ -1,6 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveValue
@@ -18,6 +20,9 @@ class TextInput<P : Any> private constructor(
     fun shouldBeHidden() = input.shouldBeHidden()
 
     fun shouldHaveValue(value: String) = input.shouldHaveValue(value)
+
+    fun shouldBeEnabled() = input.shouldBeEnabled()
+    fun shouldBeDisabled() = input.shouldBeDisabled()
 
     companion object {
         fun <T : SaPageBase<T>> ComponentsAccessors<T>.textInputByPlaceholder(placeholder: String) =

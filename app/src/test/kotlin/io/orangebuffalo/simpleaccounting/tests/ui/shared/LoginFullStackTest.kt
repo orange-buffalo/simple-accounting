@@ -1,62 +1,63 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.shared
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.comparables.shouldBeGreaterThan
-import io.kotest.matchers.comparables.shouldBeLessThan
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.kotest.matchers.ranges.shouldBeIn
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldBeEmpty
+import io.kotest.matchers.string.shouldBeEqualIgnoringCase
+import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
 import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openLoginPage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeDashboardPage
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.transaction.support.TransactionTemplate
-import java.time.Instant
+import org.springframework.data.jdbc.core.findById
 import java.time.Duration
+import java.time.Instant
 
-private val MOCK_TIME = Instant.ofEpochMilli(424242)
-
-class LoginFullStackTest(
-    @Autowired private val transactionTemplate: TransactionTemplate,
-    @Autowired private val platformUsersRepository: PlatformUsersRepository,
-) : SaFullStackTestBase() {
+class LoginFullStackTest : SaFullStackTestBase() {
 
     @BeforeEach
     fun setupCurrentTime() {
-        whenever(timeService.currentTime()) doReturn MOCK_TIME
+        mockCurrentTime(timeService)
     }
 
     @Test
     fun `should login as regular user and verify remember me cookie`(page: Page) {
         val loginPage = page.openLoginPage()
             .reportRendering("login.initial-state")
-            .loginButton { shouldBeDisabled() }
+            .loginButton {
+                shouldBeDisabled()
+                shouldHaveLabelSatisfying { it.shouldBeEqualIgnoringCase("Login") }
+            }
             .rememberMeCheckbox { shouldBeChecked() }
             .loginInput { fill(preconditions.fry.userName) }
             .loginButton { shouldBeDisabled() }
             .passwordInput { fill(preconditions.fry.passwordHash) }
             .loginButton { shouldBeEnabled() }
+            .reportRendering("login.filled-state")
 
         page.withBlockedApiResponse(
-            "**/login",
+            "**",
             initiator = {
                 loginPage.loginButton { click() }
             },
             blockedRequestSpec = {
+                loginPage.loginInput.shouldBeDisabled()
+                loginPage.passwordInput.shouldBeDisabled()
+                loginPage.rememberMeCheckbox.shouldBeDisabled()
                 loginPage.loginButton.shouldBeDisabled()
+                loginPage.loginButton.shouldHaveLabelSatisfying { it.shouldBeEmpty() }
                 loginPage.reportRendering("login.loading-state")
             }
         )
@@ -69,13 +70,20 @@ class LoginFullStackTest(
         refreshCookie.value.shouldNotBeNull()
         refreshCookie.httpOnly.shouldBe(true)
         refreshCookie.path.shouldBe("/api/auth/token")
-        
-        val expectedExpiry = (MOCK_TIME.toEpochMilli() / 1000) + Duration.ofDays(30).seconds
-        refreshCookie.expires.shouldBe(expectedExpiry)
+
+        // we do not set the browser time, so just verify that expiry is roughly correct
+        val expectedExpires = (Instant.now().toEpochMilli() / 1000 + Duration.ofDays(30).seconds).toDouble()
+        refreshCookie.expires.shouldBeIn(expectedExpires - 20..expectedExpires + 20)
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(0)
             temporaryLockExpirationTime.shouldBeNull()
+        }
+
+        aggregateTemplate.findSingle<RefreshToken>().should { token ->
+            token.userId.shouldBe(preconditions.fry.id)
+            token.token.shouldBe(refreshCookie.value)
+            token.expirationTime.shouldBe(MOCK_TIME.plus(Duration.ofDays(30)))
         }
     }
 
@@ -96,56 +104,53 @@ class LoginFullStackTest(
 
     @Test
     fun `should show bad credentials error and update login statistics`(page: Page) {
-        // Override the default password encoder mocking to actually fail bad credentials
-        whenever(passwordEncoder.matches("wrongpassword", preconditions.fry.passwordHash)) doReturn false
+        mockWrongPassword()
 
         page.openLoginPage()
             .loginInput { fill(preconditions.fry.userName) }
             .passwordInput { fill("wrongpassword") }
             .loginButton { click() }
-
-        page.shouldBeLoginPage()
             .shouldHaveErrorMessage("Login attempt failed. Please make sure login and password is correct")
             .reportRendering("login.error-state")
+            .loginInput { shouldBeEnabled() }
+            .passwordInput { shouldBeEnabled() }
+            .loginButton { shouldBeEnabled() }
+            .rememberMeCheckbox { shouldBeEnabled() }
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(1)
             temporaryLockExpirationTime.shouldBeNull()
         }
+
+        aggregateTemplate.findAll<RefreshToken>().shouldBeEmpty()
     }
 
     @Test
     fun `should lock account after multiple failed attempts`(page: Page) {
-        // Setup user that should be locked on next failure
         setupFryLoginStatistics {
             failedAttemptsCount = 5
             temporaryLockExpirationTime = null
         }
-        
-        // Mock password to fail which should trigger locking
-        whenever(passwordEncoder.matches("wrongpassword", preconditions.fry.passwordHash)) doReturn false
+        mockWrongPassword()
 
         page.openLoginPage()
             .loginInput { fill(preconditions.fry.userName) }
             .passwordInput { fill("wrongpassword") }
             .loginButton { click() }
-
-        page.shouldBeLoginPage()
-            .shouldHaveErrorMessage("Account is temporary locked. It will be unlocked in 1 min")
+            .shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in 0:\\d\\d")
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(6)
-            temporaryLockExpirationTime.shouldNotBeNull()
             temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(60))
         }
     }
 
     @Test
     fun `should allow login after lock expiration and reset statistics`(page: Page) {
-        // Set up user with expired lock
         setupFryLoginStatistics {
             failedAttemptsCount = 6
-            temporaryLockExpirationTime = MOCK_TIME.minusSeconds(1) // Lock expired 1 second ago
+            // Lock expired 1 second ago
+            temporaryLockExpirationTime = MOCK_TIME.minusSeconds(1)
         }
 
         page.openLoginPage()
@@ -155,7 +160,6 @@ class LoginFullStackTest(
 
         page.shouldBeDashboardPage()
 
-        // Verify login statistics were reset
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(0)
             temporaryLockExpirationTime.shouldBeNull()
@@ -164,19 +168,17 @@ class LoginFullStackTest(
 
     @Test
     fun `should prevent login when account is currently locked`(page: Page) {
-        // Set up user with active lock
         setupFryLoginStatistics {
             failedAttemptsCount = 6
-            temporaryLockExpirationTime = MOCK_TIME.plusSeconds(300) // 5 minutes from now
+            temporaryLockExpirationTime = MOCK_TIME.plusSeconds(300)
         }
 
         page.openLoginPage()
             .loginInput { fill(preconditions.fry.userName) }
-            .passwordInput { fill(preconditions.fry.passwordHash) } // Even correct password should fail
+            // correct password
+            .passwordInput { fill(preconditions.fry.passwordHash) }
             .loginButton { click() }
-
-        page.shouldBeLoginPage()
-            .shouldHaveErrorMessage("Account is temporary locked. It will be unlocked in 5 min")
+            .shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in \\d:\\d\\d")
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(6)
@@ -186,51 +188,61 @@ class LoginFullStackTest(
 
     @Test
     fun `should show progressive locking for repeated failures`(page: Page) {
-        // Set up for a user with multiple previous failures that should get progressively longer lock
         setupFryLoginStatistics {
             failedAttemptsCount = 7
-            temporaryLockExpirationTime = MOCK_TIME.minusSeconds(1) // Previous lock expired
+            temporaryLockExpirationTime = MOCK_TIME.minusSeconds(1)
         }
-        
-        // Mock password to fail
-        whenever(passwordEncoder.matches("wrongpassword", preconditions.fry.passwordHash)) doReturn false
+        mockWrongPassword()
 
         page.openLoginPage()
             .loginInput { fill(preconditions.fry.userName) }
             .passwordInput { fill("wrongpassword") }
             .loginButton { click() }
-
-        page.shouldBeLoginPage()
-            .shouldHaveErrorMessage("Account is temporary locked. It will be unlocked in 2 min 15 sec")
+            .shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in \\d:\\d\\d")
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(8)
-            temporaryLockExpirationTime.shouldNotBeNull()
             temporaryLockExpirationTime.shouldBe(MOCK_TIME.plusSeconds(135))
         }
     }
 
-    private fun assertFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
-        transactionTemplate.execute {
-            val fry = platformUsersRepository.findByUserName(preconditions.fry.userName)
-                ?: throw IllegalStateException("Fry is not found?!")
-            fry.loginStatistics.spec()
+    @Test
+    fun `should forbid login for not activated users`(page: Page) {
+        page.openLoginPage()
+            .loginInput { fill(preconditions.scruffy.userName) }
+            .passwordInput { fill(preconditions.scruffy.passwordHash) }
+            .loginButton { click() }
+            .shouldHaveErrorMessage("Login attempt failed. Please make sure login and password is correct")
+
+        assertFryLoginStatistics {
+            failedAttemptsCount.shouldBe(0)
+            temporaryLockExpirationTime.shouldBeNull()
         }
     }
 
+    private fun mockWrongPassword() {
+        whenever(passwordEncoder.matches("wrongpassword", preconditions.fry.passwordHash)) doReturn false
+    }
+
+    private fun assertFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
+        val fry = aggregateTemplate.findById<PlatformUser>(preconditions.fry.id!!)!!
+        fry.loginStatistics.spec()
+    }
+
     private fun setupFryLoginStatistics(spec: LoginStatistics.() -> Unit) {
-        transactionTemplate.execute {
-            val fry = platformUsersRepository.findByUserName(preconditions.fry.userName)
-                ?: throw IllegalStateException("Fry is not found?!")
-            fry.loginStatistics.spec()
-            platformUsersRepository.save(fry)
-        }
+        val fry = aggregateTemplate.findById<PlatformUser>(preconditions.fry.id!!)!!
+        fry.loginStatistics.spec()
+        aggregateTemplate.save(fry)
     }
 
     private val preconditions by lazyPreconditions {
         object {
             val fry = fry().withWorkspace()
             val farnsworth = farnsworth()
+            val scruffy = platformUser(
+                userName = "scruffy",
+                activated = false,
+            )
         }
     }
 }

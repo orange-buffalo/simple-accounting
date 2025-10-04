@@ -10,6 +10,7 @@
         class="login-page__login-form"
         :model="form"
         label-width="0px"
+        :disabled="uiState.loginInProgress"
       >
         <ElFormItem>
           <ElInput
@@ -43,13 +44,11 @@
 
         <ElButton
           type="primary"
-          :disabled="!loginEnabled"
+          :disabled="!loginEnabled || uiState.loginInProgress"
           @click="executeLogin"
+          data-testid="login-button"
         >
-          <i
-            v-if="uiState.loginInProgress"
-            class="el-icon-loading"
-          />
+          <SaIcon icon="loading" v-if="uiState.loginInProgress" />
           <span v-else>{{ $t.loginPage.login() }}</span>
         </ElButton>
 
@@ -78,7 +77,7 @@
   import useNavigation from '@/services/use-navigation';
   import { useAuth, profileApi } from '@/services/api';
   import { useLastView } from '@/services/use-last-view';
-  import { ApiBusinessError } from '@/services/api/api-errors.ts';
+  import { ApiAuthError } from '@/services/api/api-errors.ts';
 
   class AccountLockTimer {
     private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
@@ -159,11 +158,12 @@
   }
 
   const onLoginError = async (processingError: unknown) => {
-    if (!(processingError instanceof ApiBusinessError)) {
+    if (!(processingError instanceof ApiAuthError)) {
       throw processingError;
     }
-    // TODO #1209: proper typing here, use e.errorAs
-    const apiResponse = processingError.error as unknown as LoginErrorResponse;
+    const body = await processingError.response.clone()
+      .json();
+    const apiResponse = body as unknown as LoginErrorResponse;
     if (apiResponse?.error === 'AccountLocked' && apiResponse?.lockExpiresInSec !== undefined) {
       accountLockTimer.start(apiResponse.lockExpiresInSec);
     } else if (apiResponse?.error === 'LoginNotAvailable') {
@@ -195,7 +195,8 @@
     }
   };
 
-  const emit = defineEmits<{(e: 'login'): void;
+  const emit = defineEmits<{
+    (e: 'login'): void;
   }>();
 
   const {

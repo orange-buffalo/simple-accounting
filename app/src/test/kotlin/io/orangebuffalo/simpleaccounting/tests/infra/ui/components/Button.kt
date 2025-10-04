@@ -31,6 +31,13 @@ class Button<P : Any> private constructor(
             Button(page.locator("xpath=//button[${XPath.hasText(label)}]"), this.owner)
 
         /**
+         * As this locator is not user-facing, should be used with caution. For instance,
+         * when label is dynamic or not easily predictable.
+         */
+        fun <T : SaPageBase<T>> ComponentsAccessors<T>.buttonByTestId(testId: String) =
+            Button(page.getByTestId(testId), this.owner)
+
+        /**
          * Assumes a single button in the container and returns it
          */
         fun <T : SaPageBase<T>> ComponentsAccessors<T>.buttonByContainer(container: Locator) =
