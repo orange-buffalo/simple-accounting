@@ -34,7 +34,7 @@ class AuthenticationService(
 
     private fun validateActivated(user: PlatformUser) {
         if (!user.activated) {
-            throw BadCredentialsException("User is not activated")
+            throw UserNotActivatedException()
         }
     }
 
@@ -109,3 +109,5 @@ sealed class PasswordChangeException(message: String) : RuntimeException(message
     class InvalidCurrentPasswordException : PasswordChangeException("Invalid current password")
     class UserNotAuthenticatedException : PasswordChangeException("User is not authenticated")
 }
+
+class UserNotActivatedException : RuntimeException("User is not activated")

@@ -40,6 +40,7 @@ export default {
       underAttack: () => 'Looks like your account is under attack!',
       generalFailure: () => 'Login attempt failed. Please make sure login and password is correct',
       accountLocked: (lockDurationInSec: number) => format('Account is temporary locked. It will be unlocked in {0, duration}', [lockDurationInSec]),
+      userNotActivated: () => 'Your account is not yet activated. Please use the token shared with you by the administrators. Contact them if you need to reset the token',
     },
   },
 

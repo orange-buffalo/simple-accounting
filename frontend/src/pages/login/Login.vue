@@ -168,6 +168,8 @@
       accountLockTimer.start(apiResponse.lockExpiresInSec);
     } else if (apiResponse?.error === 'LoginNotAvailable') {
       uiState.loginError = $t.value.loginPage.loginError.underAttack();
+    } else if (apiResponse?.error === 'UserNotActivated') {
+      uiState.loginError = $t.value.loginPage.loginError.userNotActivated();
     } else {
       console.error('Login failure', processingError);
       uiState.loginError = $t.value.loginPage.loginError.generalFailure();

@@ -105,6 +105,13 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         activated = true,
     )
 
+    fun scruffy() = platformUser(
+        userName = "Scruffy",
+        passwordHash = "scruffyHash",
+        isAdmin = false,
+        activated = false,
+    )
+
     fun mafiaBot() = platformUser(
         userName = "MafiaBot",
         passwordHash = "$$$",

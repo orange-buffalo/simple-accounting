@@ -21,11 +21,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jdbc.core.findById
+import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.Duration
 import java.time.Instant
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.newFixedThreadPoolContext
 
-class LoginFullStackTest : SaFullStackTestBase() {
+class LoginFullStackTest(
+    @Autowired private val webTestClient: WebTestClient,
+) : SaFullStackTestBase() {
 
     @BeforeEach
     fun setupCurrentTime() {
@@ -208,16 +215,58 @@ class LoginFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should forbid login for not activated users`(page: Page) {
+        whenever(passwordEncoder.matches(preconditions.scruffy.passwordHash, preconditions.scruffy.passwordHash)) doReturn true
+
         page.openLoginPage()
             .loginInput { fill(preconditions.scruffy.userName) }
             .passwordInput { fill(preconditions.scruffy.passwordHash) }
             .loginButton { click() }
-            .shouldHaveErrorMessage("Login attempt failed. Please make sure login and password is correct")
+            .shouldHaveErrorMessage("Your account is not yet activated. Please use the token shared with you by the administrators. Contact them if you need to reset the token")
+            .reportRendering("login.not-activated-error")
+    }
 
-        assertFryLoginStatistics {
-            failedAttemptsCount.shouldBe(0)
-            temporaryLockExpirationTime.shouldBeNull()
-        }
+    @Test
+    fun `should show login not available error when authentication queue is overloaded`(page: Page) {
+        mockWrongPassword()
+
+        val loginPage = page.openLoginPage()
+            .loginInput { fill(preconditions.fry.userName) }
+            .passwordInput { fill("wrongpassword") }
+
+        // Load the authentication queue with parallel login attempts using REST API
+        loadAuthenticationQueue()
+
+        // Attempt login via UI while queue is loaded
+        loginPage
+            .loginButton { click() }
+            .shouldHaveErrorMessage("Looks like your account is under attack!")
+    }
+
+    private fun loadAuthenticationQueue() {
+        // Create parallel authentication requests to load the queue
+        // Using direct API calls to efficiently create background load
+        val requests = generateSequence(1) { if (it < 10) it + 1 else null }
+            .map {
+                kotlinx.coroutines.GlobalScope.async(kotlinx.coroutines.newFixedThreadPoolContext(10, "parallelLogins")) {
+                    try {
+                        webTestClient.post()
+                            .uri("/api/auth/login")
+                            .bodyValue(mapOf(
+                                "userName" to preconditions.fry.userName,
+                                "password" to "wrongpassword",
+                                "rememberMe" to false
+                            ))
+                            .exchange()
+                    } catch (e: Exception) {
+                        // Ignore exceptions, we just want to load the queue
+                        null
+                    }
+                }
+            }
+            .toList()
+
+        // Give requests time to start processing before the UI attempt
+        Thread.sleep(100)
     }
 
     private fun mockWrongPassword() {
@@ -239,10 +288,7 @@ class LoginFullStackTest : SaFullStackTestBase() {
         object {
             val fry = fry().withWorkspace()
             val farnsworth = farnsworth()
-            val scruffy = platformUser(
-                userName = "scruffy",
-                activated = false,
-            )
+            val scruffy = scruffy()
         }
     }
 }

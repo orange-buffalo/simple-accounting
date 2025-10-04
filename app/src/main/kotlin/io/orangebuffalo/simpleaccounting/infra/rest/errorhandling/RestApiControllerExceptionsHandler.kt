@@ -69,6 +69,16 @@ internal class RestApiControllerExceptionsHandler(
     }
 
     @ExceptionHandler
+    fun onException(exception: io.orangebuffalo.simpleaccounting.business.security.authentication.UserNotActivatedException): Mono<ResponseEntity<GeneralErrorDto>> {
+        logger.trace(exception) {}
+        return Mono.just(
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(GeneralErrorDto("UserNotActivated"))
+        )
+    }
+
+    @ExceptionHandler
     fun onException(exception: AccountIsTemporaryLockedException):
             Mono<ResponseEntity<AccountIsTemporaryLockedErrorDto>> {
         logger.trace(exception) {}
