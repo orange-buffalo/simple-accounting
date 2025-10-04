@@ -11,3 +11,7 @@ class WorkspaceSetupPage(page: Page) : SaPageBase<WorkspaceSetupPage>(page) {
 }
 
 fun Page.shouldBeWorkspaceSetupPage(): WorkspaceSetupPage = WorkspaceSetupPage(this).shouldBeOpen()
+
+fun Page.shouldBeWorkspaceSetupPage(spec: WorkspaceSetupPage.() -> Unit) {
+    shouldBeWorkspaceSetupPage().spec()
+}

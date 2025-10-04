@@ -18,3 +18,7 @@ class AccountSetupPage(page: Page) : SaPageBase<AccountSetupPage>(page) {
 }
 
 fun Page.shouldBeAccountSetupPage(): AccountSetupPage = AccountSetupPage(this).shouldBeOpen()
+
+fun Page.shouldBeAccountSetupPage(spec: AccountSetupPage.() -> Unit) {
+    shouldBeAccountSetupPage().spec()
+}

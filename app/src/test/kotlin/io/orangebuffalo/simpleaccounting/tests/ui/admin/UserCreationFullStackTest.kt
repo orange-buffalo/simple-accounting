@@ -23,8 +23,9 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
                 success("User userX has been successfully saved")
             }
 
-        page.shouldBeEditUserPage()
-            .activationStatus { shouldBeVisible() }
+        page.shouldBeEditUserPage {
+            activationStatus { shouldBeVisible() }
+        }
 
         aggregateTemplate.findAll<PlatformUser>()
             .shouldWithClue("Expected exactly one user created (and one pre-seeded with preconditions)") {

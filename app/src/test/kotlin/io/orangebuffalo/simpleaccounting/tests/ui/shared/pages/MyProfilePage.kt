@@ -147,3 +147,9 @@ fun Page.openMyProfilePage(): MyProfilePage {
     this.navigate("/my-profile")
     return MyProfilePage(this).shouldBeOpen()
 }
+
+fun Page.shouldBeMyProfilePage(): MyProfilePage = MyProfilePage(this).shouldBeOpen()
+
+fun Page.shouldBeMyProfilePage(spec: MyProfilePage.() -> Unit) {
+    shouldBeMyProfilePage().spec()
+}
