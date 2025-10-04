@@ -48,58 +48,125 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
                 playwright.close()
                 log.info { "Playwright instance closed" }
             })
-            val browser = playwright.chromium().launch(
-                BrowserType.LaunchOptions()
-                    .setHeadless(TestConfig.instance.fullStackTests.useHeadlessBrowser)
-                    .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
-            )
-            playwrightContext = PlaywrightContext(playwright, browser)
-            threadLocalPlaywrightContext.set(playwrightContext)
-            // setup assertions timeout
-            AssertionsTimeout.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
+            
+            if (TestConfig.instance.fullStackTests.usePersistentContext) {
+                // Use persistent context for local development
+                val userDataDir = Path.of("local-dev", "playwright-context")
+                log.info { "Using persistent context at $userDataDir" }
+                val persistentContext = playwright.chromium().launchPersistentContext(
+                    userDataDir,
+                    BrowserType.LaunchPersistentContextOptions()
+                        .setHeadless(TestConfig.instance.fullStackTests.useHeadlessBrowser)
+                        .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
+                        .setBaseURL(browserUrl)
+                        .setViewportSize(1920, 1080)
+                )
+                persistentContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
+                persistentContext.addInitScript("""
+                    window.saRunningInTest = true;
+                    console.info("Playwright test environment initialized");
+                """.trimIndent())
+                playwrightContext = PlaywrightContext(playwright, null, persistentContext)
+                threadLocalPlaywrightContext.set(playwrightContext)
+                // setup assertions timeout
+                AssertionsTimeout.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
+                
+                playwrightContext.page = persistentContext.newPage()
+            } else {
+                // Use ephemeral browser for CI or when not using persistent context
+                val browser = playwright.chromium().launch(
+                    BrowserType.LaunchOptions()
+                        .setHeadless(TestConfig.instance.fullStackTests.useHeadlessBrowser)
+                        .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
+                )
+                playwrightContext = PlaywrightContext(playwright, browser)
+                threadLocalPlaywrightContext.set(playwrightContext)
+                // setup assertions timeout
+                AssertionsTimeout.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
+                
+                val browserContext = browser.newContext(
+                     Browser.NewContextOptions()
+                        .setBaseURL(browserUrl)
+                        .setViewportSize(1920, 1080)
+                )
+                browserContext.tracing().start(
+                    Tracing.StartOptions()
+                        .setScreenshots(true)
+                        .setSnapshots(true)
+                )
+                browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
+                browserContext.addInitScript("""
+                    window.saRunningInTest = true;
+                    console.info("Playwright test environment initialized");
+                """.trimIndent())
+                playwrightContext.browserContext = browserContext
+
+                playwrightContext.page = browserContext.newPage()
+            }
+        } else {
+            // For persistent context, just create a new page and clear state
+            if (TestConfig.instance.fullStackTests.usePersistentContext) {
+                val persistentContext = playwrightContext.browserContext
+                    ?: throw IllegalStateException("Persistent context is not initialized")
+                
+                // Clear storage to ensure test isolation
+                persistentContext.clearCookies()
+                persistentContext.pages().forEach { it.evaluate("() => { localStorage.clear(); sessionStorage.clear(); }") }
+                
+                playwrightContext.page = persistentContext.newPage()
+            } else {
+                // For non-persistent mode, create a new context and page as before
+                val browserContext = playwrightContext.browser!!.newContext(
+                     Browser.NewContextOptions()
+                        .setBaseURL(browserUrl)
+                        .setViewportSize(1920, 1080)
+                )
+                browserContext.tracing().start(
+                    Tracing.StartOptions()
+                        .setScreenshots(true)
+                        .setSnapshots(true)
+                )
+                browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
+                browserContext.addInitScript("""
+                    window.saRunningInTest = true;
+                    console.info("Playwright test environment initialized");
+                """.trimIndent())
+                playwrightContext.browserContext = browserContext
+
+                playwrightContext.page = browserContext.newPage()
+            }
         }
-
-        val browserContext = playwrightContext.browser.newContext(
-             Browser.NewContextOptions()
-                .setBaseURL(browserUrl)
-                .setViewportSize(1920, 1080)
-        )
-        browserContext.tracing().start(
-            Tracing.StartOptions()
-                .setScreenshots(true)
-                .setSnapshots(true)
-        )
-        browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
-        browserContext.addInitScript("""
-            window.saRunningInTest = true;
-            console.info("Playwright test environment initialized");
-        """.trimIndent())
-        playwrightContext.browserContext = browserContext
-
-        playwrightContext.page = browserContext.newPage()
     }
 
     override fun afterEach(extensionContext: ExtensionContext) {
         val playwrightContext = threadLocalPlaywrightContext.get()
             ?: throw IllegalStateException("Playwright context is not initialized for the current thread")
-        if (extensionContext.executionException.isPresent) {
-            val browserContext = playwrightContext.browserContext
-                ?: throw IllegalStateException("Browser context is not initialized in the Playwright context")
-            browserContext.tracing()
-                .stop(
-                    Tracing.StopOptions()
-                        .setPath(
-                            Path.of(
-                                "build", "playwright-traces",
-                                "${extensionContext.requiredTestClass.simpleName}-${extensionContext.requiredTestMethod.name}.zip"
+        
+        if (!TestConfig.instance.fullStackTests.usePersistentContext) {
+            // Only save traces for non-persistent context
+            if (extensionContext.executionException.isPresent) {
+                val browserContext = playwrightContext.browserContext
+                    ?: throw IllegalStateException("Browser context is not initialized in the Playwright context")
+                browserContext.tracing()
+                    .stop(
+                        Tracing.StopOptions()
+                            .setPath(
+                                Path.of(
+                                    "build", "playwright-traces",
+                                    "${extensionContext.requiredTestClass.simpleName}-${extensionContext.requiredTestMethod.name}.zip"
+                                )
                             )
-                        )
-                )
+                    )
+            }
+            playwrightContext.page?.close()
+            playwrightContext.page = null
+            playwrightContext.browserContext?.close()
+            playwrightContext.browserContext = null
+        } else {
+            // For persistent context, just close the page
+            playwrightContext.page?.close()
+            playwrightContext.page = null
         }
-        playwrightContext.page?.close()
-        playwrightContext.page = null
-        playwrightContext.browserContext?.close()
-        playwrightContext.browserContext = null
     }
 
     override fun supportsParameter(
@@ -129,7 +196,7 @@ private val threadLocalPlaywrightContext = ThreadLocal<PlaywrightContext?>()
 
 private data class PlaywrightContext(
     val playwright: Playwright,
-    val browser: Browser,
+    val browser: Browser?,
     var browserContext: BrowserContext? = null,
     var page: Page? = null,
 )
