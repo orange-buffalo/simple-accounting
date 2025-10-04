@@ -25,6 +25,7 @@ data class FullStackTestsConfig(
     val useViteDevServer: Boolean = false,
     val viteDevServerSpringContextPort: Int = 5174,
     val slowMoMs: Int = 0,
+    val usePersistentContext: Boolean = false,
 )
 
 data class ApiContractsConfig(
