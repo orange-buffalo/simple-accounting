@@ -55,6 +55,10 @@ fun SaOverviewItem.toUserOverviewItem(): UserOverviewItem {
 
 fun Page.shouldBeUsersOverviewPage(): UsersOverviewPage = UsersOverviewPage(this).shouldBeOpen()
 
+fun Page.shouldBeUsersOverviewPage(spec: UsersOverviewPage.() -> Unit) {
+    shouldBeUsersOverviewPage().spec()
+}
+
 fun Page.openUsersOverviewPage(): UsersOverviewPage {
     this.navigate("/admin/users")
     return shouldBeUsersOverviewPage()

@@ -36,7 +36,15 @@ class EditUserPage(page: Page) : UserPageBase<EditUserPage>(page) {
 
 fun Page.shouldBeCreateUserPage(): CreateUserPage = CreateUserPage(this).shouldBeOpen()
 
+fun Page.shouldBeCreateUserPage(spec: CreateUserPage.() -> Unit) {
+    shouldBeCreateUserPage().spec()
+}
+
 fun Page.shouldBeEditUserPage(): EditUserPage = EditUserPage(this).shouldBeOpen()
+
+fun Page.shouldBeEditUserPage(spec: EditUserPage.() -> Unit) {
+    shouldBeEditUserPage().spec()
+}
 
 class UserActivationStatus<T : UserPageBase<T>>(
     container: Locator,

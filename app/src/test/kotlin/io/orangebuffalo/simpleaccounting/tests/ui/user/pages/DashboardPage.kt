@@ -11,3 +11,7 @@ class DashboardPage(page: Page) : SaPageBase<DashboardPage>(page) {
 }
 
 fun Page.shouldBeDashboardPage(): DashboardPage = DashboardPage(this).shouldBeOpen()
+
+fun Page.shouldBeDashboardPage(spec: DashboardPage.() -> Unit) {
+    shouldBeDashboardPage().spec()
+}
