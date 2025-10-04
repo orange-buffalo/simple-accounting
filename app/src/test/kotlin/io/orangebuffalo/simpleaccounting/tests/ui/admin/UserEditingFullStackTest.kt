@@ -125,10 +125,12 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should render activated status`(page: Page) {
         setupPreconditionsAndNavigateToEditPage(page)
-            .activationStatus {
+        page.shouldBeEditUserPage {
+            activationStatus {
                 shouldBeVisible()
                 input { shouldBeActivated() }
             }
+        }
     }
 
     @Test
@@ -153,12 +155,14 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
             }
         }
         navigateToEditPage(page, data.farnsworth, data.user)
-            .activationStatus {
+        page.shouldBeEditUserPage {
+            activationStatus {
                 shouldBeVisible()
                 input {
                     shouldBeNotActivated("token-value")
                 }
             }
+        }
 
         aggregateTemplate.findAll<UserActivationToken>()
             .map { it.token }
@@ -189,7 +193,8 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
             }
         }
         navigateToEditPage(page, data.farnsworth, data.user)
-            .activationStatus {
+        page.shouldBeEditUserPage {
+            activationStatus {
                 shouldBeVisible()
                 input {
                     val newToken = shouldEventually("Should recreate token") {
@@ -201,6 +206,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
                     shouldBeNotActivated(newToken)
                 }
             }
+        }
     }
 
     @Test
@@ -217,7 +223,8 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
             }
         }
         navigateToEditPage(page, data.farnsworth, data.user)
-            .activationStatus {
+        page.shouldBeEditUserPage {
+            activationStatus {
                 shouldBeVisible()
                 input {
                     val newToken = shouldEventually("Should recreate token") {
@@ -228,6 +235,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
                     shouldBeNotActivated(newToken)
                 }
             }
+        }
     }
 
     private fun setupPreconditionsAndNavigateToEditPage(page: Page): EditUserPage =

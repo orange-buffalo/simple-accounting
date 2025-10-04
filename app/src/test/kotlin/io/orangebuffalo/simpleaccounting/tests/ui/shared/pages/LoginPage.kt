@@ -56,3 +56,7 @@ fun Page.openLoginPage(): LoginPage = LoginPage(this.also {
 fun Page.loginAs(user: PlatformUser) = openLoginPage().loginAs(user)
 
 fun Page.shouldBeLoginPage(): LoginPage = LoginPage(this).shouldBeOpen()
+
+fun Page.shouldBeLoginPage(spec: LoginPage.() -> Unit) {
+    shouldBeLoginPage().spec()
+}
