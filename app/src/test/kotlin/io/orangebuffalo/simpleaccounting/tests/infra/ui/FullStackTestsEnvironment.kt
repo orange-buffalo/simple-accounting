@@ -111,9 +111,14 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
                 
                 // Clear storage to ensure test isolation
                 persistentContext.clearCookies()
-                persistentContext.pages().forEach { it.evaluate("() => { localStorage.clear(); sessionStorage.clear(); }") }
+                // Close all existing pages to ensure clean state
+                persistentContext.pages().forEach { it.close() }
                 
-                playwrightContext.page = persistentContext.newPage()
+                val newPage = persistentContext.newPage()
+                // Navigate to the base URL and clear storage
+                newPage.navigate("$browserUrl/")
+                newPage.evaluate("() => { localStorage.clear(); sessionStorage.clear(); }")
+                playwrightContext.page = newPage
             } else {
                 // For non-persistent mode, create a new context and page as before
                 val browserContext = playwrightContext.browser!!.newContext(
