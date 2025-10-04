@@ -13,7 +13,7 @@ out/
 
 ### Local dev environment
 .gradletasknamecache
-/local-dev
+local-dev/
 
 
 ### Jest coverage files
