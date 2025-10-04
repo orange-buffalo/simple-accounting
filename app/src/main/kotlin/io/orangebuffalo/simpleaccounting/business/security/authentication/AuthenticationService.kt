@@ -5,6 +5,7 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -110,4 +111,4 @@ sealed class PasswordChangeException(message: String) : RuntimeException(message
     class UserNotAuthenticatedException : PasswordChangeException("User is not authenticated")
 }
 
-class UserNotActivatedException : RuntimeException("User is not activated")
+class UserNotActivatedException : AuthenticationException("User is not activated")

@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFou
 import io.orangebuffalo.simpleaccounting.business.security.InsufficientUserType
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AccountIsTemporaryLockedException
 import io.orangebuffalo.simpleaccounting.business.security.authentication.LoginUnavailableException
+import io.orangebuffalo.simpleaccounting.business.security.authentication.UserNotActivatedException
 import io.orangebuffalo.simpleaccounting.business.workspaces.InvalidWorkspaceAccessTokenException
 import io.swagger.v3.oas.models.media.ObjectSchema
 import io.swagger.v3.oas.models.media.StringSchema
@@ -69,7 +70,7 @@ internal class RestApiControllerExceptionsHandler(
     }
 
     @ExceptionHandler
-    fun onException(exception: io.orangebuffalo.simpleaccounting.business.security.authentication.UserNotActivatedException): Mono<ResponseEntity<GeneralErrorDto>> {
+    fun onException(exception: UserNotActivatedException): Mono<ResponseEntity<GeneralErrorDto>> {
         logger.trace(exception) {}
         return Mono.just(
             ResponseEntity.status(HttpStatus.UNAUTHORIZED)

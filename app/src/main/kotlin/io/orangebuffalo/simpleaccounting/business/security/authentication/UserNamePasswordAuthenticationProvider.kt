@@ -69,7 +69,7 @@ class UserNamePasswordAuthenticationProvider(
                 withTimeout(AUTHENTICATION_REQUEST_TIMEOUT_MS) {
                     authenticationResponse.await()
                 }
-            } catch (e: TimeoutCancellationException) {
+            } catch (_: TimeoutCancellationException) {
                 throw LoginUnavailableException()
             }
         }
