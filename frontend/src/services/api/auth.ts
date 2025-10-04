@@ -21,7 +21,8 @@ const apiToken: ApiToken = {
   isTransient: false,
 };
 
-function updateApiToken(jwtToken: string | null) {
+// TODO remove export and make private one migrated fully to GraphQL
+export function updateApiToken(jwtToken: string | null) {
   apiToken.jwtToken = jwtToken;
   apiToken.isAdmin = false;
   apiToken.isTransient = false;
