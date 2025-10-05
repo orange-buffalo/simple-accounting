@@ -13,4 +13,7 @@ fullStackTestsConfig:
   useViteDevServer: false
   # to use when custom static port for tests is needed
   viteDevServerSpringContextPort: 5174
+  # if true, browser state (window size, dev tools config, etc) will be persisted between test runs
+  # useful for local development, should be false on CI
+  usePersistentContext: false
 hostIpInDockerContainer: "172.17.0.1"
