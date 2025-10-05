@@ -15,12 +15,13 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Companion.switchByContainer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemSelectByLabel
 
 class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("My Profile")
     private val passwordChangeForm = PasswordChangeForm(page, components)
     private val documentsStorageSection = DocumentStorageSection(components)
-    private val languagePreferencesSection = LanguagePreferencesSection(page)
+    private val languagePreferencesSection = LanguagePreferencesSection(components)
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
@@ -31,8 +32,9 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
         passwordChangeForm.spec()
     }
 
-    fun shouldHaveLanguagePreferencesSectionVisible() {
+    fun shouldHaveLanguagePreferencesSectionVisible(spec: LanguagePreferencesSection.() -> Unit = {}) {
         languagePreferencesSection.shouldBeVisible()
+        languagePreferencesSection.spec()
     }
 
     fun shouldHaveDocumentsStorageSectionVisible(spec: DocumentStorageSection.() -> Unit = {}) {
@@ -122,9 +124,12 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     }
 
     @UiComponentMarker
-    class LanguagePreferencesSection(page: Page) {
+    class LanguagePreferencesSection(components: ComponentsAccessors) {
         private val languagePreferencesSectionHeader =
-            page.locator("//*[contains(@class, 'el-form')]//h2[text()='Language Preferences']")
+            components.page.locator("//*[contains(@class, 'el-form')]//h2[text()='Language Preferences']")
+        
+        val languageFormItem = components.formItemSelectByLabel("Interface Language")
+        val localeFormItem = components.formItemSelectByLabel("Language to display dates, amounts, etc")
 
         fun shouldBeVisible() {
             languagePreferencesSectionHeader.shouldBeVisible()

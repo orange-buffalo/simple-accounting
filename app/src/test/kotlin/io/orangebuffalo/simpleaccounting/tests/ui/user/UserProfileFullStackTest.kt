@@ -5,6 +5,14 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import org.junit.jupiter.api.Test
 
+/**
+ * Tests basic rendering of My Profile page for regular users.
+ * See also:
+ * - [PasswordChangeFullStackTest] for password change functionality
+ * - [UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
+ * - [LanguagePreferencesFullStackTest] for language and locale preferences
+ * - [io.orangebuffalo.simpleaccounting.tests.ui.admin.AdminProfileFullStackTest] for admin profile specifics
+ */
 class UserProfileFullStackTest : SaFullStackTestBase() {
 
     @Test
