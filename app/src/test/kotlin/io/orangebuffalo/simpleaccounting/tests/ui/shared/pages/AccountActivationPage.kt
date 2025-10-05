@@ -9,14 +9,14 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
 
-class AccountActivationPage(page: Page) : SaPageBase<AccountActivationPage>(page) {
+class AccountActivationPage private constructor(page: Page) : SaPageBase(page) {
 
     val userMessage = components.statusLabel()
     val form = AccountActivationForm(components)
     val loginButton = components.buttonByText("Login now")
 
-    inner class AccountActivationForm(components: ComponentsAccessors<AccountActivationPage>) :
-        UiComponent<AccountActivationPage, AccountActivationForm>(this) {
+    inner class AccountActivationForm(components: ComponentsAccessors) :
+        UiComponent<AccountActivationForm>() {
         val newPassword = components.formItemTextInputByLabel("New Password")
         val newPasswordConfirmation = components.formItemTextInputByLabel("New Password Confirmation")
         val activateAccountButton = components.buttonByText("Activate Account")
@@ -33,7 +33,10 @@ class AccountActivationPage(page: Page) : SaPageBase<AccountActivationPage>(page
             activateAccountButton.shouldBeVisible()
         }
     }
-}
 
-fun Page.openAccountActivationPage(token: String?): AccountActivationPage =
-    AccountActivationPage(navigateAndDisableAnimations("/activate-account${if (token != null) "/$token" else ""}"))
+    companion object {
+        fun Page.openAccountActivationPage(token: String?, spec: AccountActivationPage.() -> Unit) {
+            AccountActivationPage(navigateAndDisableAnimations("/activate-account${if (token != null) "/$token" else ""}")).spec()
+        }
+    }
+}

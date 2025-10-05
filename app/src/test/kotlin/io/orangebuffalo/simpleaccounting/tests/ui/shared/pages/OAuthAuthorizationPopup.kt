@@ -12,7 +12,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 
-class OAuthAuthorizationPopup(page: Page) : SaPageBase<OAuthAuthorizationPopup>(page) {
+class OAuthAuthorizationPopup private constructor(page: Page) : SaPageBase(page) {
     private val pageContainer = page.locator(".oauth-callback-page")
     private val status = components.statusLabel()
 
@@ -44,7 +44,7 @@ class OAuthAuthorizationPopup(page: Page) : SaPageBase<OAuthAuthorizationPopup>(
                     Thread.sleep(1000)
                     authorizationPopup = OAuthAuthorizationPopup(popup)
                     withHint("OAuth authorization popup should be visible") {
-                        authorizationPopup!!.pageContainer.shouldBeVisible()
+                        authorizationPopup.pageContainer.shouldBeVisible()
                     }
                 },
                 blockedRequestSpec = {

@@ -9,9 +9,9 @@ import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.openUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeEditUserPage
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage.Companion.shouldBeEditUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.openUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.shouldBeUsersOverviewPage
 import org.junit.jupiter.api.Test
 
 class UserEditingFullStackTest : SaFullStackTestBase() {
@@ -24,20 +24,21 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should update user`(page: Page) {
-        setupPreconditionsAndNavigateToEditPage(page)
-            .userName {
+        page.setupPreconditionsAndNavigateToEditPage {
+            userName {
                 input.shouldHaveValue(preconditions.fry.userName)
             }
-            .role {
+            role {
                 input.shouldBeDisabled()
             }
-            .userName {
+            userName {
                 input.fill("fryX")
             }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            saveButton { click() }
+            shouldHaveNotifications {
                 success("User fryX has been successfully saved")
             }
+        }
 
         page.shouldBeUsersOverviewPage()
 
@@ -50,85 +51,87 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should navigate to overview on update cancel`(page: Page) {
-        setupPreconditionsAndNavigateToEditPage(page)
-            .cancelButton { click() }
+        page.setupPreconditionsAndNavigateToEditPage {
+            cancelButton { click() }
+        }
 
         page.shouldBeUsersOverviewPage()
     }
 
     @Test
     fun `should validate input`(page: Page) {
-        val editUserPage = setupPreconditionsAndNavigateToEditPage(page)
-
-        editUserPage
-            .userName {
+        page.setupPreconditionsAndNavigateToEditPage {
+            userName {
                 // wait for page data to load
                 input.shouldHaveValue(preconditions.fry.userName)
                 input.fill("")
             }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            saveButton { click() }
+            shouldHaveNotifications {
                 validationFailed()
             }
-            .userName {
+            userName {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
-            .role {
+            role {
                 shouldNotHaveValidationErrors()
             }
 
-        editUserPage
-            .userName { input.fill("x".repeat(256)) }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            userName { input.fill("x".repeat(256)) }
+            saveButton { click() }
+            shouldHaveNotifications {
                 validationFailed()
             }
-            .userName {
+            userName {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
 
-        editUserPage.userName { input.fill("x".repeat(255)) }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            userName { input.fill("x".repeat(255)) }
+            saveButton { click() }
+            shouldHaveNotifications {
                 success()
             }
+        }
     }
 
     @Test
     fun `should validate user name uniqueness`(page: Page) {
-        setupPreconditionsAndNavigateToEditPage(page)
-            .userName {
+        page.setupPreconditionsAndNavigateToEditPage {
+            userName {
                 // wait for page data to load
                 input.shouldHaveValue(preconditions.fry.userName)
                 input.fill(preconditions.farnsworth.userName)
             }
-            .saveButton { click() }
-            .userName { shouldHaveValidationError("User with username \"${preconditions.farnsworth.userName}\" already exists") }
-            .shouldHaveNotifications {
+            saveButton { click() }
+            userName { shouldHaveValidationError("User with username \"${preconditions.farnsworth.userName}\" already exists") }
+            shouldHaveNotifications {
                 validationFailed()
             }
+        }
     }
 
     @Test
     fun `should not fail with validation if user name is not changed`(page: Page) {
-        setupPreconditionsAndNavigateToEditPage(page)
-            .userName {
+        page.setupPreconditionsAndNavigateToEditPage {
+            userName {
                 // wait for page data to load
                 input.shouldHaveValue(preconditions.fry.userName)
             }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            saveButton { click() }
+            shouldHaveNotifications {
                 success()
             }
+        }
     }
 
     @Test
     fun `should render activated status`(page: Page) {
-        setupPreconditionsAndNavigateToEditPage(page)
-            .activationStatus {
+        page.setupPreconditionsAndNavigateToEditPage {
+            activationStatus {
                 shouldBeVisible()
                 input { shouldBeActivated() }
             }
+        }
     }
 
     @Test
@@ -152,13 +155,14 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
                 }
             }
         }
-        navigateToEditPage(page, data.farnsworth, data.user)
-            .activationStatus {
+        page.navigateToEditPage(data.farnsworth, data.user) {
+            activationStatus {
                 shouldBeVisible()
                 input {
                     shouldBeNotActivated("token-value")
                 }
             }
+        }
 
         aggregateTemplate.findAll<UserActivationToken>()
             .map { it.token }
@@ -188,8 +192,8 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
                 }
             }
         }
-        navigateToEditPage(page, data.farnsworth, data.user)
-            .activationStatus {
+        page.navigateToEditPage(data.farnsworth, data.user) {
+            activationStatus {
                 shouldBeVisible()
                 input {
                     val newToken = shouldEventually("Should recreate token") {
@@ -201,6 +205,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
                     shouldBeNotActivated(newToken)
                 }
             }
+        }
     }
 
     @Test
@@ -216,33 +221,41 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
                 )
             }
         }
-        navigateToEditPage(page, data.farnsworth, data.user)
-            .activationStatus {
-                shouldBeVisible()
-                input {
-                    val newToken = shouldEventually("Should recreate token") {
-                        aggregateTemplate.findAll<UserActivationToken>()
-                            .map { it.token }
-                            .shouldBeSingle()
+        page.navigateToEditPage(data.farnsworth, data.user) {
+            page.shouldBeEditUserPage {
+                activationStatus {
+                    shouldBeVisible()
+                    input {
+                        val newToken = shouldEventually("Should recreate token") {
+                            aggregateTemplate.findAll<UserActivationToken>()
+                                .map { it.token }
+                                .shouldBeSingle()
+                        }
+                        shouldBeNotActivated(newToken)
                     }
-                    shouldBeNotActivated(newToken)
                 }
             }
+        }
     }
 
-    private fun setupPreconditionsAndNavigateToEditPage(page: Page): EditUserPage =
-        navigateToEditPage(page = page, admin = preconditions.farnsworth, userUnderEdit = preconditions.fry)
+    private fun Page.setupPreconditionsAndNavigateToEditPage(spec: EditUserPage.() -> Unit) =
+        navigateToEditPage(admin = preconditions.farnsworth, userUnderEdit = preconditions.fry, spec)
 
-    private fun navigateToEditPage(page: Page, admin: PlatformUser, userUnderEdit: PlatformUser): EditUserPage {
-        page.authenticateViaCookie(admin)
-        page.openUsersOverviewPage()
-            .pageItems {
+    private fun Page.navigateToEditPage(
+        admin: PlatformUser,
+        userUnderEdit: PlatformUser,
+        spec: EditUserPage.() -> Unit
+    ) {
+        authenticateViaCookie(admin)
+        openUsersOverviewPage {
+            pageItems {
                 finishLoadingWhenTimeMocked()
                 val userUnderEditItem = shouldHaveItemSatisfying {
                     it.title == userUnderEdit.userName
                 }
                 userUnderEditItem.executeAction("Edit")
             }
-        return page.shouldBeEditUserPage()
+        }
+        shouldBeEditUserPage(spec)
     }
 }

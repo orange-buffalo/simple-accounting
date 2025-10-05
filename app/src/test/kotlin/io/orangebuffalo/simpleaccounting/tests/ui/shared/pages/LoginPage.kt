@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Com
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import java.util.regex.Pattern
 
-class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
+class LoginPage private constructor(page: Page) : SaPageBase(page) {
 
     private val container = page.locator(".login-page")
     val loginInput = components.textInputByPlaceholder("Login")
@@ -26,33 +26,39 @@ class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
         loginButton.click()
     }
 
-    fun shouldBeOpen(): LoginPage {
+    private fun shouldBeOpen() {
         loginInput.shouldBeVisible()
         passwordInput.shouldBeVisible()
         loginButton.shouldBeVisible()
-        return this
     }
 
-    fun shouldHaveErrorMessage(expectedMessage: String): LoginPage {
+    fun shouldHaveErrorMessage(expectedMessage: String) {
         errorMessage.shouldHaveText(expectedMessage)
-        return this
     }
 
-    fun shouldHaveErrorMessageMatching(expectedPattern: String): LoginPage {
+    fun shouldHaveErrorMessageMatching(expectedPattern: String) {
         errorMessage.shouldHaveText(Pattern.compile(expectedPattern))
-        return this
     }
 
-    fun reportRendering(name: String): LoginPage {
+    fun reportRendering(name: String) {
         container.reportRendering(name)
-        return this
+    }
+
+    companion object {
+        fun Page.openLoginPage(spec: LoginPage.() -> Unit) {
+            navigate("/")
+            LoginPage(this).spec()
+        }
+
+        fun Page.loginAs(user: PlatformUser) {
+            openLoginPage { loginAs(user) }
+        }
+
+        fun Page.shouldBeLoginPage(spec: LoginPage.() -> Unit) {
+            LoginPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
     }
 }
-
-fun Page.openLoginPage(): LoginPage = LoginPage(this.also {
-    navigate("/")
-})
-
-fun Page.loginAs(user: PlatformUser) = openLoginPage().loginAs(user)
-
-fun Page.shouldBeLoginPage(): LoginPage = LoginPage(this).shouldBeOpen()

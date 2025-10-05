@@ -14,9 +14,9 @@ import io.orangebuffalo.simpleaccounting.business.users.LoginStatistics
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.shouldBeUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openLoginPage
-import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeDashboardPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.shouldBeUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.LoginPage.Companion.openLoginPage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.shouldBeDashboardPage
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
@@ -34,33 +34,34 @@ class LoginFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should login as regular user and verify remember me cookie`(page: Page) {
-        val loginPage = page.openLoginPage()
-            .reportRendering("login.initial-state")
-            .loginButton {
+        page.openLoginPage {
+            reportRendering("login.initial-state")
+            loginButton {
                 shouldBeDisabled()
                 shouldHaveLabelSatisfying { it.shouldBeEqualIgnoringCase("Login") }
             }
-            .rememberMeCheckbox { shouldBeChecked() }
-            .loginInput { fill(preconditions.fry.userName) }
-            .loginButton { shouldBeDisabled() }
-            .passwordInput { fill(preconditions.fry.passwordHash) }
-            .loginButton { shouldBeEnabled() }
-            .reportRendering("login.filled-state")
+            rememberMeCheckbox { shouldBeChecked() }
+            loginInput { fill(preconditions.fry.userName) }
+            loginButton { shouldBeDisabled() }
+            passwordInput { fill(preconditions.fry.passwordHash) }
+            loginButton { shouldBeEnabled() }
+            reportRendering("login.filled-state")
 
-        page.withBlockedApiResponse(
-            "**",
-            initiator = {
-                loginPage.loginButton { click() }
-            },
-            blockedRequestSpec = {
-                loginPage.loginInput.shouldBeDisabled()
-                loginPage.passwordInput.shouldBeDisabled()
-                loginPage.rememberMeCheckbox.shouldBeDisabled()
-                loginPage.loginButton.shouldBeDisabled()
-                loginPage.loginButton.shouldHaveLabelSatisfying { it.shouldBeEmpty() }
-                loginPage.reportRendering("login.loading-state")
-            }
-        )
+            page.withBlockedApiResponse(
+                "**",
+                initiator = {
+                    loginButton { click() }
+                },
+                blockedRequestSpec = {
+                    loginInput.shouldBeDisabled()
+                    passwordInput.shouldBeDisabled()
+                    rememberMeCheckbox.shouldBeDisabled()
+                    loginButton.shouldBeDisabled()
+                    loginButton.shouldHaveLabelSatisfying { it.shouldBeEmpty() }
+                    reportRendering("login.loading-state")
+                }
+            )
+        }
 
         page.shouldBeDashboardPage()
 
@@ -89,16 +90,17 @@ class LoginFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should login as admin user`(page: Page) {
-        page.openLoginPage()
-            .loginButton { shouldBeDisabled() }
-            .rememberMeCheckbox { shouldBeChecked() }
-            .loginInput { fill(preconditions.farnsworth.userName) }
-            .loginButton { shouldBeDisabled() }
-            .passwordInput { fill(preconditions.farnsworth.passwordHash) }
-            .loginButton {
+        page.openLoginPage {
+            loginButton { shouldBeDisabled() }
+            rememberMeCheckbox { shouldBeChecked() }
+            loginInput { fill(preconditions.farnsworth.userName) }
+            loginButton { shouldBeDisabled() }
+            passwordInput { fill(preconditions.farnsworth.passwordHash) }
+            loginButton {
                 shouldBeEnabled()
                 click()
             }
+        }
         page.shouldBeUsersOverviewPage()
     }
 
@@ -106,16 +108,17 @@ class LoginFullStackTest : SaFullStackTestBase() {
     fun `should show bad credentials error and update login statistics`(page: Page) {
         mockWrongPassword()
 
-        page.openLoginPage()
-            .loginInput { fill(preconditions.fry.userName) }
-            .passwordInput { fill("wrongpassword") }
-            .loginButton { click() }
-            .shouldHaveErrorMessage("Login attempt failed. Please make sure login and password is correct")
-            .reportRendering("login.error-state")
-            .loginInput { shouldBeEnabled() }
-            .passwordInput { shouldBeEnabled() }
-            .loginButton { shouldBeEnabled() }
-            .rememberMeCheckbox { shouldBeEnabled() }
+        page.openLoginPage {
+            loginInput { fill(preconditions.fry.userName) }
+            passwordInput { fill("wrongpassword") }
+            loginButton { click() }
+            shouldHaveErrorMessage("Login attempt failed. Please make sure login and password is correct")
+            reportRendering("login.error-state")
+            loginInput { shouldBeEnabled() }
+            passwordInput { shouldBeEnabled() }
+            loginButton { shouldBeEnabled() }
+            rememberMeCheckbox { shouldBeEnabled() }
+        }
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(1)
@@ -133,11 +136,12 @@ class LoginFullStackTest : SaFullStackTestBase() {
         }
         mockWrongPassword()
 
-        page.openLoginPage()
-            .loginInput { fill(preconditions.fry.userName) }
-            .passwordInput { fill("wrongpassword") }
-            .loginButton { click() }
-            .shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in 0:\\d\\d")
+        page.openLoginPage {
+            loginInput { fill(preconditions.fry.userName) }
+            passwordInput { fill("wrongpassword") }
+            loginButton { click() }
+            shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in 0:\\d\\d")
+        }
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(6)
@@ -153,10 +157,11 @@ class LoginFullStackTest : SaFullStackTestBase() {
             temporaryLockExpirationTime = MOCK_TIME.minusSeconds(1)
         }
 
-        page.openLoginPage()
-            .loginInput { fill(preconditions.fry.userName) }
-            .passwordInput { fill(preconditions.fry.passwordHash) }
-            .loginButton { click() }
+        page.openLoginPage {
+            loginInput { fill(preconditions.fry.userName) }
+            passwordInput { fill(preconditions.fry.passwordHash) }
+            loginButton { click() }
+        }
 
         page.shouldBeDashboardPage()
 
@@ -173,12 +178,13 @@ class LoginFullStackTest : SaFullStackTestBase() {
             temporaryLockExpirationTime = MOCK_TIME.plusSeconds(300)
         }
 
-        page.openLoginPage()
-            .loginInput { fill(preconditions.fry.userName) }
+        page.openLoginPage {
+            loginInput { fill(preconditions.fry.userName) }
             // correct password
-            .passwordInput { fill(preconditions.fry.passwordHash) }
-            .loginButton { click() }
-            .shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in \\d:\\d\\d")
+            passwordInput { fill(preconditions.fry.passwordHash) }
+            loginButton { click() }
+            shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in \\d:\\d\\d")
+        }
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(6)
@@ -194,11 +200,12 @@ class LoginFullStackTest : SaFullStackTestBase() {
         }
         mockWrongPassword()
 
-        page.openLoginPage()
-            .loginInput { fill(preconditions.fry.userName) }
-            .passwordInput { fill("wrongpassword") }
-            .loginButton { click() }
-            .shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in \\d:\\d\\d")
+        page.openLoginPage {
+            loginInput { fill(preconditions.fry.userName) }
+            passwordInput { fill("wrongpassword") }
+            loginButton { click() }
+            shouldHaveErrorMessageMatching("Account is temporary locked\\. It will be unlocked in \\d:\\d\\d")
+        }
 
         assertFryLoginStatistics {
             failedAttemptsCount.shouldBe(8)
@@ -208,15 +215,16 @@ class LoginFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should forbid login for not activated users`(page: Page) {
-        page.openLoginPage()
-            .loginInput { fill(preconditions.scruffy.userName) }
-            .passwordInput { fill(preconditions.scruffy.passwordHash) }
-            .loginButton { click() }
-            .shouldHaveErrorMessage(
+        page.openLoginPage {
+            loginInput { fill(preconditions.scruffy.userName) }
+            passwordInput { fill(preconditions.scruffy.passwordHash) }
+            loginButton { click() }
+            shouldHaveErrorMessage(
                 "Your account is not yet activated. " +
                         "Please use the token shared with you by the administrators. " +
                         "Contact them if you need to reset the token"
             )
+        }
     }
 
     private fun mockWrongPassword() {

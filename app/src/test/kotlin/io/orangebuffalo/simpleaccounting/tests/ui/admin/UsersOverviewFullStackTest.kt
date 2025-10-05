@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UserOverviewItem
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.openUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.openUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.toUserOverviewItem
 import org.junit.jupiter.api.Test
 
@@ -13,8 +13,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
     fun `should provide users overview`(page: Page) {
         val preconditions = setupOverviewPreconditions()
         page.authenticateViaCookie(preconditions.farnsworth)
-        page.openUsersOverviewPage()
-            .pageItems {
+        page.openUsersOverviewPage {
+            pageItems {
                 shouldHaveExactItems(
                     UserOverviewItem(
                         userName = "aUser",
@@ -43,6 +43,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveTotalPages(1)
                 }
             }
+        }
     }
 
     @Test
@@ -53,8 +54,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
             "Farnsworth", "user 1", "user 10", "user 11", "user 12",
             "user 13", "user 14", "user 15", "user 2", "user 3"
         )
-        page.openUsersOverviewPage()
-            .pageItems {
+        page.openUsersOverviewPage {
+            pageItems {
                 shouldHaveExactItems(*firsPageUsers) { it.title }
                 paginator {
                     shouldHaveActivePage(1)
@@ -73,14 +74,15 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                 }
                 shouldHaveExactItems(*firsPageUsers) { it.title }
             }
+        }
     }
 
     @Test
     fun `should support filtering`(page: Page) {
         val preconditions = setupFilteringPreconditions()
         page.authenticateViaCookie(preconditions.farnsworth)
-        page.openUsersOverviewPage()
-            .pageItems {
+        page.openUsersOverviewPage {
+            pageItems {
                 // ensure all targeted items visible by default
                 shouldContainItems(
                     "aBcDef", "abcdef", "ABCDEF", "qwerty"
@@ -91,8 +93,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveTotalPages(2)
                 }
             }
-            .filterInput { fill("cd") }
-            .pageItems {
+            filterInput { fill("cd") }
+            pageItems {
                 shouldHaveExactItems(
                     "aBcDef", "abcdef", "ABCDEF"
                 ) { it.title }
@@ -101,6 +103,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveTotalPages(1)
                 }
             }
+        }
     }
 
     private fun setupOverviewPreconditions() = preconditions {

@@ -7,7 +7,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openMyProfilePage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
@@ -22,20 +22,22 @@ class PasswordChangeFullStackTest(
         whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
 
         page.authenticateViaCookie(preconditions.fry)
-        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
-            currentPassword {
-                input { fill("currentPassword") }
-            }
-            newPassword {
-                input { fill("newPassword") }
-            }
-            newPasswordConfirmation {
-                input { fill("newPassword") }
-            }
-            changePasswordButton { click() }
+        page.openMyProfilePage {
+            shouldHavePasswordChangeSectionVisible {
+                currentPassword {
+                    input { fill("currentPassword") }
+                }
+                newPassword {
+                    input { fill("newPassword") }
+                }
+                newPasswordConfirmation {
+                    input { fill("newPassword") }
+                }
+                changePasswordButton { click() }
 
-            page.shouldHaveNotifications {
-                success("Password has been changed")
+                page.shouldHaveNotifications {
+                    success("Password has been changed")
+                }
             }
         }
 
@@ -47,39 +49,43 @@ class PasswordChangeFullStackTest(
     @Test
     fun `should prevent submit if inputs not provided`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
-        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
-            changePasswordButton { shouldBeDisabled() }
-            currentPassword {
-                input { fill("currentPassword") }
+        page.openMyProfilePage {
+            shouldHavePasswordChangeSectionVisible {
+                changePasswordButton { shouldBeDisabled() }
+                currentPassword {
+                    input { fill("currentPassword") }
+                }
+                changePasswordButton { shouldBeDisabled() }
+                newPassword {
+                    input { fill("newPassword") }
+                }
+                changePasswordButton { shouldBeDisabled() }
+                newPasswordConfirmation {
+                    input { fill("newPassword") }
+                }
+                changePasswordButton { shouldBeEnabled() }
             }
-            changePasswordButton { shouldBeDisabled() }
-            newPassword {
-                input { fill("newPassword") }
-            }
-            changePasswordButton { shouldBeDisabled() }
-            newPasswordConfirmation {
-                input { fill("newPassword") }
-            }
-            changePasswordButton { shouldBeEnabled() }
         }
     }
 
     @Test
     fun `should validate that confirmation matches the new password`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
-        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
-            currentPassword {
-                input { fill("currentPassword") }
-            }
-            newPassword {
-                input { fill("newPassword") }
-            }
-            newPasswordConfirmation {
-                input { fill("newPassword1") }
-            }
-            changePasswordButton { click() }
-            newPasswordConfirmation {
-                shouldHaveValidationError("New password confirmation does not match")
+        page.openMyProfilePage {
+            shouldHavePasswordChangeSectionVisible {
+                currentPassword {
+                    input { fill("currentPassword") }
+                }
+                newPassword {
+                    input { fill("newPassword") }
+                }
+                newPasswordConfirmation {
+                    input { fill("newPassword1") }
+                }
+                changePasswordButton { click() }
+                newPasswordConfirmation {
+                    shouldHaveValidationError("New password confirmation does not match")
+                }
             }
         }
     }
@@ -89,19 +95,21 @@ class PasswordChangeFullStackTest(
         whenever(passwordEncoder.matches("currentPassword", preconditions.fry.passwordHash)) doReturn false
 
         page.authenticateViaCookie(preconditions.fry)
-        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
-            currentPassword {
-                input { fill("currentPassword") }
-            }
-            newPassword {
-                input { fill("newPassword") }
-            }
-            newPasswordConfirmation {
-                input { fill("newPassword") }
-            }
-            changePasswordButton { click() }
-            currentPassword {
-                shouldHaveValidationError("Current password does not match")
+        page.openMyProfilePage {
+            shouldHavePasswordChangeSectionVisible {
+                currentPassword {
+                    input { fill("currentPassword") }
+                }
+                newPassword {
+                    input { fill("newPassword") }
+                }
+                newPasswordConfirmation {
+                    input { fill("newPassword") }
+                }
+                changePasswordButton { click() }
+                currentPassword {
+                    shouldHaveValidationError("Current password does not match")
+                }
             }
         }
 
@@ -117,19 +125,21 @@ class PasswordChangeFullStackTest(
         whenever(passwordEncoder.encode("newPassword")) doReturn "newPasswordHash"
 
         page.authenticateViaCookie(preconditions.farnsworth)
-        page.openMyProfilePage().shouldHavePasswordChangeSectionVisible {
-            currentPassword {
-                input { fill("currentPassword") }
-            }
-            newPassword {
-                input { fill("newPassword") }
-            }
-            newPasswordConfirmation {
-                input { fill("newPassword") }
-            }
-            changePasswordButton { click() }
-            page.shouldHaveNotifications {
-                success("Password has been changed")
+        page.openMyProfilePage {
+            shouldHavePasswordChangeSectionVisible {
+                currentPassword {
+                    input { fill("currentPassword") }
+                }
+                newPassword {
+                    input { fill("newPassword") }
+                }
+                newPasswordConfirmation {
+                    input { fill("newPassword") }
+                }
+                changePasswordButton { click() }
+                page.shouldHaveNotifications {
+                    success("Password has been changed")
+                }
             }
         }
 

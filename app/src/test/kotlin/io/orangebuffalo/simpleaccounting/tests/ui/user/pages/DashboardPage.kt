@@ -4,10 +4,19 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 
-class DashboardPage(page: Page) : SaPageBase<DashboardPage>(page) {
+class DashboardPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Dashboard")
 
-    fun shouldBeOpen() = header.shouldBeVisible()
-}
+    private fun shouldBeOpen() {
+        header.shouldBeVisible()
+    }
 
-fun Page.shouldBeDashboardPage(): DashboardPage = DashboardPage(this).shouldBeOpen()
+    companion object {
+        fun Page.shouldBeDashboardPage(spec: DashboardPage.() -> Unit = {}) {
+            DashboardPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
+    }
+}

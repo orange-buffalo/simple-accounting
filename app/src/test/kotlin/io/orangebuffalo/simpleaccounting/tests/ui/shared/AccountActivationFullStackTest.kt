@@ -9,9 +9,9 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openAccountActivationPage
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.shouldBeLoginPage
-import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.shouldBeAccountSetupPage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.AccountActivationPage.Companion.openAccountActivationPage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.LoginPage.Companion.shouldBeLoginPage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.AccountSetupPage.Companion.shouldBeAccountSetupPage
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
@@ -40,27 +40,28 @@ class AccountActivationFullStackTest(
 
     @Test
     fun `should provide feedback if token is not known`(page: Page) {
-        page.openAccountActivationPage("xxx")
-            .userMessage {
+        page.openAccountActivationPage("xxx") {
+            userMessage {
                 shouldBeError("Provided token is invalid or expired. Please request a new one.")
             }
-            .loginButton { shouldBeHidden() }
-            .form { shouldNotBeVisible() }
+            loginButton { shouldBeHidden() }
+            form { shouldNotBeVisible() }
+        }
     }
 
     @Test
     fun `should provide feedback if token expired during activation`(page: Page) {
-        page.openAccountActivationPage(preconditions.token.token)
-            .userMessage {
+        page.openAccountActivationPage(preconditions.token.token) {
+            userMessage {
                 shouldBeRegular("Please provide your new password. You will then need to login using your username and new password.")
             }
-            .form { shouldBeVisible() }
-            .loginButton { shouldBeHidden() }
-            .then {
-                // now, token is expired - to simulate token expiration during activation
-                whenever(timeServiceSpy.currentTime()) doReturn preconditions.token.expiresAt.plusSeconds(1)
-            }
-            .form {
+            form { shouldBeVisible() }
+            loginButton { shouldBeHidden() }
+
+            // now, token is expired - to simulate token expiration during activation
+            whenever(timeServiceSpy.currentTime()) doReturn preconditions.token.expiresAt.plusSeconds(1)
+
+            form {
                 newPassword {
                     input { fill("qwerty") }
                 }
@@ -72,79 +73,81 @@ class AccountActivationFullStackTest(
                 }
                 shouldNotBeVisible()
             }
-            .userMessage {
+            userMessage {
                 shouldBeError("Provided token is invalid or expired. Please request a new one.")
             }
-            .loginButton { shouldBeHidden() }
+            loginButton { shouldBeHidden() }
+        }
     }
 
     @Test
     fun `should validate user input`(page: Page) {
-        page.openAccountActivationPage(preconditions.token.token).form {
-            withHint("Should validate password match when confirmation is not provided") {
-                newPassword.input.fill("abc")
-                activateAccountButton.click()
-                shouldBeVisible()
-                newPassword.shouldNotHaveValidationErrors()
-                newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
-            }
+        page.openAccountActivationPage(preconditions.token.token) {
+            form {
+                withHint("Should validate password match when confirmation is not provided") {
+                    newPassword.input.fill("abc")
+                    activateAccountButton.click()
+                    shouldBeVisible()
+                    newPassword.shouldNotHaveValidationErrors()
+                    newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
+                }
 
-            withHint("Should validate password match when confirmation is provided") {
-                newPassword.input.fill("abc")
-                newPasswordConfirmation.input.fill("def")
-                activateAccountButton.click()
-                shouldBeVisible()
-                newPassword.shouldNotHaveValidationErrors()
-                newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
-            }
+                withHint("Should validate password match when confirmation is provided") {
+                    newPassword.input.fill("abc")
+                    newPasswordConfirmation.input.fill("def")
+                    activateAccountButton.click()
+                    shouldBeVisible()
+                    newPassword.shouldNotHaveValidationErrors()
+                    newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
+                }
 
-            withHint("Should prohibit empty password") {
-                newPassword.input.fill("")
-                newPasswordConfirmation.input.fill("")
-                activateAccountButton.click()
-                shouldBeVisible()
-                newPassword.shouldHaveValidationError("This value is required and should not be blank")
-                newPasswordConfirmation.shouldNotHaveValidationErrors()
-            }
+                withHint("Should prohibit empty password") {
+                    newPassword.input.fill("")
+                    newPasswordConfirmation.input.fill("")
+                    activateAccountButton.click()
+                    shouldBeVisible()
+                    newPassword.shouldHaveValidationError("This value is required and should not be blank")
+                    newPasswordConfirmation.shouldNotHaveValidationErrors()
+                }
 
-            withHint("Should prohibit blank password") {
-                newPassword.input.fill("  ")
-                newPasswordConfirmation.input.fill("  ")
-                activateAccountButton.click()
-                shouldBeVisible()
-                newPassword.shouldHaveValidationError("This value is required and should not be blank")
-                newPasswordConfirmation.shouldNotHaveValidationErrors()
-            }
+                withHint("Should prohibit blank password") {
+                    newPassword.input.fill("  ")
+                    newPasswordConfirmation.input.fill("  ")
+                    activateAccountButton.click()
+                    shouldBeVisible()
+                    newPassword.shouldHaveValidationError("This value is required and should not be blank")
+                    newPasswordConfirmation.shouldNotHaveValidationErrors()
+                }
 
-            withHint("Should prohibit too long passwords") {
-                newPassword.input.fill("a".repeat(101))
-                newPasswordConfirmation.input.fill("a".repeat(101))
-                activateAccountButton.click()
-                shouldBeVisible()
-                newPassword.shouldHaveValidationError("The length of this value should be no longer than 100 characters")
-                newPasswordConfirmation.shouldNotHaveValidationErrors()
+                withHint("Should prohibit too long passwords") {
+                    newPassword.input.fill("a".repeat(101))
+                    newPasswordConfirmation.input.fill("a".repeat(101))
+                    activateAccountButton.click()
+                    shouldBeVisible()
+                    newPassword.shouldHaveValidationError("The length of this value should be no longer than 100 characters")
+                    newPasswordConfirmation.shouldNotHaveValidationErrors()
+                }
             }
         }
     }
 
     @Test
     fun `should activate user account`(page: Page) {
-        page.openAccountActivationPage(preconditions.token.token)
-            .form {
+        page.openAccountActivationPage(preconditions.token.token) {
+            form {
                 newPassword.input.fill("qwerty")
                 newPasswordConfirmation.input.fill("qwerty")
                 activateAccountButton.click()
                 shouldNotBeVisible()
             }
-            .userMessage {
+            userMessage {
                 shouldBeSuccess("Account has been activated. You can now login using your credentials.")
             }
-            .loginButton {
+            loginButton {
                 shouldBeVisible()
                 click()
             }
-
-        val loginPage = page.shouldBeLoginPage()
+        }
 
         // reset time to generate valid JWT token on login
         whenever(timeServiceSpy.currentTime()) doReturn Instant.now()
@@ -158,16 +161,17 @@ class AccountActivationFullStackTest(
         }
 
         withHint("Should login after activation") {
-            loginPage
-                .loginInput {
+            page.shouldBeLoginPage {
+                loginInput {
                     fill(preconditions.user.userName)
                 }
-                .passwordInput {
+                passwordInput {
                     fill("qwerty")
                 }
-                .loginButton {
+                loginButton {
                     click()
                 }
+            }
 
             page.shouldBeAccountSetupPage()
         }
