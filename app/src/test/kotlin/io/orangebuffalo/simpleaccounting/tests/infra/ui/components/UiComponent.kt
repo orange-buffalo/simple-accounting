@@ -20,5 +20,6 @@ abstract class UiComponent<T : UiComponent<T>> {
  * Helper marker to restrict the receiver usage in [UiComponent] invocations.
  * Not intended to be used directly.
  */
+@Target(AnnotationTarget.TYPE, AnnotationTarget.CLASS)
 @DslMarker
 annotation class UiComponentMarker

@@ -3,8 +3,8 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.NavigationMenu
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.loginAs
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.LoginPage.Companion.loginAs
 import org.junit.jupiter.api.Test
 
 class AdminMenuTest : SaFullStackTestBase() {

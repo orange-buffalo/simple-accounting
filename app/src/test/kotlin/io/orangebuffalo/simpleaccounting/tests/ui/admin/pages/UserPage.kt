@@ -13,7 +13,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Co
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
 abstract class UserPageBase(page: Page) : SaPageBase(page) {
     val userName = components.formItemTextInputByLabel("Username")
@@ -31,7 +30,6 @@ class CreateUserPage private constructor(page: Page) : UserPageBase(page) {
     }
 
     companion object {
-        @UiComponentMarker
         fun Page.shouldBeCreateUserPage(spec: CreateUserPage.() -> Unit) {
             CreateUserPage(this).apply {
                 shouldBeOpen()
@@ -49,7 +47,6 @@ class EditUserPage private constructor(page: Page) : UserPageBase(page) {
     }
 
     companion object {
-        @UiComponentMarker
         fun Page.shouldBeEditUserPage(spec: EditUserPage.() -> Unit) {
             EditUserPage(this).apply {
                 shouldBeOpen()

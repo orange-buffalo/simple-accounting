@@ -26,28 +26,25 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
         header.shouldBeVisible()
     }
 
-    @UiComponentMarker
     fun shouldHavePasswordChangeSectionVisible(spec: PasswordChangeForm.() -> Unit = {}) {
         passwordChangeForm.shouldBeVisible()
         passwordChangeForm.spec()
     }
 
-    @UiComponentMarker
     fun shouldHaveLanguagePreferencesSectionVisible() {
         languagePreferencesSection.shouldBeVisible()
     }
 
-    @UiComponentMarker
     fun shouldHaveDocumentsStorageSectionVisible(spec: DocumentStorageSection.() -> Unit = {}) {
         documentsStorageSection.shouldBeVisible()
         documentsStorageSection.spec()
     }
 
-    @UiComponentMarker
     fun shouldHaveDocumentsStorageSectionHidden() {
         documentsStorageSection.shouldBeHidden()
     }
 
+    @UiComponentMarker
     class PasswordChangeForm(page: Page, components: ComponentsAccessors) {
         val currentPassword = components.formItemTextInputByLabel("Current Password")
         val newPassword = components.formItemTextInputByLabel("New Password")
@@ -67,7 +64,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
            components.page.locator("//*[contains(@class, 'el-form')]//h2[text()='Documents Storage']")
         private val googleDriveConfig =
             DocumentStorageConfig(components, "google-drive", "Google Drive") { container ->
-                GoogleDriveSettings(components, container, this)
+                GoogleDriveSettings(components, container)
             }
 
         fun shouldBeVisible() {
@@ -107,8 +104,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
 
         class GoogleDriveSettings(
             components: ComponentsAccessors,
-            parentEl: Locator,
-            parent: DocumentStorageSection
+            parentEl: Locator
         ) : UiComponent<GoogleDriveSettings>() {
             private val container = parentEl.locator(".sa-gdrive-integration")
             val status = components.statusLabel(container)
@@ -125,6 +121,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
         }
     }
 
+    @UiComponentMarker
     class LanguagePreferencesSection(page: Page) {
         private val languagePreferencesSectionHeader =
             page.locator("//*[contains(@class, 'el-form')]//h2[text()='Language Preferences']")
@@ -137,14 +134,6 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     companion object {
         fun Page.openMyProfilePage(spec: MyProfilePage.() -> Unit) {
             navigate("/my-profile")
-            MyProfilePage(this).apply {
-                shouldBeOpen()
-                spec()
-            }
-        }
-
-        @UiComponentMarker
-        fun Page.shouldBeMyProfilePage(spec: MyProfilePage.() -> Unit) {
             MyProfilePage(this).apply {
                 shouldBeOpen()
                 spec()

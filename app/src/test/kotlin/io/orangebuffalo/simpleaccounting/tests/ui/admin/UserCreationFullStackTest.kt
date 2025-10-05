@@ -9,19 +9,24 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.*
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.CreateUserPage.Companion.shouldBeCreateUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage.Companion.shouldBeEditUserPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.openUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.shouldBeUsersOverviewPage
 import org.junit.jupiter.api.Test
 
 class UserCreationFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should create a new user`(page: Page) {
-        setupPreconditionsAndNavigateToCreatePage(page)
-            .userName { input.fill("userX") }
-            .activationStatus { shouldBeHidden() }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            userName { input.fill("userX") }
+            activationStatus { shouldBeHidden() }
+            saveButton { click() }
+            shouldHaveNotifications {
                 success("User userX has been successfully saved")
             }
+        }
 
         page.shouldBeEditUserPage {
             activationStatus { shouldBeVisible() }
@@ -46,22 +51,24 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should support user role`(page: Page) {
-        setupPreconditionsAndNavigateToCreatePage(page)
-            .role {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            role {
                 withHint("By default, regular user should be pre-selected") {
                     input.shouldHaveSelectedValue("User")
                 }
                 input.shouldHaveOptions("User", "Admin user")
                 input.selectOption("User")
             }
-            .userName { input.fill("user") }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            userName { input.fill("user") }
+            saveButton { click() }
+            shouldHaveNotifications {
                 success()
             }
+        }
 
-        page.shouldBeEditUserPage().cancelButton { click() }
-        val overviewPage = page.shouldBeUsersOverviewPage()
+        page.shouldBeEditUserPage {
+            cancelButton { click() }
+        }
 
         aggregateTemplate.findAll<PlatformUser>()
             .filter { it.userName == "user" }
@@ -70,17 +77,20 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
                 it.isAdmin.shouldBeFalse()
             }
 
-        overviewPage.createUserButton.click()
+        page.shouldBeUsersOverviewPage {
+            createUserButton.click()
+        }
 
-        page.shouldBeCreateUserPage()
-            .userName { input.fill("new-admin") }
-            .role {
+        page.shouldBeCreateUserPage {
+            userName { input.fill("new-admin") }
+            role {
                 input.selectOption("Admin user")
             }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            saveButton { click() }
+            shouldHaveNotifications {
                 success()
             }
+        }
 
         aggregateTemplate.findAll<PlatformUser>()
             .filter { it.userName == "new-admin" }
@@ -92,58 +102,62 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should navigate to overview on creation cancel`(page: Page) {
-        setupPreconditionsAndNavigateToCreatePage(page)
-            .cancelButton { click() }
+        page.setupPreconditionsAndNavigateToCreatePage {
+            cancelButton { click() }
+        }
 
         page.shouldBeUsersOverviewPage()
     }
 
     @Test
     fun `should validate input`(page: Page) {
-        val createUserPage = setupPreconditionsAndNavigateToCreatePage(page)
-
-        createUserPage.saveButton { click() }
-            .shouldHaveNotifications {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            saveButton { click() }
+            shouldHaveNotifications {
                 validationFailed()
             }
-            .userName {
+            userName {
                 shouldHaveValidationError("This value is required and should not be blank")
             }
-            .role {
+            role {
                 shouldNotHaveValidationErrors()
             }
 
-        createUserPage.userName { input.fill("x".repeat(256)) }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            userName { input.fill("x".repeat(256)) }
+            saveButton { click() }
+            shouldHaveNotifications {
                 validationFailed()
             }
-            .userName {
+            userName {
                 shouldHaveValidationError("The length of this value should be no longer than 255 characters")
             }
 
-        createUserPage.userName { input.fill("x".repeat(255)) }
-            .saveButton { click() }
-            .shouldHaveNotifications {
+            userName { input.fill("x".repeat(255)) }
+            saveButton { click() }
+            shouldHaveNotifications {
                 success()
             }
+        }
     }
 
     @Test
     fun `should validate user name uniqueness`(page: Page) {
-        setupPreconditionsAndNavigateToCreatePage(page)
-            .userName { input.fill("admin") }
-            .saveButton { click() }
-            .userName { shouldHaveValidationError("User with username \"admin\" already exists") }
-            .shouldHaveNotifications {
+        page.setupPreconditionsAndNavigateToCreatePage {
+            userName { input.fill("admin") }
+            saveButton { click() }
+            userName { shouldHaveValidationError("User with username \"admin\" already exists") }
+            shouldHaveNotifications {
                 validationFailed()
             }
+        }
     }
 
-    private fun setupPreconditionsAndNavigateToCreatePage(page: Page): CreateUserPage {
-        page.authenticateViaCookie(preconditions.farnsworth)
-        page.openUsersOverviewPage().createUserButton.click()
-        return page.shouldBeCreateUserPage()
+    private fun Page.setupPreconditionsAndNavigateToCreatePage(spec: CreateUserPage.() -> Unit) {
+        authenticateViaCookie(preconditions.farnsworth)
+        openUsersOverviewPage {
+            createUserButton.click()
+        }
+        shouldBeCreateUserPage(spec)
     }
 
     private val preconditions by lazyPreconditions {

@@ -8,7 +8,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Compan
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Checkbox.Companion.checkboxByOwnLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import java.util.regex.Pattern
 
@@ -21,7 +20,6 @@ class LoginPage private constructor(page: Page) : SaPageBase(page) {
     val rememberMeCheckbox = components.checkboxByOwnLabel("Remember me for 30 days")
     private val errorMessage: Locator = page.locator(".login-page__login-error")
 
-    @UiComponentMarker
     fun loginAs(user: PlatformUser) {
         loginInput.fill(user.userName)
         passwordInput.fill(user.passwordHash)
@@ -34,17 +32,14 @@ class LoginPage private constructor(page: Page) : SaPageBase(page) {
         loginButton.shouldBeVisible()
     }
 
-    @UiComponentMarker
     fun shouldHaveErrorMessage(expectedMessage: String) {
         errorMessage.shouldHaveText(expectedMessage)
     }
 
-    @UiComponentMarker
     fun shouldHaveErrorMessageMatching(expectedPattern: String) {
         errorMessage.shouldHaveText(Pattern.compile(expectedPattern))
     }
 
-    @UiComponentMarker
     fun reportRendering(name: String) {
         container.reportRendering(name)
     }
@@ -59,7 +54,6 @@ class LoginPage private constructor(page: Page) : SaPageBase(page) {
             openLoginPage { loginAs(user) }
         }
 
-        @UiComponentMarker
         fun Page.shouldBeLoginPage(spec: LoginPage.() -> Unit) {
             LoginPage(this).apply {
                 shouldBeOpen()

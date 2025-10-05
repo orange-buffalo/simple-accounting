@@ -14,11 +14,11 @@ import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.GoogleOAuthMocks
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.OAuthRecordedRequest
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.DocumentStorageSection.DocumentStorageConfig
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.DocumentStorageSection.GoogleDriveSettings
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.OAuthAuthorizationPopup.Companion.setupErrorIdForOAuthAuthorizationFailure
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.OAuthAuthorizationPopup.Companion.shouldHaveAuthorizationPopupOpenBy
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.openMyProfilePage
 import org.junit.jupiter.api.Test
 
 class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase() {
@@ -403,10 +403,11 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         spec: DocumentStorageConfig<GoogleDriveSettings>.() -> Unit
     ) {
         authenticateViaCookie(user)
-        val page = openMyProfilePage()
-        page.shouldHaveDocumentsStorageSectionVisible {
-            shouldHaveGoogleDriveConfigVisible {
-                spec(this)
+        openMyProfilePage {
+            shouldHaveDocumentsStorageSectionVisible {
+                shouldHaveGoogleDriveConfigVisible {
+                    spec(this)
+                }
             }
         }
     }

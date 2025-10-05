@@ -4,7 +4,6 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
 class AccountSetupPage private constructor(page: Page) : SaPageBase(page) {
     val workspaceName = components.formItemTextInputByLabel("Workspace Name")
@@ -17,8 +16,7 @@ class AccountSetupPage private constructor(page: Page) : SaPageBase(page) {
     }
 
     companion object {
-        @UiComponentMarker
-        fun Page.shouldBeAccountSetupPage(spec: AccountSetupPage.() -> Unit) {
+        fun Page.shouldBeAccountSetupPage(spec: AccountSetupPage.() -> Unit = {}) {
             AccountSetupPage(this).apply {
                 shouldBeOpen()
                 spec()

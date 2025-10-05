@@ -9,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
 class UsersOverviewPage private constructor(page: Page) : SaPageBase(page) {
     val pageItems = components.overviewItems()
@@ -22,8 +21,7 @@ class UsersOverviewPage private constructor(page: Page) : SaPageBase(page) {
     }
 
     companion object {
-        @UiComponentMarker
-        fun Page.shouldBeUsersOverviewPage(spec: UsersOverviewPage.() -> Unit) {
+        fun Page.shouldBeUsersOverviewPage(spec: UsersOverviewPage.() -> Unit = {}) {
             UsersOverviewPage(this).apply {
                 shouldBeOpen()
                 spec()
