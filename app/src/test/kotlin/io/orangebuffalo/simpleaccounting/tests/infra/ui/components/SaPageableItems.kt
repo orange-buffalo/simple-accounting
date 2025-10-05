@@ -10,12 +10,11 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 
-class SaPageableItems<I, P : Any> private constructor(
+class SaPageableItems<I> private constructor(
     private val container: Locator,
-    parent: P,
     val paginator: Paginator,
     private val itemFactory: (container: Locator) -> I
-) : UiComponent<P, SaPageableItems<I, P>>(parent) {
+) : UiComponent<SaPageableItems<I>>() {
 
     private val itemsEls = container.locator(".sa-pageable-items__item")
 
@@ -72,13 +71,12 @@ class SaPageableItems<I, P : Any> private constructor(
     }
 
     companion object {
-        fun <T : SaPageBase<T>, I> ComponentsAccessors<T>.pageableItems(
+        fun <I> ComponentsAccessors.pageableItems(
             itemFactory: (container: Locator) -> I
-        ): SaPageableItems<I, T> {
+        ): SaPageableItems<I> {
             val container = page.locator(".sa-pageable-items")
             return SaPageableItems(
                 container = container,
-                parent = this.owner,
                 paginator = this.twoSyncedPaginators(container),
                 itemFactory = itemFactory
             )

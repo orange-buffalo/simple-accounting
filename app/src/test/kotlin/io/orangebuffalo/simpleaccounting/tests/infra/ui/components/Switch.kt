@@ -4,10 +4,9 @@ import com.microsoft.playwright.Locator
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveAttribute
 
-class Switch<P : Any> private constructor(
+class Switch private constructor(
     private val locator: Locator,
-    parent: P,
-) : UiComponent<P, Switch<P>>(parent) {
+) : UiComponent<Switch>() {
     private val input = locator.locator("input")
 
     fun click() = locator.click()
@@ -30,7 +29,7 @@ class Switch<P : Any> private constructor(
         /**
          * Assumes a single switch in the container and returns it
          */
-        fun <T : SaPageBase<T>> ComponentsAccessors<T>.switchByContainer(container: Locator) =
-            Switch(container.locator(".el-switch"), this.owner)
+        fun ComponentsAccessors.switchByContainer(container: Locator) =
+            Switch(container.locator(".el-switch"))
     }
 }

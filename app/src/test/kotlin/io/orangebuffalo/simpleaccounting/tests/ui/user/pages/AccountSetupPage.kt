@@ -4,21 +4,25 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
-class AccountSetupPage(page: Page) : SaPageBase<AccountSetupPage>(page) {
+class AccountSetupPage private constructor(page: Page) : SaPageBase(page) {
     val workspaceName = components.formItemTextInputByLabel("Workspace Name")
     val defaultCurrency = components.formItemTextInputByLabel("Main (default) Currency")
     val completeSetupButton = components.buttonByText("Complete setup")
 
-    fun shouldBeOpen(): AccountSetupPage {
+    private fun shouldBeOpen() {
         workspaceName.shouldBeVisible()
         defaultCurrency.shouldBeVisible()
-        return this
     }
-}
 
-fun Page.shouldBeAccountSetupPage(): AccountSetupPage = AccountSetupPage(this).shouldBeOpen()
-
-fun Page.shouldBeAccountSetupPage(spec: AccountSetupPage.() -> Unit) {
-    shouldBeAccountSetupPage().spec()
+    companion object {
+        @UiComponentMarker
+        fun Page.shouldBeAccountSetupPage(spec: AccountSetupPage.() -> Unit) {
+            AccountSetupPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
+    }
 }

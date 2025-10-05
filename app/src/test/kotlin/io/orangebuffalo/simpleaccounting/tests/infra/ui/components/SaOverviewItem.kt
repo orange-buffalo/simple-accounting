@@ -35,7 +35,7 @@ class SaOverviewItem private constructor(
     }
 
     companion object {
-        fun <T : SaPageBase<T>> ComponentsAccessors<T>.overviewItems() =
+        fun ComponentsAccessors.overviewItems() =
             pageableItems { container -> SaOverviewItem(container.locator(".overview-item__panel")) }
     }
 

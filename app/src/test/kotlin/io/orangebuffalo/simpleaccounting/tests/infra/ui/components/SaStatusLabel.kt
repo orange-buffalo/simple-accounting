@@ -7,10 +7,9 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 /**
  * A wrapper around `SaStatusLabel` component.
  */
-class SaStatusLabel<T : Any> private constructor(
+class SaStatusLabel private constructor(
     private val container: Locator,
-    parent: T,
-) : UiComponent<T, SaStatusLabel<T>>(parent) {
+) : UiComponent<SaStatusLabel>() {
 
     /**
      * Asserts that this label is of error (failure) state.
@@ -79,12 +78,11 @@ class SaStatusLabel<T : Any> private constructor(
     }
 
     companion object {
-        fun <T : SaPageBase<T>> ComponentsAccessors<T>.statusLabel(container: Locator? = null): SaStatusLabel<T> {
+        fun ComponentsAccessors.statusLabel(container: Locator? = null): SaStatusLabel {
             val selector = ".sa-status-label"
             return SaStatusLabel(
                 container = if (container == null)
-                    page.locator(selector) else container.locator(selector),
-                parent = this.owner
+                    page.locator(selector) else container.locator(selector)
             )
         }
     }

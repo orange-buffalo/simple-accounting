@@ -5,16 +5,15 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeChecked
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 
-class Checkbox<P : Any> private constructor(
+class Checkbox private constructor(
     private val locator: Locator,
-    parent: P,
-) : UiComponent<P, Checkbox<P>>(parent) {
+) : UiComponent<Checkbox>() {
     fun shouldBeChecked() = locator.shouldBeChecked()
     fun shouldBeEnabled() = locator.shouldBeEnabled()
     fun shouldBeDisabled() = locator.shouldBeDisabled()
 
     companion object {
-        fun <T : SaPageBase<T>> ComponentsAccessors<T>.checkboxByOwnLabel(label: String) =
-            Checkbox(page.getByLabel(label), this.owner)
+        fun ComponentsAccessors.checkboxByOwnLabel(label: String) =
+            Checkbox(page.getByLabel(label))
     }
 }

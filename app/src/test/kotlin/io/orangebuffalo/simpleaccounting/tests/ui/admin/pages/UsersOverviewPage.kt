@@ -9,14 +9,32 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
-class UsersOverviewPage(page: Page) : SaPageBase<UsersOverviewPage>(page) {
+class UsersOverviewPage private constructor(page: Page) : SaPageBase(page) {
     val pageItems = components.overviewItems()
     val filterInput = components.textInputByPlaceholder("Search users")
     private val header = components.pageHeader("Users")
     val createUserButton = components.buttonByText("Create user")
 
-    fun shouldBeOpen() = header.shouldBeVisible()
+    private fun shouldBeOpen() {
+        header.shouldBeVisible()
+    }
+
+    companion object {
+        @UiComponentMarker
+        fun Page.shouldBeUsersOverviewPage(spec: UsersOverviewPage.() -> Unit) {
+            UsersOverviewPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
+
+        fun Page.openUsersOverviewPage(spec: UsersOverviewPage.() -> Unit) {
+            navigate("/admin/users")
+            shouldBeUsersOverviewPage(spec)
+        }
+    }
 }
 
 data class UserOverviewItem(
@@ -51,15 +69,4 @@ fun SaOverviewItem.toUserOverviewItem(): UserOverviewItem {
         userType = primaryAttributes[0],
         userActivation = primaryAttributes[1],
     )
-}
-
-fun Page.shouldBeUsersOverviewPage(): UsersOverviewPage = UsersOverviewPage(this).shouldBeOpen()
-
-fun Page.shouldBeUsersOverviewPage(spec: UsersOverviewPage.() -> Unit) {
-    shouldBeUsersOverviewPage().spec()
-}
-
-fun Page.openUsersOverviewPage(): UsersOverviewPage {
-    this.navigate("/admin/users")
-    return shouldBeUsersOverviewPage()
 }

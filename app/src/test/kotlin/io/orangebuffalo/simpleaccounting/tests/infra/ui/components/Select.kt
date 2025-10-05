@@ -11,10 +11,9 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 
-class Select<P : Any> private constructor(
+class Select private constructor(
     rootLocator: Locator,
-    parent: P,
-) : UiComponent<P, Select<P>>(parent) {
+) : UiComponent<Select>() {
     private val input = rootLocator.locator(".el-select__wrapper")
 
     fun shouldBeVisible() = input.shouldBeVisible()
@@ -78,7 +77,7 @@ class Select<P : Any> private constructor(
     }
 
     companion object {
-        fun byContainer(container: Locator) = Select(container, Unit)
+        fun byContainer(container: Locator) = Select(container)
     }
 }
 

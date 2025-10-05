@@ -13,8 +13,9 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Co
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
-abstract class UserPageBase<T : UserPageBase<T>>(page: Page) : SaPageBase<T>(page) {
+abstract class UserPageBase(page: Page) : SaPageBase(page) {
     val userName = components.formItemTextInputByLabel("Username")
     val role = components.formItemSelectByLabel("User role")
     val activationStatus = components.formItemByLabel("Activation status") { UserActivationStatus(it, components) }
@@ -22,34 +23,46 @@ abstract class UserPageBase<T : UserPageBase<T>>(page: Page) : SaPageBase<T>(pag
     val cancelButton = components.buttonByText("Cancel")
 }
 
-class CreateUserPage(page: Page) : UserPageBase<CreateUserPage>(page) {
+class CreateUserPage private constructor(page: Page) : UserPageBase(page) {
     private val header = components.pageHeader("Create New User")
 
-    fun shouldBeOpen() = header.shouldBeVisible()
+    private fun shouldBeOpen() {
+        header.shouldBeVisible()
+    }
+
+    companion object {
+        @UiComponentMarker
+        fun Page.shouldBeCreateUserPage(spec: CreateUserPage.() -> Unit) {
+            CreateUserPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
+    }
 }
 
-class EditUserPage(page: Page) : UserPageBase<EditUserPage>(page) {
+class EditUserPage private constructor(page: Page) : UserPageBase(page) {
     private val header = components.pageHeader("Edit User")
 
-    fun shouldBeOpen() = header.shouldBeVisible()
+    private fun shouldBeOpen() {
+        header.shouldBeVisible()
+    }
+
+    companion object {
+        @UiComponentMarker
+        fun Page.shouldBeEditUserPage(spec: EditUserPage.() -> Unit) {
+            EditUserPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
+    }
 }
 
-fun Page.shouldBeCreateUserPage(): CreateUserPage = CreateUserPage(this).shouldBeOpen()
-
-fun Page.shouldBeCreateUserPage(spec: CreateUserPage.() -> Unit) {
-    shouldBeCreateUserPage().spec()
-}
-
-fun Page.shouldBeEditUserPage(): EditUserPage = EditUserPage(this).shouldBeOpen()
-
-fun Page.shouldBeEditUserPage(spec: EditUserPage.() -> Unit) {
-    shouldBeEditUserPage().spec()
-}
-
-class UserActivationStatus<T : UserPageBase<T>>(
+class UserActivationStatus(
     container: Locator,
-    components: ComponentsAccessors<T>,
-) : UiComponent<Unit, UserActivationStatus<T>>(Unit) {
+    components: ComponentsAccessors,
+) : UiComponent<UserActivationStatus>() {
 
     private val status = components.statusLabel(container.locator("xpath=.."))
     private val linkButton = components.buttonByContainer(container)

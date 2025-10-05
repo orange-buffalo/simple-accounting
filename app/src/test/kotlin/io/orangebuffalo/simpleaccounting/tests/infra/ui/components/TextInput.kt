@@ -8,10 +8,9 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveValue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 
-class TextInput<P : Any> private constructor(
+class TextInput private constructor(
     rootLocator: Locator,
-    parent: P,
-) : UiComponent<P, TextInput<P>>(parent) {
+) : UiComponent<TextInput>() {
     private val input = rootLocator.locator("input")
     fun fill(text: String) = input.fill(text)
 
@@ -25,13 +24,13 @@ class TextInput<P : Any> private constructor(
     fun shouldBeDisabled() = input.shouldBeDisabled()
 
     companion object {
-        fun <T : SaPageBase<T>> ComponentsAccessors<T>.textInputByPlaceholder(placeholder: String) =
+        fun ComponentsAccessors.textInputByPlaceholder(placeholder: String) =
             TextInput(
                 page.locator(
                     "//*[${XPath.hasClass("el-input")} and .//*[@placeholder='$placeholder']]"
-                ), this.owner
+                )
             )
 
-        fun byContainer(container: Locator) = TextInput(container, Unit)
+        fun byContainer(container: Locator) = TextInput(container)
     }
 }

@@ -46,7 +46,7 @@ class Paginator private constructor(
     }
 
     companion object {
-        fun <T : SaPageBase<T>> ComponentsAccessors<T>.twoSyncedPaginators(container: Locator) =
+        fun ComponentsAccessors.twoSyncedPaginators(container: Locator) =
             Paginator(locator = container.locator(".el-pagination"), instancesCount = 2)
     }
 }

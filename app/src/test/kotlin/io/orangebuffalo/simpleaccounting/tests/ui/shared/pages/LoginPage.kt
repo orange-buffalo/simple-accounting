@@ -8,10 +8,11 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Compan
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Checkbox.Companion.checkboxByOwnLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import java.util.regex.Pattern
 
-class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
+class LoginPage private constructor(page: Page) : SaPageBase(page) {
 
     private val container = page.locator(".login-page")
     val loginInput = components.textInputByPlaceholder("Login")
@@ -20,43 +21,50 @@ class LoginPage(page: Page) : SaPageBase<LoginPage>(page) {
     val rememberMeCheckbox = components.checkboxByOwnLabel("Remember me for 30 days")
     private val errorMessage: Locator = page.locator(".login-page__login-error")
 
+    @UiComponentMarker
     fun loginAs(user: PlatformUser) {
         loginInput.fill(user.userName)
         passwordInput.fill(user.passwordHash)
         loginButton.click()
     }
 
-    fun shouldBeOpen(): LoginPage {
+    private fun shouldBeOpen() {
         loginInput.shouldBeVisible()
         passwordInput.shouldBeVisible()
         loginButton.shouldBeVisible()
-        return this
     }
 
-    fun shouldHaveErrorMessage(expectedMessage: String): LoginPage {
+    @UiComponentMarker
+    fun shouldHaveErrorMessage(expectedMessage: String) {
         errorMessage.shouldHaveText(expectedMessage)
-        return this
     }
 
-    fun shouldHaveErrorMessageMatching(expectedPattern: String): LoginPage {
+    @UiComponentMarker
+    fun shouldHaveErrorMessageMatching(expectedPattern: String) {
         errorMessage.shouldHaveText(Pattern.compile(expectedPattern))
-        return this
     }
 
-    fun reportRendering(name: String): LoginPage {
+    @UiComponentMarker
+    fun reportRendering(name: String) {
         container.reportRendering(name)
-        return this
     }
-}
 
-fun Page.openLoginPage(): LoginPage = LoginPage(this.also {
-    navigate("/")
-})
+    companion object {
+        fun Page.openLoginPage(spec: LoginPage.() -> Unit) {
+            navigate("/")
+            LoginPage(this).spec()
+        }
 
-fun Page.loginAs(user: PlatformUser) = openLoginPage().loginAs(user)
+        fun Page.loginAs(user: PlatformUser) {
+            openLoginPage { loginAs(user) }
+        }
 
-fun Page.shouldBeLoginPage(): LoginPage = LoginPage(this).shouldBeOpen()
-
-fun Page.shouldBeLoginPage(spec: LoginPage.() -> Unit) {
-    shouldBeLoginPage().spec()
+        @UiComponentMarker
+        fun Page.shouldBeLoginPage(spec: LoginPage.() -> Unit) {
+            LoginPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
+    }
 }

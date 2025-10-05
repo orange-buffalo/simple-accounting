@@ -16,47 +16,39 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Compan
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 
-class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
+class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("My Profile")
     private val passwordChangeForm = PasswordChangeForm(page, components)
     private val documentsStorageSection = DocumentStorageSection(components)
     private val languagePreferencesSection = LanguagePreferencesSection(page)
 
-    fun shouldBeOpen(): MyProfilePage = header.shouldBeVisible()
-
-    fun shouldHavePasswordChangeSectionVisible(): MyProfilePage {
-        passwordChangeForm.shouldBeVisible()
-        return this
+    private fun shouldBeOpen() {
+        header.shouldBeVisible()
     }
 
-    fun shouldHaveLanguagePreferencesSectionVisible(): MyProfilePage {
-        languagePreferencesSection.shouldBeVisible()
-        return this
-    }
-
-    fun shouldHavePasswordChangeSectionVisible(spec: PasswordChangeForm.() -> Unit): MyProfilePage {
+    @UiComponentMarker
+    fun shouldHavePasswordChangeSectionVisible(spec: PasswordChangeForm.() -> Unit = {}) {
         passwordChangeForm.shouldBeVisible()
         passwordChangeForm.spec()
-        return this
     }
 
-    fun shouldHaveDocumentsStorageSectionVisible(): MyProfilePage {
-        documentsStorageSection.shouldBeVisible()
-        return this
+    @UiComponentMarker
+    fun shouldHaveLanguagePreferencesSectionVisible() {
+        languagePreferencesSection.shouldBeVisible()
     }
 
-    fun shouldHaveDocumentsStorageSectionVisible(spec: DocumentStorageSection.() -> Unit): MyProfilePage {
+    @UiComponentMarker
+    fun shouldHaveDocumentsStorageSectionVisible(spec: DocumentStorageSection.() -> Unit = {}) {
         documentsStorageSection.shouldBeVisible()
         documentsStorageSection.spec()
-        return this
     }
 
-    fun shouldHaveDocumentsStorageSectionHidden(): MyProfilePage {
+    @UiComponentMarker
+    fun shouldHaveDocumentsStorageSectionHidden() {
         documentsStorageSection.shouldBeHidden()
-        return this
     }
 
-    class PasswordChangeForm(page: Page, components: ComponentsAccessors<MyProfilePage>) {
+    class PasswordChangeForm(page: Page, components: ComponentsAccessors) {
         val currentPassword = components.formItemTextInputByLabel("Current Password")
         val newPassword = components.formItemTextInputByLabel("New Password")
         val newPasswordConfirmation = components.formItemTextInputByLabel("New Password Confirmation")
@@ -70,7 +62,7 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
     }
 
     @UiComponentMarker
-    class DocumentStorageSection(components: ComponentsAccessors<MyProfilePage>) {
+    class DocumentStorageSection(components: ComponentsAccessors) {
         private val documentStorageSectionHeader =
            components.page.locator("//*[contains(@class, 'el-form')]//h2[text()='Documents Storage']")
         private val googleDriveConfig =
@@ -92,11 +84,11 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
         }
 
         class DocumentStorageConfig<T>(
-            components: ComponentsAccessors<MyProfilePage>,
+            components: ComponentsAccessors,
             storageId: String,
             private val title: String,
             settingsProvider: (Locator) -> T,
-        ) : UiComponent<MyProfilePage, DocumentStorageConfig<T>>(components.owner) {
+        ) : UiComponent<DocumentStorageConfig<T>>() {
             private val container = components.page.locator("#storage-config_$storageId")
             private val header = container.locator("h4")
             val switch = components.switchByContainer(container)
@@ -114,10 +106,10 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
         }
 
         class GoogleDriveSettings(
-            components: ComponentsAccessors<MyProfilePage>,
+            components: ComponentsAccessors,
             parentEl: Locator,
             parent: DocumentStorageSection
-        ) : UiComponent<DocumentStorageSection, GoogleDriveSettings>(parent) {
+        ) : UiComponent<GoogleDriveSettings>() {
             private val container = parentEl.locator(".sa-gdrive-integration")
             val status = components.statusLabel(container)
             val startAuthorizationButton = components.buttonByText("Start authorization now")
@@ -141,15 +133,22 @@ class MyProfilePage(page: Page) : SaPageBase<MyProfilePage>(page) {
             languagePreferencesSectionHeader.shouldBeVisible()
         }
     }
-}
 
-fun Page.openMyProfilePage(): MyProfilePage {
-    this.navigate("/my-profile")
-    return MyProfilePage(this).shouldBeOpen()
-}
+    companion object {
+        fun Page.openMyProfilePage(spec: MyProfilePage.() -> Unit) {
+            navigate("/my-profile")
+            MyProfilePage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
 
-fun Page.shouldBeMyProfilePage(): MyProfilePage = MyProfilePage(this).shouldBeOpen()
-
-fun Page.shouldBeMyProfilePage(spec: MyProfilePage.() -> Unit) {
-    shouldBeMyProfilePage().spec()
+        @UiComponentMarker
+        fun Page.shouldBeMyProfilePage(spec: MyProfilePage.() -> Unit) {
+            MyProfilePage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
+    }
 }

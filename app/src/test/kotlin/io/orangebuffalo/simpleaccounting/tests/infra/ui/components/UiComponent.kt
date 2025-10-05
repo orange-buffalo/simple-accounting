@@ -7,12 +7,9 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
  * a lambda that defines the operations to be performed on the component.
  */
 @UiComponentMarker
-abstract class UiComponent<P : Any, T : UiComponent<P, T>>(
-    protected val parent: P,
-) {
-    operator fun invoke(action: T.() -> Unit): P {
+abstract class UiComponent<T : UiComponent<T>> {
+    operator fun invoke(action: T.() -> Unit) {
         self().action()
-        return parent
     }
 
     @Suppress("UNCHECKED_CAST")
