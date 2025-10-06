@@ -28,7 +28,7 @@
         "@eslint/js": "9.36.0",
         "@graphql-codegen/cli": "^6.0.0",
         "@graphql-codegen/client-preset": "^5.0.0",
-        "@rushstack/eslint-patch": "1.12.0",
+        "@rushstack/eslint-patch": "1.13.0",
         "@sinonjs/fake-timers": "15.0.0",
         "@storybook/addon-actions": "8.1.11",
         "@storybook/addons": "7.6.17",
@@ -655,7 +655,7 @@
 
     "@rtsao/scc": ["@rtsao/scc@1.1.0", "", {}, "sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g=="],
 
-    "@rushstack/eslint-patch": ["@rushstack/eslint-patch@1.12.0", "", {}, "sha512-5EwMtOqvJMMa3HbmxLlF74e+3/HhwBTMcvt3nqVJgGCozO6hzIPOBlwm8mGVNR9SN2IJpxSnlxczyDjcn7qIyw=="],
+    "@rushstack/eslint-patch": ["@rushstack/eslint-patch@1.13.0", "", {}, "sha512-2ih5qGw5SZJ+2fLZxP6Lr6Na2NTIgPRL/7Kmyuw0uIyBQnuhQ8fi8fzUTd38eIQmqp+GYLC00cI6WgtqHxBwmw=="],
 
     "@sinonjs/commons": ["@sinonjs/commons@3.0.1", "", { "dependencies": { "type-detect": "4.0.8" } }, "sha512-K3mCHKQ9sVh8o1C9cxkwxaOmXoAMlDxC1mYyHrjqOWEcBjYr76t96zL2zlj5dUGZ3HSw240X1qgH3Mjf1yJWpQ=="],
 
