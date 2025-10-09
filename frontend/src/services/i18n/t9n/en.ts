@@ -372,6 +372,9 @@ export default {
         label: () => 'Language to display dates, amounts, etc',
         placeholder: () => 'Please select formatting language',
       },
+      feedback: {
+        success: () => 'Language preferences have been saved',
+      },
     },
     changePassword: {
       header: () => 'Change Password',

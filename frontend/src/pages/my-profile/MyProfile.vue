@@ -45,8 +45,11 @@
   import { ProfileDto, useAuth, profileApi } from '@/services/api';
   import { useForm } from '@/components/form/use-form';
   import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
+  import useNotifications from '@/components/notifications/use-notifications';
+  import { $t } from '@/services/i18n';
 
   const { isAdmin } = useAuth();
+  const { showSuccessNotification } = useNotifications();
 
   const profile = ref<ProfileDto>({
     userName: '',
@@ -66,11 +69,13 @@
   const updateLanguage = async (language: string) => {
     profile.value.i18n.language = language;
     await updateProfile();
+    showSuccessNotification($t.value.myProfile.languagePreferences.feedback.success());
   };
 
   const updateLocale = async (locale: string) => {
     profile.value.i18n.locale = locale;
     await updateProfile();
+    showSuccessNotification($t.value.myProfile.languagePreferences.feedback.success());
   };
 
   const { formRef } = useForm(async () => {

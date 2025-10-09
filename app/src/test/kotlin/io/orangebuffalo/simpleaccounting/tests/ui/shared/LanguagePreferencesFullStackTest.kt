@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldEventually
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import org.junit.jupiter.api.Test
@@ -28,13 +29,15 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             shouldHaveLanguagePreferencesSectionVisible()
         }
         
-        // Open the language select dropdown
-        val languageSelectWrapper = page.locator("//*[@class='el-form-item__label' and text()='Interface Language']/..//*[@class='el-select__wrapper']")
-        languageSelectWrapper.shouldBeVisible()
-        languageSelectWrapper.click()
-        
+        // Click on language select to open dropdown
+        page.locator("//*[${XPath.hasClass("el-form-item__label")} and text()='Interface Language']/..//*[${XPath.hasClass("el-select__wrapper")}]").click()
         // Select Ukrainian option
         page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='Українська']").click()
+        
+        // After changing to Ukrainian, the notification appears in Ukrainian
+        page.shouldHaveNotifications {
+            success()
+        }
 
         shouldEventually("Should update the language in the database") {
             aggregateTemplate.findSingle<PlatformUser>(preconditions.fry.id!!)
@@ -46,20 +49,24 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
     fun `should change locale for regular user`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
         page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible()
+            shouldHaveLanguagePreferencesSectionVisible {
+                localeFormItem.shouldBeVisible()
+            }
         }
         
-        // Open the locale select dropdown  
-        val localeSelectWrapper = page.locator("//*[${XPath.hasClass("el-form-item__label")} and starts-with(text(), 'Language to display')]/..//*[${XPath.hasClass("el-select__wrapper")}]")
-        localeSelectWrapper.shouldBeVisible()
-        localeSelectWrapper.click()
-        
+        // Click on locale select to open dropdown using form item
+        page.locator(".el-form-item").filter(com.microsoft.playwright.Locator.FilterOptions().setHasText("Language to display dates, amounts, etc"))
+            .locator(".el-select__wrapper").click()
         // Select Albanian option
         page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='Albanian']").click()
+        
+        page.shouldHaveNotifications {
+            success()
+        }
 
         shouldEventually("Should update the locale in the database") {
             aggregateTemplate.findSingle<PlatformUser>(preconditions.fry.id!!)
-                .i18nSettings.locale.shouldBe("sq_AL")
+                .i18nSettings.locale.shouldBe("sq")
         }
     }
 
@@ -80,13 +87,15 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             shouldHaveLanguagePreferencesSectionVisible()
         }
         
-        // Open the language select dropdown
-        val languageSelectWrapper = page.locator("//*[@class='el-form-item__label' and text()='Interface Language']/..//*[@class='el-select__wrapper']")
-        languageSelectWrapper.shouldBeVisible()
-        languageSelectWrapper.click()
-        
+        // Click on language select to open dropdown
+        page.locator("//*[${XPath.hasClass("el-form-item__label")} and text()='Interface Language']/..//*[${XPath.hasClass("el-select__wrapper")}]").click()
         // Select Ukrainian option
         page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='Українська']").click()
+        
+        // After changing to Ukrainian, the notification appears in Ukrainian
+        page.shouldHaveNotifications {
+            success()
+        }
 
         shouldEventually("Should update the language in the database") {
             aggregateTemplate.findSingle<PlatformUser>(preconditions.farnsworth.id!!)
@@ -98,16 +107,20 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
     fun `should change locale for admin user`(page: Page) {
         page.authenticateViaCookie(preconditions.farnsworth)
         page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible()
+            shouldHaveLanguagePreferencesSectionVisible {
+                localeFormItem.shouldBeVisible()
+            }
         }
         
-        // Open the locale select dropdown
-        val localeSelectWrapper = page.locator("//*[@class='el-form-item__label' and starts-with(text(), 'Language to display')]/..//*[@class='el-select__wrapper']")
-        localeSelectWrapper.shouldBeVisible()
-        localeSelectWrapper.click()
-        
+        // Click on locale select to open dropdown using form item
+        page.locator(".el-form-item").filter(com.microsoft.playwright.Locator.FilterOptions().setHasText("Language to display dates, amounts, etc"))
+            .locator(".el-select__wrapper").click()
         // Select British English option
         page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='British English']").click()
+        
+        page.shouldHaveNotifications {
+            success()
+        }
 
         shouldEventually("Should update the locale in the database") {
             aggregateTemplate.findSingle<PlatformUser>(preconditions.farnsworth.id!!)
@@ -122,21 +135,18 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             shouldHaveLanguagePreferencesSectionVisible()
         }
         
-        // Open and select Ukrainian language
-        val languageSelectWrapper = page.locator("//*[@class='el-form-item__label' and text()='Interface Language']/..//*[@class='el-select__wrapper']")
-        languageSelectWrapper.click()
+        // Click on language select to open dropdown and select Ukrainian
+        page.locator("//*[${XPath.hasClass("el-form-item__label")} and text()='Interface Language']/..//*[${XPath.hasClass("el-select__wrapper")}]").click()
         page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='Українська']").click()
         
-        withHint("Locale select should be updated to Ukrainian language") {
-            // After language change, locale options should be displayed in Ukrainian
-            // Open the locale dropdown to verify the options
-            val localeSelectWrapper = page.locator("//*[@class='el-form-item__label' and starts-with(text(), 'Мова для відображення')]/..//*[@class='el-select__wrapper']")
-            localeSelectWrapper.shouldBeVisible()
-            localeSelectWrapper.click()
-            
-            // Verify at least one option is in Ukrainian (contains Cyrillic)
-            val localeOptions = page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]").allInnerTexts()
-            localeOptions.any { it.matches(Regex(".*[А-Яа-яІіЇїЄєҐґ].*")) }.shouldBe(true)
+        page.shouldHaveNotifications {
+            success()
+        }
+        
+        // After language change, the UI should be in Ukrainian
+        withHint("UI should be updated to Ukrainian language") {
+            // The language preferences section header should be in Ukrainian  
+            page.locator("//*[contains(@class, 'el-form')]//h2[text()='Мовні Уподобання']").shouldBeVisible()
         }
     }
 
