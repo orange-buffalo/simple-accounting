@@ -3,11 +3,10 @@ package io.orangebuffalo.simpleaccounting.tests.ui.shared
 import com.microsoft.playwright.Page
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldEventually
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
@@ -24,50 +23,58 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should change language for regular user`(page: Page) {
-        page.authenticateViaCookie(preconditions.fry)
+        val initialUser = preconditions.fry
+        
+        page.authenticateViaCookie(initialUser)
         page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible()
+            shouldHaveLanguagePreferencesSectionVisible {
+                selectLanguage("Українська")
+            }
         }
         
-        // Click on language select to open dropdown
-        page.locator("//*[${XPath.hasClass("el-form-item__label")} and text()='Interface Language']/..//*[${XPath.hasClass("el-select__wrapper")}]").click()
-        // Select Ukrainian option
-        page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='Українська']").click()
-        
-        // After changing to Ukrainian, the notification appears in Ukrainian
         page.shouldHaveNotifications {
             success()
         }
 
-        shouldEventually("Should update the language in the database") {
-            aggregateTemplate.findSingle<PlatformUser>(preconditions.fry.id!!)
-                .i18nSettings.language.shouldBe("uk")
-        }
+        // Assert only language changed, everything else stayed the same
+        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
+        updatedUser.userName.shouldBe(initialUser.userName)
+        updatedUser.passwordHash.shouldBe(initialUser.passwordHash)
+        updatedUser.isAdmin.shouldBe(initialUser.isAdmin)
+        updatedUser.activated.shouldBe(initialUser.activated)
+        updatedUser.documentsStorage.shouldBe(initialUser.documentsStorage)
+        updatedUser.i18nSettings.shouldBe(I18nSettings(
+            language = "uk",
+            locale = initialUser.i18nSettings.locale
+        ))
     }
 
     @Test
     fun `should change locale for regular user`(page: Page) {
-        page.authenticateViaCookie(preconditions.fry)
+        val initialUser = preconditions.fry
+        
+        page.authenticateViaCookie(initialUser)
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
-                localeFormItem.shouldBeVisible()
+                selectLocale("Albanian")
             }
         }
-        
-        // Click on locale select to open dropdown using form item
-        page.locator(".el-form-item").filter(com.microsoft.playwright.Locator.FilterOptions().setHasText("Language to display dates, amounts, etc"))
-            .locator(".el-select__wrapper").click()
-        // Select Albanian option
-        page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='Albanian']").click()
         
         page.shouldHaveNotifications {
             success()
         }
 
-        shouldEventually("Should update the locale in the database") {
-            aggregateTemplate.findSingle<PlatformUser>(preconditions.fry.id!!)
-                .i18nSettings.locale.shouldBe("sq")
-        }
+        // Assert only locale changed, everything else stayed the same
+        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
+        updatedUser.userName.shouldBe(initialUser.userName)
+        updatedUser.passwordHash.shouldBe(initialUser.passwordHash)
+        updatedUser.isAdmin.shouldBe(initialUser.isAdmin)
+        updatedUser.activated.shouldBe(initialUser.activated)
+        updatedUser.documentsStorage.shouldBe(initialUser.documentsStorage)
+        updatedUser.i18nSettings.shouldBe(I18nSettings(
+            language = initialUser.i18nSettings.language,
+            locale = "sq"
+        ))
     }
 
     @Test
@@ -82,62 +89,68 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should change language for admin user`(page: Page) {
-        page.authenticateViaCookie(preconditions.farnsworth)
+        val initialUser = preconditions.farnsworth
+        
+        page.authenticateViaCookie(initialUser)
         page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible()
+            shouldHaveLanguagePreferencesSectionVisible {
+                selectLanguage("Українська")
+            }
         }
         
-        // Click on language select to open dropdown
-        page.locator("//*[${XPath.hasClass("el-form-item__label")} and text()='Interface Language']/..//*[${XPath.hasClass("el-select__wrapper")}]").click()
-        // Select Ukrainian option
-        page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='Українська']").click()
-        
-        // After changing to Ukrainian, the notification appears in Ukrainian
         page.shouldHaveNotifications {
             success()
         }
 
-        shouldEventually("Should update the language in the database") {
-            aggregateTemplate.findSingle<PlatformUser>(preconditions.farnsworth.id!!)
-                .i18nSettings.language.shouldBe("uk")
-        }
+        // Assert only language changed, everything else stayed the same
+        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
+        updatedUser.userName.shouldBe(initialUser.userName)
+        updatedUser.passwordHash.shouldBe(initialUser.passwordHash)
+        updatedUser.isAdmin.shouldBe(initialUser.isAdmin)
+        updatedUser.activated.shouldBe(initialUser.activated)
+        updatedUser.documentsStorage.shouldBe(initialUser.documentsStorage)
+        updatedUser.i18nSettings.shouldBe(I18nSettings(
+            language = "uk",
+            locale = initialUser.i18nSettings.locale
+        ))
     }
 
     @Test
     fun `should change locale for admin user`(page: Page) {
-        page.authenticateViaCookie(preconditions.farnsworth)
+        val initialUser = preconditions.farnsworth
+        
+        page.authenticateViaCookie(initialUser)
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
-                localeFormItem.shouldBeVisible()
+                selectLocale("British English")
             }
         }
-        
-        // Click on locale select to open dropdown using form item
-        page.locator(".el-form-item").filter(com.microsoft.playwright.Locator.FilterOptions().setHasText("Language to display dates, amounts, etc"))
-            .locator(".el-select__wrapper").click()
-        // Select British English option
-        page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='British English']").click()
         
         page.shouldHaveNotifications {
             success()
         }
 
-        shouldEventually("Should update the locale in the database") {
-            aggregateTemplate.findSingle<PlatformUser>(preconditions.farnsworth.id!!)
-                .i18nSettings.locale.shouldBe("en_GB")
-        }
+        // Assert only locale changed, everything else stayed the same
+        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
+        updatedUser.userName.shouldBe(initialUser.userName)
+        updatedUser.passwordHash.shouldBe(initialUser.passwordHash)
+        updatedUser.isAdmin.shouldBe(initialUser.isAdmin)
+        updatedUser.activated.shouldBe(initialUser.activated)
+        updatedUser.documentsStorage.shouldBe(initialUser.documentsStorage)
+        updatedUser.i18nSettings.shouldBe(I18nSettings(
+            language = initialUser.i18nSettings.language,
+            locale = "en_GB"
+        ))
     }
 
     @Test
     fun `should update UI language immediately after language change`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
         page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible()
+            shouldHaveLanguagePreferencesSectionVisible {
+                selectLanguage("Українська")
+            }
         }
-        
-        // Click on language select to open dropdown and select Ukrainian
-        page.locator("//*[${XPath.hasClass("el-form-item__label")} and text()='Interface Language']/..//*[${XPath.hasClass("el-select__wrapper")}]").click()
-        page.locator("//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='Українська']").click()
         
         page.shouldHaveNotifications {
             success()

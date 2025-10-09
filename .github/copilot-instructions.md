@@ -431,25 +431,6 @@ assertExternalServiceRequests(expectedRequest1, expectedRequest2)
 5. **State Persistence**: Verify changes are saved and restored correctly
 6. **UI Feedback**: Loading states, success/error messages, proper status updates
 
-### Test Organization and Cross-References
-
-Related test classes for the same feature should cross-reference each other in KDoc comments for better discoverability. For example:
-
-```kotlin
-/**
- * Tests basic rendering of My Profile page for regular users.
- * See also:
- * - [PasswordChangeFullStackTest] for password change functionality
- * - [UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
- * - [LanguagePreferencesFullStackTest] for language and locale preferences
- */
-class UserProfileFullStackTest : SaFullStackTestBase() {
-    // ... tests
-}
-```
-
-This makes it easy to understand the full test coverage for a feature by viewing any one of the related test classes.
-
 # Commits and Pull Requests
 1. We follow Conventional Commits specification for commit messages.
 2. We prefer single-line commit messages with a reference to the issue at the end, e.g.
