@@ -60,7 +60,7 @@
     "@types/jsdom": "21.1.7",
     "@types/lodash": "4.17.20",
     "@types/marked": "6.0.0",
-    "@types/node": "24.6.0",
+    "@types/node": "24.7.0",
     "@types/qs": "6.14.0",
     "@types/sinonjs__fake-timers": "8.1.5",
     "@typescript-eslint/eslint-plugin": "8.46.0",
