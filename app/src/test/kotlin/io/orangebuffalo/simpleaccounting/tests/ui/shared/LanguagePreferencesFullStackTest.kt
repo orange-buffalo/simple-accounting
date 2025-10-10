@@ -1,14 +1,13 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.shared
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import org.junit.jupiter.api.Test
 
@@ -28,21 +27,26 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(initialUser)
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
-                selectLanguage("Українська")
+                // Verify initial state
+                language {
+                    input.shouldHaveSelectedValue("English")
+                }
+                // Note: locale is a filterable select, skip initial value validation
+                
+                // Change language - use selectOptionWithoutValidation because the UI language changes immediately
+                language {
+                    input.selectOptionWithoutValidation("Українська")
+                }
             }
-        }
-        
-        page.shouldHaveNotifications {
-            success()
+            
+            shouldHaveNotifications {
+                success()
+            }
         }
 
         // Assert only language changed, everything else stayed the same
         val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
-        updatedUser.userName.shouldBe(initialUser.userName)
-        updatedUser.passwordHash.shouldBe(initialUser.passwordHash)
-        updatedUser.isAdmin.shouldBe(initialUser.isAdmin)
-        updatedUser.activated.shouldBe(initialUser.activated)
-        updatedUser.documentsStorage.shouldBe(initialUser.documentsStorage)
+        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
         updatedUser.i18nSettings.shouldBe(I18nSettings(
             language = "uk",
             locale = initialUser.i18nSettings.locale
@@ -56,21 +60,26 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(initialUser)
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
-                selectLocale("Albanian")
+                // Verify initial state
+                language {
+                    input.shouldHaveSelectedValue("English")
+                }
+                // Note: locale is a filterable select, skip initial value validation
+                
+                // Change locale - use selectOptionWithoutValidation because locale is filterable and has 2 spans
+                locale {
+                    input.selectOptionWithoutValidation("Albanian")
+                }
             }
-        }
-        
-        page.shouldHaveNotifications {
-            success()
+            
+            shouldHaveNotifications {
+                success("Language preferences have been saved")
+            }
         }
 
         // Assert only locale changed, everything else stayed the same
         val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
-        updatedUser.userName.shouldBe(initialUser.userName)
-        updatedUser.passwordHash.shouldBe(initialUser.passwordHash)
-        updatedUser.isAdmin.shouldBe(initialUser.isAdmin)
-        updatedUser.activated.shouldBe(initialUser.activated)
-        updatedUser.documentsStorage.shouldBe(initialUser.documentsStorage)
+        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
         updatedUser.i18nSettings.shouldBe(I18nSettings(
             language = initialUser.i18nSettings.language,
             locale = "sq"
@@ -82,7 +91,9 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
-                languageFormItem.input.shouldHaveOptions("English", "Українська")
+                language {
+                    input.shouldHaveOptions("English", "Українська")
+                }
             }
         }
     }
@@ -94,21 +105,26 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(initialUser)
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
-                selectLanguage("Українська")
+                // Verify initial state
+                language {
+                    input.shouldHaveSelectedValue("English")
+                }
+                // Note: locale is a filterable select, skip initial value validation
+                
+                // Change language - use selectOptionWithoutValidation because the UI language changes immediately
+                language {
+                    input.selectOptionWithoutValidation("Українська")
+                }
             }
-        }
-        
-        page.shouldHaveNotifications {
-            success()
+            
+            shouldHaveNotifications {
+                success()
+            }
         }
 
         // Assert only language changed, everything else stayed the same
         val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
-        updatedUser.userName.shouldBe(initialUser.userName)
-        updatedUser.passwordHash.shouldBe(initialUser.passwordHash)
-        updatedUser.isAdmin.shouldBe(initialUser.isAdmin)
-        updatedUser.activated.shouldBe(initialUser.activated)
-        updatedUser.documentsStorage.shouldBe(initialUser.documentsStorage)
+        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
         updatedUser.i18nSettings.shouldBe(I18nSettings(
             language = "uk",
             locale = initialUser.i18nSettings.locale
@@ -122,21 +138,26 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(initialUser)
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
-                selectLocale("British English")
+                // Verify initial state
+                language {
+                    input.shouldHaveSelectedValue("English")
+                }
+                // Note: locale is a filterable select, skip initial value validation
+                
+                // Change locale - use selectOptionWithoutValidation because locale is filterable and has 2 spans
+                locale {
+                    input.selectOptionWithoutValidation("British English")
+                }
             }
-        }
-        
-        page.shouldHaveNotifications {
-            success()
+            
+            shouldHaveNotifications {
+                success("Language preferences have been saved")
+            }
         }
 
         // Assert only locale changed, everything else stayed the same
         val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
-        updatedUser.userName.shouldBe(initialUser.userName)
-        updatedUser.passwordHash.shouldBe(initialUser.passwordHash)
-        updatedUser.isAdmin.shouldBe(initialUser.isAdmin)
-        updatedUser.activated.shouldBe(initialUser.activated)
-        updatedUser.documentsStorage.shouldBe(initialUser.documentsStorage)
+        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
         updatedUser.i18nSettings.shouldBe(I18nSettings(
             language = initialUser.i18nSettings.language,
             locale = "en_GB"
@@ -148,18 +169,26 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openMyProfilePage {
             shouldHaveLanguagePreferencesSectionVisible {
-                selectLanguage("Українська")
+                // Verify initial state
+                sectionHeader.shouldBeVisible()
+                ukrainianSectionHeader.shouldBeHidden()
+                
+                // Change language - use selectOptionWithoutValidation because the UI language changes immediately
+                language {
+                    input.selectOptionWithoutValidation("Українська")
+                }
             }
-        }
-        
-        page.shouldHaveNotifications {
-            success()
-        }
-        
-        // After language change, the UI should be in Ukrainian
-        withHint("UI should be updated to Ukrainian language") {
-            // The language preferences section header should be in Ukrainian  
-            page.locator("//*[contains(@class, 'el-form')]//h2[text()='Мовні Уподобання']").shouldBeVisible()
+            
+            shouldHaveNotifications {
+                success()
+            }
+            
+            // After language change, verify the UI is in Ukrainian by checking section headers
+            // Note: Can't use shouldHaveLanguagePreferencesSectionVisible because it checks for English header
+            languagePreferencesSection {
+                sectionHeader.shouldBeHidden()
+                ukrainianSectionHeader.shouldBeVisible()
+            }
         }
     }
 

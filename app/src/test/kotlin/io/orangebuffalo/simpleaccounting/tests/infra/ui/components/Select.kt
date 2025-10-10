@@ -21,12 +21,16 @@ class Select private constructor(
     fun shouldBeHidden() = input.shouldBeHidden()
 
     fun selectOption(option: String) {
+        selectOptionWithoutValidation(option)
+        shouldHaveSelectedValue(option)
+    }
+
+    fun selectOptionWithoutValidation(option: String) {
         val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator
             .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='$option']")
             .click()
         popper.shouldBeClosed()
-        shouldHaveSelectedValue(option)
     }
 
     fun shouldHaveSelectedValue(value: String) {

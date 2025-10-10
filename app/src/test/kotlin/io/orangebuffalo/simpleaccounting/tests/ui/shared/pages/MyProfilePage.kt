@@ -16,6 +16,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Switch.Compan
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemSelectByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
 
 class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("My Profile")
@@ -34,6 +35,10 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
 
     fun shouldHaveLanguagePreferencesSectionVisible(spec: LanguagePreferencesSection.() -> Unit = {}) {
         languagePreferencesSection.shouldBeVisible()
+        languagePreferencesSection.spec()
+    }
+    
+    fun languagePreferencesSection(spec: LanguagePreferencesSection.() -> Unit) {
         languagePreferencesSection.spec()
     }
 
@@ -125,39 +130,13 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
 
     @UiComponentMarker
     class LanguagePreferencesSection(components: ComponentsAccessors) {
-        private val languagePreferencesSectionHeader =
-            components.page.locator("//*[contains(@class, 'el-form')]//h2[text()='Language Preferences']")
-        private val page = components.page
-        
-        val languageFormItem = components.formItemSelectByLabel("Interface Language")
-        val localeFormItem = components.formItemSelectByLabel("Language to display dates, amounts, etc")
+        val sectionHeader = components.sectionHeader("Language Preferences")
+        val ukrainianSectionHeader = components.sectionHeader("Мовні Уподобання")
+        val language = components.formItemSelectByLabel("Interface Language")
+        val locale = components.formItemSelectByLabel("Language to display dates, amounts, etc")
 
         fun shouldBeVisible() {
-            languagePreferencesSectionHeader.shouldBeVisible()
-        }
-        
-        fun selectLanguage(language: String) {
-            // Open dropdown using Popper
-            val wrapper = page.locator(".el-form-item")
-                .filter(com.microsoft.playwright.Locator.FilterOptions().setHasText("Interface Language"))
-                .locator(".el-select__wrapper")
-            val popper = io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Popper.openOrLocateByTrigger(wrapper)
-            popper.rootLocator
-                .locator("xpath=//*[${io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath.hasClass("el-select-dropdown__item")}]/span[text()='$language']")
-                .click()
-            popper.shouldBeClosed()
-        }
-        
-        fun selectLocale(locale: String) {
-            // Open dropdown using Popper
-            val wrapper = page.locator(".el-form-item")
-                .filter(com.microsoft.playwright.Locator.FilterOptions().setHasText("Language to display dates, amounts, etc"))
-                .locator(".el-select__wrapper")
-            val popper = io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Popper.openOrLocateByTrigger(wrapper)
-            popper.rootLocator
-                .locator("xpath=//*[${io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath.hasClass("el-select-dropdown__item")}]/span[text()='$locale']")
-                .click()
-            popper.shouldBeClosed()
+            sectionHeader.shouldBeVisible()
         }
     }
 

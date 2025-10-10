@@ -361,9 +361,49 @@ class ConfigSection(components: ComponentsAccessors<MyFeaturePage>) {
 #### Page Object Responsibilities
 
 - **UI interaction encapsulation**: Provide methods for clicking, filling, and navigating
-- **Element location**: Define selectors and element access patterns
+- **Element location**: Define selectors and element access patterns - **tests should never directly use locators or selectors**
 - **UI state assertions**: Verify visibility, content, and component states
 - **Component composition**: Organize complex pages into manageable sections
+
+#### DSL Pattern for Form Interactions
+
+Page objects should expose form items as properties (not methods) to enable DSL-style usage. **Never use direct selectors in tests.**
+
+Use existing component accessors:
+- `components.formItemTextInputByLabel()` for text inputs
+- `components.formItemSelectByLabel()` for selects
+- `components.formItemByLabel()` for custom components
+- `components.pageHeader()` for h1 headers
+- `components.sectionHeader()` for h2 headers
+
+Property naming convention: use short, descriptive names like `language`, `userName`, `role` (not `languageFormItem`).
+
+Example page object:
+```kotlin
+@UiComponentMarker
+class ConfigSection(components: ComponentsAccessors) {
+    val sectionHeader = components.sectionHeader("My Section")
+    val userName = components.formItemTextInputByLabel("Username")
+    val language = components.formItemSelectByLabel("Language")
+}
+```
+
+Example test usage with DSL:
+```kotlin
+page.openMyPage {
+    mySection {
+        userName {
+            input.shouldHaveValue("initial")
+            input.fill("newValue")
+        }
+        language {
+            input.selectOption("English")
+        }
+    }
+}
+```
+
+The lambda should remain open for the entire duration on the page - do not close it prematurely.
 
 ### Navigation and Authentication
 
