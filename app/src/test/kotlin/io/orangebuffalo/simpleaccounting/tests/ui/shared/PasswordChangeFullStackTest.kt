@@ -13,6 +13,13 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 
+/**
+ * Tests password change functionality on My Profile page for both regular users and admins.
+ * See also:
+ * - [io.orangebuffalo.simpleaccounting.tests.ui.user.UserProfileFullStackTest] for basic My Profile page rendering
+ * - [io.orangebuffalo.simpleaccounting.tests.ui.user.UserProfileGoogleDriveDocumentStorageFullStackTest] for Google Drive storage integration
+ * - [LanguagePreferencesFullStackTest] for language and locale preferences
+ */
 class PasswordChangeFullStackTest(
     @param:Autowired private val repository: PlatformUsersRepository,
 ) : SaFullStackTestBase() {

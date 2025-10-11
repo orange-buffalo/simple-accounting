@@ -21,6 +21,13 @@ import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.OAuthAuthorizatio
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.OAuthAuthorizationPopup.Companion.shouldHaveAuthorizationPopupOpenBy
 import org.junit.jupiter.api.Test
 
+/**
+ * Tests Google Drive document storage integration on My Profile page.
+ * See also:
+ * - [UserProfileFullStackTest] for basic My Profile page rendering
+ * - [io.orangebuffalo.simpleaccounting.tests.ui.shared.PasswordChangeFullStackTest] for password change functionality
+ * - [io.orangebuffalo.simpleaccounting.tests.ui.shared.LanguagePreferencesFullStackTest] for language and locale preferences
+ */
 class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should enable Google Drive storage if was not previously configured`(

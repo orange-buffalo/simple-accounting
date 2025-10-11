@@ -20,17 +20,29 @@ class Select private constructor(
 
     fun shouldBeHidden() = input.shouldBeHidden()
 
-    fun selectOption(option: String) {
+    /**
+     * Selects an option from the dropdown.
+     *
+     * @param option The text of the option to select
+     * @param validate Whether to validate the selected value after selection (default: true).
+     *                 Set to false when the selection triggers immediate side effects that change
+     *                 the form structure (e.g., changing UI language makes form labels change,
+     *                 breaking the validation locator).
+     */
+    fun selectOption(option: String, validate: Boolean = true) {
         val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator
             .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}]/span[text()='$option']")
             .click()
         popper.shouldBeClosed()
-        shouldHaveSelectedValue(option)
+        if (validate) {
+            shouldHaveSelectedValue(option)
+        }
     }
 
     fun shouldHaveSelectedValue(value: String) {
-        input.locator("xpath=//*[${XPath.hasClass("el-select__selected-item")}]/span")
+        // Exclude aria-hidden spans (e.g., el-select__input-calculator for filterable selects)
+        input.locator("xpath=//*[${XPath.hasClass("el-select__selected-item")}]/span[not(@aria-hidden)]")
             .shouldHaveText(value)
     }
 
