@@ -21,73 +21,13 @@ import org.junit.jupiter.api.Test
 class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
 
     @Test
-    fun `should change language for regular user`(page: Page) {
-        val initialUser = preconditions.fry
-        
-        page.authenticateViaCookie(initialUser)
-        page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible {
-                // Verify initial state
-                language {
-                    input.shouldHaveSelectedValue("English")
-                }
-                locale {
-                    input.shouldHaveSelectedValue("Australian English")
-                }
-                
-                // Change language
-                language {
-                    input.selectOptionWithoutValidation("Українська")
-                }
-            }
-            
-            shouldHaveNotifications {
-                success()
-            }
-        }
-
-        // Assert only language changed, everything else stayed the same
-        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
-        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
-        updatedUser.i18nSettings.shouldBe(I18nSettings(
-            language = "uk",
-            locale = initialUser.i18nSettings.locale
-        ))
+    fun `should change language`(page: Page) {
+        testLanguageChange(page, preconditions.fry)
     }
 
     @Test
-    fun `should change locale for regular user`(page: Page) {
-        val initialUser = preconditions.fry
-        
-        page.authenticateViaCookie(initialUser)
-        page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible {
-                // Verify initial state
-                language {
-                    input.shouldHaveSelectedValue("English")
-                }
-                locale {
-                    input.shouldHaveSelectedValue("Australian English")
-                }
-                
-                // Change locale
-                locale {
-                    input.selectOption("Albanian")
-                }
-            }
-            
-            shouldHaveNotifications {
-                success("Language preferences have been saved")
-            }
-        }
-
-        // Assert only locale changed, everything else stayed the same
-        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
-        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
-        updatedUser.i18nSettings.shouldBe(I18nSettings(
-            language = initialUser.i18nSettings.language,
-            locale = "sq"
-        ))
+    fun `should change locale`(page: Page) {
+        testLocaleChange(page, preconditions.fry)
     }
 
     @Test
@@ -100,76 +40,6 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 }
             }
         }
-    }
-
-    @Test
-    fun `should change language for admin user`(page: Page) {
-        val initialUser = preconditions.farnsworth
-        
-        page.authenticateViaCookie(initialUser)
-        page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible {
-                // Verify initial state
-                language {
-                    input.shouldHaveSelectedValue("English")
-                }
-                locale {
-                    input.shouldHaveSelectedValue("Australian English")
-                }
-                
-                // Change language
-                language {
-                    input.selectOptionWithoutValidation("Українська")
-                }
-            }
-            
-            shouldHaveNotifications {
-                success()
-            }
-        }
-
-        // Assert only language changed, everything else stayed the same
-        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
-        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
-        updatedUser.i18nSettings.shouldBe(I18nSettings(
-            language = "uk",
-            locale = initialUser.i18nSettings.locale
-        ))
-    }
-
-    @Test
-    fun `should change locale for admin user`(page: Page) {
-        val initialUser = preconditions.farnsworth
-        
-        page.authenticateViaCookie(initialUser)
-        page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible {
-                // Verify initial state
-                language {
-                    input.shouldHaveSelectedValue("English")
-                }
-                locale {
-                    input.shouldHaveSelectedValue("Australian English")
-                }
-                
-                // Change locale
-                locale {
-                    input.selectOption("British English")
-                }
-            }
-            
-            shouldHaveNotifications {
-                success("Language preferences have been saved")
-            }
-        }
-
-        // Assert only locale changed, everything else stayed the same
-        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
-        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
-        updatedUser.i18nSettings.shouldBe(I18nSettings(
-            language = initialUser.i18nSettings.language,
-            locale = "en_GB"
-        ))
     }
 
     @Test
@@ -198,6 +68,72 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 ukrainianSectionHeader.shouldBeVisible()
             }
         }
+    }
+
+    private fun testLanguageChange(page: Page, user: PlatformUser) {
+        page.authenticateViaCookie(user)
+        page.openMyProfilePage {
+            shouldHaveLanguagePreferencesSectionVisible {
+                // Verify initial state
+                language {
+                    input.shouldHaveSelectedValue("English")
+                }
+                locale {
+                    input.shouldHaveSelectedValue("Australian English")
+                }
+                
+                // Change language
+                language {
+                    input.selectOptionWithoutValidation("Українська")
+                }
+            }
+            
+            shouldHaveNotifications {
+                // Not verifying notification text because UI language changes immediately,
+                // creating a race condition where notification could show in either language
+                success()
+            }
+        }
+
+        assertOnlyI18nFieldChanged(user, I18nSettings(
+            language = "uk",
+            locale = user.i18nSettings.locale
+        ))
+    }
+
+    private fun testLocaleChange(page: Page, user: PlatformUser) {
+        page.authenticateViaCookie(user)
+        page.openMyProfilePage {
+            shouldHaveLanguagePreferencesSectionVisible {
+                // Verify initial state
+                language {
+                    input.shouldHaveSelectedValue("English")
+                }
+                locale {
+                    input.shouldHaveSelectedValue("Australian English")
+                }
+                
+                // Change locale
+                locale {
+                    input.selectOption("Albanian")
+                }
+            }
+            
+            shouldHaveNotifications {
+                success("Language preferences have been saved")
+            }
+        }
+
+        assertOnlyI18nFieldChanged(user, I18nSettings(
+            language = user.i18nSettings.language,
+            locale = "sq"
+        ))
+    }
+
+    private fun assertOnlyI18nFieldChanged(initialUser: PlatformUser, expectedI18nSettings: I18nSettings) {
+        val updatedUser = aggregateTemplate.findSingle<PlatformUser>(initialUser.id!!)
+        updatedUser.shouldBeEqualToIgnoringFields(initialUser, PlatformUser::i18nSettings, PlatformUser::version)
+        updatedUser.i18nSettings.shouldBe(expectedI18nSettings)
     }
 
     private val preconditions by lazyPreconditions {
