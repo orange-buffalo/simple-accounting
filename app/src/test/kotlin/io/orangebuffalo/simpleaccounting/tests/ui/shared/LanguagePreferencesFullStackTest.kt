@@ -21,13 +21,23 @@ import org.junit.jupiter.api.Test
 class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
 
     @Test
-    fun `should change language`(page: Page) {
+    fun `should change language for regular user`(page: Page) {
         testLanguageChange(page, preconditions.fry)
     }
 
     @Test
-    fun `should change locale`(page: Page) {
+    fun `should change language for admin user`(page: Page) {
+        testLanguageChange(page, preconditions.farnsworth)
+    }
+
+    @Test
+    fun `should change locale for regular user`(page: Page) {
         testLocaleChange(page, preconditions.fry)
+    }
+
+    @Test
+    fun `should change locale for admin user`(page: Page) {
+        testLocaleChange(page, preconditions.farnsworth)
     }
 
     @Test
