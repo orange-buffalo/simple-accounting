@@ -31,9 +31,11 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 language {
                     input.shouldHaveSelectedValue("English")
                 }
-                // Note: locale is a filterable select, skip initial value validation
+                locale {
+                    input.shouldHaveSelectedValue("Australian English")
+                }
                 
-                // Change language - use selectOptionWithoutValidation because the UI language changes immediately
+                // Change language
                 language {
                     input.selectOptionWithoutValidation("Українська")
                 }
@@ -64,11 +66,13 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 language {
                     input.shouldHaveSelectedValue("English")
                 }
-                // Note: locale is a filterable select, skip initial value validation
-                
-                // Change locale - use selectOptionWithoutValidation because locale is filterable and has 2 spans
                 locale {
-                    input.selectOptionWithoutValidation("Albanian")
+                    input.shouldHaveSelectedValue("Australian English")
+                }
+                
+                // Change locale
+                locale {
+                    input.selectOption("Albanian")
                 }
             }
             
@@ -109,9 +113,11 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 language {
                     input.shouldHaveSelectedValue("English")
                 }
-                // Note: locale is a filterable select, skip initial value validation
+                locale {
+                    input.shouldHaveSelectedValue("Australian English")
+                }
                 
-                // Change language - use selectOptionWithoutValidation because the UI language changes immediately
+                // Change language
                 language {
                     input.selectOptionWithoutValidation("Українська")
                 }
@@ -142,11 +148,13 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 language {
                     input.shouldHaveSelectedValue("English")
                 }
-                // Note: locale is a filterable select, skip initial value validation
-                
-                // Change locale - use selectOptionWithoutValidation because locale is filterable and has 2 spans
                 locale {
-                    input.selectOptionWithoutValidation("British English")
+                    input.shouldHaveSelectedValue("Australian English")
+                }
+                
+                // Change locale
+                locale {
+                    input.selectOption("British English")
                 }
             }
             
@@ -173,7 +181,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 sectionHeader.shouldBeVisible()
                 ukrainianSectionHeader.shouldBeHidden()
                 
-                // Change language - use selectOptionWithoutValidation because the UI language changes immediately
+                // Change language
                 language {
                     input.selectOptionWithoutValidation("Українська")
                 }

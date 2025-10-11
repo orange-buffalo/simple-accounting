@@ -5,6 +5,10 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 
+/**
+ * Component representing an h2 section header on a page.
+ * Use this to verify visibility of different sections or to check language-specific headers.
+ */
 class SectionHeader private constructor(
     private val locator: Locator,
 ) : UiComponent<SectionHeader>() {

@@ -393,11 +393,15 @@ Example test usage with DSL:
 page.openMyPage {
     mySection {
         userName {
-            input.shouldHaveValue("initial")
-            input.fill("newValue")
+            input {
+                shouldHaveValue("initial")
+                fill("newValue")
+            }
         }
         language {
-            input.selectOption("English")
+            input {
+                selectOption("English")
+            }
         }
     }
 }
