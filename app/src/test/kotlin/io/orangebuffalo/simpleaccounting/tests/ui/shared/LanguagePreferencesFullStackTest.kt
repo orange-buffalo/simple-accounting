@@ -53,7 +53,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 
                 // Change language
                 language {
-                    input.selectOptionWithoutValidation("Українська")
+                    input.selectOption("Українська", validate = false)
                 }
             }
             
@@ -84,7 +84,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 
                 // Change language
                 language {
-                    input.selectOptionWithoutValidation("Українська")
+                    input.selectOption("Українська", validate = false)
                 }
             }
             

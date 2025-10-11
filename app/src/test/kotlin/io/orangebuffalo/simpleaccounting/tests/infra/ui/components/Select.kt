@@ -20,6 +20,15 @@ class Select private constructor(
 
     fun shouldBeHidden() = input.shouldBeHidden()
 
+    /**
+     * Selects an option from the dropdown.
+     *
+     * @param option The text of the option to select
+     * @param validate Whether to validate the selected value after selection (default: true).
+     *                 Set to false when the selection triggers immediate side effects that change
+     *                 the form structure (e.g., changing UI language makes form labels change,
+     *                 breaking the validation locator).
+     */
     fun selectOption(option: String, validate: Boolean = true) {
         val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator
@@ -29,15 +38,6 @@ class Select private constructor(
         if (validate) {
             shouldHaveSelectedValue(option)
         }
-    }
-
-    /**
-     * Selects an option without validating the selected value afterward.
-     * Useful when the selection triggers immediate side effects that change the form structure
-     * (e.g., changing UI language makes form labels change, breaking the validation locator).
-     */
-    fun selectOptionWithoutValidation(option: String) {
-        selectOption(option, validate = false)
     }
 
     fun shouldHaveSelectedValue(value: String) {
