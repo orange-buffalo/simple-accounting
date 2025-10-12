@@ -19,6 +19,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader.Companion.sectionHeader
 
 class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
+    private val container = page.locator(".my-profile-page")
     private val header = components.pageHeader("My Profile")
     private val passwordChangeForm = PasswordChangeForm(page, components)
     private val documentsStorageSection = DocumentStorageSection(components)
@@ -26,6 +27,10 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
+    }
+
+    fun reportRendering(name: String) {
+        container.reportRendering(name)
     }
 
     fun shouldHavePasswordChangeSectionVisible(spec: PasswordChangeForm.() -> Unit = {}) {
@@ -59,9 +64,14 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
         val changePasswordButton = components.buttonByText("Apply new password")
         private val passwordChangeSectionHeader =
             page.locator("//*[contains(@class, 'el-form')]//h2[text()='Change Password']")
+        private val container = page.locator(".my-profile-page")
 
         fun shouldBeVisible() {
             passwordChangeSectionHeader.shouldBeVisible()
+        }
+
+        fun reportRendering(name: String) {
+            container.reportRendering(name)
         }
     }
 
@@ -134,9 +144,14 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
         val ukrainianSectionHeader = components.sectionHeader("Мовні Уподобання")
         val language = components.formItemSelectByLabel("Interface Language")
         val locale = components.formItemSelectByLabel("Language to display dates, amounts, etc")
+        private val container = components.page.locator(".my-profile-page")
 
         fun shouldBeVisible() {
             sectionHeader.shouldBeVisible()
+        }
+
+        fun reportRendering(name: String) {
+            container.reportRendering(name)
         }
     }
 

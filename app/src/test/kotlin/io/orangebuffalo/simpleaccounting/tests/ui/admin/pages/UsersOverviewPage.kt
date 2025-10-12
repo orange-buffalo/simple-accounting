@@ -9,8 +9,10 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 
 class UsersOverviewPage private constructor(page: Page) : SaPageBase(page) {
+    private val container = page.locator(".users-overview-page")
     val pageItems = components.overviewItems()
     val filterInput = components.textInputByPlaceholder("Search users")
     private val header = components.pageHeader("Users")
@@ -18,6 +20,10 @@ class UsersOverviewPage private constructor(page: Page) : SaPageBase(page) {
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
+    }
+
+    fun reportRendering(name: String) {
+        container.reportRendering(name)
     }
 
     companion object {

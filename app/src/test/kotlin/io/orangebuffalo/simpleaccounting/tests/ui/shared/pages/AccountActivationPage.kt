@@ -7,13 +7,19 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.navigateAndDisableAnimations
 
 class AccountActivationPage private constructor(page: Page) : SaPageBase(page) {
 
+    private val container = page.locator(".account-activation-page")
     val userMessage = components.statusLabel()
     val form = AccountActivationForm(components)
     val loginButton = components.buttonByText("Login now")
+
+    fun reportRendering(name: String) {
+        container.reportRendering(name)
+    }
 
     inner class AccountActivationForm(components: ComponentsAccessors) :
         UiComponent<AccountActivationForm>() {
@@ -31,6 +37,10 @@ class AccountActivationPage private constructor(page: Page) : SaPageBase(page) {
             newPassword.shouldBeVisible()
             newPasswordConfirmation.shouldBeVisible()
             activateAccountButton.shouldBeVisible()
+        }
+
+        fun reportRendering(name: String) {
+            this@AccountActivationPage.container.reportRendering(name)
         }
     }
 

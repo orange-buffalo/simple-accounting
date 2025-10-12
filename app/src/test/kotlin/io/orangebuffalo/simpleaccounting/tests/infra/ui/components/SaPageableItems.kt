@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Paginator.Companion.twoSyncedPaginators
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
@@ -68,6 +69,10 @@ class SaPageableItems<I> private constructor(
      */
     fun finishLoadingWhenTimeMocked() {
         container.page().clock().runFor(1)
+    }
+
+    fun reportRendering(name: String) {
+        container.reportRendering(name)
     }
 
     companion object {

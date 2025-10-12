@@ -13,13 +13,19 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Co
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel.Companion.statusLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 
 abstract class UserPageBase(page: Page) : SaPageBase(page) {
+    protected val container = page.locator(".user-details-page")
     val userName = components.formItemTextInputByLabel("Username")
     val role = components.formItemSelectByLabel("User role")
     val activationStatus = components.formItemByLabel("Activation status") { UserActivationStatus(it, components) }
     val saveButton = components.buttonByText("Save")
     val cancelButton = components.buttonByText("Cancel")
+
+    fun reportRendering(name: String) {
+        container.reportRendering(name)
+    }
 }
 
 class CreateUserPage private constructor(page: Page) : UserPageBase(page) {
