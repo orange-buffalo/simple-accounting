@@ -137,8 +137,21 @@ class AccountActivationFullStackTest(
 
     @Test
     fun `should activate user account`(page: Page) {
+        // First test: capture initial page loading state while token validation is in progress
+        page.withBlockedApiResponse(
+            "user-activation-tokens/*",
+            initiator = {
+                page.navigate("/activate-account/${preconditions.token.token}")
+            },
+            blockedRequestSpec = {
+                // Wait for the page container to appear, then capture the loading state
+                page.locator(".account-activation-page").waitFor()
+                page.locator("body").reportRendering("account-activation.initial-loading")
+            }
+        )
+        
+        // Now the page is loaded with data, continue with the test
         page.openAccountActivationPage(preconditions.token.token) {
-            reportRendering("account-activation.initial-state")
             form {
                 newPassword.input.fill("qwerty")
                 newPasswordConfirmation.input.fill("qwerty")
@@ -152,7 +165,7 @@ class AccountActivationFullStackTest(
                         newPassword.input.shouldBeDisabled()
                         newPasswordConfirmation.input.shouldBeDisabled()
                         activateAccountButton.shouldBeDisabled()
-                        reportRendering("account-activation.loading-state")
+                        reportRendering("account-activation.activation-loading-state")
                     }
                 )
                 shouldNotBeVisible()
