@@ -21,9 +21,9 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader
 class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     private val container = page.locator(".my-profile-page")
     private val header = components.pageHeader("My Profile")
-    private val passwordChangeForm = PasswordChangeForm(page, components)
+    val passwordChangeForm = PasswordChangeForm(page, components)
     private val documentsStorageSection = DocumentStorageSection(components)
-    private val languagePreferencesSection = LanguagePreferencesSection(components)
+    val languagePreferencesSection = LanguagePreferencesSection(components)
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
@@ -57,21 +57,20 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     }
 
     @UiComponentMarker
-    class PasswordChangeForm(page: Page, components: ComponentsAccessors) {
+    inner class PasswordChangeForm(page: Page, components: ComponentsAccessors) {
         val currentPassword = components.formItemTextInputByLabel("Current Password")
         val newPassword = components.formItemTextInputByLabel("New Password")
         val newPasswordConfirmation = components.formItemTextInputByLabel("New Password Confirmation")
         val changePasswordButton = components.buttonByText("Apply new password")
         private val passwordChangeSectionHeader =
             page.locator("//*[contains(@class, 'el-form')]//h2[text()='Change Password']")
-        private val container = page.locator(".my-profile-page")
 
         fun shouldBeVisible() {
             passwordChangeSectionHeader.shouldBeVisible()
         }
 
         fun reportRendering(name: String) {
-            container.reportRendering(name)
+            this@MyProfilePage.container.reportRendering(name)
         }
     }
 
@@ -139,19 +138,18 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     }
 
     @UiComponentMarker
-    class LanguagePreferencesSection(components: ComponentsAccessors) {
+    inner class LanguagePreferencesSection(components: ComponentsAccessors) {
         val sectionHeader = components.sectionHeader("Language Preferences")
         val ukrainianSectionHeader = components.sectionHeader("Мовні Уподобання")
         val language = components.formItemSelectByLabel("Interface Language")
         val locale = components.formItemSelectByLabel("Language to display dates, amounts, etc")
-        private val container = components.page.locator(".my-profile-page")
 
         fun shouldBeVisible() {
             sectionHeader.shouldBeVisible()
         }
 
         fun reportRendering(name: String) {
-            container.reportRendering(name)
+            this@MyProfilePage.container.reportRendering(name)
         }
     }
 
