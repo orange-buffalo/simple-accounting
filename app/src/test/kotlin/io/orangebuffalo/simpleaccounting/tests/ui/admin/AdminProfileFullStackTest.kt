@@ -3,7 +3,9 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.shouldBeMyProfilePage
 import org.junit.jupiter.api.Test
 
 /**
@@ -23,7 +25,21 @@ class AdminProfileFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should render My Profile page with proper sections`(page: Page) {
         page.authenticateViaCookie(preconditions.admin)
-        page.openMyProfilePage {
+        
+        // Capture initial loading state while profile data is being fetched
+        page.withBlockedApiResponse(
+            "profile*",
+            initiator = {
+                page.openMyProfilePage {}
+            },
+            blockedRequestSpec = {
+                page.shouldBeMyProfilePage {
+                    reportRendering("profile.admin.initial-loading")
+                }
+            }
+        )
+        
+        page.shouldBeMyProfilePage {
             shouldHaveDocumentsStorageSectionHidden()
             shouldHaveLanguagePreferencesSectionVisible()
             shouldHavePasswordChangeSectionVisible()

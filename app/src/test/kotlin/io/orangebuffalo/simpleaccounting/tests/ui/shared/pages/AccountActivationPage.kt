@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.shared.pages
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
@@ -50,7 +51,10 @@ class AccountActivationPage private constructor(page: Page) : SaPageBase(page) {
         }
 
         fun Page.shouldBeAccountActivationPage(spec: AccountActivationPage.() -> Unit) {
-            AccountActivationPage(this).spec()
+            AccountActivationPage(this).apply {
+                container.shouldBeVisible()
+                spec()
+            }
         }
     }
 }

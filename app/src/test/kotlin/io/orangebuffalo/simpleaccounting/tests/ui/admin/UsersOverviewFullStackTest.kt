@@ -3,8 +3,10 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UserOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.openUsersOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.shouldBeUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.toUserOverviewItem
 import org.junit.jupiter.api.Test
 
@@ -14,7 +16,21 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
     fun `should provide users overview`(page: Page) {
         val preconditions = setupOverviewPreconditions()
         page.authenticateViaCookie(preconditions.farnsworth)
-        page.openUsersOverviewPage {
+        
+        // Capture initial loading state while users data is being fetched
+        page.withBlockedApiResponse(
+            "users*",
+            initiator = {
+                page.openUsersOverviewPage {}
+            },
+            blockedRequestSpec = {
+                page.shouldBeUsersOverviewPage {
+                    reportRendering("users-overview.initial-loading")
+                }
+            }
+        )
+        
+        page.shouldBeUsersOverviewPage {
             pageItems {
                 shouldHaveExactItems(
                     UserOverviewItem(

@@ -161,5 +161,12 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
                 spec()
             }
         }
+
+        fun Page.shouldBeMyProfilePage(spec: MyProfilePage.() -> Unit) {
+            MyProfilePage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
     }
 }
