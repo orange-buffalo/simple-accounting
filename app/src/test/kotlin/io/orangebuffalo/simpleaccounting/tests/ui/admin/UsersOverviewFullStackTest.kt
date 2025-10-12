@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UserOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.openUsersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.toUserOverviewItem
@@ -42,6 +43,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
                 }
+                reportRendering("users-overview.initial-state")
             }
         }
     }
@@ -60,6 +62,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
+                    reportRendering("users-overview.pagination-page1")
                     next()
                     shouldHaveActivePage(2)
                     shouldHaveTotalPages(2)
@@ -67,6 +70,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveExactItems(
                     "user 4", "user 5", "user 6", "user 7", "user 8", "user 9"
                 ) { it.title }
+                reportRendering("users-overview.pagination-page2")
                 paginator {
                     previous()
                     shouldHaveActivePage(1)
@@ -102,6 +106,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
                 }
+                reportRendering("users-overview.filtered")
             }
         }
     }

@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import org.junit.jupiter.api.Test
 
@@ -26,6 +27,7 @@ class AdminProfileFullStackTest : SaFullStackTestBase() {
             shouldHaveDocumentsStorageSectionHidden()
             shouldHaveLanguagePreferencesSectionVisible()
             shouldHavePasswordChangeSectionVisible()
+            reportRendering("profile.admin.initial-state")
         }
     }
 }

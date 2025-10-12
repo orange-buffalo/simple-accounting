@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.CreateUserPage.Companion.shouldBeCreateUserPage
@@ -20,6 +21,7 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should create a new user`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
+            reportRendering("user-creation.initial-state")
             userName { input.fill("userX") }
             activationStatus { shouldBeHidden() }
             saveButton { click() }
@@ -122,6 +124,7 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
             role {
                 shouldNotHaveValidationErrors()
             }
+            reportRendering("user-creation.validation-error")
 
             userName { input.fill("x".repeat(256)) }
             saveButton { click() }

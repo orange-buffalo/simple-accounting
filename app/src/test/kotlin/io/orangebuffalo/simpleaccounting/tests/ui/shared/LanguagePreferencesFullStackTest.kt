@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
@@ -48,6 +49,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 language {
                     input.shouldHaveOptions("English", "Українська")
                 }
+                reportRendering("profile.language-preferences.initial-state")
             }
         }
     }
@@ -76,6 +78,7 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             languagePreferencesSection {
                 sectionHeader.shouldBeHidden()
                 ukrainianSectionHeader.shouldBeVisible()
+                reportRendering("profile.language-preferences.ukrainian-state")
             }
         }
     }

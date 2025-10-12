@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersRepository
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
@@ -31,6 +32,7 @@ class PasswordChangeFullStackTest(
         page.authenticateViaCookie(preconditions.fry)
         page.openMyProfilePage {
             shouldHavePasswordChangeSectionVisible {
+                reportRendering("profile.password-change.initial-state")
                 currentPassword {
                     input { fill("currentPassword") }
                 }
@@ -93,6 +95,7 @@ class PasswordChangeFullStackTest(
                 newPasswordConfirmation {
                     shouldHaveValidationError("New password confirmation does not match")
                 }
+                reportRendering("profile.password-change.validation-error")
             }
         }
     }

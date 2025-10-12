@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldNotBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.EditUserPage.Companion.shouldBeEditUserPage
@@ -31,6 +32,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
             role {
                 input.shouldBeDisabled()
             }
+            reportRendering("user-editing.initial-state")
             userName {
                 input.fill("fryX")
             }
@@ -76,6 +78,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
             role {
                 shouldNotHaveValidationErrors()
             }
+            reportRendering("user-editing.validation-error")
 
             userName { input.fill("x".repeat(256)) }
             saveButton { click() }
@@ -131,6 +134,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
                 shouldBeVisible()
                 input { shouldBeActivated() }
             }
+            reportRendering("user-editing.activated-user")
         }
     }
 
@@ -162,6 +166,7 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
                     shouldBeNotActivated("token-value")
                 }
             }
+            reportRendering("user-editing.not-activated-user")
         }
 
         aggregateTemplate.findAll<UserActivationToken>()

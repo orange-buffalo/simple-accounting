@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.AccountActivationPage.Companion.openAccountActivationPage
@@ -46,6 +47,7 @@ class AccountActivationFullStackTest(
             }
             loginButton { shouldBeHidden() }
             form { shouldNotBeVisible() }
+            reportRendering("account-activation.invalid-token")
         }
     }
 
@@ -99,6 +101,7 @@ class AccountActivationFullStackTest(
                     shouldBeVisible()
                     newPassword.shouldNotHaveValidationErrors()
                     newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
+                    reportRendering("account-activation.validation-error")
                 }
 
                 withHint("Should prohibit empty password") {
@@ -134,6 +137,7 @@ class AccountActivationFullStackTest(
     @Test
     fun `should activate user account`(page: Page) {
         page.openAccountActivationPage(preconditions.token.token) {
+            reportRendering("account-activation.initial-state")
             form {
                 newPassword.input.fill("qwerty")
                 newPasswordConfirmation.input.fill("qwerty")
@@ -145,6 +149,9 @@ class AccountActivationFullStackTest(
             }
             loginButton {
                 shouldBeVisible()
+            }
+            reportRendering("account-activation.success")
+            loginButton {
                 click()
             }
         }
