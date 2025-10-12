@@ -27,7 +27,7 @@
     "dropzone": "6.0.0-beta.2",
     "element-plus": "2.11.4",
     "event-source-polyfill": "1.0.31",
-    "globalize": "1.7.0",
+    "globalize": "1.7.1",
     "graphql": "^16.11.0",
     "imask": "7.6.1",
     "jwt-decode": "4.0.0",
