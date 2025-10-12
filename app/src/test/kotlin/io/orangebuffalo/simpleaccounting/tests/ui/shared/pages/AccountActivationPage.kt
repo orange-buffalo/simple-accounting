@@ -48,5 +48,9 @@ class AccountActivationPage private constructor(page: Page) : SaPageBase(page) {
         fun Page.openAccountActivationPage(token: String?, spec: AccountActivationPage.() -> Unit) {
             AccountActivationPage(navigateAndDisableAnimations("/activate-account${if (token != null) "/$token" else ""}")).spec()
         }
+
+        fun Page.shouldBeAccountActivationPage(spec: AccountActivationPage.() -> Unit) {
+            AccountActivationPage(this).spec()
+        }
     }
 }

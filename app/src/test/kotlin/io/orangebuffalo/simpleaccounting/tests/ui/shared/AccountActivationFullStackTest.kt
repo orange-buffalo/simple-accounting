@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.AccountActivationPage.Companion.openAccountActivationPage
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.AccountActivationPage.Companion.shouldBeAccountActivationPage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.LoginPage.Companion.shouldBeLoginPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.AccountSetupPage.Companion.shouldBeAccountSetupPage
 import org.junit.jupiter.api.Test
@@ -137,21 +138,21 @@ class AccountActivationFullStackTest(
 
     @Test
     fun `should activate user account`(page: Page) {
-        // First test: capture initial page loading state while token validation is in progress
+        // Capture initial page loading state while token validation is in progress
         page.withBlockedApiResponse(
             "user-activation-tokens/*",
             initiator = {
-                page.navigate("/activate-account/${preconditions.token.token}")
+                page.openAccountActivationPage(preconditions.token.token) {}
             },
             blockedRequestSpec = {
-                // Wait for the page container to appear, then capture the loading state
-                page.locator(".account-activation-page").waitFor()
-                page.locator("body").reportRendering("account-activation.initial-loading")
+                page.shouldBeAccountActivationPage {
+                    reportRendering("account-activation.initial-loading")
+                }
             }
         )
         
         // Now the page is loaded with data, continue with the test
-        page.openAccountActivationPage(preconditions.token.token) {
+        page.shouldBeAccountActivationPage {
             form {
                 newPassword.input.fill("qwerty")
                 newPasswordConfirmation.input.fill("qwerty")
