@@ -1,6 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
@@ -33,8 +35,9 @@ class AdminProfileFullStackTest : SaFullStackTestBase() {
                 page.openMyProfilePage {}
             },
             blockedRequestSpec = {
-                // Report rendering on body during loading (container may not exist yet if API is required)
-                page.locator("body").reportRendering("profile.admin.initial-loading")
+                // Wait for page container to be attached (proves page is rendered), then screenshot while API is blocked
+                page.locator(".my-profile-page").waitFor()
+                page.locator(".my-profile-page").reportRendering("profile.admin.initial-loading")
             }
         )
         

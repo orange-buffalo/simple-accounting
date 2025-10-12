@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
@@ -145,8 +146,9 @@ class AccountActivationFullStackTest(
                 page.openAccountActivationPage(preconditions.token.token) {}
             },
             blockedRequestSpec = {
-                // Report rendering on body during loading (container may not exist yet if API is required)
-                page.locator("body").reportRendering("account-activation.initial-loading")
+                // Wait for page container to be attached (proves page is rendered), then screenshot while API is blocked
+                page.locator(".account-activation-page").waitFor()
+                page.locator(".account-activation-page").reportRendering("account-activation.initial-loading")
             }
         )
         

@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
@@ -24,8 +25,9 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                 page.openUsersOverviewPage {}
             },
             blockedRequestSpec = {
-                // Report rendering on body during loading (container may not exist yet if API is required)
-                page.locator("body").reportRendering("users-overview.initial-loading")
+                // Wait for page container to be attached (proves page is rendered), then screenshot while API is blocked
+                page.locator(".users-overview-page").waitFor()
+                page.locator(".users-overview-page").reportRendering("users-overview.initial-loading")
             }
         )
         
