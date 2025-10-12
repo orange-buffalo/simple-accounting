@@ -145,9 +145,8 @@ class AccountActivationFullStackTest(
                 page.openAccountActivationPage(preconditions.token.token) {}
             },
             blockedRequestSpec = {
-                page.shouldBeAccountActivationPage {
-                    reportRendering("account-activation.initial-loading")
-                }
+                // Report rendering on body during loading (container may not exist yet if API is required)
+                page.locator("body").reportRendering("account-activation.initial-loading")
             }
         )
         

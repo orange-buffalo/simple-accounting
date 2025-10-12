@@ -33,9 +33,8 @@ class AdminProfileFullStackTest : SaFullStackTestBase() {
                 page.openMyProfilePage {}
             },
             blockedRequestSpec = {
-                page.shouldBeMyProfilePage {
-                    reportRendering("profile.admin.initial-loading")
-                }
+                // Report rendering on body during loading (container may not exist yet if API is required)
+                page.locator("body").reportRendering("profile.admin.initial-loading")
             }
         )
         

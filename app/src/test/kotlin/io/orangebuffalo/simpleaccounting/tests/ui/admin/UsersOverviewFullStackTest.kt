@@ -24,9 +24,8 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                 page.openUsersOverviewPage {}
             },
             blockedRequestSpec = {
-                page.shouldBeUsersOverviewPage {
-                    reportRendering("users-overview.initial-loading")
-                }
+                // Report rendering on body during loading (container may not exist yet if API is required)
+                page.locator("body").reportRendering("users-overview.initial-loading")
             }
         )
         

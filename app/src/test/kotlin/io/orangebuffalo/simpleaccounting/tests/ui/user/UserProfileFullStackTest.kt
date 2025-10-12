@@ -29,9 +29,8 @@ class UserProfileFullStackTest : SaFullStackTestBase() {
                 page.openMyProfilePage {}
             },
             blockedRequestSpec = {
-                page.shouldBeMyProfilePage {
-                    reportRendering("profile.user.initial-loading")
-                }
+                // Report rendering on body during loading (container may not exist yet if API is required)
+                page.locator("body").reportRendering("profile.user.initial-loading")
             }
         )
         
