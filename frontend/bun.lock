@@ -14,7 +14,7 @@
         "dropzone": "6.0.0-beta.2",
         "element-plus": "2.11.4",
         "event-source-polyfill": "1.0.31",
-        "globalize": "1.7.0",
+        "globalize": "1.7.1",
         "graphql": "^16.11.0",
         "imask": "7.6.1",
         "jwt-decode": "4.0.0",
@@ -1489,7 +1489,7 @@
 
     "glob-to-regexp": ["glob-to-regexp@0.4.1", "", {}, "sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw=="],
 
-    "globalize": ["globalize@1.7.0", "", { "dependencies": { "cldrjs": "^0.5.4" } }, "sha512-faR46vTIbFCeAemyuc9E6/d7Wrx9k2ae2L60UhakztFg6VuE42gENVJNuPFtt7Sdjrk9m2w8+py7Jj+JTNy59w=="],
+    "globalize": ["globalize@1.7.1", "", { "dependencies": { "cldrjs": "^0.5.4" } }, "sha512-PFymRL0PtitFOlSniuwwwNfkooi3cLQJo9Uke1+j1DsGfUkkHkwneImqVtGcqKI0TuzhAlHt7hAcgK324902HA=="],
 
     "globals": ["globals@16.4.0", "", {}, "sha512-ob/2LcVVaVGCYN+r14cnwnoDPUufjiYgSqRhiFD0Q1iI4Odora5RE8Iv1D24hAz5oMophRGkGz+yuvQmmUMnMw=="],
 
