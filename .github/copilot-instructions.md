@@ -466,6 +466,70 @@ ExternalServiceMocks.mockOperation(expectedResponse)
 assertExternalServiceRequests(expectedRequest1, expectedRequest2)
 ```
 
+#### Rendering Reports
+
+**All full stack tests MUST capture screenshots of important page states** using the `reportRendering` facility. These screenshots are used for manual verification of styling, layout, and rendering before releases.
+
+**Key Guidelines:**
+
+1. **Capture all important states**: initial state, loading state, validation errors, success states, etc.
+2. **Always capture loading states**: Use `withBlockedApiResponse` to capture the UI state while an API call is in progress
+3. **Avoid duplication**: Each screenshot should capture a unique state - don't capture multiple screenshots of the same visual state with different text
+4. **Use consistent naming**: Follow the pattern `page.section.state` (e.g., `login.initial-state`, `profile.password-change.loading-state`)
+5. **Add reportRendering to page objects**: Page objects must have a `reportRendering(name: String)` method that calls `container.reportRendering(name)`
+
+**Example - Capturing loading state:**
+
+```kotlin
+@Test
+fun `should activate user account`(page: Page) {
+    page.openAccountActivationPage(token) {
+        reportRendering("account-activation.initial-state")
+        
+        form {
+            newPassword.input.fill("password")
+            newPasswordConfirmation.input.fill("password")
+            
+            page.withBlockedApiResponse(
+                "auth/activate-user",
+                initiator = {
+                    activateAccountButton.click()
+                },
+                blockedRequestSpec = {
+                    // Verify UI state during loading
+                    newPassword.input.shouldBeDisabled()
+                    newPasswordConfirmation.input.shouldBeDisabled()
+                    activateAccountButton.shouldBeDisabled()
+                    // Capture the loading state
+                    reportRendering("account-activation.loading-state")
+                }
+            )
+        }
+        
+        userMessage.shouldBeSuccess("Account has been activated")
+        reportRendering("account-activation.success")
+    }
+}
+```
+
+**Example - Adding reportRendering to page objects:**
+
+```kotlin
+class MyPage private constructor(page: Page) : SaPageBase(page) {
+    private val container = page.locator(".my-page")
+    
+    fun reportRendering(name: String) {
+        container.reportRendering(name)
+    }
+    
+    inner class MySection(components: ComponentsAccessors) {
+        fun reportRendering(name: String) {
+            this@MyPage.container.reportRendering(name)
+        }
+    }
+}
+```
+
 ### Common Test Cases
 
 1. **Happy Path Workflows**: Complete successful user journeys

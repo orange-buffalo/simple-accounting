@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.AccountActivationPage.Companion.openAccountActivationPage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.LoginPage.Companion.shouldBeLoginPage
@@ -141,7 +142,19 @@ class AccountActivationFullStackTest(
             form {
                 newPassword.input.fill("qwerty")
                 newPasswordConfirmation.input.fill("qwerty")
-                activateAccountButton.click()
+                
+                page.withBlockedApiResponse(
+                    "auth/activate-user",
+                    initiator = {
+                        activateAccountButton.click()
+                    },
+                    blockedRequestSpec = {
+                        newPassword.input.shouldBeDisabled()
+                        newPasswordConfirmation.input.shouldBeDisabled()
+                        activateAccountButton.shouldBeDisabled()
+                        reportRendering("account-activation.loading-state")
+                    }
+                )
                 shouldNotBeVisible()
             }
             userMessage {
