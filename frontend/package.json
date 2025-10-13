@@ -23,7 +23,7 @@
     "@urql/core": "^6.0.1",
     "@urql/exchange-auth": "^3.0.0",
     "copy-to-clipboard": "3.3.3",
-    "dompurify": "3.2.7",
+    "dompurify": "3.3.0",
     "dropzone": "6.0.0-beta.2",
     "element-plus": "2.11.4",
     "event-source-polyfill": "1.0.31",
