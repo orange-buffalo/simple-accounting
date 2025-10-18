@@ -108,7 +108,7 @@
   import SaMoneyInput from '@/components/SaMoneyInput.vue';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
   import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaLegacyForm from '@/components/form//SaLegacyForm.vue';
+  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { EditIncomeTaxPaymentDto } from '@/services/api';
