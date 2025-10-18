@@ -4,7 +4,7 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <SaForm
+    <SaLegacyForm
       ref="formRef"
       :model="workspaceData"
       :rules="workspaceValidationRules"
@@ -44,14 +44,14 @@
           Save
         </ElButton>
       </template>
-    </SaForm>
+    </SaLegacyForm>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
   import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
-  import SaForm from '@/components/form/SaForm.vue';
+  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import { useWorkspaces } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
   import type { PartialBy } from '@/services/utils';
