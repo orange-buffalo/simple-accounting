@@ -2,6 +2,7 @@ import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
 import org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jreleaser.model.Active
+import java.time.Duration
 
 buildscript {
     repositories {
@@ -178,6 +179,8 @@ tasks.register<Test>("screenshotsTest") {
         dependsOn(tasks.getByPath(":frontend:buildStorybook"))
         inputs.files(tasks.getByPath(":frontend:buildStorybook").outputs)
     }
+    // Screenshot tests can be slow but should not hang indefinitely
+    timeout.set(Duration.ofMinutes(20))
 }
 
 tasks.register<Test>("e2eTest") {
@@ -194,6 +197,8 @@ tasks.register<Test>("e2eTest") {
     filter {
         includeTestsMatching(e2eTestPattern)
     }
+    // E2E tests involve Docker and Playwright, can be slow but should not hang indefinitely
+    timeout.set(Duration.ofMinutes(20))
 }
 
 val copyFrontendTask = tasks.register<Copy>("copyFrontend") {
