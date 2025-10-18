@@ -4,11 +4,7 @@
       <h1>My Profile</h1>
     </div>
 
-    <SaLegacyForm
-      v-if="loaded"
-      :model="profile"
-      ref="formRef"
-    >
+    <div v-if="profile" v-loading="loading">
       <div v-if="!isAdmin()">
         <!-- todo #204: space is not even -->
         <h2>Documents Storage</h2>
@@ -16,84 +12,40 @@
         <MyProfileDocumentsStorageConfig
           storage-name="Google Drive"
           storage-id="google-drive"
-          :user-documents-storage="profile.documentsStorage"
-          @storage-enabled="onStorageEnabled"
-          @storage-disabled="onStorageDisabled"
+          :profile="profile"
+          :loading="loading"
         >
           <SaGoogleDriveIntegrationSetup />
         </MyProfileDocumentsStorageConfig>
       </div>
 
       <MyProfileLanguagePreferences
-        :language="profile.i18n.language"
-        @update:language="updateLanguage"
-        :locale="profile.i18n.locale"
-        @update:locale="updateLocale"
+        :profile="profile"
+        :loading="loading"
       />
-    </SaLegacyForm>
+    </div>
 
     <MyProfileChangePassword />
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import MyProfileDocumentsStorageConfig from '@/pages/my-profile/MyProfileDocumentsStorageConfig.vue';
   import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup.vue';
   import { ProfileDto, useAuth, profileApi } from '@/services/api';
-  import { useForm } from '@/components/form/use-form';
   import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
-  import useNotifications from '@/components/notifications/use-notifications';
-  import { $t } from '@/services/i18n';
 
   const { isAdmin } = useAuth();
-  const { showSuccessNotification } = useNotifications();
 
-  const profile = ref<ProfileDto>({
-    userName: '',
-    i18n: {
-      language: '',
-      locale: '',
-    },
-  });
-  const loaded = ref(false);
+  const profile = ref<ProfileDto | null>(null);
+  const loading = ref(true);
 
-  const updateProfile = async () => {
-    await profileApi.updateProfile({
-      updateProfileRequestDto: profile.value,
-    });
-  };
-
-  const updateLanguage = async (language: string) => {
-    profile.value.i18n.language = language;
-    await updateProfile();
-    showSuccessNotification($t.value.myProfile.languagePreferences.feedback.success());
-  };
-
-  const updateLocale = async (locale: string) => {
-    profile.value.i18n.locale = locale;
-    await updateProfile();
-    showSuccessNotification($t.value.myProfile.languagePreferences.feedback.success());
-  };
-
-  const { formRef } = useForm(async () => {
+  onMounted(async () => {
     profile.value = await profileApi.getProfile();
-    loaded.value = true;
-  }, async () => {
-    // no op
+    loading.value = false;
   });
-
-  const onStorageEnabled = async (storageId: string) => {
-    profile.value.documentsStorage = storageId;
-    await updateProfile();
-  };
-
-  const onStorageDisabled = async () => {
-    profile.value.documentsStorage = undefined;
-    await updateProfile();
-  };
 </script>
 
 <style lang="scss">

@@ -68,7 +68,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     @UiComponentMarker
     class DocumentStorageSection(components: ComponentsAccessors) {
         private val documentStorageSectionHeader =
-           components.page.locator("//*[contains(@class, 'el-form')]//h2[text()='Documents Storage']")
+           components.page.locator("//h2[text()='Documents Storage']")
         private val googleDriveConfig =
             DocumentStorageConfig(components, "google-drive", "Google Drive") { container ->
                 GoogleDriveSettings(components, container)

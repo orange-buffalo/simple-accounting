@@ -4,6 +4,8 @@
       <ElSwitch
         v-model="enabled"
         @change="onEnabledChange"
+        :loading="submitting"
+        :disabled="props.loading"
       />
       <h4>{{ storageName }}</h4>
     </div>
@@ -13,31 +15,37 @@
 
 <script lang="ts" setup>
   import { ref, watch } from 'vue';
+  import { ProfileDto, profileApi } from '@/services/api';
 
   const props = defineProps<{
     storageName: string,
     storageId: string,
-    userDocumentsStorage?: string,
-  }>();
-
-  const emit = defineEmits<{(e: 'storage-enabled', storageId: string): void,
-                            (e: 'storage-disabled', storageId: string): void;
+    profile: ProfileDto,
+    loading: boolean,
   }>();
 
   const enabled = ref(false);
+  const submitting = ref(false);
 
   const setEnabled = () => {
-    enabled.value = props.storageId === props.userDocumentsStorage;
+    enabled.value = props.storageId === props.profile.documentsStorage;
   };
   setEnabled();
 
-  watch(() => [props.storageId, props.userDocumentsStorage], setEnabled);
+  watch(() => props.profile, setEnabled, { deep: true });
 
-  const onEnabledChange = () => {
-    if (enabled.value) {
-      emit('storage-enabled', props.storageId);
-    } else {
-      emit('storage-disabled', props.storageId);
+  const onEnabledChange = async () => {
+    submitting.value = true;
+    try {
+      const updatedProfile: ProfileDto = {
+        ...props.profile,
+        documentsStorage: enabled.value ? props.storageId : undefined,
+      };
+      await profileApi.updateProfile({
+        updateProfileRequestDto: updatedProfile,
+      });
+    } finally {
+      submitting.value = false;
     }
   };
 </script>

@@ -31,7 +31,7 @@
   import {
     ElForm, FormInstance, FormItemContext,
   } from 'element-plus';
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
@@ -95,6 +95,11 @@
      * for field-level validation errors.
      */
     onSubmit: () => Promise<unknown> | unknown,
+    /**
+     * External loading state. When true, the form will show loading indicator.
+     * This is merged with the internal loading state from onLoad and onSubmit.
+     */
+    externalLoading?: boolean,
   };
 
   // Modern API uses v-model
@@ -102,10 +107,12 @@
 
   const props = withDefaults(defineProps<SaFormProps>(), {
     submitButtonDisabled: false,
+    externalLoading: false,
   });
 
   const elForm = ref<FormInstance | undefined>(undefined);
-  const loading = ref(false);
+  const internalLoading = ref(false);
+  const loading = computed(() => internalLoading.value || props.externalLoading);
 
   const formItems = new Map<string, FormItemContext>();
   provideSaFormComponentsApi({
@@ -120,7 +127,7 @@
 
   const { showWarningNotification } = useNotifications();
   const submitForm = async () => {
-    loading.value = true;
+    internalLoading.value = true;
     try {
       await props.onSubmit();
     } catch (e: unknown) {
@@ -134,19 +141,23 @@
         throw e;
       }
     } finally {
-      loading.value = false;
+      internalLoading.value = false;
     }
   };
 
   onMounted(async () => {
     if (props.onLoad) {
-      loading.value = true;
+      internalLoading.value = true;
       try {
         await props.onLoad();
       } finally {
-        loading.value = false;
+        internalLoading.value = false;
       }
     }
+  });
+
+  defineExpose({
+    submitForm,
   });
 </script>
 

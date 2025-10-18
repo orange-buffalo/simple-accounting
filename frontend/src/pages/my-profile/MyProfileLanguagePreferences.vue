@@ -2,16 +2,18 @@
   <div>
     <h2>{{ $t.myProfile.languagePreferences.header() }}</h2>
 
-    <div class="row">
-      <div class="col col-xs-12 col-lg-6">
-        <ElFormItem
-          :label="$t.myProfile.languagePreferences.language.label()"
-          prop="language"
-        >
-          <ElSelect
-            v-model="inputLanguage"
+    <SaForm
+      v-model="formValues"
+      :on-submit="submitLanguagePreferences"
+      :external-loading="props.loading"
+      ref="formRef"
+    >
+      <div class="row">
+        <div class="col col-xs-12 col-lg-6">
+          <SaFormSelect
+            prop="language"
+            :label="$t.myProfile.languagePreferences.language.label()"
             :placeholder="$t.myProfile.languagePreferences.language.placeholder()"
-            @change="updateLanguage"
           >
             <ElOption
               v-for="availableLanguage in languages"
@@ -19,20 +21,14 @@
               :label="availableLanguage.displayName"
               :value="availableLanguage.languageCode"
             />
-          </ElSelect>
-        </ElFormItem>
-      </div>
+          </SaFormSelect>
+        </div>
 
-      <div class="col col-xs-12 col-lg-6">
-        <ElFormItem
-          :label="$t.myProfile.languagePreferences.locale.label()"
-          prop="locale"
-        >
-          <ElSelect
-            v-model="inputLocale"
-            :filterable="true"
+        <div class="col col-xs-12 col-lg-6">
+          <SaFormSelect
+            prop="locale"
+            :label="$t.myProfile.languagePreferences.locale.label()"
             :placeholder="$t.myProfile.languagePreferences.locale.placeholder()"
-            @change="updateLocale"
           >
             <ElOption
               v-for="availableLocale in locales"
@@ -40,50 +36,101 @@
               :label="availableLocale.displayName"
               :value="availableLocale.locale"
             />
-          </ElSelect>
-        </ElFormItem>
+          </SaFormSelect>
+        </div>
       </div>
-    </div>
+    </SaForm>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch } from 'vue';
+  import { ref, watch, onMounted } from 'vue';
   import type { SupportedLanguage, SupportedLocale } from '@/services/i18n';
   import {
     $t, getSupportedLanguages, getSupportedLocales, localeIdToLanguageTag, languageTagToLocaleId, setLocaleFromProfile,
   } from '@/services/i18n';
+  import { ProfileDto, profileApi } from '@/services/api';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormSelect from '@/components/form/SaFormSelect.vue';
+  import useNotifications from '@/components/notifications/use-notifications';
 
   const props = defineProps<{
-    language: string,
-    locale: string,
+    profile: ProfileDto,
+    loading: boolean,
   }>();
 
-  const emit = defineEmits<{(e: 'update:language', language: string): void,
-                            (e: 'update:locale', locale: string): void;
-  }>();
+  const { showSuccessNotification } = useNotifications();
 
   const languages = ref<Array<SupportedLanguage>>(getSupportedLanguages());
   const locales = ref<Array<SupportedLocale>>(getSupportedLocales());
-  const inputLanguage = ref<string>(localeIdToLanguageTag(props.language));
-  const inputLocale = ref<string>(localeIdToLanguageTag(props.locale));
 
-  watch(() => props.language, () => {
-    inputLanguage.value = localeIdToLanguageTag(props.language);
-  });
-  watch(() => props.locale, () => {
-    inputLocale.value = localeIdToLanguageTag(props.locale);
-  });
-
-  const updateLanguage = async () => {
-    // todo #204: loading indicator while locale/language is loaded and applied
-    await emit('update:language', languageTagToLocaleId(inputLanguage.value));
-    await setLocaleFromProfile(props.locale, languageTagToLocaleId(inputLanguage.value));
-    locales.value = getSupportedLocales();
+  type LanguagePreferencesFormValues = {
+    language: string,
+    locale: string,
   };
 
-  const updateLocale = async () => {
-    await emit('update:locale', languageTagToLocaleId(inputLocale.value));
-    await setLocaleFromProfile(languageTagToLocaleId(inputLocale.value), props.language);
+  const formValues = ref<LanguagePreferencesFormValues>({
+    language: localeIdToLanguageTag(props.profile.i18n.language),
+    locale: localeIdToLanguageTag(props.profile.i18n.locale),
+  });
+
+  const formRef = ref<InstanceType<typeof SaForm> | null>(null);
+  const isInitialized = ref(false);
+
+  watch(() => props.profile, () => {
+    formValues.value.language = localeIdToLanguageTag(props.profile.i18n.language);
+    formValues.value.locale = localeIdToLanguageTag(props.profile.i18n.locale);
+  }, { deep: true });
+
+  // Auto-submit when form values change (after initialization)
+  watch(formValues, async () => {
+    if (!isInitialized.value) {
+      return;
+    }
+    if (formRef.value) {
+      await (formRef.value as any).submitForm();
+    }
+  }, { deep: true });
+
+  onMounted(() => {
+    // Mark as initialized after the initial render
+    setTimeout(() => {
+      isInitialized.value = true;
+    }, 100);
+  });
+
+  const submitLanguagePreferences = async () => {
+    const updatedProfile: ProfileDto = {
+      ...props.profile,
+      i18n: {
+        language: languageTagToLocaleId(formValues.value.language),
+        locale: languageTagToLocaleId(formValues.value.locale),
+      },
+    };
+    await profileApi.updateProfile({
+      updateProfileRequestDto: updatedProfile,
+    });
+    await setLocaleFromProfile(
+      languageTagToLocaleId(formValues.value.locale),
+      languageTagToLocaleId(formValues.value.language),
+    );
+    locales.value = getSupportedLocales();
+    showSuccessNotification($t.value.myProfile.languagePreferences.feedback.success());
   };
 </script>
+
+<style lang="scss" scoped>
+  :deep(.sa-form) {
+    border: none;
+    padding: 0;
+    background: none;
+    
+    hr {
+      display: none;
+    }
+
+    .sa-form__buttons-bar {
+      display: none;
+    }
+  }
+</style>
