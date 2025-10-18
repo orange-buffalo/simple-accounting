@@ -53,13 +53,16 @@ To test thread dump collection locally:
 ```
 
 ### Verifying the Configuration
-The timeout configuration can be verified by checking task configuration:
+The timeout configuration can be verified by examining the build scripts:
+- `buildSrc/src/main/kotlin/Extensions.kt` for the standard test task
+- `app/build.gradle.kts` for screenshotsTest and e2eTest tasks
 
+All test tasks (`:app:test`, `:app:screenshotsTest`, `:app:e2eTest`) now have a 20-minute timeout configured.
+
+You can verify the build configuration is valid by running:
 ```bash
 ./gradlew :app:help
 ```
-
-All test tasks (`:app:test`, `:app:screenshotsTest`, `:app:e2eTest`) now have a 20-minute timeout configured.
 
 ## Analyzing Thread Dumps
 
