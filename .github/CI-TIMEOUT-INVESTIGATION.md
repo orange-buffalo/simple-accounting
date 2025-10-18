@@ -65,6 +65,21 @@ Common patterns to look for:
 - Threads waiting on network operations
 - Unclosed resources (database connections, HTTP clients, etc.)
 - Non-daemon threads that haven't terminated
+- Testcontainers not properly shut down
+- Playwright browser processes not terminated
+- Spring context cleanup issues
+
+### Tools for Analysis
+
+Use `jstack` analyzer or thread dump analysis tools like:
+- FastThread (https://fastthread.io/)
+- Thread Dump Analyzer (TDA)
+- IntelliJ IDEA's built-in thread dump analysis
+
+Look for:
+- Multiple consecutive dumps showing the same threads stuck
+- Growing number of threads over time
+- Resource exhaustion patterns
 
 ## Next Steps
 
@@ -73,6 +88,22 @@ Once thread dumps are collected from a failing build:
 1. Analyze the dumps to identify the root cause
 2. Implement a fix for the identified issue
 3. Consider if this diagnostic infrastructure should remain permanent or be removed after the issue is resolved
+
+## Known Considerations
+
+### Spring Context Caching
+The test configuration uses Spring's context caching (see `app/build.gradle.kts`):
+- Tests fork every 1000 tests to prevent context cache overgrowth
+- Up to 5 parallel test forks are used
+- Context cleanup issues could lead to resource leaks
+
+### Resource Cleanup
+Pay attention to:
+- Database connection pools (H2)
+- Testcontainers lifecycle
+- Playwright browser instances
+- HTTP clients and network connections
+- Thread pools from Kotlin coroutines or reactive streams
 
 ## Related Files
 

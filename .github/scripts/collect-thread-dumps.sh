@@ -58,6 +58,14 @@ while [ $dump_count -lt $MAX_DUMPS ]; do
                 echo -e "\n\n=== Process Info ===" >> "$dump_file"
                 ps -f -p "$pid" >> "$dump_file" 2>&1 || true
                 
+                # Capture open files/sockets
+                echo -e "\n\n=== Open Files (sample) ===" >> "$dump_file"
+                lsof -p "$pid" 2>&1 | head -50 >> "$dump_file" || echo "lsof not available or failed" >> "$dump_file"
+                
+                # Capture thread count
+                echo -e "\n\n=== Thread Count ===" >> "$dump_file"
+                ps -o nlwp -p "$pid" >> "$dump_file" 2>&1 || true
+                
                 echo "  Thread dump saved to $dump_file"
             fi
         done
