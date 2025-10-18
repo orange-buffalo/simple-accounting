@@ -34,7 +34,12 @@ Modified `.github/workflows/ci.yml`:
 ## Usage
 
 ### In CI
-Thread dumps are automatically collected during the "Test" step and uploaded as artifacts named `thread-dumps`.
+Thread dumps are automatically collected during all test steps:
+- "Test" step → `thread-dumps/` directory
+- "Test (screenshots)" step → `thread-dumps-screenshots/` directory  
+- "Test (end-to-end)" step → `thread-dumps-e2e/` directory
+
+All directories are uploaded as a single artifact named `thread-dumps`.
 
 ### Local Testing
 To test thread dump collection locally:
@@ -46,6 +51,15 @@ To test thread dump collection locally:
 # In another terminal, collect thread dumps
 .github/scripts/collect-thread-dumps.sh ./my-dumps 30 5
 ```
+
+### Verifying the Configuration
+The timeout configuration can be verified by checking task configuration:
+
+```bash
+./gradlew :app:help
+```
+
+All test tasks (`:app:test`, `:app:screenshotsTest`, `:app:e2eTest`) now have a 20-minute timeout configured.
 
 ## Analyzing Thread Dumps
 
@@ -107,6 +121,8 @@ Pay attention to:
 
 ## Related Files
 
-- `buildSrc/src/main/kotlin/Extensions.kt` - Test timeout configuration
+- `buildSrc/src/main/kotlin/Extensions.kt` - Test timeout configuration for standard test task
+- `app/build.gradle.kts` - Test timeout configuration for screenshotsTest and e2eTest tasks
 - `.github/scripts/collect-thread-dumps.sh` - Thread dump collection script
-- `.github/workflows/ci.yml` - CI workflow with thread dump collection
+- `.github/workflows/ci.yml` - CI workflow with thread dump collection for all test steps
+- `.github/CI-TIMEOUT-INVESTIGATION.md` - This documentation file
