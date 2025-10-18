@@ -4,7 +4,7 @@
       <h1>My Profile</h1>
     </div>
 
-    <SaForm
+    <SaLegacyForm
       v-if="loaded"
       :model="profile"
       ref="formRef"
@@ -30,7 +30,7 @@
         :locale="profile.i18n.locale"
         @update:locale="updateLocale"
       />
-    </SaForm>
+    </SaLegacyForm>
 
     <MyProfileChangePassword />
   </div>
@@ -40,7 +40,7 @@
   import { ref } from 'vue';
   import MyProfileDocumentsStorageConfig from '@/pages/my-profile/MyProfileDocumentsStorageConfig.vue';
   import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
-  import SaForm from '@/components/form/SaForm.vue';
+  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup.vue';
   import { ProfileDto, useAuth, profileApi } from '@/services/api';
   import { useForm } from '@/components/form/use-form';

@@ -4,7 +4,7 @@
       <h1>Create New Category</h1>
     </div>
 
-    <SaForm
+    <SaLegacyForm
       ref="formRef"
       :model="category"
       :rules="categoryValidationRules"
@@ -51,13 +51,13 @@
           Save
         </ElButton>
       </template>
-    </SaForm>
+    </SaLegacyForm>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaForm from '@/components/form/SaForm.vue';
+  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { PartialBy } from '@/services/utils';
   import type { CreateCategoryDto } from '@/services/api';

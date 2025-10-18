@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <SaForm
+    <SaLegacyForm
       ref="formRef"
       :model="invoice"
       :rules="invoiceValidationRules"
@@ -185,7 +185,7 @@
           {{ $t.editInvoice.save() }}
         </ElButton>
       </template>
-    </SaForm>
+    </SaLegacyForm>
   </div>
 </template>
 
@@ -196,7 +196,7 @@
   import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
   import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaForm from '@/components/form/SaForm.vue';
+  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import SaCustomerInput from '@/components/customer/SaCustomerInput.vue';
   import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
   import useNavigation from '@/services/use-navigation';

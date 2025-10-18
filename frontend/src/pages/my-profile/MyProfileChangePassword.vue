@@ -1,5 +1,5 @@
 <template>
-  <SaForm
+  <SaLegacyForm
     :model="passwordData"
     ref="formRef"
     style="margin-top: 30px"
@@ -65,14 +65,14 @@
         {{ $t.myProfile.changePassword.submit.label() }}
       </ElButton>
     </template>
-  </SaForm>
+  </SaLegacyForm>
 </template>
 
 <script lang="ts" setup>
   import { computed, reactive } from 'vue';
   import type { FormRules } from 'element-plus';
   import { $t } from '@/services/i18n';
-  import SaForm from '@/components/form/SaForm.vue';
+  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import { useForm, useFormItemValidation } from '@/components/form/use-form';
   import useNotifications from '@/components/notifications/use-notifications';
   import {

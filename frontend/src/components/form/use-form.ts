@@ -1,7 +1,7 @@
 import { onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { FormItemContext } from 'element-plus';
-import type SaForm from '@/components/form/SaForm.vue';
+import type SaLegacyForm from '@/components/form/SaLegacyForm.vue';
 import type SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
 import { $t } from '@/services/i18n';
 
@@ -10,7 +10,7 @@ function useFormInternal(
   saveFormData: () => Promise<void>,
   continueLoadingAfterSubmit: boolean,
 ) {
-  const formRef = ref<typeof SaForm | undefined>();
+  const formRef = ref<typeof SaLegacyForm | undefined>();
 
   const form = () => {
     if (!formRef.value) throw new Error('Not initialized');
@@ -72,7 +72,7 @@ function useFormInternal(
 }
 
 /**
- * @deprecated Use new from API - onSubmit in SaForm.
+ * @deprecated Use new from API - onSubmit in SaForm. For legacy forms, use SaLegacyForm.
  */
 export function useForm(
   loadFormData: () => Promise<void>,
@@ -91,7 +91,7 @@ export function useForm(
 }
 
 /**
- * @deprecated Use new from API - onSubmit in SaForm.
+ * @deprecated Use new from API - onSubmit in SaForm. For legacy forms, use SaLegacyForm.
  */
 export function useFormWithDocumentsUpload(
   loadFormData: () => Promise<void>,
@@ -154,7 +154,7 @@ export function useFormWithDocumentsUpload(
  *  - add `:ref="myFieldValidation.formItem"` to the form item
  *  - call `myFieldValidation.setValidationError('My error message');` to set the error
  *  - call `myFieldValidation.resetErrors();` to reset the error, e.g. in `@keyup` handler
- * @deprecated Use new from API - onSubmit in SaForm.
+ * @deprecated Use new from API - onSubmit in SaForm. For legacy forms, use SaLegacyForm.
  */
 export function useFormItemValidation() {
   const formItem = ref<FormItemContext | null>(null);

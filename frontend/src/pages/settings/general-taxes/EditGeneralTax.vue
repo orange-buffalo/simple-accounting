@@ -4,7 +4,7 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <SaForm
+    <SaLegacyForm
       ref="formRef"
       :model="tax"
       :rules="taxValidationRules"
@@ -55,13 +55,13 @@
           Save
         </ElButton>
       </template>
-    </SaForm>
+    </SaLegacyForm>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import SaForm from '@/components/form/SaForm.vue';
+  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
   import useNavigation from '@/services/use-navigation';
   import type { EditGeneralTaxDto } from '@/services/api';
   import type { PartialBy } from '@/services/utils';

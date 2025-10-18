@@ -4,7 +4,7 @@
       <h1>{{ pageHeader }}</h1>
     </div>
 
-    <SaForm
+    <SaLegacyForm
       ref="formRef"
       :model="taxPayment"
       :rules="taxPaymentValidationRules"
@@ -98,7 +98,7 @@
           {{ $t.editIncomeTaxPayment.save() }}
         </ElButton>
       </template>
-    </SaForm>
+    </SaLegacyForm>
   </div>
 </template>
 
@@ -108,7 +108,7 @@
   import SaMoneyInput from '@/components/SaMoneyInput.vue';
   import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
   import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaForm from '@/components/form//SaForm.vue';
+  import SaLegacyForm from '@/components/form//SaLegacyForm.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { EditIncomeTaxPaymentDto } from '@/services/api';

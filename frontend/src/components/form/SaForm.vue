@@ -4,17 +4,13 @@
       ref="elForm"
       v-loading="loading"
       label-position="top"
-      :model="isLegacyApi ? props.model : formValues"
-      :rules="rules"
+      :model="formValues"
     >
       <slot />
 
       <hr>
 
-      <div class="sa-form__buttons-bar-legacy" v-if="isLegacyApi">
-        <slot name="buttons-bar" />
-      </div>
-      <div class="sa-form__buttons-bar" v-else>
+      <div class="sa-form__buttons-bar">
         <ElButton
           type="primary"
           @click="submitForm"
@@ -33,12 +29,11 @@
 
 <script lang="ts" setup>
   import {
-    ElForm, FormInstance, FormItemContext, FormRules,
+    ElForm, FormInstance, FormItemContext,
   } from 'element-plus';
   import { onMounted, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
-  import { ensureDefined, hasValue } from '@/services/utils.ts';
   import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
   import {
     setFieldErrorsFromClientSideValidation,
@@ -47,50 +42,70 @@
   import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
   import useNotifications from '@/components/notifications/use-notifications.ts';
 
+  /**
+   * Modern form component with declarative API.
+   *
+   * @example
+   * ```vue
+   * <SaForm v-model="formValues" :on-submit="saveData" :on-load="loadData" :on-cancel="cancel">
+   *   <SaFormInput prop="name" label="Name" />
+   *   <SaFormSelect prop="role" label="Role">
+   *     <ElOption label="User" value="user" />
+   *   </SaFormSelect>
+   * </SaForm>
+   * ```
+   *
+   * Key features:
+   * - Uses `v-model` for two-way binding of form values
+   * - Handles form submission via `:on-submit` callback
+   * - Supports optional `:on-load` callback for data loading
+   * - Supports optional `:on-cancel` callback for cancel action
+   * - Automatically renders submit and cancel buttons
+   * - Handles validation errors from API or client-side using `ClientSideValidationError`
+   * - Shows loading state during submit and load operations
+   *
+   * For legacy forms with manual button control and rules-based validation,
+   * use `SaLegacyForm` instead.
+   */
   type SaFormProps = {
     /**
-     * @deprecated legacy API will provide this, while new API v-model
+     * Callback for handling cancel action. If not provided, cancel button will not be shown.
      */
-    model?: FormValues,
-    /**
-     * @deprecated legacy API: use backend validations or ClientSideValidationError instead
-     */
-    rules?: FormRules,
-    /**
-     * @deprecated legacy API: workaround for "create" use case
-     */
-    initiallyLoading?: boolean,
     onCancel?: () => Promise<unknown> | unknown,
+    /**
+     * Label for the cancel button. Defaults to "Cancel" from translations.
+     */
     cancelButtonLabel?: string,
+    /**
+     * Label for the submit button. Defaults to "Save" from translations.
+     */
     submitButtonLabel?: string,
+    /**
+     * Whether to disable the submit button.
+     */
     submitButtonDisabled?: boolean,
+    /**
+     * Callback for loading data when the form is mounted.
+     * The form will show loading state until this completes.
+     */
     onLoad?: () => Promise<unknown> | unknown,
-    // optional to support legacy API
-    onSubmit?: () => Promise<unknown> | unknown,
+    /**
+     * Callback for handling form submission.
+     * Should throw `ApiFieldLevelValidationError` or `ClientSideValidationError`
+     * for field-level validation errors.
+     */
+    onSubmit: () => Promise<unknown> | unknown,
   };
 
-  // new API uses v-model
-  const formValues = defineModel<FormValues>();
+  // Modern API uses v-model
+  const formValues = defineModel<FormValues>({ required: true });
 
   const props = withDefaults(defineProps<SaFormProps>(), {
     submitButtonDisabled: false,
   });
 
-  const isLegacyApi = !hasValue(props.onSubmit);
-
-  if (!isLegacyApi && props.rules) {
-    throw new Error('Rules are not supported in the new API, use ClientSideValidationError instead.');
-  }
-  if (!isLegacyApi && (!formValues.value || props.model)) {
-    throw new Error('v-model must be used in the new API.');
-  }
-  if (isLegacyApi && (!props.model || formValues.value)) {
-    throw new Error('Model prop must be used in the legacy API.');
-  }
-
   const elForm = ref<FormInstance | undefined>(undefined);
-  // false for modern API, complex logic for legacy API
-  const loading = ref(isLegacyApi ? (props.initiallyLoading ?? true) : false);
+  const loading = ref(false);
 
   const formItems = new Map<string, FormItemContext>();
   provideSaFormComponentsApi({
@@ -105,24 +120,9 @@
 
   const { showWarningNotification } = useNotifications();
   const submitForm = async () => {
-    // legacy API - validations via rules
-
-    // form validation throws an exception if validation fails
-    if (props.rules) {
-      try {
-        await ensureDefined(elForm.value)
-          .validate();
-      } catch (_: unknown) {
-        return;
-      }
-    }
-
-    // modern API - validations via ClientSideValidationError in onSubmit
     loading.value = true;
     try {
-      if (props.onSubmit) {
-        await props.onSubmit();
-      }
+      await props.onSubmit();
     } catch (e: unknown) {
       if (e instanceof ApiFieldLevelValidationError) {
         setFieldsErrorsFromApiResponse(e.fieldErrors, formItems);
@@ -147,25 +147,6 @@
         loading.value = false;
       }
     }
-  });
-
-  // legacy API - should not be used any longer
-  const validate = async (): Promise<boolean> => {
-    if (elForm.value) {
-      return elForm.value.validate();
-    }
-    return false;
-  };
-  const startLoading = () => {
-    loading.value = true;
-  };
-  const stopLoading = () => {
-    loading.value = false;
-  };
-  defineExpose({
-    validate,
-    startLoading,
-    stopLoading,
   });
 </script>
 
@@ -223,12 +204,6 @@
       border: 1px solid $primary-grey;
       margin-top: 10px;
       margin-bottom: 10px;
-    }
-
-    &__buttons-bar-legacy {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-between;
     }
 
     &__buttons-bar {
