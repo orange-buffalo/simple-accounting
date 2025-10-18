@@ -1,0 +1,81 @@
+# CI Timeout Investigation Setup
+
+## Problem
+CI builds occasionally hang indefinitely during the test phase, with the last log entries showing Spring Context and connection pool shutdown, suggesting a blocked thread preventing JVM shutdown.
+
+## Solution Implemented
+
+### 1. Test Timeout Configuration
+Added a 20-minute timeout for all Gradle test tasks in `buildSrc/src/main/kotlin/Extensions.kt`:
+
+```kotlin
+timeout.set(java.time.Duration.ofMinutes(20))
+```
+
+This prevents indefinite hangs. Normal test execution takes ~3-4 minutes, so 20 minutes provides a safe buffer while ensuring the build doesn't run for hours.
+
+### 2. Thread Dump Collection Script
+Created `.github/scripts/collect-thread-dumps.sh` to periodically capture thread dumps during test execution:
+
+- Runs in the background during test execution
+- Collects thread dumps every 30 seconds
+- Captures up to 40 dumps (covering the full 20-minute timeout window)
+- Uses `jstack`, `jcmd`, or `kill -3` to capture dumps
+- Saves dumps to `thread-dumps/` directory with timestamps and PIDs
+
+### 3. CI Workflow Updates
+Modified `.github/workflows/ci.yml`:
+
+- Starts thread dump collection in the background before running tests
+- Ensures thread dump collection is stopped after tests complete
+- Preserves test exit code for proper CI status reporting
+- Uploads thread dumps as artifacts for analysis (even on timeout/failure)
+
+## Usage
+
+### In CI
+Thread dumps are automatically collected during the "Test" step and uploaded as artifacts named `thread-dumps`.
+
+### Local Testing
+To test thread dump collection locally:
+
+```bash
+# In one terminal, start a long-running test
+./gradlew check
+
+# In another terminal, collect thread dumps
+.github/scripts/collect-thread-dumps.sh ./my-dumps 30 5
+```
+
+## Analyzing Thread Dumps
+
+When a timeout occurs:
+
+1. Download the `thread-dumps` artifact from the failed CI run
+2. Look for dumps collected near the timeout
+3. Analyze thread states to identify blocked threads:
+   - Look for threads in BLOCKED or WAITING state
+   - Check for deadlocks (will be explicitly reported)
+   - Identify which threads are holding locks
+   - Examine stack traces of non-daemon threads that may prevent JVM shutdown
+
+Common patterns to look for:
+- Threads waiting on I/O operations
+- Threads blocked on database connections
+- Threads waiting on network operations
+- Unclosed resources (database connections, HTTP clients, etc.)
+- Non-daemon threads that haven't terminated
+
+## Next Steps
+
+Once thread dumps are collected from a failing build:
+
+1. Analyze the dumps to identify the root cause
+2. Implement a fix for the identified issue
+3. Consider if this diagnostic infrastructure should remain permanent or be removed after the issue is resolved
+
+## Related Files
+
+- `buildSrc/src/main/kotlin/Extensions.kt` - Test timeout configuration
+- `.github/scripts/collect-thread-dumps.sh` - Thread dump collection script
+- `.github/workflows/ci.yml` - CI workflow with thread dump collection
