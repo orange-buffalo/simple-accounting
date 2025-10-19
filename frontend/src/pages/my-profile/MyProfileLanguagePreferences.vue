@@ -50,6 +50,7 @@
 
 <script lang="ts" setup>
   import { ref, watch, nextTick, onMounted } from 'vue';
+  import { ElFormItem, ElSelect, ElOption } from 'element-plus';
   import type { SupportedLanguage, SupportedLocale } from '@/services/i18n';
   import {
     $t, getSupportedLanguages, getSupportedLocales, localeIdToLanguageTag, languageTagToLocaleId, setLocaleFromProfile,
@@ -79,6 +80,7 @@
     locale: localeIdToLanguageTag(props.profile.i18n.locale),
   });
 
+  // Local interface for SaForm instance (SaForm doesn't export types)
   type SaFormInstance = {
     submitForm: () => Promise<void>;
   };
