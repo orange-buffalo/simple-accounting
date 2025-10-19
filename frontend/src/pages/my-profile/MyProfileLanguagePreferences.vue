@@ -25,18 +25,23 @@
         </div>
 
         <div class="col col-xs-12 col-lg-6">
-          <SaFormSelect
-            prop="locale"
+          <ElFormItem
             :label="$t.myProfile.languagePreferences.locale.label()"
-            :placeholder="$t.myProfile.languagePreferences.locale.placeholder()"
+            prop="locale"
           >
-            <ElOption
-              v-for="availableLocale in locales"
-              :key="availableLocale.locale"
-              :label="availableLocale.displayName"
-              :value="availableLocale.locale"
-            />
-          </SaFormSelect>
+            <ElSelect
+              v-model="formValues.locale"
+              :filterable="true"
+              :placeholder="$t.myProfile.languagePreferences.locale.placeholder()"
+            >
+              <ElOption
+                v-for="availableLocale in locales"
+                :key="availableLocale.locale"
+                :label="availableLocale.displayName"
+                :value="availableLocale.locale"
+              />
+            </ElSelect>
+          </ElFormItem>
         </div>
       </div>
     </SaForm>
@@ -44,7 +49,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch, onMounted } from 'vue';
+  import { ref, watch, nextTick, onMounted } from 'vue';
   import type { SupportedLanguage, SupportedLocale } from '@/services/i18n';
   import {
     $t, getSupportedLanguages, getSupportedLocales, localeIdToLanguageTag, languageTagToLocaleId, setLocaleFromProfile,
@@ -74,7 +79,11 @@
     locale: localeIdToLanguageTag(props.profile.i18n.locale),
   });
 
-  const formRef = ref<InstanceType<typeof SaForm> | null>(null);
+  type SaFormInstance = {
+    submitForm: () => Promise<void>;
+  };
+
+  const formRef = ref<SaFormInstance | null>(null);
   const isInitialized = ref(false);
 
   watch(() => props.profile, () => {
@@ -88,15 +97,14 @@
       return;
     }
     if (formRef.value) {
-      await (formRef.value as any).submitForm();
+      await formRef.value.submitForm();
     }
   }, { deep: true });
 
-  onMounted(() => {
-    // Mark as initialized after the initial render
-    setTimeout(() => {
-      isInitialized.value = true;
-    }, 100);
+  onMounted(async () => {
+    // Mark as initialized after Vue has completed the initial render cycle
+    await nextTick();
+    isInitialized.value = true;
   });
 
   const submitLanguagePreferences = async () => {
