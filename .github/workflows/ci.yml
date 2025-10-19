@@ -48,34 +48,10 @@ jobs:
       - name: "Test (screenshots)"
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
-        run: |
-          # Start thread dump collection in background
-          .github/scripts/collect-thread-dumps.sh thread-dumps-screenshots 30 40 &
-          DUMP_PID=$!
-          
-          ./gradlew screenshotsTest --scan --console=plain --build-cache
-          TEST_EXIT_CODE=$?
-          
-          # Stop thread dump collection
-          kill $DUMP_PID 2>/dev/null || true
-          wait $DUMP_PID 2>/dev/null || true
-          
-          exit $TEST_EXIT_CODE
+        run: ./gradlew screenshotsTest --scan --console=plain --build-cache
 
       - name: "Test (end-to-end)"
-        run: |
-          # Start thread dump collection in background
-          .github/scripts/collect-thread-dumps.sh thread-dumps-e2e 30 40 &
-          DUMP_PID=$!
-          
-          ./gradlew e2eTest --scan --console=plain --build-cache
-          TEST_EXIT_CODE=$?
-          
-          # Stop thread dump collection
-          kill $DUMP_PID 2>/dev/null || true
-          wait $DUMP_PID 2>/dev/null || true
-          
-          exit $TEST_EXIT_CODE
+        run: ./gradlew e2eTest --scan --console=plain --build-cache
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v5
@@ -90,10 +66,7 @@ jobs:
         if: always()
         with:
           name: thread-dumps
-          path: |
-            thread-dumps
-            thread-dumps-screenshots
-            thread-dumps-e2e
+          path: thread-dumps
           if-no-files-found: "ignore"
 
       - name: "Save Rendering Report"
