@@ -76,8 +76,16 @@
   };
 
   const formValues = ref<LanguagePreferencesFormValues>({
-    language: localeIdToLanguageTag(props.profile.i18n.language),
-    locale: localeIdToLanguageTag(props.profile.i18n.locale),
+    language: '',
+    locale: '',
+  });
+
+  watch(() => props.profile, () => {
+    formValues.value.language = localeIdToLanguageTag(props.profile.i18n.language);
+    formValues.value.locale = localeIdToLanguageTag(props.profile.i18n.locale);
+  }, {
+    deep: true,
+    immediate: true,
   });
 
   const submitLanguagePreferences = async () => {

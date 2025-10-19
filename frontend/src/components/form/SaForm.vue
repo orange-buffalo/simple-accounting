@@ -28,10 +28,8 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    ElForm, FormInstance, FormItemContext,
-  } from 'element-plus';
-  import { computed, onMounted, ref } from 'vue';
+  import { ElForm, FormInstance, FormItemContext } from 'element-plus';
+  import { computed, nextTick, onMounted, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
@@ -150,7 +148,11 @@
       formItems.delete(prop);
     },
     formValues,
-    submitForm,
+    submitForm: async () => {
+      // wait for Vue to propagate changes from form components
+      await nextTick();
+      await submitForm();
+    },
   });
 
   onMounted(async () => {

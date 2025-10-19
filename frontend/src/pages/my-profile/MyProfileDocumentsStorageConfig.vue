@@ -40,7 +40,16 @@
   };
 
   const formValues = ref<StorageConfigFormValues>({
-    enabled: props.storageId === props.profile.documentsStorage,
+    enabled: false,
+  });
+
+  watch(() => props.profile, () => {
+    formValues.value = {
+      enabled: props.storageId === props.profile.documentsStorage,
+    };
+  }, {
+    deep: true,
+    immediate: true,
   });
 
   const submitStorageConfig = async () => {

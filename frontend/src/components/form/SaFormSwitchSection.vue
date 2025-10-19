@@ -1,5 +1,5 @@
 <template>
-  <SaFormItemInternal v-bind="props" v-model="switchValue">
+  <SaFormItemInternal v-bind="props" :label="undefined" v-model="switchValue">
     <div class="sa-form-switch-section">
       <ElSwitch
         v-model="switchValue"
