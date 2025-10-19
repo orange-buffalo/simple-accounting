@@ -29,7 +29,21 @@ jobs:
         run: ./gradlew assemble --scan --console=plain --build-cache
 
       - name: "Test"
-        run: ./gradlew check --scan --console=plain --build-cache
+        run: |
+          # Start thread dump collection in background
+          .github/scripts/collect-thread-dumps.sh thread-dumps 30 40 &
+          DUMP_PID=$!
+          echo "Thread dump collector started with PID $DUMP_PID"
+          
+          # Run tests
+          ./gradlew check --scan --console=plain --build-cache
+          TEST_EXIT_CODE=$?
+          
+          # Stop thread dump collection
+          kill $DUMP_PID 2>/dev/null || true
+          wait $DUMP_PID 2>/dev/null || true
+          
+          exit $TEST_EXIT_CODE
 
       - name: "Test (screenshots)"
         env:
@@ -46,6 +60,14 @@ jobs:
           report_paths: "**/build/test-results/**/TEST-*.xml"
           require_tests: false
           detailed_summary: true
+
+      - name: "Save Thread Dumps"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: thread-dumps
+          path: thread-dumps
+          if-no-files-found: "ignore"
 
       - name: "Save Rendering Report"
         uses: actions/upload-artifact@v4

@@ -21,6 +21,10 @@ fun Test.configureTestTask(mockitoAgent: Configuration, additionalJvmArgs: List<
         *additionalJvmArgs.toTypedArray(),
     )
     maxHeapSize = "1g"
+    
+    // Set timeout to prevent indefinite hangs in CI
+    // Normal test execution takes ~3-4 minutes, so 20 minutes is a safe upper bound
+    timeout.set(java.time.Duration.ofMinutes(20))
 }
 
 fun ifCi(action: () -> Unit) {

@@ -258,16 +258,16 @@ tasks.register<JavaExec>("installPlaywrightDependencies") {
 tasks.register<Test>("updateGraphqlSchema") {
     group = "verification"
     description = "Updates the Git-managed GraphQL schema by running GraphqlSchemaTest with override enabled."
-    
+
     filter {
         includeTestsMatching("*GraphqlSchemaTest*")
     }
-    
+
     systemProperty("simpleaccounting.graphql.updateSchema", "true")
-    
+
     // Ensure the test runs even if it was previously successful
     outputs.upToDateWhen { false }
-    
+
     configureTestTask(mockitoAgent)
 }
 
