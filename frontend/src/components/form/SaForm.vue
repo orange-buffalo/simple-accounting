@@ -121,16 +121,6 @@
   const loading = computed(() => internalLoading.value || props.externalLoading);
 
   const formItems = new Map<string, FormItemContext>();
-  provideSaFormComponentsApi({
-    registerFormItem: (prop: string, formItem: FormItemContext) => {
-      formItems.set(prop, formItem);
-    },
-    unregisterFormItem: (prop: string) => {
-      formItems.delete(prop);
-    },
-    formValues,
-    submitForm,
-  });
 
   const { showWarningNotification } = useNotifications();
   const submitForm = async () => {
@@ -151,6 +141,17 @@
       internalLoading.value = false;
     }
   };
+
+  provideSaFormComponentsApi({
+    registerFormItem: (prop: string, formItem: FormItemContext) => {
+      formItems.set(prop, formItem);
+    },
+    unregisterFormItem: (prop: string) => {
+      formItems.delete(prop);
+    },
+    formValues,
+    submitForm,
+  });
 
   onMounted(async () => {
     if (props.onLoad) {
@@ -175,6 +176,7 @@
     background-color: $white;
     border-radius: 2px;
     overflow: hidden;
+    margin-bottom: 30px;
 
     .el-form {
       width: 100%;

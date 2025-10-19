@@ -5,6 +5,7 @@
     :external-loading="props.loading"
     :hide-buttons="true"
   >
+    <h2>{{ $t.myProfile.documentsStorage.header() }}</h2>
     <div class="documents-storage-config" :id="`storage-config_${storageId}`">
       <SaFormSwitchSection
         :label="storageName"
@@ -21,6 +22,7 @@
   import { ProfileDto, profileApi } from '@/services/api';
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormSwitchSection from '@/components/form/SaFormSwitchSection.vue';
+  import { $t } from '@/services/i18n';
 
   const props = defineProps<{
     storageName: string,

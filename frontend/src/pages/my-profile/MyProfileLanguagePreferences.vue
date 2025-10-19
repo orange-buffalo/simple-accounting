@@ -1,49 +1,47 @@
 <template>
-  <div>
+  <SaForm
+    v-model="formValues"
+    :on-submit="submitLanguagePreferences"
+    :external-loading="props.loading"
+    :hide-buttons="true"
+  >
     <h2>{{ $t.myProfile.languagePreferences.header() }}</h2>
 
-    <SaForm
-      v-model="formValues"
-      :on-submit="submitLanguagePreferences"
-      :external-loading="props.loading"
-      :hide-buttons="true"
-    >
-      <div class="row">
-        <div class="col col-xs-12 col-lg-6">
-          <SaFormSelect
-            prop="language"
-            :label="$t.myProfile.languagePreferences.language.label()"
-            :placeholder="$t.myProfile.languagePreferences.language.placeholder()"
-            :submit-on-change="true"
-          >
-            <ElOption
-              v-for="availableLanguage in languages"
-              :key="availableLanguage.languageCode"
-              :label="availableLanguage.displayName"
-              :value="availableLanguage.languageCode"
-            />
-          </SaFormSelect>
-        </div>
-
-        <div class="col col-xs-12 col-lg-6">
-          <SaFormSelect
-            prop="locale"
-            :label="$t.myProfile.languagePreferences.locale.label()"
-            :placeholder="$t.myProfile.languagePreferences.locale.placeholder()"
-            :filterable="true"
-            :submit-on-change="true"
-          >
-            <ElOption
-              v-for="availableLocale in locales"
-              :key="availableLocale.locale"
-              :label="availableLocale.displayName"
-              :value="availableLocale.locale"
-            />
-          </SaFormSelect>
-        </div>
+    <div class="row">
+      <div class="col col-xs-12 col-lg-6">
+        <SaFormSelect
+          prop="language"
+          :label="$t.myProfile.languagePreferences.language.label()"
+          :placeholder="$t.myProfile.languagePreferences.language.placeholder()"
+          :submit-on-change="true"
+        >
+          <ElOption
+            v-for="availableLanguage in languages"
+            :key="availableLanguage.languageCode"
+            :label="availableLanguage.displayName"
+            :value="availableLanguage.languageCode"
+          />
+        </SaFormSelect>
       </div>
-    </SaForm>
-  </div>
+
+      <div class="col col-xs-12 col-lg-6">
+        <SaFormSelect
+          prop="locale"
+          :label="$t.myProfile.languagePreferences.locale.label()"
+          :placeholder="$t.myProfile.languagePreferences.locale.placeholder()"
+          :filterable="true"
+          :submit-on-change="true"
+        >
+          <ElOption
+            v-for="availableLocale in locales"
+            :key="availableLocale.locale"
+            :label="availableLocale.displayName"
+            :value="availableLocale.locale"
+          />
+        </SaFormSelect>
+      </div>
+    </div>
+  </SaForm>
 </template>
 
 <script lang="ts" setup>
