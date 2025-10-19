@@ -361,8 +361,10 @@ export default {
   },
 
   myProfile: {
+    pageHeader: () => 'Мій Профіль',
     documentsStorage: {
       header: () => 'Сховище документів',
+      googleDrive: () => 'Google Drive',
     },
     languagePreferences: {
       header: () => 'Мовні Уподобання',

@@ -32,7 +32,7 @@
   const formApi = useSaFormComponentsApi();
 
   const onChange = async () => {
-    if (props.submitOnChange && formApi.submitForm) {
+    if (props.submitOnChange) {
       await formApi.submitForm();
     }
   };

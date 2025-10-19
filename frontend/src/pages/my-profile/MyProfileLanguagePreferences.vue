@@ -63,6 +63,10 @@
     loading: boolean,
   }>();
 
+  const emit = defineEmits<{
+    (e: 'profile-updated', profile: ProfileDto): void,
+  }>();
+
   const { showSuccessNotification } = useNotifications();
 
   const languages = ref<Array<SupportedLanguage>>(getSupportedLanguages());
@@ -99,6 +103,7 @@
       languageTagToLocaleId(formValues.value.language),
     );
     locales.value = getSupportedLocales();
+    emit('profile-updated', updatedProfile);
     showSuccessNotification($t.value.myProfile.languagePreferences.feedback.success());
   };
 </script>

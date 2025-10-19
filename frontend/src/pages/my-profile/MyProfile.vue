@@ -1,17 +1,18 @@
 <template>
   <div>
     <div class="sa-page-header">
-      <h1>My Profile</h1>
+      <h1>{{ $t.myProfile.pageHeader() }}</h1>
     </div>
 
     <div v-if="!isAdmin()">
       <h2>{{ $t.myProfile.documentsStorage.header() }}</h2>
 
       <MyProfileDocumentsStorageConfig
-        storage-name="Google Drive"
+        :storage-name="$t.myProfile.documentsStorage.googleDrive()"
         storage-id="google-drive"
         :profile="profile"
         :loading="loading"
+        @profile-updated="onProfileUpdated"
       >
         <SaGoogleDriveIntegrationSetup />
       </MyProfileDocumentsStorageConfig>
@@ -20,6 +21,7 @@
     <MyProfileLanguagePreferences
       :profile="profile"
       :loading="loading"
+      @profile-updated="onProfileUpdated"
     />
 
     <MyProfileChangePassword />
@@ -50,23 +52,8 @@
     profile.value = await profileApi.getProfile();
     loading.value = false;
   });
+
+  const onProfileUpdated = (updatedProfile: ProfileDto) => {
+    profile.value = updatedProfile;
+  };
 </script>
-
-<style lang="scss">
-  .my-profile {
-    &__documents-storage {
-      margin-bottom: 20px;
-
-      &__header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-
-        h3 {
-          display: inline;
-          margin: 0 0 0 10px;
-        }
-      }
-    }
-  }
-</style>

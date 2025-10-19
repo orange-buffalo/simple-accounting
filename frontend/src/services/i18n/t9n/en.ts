@@ -362,8 +362,10 @@ export default {
   },
 
   myProfile: {
+    pageHeader: () => 'My Profile',
     documentsStorage: {
       header: () => 'Documents Storage',
+      googleDrive: () => 'Google Drive',
     },
     languagePreferences: {
       header: () => 'Language Preferences',

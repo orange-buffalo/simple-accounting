@@ -6,12 +6,11 @@
     :hide-buttons="true"
   >
     <div class="documents-storage-config" :id="`storage-config_${storageId}`">
-      <div class="documents-storage-config__header">
-        <ElSwitch
-          v-model="formValues.enabled"
-        />
-        <h4>{{ storageName }}</h4>
-      </div>
+      <SaFormSwitchSection
+        :label="storageName"
+        v-model="formValues.enabled"
+        :submit-on-change="true"
+      />
       <slot v-if="formValues.enabled" />
     </div>
   </SaForm>
@@ -21,13 +20,17 @@
   import { ref, watch } from 'vue';
   import { ProfileDto, profileApi } from '@/services/api';
   import SaForm from '@/components/form/SaForm.vue';
-  import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
+  import SaFormSwitchSection from '@/components/form/SaFormSwitchSection.vue';
 
   const props = defineProps<{
     storageName: string,
     storageId: string,
     profile: ProfileDto,
     loading: boolean,
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'profile-updated', profile: ProfileDto): void,
   }>();
 
   type StorageConfigFormValues = {
@@ -42,15 +45,6 @@
     formValues.value.enabled = props.storageId === props.profile.documentsStorage;
   }, { deep: true });
 
-  // Auto-submit when enabled state changes
-  const formApi = useSaFormComponentsApi();
-  watch(() => formValues.value.enabled, async (newVal, oldVal) => {
-    // Only submit if value actually changed (not initial load)
-    if (oldVal !== undefined && newVal !== oldVal && formApi.submitForm) {
-      await formApi.submitForm();
-    }
-  });
-
   const submitStorageConfig = async () => {
     const updatedProfile: ProfileDto = {
       ...props.profile,
@@ -59,22 +53,12 @@
     await profileApi.updateProfile({
       updateProfileRequestDto: updatedProfile,
     });
+    emit('profile-updated', updatedProfile);
   };
 </script>
 
 <style lang="scss">
   .documents-storage-config {
     margin-bottom: 20px;
-
-    &__header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-
-      h4 {
-        display: inline;
-        margin: 0 0 0 10px;
-      }
-    }
   }
 </style>

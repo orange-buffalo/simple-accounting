@@ -162,10 +162,6 @@
       }
     }
   });
-
-  defineExpose({
-    submitForm,
-  });
 </script>
 
 <style lang="scss">
