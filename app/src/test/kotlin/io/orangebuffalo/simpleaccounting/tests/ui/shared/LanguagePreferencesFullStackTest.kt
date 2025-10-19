@@ -7,7 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import org.junit.jupiter.api.Test
 
@@ -60,17 +59,17 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 // Verify initial state
                 sectionHeader.shouldBeVisible()
                 ukrainianSectionHeader.shouldBeHidden()
-                
+
                 // Change language
                 language {
                     input.selectOption("Українська", validate = false)
                 }
             }
-            
+
             shouldHaveNotifications {
                 success()
             }
-            
+
             // After language change, verify the UI is in Ukrainian by checking section headers
             // Note: Can't use shouldHaveLanguagePreferencesSectionVisible because it checks for English header
             languagePreferencesSection {
@@ -91,13 +90,13 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 locale {
                     input.shouldHaveSelectedValue("Australian English")
                 }
-                
+
                 // Change language
                 language {
                     input.selectOption("Українська", validate = false)
                 }
             }
-            
+
             shouldHaveNotifications {
                 // Not verifying notification text because UI language changes immediately,
                 // creating a race condition where notification could show in either language
@@ -122,13 +121,13 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 locale {
                     input.shouldHaveSelectedValue("Australian English")
                 }
-                
+
                 // Change locale
                 locale {
                     input.selectOption("Albanian")
                 }
             }
-            
+
             shouldHaveNotifications {
                 success("Language preferences have been saved")
             }

@@ -9,6 +9,7 @@ export type SaFormComponentsApi = {
   registerFormItem: (prop: string, item: FormItemContext) => void;
   unregisterFormItem: (prop: string) => void;
   formValues: Ref<FormValues>;
+  submitForm: () => Promise<void>;
 }
 
 const SaFormComponentsApiKey = Symbol('SaFormComponentsApi') as InjectionKey<SaFormComponentsApi>;

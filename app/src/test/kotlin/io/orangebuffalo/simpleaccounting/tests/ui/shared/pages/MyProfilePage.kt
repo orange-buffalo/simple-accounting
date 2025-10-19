@@ -20,7 +20,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SectionHeader
 
 class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("My Profile")
-    private val passwordChangeForm = PasswordChangeForm(page, components)
+    private val passwordChangeForm = PasswordChangeForm(components)
     private val documentsStorageSection = DocumentStorageSection(components)
     private val languagePreferencesSection = LanguagePreferencesSection(components)
 
@@ -37,7 +37,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
         languagePreferencesSection.shouldBeVisible()
         languagePreferencesSection.spec()
     }
-    
+
     fun languagePreferencesSection(spec: LanguagePreferencesSection.() -> Unit) {
         languagePreferencesSection.spec()
     }
@@ -52,13 +52,12 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
     }
 
     @UiComponentMarker
-    class PasswordChangeForm(page: Page, components: ComponentsAccessors) {
+    class PasswordChangeForm(components: ComponentsAccessors) {
         val currentPassword = components.formItemTextInputByLabel("Current Password")
         val newPassword = components.formItemTextInputByLabel("New Password")
         val newPasswordConfirmation = components.formItemTextInputByLabel("New Password Confirmation")
         val changePasswordButton = components.buttonByText("Apply new password")
-        private val passwordChangeSectionHeader =
-            page.locator("//*[contains(@class, 'el-form')]//h2[text()='Change Password']")
+        private val passwordChangeSectionHeader = components.sectionHeader("Change Password")
 
         fun shouldBeVisible() {
             passwordChangeSectionHeader.shouldBeVisible()
@@ -67,8 +66,7 @@ class MyProfilePage private constructor(page: Page) : SaPageBase(page) {
 
     @UiComponentMarker
     class DocumentStorageSection(components: ComponentsAccessors) {
-        private val documentStorageSectionHeader =
-           components.page.locator("//*[contains(@class, 'el-form')]//h2[text()='Documents Storage']")
+        private val documentStorageSectionHeader = components.sectionHeader("Documents Storage")
         private val googleDriveConfig =
             DocumentStorageConfig(components, "google-drive", "Google Drive") { container ->
                 GoogleDriveSettings(components, container)

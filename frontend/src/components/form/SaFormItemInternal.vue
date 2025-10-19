@@ -1,7 +1,7 @@
 <template>
   <ElFormItem
     :prop="prop"
-    :label="label"
+    :label="props.label"
     ref="formItemContext"
   >
     <slot />

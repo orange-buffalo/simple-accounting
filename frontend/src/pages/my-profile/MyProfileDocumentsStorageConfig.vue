@@ -1,60 +1,71 @@
 <template>
-  <div class="documents-storage-config" :id="`storage-config_${storageId}`">
-    <div class="documents-storage-config__header">
-      <ElSwitch
-        v-model="enabled"
-        @change="onEnabledChange"
+  <SaForm
+    v-model="formValues"
+    :on-submit="submitStorageConfig"
+    :external-loading="props.loading"
+    :hide-buttons="true"
+  >
+    <h2>{{ $t.myProfile.documentsStorage.header() }}</h2>
+    <div class="documents-storage-config" :id="`storage-config_${storageId}`">
+      <SaFormSwitchSection
+        :label="storageName"
+        prop="enabled"
+        :submit-on-change="true"
       />
-      <h4>{{ storageName }}</h4>
+      <slot v-if="formValues.enabled" />
     </div>
-    <slot v-if="enabled" />
-  </div>
+  </SaForm>
 </template>
 
 <script lang="ts" setup>
   import { ref, watch } from 'vue';
+  import { ProfileDto, profileApi } from '@/services/api';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormSwitchSection from '@/components/form/SaFormSwitchSection.vue';
+  import { $t } from '@/services/i18n';
 
   const props = defineProps<{
     storageName: string,
     storageId: string,
-    userDocumentsStorage?: string,
+    profile: ProfileDto,
+    loading: boolean,
   }>();
 
-  const emit = defineEmits<{(e: 'storage-enabled', storageId: string): void,
-                            (e: 'storage-disabled', storageId: string): void;
+  const emit = defineEmits<{
+    (e: 'profile-updated', profile: ProfileDto): void,
   }>();
 
-  const enabled = ref(false);
-
-  const setEnabled = () => {
-    enabled.value = props.storageId === props.userDocumentsStorage;
+  type StorageConfigFormValues = {
+    enabled: boolean,
   };
-  setEnabled();
 
-  watch(() => [props.storageId, props.userDocumentsStorage], setEnabled);
+  const formValues = ref<StorageConfigFormValues>({
+    enabled: false,
+  });
 
-  const onEnabledChange = () => {
-    if (enabled.value) {
-      emit('storage-enabled', props.storageId);
-    } else {
-      emit('storage-disabled', props.storageId);
-    }
+  watch(() => props.profile, () => {
+    formValues.value = {
+      enabled: props.storageId === props.profile.documentsStorage,
+    };
+  }, {
+    deep: true,
+    immediate: true,
+  });
+
+  const submitStorageConfig = async () => {
+    const updatedProfile: ProfileDto = {
+      ...props.profile,
+      documentsStorage: formValues.value.enabled ? props.storageId : undefined,
+    };
+    await profileApi.updateProfile({
+      updateProfileRequestDto: updatedProfile,
+    });
+    emit('profile-updated', updatedProfile);
   };
 </script>
 
 <style lang="scss">
   .documents-storage-config {
     margin-bottom: 20px;
-
-    &__header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-
-      h4 {
-        display: inline;
-        margin: 0 0 0 10px;
-      }
-    }
   }
 </style>

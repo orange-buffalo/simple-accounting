@@ -1,15 +1,12 @@
 <template>
-  <SaFormItemInternal v-bind="props" v-model="inputValue">
-    <ElSelect
-      v-model="inputValue"
-      :placeholder="props.placeholder"
-      :clearable="props.clearable"
-      :disabled="props.disabled"
-      :filterable="props.filterable"
-      @change="onChange"
-    >
-      <slot />
-    </ElSelect>
+  <SaFormItemInternal v-bind="props" :label="undefined" v-model="switchValue">
+    <div class="sa-form-switch-section">
+      <ElSwitch
+        v-model="switchValue"
+        @change="onChange"
+      />
+      <h4>{{ props.label }}</h4>
+    </div>
   </SaFormItemInternal>
 </template>
 
@@ -19,15 +16,11 @@
   import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
   import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
 
-  const inputValue = ref<unknown | null>();
-
   const props = defineProps<SaFormComponentProps & {
-    clearable?: boolean,
-    placeholder?: string,
-    disabled?: boolean,
-    filterable?: boolean,
     submitOnChange?: boolean,
   }>();
+
+  const switchValue = ref<boolean | null>();
 
   const formApi = useSaFormComponentsApi();
 
@@ -37,3 +30,15 @@
     }
   };
 </script>
+
+<style lang="scss">
+  .sa-form-switch-section {
+    display: flex;
+    align-items: center;
+
+    h4 {
+      display: inline;
+      margin: 0 0 0 10px;
+    }
+  }
+</style>

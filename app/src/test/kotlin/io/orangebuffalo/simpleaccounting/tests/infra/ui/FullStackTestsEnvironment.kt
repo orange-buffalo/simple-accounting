@@ -196,7 +196,8 @@ private class PersistentPageContextStrategy(
                     .setHeadless(false)
                     .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
                     .setBaseURL(browserUrl)
-                    .setViewportSize(1920, 1080)
+                    // ensure viewport is a per window setting
+                    .setViewportSize(null)
                     // auto open devtools for better developer experience
                     .setArgs(listOf("--auto-open-devtools-for-tabs"))
             )

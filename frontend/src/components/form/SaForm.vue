@@ -8,9 +8,9 @@
     >
       <slot />
 
-      <hr>
+      <hr v-if="!props.hideButtons">
 
-      <div class="sa-form__buttons-bar">
+      <div class="sa-form__buttons-bar" v-if="!props.hideButtons">
         <ElButton
           type="primary"
           @click="submitForm"
@@ -28,10 +28,8 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    ElForm, FormInstance, FormItemContext,
-  } from 'element-plus';
-  import { onMounted, ref } from 'vue';
+  import { ElForm, FormInstance, FormItemContext } from 'element-plus';
+  import { computed, nextTick, onMounted, ref } from 'vue';
   import { $t } from '@/services/i18n';
   import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
@@ -95,6 +93,16 @@
      * for field-level validation errors.
      */
     onSubmit: () => Promise<unknown> | unknown,
+    /**
+     * External loading state. When true, the form will show loading indicator.
+     * This is merged with the internal loading state from onLoad and onSubmit.
+     */
+    externalLoading?: boolean,
+    /**
+     * Whether to hide the buttons bar (submit and cancel buttons).
+     * Useful for forms that auto-submit on change.
+     */
+    hideButtons?: boolean,
   };
 
   // Modern API uses v-model
@@ -102,25 +110,19 @@
 
   const props = withDefaults(defineProps<SaFormProps>(), {
     submitButtonDisabled: false,
+    externalLoading: false,
+    hideButtons: false,
   });
 
   const elForm = ref<FormInstance | undefined>(undefined);
-  const loading = ref(false);
+  const internalLoading = ref(false);
+  const loading = computed(() => internalLoading.value || props.externalLoading);
 
   const formItems = new Map<string, FormItemContext>();
-  provideSaFormComponentsApi({
-    registerFormItem: (prop: string, formItem: FormItemContext) => {
-      formItems.set(prop, formItem);
-    },
-    unregisterFormItem: (prop: string) => {
-      formItems.delete(prop);
-    },
-    formValues,
-  });
 
   const { showWarningNotification } = useNotifications();
   const submitForm = async () => {
-    loading.value = true;
+    internalLoading.value = true;
     try {
       await props.onSubmit();
     } catch (e: unknown) {
@@ -134,17 +136,32 @@
         throw e;
       }
     } finally {
-      loading.value = false;
+      internalLoading.value = false;
     }
   };
 
+  provideSaFormComponentsApi({
+    registerFormItem: (prop: string, formItem: FormItemContext) => {
+      formItems.set(prop, formItem);
+    },
+    unregisterFormItem: (prop: string) => {
+      formItems.delete(prop);
+    },
+    formValues,
+    submitForm: async () => {
+      // wait for Vue to propagate changes from form components
+      await nextTick();
+      await submitForm();
+    },
+  });
+
   onMounted(async () => {
     if (props.onLoad) {
-      loading.value = true;
+      internalLoading.value = true;
       try {
         await props.onLoad();
       } finally {
-        loading.value = false;
+        internalLoading.value = false;
       }
     }
   });
@@ -161,6 +178,7 @@
     background-color: $white;
     border-radius: 2px;
     overflow: hidden;
+    margin-bottom: 30px;
 
     .el-form {
       width: 100%;

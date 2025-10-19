@@ -1,145 +1,116 @@
 <template>
-  <SaLegacyForm
-    :model="passwordData"
-    ref="formRef"
-    style="margin-top: 30px"
-    :rules="formValidations"
+  <SaForm
+    v-model="formValues"
+    :on-submit="submitChangePassword"
+    :submit-button-label="$t.myProfile.changePassword.submit.label()"
+    :submit-button-disabled="submitDisabled"
   >
-    <template #default>
-      <h2>{{ $t.myProfile.changePassword.header() }}</h2>
+    <h2>{{ $t.myProfile.changePassword.header() }}</h2>
 
-      <div class="row">
-        <div class="col col-xs-12 col-lg-6">
-          <ElFormItem
-            :label="$t.myProfile.changePassword.currentPassword.label()"
-            prop="currentPassword"
-            :ref="currentPasswordValidation.formItem"
-          >
-            <ElInput
-              v-model="passwordData.currentPassword"
-              :placeholder="$t.myProfile.changePassword.currentPassword.placeholder()"
-              type="password"
-              @keyup="currentPasswordValidation.resetErrors"
-            />
-          </ElFormItem>
-        </div>
+    <div class="row">
+      <div class="col col-xs-12 col-lg-6">
+        <SaFormInput
+          prop="currentPassword"
+          :label="$t.myProfile.changePassword.currentPassword.label()"
+          :placeholder="$t.myProfile.changePassword.currentPassword.placeholder()"
+          type="password"
+        />
       </div>
+    </div>
 
-      <div class="row">
-        <div class="col col-xs-12 col-lg-6">
-          <ElFormItem
-            :label="$t.myProfile.changePassword.newPassword.label()"
-            prop="newPassword"
-          >
-            <ElInput
-              v-model="passwordData.newPassword"
-              :placeholder="$t.myProfile.changePassword.newPassword.placeholder()"
-              type="password"
-            />
-          </ElFormItem>
-        </div>
+    <div class="row">
+      <div class="col col-xs-12 col-lg-6">
+        <SaFormInput
+          prop="newPassword"
+          :label="$t.myProfile.changePassword.newPassword.label()"
+          :placeholder="$t.myProfile.changePassword.newPassword.placeholder()"
+          type="password"
+        />
       </div>
+    </div>
 
-      <div class="row">
-        <div class="col col-xs-12 col-lg-6">
-          <ElFormItem
-            :label="$t.myProfile.changePassword.newPasswordConfirmation.label()"
-            prop="newPasswordConfirmation"
-          >
-            <ElInput
-              v-model="passwordData.newPasswordConfirmation"
-              :placeholder="$t.myProfile.changePassword.newPasswordConfirmation.placeholder()"
-              type="password"
-            />
-          </ElFormItem>
-        </div>
+    <div class="row">
+      <div class="col col-xs-12 col-lg-6">
+        <SaFormInput
+          prop="newPasswordConfirmation"
+          :label="$t.myProfile.changePassword.newPasswordConfirmation.label()"
+          :placeholder="$t.myProfile.changePassword.newPasswordConfirmation.placeholder()"
+          type="password"
+        />
       </div>
-    </template>
-
-    <template #buttons-bar>
-      <ElButton
-        type="primary"
-        @click="submitForm"
-        :disabled="submitDisabled"
-      >
-        {{ $t.myProfile.changePassword.submit.label() }}
-      </ElButton>
-    </template>
-  </SaLegacyForm>
+    </div>
+  </SaForm>
 </template>
 
 <script lang="ts" setup>
-  import { computed, reactive } from 'vue';
-  import type { FormRules } from 'element-plus';
+  import { computed, ref } from 'vue';
   import { $t } from '@/services/i18n';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import { useForm, useFormItemValidation } from '@/components/form/use-form';
+  import SaForm from '@/components/form/SaForm.vue';
+  import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications';
   import {
     handleApiBusinessError,
     profileApi, ProfileApiChangePasswordErrors,
   } from '@/services/api';
+  import { ClientSideValidationError, FieldError } from '@/components/form/sa-form-api';
 
-  interface PasswordData {
+  interface PasswordFormValues {
     currentPassword: string,
     newPassword: string,
     newPasswordConfirmation: string,
   }
 
-  const passwordData = reactive<PasswordData>({
+  const formValues = ref<PasswordFormValues>({
     currentPassword: '',
     newPassword: '',
     newPasswordConfirmation: '',
   });
 
-  const validateConfirmation = (_: any, value: any, callback: any) => {
-    if (value !== passwordData.newPassword) {
-      callback(new Error($t.value.myProfile.changePassword.validations.confirmationDoesNotMatch()));
-    } else {
-      callback();
-    }
-  };
-
-  const formValidations = reactive<FormRules<PasswordData>>({
-    newPasswordConfirmation: [{
-      validator: validateConfirmation,
-      trigger: 'submit',
-    }],
-  });
-
-  const submitDisabled = computed<boolean>(() => passwordData.currentPassword === ''
-    || passwordData.newPassword === ''
-    || passwordData.newPasswordConfirmation === '');
+  const submitDisabled = computed<boolean>(() =>
+    formValues.value.currentPassword === ''
+    || formValues.value.newPassword === ''
+    || formValues.value.newPasswordConfirmation === '',
+  );
 
   const { showSuccessNotification } = useNotifications();
 
-  const currentPasswordValidation = useFormItemValidation();
+  const submitChangePassword = async () => {
+    // Validate password confirmation
+    if (formValues.value.newPasswordConfirmation !== formValues.value.newPassword) {
+      const errors: FieldError[] = [{
+        field: 'newPasswordConfirmation',
+        message: $t.value.myProfile.changePassword.validations.confirmationDoesNotMatch(),
+      }];
+      throw new ClientSideValidationError(errors);
+    }
 
-  const updatePassword = async () => {
     try {
       await profileApi.changePassword({
         changePasswordRequestDto: {
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword,
+          currentPassword: formValues.value.currentPassword,
+          newPassword: formValues.value.newPassword,
         },
       });
+
+      // Clear form after successful password change
+      formValues.value = {
+        currentPassword: '',
+        newPassword: '',
+        newPasswordConfirmation: '',
+      };
+
       showSuccessNotification($t.value.myProfile.changePassword.feedback.success());
     } catch (e: unknown) {
       const errorResponse = handleApiBusinessError<ProfileApiChangePasswordErrors>(e);
       if (errorResponse.error === 'CurrentPasswordMismatch') {
-        currentPasswordValidation.setValidationError(
-          $t.value.myProfile.changePassword.validations.currentPasswordMismatch(),
-        );
+        const errors: FieldError[] = [{
+          field: 'currentPassword',
+          message: $t.value.myProfile.changePassword.validations.currentPasswordMismatch(),
+        }];
+        throw new ClientSideValidationError(errors);
       } else {
         throw e;
       }
     }
   };
-
-  const {
-    formRef,
-    submitForm,
-  } = useForm(async () => {
-    // no op
-  }, updatePassword);
 </script>
