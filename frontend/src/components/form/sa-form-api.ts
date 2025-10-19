@@ -30,7 +30,6 @@ export class ClientSideValidationError extends Error {
  * Common properties for all form components.
  */
 export type SaFormComponentProps = {
-  label: string;
+  label?: string;
   prop: string;
-  hideLabel?: boolean;
 };

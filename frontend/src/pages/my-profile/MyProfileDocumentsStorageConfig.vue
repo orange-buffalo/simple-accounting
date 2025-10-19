@@ -11,7 +11,6 @@
         :label="storageName"
         prop="enabled"
         :submit-on-change="true"
-        :hide-label="true"
       />
       <slot v-if="formValues.enabled" />
     </div>
