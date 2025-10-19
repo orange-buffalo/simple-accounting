@@ -362,6 +362,9 @@ export default {
   },
 
   myProfile: {
+    documentsStorage: {
+      header: () => 'Documents Storage',
+    },
     languagePreferences: {
       header: () => 'Language Preferences',
       language: {

@@ -1,21 +1,27 @@
 <template>
-  <div class="documents-storage-config" :id="`storage-config_${storageId}`">
-    <div class="documents-storage-config__header">
-      <ElSwitch
-        v-model="enabled"
-        @change="onEnabledChange"
-        :loading="submitting"
-        :disabled="props.loading"
-      />
-      <h4>{{ storageName }}</h4>
+  <SaForm
+    v-model="formValues"
+    :on-submit="submitStorageConfig"
+    :external-loading="props.loading"
+    :hide-buttons="true"
+  >
+    <div class="documents-storage-config" :id="`storage-config_${storageId}`">
+      <div class="documents-storage-config__header">
+        <ElSwitch
+          v-model="formValues.enabled"
+        />
+        <h4>{{ storageName }}</h4>
+      </div>
+      <slot v-if="formValues.enabled" />
     </div>
-    <slot v-if="enabled" />
-  </div>
+  </SaForm>
 </template>
 
 <script lang="ts" setup>
   import { ref, watch } from 'vue';
   import { ProfileDto, profileApi } from '@/services/api';
+  import SaForm from '@/components/form/SaForm.vue';
+  import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
 
   const props = defineProps<{
     storageName: string,
@@ -24,29 +30,35 @@
     loading: boolean,
   }>();
 
-  const enabled = ref(false);
-  const submitting = ref(false);
-
-  const setEnabled = () => {
-    enabled.value = props.storageId === props.profile.documentsStorage;
+  type StorageConfigFormValues = {
+    enabled: boolean,
   };
-  setEnabled();
 
-  watch(() => props.profile, setEnabled, { deep: true });
+  const formValues = ref<StorageConfigFormValues>({
+    enabled: props.storageId === props.profile.documentsStorage,
+  });
 
-  const onEnabledChange = async () => {
-    submitting.value = true;
-    try {
-      const updatedProfile: ProfileDto = {
-        ...props.profile,
-        documentsStorage: enabled.value ? props.storageId : undefined,
-      };
-      await profileApi.updateProfile({
-        updateProfileRequestDto: updatedProfile,
-      });
-    } finally {
-      submitting.value = false;
+  watch(() => props.profile, () => {
+    formValues.value.enabled = props.storageId === props.profile.documentsStorage;
+  }, { deep: true });
+
+  // Auto-submit when enabled state changes
+  const formApi = useSaFormComponentsApi();
+  watch(() => formValues.value.enabled, async (newVal, oldVal) => {
+    // Only submit if value actually changed (not initial load)
+    if (oldVal !== undefined && newVal !== oldVal && formApi.submitForm) {
+      await formApi.submitForm();
     }
+  });
+
+  const submitStorageConfig = async () => {
+    const updatedProfile: ProfileDto = {
+      ...props.profile,
+      documentsStorage: formValues.value.enabled ? props.storageId : undefined,
+    };
+    await profileApi.updateProfile({
+      updateProfileRequestDto: updatedProfile,
+    });
   };
 </script>
 

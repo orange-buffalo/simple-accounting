@@ -5,6 +5,8 @@
       :placeholder="props.placeholder"
       :clearable="props.clearable"
       :disabled="props.disabled"
+      :filterable="props.filterable"
+      @change="onChange"
     >
       <slot />
     </ElSelect>
@@ -15,6 +17,7 @@
   import { ref } from 'vue';
   import { SaFormComponentProps } from '@/components/form/sa-form-api';
   import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
+  import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
 
   const inputValue = ref<unknown | null>();
 
@@ -22,5 +25,15 @@
     clearable?: boolean,
     placeholder?: string,
     disabled?: boolean,
+    filterable?: boolean,
+    submitOnChange?: boolean,
   }>();
+
+  const formApi = useSaFormComponentsApi();
+
+  const onChange = async () => {
+    if (props.submitOnChange && formApi.submitForm) {
+      await formApi.submitForm();
+    }
+  };
 </script>

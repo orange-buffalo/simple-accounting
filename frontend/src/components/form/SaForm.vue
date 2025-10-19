@@ -8,9 +8,9 @@
     >
       <slot />
 
-      <hr>
+      <hr v-if="!props.hideButtons">
 
-      <div class="sa-form__buttons-bar">
+      <div class="sa-form__buttons-bar" v-if="!props.hideButtons">
         <ElButton
           type="primary"
           @click="submitForm"
@@ -100,6 +100,11 @@
      * This is merged with the internal loading state from onLoad and onSubmit.
      */
     externalLoading?: boolean,
+    /**
+     * Whether to hide the buttons bar (submit and cancel buttons).
+     * Useful for forms that auto-submit on change.
+     */
+    hideButtons?: boolean,
   };
 
   // Modern API uses v-model
@@ -108,6 +113,7 @@
   const props = withDefaults(defineProps<SaFormProps>(), {
     submitButtonDisabled: false,
     externalLoading: false,
+    hideButtons: false,
   });
 
   const elForm = ref<FormInstance | undefined>(undefined);
@@ -123,6 +129,7 @@
       formItems.delete(prop);
     },
     formValues,
+    submitForm,
   });
 
   const { showWarningNotification } = useNotifications();

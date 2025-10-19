@@ -361,6 +361,9 @@ export default {
   },
 
   myProfile: {
+    documentsStorage: {
+      header: () => 'Сховище документів',
+    },
     languagePreferences: {
       header: () => 'Мовні Уподобання',
       language: {

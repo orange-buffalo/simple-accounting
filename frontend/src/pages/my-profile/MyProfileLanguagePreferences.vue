@@ -6,7 +6,7 @@
       v-model="formValues"
       :on-submit="submitLanguagePreferences"
       :external-loading="props.loading"
-      ref="formRef"
+      :hide-buttons="true"
     >
       <div class="row">
         <div class="col col-xs-12 col-lg-6">
@@ -14,6 +14,7 @@
             prop="language"
             :label="$t.myProfile.languagePreferences.language.label()"
             :placeholder="$t.myProfile.languagePreferences.language.placeholder()"
+            :submit-on-change="true"
           >
             <ElOption
               v-for="availableLanguage in languages"
@@ -25,23 +26,20 @@
         </div>
 
         <div class="col col-xs-12 col-lg-6">
-          <ElFormItem
-            :label="$t.myProfile.languagePreferences.locale.label()"
+          <SaFormSelect
             prop="locale"
+            :label="$t.myProfile.languagePreferences.locale.label()"
+            :placeholder="$t.myProfile.languagePreferences.locale.placeholder()"
+            :filterable="true"
+            :submit-on-change="true"
           >
-            <ElSelect
-              v-model="formValues.locale"
-              :filterable="true"
-              :placeholder="$t.myProfile.languagePreferences.locale.placeholder()"
-            >
-              <ElOption
-                v-for="availableLocale in locales"
-                :key="availableLocale.locale"
-                :label="availableLocale.displayName"
-                :value="availableLocale.locale"
-              />
-            </ElSelect>
-          </ElFormItem>
+            <ElOption
+              v-for="availableLocale in locales"
+              :key="availableLocale.locale"
+              :label="availableLocale.displayName"
+              :value="availableLocale.locale"
+            />
+          </SaFormSelect>
         </div>
       </div>
     </SaForm>
@@ -49,8 +47,8 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch, nextTick, onMounted } from 'vue';
-  import { ElFormItem, ElSelect, ElOption } from 'element-plus';
+  import { ref, watch } from 'vue';
+  import { ElOption } from 'element-plus';
   import type { SupportedLanguage, SupportedLocale } from '@/services/i18n';
   import {
     $t, getSupportedLanguages, getSupportedLocales, localeIdToLanguageTag, languageTagToLocaleId, setLocaleFromProfile,
@@ -80,34 +78,10 @@
     locale: localeIdToLanguageTag(props.profile.i18n.locale),
   });
 
-  // Local interface for SaForm instance (SaForm doesn't export types)
-  type SaFormInstance = {
-    submitForm: () => Promise<void>;
-  };
-
-  const formRef = ref<SaFormInstance | null>(null);
-  const isInitialized = ref(false);
-
   watch(() => props.profile, () => {
     formValues.value.language = localeIdToLanguageTag(props.profile.i18n.language);
     formValues.value.locale = localeIdToLanguageTag(props.profile.i18n.locale);
   }, { deep: true });
-
-  // Auto-submit when form values change (after initialization)
-  watch(formValues, async () => {
-    if (!isInitialized.value) {
-      return;
-    }
-    if (formRef.value) {
-      await formRef.value.submitForm();
-    }
-  }, { deep: true });
-
-  onMounted(async () => {
-    // Mark as initialized after Vue has completed the initial render cycle
-    await nextTick();
-    isInitialized.value = true;
-  });
 
   const submitLanguagePreferences = async () => {
     const updatedProfile: ProfileDto = {
@@ -128,19 +102,3 @@
     showSuccessNotification($t.value.myProfile.languagePreferences.feedback.success());
   };
 </script>
-
-<style lang="scss" scoped>
-  :deep(.sa-form) {
-    border: none;
-    padding: 0;
-    background: none;
-    
-    hr {
-      display: none;
-    }
-
-    .sa-form__buttons-bar {
-      display: none;
-    }
-  }
-</style>
