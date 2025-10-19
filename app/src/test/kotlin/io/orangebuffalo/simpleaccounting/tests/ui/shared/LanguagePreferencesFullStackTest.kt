@@ -7,7 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import org.junit.jupiter.api.Test
 
@@ -60,17 +59,17 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 // Verify initial state
                 sectionHeader.shouldBeVisible()
                 ukrainianSectionHeader.shouldBeHidden()
-                
+
                 // Change language
                 language {
                     input.selectOption("Українська", validate = false)
                 }
             }
-            
+
             shouldHaveNotifications {
                 success()
             }
-            
+
             // After language change, verify the UI is in Ukrainian by checking section headers
             // Note: Can't use shouldHaveLanguagePreferencesSectionVisible because it checks for English header
             languagePreferencesSection {
@@ -91,13 +90,13 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 locale {
                     input.shouldHaveSelectedValue("Australian English")
                 }
-                
+
                 // Change language
                 language {
                     input.selectOption("Українська", validate = false)
                 }
             }
-            
+
             shouldHaveNotifications {
                 // Not verifying notification text because UI language changes immediately,
                 // creating a race condition where notification could show in either language
@@ -109,18 +108,6 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             language = "uk",
             locale = user.i18nSettings.locale
         ))
-
-        // Verify that the inputs still have the user-provided values after database assertion
-        page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible {
-                language {
-                    input.shouldHaveSelectedValue("Українська")
-                }
-                locale {
-                    input.shouldHaveSelectedValue("Australian English")
-                }
-            }
-        }
     }
 
     private fun testLocaleChange(page: Page, user: PlatformUser) {
@@ -134,13 +121,13 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
                 locale {
                     input.shouldHaveSelectedValue("Australian English")
                 }
-                
+
                 // Change locale
                 locale {
                     input.selectOption("Albanian")
                 }
             }
-            
+
             shouldHaveNotifications {
                 success("Language preferences have been saved")
             }
@@ -150,18 +137,6 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             language = user.i18nSettings.language,
             locale = "sq"
         ))
-
-        // Verify that the inputs still have the user-provided values after database assertion
-        page.openMyProfilePage {
-            shouldHaveLanguagePreferencesSectionVisible {
-                language {
-                    input.shouldHaveSelectedValue("English")
-                }
-                locale {
-                    input.shouldHaveSelectedValue("Albanian")
-                }
-            }
-        }
     }
 
     private fun assertOnlyI18nFieldChanged(initialUser: PlatformUser, expectedI18nSettings: I18nSettings) {

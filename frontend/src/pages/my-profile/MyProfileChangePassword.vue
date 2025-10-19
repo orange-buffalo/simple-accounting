@@ -1,47 +1,45 @@
 <template>
-  <div style="margin-top: 30px">
+  <SaForm
+    v-model="formValues"
+    :on-submit="submitChangePassword"
+    :submit-button-label="$t.myProfile.changePassword.submit.label()"
+    :submit-button-disabled="submitDisabled"
+  >
     <h2>{{ $t.myProfile.changePassword.header() }}</h2>
 
-    <SaForm
-      v-model="formValues"
-      :on-submit="submitChangePassword"
-      :submit-button-label="$t.myProfile.changePassword.submit.label()"
-      :submit-button-disabled="submitDisabled"
-    >
-      <div class="row">
-        <div class="col col-xs-12 col-lg-6">
-          <SaFormInput
-            prop="currentPassword"
-            :label="$t.myProfile.changePassword.currentPassword.label()"
-            :placeholder="$t.myProfile.changePassword.currentPassword.placeholder()"
-            type="password"
-          />
-        </div>
+    <div class="row">
+      <div class="col col-xs-12 col-lg-6">
+        <SaFormInput
+          prop="currentPassword"
+          :label="$t.myProfile.changePassword.currentPassword.label()"
+          :placeholder="$t.myProfile.changePassword.currentPassword.placeholder()"
+          type="password"
+        />
       </div>
+    </div>
 
-      <div class="row">
-        <div class="col col-xs-12 col-lg-6">
-          <SaFormInput
-            prop="newPassword"
-            :label="$t.myProfile.changePassword.newPassword.label()"
-            :placeholder="$t.myProfile.changePassword.newPassword.placeholder()"
-            type="password"
-          />
-        </div>
+    <div class="row">
+      <div class="col col-xs-12 col-lg-6">
+        <SaFormInput
+          prop="newPassword"
+          :label="$t.myProfile.changePassword.newPassword.label()"
+          :placeholder="$t.myProfile.changePassword.newPassword.placeholder()"
+          type="password"
+        />
       </div>
+    </div>
 
-      <div class="row">
-        <div class="col col-xs-12 col-lg-6">
-          <SaFormInput
-            prop="newPasswordConfirmation"
-            :label="$t.myProfile.changePassword.newPasswordConfirmation.label()"
-            :placeholder="$t.myProfile.changePassword.newPasswordConfirmation.placeholder()"
-            type="password"
-          />
-        </div>
+    <div class="row">
+      <div class="col col-xs-12 col-lg-6">
+        <SaFormInput
+          prop="newPasswordConfirmation"
+          :label="$t.myProfile.changePassword.newPasswordConfirmation.label()"
+          :placeholder="$t.myProfile.changePassword.newPasswordConfirmation.placeholder()"
+          type="password"
+        />
       </div>
-    </SaForm>
-  </div>
+    </div>
+  </SaForm>
 </template>
 
 <script lang="ts" setup>
@@ -68,10 +66,10 @@
     newPasswordConfirmation: '',
   });
 
-  const submitDisabled = computed<boolean>(() => 
+  const submitDisabled = computed<boolean>(() =>
     formValues.value.currentPassword === ''
     || formValues.value.newPassword === ''
-    || formValues.value.newPasswordConfirmation === ''
+    || formValues.value.newPasswordConfirmation === '',
   );
 
   const { showSuccessNotification } = useNotifications();
@@ -93,14 +91,14 @@
           newPassword: formValues.value.newPassword,
         },
       });
-      
+
       // Clear form after successful password change
       formValues.value = {
         currentPassword: '',
         newPassword: '',
         newPasswordConfirmation: '',
       };
-      
+
       showSuccessNotification($t.value.myProfile.changePassword.feedback.success());
     } catch (e: unknown) {
       const errorResponse = handleApiBusinessError<ProfileApiChangePasswordErrors>(e);
