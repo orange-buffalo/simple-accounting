@@ -8,7 +8,7 @@
     <div class="documents-storage-config" :id="`storage-config_${storageId}`">
       <SaFormSwitchSection
         :label="storageName"
-        v-model="formValues.enabled"
+        prop="enabled"
         :submit-on-change="true"
       />
       <slot v-if="formValues.enabled" />

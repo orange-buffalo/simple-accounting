@@ -1,37 +1,30 @@
 <template>
-  <div class="sa-form-switch-section">
-    <ElSwitch
-      v-model="switchValue"
-      @change="onChange"
-    />
-    <h4>{{ props.label }}</h4>
-  </div>
+  <SaFormItemInternal v-bind="props" v-model="switchValue">
+    <div class="sa-form-switch-section">
+      <ElSwitch
+        v-model="switchValue"
+        @change="onChange"
+      />
+      <h4>{{ props.label }}</h4>
+    </div>
+  </SaFormItemInternal>
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch } from 'vue';
+  import { ref } from 'vue';
+  import { SaFormComponentProps } from '@/components/form/sa-form-api';
+  import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
   import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
 
-  const props = defineProps<{
-    label: string,
-    modelValue: boolean,
+  const props = defineProps<SaFormComponentProps & {
     submitOnChange?: boolean,
   }>();
 
-  const emit = defineEmits<{
-    (e: 'update:modelValue', value: boolean): void,
-  }>();
-
-  const switchValue = ref(props.modelValue);
-
-  watch(() => props.modelValue, (newVal) => {
-    switchValue.value = newVal;
-  });
+  const switchValue = ref<boolean | null>();
 
   const formApi = useSaFormComponentsApi();
 
   const onChange = async () => {
-    emit('update:modelValue', switchValue.value);
     if (props.submitOnChange) {
       await formApi.submitForm();
     }
@@ -42,7 +35,6 @@
   .sa-form-switch-section {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
 
     h4 {
       display: inline;
