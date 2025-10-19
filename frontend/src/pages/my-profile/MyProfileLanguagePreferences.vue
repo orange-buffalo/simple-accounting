@@ -80,11 +80,6 @@
     locale: localeIdToLanguageTag(props.profile.i18n.locale),
   });
 
-  watch(() => props.profile, () => {
-    formValues.value.language = localeIdToLanguageTag(props.profile.i18n.language);
-    formValues.value.locale = localeIdToLanguageTag(props.profile.i18n.locale);
-  }, { deep: true });
-
   const submitLanguagePreferences = async () => {
     const updatedProfile: ProfileDto = {
       ...props.profile,

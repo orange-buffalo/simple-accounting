@@ -11,6 +11,7 @@
         :label="storageName"
         prop="enabled"
         :submit-on-change="true"
+        :hide-label="true"
       />
       <slot v-if="formValues.enabled" />
     </div>
@@ -42,10 +43,6 @@
   const formValues = ref<StorageConfigFormValues>({
     enabled: props.storageId === props.profile.documentsStorage,
   });
-
-  watch(() => props.profile, () => {
-    formValues.value.enabled = props.storageId === props.profile.documentsStorage;
-  }, { deep: true });
 
   const submitStorageConfig = async () => {
     const updatedProfile: ProfileDto = {

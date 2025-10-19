@@ -109,6 +109,18 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             language = "uk",
             locale = user.i18nSettings.locale
         ))
+
+        // Verify that the inputs still have the user-provided values after database assertion
+        page.openMyProfilePage {
+            shouldHaveLanguagePreferencesSectionVisible {
+                language {
+                    input.shouldHaveSelectedValue("Українська")
+                }
+                locale {
+                    input.shouldHaveSelectedValue("Australian English")
+                }
+            }
+        }
     }
 
     private fun testLocaleChange(page: Page, user: PlatformUser) {
@@ -138,6 +150,18 @@ class LanguagePreferencesFullStackTest : SaFullStackTestBase() {
             language = user.i18nSettings.language,
             locale = "sq"
         ))
+
+        // Verify that the inputs still have the user-provided values after database assertion
+        page.openMyProfilePage {
+            shouldHaveLanguagePreferencesSectionVisible {
+                language {
+                    input.shouldHaveSelectedValue("English")
+                }
+                locale {
+                    input.shouldHaveSelectedValue("Albanian")
+                }
+            }
+        }
     }
 
     private fun assertOnlyI18nFieldChanged(initialUser: PlatformUser, expectedI18nSettings: I18nSettings) {

@@ -18,6 +18,7 @@
 
   const props = defineProps<SaFormComponentProps & {
     submitOnChange?: boolean,
+    hideLabel?: boolean,
   }>();
 
   const switchValue = ref<boolean | null>();
