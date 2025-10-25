@@ -35,6 +35,10 @@ class DashboardCard private constructor(
         headerPending.shouldHaveText(expectedText)
     }
 
+    fun shouldHaveNoPendingText() {
+        headerPending.shouldHaveText(" ")
+    }
+
     fun shouldHaveDetailsItem(index: Int, expectedLabel: String, expectedValue: String) {
         detailsItems.nth(index).locator("span").first().shouldHaveText(expectedLabel)
         detailsItems.nth(index).locator("span").nth(1).shouldHaveText(expectedValue)

@@ -49,7 +49,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 shouldBeLoaded()
                 shouldHaveAmount("USD 0.00")
                 shouldHaveFinalizedText("Total of 0 expenses")
-                shouldHavePendingText(" ")
+                shouldHaveNoPendingText()
                 shouldHaveDetailsItemsCount(0)
             }
             
@@ -57,7 +57,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 shouldBeLoaded()
                 shouldHaveAmount("USD 0.00")
                 shouldHaveFinalizedText("Total of 0 incomes")
-                shouldHavePendingText(" ")
+                shouldHaveNoPendingText()
                 shouldHaveDetailsItemsCount(0)
             }
             
@@ -81,7 +81,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 shouldBeLoaded()
                 shouldHaveAmount("USD 120.00")
                 shouldHaveFinalizedText("Total of 2 expenses")
-                shouldHavePendingText(" ")
+                shouldHaveNoPendingText()
                 shouldHaveDetailsItemsCount(2)
                 shouldHaveDetailsItem(0, "Office", "USD 100.00")
                 shouldHaveDetailsItem(1, "Travel", "USD 20.00")
@@ -91,7 +91,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 shouldBeLoaded()
                 shouldHaveAmount("USD 250.00")
                 shouldHaveFinalizedText("Total of 2 incomes")
-                shouldHavePendingText(" ")
+                shouldHaveNoPendingText()
                 shouldHaveDetailsItemsCount(2)
                 shouldHaveDetailsItem(0, "Consulting", "USD 200.00")
                 shouldHaveDetailsItem(1, "Sales", "USD 50.00")
@@ -166,6 +166,20 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             }
             
             shouldHaveInvoiceCards(2)
+            
+            invoiceCard(0) {
+                shouldHaveTitle("Invoice 1")
+                shouldHaveAmount("USD 100.00")
+                shouldHaveStatus("Pending")
+                shouldHaveDetailsItem(0, "To", "Customer A")
+            }
+            
+            invoiceCard(1) {
+                shouldHaveTitle("Invoice 2")
+                shouldHaveAmount("USD 150.00")
+                shouldHaveStatus("Overdue")
+                shouldHaveDetailsItem(0, "To", "Customer B")
+            }
             
             reportRendering("dashboard.with-invoices")
         }
