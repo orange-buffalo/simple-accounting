@@ -38,7 +38,7 @@
     "vue-router": "4.6.3"
   },
   "devDependencies": {
-    "@eslint/js": "9.37.0",
+    "@eslint/js": "9.38.0",
     "@graphql-codegen/cli": "^6.0.0",
     "@graphql-codegen/client-preset": "^5.0.0",
     "@rushstack/eslint-patch": "1.14.0",
