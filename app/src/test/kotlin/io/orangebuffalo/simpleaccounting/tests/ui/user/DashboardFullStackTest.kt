@@ -17,13 +17,27 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should use default dates when localStorage is empty`(page: Page) {
         page.authenticateViaCookie(preconditionsEmpty.fry)
+        val today = LocalDate.now()
+        val startOfYear = LocalDate.of(today.year, 1, 1)
+        
         page.openDashboard {
-            // Default dates should be Jan 1 of current year to today
-            // We can't easily verify the exact dates in the date picker without adding test-ids,
-            // but we can verify the API was called with correct dates by checking the data displayed
-            expensesCard.shouldBeLoaded()
-            incomesCard.shouldBeLoaded()
-            profitCard.shouldBeLoaded()
+            dateRangePicker {
+                shouldHaveDateRange(startOfYear, today)
+            }
+            expensesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveFinalizedText("Total of 0 expenses")
+            }
+            incomesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveFinalizedText("Total of 0 incomes")
+            }
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+            }
         }
     }
 
@@ -31,25 +45,31 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should display empty state when no data exists`(page: Page) {
         page.authenticateViaCookie(preconditionsEmpty.fry)
         page.openDashboard {
-            expensesCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 0.00")
-                .shouldHaveFinalizedText("Total of 0 expenses")
-                .shouldHavePendingText("\u00A0")
-                .shouldHaveDetailsItemsCount(0)
+            expensesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveFinalizedText("Total of 0 expenses")
+                shouldHavePendingText(" ")
+                shouldHaveDetailsItemsCount(0)
+            }
             
-            incomesCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 0.00")
-                .shouldHaveFinalizedText("Total of 0 incomes")
-                .shouldHavePendingText("\u00A0")
-                .shouldHaveDetailsItemsCount(0)
+            incomesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveFinalizedText("Total of 0 incomes")
+                shouldHavePendingText(" ")
+                shouldHaveDetailsItemsCount(0)
+            }
             
-            profitCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 0.00")
-                .shouldHaveDetailsItemsCount(3)
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveDetailsItemsCount(3)
+            }
             
             shouldHaveInvoiceCards(0)
             
-            page.locator(".sa-dashboard").reportRendering("dashboard.empty-state")
+            reportRendering("dashboard.empty-state")
         }
     }
 
@@ -57,24 +77,34 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should display expenses and incomes without pending items`(page: Page) {
         page.authenticateViaCookie(preconditionsWithFinalized.fry)
         page.openDashboard {
-            expensesCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 120.00")
-                .shouldHaveFinalizedText("Total of 2 expenses")
-                .shouldHavePendingText("\u00A0")
-                .shouldHaveDetailsItemsCount(2)
-                .shouldHaveDetailsItem(0, "Office", "USD 100.00")
-                .shouldHaveDetailsItem(1, "Travel", "USD 20.00")
+            expensesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 120.00")
+                shouldHaveFinalizedText("Total of 2 expenses")
+                shouldHavePendingText(" ")
+                shouldHaveDetailsItemsCount(2)
+                shouldHaveDetailsItem(0, "Office", "USD 100.00")
+                shouldHaveDetailsItem(1, "Travel", "USD 20.00")
+            }
             
-            incomesCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 250.00")
-                .shouldHaveFinalizedText("Total of 2 incomes")
-                .shouldHavePendingText("\u00A0")
-                .shouldHaveDetailsItemsCount(2)
-                .shouldHaveDetailsItem(0, "Consulting", "USD 200.00")
-                .shouldHaveDetailsItem(1, "Sales", "USD 50.00")
+            incomesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 250.00")
+                shouldHaveFinalizedText("Total of 2 incomes")
+                shouldHavePendingText(" ")
+                shouldHaveDetailsItemsCount(2)
+                shouldHaveDetailsItem(0, "Consulting", "USD 200.00")
+                shouldHaveDetailsItem(1, "Sales", "USD 50.00")
+            }
             
-            profitCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 130.00")
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 130.00")
+                shouldHaveDetailsItemsCount(3)
+                shouldHaveDetailsItem(0, "Income Tax Payments", "USD 0.00")
+                shouldHaveDetailsItem(1, "Estimated Tax", "coming soon..")
+                shouldHaveDetailsItem(2, "Profit", "USD 130.00")
+            }
             
             shouldHaveInvoiceCards(0)
         }
@@ -84,19 +114,32 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should display expenses and incomes with pending items`(page: Page) {
         page.authenticateViaCookie(preconditionsWithPending.fry)
         page.openDashboard {
-            expensesCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 120.00")
-                .shouldHaveFinalizedText("Total of 2 expenses")
-                .shouldHavePendingText("Pending 1 more")
-                .shouldHaveDetailsItemsCount(2)
+            expensesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 120.00")
+                shouldHaveFinalizedText("Total of 2 expenses")
+                shouldHavePendingText("Pending 1 more")
+                shouldHaveDetailsItemsCount(2)
+                shouldHaveDetailsItem(0, "Office", "USD 100.00")
+                shouldHaveDetailsItem(1, "Travel", "USD 20.00")
+            }
             
-            incomesCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 250.00")
-                .shouldHaveFinalizedText("Total of 2 incomes")
-                .shouldHavePendingText("Pending 2 more")
-                .shouldHaveDetailsItemsCount(2)
+            incomesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 250.00")
+                shouldHaveFinalizedText("Total of 2 incomes")
+                shouldHavePendingText("Pending 2 more")
+                shouldHaveDetailsItemsCount(2)
+                shouldHaveDetailsItem(0, "Consulting", "USD 200.00")
+                shouldHaveDetailsItem(1, "Sales", "USD 50.00")
+            }
             
-            profitCard.shouldBeLoaded()
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 130.00")
+                shouldHaveDetailsItemsCount(3)
+            }
+            
             shouldHaveInvoiceCards(0)
         }
     }
@@ -105,13 +148,26 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should display invoices with SENT and OVERDUE status`(page: Page) {
         page.authenticateViaCookie(preconditionsWithInvoices.fry)
         page.openDashboard {
-            expensesCard.shouldBeLoaded()
-            incomesCard.shouldBeLoaded()
-            profitCard.shouldBeLoaded()
+            expensesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveFinalizedText("Total of 0 expenses")
+            }
+            
+            incomesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveFinalizedText("Total of 0 incomes")
+            }
+            
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+            }
             
             shouldHaveInvoiceCards(2)
             
-            page.locator(".sa-dashboard").reportRendering("dashboard.with-invoices")
+            reportRendering("dashboard.with-invoices")
         }
     }
 
@@ -119,14 +175,26 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should not display invoices with other statuses`(page: Page) {
         page.authenticateViaCookie(preconditionsWithOtherInvoices.fry)
         page.openDashboard {
-            expensesCard.shouldBeLoaded()
-            incomesCard.shouldBeLoaded()
-            profitCard.shouldBeLoaded()
+            expensesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveFinalizedText("Total of 0 expenses")
+            }
             
-            // Only SENT and OVERDUE invoices should be displayed
+            incomesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+                shouldHaveFinalizedText("Total of 0 incomes")
+            }
+            
+            profitCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 0.00")
+            }
+            
             shouldHaveInvoiceCards(0)
             
-            page.locator(".sa-dashboard").reportRendering("dashboard.no-invoices-state")
+            reportRendering("dashboard.no-invoices-state")
         }
     }
 
@@ -141,16 +209,24 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             },
             blockedRequestSpec = {
                 page.shouldBeDashboardPage {
-                    expensesCard.shouldBeLoading()
-                    page.locator(".sa-dashboard").reportRendering("dashboard.loading-state")
+                    expensesCard {
+                        shouldBeLoading()
+                    }
+                    reportRendering("dashboard.loading-state")
                 }
             }
         )
         
         page.shouldBeDashboardPage {
-            expensesCard.shouldBeLoaded()
-            incomesCard.shouldBeLoaded()
-            profitCard.shouldBeLoaded()
+            expensesCard {
+                shouldBeLoaded()
+            }
+            incomesCard {
+                shouldBeLoaded()
+            }
+            profitCard {
+                shouldBeLoaded()
+            }
         }
     }
 
@@ -158,20 +234,26 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should filter data by selected date range`(page: Page) {
         page.authenticateViaCookie(preconditionsForDateFiltering.fry)
         
-        // First, verify we see all data for the full year
-        page.openDashboard {
-            expensesCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 300.00")
-                .shouldHaveFinalizedText("Total of 3 expenses")
-            
-            incomesCard.shouldBeLoaded()
-                .shouldHaveAmount("USD 600.00")
-                .shouldHaveFinalizedText("Total of 3 incomes")
-        }
+        val today = LocalDate.now()
+        val startOfYear = LocalDate.of(today.year, 1, 1)
         
-        // Note: Testing actual date picker interaction would require more complex date picker
-        // component handling. The filtering is already tested at the API level in StatisticsApiTest.
-        // Full stack test verifies that the page loads and displays data correctly.
+        page.openDashboard {
+            dateRangePicker {
+                shouldHaveDateRange(startOfYear, today)
+            }
+            
+            expensesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 300.00")
+                shouldHaveFinalizedText("Total of 3 expenses")
+            }
+            
+            incomesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("USD 600.00")
+                shouldHaveFinalizedText("Total of 3 incomes")
+            }
+        }
     }
 
     private val preconditionsEmpty by lazyPreconditions {
