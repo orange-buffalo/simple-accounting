@@ -62,7 +62,7 @@ jobs:
           detailed_summary: true
 
       - name: "Save Thread Dumps"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: thread-dumps
@@ -70,14 +70,14 @@ jobs:
           if-no-files-found: "ignore"
 
       - name: "Save Rendering Report"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: rendering-report
           path: app/build/rendering-report
           if-no-files-found: "ignore"
 
       - name: "Save Playwright Traces"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() }}
         with:
           name: playwright-traces
