@@ -1,7 +1,10 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
+import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
@@ -34,8 +37,32 @@ class SaOverviewItem private constructor(
             .click()
     }
 
-    fun hasAttributePreviewIcon(icon: String): Boolean {
-        return panel.locator(".overview-item__attribute-preview .sa-icon[data-icon=\"$icon\"]").count() > 0
+    val attributePreviewIcons: List<String>
+        get() = panel.locator(".overview-item__attribute-preview .sa-icon")
+            .all()
+            .map { it.getAttribute("data-icon") }
+
+    private val statusLabelLocator: Locator
+        get() = panel.locator(".overview-item__middle-column .sa-status-label")
+
+    fun hasAttributePreviewIcons(vararg icons: String) {
+        val actualIcons = attributePreviewIcons.sorted()
+        val expectedIcons = icons.toList().sorted()
+        actualIcons.shouldContainExactly(expectedIcons)
+    }
+
+    fun shouldHaveSuccessStatus(text: String? = null) {
+        statusLabelLocator.shouldContainClass("sa-status-label_success")
+        if (text != null) {
+            statusLabelLocator.shouldHaveText(text)
+        }
+    }
+
+    fun shouldHavePendingStatus(text: String? = null) {
+        statusLabelLocator.shouldContainClass("sa-status-label_pending")
+        if (text != null) {
+            statusLabelLocator.shouldHaveText(text)
+        }
     }
 
     companion object {

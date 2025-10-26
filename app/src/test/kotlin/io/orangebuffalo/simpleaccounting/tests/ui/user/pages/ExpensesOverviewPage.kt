@@ -46,11 +46,7 @@ class ExpensesOverviewPage private constructor(page: Page) : SaPageBase(page) {
 data class ExpenseOverviewItem(
     val title: String,
     val datePaid: SaOverviewItem.PrimaryAttribute,
-    val hasNotesIcon: Boolean,
-    val hasGeneralTaxIcon: Boolean,
-    val hasAttachmentsIcon: Boolean,
-    val hasForeignCurrencyIcon: Boolean,
-    val hasPartialBusinessPurposeIcon: Boolean,
+    val attributePreviewIcons: List<String>,
 )
 
 fun SaOverviewItem.toExpenseOverviewItem(): ExpenseOverviewItem {
@@ -59,10 +55,6 @@ fun SaOverviewItem.toExpenseOverviewItem(): ExpenseOverviewItem {
     return ExpenseOverviewItem(
         title = panel.title.shouldNotBeNull(),
         datePaid = panel.primaryAttributes[0],
-        hasNotesIcon = panel.hasAttributePreviewIcon("notes"),
-        hasGeneralTaxIcon = panel.hasAttributePreviewIcon("tax"),
-        hasAttachmentsIcon = panel.hasAttributePreviewIcon("attachment"),
-        hasForeignCurrencyIcon = panel.hasAttributePreviewIcon("multi-currency"),
-        hasPartialBusinessPurposeIcon = panel.hasAttributePreviewIcon("percent"),
+        attributePreviewIcons = panel.attributePreviewIcons,
     )
 }
