@@ -34,6 +34,10 @@ class SaOverviewItem private constructor(
             .click()
     }
 
+    fun hasAttributePreviewIcon(icon: String): Boolean {
+        return panel.locator(".overview-item__attribute-preview .sa-icon[data-icon=\"$icon\"]").count() > 0
+    }
+
     companion object {
         fun ComponentsAccessors.overviewItems() =
             pageableItems { container -> SaOverviewItem(container.locator(".overview-item__panel")) }
