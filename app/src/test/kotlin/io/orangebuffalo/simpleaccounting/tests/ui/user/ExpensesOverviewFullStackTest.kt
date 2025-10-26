@@ -32,6 +32,12 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveExactItems(
                     "Finalized Expense", "Pending Conversion", "Pending Tax Conversion"
                 ) { it.title!! }
+                
+                // Verify status labels
+                staticItems[0].shouldHaveSuccessStatus("Finalized")
+                staticItems[1].shouldHavePendingStatus("Pending")
+                staticItems[2].shouldHavePendingStatus("Pending")
+                
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
@@ -81,6 +87,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveTotalPages(2)
                 }
             }
+            
+            // Filter by title
             filterInput { fill("office") }
             pageItems {
                 shouldHaveExactItems("Office") { it.title!! }
@@ -88,6 +96,20 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
                 }
+            }
+            
+            // Filter by category name
+            filterInput { fill("") }
+            filterInput { fill("travel") }
+            pageItems {
+                shouldHaveExactItems("Travel") { it.title!! }
+            }
+            
+            // Filter by notes
+            filterInput { fill("") }
+            filterInput { fill("urgent") }
+            pageItems {
+                shouldHaveExactItems("Meals") { it.title!! }
             }
         }
     }
@@ -218,7 +240,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(3000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(3000),
-                    status = ExpenseStatus.FINALIZED
+                    status = ExpenseStatus.FINALIZED,
+                    notes = "This is urgent"
                 )
                 (1..10).forEach { index ->
                     expense(
