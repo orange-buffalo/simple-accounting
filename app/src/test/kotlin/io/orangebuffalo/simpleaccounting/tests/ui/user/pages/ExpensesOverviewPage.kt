@@ -56,7 +56,8 @@ data class ExpenseOverviewItem(
 fun SaOverviewItem.toExpenseOverviewItem(): ExpenseOverviewItem {
     primaryAttributes.shouldHaveSize(1)
     
-    // Determine status by checking the class
+    // Determine status by checking the class on the status label in middle column
+    val statusLabelLocator = this.locator(".overview-item__middle-column .sa-status-label")
     val statusClass = statusLabelLocator.getAttribute("class") ?: ""
     val status = when {
         statusClass.contains("sa-status-label_success") -> "success"
