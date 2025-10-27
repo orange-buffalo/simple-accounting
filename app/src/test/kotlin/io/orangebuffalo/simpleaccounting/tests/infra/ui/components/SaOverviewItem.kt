@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
+import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
@@ -19,7 +20,7 @@ class SaOverviewItem private constructor(
     val title: String?
         get() = panel.locator(".overview-item__title").innerTextOrNull()
     
-    val amount: String?
+    val lastColumnContent: String?
         get() = panel.locator(".overview-item__last-column").innerTextOrNull()
 
     val primaryAttributes: List<PrimaryAttribute>
@@ -39,23 +40,29 @@ class SaOverviewItem private constructor(
     fun shouldHaveDetails(vararg sections: DetailsSectionSpec) {
         expandDetails()
         val detailsContainer = panel.locator(".overview-item__details")
-        val actualSections = detailsContainer.locator(".sa-overview-item-details-section").all()
+        val sectionsLocator = detailsContainer.locator(".sa-overview-item-details-section")
         
-        actualSections.size.shouldBe(sections.size, "Expected ${sections.size} sections but found ${actualSections.size}")
+        // Use Playwright assertion to wait for the correct number of sections
+        sectionsLocator.shouldHaveCount(sections.size)
+        
+        val actualSections = sectionsLocator.all()
         
         sections.forEachIndexed { index, expectedSection ->
             val actualSection = actualSections[index]
-            val sectionTitle = actualSection.locator(".sa-overview-item-details-section__title").innerTextTrimmed()
+            val sectionTitle = actualSection.locator(".sa-overview-item-details-section__title").innerTextOrNull()
             sectionTitle.shouldBe(expectedSection.title, "Section $index has wrong title")
             
-            val actualAttributes = actualSection.locator(".sa-overview-item-details-section-attribute").all()
-            actualAttributes.size.shouldBe(expectedSection.attributes.size, 
-                "Section '${expectedSection.title}' should have ${expectedSection.attributes.size} attributes but has ${actualAttributes.size}")
+            val attributesLocator = actualSection.locator(".sa-overview-item-details-section-attribute")
+            
+            // Use Playwright assertion to wait for the correct number of attributes
+            attributesLocator.shouldHaveCount(expectedSection.attributes.size)
+            
+            val actualAttributes = attributesLocator.all()
             
             expectedSection.attributes.forEachIndexed { attrIndex, (expectedLabel, expectedValue) ->
                 val actualAttribute = actualAttributes[attrIndex]
-                val actualLabel = actualAttribute.locator(".sa-overview-item-details-section-attribute__label").innerTextTrimmed()
-                val actualValue = actualAttribute.locator(".sa-overview-item-details-section-attribute__value").innerTextTrimmed()
+                val actualLabel = actualAttribute.locator(".sa-overview-item-details-section-attribute__label").innerTextOrNull()
+                val actualValue = actualAttribute.locator(".sa-overview-item-details-section-attribute__value").innerTextOrNull()
                 
                 actualLabel.shouldBe(expectedLabel, "Attribute $attrIndex in section '${expectedSection.title}' has wrong label")
                 actualValue.shouldBe(expectedValue, "Attribute '$expectedLabel' in section '${expectedSection.title}' has wrong value")
