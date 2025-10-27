@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
@@ -17,6 +18,9 @@ class SaOverviewItem private constructor(
 
     val title: String?
         get() = panel.locator(".overview-item__title").innerTextOrNull()
+    
+    val amount: String?
+        get() = panel.locator(".overview-item__last-column").innerTextOrNull()
 
     val primaryAttributes: List<PrimaryAttribute>
         get() = panel.locator(".overview-item-primary-attribute").all().map {
@@ -32,7 +36,34 @@ class SaOverviewItem private constructor(
         detailsTrigger.shouldBeHidden()
     }
 
-    fun expandDetails() {
+    fun shouldHaveDetails(vararg sections: DetailsSectionSpec) {
+        expandDetails()
+        val detailsContainer = panel.locator(".overview-item__details")
+        val actualSections = detailsContainer.locator(".sa-overview-item-details-section").all()
+        
+        actualSections.size.shouldBe(sections.size, "Expected ${sections.size} sections but found ${actualSections.size}")
+        
+        sections.forEachIndexed { index, expectedSection ->
+            val actualSection = actualSections[index]
+            val sectionTitle = actualSection.locator(".sa-overview-item-details-section__title").innerTextTrimmed()
+            sectionTitle.shouldBe(expectedSection.title, "Section $index has wrong title")
+            
+            val actualAttributes = actualSection.locator(".sa-overview-item-details-section-attribute").all()
+            actualAttributes.size.shouldBe(expectedSection.attributes.size, 
+                "Section '${expectedSection.title}' should have ${expectedSection.attributes.size} attributes but has ${actualAttributes.size}")
+            
+            expectedSection.attributes.forEachIndexed { attrIndex, (expectedLabel, expectedValue) ->
+                val actualAttribute = actualAttributes[attrIndex]
+                val actualLabel = actualAttribute.locator(".sa-overview-item-details-section-attribute__label").innerTextTrimmed()
+                val actualValue = actualAttribute.locator(".sa-overview-item-details-section-attribute__value").innerTextTrimmed()
+                
+                actualLabel.shouldBe(expectedLabel, "Attribute $attrIndex in section '${expectedSection.title}' has wrong label")
+                actualValue.shouldBe(expectedValue, "Attribute '$expectedLabel' in section '${expectedSection.title}' has wrong value")
+            }
+        }
+    }
+
+    private fun expandDetails() {
         detailsTrigger.click()
     }
 
@@ -84,6 +115,13 @@ class SaOverviewItem private constructor(
         val icon: String,
         val text: String,
     )
+}
+
+data class DetailsSectionSpec(
+    val title: String,
+    val attributes: List<Pair<String, String>>
+) {
+    constructor(title: String, vararg attributes: Pair<String, String>) : this(title, attributes.toList())
 }
 
 @UiComponentMarker

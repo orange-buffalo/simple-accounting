@@ -4,12 +4,13 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Icons
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpenseOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.toExpenseOverviewItem
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
 
@@ -24,147 +25,237 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Finalized USD",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = preconditionsAllStates.formattedToday1,
+                        datePaid = "Jan 15, 2025",
+                        amount = "USD 100.00",
                         attributePreviewIcons = emptyList()
                     ),
                     ExpenseOverviewItem(
                         title = "Pending Conversion EUR",
                         status = "pending",
                         statusText = "Pending",
-                        datePaid = preconditionsAllStates.formattedToday2,
-                        attributePreviewIcons = listOf("multi-currency")
+                        datePaid = "Jan 14, 2025",
+                        amount = "EUR 50.00",
+                        attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
                     ),
                     ExpenseOverviewItem(
                         title = "Pending Tax Conversion",
                         status = "pending",
                         statusText = "Pending",
-                        datePaid = preconditionsAllStates.formattedToday3,
-                        attributePreviewIcons = listOf("multi-currency")
+                        datePaid = "Jan 13, 2025",
+                        amount = "USD 40.00",
+                        attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
                     ),
                     ExpenseOverviewItem(
                         title = "With Notes",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = preconditionsAllStates.formattedToday4,
-                        attributePreviewIcons = listOf("notes")
+                        datePaid = "Jan 12, 2025",
+                        amount = "USD 20.00",
+                        attributePreviewIcons = listOf(Icons.NOTES)
                     ),
                     ExpenseOverviewItem(
                         title = "With Tax",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = preconditionsAllStates.formattedToday5,
-                        attributePreviewIcons = listOf("tax")
+                        datePaid = "Jan 11, 2025",
+                        amount = "USD 100.00",
+                        attributePreviewIcons = listOf(Icons.TAX)
                     ),
                     ExpenseOverviewItem(
                         title = "With Attachments",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = preconditionsAllStates.formattedToday6,
-                        attributePreviewIcons = listOf("attachment")
+                        datePaid = "Jan 10, 2025",
+                        amount = "USD 50.00",
+                        attributePreviewIcons = listOf(Icons.ATTACHMENT)
                     ),
                     ExpenseOverviewItem(
                         title = "Foreign Currency Same Amounts",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = preconditionsAllStates.formattedToday7,
-                        attributePreviewIcons = listOf("multi-currency")
+                        datePaid = "Jan 9, 2025",
+                        amount = "USD 60.00",
+                        attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
                     ),
                     ExpenseOverviewItem(
                         title = "Foreign Currency Different Amounts",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = preconditionsAllStates.formattedToday8,
-                        attributePreviewIcons = listOf("multi-currency")
+                        datePaid = "Jan 8, 2025",
+                        amount = "USD 8.50",
+                        attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
                     ),
                     ExpenseOverviewItem(
                         title = "Partial Business",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = preconditionsAllStates.formattedToday9,
-                        attributePreviewIcons = listOf("percent")
+                        datePaid = "Jan 7, 2025",
+                        amount = "USD 40.00",
+                        attributePreviewIcons = listOf(Icons.PERCENT)
                     ),
                     ExpenseOverviewItem(
                         title = "Multiple Icons",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = preconditionsAllStates.formattedToday10,
-                        attributePreviewIcons = listOf("attachment", "multi-currency", "notes", "percent", "tax")
+                        datePaid = "Jan 6, 2025",
+                        amount = "USD 160.00",
+                        attributePreviewIcons = listOf(Icons.ATTACHMENT, Icons.MULTI_CURRENCY, Icons.NOTES, Icons.PERCENT, Icons.TAX)
                     )
                 ) { it.toExpenseOverviewItem() }
                 
                 // Expand and verify details for each expense
-                staticItems[0].expandDetails()
-                staticItems[0].detailsSection("Summary") {
-                    shouldHaveAttribute("Status", "Finalized")
-                    shouldHaveAttributeContaining("Category", "Delivery")
-                    shouldHaveAttributeContaining("Date Paid", preconditionsAllStates.formattedToday1)
-                    shouldHaveAttribute("Adjusted Amount for Tax Purposes", "USD 100.00")
-                }
-                staticItems[0].detailsSection("General Information") {
-                    shouldHaveAttribute("Original Amount", "USD 100.00")
-                }
+                staticItems[0].shouldHaveDetails(
+                    DetailsSectionSpec(
+                        "Summary",
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 15, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 100.00"
+                    ),
+                    DetailsSectionSpec(
+                        "General Information",
+                        "Original Amount" to "USD 100.00"
+                    )
+                )
                 
-                staticItems[1].expandDetails()
-                staticItems[1].detailsSection("Summary") {
-                    shouldHaveAttributeContaining("Status", "USD")
-                    shouldHaveAttributeContaining("Category", "Delivery")
-                    shouldHaveAttributeContaining("Date Paid", preconditionsAllStates.formattedToday2)
-                    shouldHaveAttributeContaining("Adjusted Amount for Tax Purposes", "not provided")
-                }
-                staticItems[1].detailsSection("General Information") {
-                    shouldHaveAttribute("Original Currency", "EUR")
-                    shouldHaveAttribute("Original Amount", "EUR 50.00")
-                }
-                staticItems[1].detailsSection("Foreign Currency Conversion") {
-                    shouldHaveAttributeContaining("Converted Amount", "not provided")
-                    shouldHaveAttribute("Different Exchange Rate", "No")
-                    shouldHaveAttributeContaining("Income Tax Amount", "not provided")
-                }
+                staticItems[1].shouldHaveDetails(
+                    DetailsSectionSpec(
+                        "Summary",
+                        "Status" to "Pending conversion to USD",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 14, 2025",
+                        "Adjusted Amount for Tax Purposes" to "not provided yet"
+                    ),
+                    DetailsSectionSpec(
+                        "General Information",
+                        "Original Currency" to "EUR",
+                        "Original Amount" to "EUR 50.00"
+                    ),
+                    DetailsSectionSpec(
+                        "Foreign Currency Conversion",
+                        "Converted Amount (USD)" to "not provided yet",
+                        "Different Exchange Rate" to "No",
+                        "Income Tax Amount (USD)" to "not provided yet"
+                    )
+                )
                 
-                staticItems[3].expandDetails()
-                staticItems[3].detailsSection("Notes") {
-                    shouldHaveAttributeContaining("", "Important expense notes")
-                }
+                staticItems[3].shouldHaveDetails(
+                    DetailsSectionSpec(
+                        "Summary",
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 12, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 20.00"
+                    ),
+                    DetailsSectionSpec(
+                        "General Information",
+                        "Original Amount" to "USD 20.00"
+                    ),
+                    DetailsSectionSpec(
+                        "Notes"
+                    )
+                )
                 
-                staticItems[4].expandDetails()
-                staticItems[4].detailsSection("Summary") {
-                    shouldHaveAttribute("General Tax", "VAT")
-                    shouldHaveAttribute("General Tax Rate", "20.00%")
-                    shouldHaveAttribute("General Tax Amount", "USD 20.00")
-                }
+                staticItems[4].shouldHaveDetails(
+                    DetailsSectionSpec(
+                        "Summary",
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 11, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 100.00",
+                        "General Tax" to "VAT",
+                        "General Tax Rate" to "20.00%",
+                        "General Tax Amount" to "USD 20.00"
+                    ),
+                    DetailsSectionSpec(
+                        "General Information",
+                        "Original Amount" to "USD 100.00"
+                    )
+                )
                 
-                staticItems[5].expandDetails()
-                staticItems[5].detailsSection("Attachments") {
-                    shouldHaveAttributeContaining("", "Receipt 1")
-                    shouldHaveAttributeContaining("", "Receipt 2")
-                }
+                staticItems[5].shouldHaveDetails(
+                    DetailsSectionSpec(
+                        "Summary",
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 10, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 50.00"
+                    ),
+                    DetailsSectionSpec(
+                        "General Information",
+                        "Original Amount" to "USD 50.00"
+                    ),
+                    DetailsSectionSpec(
+                        "Attachments"
+                    )
+                )
                 
-                staticItems[7].expandDetails()
-                staticItems[7].detailsSection("Foreign Currency Conversion") {
-                    shouldHaveAttribute("Converted Amount (USD)", "USD 9.00")
-                    shouldHaveAttribute("Different Exchange Rate", "Yes")
-                    shouldHaveAttribute("Income Tax Amount (USD)", "USD 8.50")
-                }
+                staticItems[7].shouldHaveDetails(
+                    DetailsSectionSpec(
+                        "Summary",
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 8, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 8.50"
+                    ),
+                    DetailsSectionSpec(
+                        "General Information",
+                        "Original Currency" to "JPY",
+                        "Original Amount" to "JPY 1,000.00"
+                    ),
+                    DetailsSectionSpec(
+                        "Foreign Currency Conversion",
+                        "Converted Amount (USD)" to "USD 9.00",
+                        "Different Exchange Rate" to "Yes",
+                        "Income Tax Amount (USD)" to "USD 8.50"
+                    )
+                )
                 
-                staticItems[8].expandDetails()
-                staticItems[8].detailsSection("General Information") {
-                    shouldHaveAttribute("Business Use", "70%")
-                }
+                staticItems[8].shouldHaveDetails(
+                    DetailsSectionSpec(
+                        "Summary",
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 7, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 40.00"
+                    ),
+                    DetailsSectionSpec(
+                        "General Information",
+                        "Original Amount" to "USD 40.00",
+                        "Business Use" to "70%"
+                    )
+                )
                 
-                staticItems[9].expandDetails()
-                staticItems[9].detailsSection("Summary") {
-                    shouldHaveAttribute("General Tax", "VAT")
-                }
-                staticItems[9].detailsSection("General Information") {
-                    shouldHaveAttribute("Original Currency", "CHF")
-                    shouldHaveAttribute("Business Use", "60%")
-                }
-                staticItems[9].detailsSection("Attachments") {
-                    shouldHaveAttributeContaining("", "Receipt 1")
-                }
-                staticItems[9].detailsSection("Notes") {
-                    shouldHaveAttributeContaining("", "Complex expense with all attributes")
-                }
+                staticItems[9].shouldHaveDetails(
+                    DetailsSectionSpec(
+                        "Summary",
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 6, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 160.00",
+                        "General Tax" to "VAT",
+                        "General Tax Rate" to "20.00%",
+                        "General Tax Amount" to "USD 32.00"
+                    ),
+                    DetailsSectionSpec(
+                        "General Information",
+                        "Original Currency" to "CHF",
+                        "Original Amount" to "CHF 150.00",
+                        "Business Use" to "60%"
+                    ),
+                    DetailsSectionSpec(
+                        "Foreign Currency Conversion",
+                        "Converted Amount (USD)" to "USD 160.00",
+                        "Different Exchange Rate" to "No",
+                        "Income Tax Amount (USD)" to "USD 160.00"
+                    ),
+                    DetailsSectionSpec(
+                        "Attachments"
+                    ),
+                    DetailsSectionSpec(
+                        "Notes"
+                    )
+                )
                 
                 paginator {
                     shouldHaveActivePage(1)
@@ -250,19 +341,6 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
             val document1 = document(workspace = workspace, name = "Receipt 1")
             val document2 = document(workspace = workspace, name = "Receipt 2")
-            
-            val today = LocalDate.now()
-            val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
-            val formattedToday1 = today.minusDays(1).format(formatter)
-            val formattedToday2 = today.minusDays(2).format(formatter)
-            val formattedToday3 = today.minusDays(3).format(formatter)
-            val formattedToday4 = today.minusDays(4).format(formatter)
-            val formattedToday5 = today.minusDays(5).format(formatter)
-            val formattedToday6 = today.minusDays(6).format(formatter)
-            val formattedToday7 = today.minusDays(7).format(formatter)
-            val formattedToday8 = today.minusDays(8).format(formatter)
-            val formattedToday9 = today.minusDays(9).format(formatter)
-            val formattedToday10 = today.minusDays(10).format(formatter)
 
             init {
                 // 1. Finalized expense in default currency (USD)
@@ -270,7 +348,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Finalized USD",
-                    datePaid = today.minusDays(1),
+                    datePaid = LocalDate.of(2025, 1, 15),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -282,7 +360,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Conversion EUR",
-                    datePaid = today.minusDays(2),
+                    datePaid = LocalDate.of(2025, 1, 14),
                     currency = "EUR",
                     originalAmount = 5000,
                     convertedAmounts = emptyAmountsInDefaultCurrency(),
@@ -295,7 +373,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Tax Conversion",
-                    datePaid = today.minusDays(3),
+                    datePaid = LocalDate.of(2025, 1, 13),
                     currency = "GBP",
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
@@ -309,7 +387,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Notes",
-                    datePaid = today.minusDays(4),
+                    datePaid = LocalDate.of(2025, 1, 12),
                     originalAmount = 2000,
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
@@ -322,7 +400,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Tax",
-                    datePaid = today.minusDays(5),
+                    datePaid = LocalDate.of(2025, 1, 11),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -337,7 +415,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Attachments",
-                    datePaid = today.minusDays(6),
+                    datePaid = LocalDate.of(2025, 1, 10),
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(5000),
@@ -350,7 +428,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Same Amounts",
-                    datePaid = today.minusDays(7),
+                    datePaid = LocalDate.of(2025, 1, 9),
                     currency = "CAD",
                     originalAmount = 8000,
                     convertedAmounts = amountsInDefaultCurrency(6000),
@@ -364,7 +442,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Different Amounts",
-                    datePaid = today.minusDays(8),
+                    datePaid = LocalDate.of(2025, 1, 8),
                     currency = "JPY",
                     originalAmount = 100000,
                     convertedAmounts = amountsInDefaultCurrency(900),
@@ -378,7 +456,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Partial Business",
-                    datePaid = today.minusDays(9),
+                    datePaid = LocalDate.of(2025, 1, 7),
                     originalAmount = 4000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(4000),
@@ -391,7 +469,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Multiple Icons",
-                    datePaid = today.minusDays(10),
+                    datePaid = LocalDate.of(2025, 1, 6),
                     currency = "CHF",
                     originalAmount = 15000,
                     convertedAmounts = amountsInDefaultCurrency(16000),
@@ -416,13 +494,13 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val category = category(workspace = workspace)
 
             init {
-                val today = LocalDate.now()
+                val baseDate = LocalDate.of(2025, 1, 1)
                 (1..15).forEach { index ->
                     expense(
                         workspace = workspace,
                         category = category,
                         title = "Expense $index",
-                        datePaid = today.minusDays(index.toLong()),
+                        datePaid = baseDate.minusDays(index.toLong()),
                         originalAmount = 1000 * index.toLong(),
                         convertedAmounts = amountsInDefaultCurrency(1000 * index.toLong()),
                         incomeTaxableAmounts = amountsInDefaultCurrency(1000 * index.toLong()),
@@ -442,12 +520,12 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val mealsCategory = category(workspace = workspace, name = "Meals")
 
             init {
-                val today = LocalDate.now()
+                val baseDate = LocalDate.of(2025, 1, 1)
                 expense(
                     workspace = workspace,
                     category = officeCategory,
                     title = "Office",
-                    datePaid = today.minusDays(1),
+                    datePaid = baseDate.minusDays(1),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -457,7 +535,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = travelCategory,
                     title = "Travel",
-                    datePaid = today.minusDays(2),
+                    datePaid = baseDate.minusDays(2),
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(5000),
@@ -467,7 +545,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = mealsCategory,
                     title = "Meals",
-                    datePaid = today.minusDays(3),
+                    datePaid = baseDate.minusDays(3),
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(3000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(3000),
@@ -479,7 +557,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         workspace = workspace,
                         category = officeCategory,
                         title = "Other $index",
-                        datePaid = today.minusDays(10L + index),
+                        datePaid = baseDate.minusDays(10L + index),
                         originalAmount = 1000,
                         convertedAmounts = amountsInDefaultCurrency(1000),
                         incomeTaxableAmounts = amountsInDefaultCurrency(1000),
