@@ -49,6 +49,7 @@ data class ExpenseOverviewItem(
     val status: String, // "success" or "pending"
     val statusText: String, // "Finalized" or "Pending"
     val datePaid: String,
+    val amount: String,
     val attributePreviewIcons: List<String>,
 )
 
@@ -69,6 +70,7 @@ fun SaOverviewItem.toExpenseOverviewItem(): ExpenseOverviewItem {
         status = status,
         statusText = statusText,
         datePaid = primaryAttributes[0].text,
+        amount = amount.shouldNotBeNull(),
         attributePreviewIcons = attributePreviewIcons,
     )
 }
