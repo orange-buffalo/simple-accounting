@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.string.shouldContain
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
@@ -31,6 +32,15 @@ class SaOverviewItem private constructor(
         detailsTrigger.shouldBeHidden()
     }
 
+    fun expandDetails() {
+        detailsTrigger.click()
+    }
+
+    fun detailsSection(title: String, spec: DetailsSection.() -> Unit) {
+        val section = DetailsSection(panel.locator("xpath=.//*[${XPath.hasClass("overview-item__details")}]//*[${XPath.hasClass("sa-overview-item-details-section")} and .//*[${XPath.hasText(title)}]]"))
+        section.spec()
+    }
+
     fun executeAction(actionLinkText: String) {
         panel
             .locator("xpath=.//*[${XPath.hasClass("sa-action-link")} and .//*[${XPath.hasText(actionLinkText)}]]")
@@ -42,7 +52,7 @@ class SaOverviewItem private constructor(
             .all()
             .map { it.getAttribute("data-icon") }
 
-    private val statusLabelLocator: Locator
+    val statusLabelLocator: Locator
         get() = panel.locator(".overview-item__middle-column .sa-status-label")
 
     fun hasAttributePreviewIcons(vararg icons: String) {
@@ -74,4 +84,20 @@ class SaOverviewItem private constructor(
         val icon: String,
         val text: String,
     )
+}
+
+@UiComponentMarker
+class DetailsSection internal constructor(
+    private val section: Locator,
+) {
+    fun shouldHaveAttribute(label: String, value: String) {
+        val attribute = section.locator("xpath=.//*[${XPath.hasClass("sa-overview-item-details-section-attribute")} and .//*[${XPath.hasText(label)}]]")
+        attribute.locator(".sa-overview-item-details-section-attribute__value").shouldHaveText(value)
+    }
+
+    fun shouldHaveAttributeContaining(label: String, value: String) {
+        val attribute = section.locator("xpath=.//*[${XPath.hasClass("sa-overview-item-details-section-attribute")} and .//*[${XPath.hasText(label)}]]")
+        val actualText = attribute.locator(".sa-overview-item-details-section-attribute__value").innerTextTrimmed()
+        actualText.shouldContain(value)
+    }
 }
