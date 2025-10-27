@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextTrimmed
 
 class ExpensesOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Expenses")
@@ -45,16 +46,29 @@ class ExpensesOverviewPage private constructor(page: Page) : SaPageBase(page) {
 
 data class ExpenseOverviewItem(
     val title: String,
-    val datePaid: SaOverviewItem.PrimaryAttribute,
+    val status: String, // "success" or "pending"
+    val statusText: String, // "Finalized" or "Pending"
+    val datePaid: String,
     val attributePreviewIcons: List<String>,
 )
 
 fun SaOverviewItem.toExpenseOverviewItem(): ExpenseOverviewItem {
-    val panel = this
     primaryAttributes.shouldHaveSize(1)
+    
+    // Determine status by checking the class
+    val statusClass = statusLabelLocator.getAttribute("class") ?: ""
+    val status = when {
+        statusClass.contains("sa-status-label_success") -> "success"
+        statusClass.contains("sa-status-label_pending") -> "pending"
+        else -> "unknown"
+    }
+    val statusText = statusLabelLocator.innerTextTrimmed()
+    
     return ExpenseOverviewItem(
-        title = panel.title.shouldNotBeNull(),
-        datePaid = panel.primaryAttributes[0],
-        attributePreviewIcons = panel.attributePreviewIcons,
+        title = title.shouldNotBeNull(),
+        status = status,
+        statusText = statusText,
+        datePaid = primaryAttributes[0].text,
+        attributePreviewIcons = attributePreviewIcons,
     )
 }

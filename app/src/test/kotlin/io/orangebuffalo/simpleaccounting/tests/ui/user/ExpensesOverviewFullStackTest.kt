@@ -4,9 +4,12 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpenseOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.toExpenseOverviewItem
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
 
@@ -15,47 +18,153 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsAllStates.fry)
         page.openExpensesOverviewPage {
             pageItems {
+                // Verify all expenses with their complete data
                 shouldHaveExactItems(
-                    "Finalized USD", "Pending Conversion EUR", "Pending Tax Conversion",
-                    "With Notes", "With Tax", "With Attachments", "Foreign Currency Same Amounts",
-                    "Foreign Currency Different Amounts", "Partial Business"
-                ) { it.title!! }
+                    ExpenseOverviewItem(
+                        title = "Finalized USD",
+                        status = "success",
+                        statusText = "Finalized",
+                        datePaid = preconditionsAllStates.formattedToday1,
+                        attributePreviewIcons = emptyList()
+                    ),
+                    ExpenseOverviewItem(
+                        title = "Pending Conversion EUR",
+                        status = "pending",
+                        statusText = "Pending",
+                        datePaid = preconditionsAllStates.formattedToday2,
+                        attributePreviewIcons = listOf("multi-currency")
+                    ),
+                    ExpenseOverviewItem(
+                        title = "Pending Tax Conversion",
+                        status = "pending",
+                        statusText = "Pending",
+                        datePaid = preconditionsAllStates.formattedToday3,
+                        attributePreviewIcons = listOf("multi-currency")
+                    ),
+                    ExpenseOverviewItem(
+                        title = "With Notes",
+                        status = "success",
+                        statusText = "Finalized",
+                        datePaid = preconditionsAllStates.formattedToday4,
+                        attributePreviewIcons = listOf("notes")
+                    ),
+                    ExpenseOverviewItem(
+                        title = "With Tax",
+                        status = "success",
+                        statusText = "Finalized",
+                        datePaid = preconditionsAllStates.formattedToday5,
+                        attributePreviewIcons = listOf("tax")
+                    ),
+                    ExpenseOverviewItem(
+                        title = "With Attachments",
+                        status = "success",
+                        statusText = "Finalized",
+                        datePaid = preconditionsAllStates.formattedToday6,
+                        attributePreviewIcons = listOf("attachment")
+                    ),
+                    ExpenseOverviewItem(
+                        title = "Foreign Currency Same Amounts",
+                        status = "success",
+                        statusText = "Finalized",
+                        datePaid = preconditionsAllStates.formattedToday7,
+                        attributePreviewIcons = listOf("multi-currency")
+                    ),
+                    ExpenseOverviewItem(
+                        title = "Foreign Currency Different Amounts",
+                        status = "success",
+                        statusText = "Finalized",
+                        datePaid = preconditionsAllStates.formattedToday8,
+                        attributePreviewIcons = listOf("multi-currency")
+                    ),
+                    ExpenseOverviewItem(
+                        title = "Partial Business",
+                        status = "success",
+                        statusText = "Finalized",
+                        datePaid = preconditionsAllStates.formattedToday9,
+                        attributePreviewIcons = listOf("percent")
+                    ),
+                    ExpenseOverviewItem(
+                        title = "Multiple Icons",
+                        status = "success",
+                        statusText = "Finalized",
+                        datePaid = preconditionsAllStates.formattedToday10,
+                        attributePreviewIcons = listOf("attachment", "multi-currency", "notes", "percent", "tax")
+                    )
+                ) { it.toExpenseOverviewItem() }
                 
-                // Verify FINALIZED status
-                staticItems[0].shouldHaveSuccessStatus("Finalized")
-                staticItems[0].hasAttributePreviewIcons()
+                // Expand and verify details for each expense
+                staticItems[0].expandDetails()
+                staticItems[0].detailsSection("Summary") {
+                    shouldHaveAttribute("Status", "Finalized")
+                    shouldHaveAttributeContaining("Category", "Delivery")
+                    shouldHaveAttributeContaining("Date Paid", preconditionsAllStates.formattedToday1)
+                    shouldHaveAttribute("Adjusted Amount for Tax Purposes", "USD 100.00")
+                }
+                staticItems[0].detailsSection("General Information") {
+                    shouldHaveAttribute("Original Amount", "USD 100.00")
+                }
                 
-                // Verify PENDING_CONVERSION status
-                staticItems[1].shouldHavePendingStatus("Pending")
-                staticItems[1].hasAttributePreviewIcons("multi-currency")
+                staticItems[1].expandDetails()
+                staticItems[1].detailsSection("Summary") {
+                    shouldHaveAttributeContaining("Status", "USD")
+                    shouldHaveAttributeContaining("Category", "Delivery")
+                    shouldHaveAttributeContaining("Date Paid", preconditionsAllStates.formattedToday2)
+                    shouldHaveAttributeContaining("Adjusted Amount for Tax Purposes", "not provided")
+                }
+                staticItems[1].detailsSection("General Information") {
+                    shouldHaveAttribute("Original Currency", "EUR")
+                    shouldHaveAttribute("Original Amount", "EUR 50.00")
+                }
+                staticItems[1].detailsSection("Foreign Currency Conversion") {
+                    shouldHaveAttributeContaining("Converted Amount", "not provided")
+                    shouldHaveAttribute("Different Exchange Rate", "No")
+                    shouldHaveAttributeContaining("Income Tax Amount", "not provided")
+                }
                 
-                // Verify PENDING_CONVERSION_FOR_TAXATION_PURPOSES status
-                staticItems[2].shouldHavePendingStatus("Pending")
-                staticItems[2].hasAttributePreviewIcons("multi-currency")
+                staticItems[3].expandDetails()
+                staticItems[3].detailsSection("Notes") {
+                    shouldHaveAttributeContaining("", "Important expense notes")
+                }
                 
-                // Verify expense with notes icon
-                staticItems[3].shouldHaveSuccessStatus("Finalized")
-                staticItems[3].hasAttributePreviewIcons("notes")
+                staticItems[4].expandDetails()
+                staticItems[4].detailsSection("Summary") {
+                    shouldHaveAttribute("General Tax", "VAT")
+                    shouldHaveAttribute("General Tax Rate", "20.00%")
+                    shouldHaveAttribute("General Tax Amount", "USD 20.00")
+                }
                 
-                // Verify expense with general tax icon
-                staticItems[4].shouldHaveSuccessStatus("Finalized")
-                staticItems[4].hasAttributePreviewIcons("tax")
+                staticItems[5].expandDetails()
+                staticItems[5].detailsSection("Attachments") {
+                    shouldHaveAttributeContaining("", "Receipt 1")
+                    shouldHaveAttributeContaining("", "Receipt 2")
+                }
                 
-                // Verify expense with attachments icon
-                staticItems[5].shouldHaveSuccessStatus("Finalized")
-                staticItems[5].hasAttributePreviewIcons("attachment")
+                staticItems[7].expandDetails()
+                staticItems[7].detailsSection("Foreign Currency Conversion") {
+                    shouldHaveAttribute("Converted Amount (USD)", "USD 9.00")
+                    shouldHaveAttribute("Different Exchange Rate", "Yes")
+                    shouldHaveAttribute("Income Tax Amount (USD)", "USD 8.50")
+                }
                 
-                // Verify foreign currency with same amounts
-                staticItems[6].shouldHaveSuccessStatus("Finalized")
-                staticItems[6].hasAttributePreviewIcons("multi-currency")
+                staticItems[8].expandDetails()
+                staticItems[8].detailsSection("General Information") {
+                    shouldHaveAttribute("Business Use", "70%")
+                }
                 
-                // Verify foreign currency with different amounts for taxation
-                staticItems[7].shouldHaveSuccessStatus("Finalized")
-                staticItems[7].hasAttributePreviewIcons("multi-currency")
-                
-                // Verify partial business purpose icon
-                staticItems[8].shouldHaveSuccessStatus("Finalized")
-                staticItems[8].hasAttributePreviewIcons("percent")
+                staticItems[9].expandDetails()
+                staticItems[9].detailsSection("Summary") {
+                    shouldHaveAttribute("General Tax", "VAT")
+                }
+                staticItems[9].detailsSection("General Information") {
+                    shouldHaveAttribute("Original Currency", "CHF")
+                    shouldHaveAttribute("Business Use", "60%")
+                }
+                staticItems[9].detailsSection("Attachments") {
+                    shouldHaveAttributeContaining("", "Receipt 1")
+                }
+                staticItems[9].detailsSection("Notes") {
+                    shouldHaveAttributeContaining("", "Complex expense with all attributes")
+                }
                 
                 paginator {
                     shouldHaveActivePage(1)
@@ -141,10 +250,21 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
             val document1 = document(workspace = workspace, name = "Receipt 1")
             val document2 = document(workspace = workspace, name = "Receipt 2")
+            
+            val today = LocalDate.now()
+            val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
+            val formattedToday1 = today.minusDays(1).format(formatter)
+            val formattedToday2 = today.minusDays(2).format(formatter)
+            val formattedToday3 = today.minusDays(3).format(formatter)
+            val formattedToday4 = today.minusDays(4).format(formatter)
+            val formattedToday5 = today.minusDays(5).format(formatter)
+            val formattedToday6 = today.minusDays(6).format(formatter)
+            val formattedToday7 = today.minusDays(7).format(formatter)
+            val formattedToday8 = today.minusDays(8).format(formatter)
+            val formattedToday9 = today.minusDays(9).format(formatter)
+            val formattedToday10 = today.minusDays(10).format(formatter)
 
             init {
-                val today = LocalDate.now()
-                
                 // 1. Finalized expense in default currency (USD)
                 expense(
                     workspace = workspace,
@@ -264,6 +384,26 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     incomeTaxableAmounts = amountsInDefaultCurrency(4000),
                     status = ExpenseStatus.FINALIZED,
                     percentOnBusiness = 70
+                )
+                
+                // 10. Multiple icons - expense with all attributes
+                expense(
+                    workspace = workspace,
+                    category = category,
+                    title = "Multiple Icons",
+                    datePaid = today.minusDays(10),
+                    currency = "CHF",
+                    originalAmount = 15000,
+                    convertedAmounts = amountsInDefaultCurrency(16000),
+                    incomeTaxableAmounts = amountsInDefaultCurrency(16000),
+                    status = ExpenseStatus.FINALIZED,
+                    generalTax = generalTax,
+                    generalTaxRateInBps = 2000,
+                    generalTaxAmount = 3200,
+                    attachments = setOf(document1),
+                    percentOnBusiness = 60,
+                    notes = "Complex expense with all attributes",
+                    useDifferentExchangeRateForIncomeTaxPurposes = false
                 )
             }
         }
