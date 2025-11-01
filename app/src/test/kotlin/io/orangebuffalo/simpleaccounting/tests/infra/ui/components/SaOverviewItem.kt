@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
@@ -41,6 +42,16 @@ class SaOverviewItem private constructor(
     fun shouldHaveDetails(vararg sections: DetailsSectionSpec) {
         expandDetails()
         val detailsContainer = panel.locator(".overview-item__details")
+        
+        // First verify actions if any section has them
+        val allActions = sections.flatMap { it.actions }
+        if (allActions.isNotEmpty()) {
+            val actionsLocator = detailsContainer.locator(".sa-action-link")
+            actionsLocator.shouldHaveCount(allActions.size)
+            val actualActions = actionsLocator.all().map { it.innerTextTrimmed() }
+            actualActions.shouldContainExactly(allActions)
+        }
+        
         val sectionsLocator = detailsContainer.locator(".sa-overview-item-details-section")
         
         // Use Playwright assertion to wait for the correct number of sections
@@ -99,8 +110,7 @@ class SaOverviewItem private constructor(
 
 data class DetailsSectionSpec(
     val title: String,
-    val attributes: List<Pair<String, String>>
-) {
-    constructor(title: String, vararg attributes: Pair<String, String>) : this(title, attributes.toList())
-}
+    val attributes: List<Pair<String, String>> = emptyList(),
+    val actions: List<String> = emptyList()
+)
 
