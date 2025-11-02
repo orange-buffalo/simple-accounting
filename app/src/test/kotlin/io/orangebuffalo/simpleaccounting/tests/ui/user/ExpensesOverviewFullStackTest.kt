@@ -25,7 +25,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.withBlockedApiResponse(
             "workspaces/${preconditionsAllStates.workspace.id!!}/expenses*",
             initiator = {
-                page.navigate("/expenses")
+                page.openExpensesOverviewPage()
             },
             blockedRequestSpec = {
                 page.shouldBeExpensesOverviewPage {
