@@ -17,6 +17,7 @@ type MockedRequestAssertions = (options: RequestInit) => void;
 type MockedRequest = {
   requestAssertions: MockedRequestAssertions;
   responseBody: any;
+  responseStatus?: number;
 }
 
 fetchMock.mockGlobal();
@@ -111,6 +112,18 @@ describe('GraphQL API Client', () => {
     }, 'ApiAuthError');
   });
 
+  test('throws ApiAuthError on 401 responses', async () => {
+      await setApiToken(null);
+
+      mockRequest(refreshTokenAssertions(), refreshTokenResponse(null));
+      mockRequest(apiQueryAssertions(null), {}, 401);
+
+      await expectToFailWith<ApiAuthError>(async () => {
+        await executeApiCall();
+      }, 'ApiAuthError');
+    },
+  );
+
   // TODO enable test when https://github.com/urql-graphql/urql/issues/3801 is fixed
   // test('throws ApiTimeoutError on timeout', async () => {
   //   vi.useRealTimers();
@@ -190,7 +203,7 @@ describe('GraphQL API Client', () => {
         throw e;
       }
       return {
-        status: 200,
+        status: mockedRequest.responseStatus ?? 200,
         body: mockedRequest.responseBody,
       };
     });
@@ -232,10 +245,11 @@ describe('GraphQL API Client', () => {
     `, {});
   }
 
-  function mockRequest(requestAssertions: MockedRequestAssertions, responseBody: any) {
+  function mockRequest(requestAssertions: MockedRequestAssertions, responseBody: any, responseStatus?: number) {
     mockedRequests.push({
       requestAssertions,
       responseBody,
+      responseStatus,
     });
   }
 
