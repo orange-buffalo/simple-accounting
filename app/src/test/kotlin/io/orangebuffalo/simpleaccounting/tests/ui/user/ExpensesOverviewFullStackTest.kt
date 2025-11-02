@@ -301,9 +301,17 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should support pagination`(page: Page) {
         page.authenticateViaCookie(preconditionsPagination.fry)
+        // Expenses are sorted by datePaid descending (newest first)
+        // Expense 1 has date Jan 1 - 1 = Dec 31 (newest)
+        // Expense 2 has date Jan 1 - 2 = Dec 30
+        // ...
+        // Expense 15 has date Jan 1 - 15 = Dec 17 (oldest)
         val firstPageExpenses = arrayOf(
-            "Expense 1", "Expense 10", "Expense 11", "Expense 12", "Expense 13",
-            "Expense 14", "Expense 15", "Expense 2", "Expense 3", "Expense 4"
+            "Expense 1", "Expense 2", "Expense 3", "Expense 4", "Expense 5",
+            "Expense 6", "Expense 7", "Expense 8", "Expense 9", "Expense 10"
+        )
+        val secondPageExpenses = arrayOf(
+            "Expense 11", "Expense 12", "Expense 13", "Expense 14", "Expense 15"
         )
         page.openExpensesOverviewPage {
             pageItems {
@@ -315,9 +323,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(2)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveExactItems(
-                    "Expense 5", "Expense 6", "Expense 7", "Expense 8", "Expense 9"
-                ) { it.title!! }
+                shouldHaveExactItems(*secondPageExpenses) { it.title!! }
                 paginator {
                     previous()
                     shouldHaveActivePage(1)
@@ -341,7 +347,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
             
             // Filter by title
-            filterInput { fill("office") }
+            filterInput { 
+                fill("office")
+                press("Enter")
+            }
             pageItems {
                 shouldHaveExactItems("Office") { it.title!! }
                 paginator {
@@ -351,15 +360,27 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
             
             // Filter by category name
-            filterInput { fill("") }
-            filterInput { fill("travel") }
+            filterInput { 
+                fill("")
+                press("Enter")
+            }
+            filterInput { 
+                fill("travel")
+                press("Enter")
+            }
             pageItems {
                 shouldHaveExactItems("Travel") { it.title!! }
             }
             
             // Filter by notes
-            filterInput { fill("") }
-            filterInput { fill("urgent") }
+            filterInput { 
+                fill("")
+                press("Enter")
+            }
+            filterInput { 
+                fill("urgent")
+                press("Enter")
+            }
             pageItems {
                 shouldHaveExactItems("Meals") { it.title!! }
             }
