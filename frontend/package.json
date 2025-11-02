@@ -5,10 +5,10 @@
   "scripts": {
     "postinstall": "bun build-config/post-install/post-install.js && bun graphql-codegen",
     "dev": "bun run --bun vite",
-    "build": "bun run --bun typecheck && bun run --bun vite build",
+    "build": "bun run typecheck && bun run --bun vite build",
     "test:unit": "vitest --run",
     "test:unit:watch": "vitest",
-    "typecheck": "bun run --bun vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
+    "typecheck": "bun run vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "typecheck-storybook": "bun run --bun vue-tsc --noEmit -p tsconfig.storybook-config.json --composite false",
     "lint": "bun run --bun eslint . --fix",
     "storybook": "storybook dev -p 6006 -c build-config/storybook",

@@ -2,7 +2,6 @@
   <div class="sa-form">
     <ElForm
       ref="elForm"
-      v-loading="loading"
       label-position="top"
       :model="formValues"
     >
@@ -14,12 +13,12 @@
         <ElButton
           type="primary"
           @click="submitForm"
-          :disabled="props.submitButtonDisabled"
+          :disabled="props.submitButtonDisabled || loading"
         >
           {{ props.submitButtonLabel || $t.common.save() }}
         </ElButton>
 
-        <ElButton @click="onCancel" v-if="onCancel" link>
+        <ElButton @click="onCancel" v-if="onCancel" link :disabled="loading">
           {{ props.cancelButtonLabel || $t.common.cancel() }}
         </ElButton>
       </div>
@@ -153,6 +152,7 @@
       await nextTick();
       await submitForm();
     },
+    loading,
   });
 
   onMounted(async () => {
