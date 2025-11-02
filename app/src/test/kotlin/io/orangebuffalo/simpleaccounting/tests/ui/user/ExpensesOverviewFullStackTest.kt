@@ -347,10 +347,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
             
             // Filter by title
-            filterInput { 
-                fill("office")
-                press("Enter")
-            }
+            filterInput { fill("office") }
+            page.keyboard().press("Enter")
             pageItems {
                 shouldHaveExactItems("Office") { it.title!! }
                 paginator {
@@ -360,27 +358,19 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
             
             // Filter by category name
-            filterInput { 
-                fill("")
-                press("Enter")
-            }
-            filterInput { 
-                fill("travel")
-                press("Enter")
-            }
+            filterInput { fill("") }
+            page.keyboard().press("Enter")
+            filterInput { fill("travel") }
+            page.keyboard().press("Enter")
             pageItems {
                 shouldHaveExactItems("Travel") { it.title!! }
             }
             
             // Filter by notes
-            filterInput { 
-                fill("")
-                press("Enter")
-            }
-            filterInput { 
-                fill("urgent")
-                press("Enter")
-            }
+            filterInput { fill("") }
+            page.keyboard().press("Enter")
+            filterInput { fill("urgent") }
+            page.keyboard().press("Enter")
             pageItems {
                 shouldHaveExactItems("Meals") { it.title!! }
             }
