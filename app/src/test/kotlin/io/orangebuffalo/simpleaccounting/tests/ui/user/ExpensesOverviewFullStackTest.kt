@@ -25,7 +25,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.withBlockedApiResponse(
             "workspaces/${preconditionsAllStates.workspace.id!!}/expenses*",
             initiator = {
-                page.openExpensesOverviewPage()
+                page.shouldHaveSideMenu().clickExpenses()
             },
             blockedRequestSpec = {
                 page.shouldBeExpensesOverviewPage {
@@ -348,7 +348,6 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             
             // Filter by title
             filterInput { fill("office") }
-            page.keyboard().press("Enter")
             pageItems {
                 shouldHaveExactItems("Office") { it.title!! }
                 paginator {
@@ -359,18 +358,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             
             // Filter by category name
             filterInput { fill("") }
-            page.keyboard().press("Enter")
             filterInput { fill("travel") }
-            page.keyboard().press("Enter")
             pageItems {
                 shouldHaveExactItems("Travel") { it.title!! }
             }
             
             // Filter by notes
             filterInput { fill("") }
-            page.keyboard().press("Enter")
             filterInput { fill("urgent") }
-            page.keyboard().press("Enter")
             pageItems {
                 shouldHaveExactItems("Meals") { it.title!! }
             }
