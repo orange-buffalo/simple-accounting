@@ -25,13 +25,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             "/api/v1/expenses*",
             initiator = { page.navigate("/expenses") },
             blockedRequestSpec = {
-                page.locator(".sa-page-content").reportRendering("expenses-overview.loading")
+                page.openExpensesOverviewPage {
+                    pageItems.shouldHaveLoadingIndicatorVisible()
+                    pageItems.reportRendering("expenses-overview.loading")
+                }
             }
         )
         
         page.openExpensesOverviewPage {
-            // Report rendering with all panels collapsed
-            reportRendering("expenses-overview.loaded-collapsed")
             
             pageItems {
                 // Verify all expenses with their complete data
@@ -118,70 +119,59 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     )
                 ) { it.toExpenseOverviewItem() }
                 
+                // Report rendering with all panels collapsed
+                reportRendering("expenses-overview.loaded-collapsed")
+                
                 // Expand and verify details for each expense
                 staticItems[0].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        attributes = listOf(
-                            "Status" to "Finalized",
-                            "Category" to "Delivery",
-                            "Date Paid" to "Jan 15, 2025",
-                            "Adjusted Amount for Tax Purposes" to "USD 100.00"
-                        ),
-                        actions = listOf("Copy", "Edit")
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 15, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 100.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        attributes = listOf(
-                            "Original Amount" to "USD 100.00"
-                        )
+                        "Original Amount" to "USD 100.00"
                     )
                 )
                 
                 staticItems[1].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        attributes = listOf(
-                            "Status" to "Pending conversion to USD",
-                            "Category" to "Delivery",
-                            "Date Paid" to "Jan 14, 2025",
-                            "Adjusted Amount for Tax Purposes" to "not provided yet"
-                        ),
-                        actions = listOf("Copy", "Edit")
+                        "Status" to "Pending conversion to USD",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 14, 2025",
+                        "Adjusted Amount for Tax Purposes" to "not provided yet"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        attributes = listOf(
-                            "Original Currency" to "EUR",
-                            "Original Amount" to "EUR 50.00"
-                        )
+                        "Original Currency" to "EUR",
+                        "Original Amount" to "EUR 50.00"
                     ),
                     DetailsSectionSpec(
                         title = "Foreign Currency Conversion",
-                        attributes = listOf(
-                            "Converted Amount (USD)" to "not provided yet",
-                            "Different Exchange Rate" to "No",
-                            "Income Tax Amount (USD)" to "not provided yet"
-                        )
+                        "Converted Amount (USD)" to "not provided yet",
+                        "Different Exchange Rate" to "No",
+                        "Income Tax Amount (USD)" to "not provided yet"
                     )
                 )
                 
                 staticItems[3].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        attributes = listOf(
-                            "Status" to "Finalized",
-                            "Category" to "Delivery",
-                            "Date Paid" to "Jan 12, 2025",
-                            "Adjusted Amount for Tax Purposes" to "USD 20.00"
-                        ),
-                        actions = listOf("Copy", "Edit")
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 12, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        attributes = listOf(
-                            "Original Amount" to "USD 20.00"
-                        )
+                        "Original Amount" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
                         title = "Notes"
@@ -189,43 +179,35 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
                 
                 staticItems[4].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        attributes = listOf(
-                            "Status" to "Finalized",
-                            "Category" to "Delivery",
-                            "Date Paid" to "Jan 11, 2025",
-                            "Adjusted Amount for Tax Purposes" to "USD 100.00",
-                            "General Tax" to "VAT",
-                            "General Tax Rate" to "20.00%",
-                            "General Tax Amount" to "USD 20.00"
-                        ),
-                        actions = listOf("Copy", "Edit")
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 11, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 100.00",
+                        "General Tax" to "VAT",
+                        "General Tax Rate" to "20.00%",
+                        "General Tax Amount" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        attributes = listOf(
-                            "Original Amount" to "USD 100.00"
-                        )
+                        "Original Amount" to "USD 100.00"
                     )
                 )
                 
                 staticItems[5].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        attributes = listOf(
-                            "Status" to "Finalized",
-                            "Category" to "Delivery",
-                            "Date Paid" to "Jan 10, 2025",
-                            "Adjusted Amount for Tax Purposes" to "USD 50.00"
-                        ),
-                        actions = listOf("Copy", "Edit")
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 10, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 50.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        attributes = listOf(
-                            "Original Amount" to "USD 50.00"
-                        )
+                        "Original Amount" to "USD 50.00"
                     ),
                     DetailsSectionSpec(
                         title = "Attachments"
@@ -233,82 +215,66 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
                 
                 staticItems[7].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        attributes = listOf(
-                            "Status" to "Finalized",
-                            "Category" to "Delivery",
-                            "Date Paid" to "Jan 8, 2025",
-                            "Adjusted Amount for Tax Purposes" to "USD 8.50"
-                        ),
-                        actions = listOf("Copy", "Edit")
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 8, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 8.50"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        attributes = listOf(
-                            "Original Currency" to "JPY",
-                            "Original Amount" to "JPY 1,000.00"
-                        )
+                        "Original Currency" to "JPY",
+                        "Original Amount" to "JPY 1,000.00"
                     ),
                     DetailsSectionSpec(
                         title = "Foreign Currency Conversion",
-                        attributes = listOf(
-                            "Converted Amount (USD)" to "USD 9.00",
-                            "Different Exchange Rate" to "Yes",
-                            "Income Tax Amount (USD)" to "USD 8.50"
-                        )
+                        "Converted Amount (USD)" to "USD 9.00",
+                        "Different Exchange Rate" to "Yes",
+                        "Income Tax Amount (USD)" to "USD 8.50"
                     )
                 )
                 
                 staticItems[8].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        attributes = listOf(
-                            "Status" to "Finalized",
-                            "Category" to "Delivery",
-                            "Date Paid" to "Jan 7, 2025",
-                            "Adjusted Amount for Tax Purposes" to "USD 40.00"
-                        ),
-                        actions = listOf("Copy", "Edit")
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 7, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 40.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        attributes = listOf(
-                            "Original Amount" to "USD 40.00",
-                            "Business Use" to "70%"
-                        )
+                        "Original Amount" to "USD 40.00",
+                        "Business Use" to "70%"
                     )
                 )
                 
                 staticItems[9].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        attributes = listOf(
-                            "Status" to "Finalized",
-                            "Category" to "Delivery",
-                            "Date Paid" to "Jan 6, 2025",
-                            "Adjusted Amount for Tax Purposes" to "USD 160.00",
-                            "General Tax" to "VAT",
-                            "General Tax Rate" to "20.00%",
-                            "General Tax Amount" to "USD 32.00"
-                        ),
-                        actions = listOf("Copy", "Edit")
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "Jan 6, 2025",
+                        "Adjusted Amount for Tax Purposes" to "USD 160.00",
+                        "General Tax" to "VAT",
+                        "General Tax Rate" to "20.00%",
+                        "General Tax Amount" to "USD 32.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        attributes = listOf(
-                            "Original Currency" to "CHF",
-                            "Original Amount" to "CHF 150.00",
-                            "Business Use" to "60%"
-                        )
+                        "Original Currency" to "CHF",
+                        "Original Amount" to "CHF 150.00",
+                        "Business Use" to "60%"
                     ),
                     DetailsSectionSpec(
                         title = "Foreign Currency Conversion",
-                        attributes = listOf(
-                            "Converted Amount (USD)" to "USD 160.00",
-                            "Different Exchange Rate" to "No",
-                            "Income Tax Amount (USD)" to "USD 160.00"
-                        )
+                        "Converted Amount (USD)" to "USD 160.00",
+                        "Different Exchange Rate" to "No",
+                        "Income Tax Amount (USD)" to "USD 160.00"
                     ),
                     DetailsSectionSpec(
                         title = "Attachments"

@@ -39,17 +39,16 @@ class SaOverviewItem private constructor(
         detailsTrigger.shouldBeHidden()
     }
 
-    fun shouldHaveDetails(vararg sections: DetailsSectionSpec) {
+    fun shouldHaveDetails(actions: List<String> = emptyList(), vararg sections: DetailsSectionSpec) {
         expandDetails()
         val detailsContainer = panel.locator(".overview-item__details")
         
-        // First verify actions if any section has them
-        val allActions = sections.flatMap { it.actions }
-        if (allActions.isNotEmpty()) {
+        // Verify actions at item level
+        if (actions.isNotEmpty()) {
             val actionsLocator = detailsContainer.locator(".sa-action-link")
-            actionsLocator.shouldHaveCount(allActions.size)
+            actionsLocator.shouldHaveCount(actions.size)
             val actualActions = actionsLocator.all().map { it.innerTextTrimmed() }
-            actualActions.shouldContainExactly(allActions)
+            actualActions.shouldContainExactly(actions)
         }
         
         val sectionsLocator = detailsContainer.locator(".sa-overview-item-details-section")
@@ -110,7 +109,8 @@ class SaOverviewItem private constructor(
 
 data class DetailsSectionSpec(
     val title: String,
-    val attributes: List<Pair<String, String>> = emptyList(),
-    val actions: List<String> = emptyList()
-)
+    val attributes: List<Pair<String, String>> = emptyList()
+) {
+    constructor(title: String, vararg attributes: Pair<String, String>) : this(title, attributes.toList())
+}
 
