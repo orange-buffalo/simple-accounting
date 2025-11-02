@@ -3,10 +3,15 @@ import { h } from 'vue';
 import SaIcon from '@/components/SaIcon.vue';
 import '@/components/notifications/notifications.scss';
 
-interface NotificationType {
+export interface NotificationOptions {
+  duration: number,
+}
+
+export const NOTIFICATION_ALWAYS_VISIBLE_DURATION = 0;
+
+interface NotificationType extends NotificationOptions {
   icon: string,
   notificationClass: string,
-  duration: number,
   elPlusType: 'success' | 'warning' | 'info' | 'error',
 }
 
@@ -57,8 +62,11 @@ function showSuccessNotification(message: string) {
   showNotification(message, SUCCESS_NOTIFICATION);
 }
 
-function showWarningNotification(message: string) {
-  showNotification(message, WARNING_NOTIFICATION);
+function showWarningNotification(message: string, options?: NotificationOptions) {
+  showNotification(message, {
+    ...WARNING_NOTIFICATION,
+    ...options,
+  });
 }
 
 export default function useNotifications() {

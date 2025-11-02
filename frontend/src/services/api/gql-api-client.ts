@@ -92,6 +92,9 @@ async function executeGqlRequestAndHandleErrors<Data>(
   const result = await operation();
   if (result.error) {
     if (result.error.networkError) {
+      if (result.error.response.status === 401) {
+        throw new ApiAuthError();
+      }
       throw new ClientApiError(`Network error`, result.error.networkError);
     }
     if (result.error.graphQLErrors.length > 1) {

@@ -11,6 +11,7 @@ import io.orangebuffalo.simpleaccounting.business.security.createTransientUserPr
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
+import java.security.KeyPair
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -20,7 +21,11 @@ class JwtService(
     private val timeService: TimeService
 ) {
 
-    private val keyPair = Jwts.SIG.RS256.keyPair().build()
+    private lateinit var keyPair: KeyPair
+
+    init {
+        rotateKeys()
+    }
 
     fun buildJwtToken(principal: SecurityPrincipal, validTill: Instant? = null): String = Jwts.builder()
         .subject(principal.userName)
@@ -55,10 +60,14 @@ class JwtService(
         } else {
             @Suppress("UNCHECKED_CAST")
             (createRegularUserPrincipal(
-        jws.payload.subject,
-        token,
-        jws.payload["roles"] as List<String>
-    ))
+                jws.payload.subject,
+                token,
+                jws.payload["roles"] as List<String>
+            ))
         }
+    }
+
+    fun rotateKeys() {
+        keyPair = Jwts.SIG.RS256.keyPair().build()
     }
 }

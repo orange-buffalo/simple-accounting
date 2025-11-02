@@ -1048,4 +1048,8 @@ export default {
       taxAmount: () => 'Tax Amount',
     },
   },
+
+  infra: {
+    sessionExpired: () => 'Your session has expired. Please login again.',
+  },
 };
