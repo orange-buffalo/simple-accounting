@@ -20,10 +20,10 @@
 
 <script lang="ts" setup>
   import {
-    ElForm, FormInstance, FormItemContext, FormRules,
+    ElForm, FormInstance, FormRules,
   } from 'element-plus';
   import { ref } from 'vue';
-  import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
+  import { FormValues } from '@/components/form/sa-form-components-api.ts';
 
   type SaLegacyFormProps = {
     model: FormValues,
@@ -37,18 +37,6 @@
 
   const elForm = ref<FormInstance | undefined>(undefined);
   const loading = ref(props.initiallyLoading);
-
-  const formItems = new Map<string, FormItemContext>();
-  const formValues = ref(props.model);
-  provideSaFormComponentsApi({
-    registerFormItem: (prop: string, formItem: FormItemContext) => {
-      formItems.set(prop, formItem);
-    },
-    unregisterFormItem: (prop: string) => {
-      formItems.delete(prop);
-    },
-    formValues,
-  });
 
   const validate = async (): Promise<boolean> => {
     if (elForm.value) {

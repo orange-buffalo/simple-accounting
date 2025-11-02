@@ -4,7 +4,9 @@
     :label="props.label"
     ref="formItemContext"
   >
-    <slot />
+    <SaInputLoader :loading="saFormApi.loading.value">
+      <slot />
+    </SaInputLoader>
   </ElFormItem>
 </template>
 
@@ -20,6 +22,7 @@
   import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ensureDefined } from '@/services/utils.ts';
   import { SaFormComponentProps } from '@/components/form/sa-form-api.ts';
+  import SaInputLoader from '@/components/SaInputLoader.vue';
 
   const props = defineProps<SaFormComponentProps>();
 

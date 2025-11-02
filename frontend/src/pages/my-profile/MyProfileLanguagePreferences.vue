@@ -55,9 +55,10 @@
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormSelect from '@/components/form/SaFormSelect.vue';
   import useNotifications from '@/components/notifications/use-notifications';
+  import { UserProfileQuery } from '@/services/api/gql/graphql.ts';
 
   const props = defineProps<{
-    profile: ProfileDto,
+    profile?: UserProfileQuery["userProfile"],
     loading: boolean,
   }>();
 
@@ -81,8 +82,8 @@
   });
 
   watch(() => props.profile, () => {
-    formValues.value.language = localeIdToLanguageTag(props.profile.i18n.language);
-    formValues.value.locale = localeIdToLanguageTag(props.profile.i18n.locale);
+    formValues.value.language = localeIdToLanguageTag(props.profile?.i18n?.language || '');
+    formValues.value.locale = localeIdToLanguageTag(props.profile?.i18n?.locale || '');
   }, {
     deep: true,
     immediate: true,
@@ -90,7 +91,8 @@
 
   const submitLanguagePreferences = async () => {
     const updatedProfile: ProfileDto = {
-      ...props.profile,
+      documentsStorage: props.profile.documentsStorage,
+      userName: props.profile.userName,
       i18n: {
         language: languageTagToLocaleId(formValues.value.language),
         locale: languageTagToLocaleId(formValues.value.locale),

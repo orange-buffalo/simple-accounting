@@ -35,6 +35,8 @@
   const digitsMultiplier = 10 ** currencyInfo.digits;
 
   const inputEl = ref<HTMLElement | undefined>(undefined);
+  // The library is not TS-friendly at all, we need to get rid of it
+  // @ts-ignore
   let mask: IMask.InputMask<IMask.AnyMaskedOptions> | undefined;
 
   const setMaskValue = () => {

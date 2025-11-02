@@ -23,11 +23,12 @@
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormSwitchSection from '@/components/form/SaFormSwitchSection.vue';
   import { $t } from '@/services/i18n';
+  import { UserProfileQuery } from '@/services/api/gql/graphql.ts';
 
   const props = defineProps<{
     storageName: string,
     storageId: string,
-    profile: ProfileDto,
+    profile?: UserProfileQuery['userProfile'],
     loading: boolean,
   }>();
 
@@ -45,7 +46,7 @@
 
   watch(() => props.profile, () => {
     formValues.value = {
-      enabled: props.storageId === props.profile.documentsStorage,
+      enabled: props.storageId === props.profile?.documentsStorage,
     };
   }, {
     deep: true,
@@ -54,8 +55,9 @@
 
   const submitStorageConfig = async () => {
     const updatedProfile: ProfileDto = {
-      ...props.profile,
       documentsStorage: formValues.value.enabled ? props.storageId : undefined,
+      userName: props.profile.userName,
+      i18n: props.profile.i18n,
     };
     await profileApi.updateProfile({
       updateProfileRequestDto: updatedProfile,
