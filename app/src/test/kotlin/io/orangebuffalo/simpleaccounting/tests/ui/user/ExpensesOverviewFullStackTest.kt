@@ -10,6 +10,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpenseOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.toExpenseOverviewItem
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -20,12 +21,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
     fun `should display expenses with all possible states and attributes`(page: Page) {
         page.authenticateViaCookie(preconditionsAllStates.fry)
         
-        // Navigate and block API response to capture loading state
+        // Capture loading state by blocking API response
         page.withBlockedApiResponse(
-            "/api/v1/expenses*",
-            initiator = { page.navigate("/expenses") },
+            "workspaces/${preconditionsAllStates.workspace.id!!}/expenses*",
+            initiator = {
+                page.navigate("/expenses")
+            },
             blockedRequestSpec = {
-                page.openExpensesOverviewPage {
+                page.shouldBeExpensesOverviewPage {
                     pageItems.shouldHaveLoadingIndicatorVisible()
                     pageItems.reportRendering("expenses-overview.loading")
                 }
