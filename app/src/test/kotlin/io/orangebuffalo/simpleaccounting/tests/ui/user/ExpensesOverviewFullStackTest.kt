@@ -2,23 +2,26 @@ package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Icons
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpenseOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.toExpenseOverviewItem
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
-//    @RepeatedTest(100)
+    @RepeatedTest(100)
     fun `should display expenses with all possible states and attributes`(page: Page) {
         page.authenticateViaCookie(preconditionsAllStates.fry)
 
@@ -39,94 +42,86 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage {
             pageItems {
                 // Verify all expenses with their complete data
-                shouldHaveExactItems(
-                    ExpenseOverviewItem(
-                        title = "Finalized USD",
-                        status = "success",
-                        statusText = "Finalized",
-                        datePaid = "15 Jan 2025",
-                        amount = "USD 100.00",
-                        attributePreviewIcons = emptyList()
-                    ),
-                    ExpenseOverviewItem(
-                        title = "Pending Conversion EUR",
-                        status = "pending",
-                        statusText = "Pending",
-                        datePaid = "14 Jan 2025",
-                        amount = "EUR 50.00",
-                        attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
-                    ),
-                    ExpenseOverviewItem(
-                        title = "Pending Tax Conversion",
-                        status = "pending",
-                        statusText = "Pending",
-                        datePaid = "13 Jan 2025",
-                        amount = "USD 40.00",
-                        attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
-                    ),
-                    ExpenseOverviewItem(
-                        title = "With Notes",
-                        status = "success",
-                        statusText = "Finalized",
-                        datePaid = "12 Jan 2025",
-                        amount = "USD 20.00",
-                        attributePreviewIcons = listOf(Icons.NOTES)
-                    ),
-                    ExpenseOverviewItem(
-                        title = "With Tax",
-                        status = "success",
-                        statusText = "Finalized",
-                        datePaid = "11 Jan 2025",
-                        amount = "USD 100.00",
-                        attributePreviewIcons = listOf(Icons.TAX)
-                    ),
-                    ExpenseOverviewItem(
-                        title = "With Attachments",
-                        status = "success",
-                        statusText = "Finalized",
-                        datePaid = "10 Jan 2025",
-                        amount = "USD 50.00",
-                        attributePreviewIcons = listOf(Icons.ATTACHMENT)
-                    ),
-                    ExpenseOverviewItem(
-                        title = "Foreign Currency Same Amounts",
-                        status = "success",
-                        statusText = "Finalized",
-                        datePaid = "9 Jan 2025",
-                        amount = "USD 60.00",
-                        attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
-                    ),
-                    ExpenseOverviewItem(
-                        title = "Foreign Currency Different Amounts",
-                        status = "success",
-                        statusText = "Finalized",
-                        datePaid = "8 Jan 2025",
-                        amount = "USD 8.50",
-                        attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
-                    ),
-                    ExpenseOverviewItem(
-                        title = "Partial Business",
-                        status = "success",
-                        statusText = "Finalized",
-                        datePaid = "7 Jan 2025",
-                        amount = "USD 40.00",
-                        attributePreviewIcons = listOf(Icons.PERCENT)
-                    ),
-                    ExpenseOverviewItem(
-                        title = "Multiple Icons",
-                        status = "success",
-                        statusText = "Finalized",
-                        datePaid = "6 Jan 2025",
-                        amount = "USD 160.00",
-                        attributePreviewIcons = listOf(
-                            Icons.NOTES,
-                            Icons.TAX,
-                            Icons.ATTACHMENT,
-                            Icons.MULTI_CURRENCY,
-                            Icons.PERCENT,
+                shouldHaveDataSatisfying { data ->
+                    data.shouldContainExactly(
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "Finalized USD",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "15 Jan 2025")),
+                            middleColumnContent = "Finalized",
+                            lastColumnContent = "USD 100.00",
+                            attributePreviewIcons = emptyList(),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "Pending Conversion EUR",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "14 Jan 2025")),
+                            middleColumnContent = "Pending",
+                            lastColumnContent = "EUR 50.00",
+                            attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "Pending Tax Conversion",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "13 Jan 2025")),
+                            middleColumnContent = "Pending",
+                            lastColumnContent = "USD 40.00",
+                            attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "With Notes",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "12 Jan 2025")),
+                            middleColumnContent = "Finalized",
+                            lastColumnContent = "USD 20.00",
+                            attributePreviewIcons = listOf(Icons.NOTES),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "With Tax",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "11 Jan 2025")),
+                            middleColumnContent = "Finalized",
+                            lastColumnContent = "USD 100.00",
+                            attributePreviewIcons = listOf(Icons.TAX),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "With Attachments",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "10 Jan 2025")),
+                            middleColumnContent = "Finalized",
+                            lastColumnContent = "USD 50.00",
+                            attributePreviewIcons = listOf(Icons.ATTACHMENT),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "Foreign Currency Same Amounts",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "9 Jan 2025")),
+                            middleColumnContent = "Finalized",
+                            lastColumnContent = "USD 60.00",
+                            attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "Foreign Currency Different Amounts",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "8 Jan 2025")),
+                            middleColumnContent = "Finalized",
+                            lastColumnContent = "USD 8.50",
+                            attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "Partial Business",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "7 Jan 2025")),
+                            middleColumnContent = "Finalized",
+                            lastColumnContent = "USD 40.00",
+                            attributePreviewIcons = listOf(Icons.PERCENT),
+                        ),
+                        SaOverviewItem.SaOverviewItemData(
+                            title = "Multiple Icons",
+                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "6 Jan 2025")),
+                            middleColumnContent = "Finalized",
+                            lastColumnContent = "USD 160.00",
+                            attributePreviewIcons = listOf(
+                                Icons.NOTES,
+                                Icons.TAX,
+                                Icons.ATTACHMENT,
+                                Icons.MULTI_CURRENCY,
+                                Icons.PERCENT,
+                            ),
                         )
                     )
-                ) { it.toExpenseOverviewItem() }
+                }
 
                 // Report rendering with all panels collapsed
                 this@shouldBeExpensesOverviewPage.reportRendering("expenses-overview.loaded-collapsed")

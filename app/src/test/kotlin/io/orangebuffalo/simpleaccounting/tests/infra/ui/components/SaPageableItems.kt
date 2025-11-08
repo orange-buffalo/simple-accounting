@@ -81,7 +81,7 @@ class SaPageableItems<I, D : Any> private constructor(
      * Verifies that the loading indicator is visible.
      */
     fun shouldHaveLoadingIndicatorVisible() {
-        container.locator(".sa-pageable-items__loader-item").shouldBeVisible()
+        container.locator(".sa-pageable-items__loader-item").first().shouldBeVisible()
     }
 
     fun shouldHaveDataSatisfying(dataSpec: (data: List<D>) -> Unit) {

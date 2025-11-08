@@ -22,7 +22,7 @@ private const val DATA_JS = """
         const primaryAttributes = Array.from(panel.querySelectorAll('.overview-item-primary-attribute')).map(attr => {
             const iconElement = attr.querySelector('.overview-item-primary-attribute__icon');
             const icon = iconElement ? iconElement.getAttribute('data-icon') : null;
-            const text = utils.getDynamicContent(attr.textContent);
+            const text = utils.getDynamicContent(attr);
             return { icon, text };
         });
         
