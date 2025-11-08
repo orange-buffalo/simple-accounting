@@ -23,7 +23,6 @@ class SaHotReloadPlugin : Plugin<Project> {
                     // logging is tricky in Gradle as most of the output is hidden by default,
                     // thus using stdout directly to let user know about the changes
                     println("SaHotReloadPlugin: Be ware! As hot reload is enabled in configs, using JBR")
-                    @Suppress("UnstableApiUsage")
                     vendor.set(JvmVendorSpec.JETBRAINS)
                 } else {
                     vendor.set(JvmVendorSpec.ADOPTIUM)

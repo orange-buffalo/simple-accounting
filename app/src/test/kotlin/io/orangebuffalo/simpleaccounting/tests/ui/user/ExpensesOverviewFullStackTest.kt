@@ -17,7 +17,7 @@ import java.time.LocalDate
 class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
-    @RepeatedTest(100)
+//    @RepeatedTest(100)
     fun `should display expenses with all possible states and attributes`(page: Page) {
         page.authenticateViaCookie(preconditionsAllStates.fry)
 
@@ -138,7 +138,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to "Finalized",
                         "Category" to "Delivery",
                         "Date Paid" to "15 Jan 2025",
-                        "Adjusted Amount for Tax Purposes" to "USD 100.00"
+                        "Amount for Taxation Purposes" to "USD 100.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
@@ -150,10 +150,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Pending conversion to USD",
+                        "Status" to "Conversion to USD pending",
                         "Category" to "Delivery",
                         "Date Paid" to "14 Jan 2025",
-                        "Adjusted Amount for Tax Purposes" to "not provided yet"
+                        "Amount for Taxation Purposes" to "Not yet provided"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
@@ -161,10 +161,32 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Original Amount" to "EUR 50.00"
                     ),
                     DetailsSectionSpec(
-                        title = "Foreign Currency Conversion",
-                        "Converted Amount (USD)" to "not provided yet",
-                        "Different Exchange Rate" to "No",
-                        "Income Tax Amount (USD)" to "not provided yet"
+                        title = "Currency Conversion",
+                        "Amount in USD" to "Not yet available",
+                        "Using different exchange rate for taxation purposes?" to "No",
+                        "Amount in USD for taxation purposes" to "Not yet available"
+                    )
+                )
+
+                staticItems[2].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
+                    DetailsSectionSpec(
+                        title = "Summary",
+                        "Status" to "Conversion to USD pending",
+                        "Category" to "Delivery",
+                        "Date Paid" to "14 Jan 2025",
+                        "Amount for Taxation Purposes" to "Not yet provided"
+                    ),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Original Currency" to "EUR",
+                        "Original Amount" to "EUR 50.00"
+                    ),
+                    DetailsSectionSpec(
+                        title = "Currency Conversion",
+                        "Amount in USD" to "Not yet available",
+                        "Using different exchange rate for taxation purposes?" to "No",
+                        "Amount in USD for taxation purposes" to "Not yet available"
                     )
                 )
 

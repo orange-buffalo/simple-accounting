@@ -2,12 +2,12 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
-import io.orangebuffalo.kotestplaywrightassertions.shouldHaveCount
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 class SaOverviewItem private constructor(
     private val panel: Locator,
@@ -40,43 +40,34 @@ class SaOverviewItem private constructor(
 
     fun shouldHaveDetails(actions: List<String> = emptyList(), vararg sections: DetailsSectionSpec) {
         expandDetails()
-        val detailsContainer = panel.locator(".overview-item__details")
+        shouldSatisfy("Overview item details should match the expected specification") {
+            val detailsContainer = panel.locator("..").locator(".overview-item__details")
 
-        // Verify actions at item level
-        if (actions.isNotEmpty()) {
-            val actionsLocator = detailsContainer.locator(".sa-action-link")
-            actionsLocator.shouldHaveCount(actions.size)
+            val actionsLocator = detailsContainer.locator(".overview-item-details-section-actions .sa-action-link")
             val actualActions = actionsLocator.all().map { it.innerTextOrNull() }
             actualActions.shouldContainExactly(actions)
-        }
 
-        val sectionsLocator = detailsContainer.locator(".sa-overview-item-details-section")
-
-        // Use Playwright assertion to wait for the correct number of sections
-        sectionsLocator.shouldHaveCount(sections.size)
-
-        val actualSections = sectionsLocator.all()
-
-        sections.forEachIndexed { index, expectedSection ->
-            val actualSection = actualSections[index]
-            val sectionTitle = actualSection.locator(".sa-overview-item-details-section__title").innerTextOrNull()
-            sectionTitle.shouldBe(expectedSection.title, "Section $index has wrong title")
-
-            val attributesLocator = actualSection.locator(".sa-overview-item-details-section-attribute")
-
-            // Use Playwright assertion to wait for the correct number of attributes
-            attributesLocator.shouldHaveCount(expectedSection.attributes.size)
-
-            val actualAttributes = attributesLocator.all()
-
-            expectedSection.attributes.forEachIndexed { attrIndex, (expectedLabel, expectedValue) ->
-                val actualAttribute = actualAttributes[attrIndex]
-                val actualLabel = actualAttribute.locator(".sa-overview-item-details-section-attribute__label").innerTextOrNull()
-                val actualValue = actualAttribute.locator(".sa-overview-item-details-section-attribute__value").innerTextOrNull()
-
-                actualLabel.shouldBe(expectedLabel, "Attribute $attrIndex in section '${expectedSection.title}' has wrong label")
-                actualValue.shouldBe(expectedValue, "Attribute '$expectedLabel' in section '${expectedSection.title}' has wrong value")
-            }
+            val actualSections = detailsContainer.locator(".overview-item-details-section")
+                .all().map { actualSection ->
+                    val sectionTitle = actualSection
+                        .locator(".overview-item-details-section__title")
+                        .innerTextOrNull()
+                    DetailsSectionSpec(
+                        title = sectionTitle ?: "<section title is missing>",
+                        attributes = actualSection.locator(".overview-item-details-section-attribute")
+                            .all().map { attributeEl ->
+                                val label = attributeEl
+                                    .locator(".overview-item-details-section-attribute__label")
+                                    .innerTextOrNull().shouldNotBeNull()
+                                val value = attributeEl
+                                    // next element sibling
+                                    .locator(".overview-item-details-section-attribute__label + div")
+                                    .innerTextOrNull()
+                                label to (value ?: "<attribute value is missing>")
+                            }
+                    )
+                }
+            actualSections.shouldContainExactly(sections.map { it.copy(title = it.title.uppercase()) })
         }
     }
 

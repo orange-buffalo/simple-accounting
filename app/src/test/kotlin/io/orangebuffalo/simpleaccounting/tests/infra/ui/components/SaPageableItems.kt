@@ -30,10 +30,11 @@ class SaPageableItems<I> private constructor(
      * Waits for the items to be the provided values, which are mapped from the items.
      */
     fun <T> shouldHaveExactItems(vararg items: T, mapper: (item: I) -> T) {
-        assertThat(itemsEls).hasCount(items.size)
-        staticItems
-            .map(mapper)
-            .shouldContainExactly(*items)
+        shouldSatisfy("Pageable items should match the expected items") {
+            staticItems
+                .map(mapper)
+                .shouldContainExactly(*items)
+        }
     }
 
     /**
@@ -41,7 +42,7 @@ class SaPageableItems<I> private constructor(
      */
     fun shouldHaveItemSatisfying(itemPredicate: (item: I) -> Boolean): I {
         var item: I? = null
-        container.shouldSatisfy {
+        shouldSatisfy("Pageable items should contain an item satisfying the predicate") {
             staticItems
                 .filter { itemPredicate(it) }
                 .shouldWithClue("Exactly one item expected to satisfy the predicate") {
@@ -70,14 +71,14 @@ class SaPageableItems<I> private constructor(
     fun finishLoadingWhenTimeMocked() {
         container.page().clock().runFor(1)
     }
-    
+
     /**
      * Verifies that the loading indicator is visible.
      */
     fun shouldHaveLoadingIndicatorVisible() {
         assertThat(container.locator(".sa-pageable-items__loader-item").first()).isVisible()
     }
-    
+
     /**
      * Reports rendering of the current state.
      */
