@@ -172,20 +172,20 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Conversion to USD pending",
+                        "Status" to "Waiting for exchange rate",
                         "Category" to "Delivery",
-                        "Date Paid" to "14 Jan 2025",
+                        "Date Paid" to "13 Jan 2025",
                         "Amount for Taxation Purposes" to "Not yet provided"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
-                        "Original Currency" to "EUR",
-                        "Original Amount" to "EUR 50.00"
+                        "Original Currency" to "GBP",
+                        "Original Amount" to "GBP 30.00"
                     ),
                     DetailsSectionSpec(
                         title = "Currency Conversion",
-                        "Amount in USD" to "Not yet available",
-                        "Using different exchange rate for taxation purposes?" to "No",
+                        "Amount in USD" to "USD 40.00",
+                        "Using different exchange rate for taxation purposes?" to "Yes",
                         "Amount in USD for taxation purposes" to "Not yet available"
                     )
                 )
@@ -197,14 +197,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to "Finalized",
                         "Category" to "Delivery",
                         "Date Paid" to "12 Jan 2025",
-                        "Adjusted Amount for Tax Purposes" to "USD 20.00"
+                        "Amount for Taxation Purposes" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
                         "Original Amount" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
-                        title = "Notes"
+                        title = "Additional Notes"
                     )
                 )
 
@@ -215,10 +215,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to "Finalized",
                         "Category" to "Delivery",
                         "Date Paid" to "11 Jan 2025",
-                        "Adjusted Amount for Tax Purposes" to "USD 100.00",
-                        "General Tax" to "VAT",
-                        "General Tax Rate" to "20.00%",
-                        "General Tax Amount" to "USD 20.00"
+                        "Amount for Taxation Purposes" to "USD 100.00",
+                        "Applicable General Tax" to "VAT",
+                        "Applicable General Tax Rate" to "20%",
+                        "Applicable General Tax Amount" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
@@ -233,7 +233,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to "Finalized",
                         "Category" to "Delivery",
                         "Date Paid" to "10 Jan 2025",
-                        "Adjusted Amount for Tax Purposes" to "USD 50.00"
+                        "Amount for Taxation Purposes" to "USD 50.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
@@ -244,6 +244,28 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     )
                 )
 
+                staticItems[6].shouldHaveDetails(
+                    actions = listOf("Copy", "Edit"),
+                    DetailsSectionSpec(
+                        title = "Summary",
+                        "Status" to "Finalized",
+                        "Category" to "Delivery",
+                        "Date Paid" to "9 Jan 2025",
+                        "Amount for Taxation Purposes" to "USD 60.00"
+                    ),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Original Currency" to "CAD",
+                        "Original Amount" to "CAD 80.00"
+                    ),
+                    DetailsSectionSpec(
+                        title = "Currency Conversion",
+                        "Amount in USD" to "USD 60.00",
+                        "Using different exchange rate for taxation purposes?" to "No",
+                        "Amount in USD for taxation purposes" to "USD 60.00"
+                    )
+                )
+
                 staticItems[7].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
@@ -251,18 +273,18 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to "Finalized",
                         "Category" to "Delivery",
                         "Date Paid" to "8 Jan 2025",
-                        "Adjusted Amount for Tax Purposes" to "USD 8.50"
+                        "Amount for Taxation Purposes" to "USD 8.50"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
                         "Original Currency" to "JPY",
-                        "Original Amount" to "JPY 1,000.00"
+                        "Original Amount" to "JPY 100,000"
                     ),
                     DetailsSectionSpec(
-                        title = "Foreign Currency Conversion",
-                        "Converted Amount (USD)" to "USD 9.00",
-                        "Different Exchange Rate" to "Yes",
-                        "Income Tax Amount (USD)" to "USD 8.50"
+                        title = "Currency Conversion",
+                        "Amount in USD" to "USD 9.00",
+                        "Using different exchange rate for taxation purposes?" to "Yes",
+                        "Amount in USD for taxation purposes" to "USD 8.50"
                     )
                 )
 
@@ -273,12 +295,12 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to "Finalized",
                         "Category" to "Delivery",
                         "Date Paid" to "7 Jan 2025",
-                        "Adjusted Amount for Tax Purposes" to "USD 40.00"
+                        "Amount for Taxation Purposes" to "USD 40.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
                         "Original Amount" to "USD 40.00",
-                        "Business Use" to "70%"
+                        "Partial Business Purpose" to "70% related to business activities"
                     )
                 )
 
@@ -289,28 +311,28 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to "Finalized",
                         "Category" to "Delivery",
                         "Date Paid" to "6 Jan 2025",
-                        "Adjusted Amount for Tax Purposes" to "USD 160.00",
-                        "General Tax" to "VAT",
-                        "General Tax Rate" to "20.00%",
-                        "General Tax Amount" to "USD 32.00"
+                        "Amount for Taxation Purposes" to "USD 160.00",
+                        "Applicable General Tax" to "VAT",
+                        "Applicable General Tax Rate" to "20%",
+                        "Applicable General Tax Amount" to "USD 32.00"
                     ),
                     DetailsSectionSpec(
                         title = "General Information",
                         "Original Currency" to "CHF",
                         "Original Amount" to "CHF 150.00",
-                        "Business Use" to "60%"
+                        "Partial Business Purpose" to "60% related to business activities"
                     ),
                     DetailsSectionSpec(
-                        title = "Foreign Currency Conversion",
-                        "Converted Amount (USD)" to "USD 160.00",
-                        "Different Exchange Rate" to "No",
-                        "Income Tax Amount (USD)" to "USD 160.00"
+                        title = "Currency Conversion",
+                        "Amount in USD" to "USD 160.00",
+                        "Using different exchange rate for taxation purposes?" to "No",
+                        "Amount in USD for taxation purposes" to "USD 160.00"
                     ),
                     DetailsSectionSpec(
                         title = "Attachments"
                     ),
                     DetailsSectionSpec(
-                        title = "Notes"
+                        title = "Additional Notes"
                     )
                 )
 
