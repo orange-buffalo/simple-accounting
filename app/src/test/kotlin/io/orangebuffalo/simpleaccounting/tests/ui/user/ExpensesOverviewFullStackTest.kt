@@ -606,6 +606,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val officeCategory = category(workspace = workspace, name = "Office")
             val travelCategory = category(workspace = workspace, name = "Travel")
             val mealsCategory = category(workspace = workspace, name = "Meals")
+            val otherCategory = category(workspace = workspace, name = "Other")
 
             init {
                 val baseDate = LocalDate.of(2025, 1, 1)
@@ -643,7 +644,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 (1..10).forEach { index ->
                     expense(
                         workspace = workspace,
-                        category = officeCategory,
+                        category = otherCategory,
                         title = "Other $index",
                         datePaid = baseDate.minusDays(10L + index),
                         originalAmount = 1000,
