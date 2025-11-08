@@ -1,31 +1,31 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Icons
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpenseOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.toExpenseOverviewItem
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
+    @RepeatedTest(100)
     fun `should display expenses with all possible states and attributes`(page: Page) {
         page.authenticateViaCookie(preconditionsAllStates.fry)
-        
+
         // Capture loading state by blocking API response
         page.withBlockedApiResponse(
-            "workspaces/${preconditionsAllStates.workspace.id!!}/expenses*",
+            "**/expenses*",
             initiator = {
-                page.shouldHaveSideMenu().clickExpenses()
+                page.openExpensesOverviewPage { }
             },
             blockedRequestSpec = {
                 page.shouldBeExpensesOverviewPage {
@@ -34,9 +34,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 }
             }
         )
-        
-        page.openExpensesOverviewPage {
-            
+
+        page.shouldBeExpensesOverviewPage {
             pageItems {
                 // Verify all expenses with their complete data
                 shouldHaveExactItems(
@@ -44,7 +43,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Finalized USD",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "Jan 15, 2025",
+                        datePaid = "15 Jan 2025",
                         amount = "USD 100.00",
                         attributePreviewIcons = emptyList()
                     ),
@@ -52,7 +51,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Pending Conversion EUR",
                         status = "pending",
                         statusText = "Pending",
-                        datePaid = "Jan 14, 2025",
+                        datePaid = "14 Jan 2025",
                         amount = "EUR 50.00",
                         attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
                     ),
@@ -60,7 +59,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Pending Tax Conversion",
                         status = "pending",
                         statusText = "Pending",
-                        datePaid = "Jan 13, 2025",
+                        datePaid = "13 Jan 2025",
                         amount = "USD 40.00",
                         attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
                     ),
@@ -68,7 +67,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "With Notes",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "Jan 12, 2025",
+                        datePaid = "13 Jan 2025",
                         amount = "USD 20.00",
                         attributePreviewIcons = listOf(Icons.NOTES)
                     ),
@@ -76,7 +75,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "With Tax",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "Jan 11, 2025",
+                        datePaid = "11 Jan 2025",
                         amount = "USD 100.00",
                         attributePreviewIcons = listOf(Icons.TAX)
                     ),
@@ -84,7 +83,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "With Attachments",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "Jan 10, 2025",
+                        datePaid = "10 Jan 2025",
                         amount = "USD 50.00",
                         attributePreviewIcons = listOf(Icons.ATTACHMENT)
                     ),
@@ -92,7 +91,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Foreign Currency Same Amounts",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "Jan 9, 2025",
+                        datePaid = "9 Jan 2025",
                         amount = "USD 60.00",
                         attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
                     ),
@@ -100,7 +99,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Foreign Currency Different Amounts",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "Jan 8, 2025",
+                        datePaid = "8 Jan 2025",
                         amount = "USD 8.50",
                         attributePreviewIcons = listOf(Icons.MULTI_CURRENCY)
                     ),
@@ -108,7 +107,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Partial Business",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "Jan 7, 2025",
+                        datePaid = "7 Jan 2025",
                         amount = "USD 40.00",
                         attributePreviewIcons = listOf(Icons.PERCENT)
                     ),
@@ -116,15 +115,21 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Multiple Icons",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "Jan 6, 2025",
+                        datePaid = "6 Jan 2025",
                         amount = "USD 160.00",
-                        attributePreviewIcons = listOf(Icons.ATTACHMENT, Icons.MULTI_CURRENCY, Icons.NOTES, Icons.PERCENT, Icons.TAX)
+                        attributePreviewIcons = listOf(
+                            Icons.ATTACHMENT,
+                            Icons.MULTI_CURRENCY,
+                            Icons.NOTES,
+                            Icons.PERCENT,
+                            Icons.TAX
+                        )
                     )
                 ) { it.toExpenseOverviewItem() }
-                
+
                 // Report rendering with all panels collapsed
                 reportRendering("expenses-overview.loaded-collapsed")
-                
+
                 // Expand and verify details for each expense
                 staticItems[0].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
@@ -132,7 +137,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to "Finalized",
                         "Category" to "Delivery",
-                        "Date Paid" to "Jan 15, 2025",
+                        "Date Paid" to "15 Jan 2025",
                         "Adjusted Amount for Tax Purposes" to "USD 100.00"
                     ),
                     DetailsSectionSpec(
@@ -140,14 +145,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Original Amount" to "USD 100.00"
                     )
                 )
-                
+
                 staticItems[1].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
                         "Status" to "Pending conversion to USD",
                         "Category" to "Delivery",
-                        "Date Paid" to "Jan 14, 2025",
+                        "Date Paid" to "14 Jan 2025",
                         "Adjusted Amount for Tax Purposes" to "not provided yet"
                     ),
                     DetailsSectionSpec(
@@ -162,14 +167,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Income Tax Amount (USD)" to "not provided yet"
                     )
                 )
-                
+
                 staticItems[3].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
                         "Status" to "Finalized",
                         "Category" to "Delivery",
-                        "Date Paid" to "Jan 12, 2025",
+                        "Date Paid" to "12 Jan 2025",
                         "Adjusted Amount for Tax Purposes" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
@@ -180,14 +185,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Notes"
                     )
                 )
-                
+
                 staticItems[4].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
                         "Status" to "Finalized",
                         "Category" to "Delivery",
-                        "Date Paid" to "Jan 11, 2025",
+                        "Date Paid" to "11 Jan 2025",
                         "Adjusted Amount for Tax Purposes" to "USD 100.00",
                         "General Tax" to "VAT",
                         "General Tax Rate" to "20.00%",
@@ -198,14 +203,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Original Amount" to "USD 100.00"
                     )
                 )
-                
+
                 staticItems[5].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
                         "Status" to "Finalized",
                         "Category" to "Delivery",
-                        "Date Paid" to "Jan 10, 2025",
+                        "Date Paid" to "10 Jan 2025",
                         "Adjusted Amount for Tax Purposes" to "USD 50.00"
                     ),
                     DetailsSectionSpec(
@@ -216,14 +221,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Attachments"
                     )
                 )
-                
+
                 staticItems[7].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
                         "Status" to "Finalized",
                         "Category" to "Delivery",
-                        "Date Paid" to "Jan 8, 2025",
+                        "Date Paid" to "8 Jan 2025",
                         "Adjusted Amount for Tax Purposes" to "USD 8.50"
                     ),
                     DetailsSectionSpec(
@@ -238,14 +243,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Income Tax Amount (USD)" to "USD 8.50"
                     )
                 )
-                
+
                 staticItems[8].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
                         "Status" to "Finalized",
                         "Category" to "Delivery",
-                        "Date Paid" to "Jan 7, 2025",
+                        "Date Paid" to "7 Jan 2025",
                         "Adjusted Amount for Tax Purposes" to "USD 40.00"
                     ),
                     DetailsSectionSpec(
@@ -254,14 +259,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Business Use" to "70%"
                     )
                 )
-                
+
                 staticItems[9].shouldHaveDetails(
                     actions = listOf("Copy", "Edit"),
                     DetailsSectionSpec(
                         title = "Summary",
                         "Status" to "Finalized",
                         "Category" to "Delivery",
-                        "Date Paid" to "Jan 6, 2025",
+                        "Date Paid" to "6 Jan 2025",
                         "Adjusted Amount for Tax Purposes" to "USD 160.00",
                         "General Tax" to "VAT",
                         "General Tax Rate" to "20.00%",
@@ -286,13 +291,13 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Notes"
                     )
                 )
-                
+
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
                 }
             }
-            
+
             // Report rendering with all panels expanded
             reportRendering("expenses-overview.loaded-expanded")
         }
@@ -345,7 +350,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveTotalPages(2)
                 }
             }
-            
+
             // Filter by title
             filterInput { fill("office") }
             pageItems {
@@ -355,14 +360,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveTotalPages(1)
                 }
             }
-            
+
             // Filter by category name
             filterInput { fill("") }
             filterInput { fill("travel") }
             pageItems {
                 shouldHaveExactItems("Travel") { it.title!! }
             }
-            
+
             // Filter by notes
             filterInput { fill("") }
             filterInput { fill("urgent") }
@@ -393,7 +398,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
                     status = ExpenseStatus.FINALIZED
                 )
-                
+
                 // 2. Pending conversion - foreign currency not yet converted
                 expense(
                     workspace = workspace,
@@ -406,7 +411,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
                     status = ExpenseStatus.PENDING_CONVERSION
                 )
-                
+
                 // 3. Pending conversion for taxation purposes
                 expense(
                     workspace = workspace,
@@ -420,7 +425,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     status = ExpenseStatus.PENDING_CONVERSION_FOR_TAXATION_PURPOSES,
                     useDifferentExchangeRateForIncomeTaxPurposes = true
                 )
-                
+
                 // 4. With notes
                 expense(
                     workspace = workspace,
@@ -433,7 +438,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     status = ExpenseStatus.FINALIZED,
                     notes = "Important expense notes"
                 )
-                
+
                 // 5. With general tax
                 expense(
                     workspace = workspace,
@@ -448,7 +453,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     generalTaxRateInBps = 2000,
                     generalTaxAmount = 2000
                 )
-                
+
                 // 6. With attachments (multiple)
                 expense(
                     workspace = workspace,
@@ -461,7 +466,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     status = ExpenseStatus.FINALIZED,
                     attachments = setOf(document1, document2)
                 )
-                
+
                 // 7. Foreign currency with same amounts for reporting and taxation
                 expense(
                     workspace = workspace,
@@ -475,7 +480,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     status = ExpenseStatus.FINALIZED,
                     useDifferentExchangeRateForIncomeTaxPurposes = false
                 )
-                
+
                 // 8. Foreign currency with different amounts for reporting and taxation
                 expense(
                     workspace = workspace,
@@ -489,7 +494,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     status = ExpenseStatus.FINALIZED,
                     useDifferentExchangeRateForIncomeTaxPurposes = true
                 )
-                
+
                 // 9. Partial business purpose
                 expense(
                     workspace = workspace,
@@ -502,7 +507,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     status = ExpenseStatus.FINALIZED,
                     percentOnBusiness = 70
                 )
-                
+
                 // 10. Multiple icons - expense with all attributes
                 expense(
                     workspace = workspace,
