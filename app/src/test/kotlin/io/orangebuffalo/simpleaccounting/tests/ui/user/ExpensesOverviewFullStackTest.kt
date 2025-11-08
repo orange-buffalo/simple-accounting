@@ -128,7 +128,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 ) { it.toExpenseOverviewItem() }
 
                 // Report rendering with all panels collapsed
-                reportRendering("expenses-overview.loaded-collapsed")
+                this@shouldBeExpensesOverviewPage.reportRendering("expenses-overview.loaded-collapsed")
 
                 // Expand and verify details for each expense
                 staticItems[0].shouldHaveDetails(
