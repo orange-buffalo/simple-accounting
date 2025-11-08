@@ -6,11 +6,14 @@ import com.microsoft.playwright.Page
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import kotlin.time.Duration.Companion.milliseconds
 
 const val UI_ASSERTIONS_TIMEOUT_MS = 10_000
+private val log = KotlinLogging.logger { }
 
 object XPath {
     fun hasClass(className: String): String = "contains(concat(' ', normalize-space(@class), ' '), ' $className ')"
@@ -44,11 +47,15 @@ fun ElementHandle.hasClass(className: String): Boolean = evaluate(
     className
 ) as Boolean
 
-fun ElementHandle.innerTextOrNull(): String? = this.innerText().trim().ifBlank { null }
+private fun String.normalizeToNull(): String? = this
+    .trim()
+    // replace non-breaking spaces with regular spaces
+    .replace('\u00A0', ' ')
+    .ifBlank { null }
 
-fun Locator.innerTextOrNull(): String? = this.innerText().trim().ifBlank { null }
+fun ElementHandle.innerTextOrNull(): String? = this.innerText().normalizeToNull()
 
-fun Locator.innerTextTrimmed() = this.innerText().trim()
+fun Locator.innerTextOrNull(): String? = this.innerText().normalizeToNull()
 
 fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
     Notifications(this).spec()
@@ -61,9 +68,11 @@ fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
  * Playwright does not have a built-in mechanism to wait for a condition to be satisfied,
  * hence using Kotest.
  */
-fun shouldSatisfy(spec: () -> Unit) = runBlocking {
-    eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
-        spec()
+fun shouldSatisfy(message: String? = null, spec: () -> Unit) = runBlocking {
+    withClue(message ?: "Spec is not satisfied") {
+        eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
+            spec()
+        }
     }
 }
 
@@ -93,34 +102,41 @@ fun Page.withBlockedApiResponse(
     blockedRequestSpec: () -> Unit,
     resetOnCompletion: Boolean = true,
 ) {
+    log.trace { "Starting API request blocking for $path" }
     var blockedRequestFailure: Throwable? = null
-    var blockedRequestExecuted = false
+    var routeExecuted = false
     context().route("/api/$path") { route ->
+        log.trace { "Route hit now: ${route.request().url()}" }
+        routeExecuted = true
         try {
             blockedRequestSpec()
-            blockedRequestExecuted = true
+            log.run { "Blocked request spec executed" }
             route.resume()
             if (resetOnCompletion) {
                 context().unroute("/api/$path")
             }
         } catch (e: Throwable) {
+            log.trace { "Blocked request spec failed: ${e.message}, aborting the route" }
             blockedRequestFailure = e
             route.abort()
         }
     }
-    // Playwright is synchronous, so once we call this, the route should be hit (by the contract of this function);
-    // after this call, the blockedRequestSpec will be executed.
+
+    log.trace { "Initiating the request initiator" }
     initiator()
+
+    shouldSatisfy("The contract of this function requires the initiator to trigger the request") {
+        // Playwright is synchronous, and route is hit only when we interact with the page;
+        // hence, we execute the body assertion to ensure the route is eventually hit
+        this.locator("body").shouldBeVisible()
+        routeExecuted.shouldBeTrue()
+    }
 
     // exceptions will not be automatically propagated from the route handler,
     // so we need to check if the blockedRequestSpec has thrown an exception,
     // so that the test receives the proper failure
     if (blockedRequestFailure != null) {
         throw blockedRequestFailure
-    }
-
-    withHint("The contract of this function requires the initiator to trigger the request") {
-        blockedRequestExecuted.shouldBeTrue()
     }
 }
 

@@ -43,5 +43,5 @@ fun Locator.reportRendering(name: String) {
     Files.write(generatedScreenshotFile, generatedScreenshot)
     stopWatch.tick("saving")
 
-    logger.debug { "Recorded rendering of [$name]: ${stopWatch.log()}" }
+    logger.debug { "Recorded rendering of [$name] to ${generatedScreenshotFile.toUri()}: ${stopWatch.log()}" }
 }

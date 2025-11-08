@@ -67,7 +67,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "With Notes",
                         status = "success",
                         statusText = "Finalized",
-                        datePaid = "13 Jan 2025",
+                        datePaid = "12 Jan 2025",
                         amount = "USD 20.00",
                         attributePreviewIcons = listOf(Icons.NOTES)
                     ),
@@ -118,11 +118,11 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         datePaid = "6 Jan 2025",
                         amount = "USD 160.00",
                         attributePreviewIcons = listOf(
+                            Icons.NOTES,
+                            Icons.TAX,
                             Icons.ATTACHMENT,
                             Icons.MULTI_CURRENCY,
-                            Icons.NOTES,
                             Icons.PERCENT,
-                            Icons.TAX
                         )
                     )
                 ) { it.toExpenseOverviewItem() }

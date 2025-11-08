@@ -1,6 +1,5 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user.pages
 
-import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -10,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 
@@ -45,17 +43,17 @@ class ExpensesOverviewPage private constructor(page: Page) : SaPageBase(page) {
 }
 
 data class ExpenseOverviewItem(
-    val title: String,
-    val status: String, // "success" or "pending"
-    val statusText: String, // "Finalized" or "Pending"
-    val datePaid: String,
-    val amount: String,
+    val title: String?,
+    val status: String?, // "success" or "pending"
+    val statusText: String?, // "Finalized" or "Pending"
+    val datePaid: String?,
+    val amount: String?,
     val attributePreviewIcons: List<String>,
 )
 
 fun SaOverviewItem.toExpenseOverviewItem(): ExpenseOverviewItem {
     primaryAttributes.shouldHaveSize(1)
-    
+
     // Determine status by checking the class on the status label in middle column
     val statusLabelLocator = this.locator(".overview-item__middle-column .sa-status-label")
     val statusClass = statusLabelLocator.getAttribute("class") ?: ""
@@ -65,7 +63,7 @@ fun SaOverviewItem.toExpenseOverviewItem(): ExpenseOverviewItem {
         else -> "unknown"
     }
     val statusText = statusLabelLocator.innerTextOrNull()
-    
+
     return ExpenseOverviewItem(
         title = title.shouldNotBeNull(),
         status = status,
