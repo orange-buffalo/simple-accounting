@@ -8,6 +8,9 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableIte
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 class SaOverviewItem private constructor(
     private val panel: Locator,
@@ -28,7 +31,7 @@ class SaOverviewItem private constructor(
         get() = panel.locator(".overview-item-primary-attribute").all().map {
             PrimaryAttribute(
                 icon = it.locator(".overview-item-primary-attribute__icon").getAttribute("data-icon"),
-                text = it.innerTextOrNull(),
+                text = it.innerTextOrNull() ?: "<primary attribute text is missing>",
             )
         }
 
@@ -71,6 +74,13 @@ class SaOverviewItem private constructor(
         }
     }
 
+    fun getData() : SaOverviewItemData {
+        val jsonData = panel.evaluate("""
+            
+        """.trimIndent()) as String
+        return Json.decodeFromString<SaOverviewItemData>(jsonData)
+    }
+
     private fun expandDetails() {
         detailsTrigger.click()
     }
@@ -91,9 +101,19 @@ class SaOverviewItem private constructor(
             pageableItems { container -> SaOverviewItem(container.locator(".overview-item__panel")) }
     }
 
+    @Serializable
     data class PrimaryAttribute(
         val icon: String,
-        val text: String?,
+        val text: String,
+    )
+
+    @Serializable
+    data class SaOverviewItemData(
+        val title: String,
+        val primaryAttributes: List<PrimaryAttribute>,
+        val middleColumnContent: String?,
+        val lastColumnContent: String?,
+        val attributePreviewIcons: List<String>,
     )
 }
 
@@ -103,4 +123,3 @@ data class DetailsSectionSpec(
 ) {
     constructor(title: String, vararg attributes: Pair<String, String>) : this(title, attributes.toList())
 }
-
