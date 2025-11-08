@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
@@ -355,16 +356,16 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         // Expense 2 has date Jan 1 - 2 = Dec 30
         // ...
         // Expense 15 has date Jan 1 - 15 = Dec 17 (oldest)
-        val firstPageExpenses = arrayOf(
+        val firstPageExpenses = listOf(
             "Expense 1", "Expense 2", "Expense 3", "Expense 4", "Expense 5",
             "Expense 6", "Expense 7", "Expense 8", "Expense 9", "Expense 10"
         )
-        val secondPageExpenses = arrayOf(
+        val secondPageExpenses = listOf(
             "Expense 11", "Expense 12", "Expense 13", "Expense 14", "Expense 15"
         )
         page.openExpensesOverviewPage {
             pageItems {
-                shouldHaveExactItems(*firstPageExpenses) { it.title!! }
+                shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(firstPageExpenses) }
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
@@ -372,13 +373,13 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(2)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveExactItems(*secondPageExpenses) { it.title!! }
+                shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(secondPageExpenses) }
                 paginator {
                     previous()
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveExactItems(*firstPageExpenses) { it.title!! }
+                shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(firstPageExpenses) }
             }
         }
     }

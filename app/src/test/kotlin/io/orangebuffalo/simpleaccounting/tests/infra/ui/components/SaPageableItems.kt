@@ -6,15 +6,21 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Paginator.Companion.twoSyncedPaginators
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.injectJsUtils
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 
-class SaPageableItems<I> private constructor(
+class SaPageableItems<I, D : Any> private constructor(
     private val container: Locator,
     val paginator: Paginator,
-    private val itemFactory: (container: Locator) -> I
-) : UiComponent<SaPageableItems<I>>() {
+    private val itemDataJs: String,
+    private val itemDataSerializer: KSerializer<D>,
+    private val itemFactory: (container: Locator) -> I,
+) : UiComponent<SaPageableItems<I, D>>() {
 
     private val itemsEls = container.locator(".sa-pageable-items__item")
 
@@ -78,15 +84,54 @@ class SaPageableItems<I> private constructor(
         container.locator(".sa-pageable-items__loader-item").shouldBeVisible()
     }
 
+    fun shouldHaveDataSatisfying(dataSpec: (data: List<D>) -> Unit) {
+        shouldSatisfy("Pageable items data should satisfy the expected specification") {
+            val data = getData()
+            dataSpec(data)
+        }
+    }
+
+    private fun getData(): List<D> {
+        /* language=javascript */
+        val dataJsonString = container.evaluate(
+            """
+                (container) => {
+                    ${injectJsUtils()}
+                    const getItemData = ${itemDataJs};
+                    return JSON.stringify(Array.from(container.querySelectorAll('.sa-pageable-items__item'))
+                        .map(item => getItemData(item)));
+                }
+                """,
+        ) as String
+        return Json.decodeFromString(ListSerializer(itemDataSerializer), dataJsonString)
+    }
+
     companion object {
-        fun <I> ComponentsAccessors.pageableItems(
-            itemFactory: (container: Locator) -> I
-        ): SaPageableItems<I> {
+        fun <I, D : Any> ComponentsAccessors.pageableItems(
+            /**
+             * JavaScript function that takes an item element and returns its data as a JS object.
+             * It is used for performance optimization to avoid numerous interactions with the browser,
+             * but instead retrieve all the data in one go.
+             */
+            itemDataJs: String,
+            /**
+             * Serializer for the item data. The object returned by [itemDataJs] should be compatible with this serializer,
+             * as it will be used to deserialize the data retrieved via [itemDataJs].
+             */
+            itemDataSerializer: KSerializer<D>,
+            /**
+             * Factory function to create an item instance from its container element. This instance is used
+             * for active interactions, when actions need to be performed on the item.
+             */
+            itemFactory: (container: Locator) -> I,
+        ): SaPageableItems<I, D> {
             val container = page.locator(".sa-pageable-items")
             return SaPageableItems(
                 container = container,
                 paginator = this.twoSyncedPaginators(container),
-                itemFactory = itemFactory
+                itemFactory = itemFactory,
+                itemDataJs = itemDataJs,
+                itemDataSerializer = itemDataSerializer,
             )
         }
     }

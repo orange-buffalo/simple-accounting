@@ -9,8 +9,45 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
+
+/* language=javascript */
+private const val DATA_JS = """
+    (panel) => {
+        // Extract title
+        const titleElement = panel.querySelector('.overview-item__title');
+        const title = utils.getDynamicContent(titleElement);
+        
+        // Extract primary attributes
+        const primaryAttributes = Array.from(panel.querySelectorAll('.overview-item-primary-attribute')).map(attr => {
+            const iconElement = attr.querySelector('.overview-item-primary-attribute__icon');
+            const icon = iconElement ? iconElement.getAttribute('data-icon') : null;
+            const text = utils.getDynamicContent(attr.textContent);
+            return { icon, text };
+        });
+        
+        // Extract middle column content (status information)
+        const middleColumnElement = panel.querySelector('.overview-item__middle-column .sa-status-label');
+        const middleColumnContent = utils.getDynamicContent(middleColumnElement);
+        
+        // Extract last column content
+        const lastColumnElement = panel.querySelector('.overview-item__last-column');
+        const lastColumnContent = utils.getDynamicContent(lastColumnElement);
+        
+        // Extract attribute preview icons
+        const attributePreviewIcons = Array.from(panel.querySelectorAll('.overview-item-attribute-preview-icon')).map(icon => {
+            return icon.getAttribute('data-icon');
+        });
+        
+        return {
+            title,
+            primaryAttributes,
+            middleColumnContent,
+            lastColumnContent,
+            attributePreviewIcons
+        };
+    }
+"""
 
 class SaOverviewItem private constructor(
     private val panel: Locator,
@@ -74,13 +111,6 @@ class SaOverviewItem private constructor(
         }
     }
 
-    fun getData() : SaOverviewItemData {
-        val jsonData = panel.evaluate("""
-            
-        """.trimIndent()) as String
-        return Json.decodeFromString<SaOverviewItemData>(jsonData)
-    }
-
     private fun expandDetails() {
         detailsTrigger.click()
     }
@@ -98,18 +128,21 @@ class SaOverviewItem private constructor(
 
     companion object {
         fun ComponentsAccessors.overviewItems() =
-            pageableItems { container -> SaOverviewItem(container.locator(".overview-item__panel")) }
+            pageableItems(
+                itemDataJs = DATA_JS,
+                itemDataSerializer = serializer<SaOverviewItemData>(),
+            ) { container -> SaOverviewItem(container.locator(".overview-item__panel")) }
     }
 
     @Serializable
     data class PrimaryAttribute(
-        val icon: String,
-        val text: String,
+        val icon: String?,
+        val text: String?,
     )
 
     @Serializable
     data class SaOverviewItemData(
-        val title: String,
+        val title: String?,
         val primaryAttributes: List<PrimaryAttribute>,
         val middleColumnContent: String?,
         val lastColumnContent: String?,

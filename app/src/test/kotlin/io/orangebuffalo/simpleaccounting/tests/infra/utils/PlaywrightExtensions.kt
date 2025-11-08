@@ -151,3 +151,30 @@ fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) = r
         }
     }
 }
+
+/**
+ * Injects JavaScript utilities into a JavaScript snippet (typically, passed to [Locator.evaluate] or similar).
+ */
+fun injectJsUtils(): String = /* language=javascript */ """
+    // noinspection JSUnusedLocalSymbols
+    const utils = {
+        /**
+          * For the given element, returns its text content trimmed to null.
+          * Non-breaking spaces are replaced with regular spaces.
+        */
+        getDynamicContent: function(el) {
+            if (!el) {
+                return null;
+            }
+            let allContent = el.textContent;
+            if (!allContent) {
+                return null;
+            }
+            // replace non-breaking spaces with regular spaces
+            allContent = allContent.replace(/\u00A0/g, ' ');
+            // trim to null
+            allContent = allContent.trim();
+            return allContent.length > 0 ? allContent : null;
+        }
+    };
+"""
