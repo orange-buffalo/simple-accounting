@@ -9,22 +9,16 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 
 class ExpensesOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Expenses")
-    private val expensesContainer = page.locator(".sa-page-content")
     val pageItems = components.overviewItems()
     val filterInput = components.textInputByPlaceholder("Search expenses")
     val createButton = components.buttonByText("Create new expense")
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
-    }
-
-    fun reportRendering(name: String) {
-        expensesContainer.reportRendering(name)
     }
 
     companion object {

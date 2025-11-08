@@ -30,7 +30,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             blockedRequestSpec = {
                 page.shouldBeExpensesOverviewPage {
                     pageItems.shouldHaveLoadingIndicatorVisible()
-                    pageItems.reportRendering("expenses-overview.loading")
+                    reportRendering("expenses-overview.loading")
                 }
             }
         )

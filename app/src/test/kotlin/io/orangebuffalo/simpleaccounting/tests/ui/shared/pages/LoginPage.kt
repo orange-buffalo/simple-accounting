@@ -8,12 +8,10 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Compan
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Checkbox.Companion.checkboxByOwnLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import java.util.regex.Pattern
 
-class LoginPage private constructor(page: Page) : SaPageBase(page) {
+class LoginPage private constructor(page: Page) : SaPageBase(page, ".login-page") {
 
-    private val container = page.locator(".login-page")
     val loginInput = components.textInputByPlaceholder("Login")
     val passwordInput = components.textInputByPlaceholder("Password")
     val loginButton = components.buttonByTestId("login-button")
@@ -38,10 +36,6 @@ class LoginPage private constructor(page: Page) : SaPageBase(page) {
 
     fun shouldHaveErrorMessageMatching(expectedPattern: String) {
         errorMessage.shouldHaveText(Pattern.compile(expectedPattern))
-    }
-
-    fun reportRendering(name: String) {
-        container.reportRendering(name)
     }
 
     companion object {
