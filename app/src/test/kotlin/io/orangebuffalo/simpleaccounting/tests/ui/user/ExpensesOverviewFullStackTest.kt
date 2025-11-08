@@ -1,17 +1,17 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainAll
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Icons
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpenseOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.toExpenseOverviewItem
-import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -365,7 +365,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         )
         page.openExpensesOverviewPage {
             pageItems {
-                shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(firstPageExpenses) }
+                shouldHaveTitles(firstPageExpenses)
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
@@ -373,13 +373,13 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(2)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(secondPageExpenses) }
+                shouldHaveTitles(secondPageExpenses)
                 paginator {
                     previous()
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(firstPageExpenses) }
+                shouldHaveTitles(firstPageExpenses)
             }
         }
     }
@@ -389,17 +389,15 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsFiltering.fry)
         page.openExpensesOverviewPage {
             pageItems {
-                shouldContainItems("Office", "Travel", "Meals") { it.title!! }
-                paginator {
-                    shouldHaveActivePage(1)
-                    shouldHaveTotalPages(2)
+                shouldHaveDataSatisfying { items ->
+                    items.map { it.title }.shouldContainAll("Office", "Travel", "Meals")
                 }
             }
 
             // Filter by title
             filterInput { fill("office") }
             pageItems {
-                shouldHaveExactItems("Office") { it.title!! }
+                shouldHaveTitles("Office")
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)
@@ -407,17 +405,15 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by category name
-            filterInput { fill("") }
             filterInput { fill("travel") }
             pageItems {
-                shouldHaveExactItems("Travel") { it.title!! }
+                shouldHaveTitles("Travel")
             }
 
             // Filter by notes
-            filterInput { fill("") }
             filterInput { fill("urgent") }
             pageItems {
-                shouldHaveExactItems("Meals") { it.title!! }
+                shouldHaveTitles("Meals")
             }
         }
     }

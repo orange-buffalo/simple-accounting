@@ -150,6 +150,14 @@ class SaOverviewItem private constructor(
     )
 }
 
+fun SaPageableItems<SaOverviewItem, SaOverviewItem.SaOverviewItemData>.shouldHaveTitles(titles: List<String>) {
+    shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(titles) }
+}
+
+fun SaPageableItems<SaOverviewItem, SaOverviewItem.SaOverviewItemData>.shouldHaveTitles(vararg titles: String) {
+    shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(*titles) }
+}
+
 data class DetailsSectionSpec(
     val title: String,
     val attributes: List<Pair<String, String>> = emptyList()
