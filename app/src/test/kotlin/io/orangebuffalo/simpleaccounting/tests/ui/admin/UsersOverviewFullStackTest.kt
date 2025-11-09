@@ -28,6 +28,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.ACTIVE_USER, "Active"),
                         ),
                         lastColumnContent = editAction(),
+                        hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "B user",
@@ -36,6 +37,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.INACTIVE_USER, "Not yet activated"),
                         ),
                         lastColumnContent = editAction(),
+                        hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "C User",
@@ -44,6 +46,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.INACTIVE_USER, "Not yet activated"),
                         ),
                         lastColumnContent = editAction(),
+                        hasDetails = false,
                     ),
                     SaOverviewItemData(
                         title = "Farnsworth",
@@ -52,9 +55,9 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.ACTIVE_USER, "Active"),
                         ),
                         lastColumnContent = editAction(),
+                        hasDetails = false,
                     ),
                 )
-                staticItems.forEach { it.shouldNotHaveDetails() }
             }
         }
     }

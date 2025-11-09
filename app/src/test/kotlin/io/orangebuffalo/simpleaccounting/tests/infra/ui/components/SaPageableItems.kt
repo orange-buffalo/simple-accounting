@@ -1,9 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Paginator.Companion.twoSyncedPaginators
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.injectJsUtils
@@ -58,19 +56,6 @@ class SaPageableItems<I, D : Any> private constructor(
     }
 
     /**
-     * Waits for the items to contain the provided values, which are mapped from the items.
-     * Only checks that all the provided items are included, but allows extra items.
-     */
-    fun <T> shouldContainItems(vararg items: T, mapper: (item: I) -> T) {
-        container.shouldSatisfy {
-            itemsEls.all().shouldHaveAtLeastSize(items.size)
-            staticItems
-                .map(mapper)
-                .shouldContainAll(*items)
-        }
-    }
-
-    /**
      * Loader is debounced and requires a tick to finish loading.
      */
     fun finishLoadingWhenTimeMocked() {
@@ -84,6 +69,9 @@ class SaPageableItems<I, D : Any> private constructor(
         container.locator(".sa-pageable-items__loader-item").first().shouldBeVisible()
     }
 
+    /**
+     * Asserts that the data of the pageable items satisfies the given specification.
+     */
     fun shouldHaveDataSatisfying(dataSpec: (data: List<D>) -> Unit) {
         shouldSatisfy("Pageable items data should satisfy the expected specification") {
             val data = getData()
@@ -91,6 +79,9 @@ class SaPageableItems<I, D : Any> private constructor(
         }
     }
 
+    /**
+     * Asserts that the pageable items have the given data, in exact order.
+     */
     fun shouldHaveExactData(vararg expectedData: D) {
         shouldHaveDataSatisfying { data ->
             data.shouldContainExactly(*expectedData)

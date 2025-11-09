@@ -24,7 +24,8 @@ private const val DATA_JS = """
             lastColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__last-column')),
             attributePreviewIcons: Array.from(panel.querySelectorAll('.overview-item-attribute-preview-icon')).map(icon => {
               return utils.getDynamicContent(icon);
-            })
+            }),
+            hasDetails: panel.querySelector('.overview-item__details-trigger') !== null  
         };
     };
 """
@@ -41,9 +42,6 @@ class SaOverviewItem private constructor(
     val title: String?
         get() = panel.locator(".overview-item__title").innerTextOrNull()
 
-    val lastColumnContent: String?
-        get() = panel.locator(".overview-item__last-column").innerTextOrNull()
-
 //    val primaryAttributes: List<PrimaryAttribute>
 //        get() = panel.locator(".overview-item-primary-attribute").all().map {
 //            PrimaryAttribute(
@@ -53,10 +51,6 @@ class SaOverviewItem private constructor(
 //        }
 
     private val detailsTrigger = panel.locator(".overview-item__details-trigger")
-
-    fun shouldNotHaveDetails() {
-        detailsTrigger.shouldBeHidden()
-    }
 
     fun shouldHaveDetails(actions: List<String> = emptyList(), vararg sections: DetailsSectionSpec) {
         expandDetails()
@@ -101,11 +95,6 @@ class SaOverviewItem private constructor(
             .click()
     }
 
-    val attributePreviewIcons: List<String>
-        get() = panel.locator(".overview-item-attribute-preview-icon")
-            .all()
-            .map { it.getAttribute("data-icon") }
-
     companion object {
         fun ComponentsAccessors.overviewItems() =
             pageableItems(
@@ -126,6 +115,7 @@ data class SaOverviewItemData(
     val middleColumnContent: String? = null,
     val lastColumnContent: String? = null,
     val attributePreviewIcons: List<String> = emptyList(),
+    val hasDetails: Boolean = true,
 )
 
 fun SaPageableItems<SaOverviewItem, SaOverviewItemData>.shouldHaveTitles(titles: List<String>) {

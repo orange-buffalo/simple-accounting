@@ -43,7 +43,6 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         primaryAttributes = datePaidAsPrimary("15 Jan 2025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 100.00",
-                        attributePreviewIcons = emptyList(),
                     ),
                     SaOverviewItemData(
                         title = "Pending Conversion EUR",
