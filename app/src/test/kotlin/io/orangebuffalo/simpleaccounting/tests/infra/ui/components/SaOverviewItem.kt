@@ -15,36 +15,18 @@ import kotlinx.serialization.serializer
 /* language=javascript */
 private const val DATA_JS = """
     (panel) => {
-        // Extract title
-        const titleElement = panel.querySelector('.overview-item__title');
-        const title = utils.getDynamicContent(titleElement);
-        
-        // Extract primary attributes
-        const primaryAttributes = Array.from(panel.querySelectorAll('.overview-item-primary-attribute')).map(attr => {
-            return utils.getDynamicContent(attr);
-        });
-        
-        // Extract middle column content (status information)
-        const middleColumnElement = panel.querySelector('.overview-item__middle-column .sa-status-label');
-        const middleColumnContent = utils.getDynamicContent(middleColumnElement);
-        
-        // Extract last column content
-        const lastColumnElement = panel.querySelector('.overview-item__last-column');
-        const lastColumnContent = utils.getDynamicContent(lastColumnElement);
-        
-        // Extract attribute preview icons
-        const attributePreviewIcons = Array.from(panel.querySelectorAll('.overview-item-attribute-preview-icon')).map(icon => {
-            return icon.getAttribute('data-icon');
-        });
-        
         return {
-            title,
-            primaryAttributes,
-            middleColumnContent,
-            lastColumnContent,
-            attributePreviewIcons
+            title: utils.getDynamicContent(panel.querySelector('.overview-item__title')),
+            primaryAttributes: Array.from(panel.querySelectorAll('.overview-item-primary-attribute')).map(attr => {
+              return utils.getDynamicContent(attr);
+            }),
+            middleColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__middle-column .sa-status-label')),
+            lastColumnContent: utils.getDynamicContent(panel.querySelector('.overview-item__last-column')),
+            attributePreviewIcons: Array.from(panel.querySelectorAll('.overview-item-attribute-preview-icon')).map(icon => {
+              return utils.getDynamicContent(icon);
+            })
         };
-    }
+    };
 """
 
 class SaOverviewItem private constructor(
@@ -132,6 +114,8 @@ class SaOverviewItem private constructor(
             ) { container -> SaOverviewItem(container.locator(".overview-item__panel")) }
 
         fun primaryAttribute(icon: SaIconType, text: String) = dataValues(SaIcon.iconValue(icon), text)
+
+        fun previewIcons(vararg icons: SaIconType) = icons.map { SaIcon.iconValue(it) }
     }
 }
 

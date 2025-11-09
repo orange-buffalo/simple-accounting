@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.previewIcons
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
@@ -53,68 +54,68 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttributes = datePaidAsPrimary("14 Jan 2025"),
                             middleColumnContent = pendingStatus(),
                             lastColumnContent = "EUR 50.00",
-                            attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
+                            attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                         ),
                         SaOverviewItemData(
                             title = "Pending Tax Conversion",
                             primaryAttributes = datePaidAsPrimary("13 Jan 2025"),
                             middleColumnContent = pendingStatus(),
                             lastColumnContent = "USD 40.00",
-                            attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
+                            attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                         ),
                         SaOverviewItemData(
                             title = "With Notes",
                             primaryAttributes = datePaidAsPrimary("12 Jan 2025"),
                             middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 20.00",
-                            attributePreviewIcons = listOf(Icons.NOTES),
+                            attributePreviewIcons = previewIcons(SaIconType.NOTES),
                         ),
                         SaOverviewItemData(
                             title = "With Tax",
                             primaryAttributes = datePaidAsPrimary("11 Jan 2025"),
                             middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 100.00",
-                            attributePreviewIcons = listOf(Icons.TAX),
+                            attributePreviewIcons = previewIcons(SaIconType.TAX),
                         ),
                         SaOverviewItemData(
                             title = "With Attachments",
                             primaryAttributes = datePaidAsPrimary("10 Jan 2025"),
                             middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 50.00",
-                            attributePreviewIcons = listOf(Icons.ATTACHMENT),
+                            attributePreviewIcons = previewIcons(SaIconType.ATTACHMENT),
                         ),
                         SaOverviewItemData(
                             title = "Foreign Currency Same Amounts",
                             primaryAttributes = datePaidAsPrimary("9 Jan 2025"),
                             middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 60.00",
-                            attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
+                            attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                         ),
                         SaOverviewItemData(
                             title = "Foreign Currency Different Amounts",
                             primaryAttributes = datePaidAsPrimary("8 Jan 2025"),
                             middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 8.50",
-                            attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
+                            attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                         ),
                         SaOverviewItemData(
                             title = "Partial Business",
                             primaryAttributes = datePaidAsPrimary("7 Jan 2025"),
                             middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 40.00",
-                            attributePreviewIcons = listOf(Icons.PERCENT),
+                            attributePreviewIcons = previewIcons(SaIconType.PERCENT),
                         ),
                         SaOverviewItemData(
                             title = "Multiple Icons",
                             primaryAttributes = datePaidAsPrimary("6 Jan 2025"),
                             middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 160.00",
-                            attributePreviewIcons = listOf(
-                                Icons.NOTES,
-                                Icons.TAX,
-                                Icons.ATTACHMENT,
-                                Icons.MULTI_CURRENCY,
-                                Icons.PERCENT,
+                            attributePreviewIcons = previewIcons(
+                                SaIconType.NOTES,
+                                SaIconType.TAX,
+                                SaIconType.ATTACHMENT,
+                                SaIconType.MULTI_CURRENCY,
+                                SaIconType.PERCENT,
                             ),
                         )
                     )
