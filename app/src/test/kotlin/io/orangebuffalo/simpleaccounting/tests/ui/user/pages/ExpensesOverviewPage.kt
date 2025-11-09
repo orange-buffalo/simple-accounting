@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.tests.ui.admin.pages
+package io.orangebuffalo.simpleaccounting.tests.ui.user.pages
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
@@ -7,27 +7,27 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewIte
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput.Companion.textInputByPlaceholder
 
-class UsersOverviewPage private constructor(page: Page) : SaPageBase(page) {
+class ExpensesOverviewPage private constructor(page: Page) : SaPageBase(page) {
+    private val header = components.pageHeader("Expenses")
     val pageItems = components.overviewItems()
-    val filterInput = components.textInputByPlaceholder("Search users")
-    private val header = components.pageHeader("Users")
-    val createUserButton = components.buttonByText("Create user")
+    val filterInput = components.textInputByPlaceholder("Search expenses")
+    val createButton = components.buttonByText("Create new expense")
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
     }
 
     companion object {
-        fun Page.shouldBeUsersOverviewPage(spec: UsersOverviewPage.() -> Unit = {}) {
-            UsersOverviewPage(this).apply {
+        fun Page.shouldBeExpensesOverviewPage(spec: ExpensesOverviewPage.() -> Unit = {}) {
+            ExpensesOverviewPage(this).apply {
                 shouldBeOpen()
                 spec()
             }
         }
 
-        fun Page.openUsersOverviewPage(spec: UsersOverviewPage.() -> Unit) {
-            navigate("/admin/users")
-            shouldBeUsersOverviewPage(spec)
+        fun Page.openExpensesOverviewPage(spec: ExpensesOverviewPage.() -> Unit = {}) {
+            navigate("/expenses")
+            shouldBeExpensesOverviewPage(spec)
         }
     }
 }

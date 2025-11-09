@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextTrimmed
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 /**
@@ -32,7 +32,7 @@ class Paginator private constructor(
     fun shouldHaveActivePage(expected: Int) = shouldSatisfy {
         instances.forEach {
             it.locator(".el-pager > li.is-active")
-                .innerTextTrimmed()
+                .innerTextOrNull()
                 .shouldBe(expected.toString())
         }
     }

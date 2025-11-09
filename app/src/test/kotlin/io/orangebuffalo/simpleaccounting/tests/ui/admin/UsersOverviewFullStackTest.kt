@@ -1,10 +1,14 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.admin
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainAll
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UserOverviewItem
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.openUsersOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.toUserOverviewItem
 import org.junit.jupiter.api.Test
 
 class UsersOverviewFullStackTest : SaFullStackTestBase() {
@@ -15,33 +19,44 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.farnsworth)
         page.openUsersOverviewPage {
             pageItems {
-                shouldHaveExactItems(
-                    UserOverviewItem(
-                        userName = "aUser",
-                        userType = UserOverviewItem.regularUserType,
-                        userActivation = UserOverviewItem.activeUser,
+                shouldHaveExactData(
+                    SaOverviewItemData(
+                        title = "aUser",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.REGULAR_USER, "User"),
+                            primaryAttribute(SaIconType.ACTIVE_USER, "Active"),
+                        ),
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
+                        hasDetails = false,
                     ),
-                    UserOverviewItem(
-                        userName = "B user",
-                        userType = UserOverviewItem.adminUserType,
-                        userActivation = UserOverviewItem.inactiveUser,
+                    SaOverviewItemData(
+                        title = "B user",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.ADMIN_USER, "Admin user"),
+                            primaryAttribute(SaIconType.INACTIVE_USER, "Not yet activated"),
+                        ),
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
+                        hasDetails = false,
                     ),
-                    UserOverviewItem(
-                        userName = "C User",
-                        userType = UserOverviewItem.regularUserType,
-                        userActivation = UserOverviewItem.inactiveUser,
+                    SaOverviewItemData(
+                        title = "C User",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.REGULAR_USER, "User"),
+                            primaryAttribute(SaIconType.INACTIVE_USER, "Not yet activated"),
+                        ),
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
+                        hasDetails = false,
                     ),
-                    UserOverviewItem(
-                        userName = "Farnsworth",
-                        userType = UserOverviewItem.adminUserType,
-                        userActivation = UserOverviewItem.activeUser,
+                    SaOverviewItemData(
+                        title = "Farnsworth",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.ADMIN_USER, "Admin user"),
+                            primaryAttribute(SaIconType.ACTIVE_USER, "Active"),
+                        ),
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
+                        hasDetails = false,
                     ),
-                ) { it.toUserOverviewItem() }
-                staticItems.forEach { it.shouldNotHaveDetails() }
-                paginator {
-                    shouldHaveActivePage(1)
-                    shouldHaveTotalPages(1)
-                }
+                )
             }
         }
     }
@@ -50,13 +65,13 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
     fun `should support pagination`(page: Page) {
         val preconditions = setupPaginationPreconditions()
         page.authenticateViaCookie(preconditions.farnsworth)
-        val firsPageUsers = arrayOf(
+        val firsPageUsers = listOf(
             "Farnsworth", "user 1", "user 10", "user 11", "user 12",
             "user 13", "user 14", "user 15", "user 2", "user 3"
         )
         page.openUsersOverviewPage {
             pageItems {
-                shouldHaveExactItems(*firsPageUsers) { it.title }
+                shouldHaveTitles(firsPageUsers)
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
@@ -64,15 +79,13 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                     shouldHaveActivePage(2)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveExactItems(
-                    "user 4", "user 5", "user 6", "user 7", "user 8", "user 9"
-                ) { it.title }
+                shouldHaveTitles("user 4", "user 5", "user 6", "user 7", "user 8", "user 9")
                 paginator {
                     previous()
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(2)
                 }
-                shouldHaveExactItems(*firsPageUsers) { it.title }
+                shouldHaveTitles(firsPageUsers)
             }
         }
     }
@@ -84,9 +97,11 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
         page.openUsersOverviewPage {
             pageItems {
                 // ensure all targeted items visible by default
-                shouldContainItems(
-                    "aBcDef", "abcdef", "ABCDEF", "qwerty"
-                ) { it.title }
+                shouldHaveDataSatisfying { data ->
+                    data.map { it.title }.shouldContainAll(
+                        "aBcDef", "abcdef", "ABCDEF", "qwerty"
+                    )
+                }
                 // ensure we update paginator as well
                 paginator {
                     shouldHaveActivePage(1)
@@ -95,9 +110,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
             }
             filterInput { fill("cd") }
             pageItems {
-                shouldHaveExactItems(
-                    "aBcDef", "abcdef", "ABCDEF"
-                ) { it.title }
+                shouldHaveTitles("aBcDef", "abcdef", "ABCDEF")
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)

@@ -6,11 +6,16 @@ import com.microsoft.playwright.Page
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import kotlin.time.Duration.Companion.milliseconds
 
 const val UI_ASSERTIONS_TIMEOUT_MS = 10_000
+private val log = KotlinLogging.logger { }
 
 object XPath {
     fun hasClass(className: String): String = "contains(concat(' ', normalize-space(@class), ' '), ' $className ')"
@@ -44,11 +49,15 @@ fun ElementHandle.hasClass(className: String): Boolean = evaluate(
     className
 ) as Boolean
 
-fun ElementHandle.innerTextOrNull(): String? = this.innerText().trim().ifBlank { null }
+private fun String.normalizeToNull(): String? = this
+    .trim()
+    // replace non-breaking spaces with regular spaces
+    .replace('\u00A0', ' ')
+    .ifBlank { null }
 
-fun Locator.innerTextOrNull(): String? = this.innerText().trim().ifBlank { null }
+fun ElementHandle.innerTextOrNull(): String? = this.innerText().normalizeToNull()
 
-fun Locator.innerTextTrimmed() = this.innerText().trim()
+fun Locator.innerTextOrNull(): String? = this.innerText().normalizeToNull()
 
 fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
     Notifications(this).spec()
@@ -61,9 +70,11 @@ fun Page.shouldHaveNotifications(spec: Notifications.() -> Unit) {
  * Playwright does not have a built-in mechanism to wait for a condition to be satisfied,
  * hence using Kotest.
  */
-fun shouldSatisfy(spec: () -> Unit) = runBlocking {
-    eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
-        spec()
+fun shouldSatisfy(message: String? = null, spec: () -> Unit) = runBlocking {
+    withClue(message ?: "Spec is not satisfied") {
+        eventually(UI_ASSERTIONS_TIMEOUT_MS.milliseconds) {
+            spec()
+        }
     }
 }
 
@@ -93,34 +104,41 @@ fun Page.withBlockedApiResponse(
     blockedRequestSpec: () -> Unit,
     resetOnCompletion: Boolean = true,
 ) {
+    log.trace { "Starting API request blocking for $path" }
     var blockedRequestFailure: Throwable? = null
-    var blockedRequestExecuted = false
+    var routeExecuted = false
     context().route("/api/$path") { route ->
+        log.trace { "Route hit now: ${route.request().url()}" }
+        routeExecuted = true
         try {
             blockedRequestSpec()
-            blockedRequestExecuted = true
+            log.run { "Blocked request spec executed" }
             route.resume()
             if (resetOnCompletion) {
                 context().unroute("/api/$path")
             }
         } catch (e: Throwable) {
+            log.trace { "Blocked request spec failed: ${e.message}, aborting the route" }
             blockedRequestFailure = e
             route.abort()
         }
     }
-    // Playwright is synchronous, so once we call this, the route should be hit (by the contract of this function);
-    // after this call, the blockedRequestSpec will be executed.
+
+    log.trace { "Initiating the request initiator" }
     initiator()
+
+    shouldSatisfy("The contract of this function requires the initiator to trigger the request") {
+        // Playwright is synchronous, and route is hit only when we interact with the page;
+        // hence, we execute the body assertion to ensure the route is eventually hit
+        this.locator("body").shouldBeVisible()
+        routeExecuted.shouldBeTrue()
+    }
 
     // exceptions will not be automatically propagated from the route handler,
     // so we need to check if the blockedRequestSpec has thrown an exception,
     // so that the test receives the proper failure
     if (blockedRequestFailure != null) {
         throw blockedRequestFailure
-    }
-
-    withHint("The contract of this function requires the initiator to trigger the request") {
-        blockedRequestExecuted.shouldBeTrue()
     }
 }
 
@@ -135,3 +153,74 @@ fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) = r
         }
     }
 }
+
+/**
+ * Injects JavaScript utilities into a JavaScript snippet (typically, passed to [Locator.evaluate] or similar).
+ */
+fun injectJsUtils(): String = /* language=javascript */ $$"""
+    // noinspection JSUnusedLocalSymbols
+    const utils = {
+        /**
+          * For the given element, returns its text content trimmed to null.
+          * Non-breaking spaces are replaced with regular spaces.
+          * Noteworthy components data is extracted via their specific data extractors.
+        */
+        getDynamicContent: function(el) {
+            if (!el) {
+                return null;
+            }
+            let data = '';
+            const statusValue = ($${SaStatusLabel.jsDataExtractor()})(el);
+            if (statusValue) {
+                data += statusValue;
+            } else {
+                // SaStatusLabel has priority over SaIcon, as it can contain an icon inside
+                data += ($${SaIcon.jsDataExtractor()})(el) || '';
+            }
+            let textContent = el.textContent;
+            if (textContent) {
+                // replace non-breaking spaces with regular spaces
+                textContent = textContent.replace(/\u00A0/g, ' ');
+                // trim (to null later)
+                textContent = textContent.trim();
+            }
+            data += textContent || '';
+            return data === '' ? null : data;
+        },
+      
+        /**
+        * Converts a visual value into a data extraction representation.
+        * Must be in sync with the [visualToData] Kotlin function.
+        */
+        visualToData: (semantic, value) => {
+            return `[${semantic}:${value}]`;
+        },
+        
+        /**
+        * Finds the closest descendant (including the element itself) that has the specified class.
+        */
+        findClosestByClass: function(el, className) {
+            if (!el) {
+                return null;
+            }
+            if (el.classList && el.classList.contains(className)) {
+                return el;
+            }
+            const descendants = el.getElementsByClassName(className);
+            return descendants.length > 0 ? descendants[0] : null;
+        }
+    };
+"""
+
+/**
+ * A helper function for consistent representation of visual values in data extraction JavaScript.
+ * Intended to be used by components implementation, not by tests directly.
+ */
+fun visualToData(semantic: String, value: String): String = "[$semantic:$value]"
+
+/**
+ * A helper function to concatenate multiple data values into a single string,
+ * as used in data extraction JavaScript.
+ * Intended to be used by tests to provide the expected values.
+ */
+fun dataValues(vararg values: String): String = values.joinToString("")
