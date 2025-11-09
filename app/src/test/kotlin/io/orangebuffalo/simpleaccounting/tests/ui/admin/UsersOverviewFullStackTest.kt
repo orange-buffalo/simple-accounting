@@ -3,12 +3,11 @@ package io.orangebuffalo.simpleaccounting.tests.ui.admin
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainAll
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIconType
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.UsersOverviewPage.Companion.openUsersOverviewPage
 import org.junit.jupiter.api.Test
 
@@ -27,7 +26,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.REGULAR_USER, "User"),
                             primaryAttribute(SaIconType.ACTIVE_USER, "Active"),
                         ),
-                        lastColumnContent = editAction(),
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -36,7 +35,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.ADMIN_USER, "Admin user"),
                             primaryAttribute(SaIconType.INACTIVE_USER, "Not yet activated"),
                         ),
-                        lastColumnContent = editAction(),
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -45,7 +44,7 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.REGULAR_USER, "User"),
                             primaryAttribute(SaIconType.INACTIVE_USER, "Not yet activated"),
                         ),
-                        lastColumnContent = editAction(),
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
                         hasDetails = false,
                     ),
                     SaOverviewItemData(
@@ -54,15 +53,13 @@ class UsersOverviewFullStackTest : SaFullStackTestBase() {
                             primaryAttribute(SaIconType.ADMIN_USER, "Admin user"),
                             primaryAttribute(SaIconType.ACTIVE_USER, "Active"),
                         ),
-                        lastColumnContent = editAction(),
+                        lastColumnContent = SaActionLink.editActionLinkValue(),
                         hasDetails = false,
                     ),
                 )
             }
         }
     }
-
-    private fun editAction() = dataValues(SaIcon.iconValue(SaIconType.PENCIL_SOLID), "Edit")
 
     @Test
     fun `should support pagination`(page: Page) {

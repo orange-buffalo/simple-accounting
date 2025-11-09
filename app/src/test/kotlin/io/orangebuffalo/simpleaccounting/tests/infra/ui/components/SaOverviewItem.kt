@@ -2,14 +2,10 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.nulls.shouldNotBeNull
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 
 /* language=javascript */
@@ -30,6 +26,35 @@ private const val DATA_JS = """
     };
 """
 
+/* language=javascript */
+private const val DETAILS_DATA_JS = """
+    (panel) => {
+        const detailsContainer = panel.parentElement.querySelector('.overview-item__details');
+        if (!detailsContainer) return null;
+
+        const actions = Array.from(detailsContainer.querySelectorAll('.overview-item-details-section-actions .sa-action-link')).map(el => {
+            return utils.getDynamicContent(el);
+        });
+
+        const sections = Array.from(detailsContainer.querySelectorAll('.overview-item-details-section')).map(section => {
+            const titleEl = section.querySelector('.overview-item-details-section__title');
+            const title = titleEl ? utils.getDynamicContent(titleEl) : null;
+
+            const attributes = Array.from(section.querySelectorAll('.overview-item-details-section-attribute')).map(attr => {
+                const labelEl = attr.querySelector('.overview-item-details-section-attribute__label');
+                const label = labelEl ? utils.getDynamicContent(labelEl) : null;
+                const valueEl = attr.querySelector('.overview-item-details-section-attribute__label + div');
+                const value = valueEl ? utils.getDynamicContent(valueEl) : null;
+                return [label, value];
+            });
+
+            return { title: title.toUpperCase(), attributes };
+        });
+
+        return { actions, sections };
+    };
+"""
+
 class SaOverviewItem private constructor(
     private val panel: Locator,
 ) {
@@ -42,46 +67,24 @@ class SaOverviewItem private constructor(
     val title: String?
         get() = panel.locator(".overview-item__title").innerTextOrNull()
 
-//    val primaryAttributes: List<PrimaryAttribute>
-//        get() = panel.locator(".overview-item-primary-attribute").all().map {
-//            PrimaryAttribute(
-//                icon = it.locator(".overview-item-primary-attribute__icon").getAttribute("data-icon"),
-//                text = it.innerTextOrNull() ?: "<primary attribute text is missing>",
-//            )
-//        }
-
     private val detailsTrigger = panel.locator(".overview-item__details-trigger")
 
     fun shouldHaveDetails(actions: List<String> = emptyList(), vararg sections: DetailsSectionSpec) {
         expandDetails()
         shouldSatisfy("Overview item details should match the expected specification") {
-            val detailsContainer = panel.locator("..").locator(".overview-item__details")
-
-            val actionsLocator = detailsContainer.locator(".overview-item-details-section-actions .sa-action-link")
-            val actualActions = actionsLocator.all().map { it.innerTextOrNull() }
-            actualActions.shouldContainExactly(actions)
-
-            val actualSections = detailsContainer.locator(".overview-item-details-section")
-                .all().map { actualSection ->
-                    val sectionTitle = actualSection
-                        .locator(".overview-item-details-section__title")
-                        .innerTextOrNull()
-                    DetailsSectionSpec(
-                        title = sectionTitle ?: "<section title is missing>",
-                        attributes = actualSection.locator(".overview-item-details-section-attribute")
-                            .all().map { attributeEl ->
-                                val label = attributeEl
-                                    .locator(".overview-item-details-section-attribute__label")
-                                    .innerTextOrNull().shouldNotBeNull()
-                                val value = attributeEl
-                                    // next element sibling
-                                    .locator(".overview-item-details-section-attribute__label + div")
-                                    .innerTextOrNull()
-                                label to (value ?: "<attribute value is missing>")
-                            }
-                    )
+            val detailsDataJson = panel.evaluate(
+                """
+                (panel) => {
+                    ${injectJsUtils()}
+                    const getDetailsData = $DETAILS_DATA_JS;
+                    return JSON.stringify(getDetailsData(panel));
                 }
-            actualSections.shouldContainExactly(sections.map { it.copy(title = it.title.uppercase()) })
+                """,
+            ) as String
+            val detailsData = Json.decodeFromString<DetailsData>( detailsDataJson)
+            detailsData.actions.shouldContainExactly(actions)
+            val expectedSections = sections.map { DetailsSection(it.title.uppercase(), it.attributes.map { pair -> listOf(pair.first, pair.second) }) }
+            detailsData.sections.shouldContainExactly(expectedSections)
         }
     }
 
@@ -116,6 +119,18 @@ data class SaOverviewItemData(
     val lastColumnContent: String? = null,
     val attributePreviewIcons: List<String> = emptyList(),
     val hasDetails: Boolean = true,
+)
+
+@Serializable
+private data class DetailsData(
+    val actions: List<String>,
+    val sections: List<DetailsSection>
+)
+
+@Serializable
+private data class DetailsSection(
+    val title: String?,
+    val attributes: List<List<String>>
 )
 
 fun SaPageableItems<SaOverviewItem, SaOverviewItemData>.shouldHaveTitles(titles: List<String>) {

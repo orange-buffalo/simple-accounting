@@ -127,13 +127,17 @@ class SaStatusLabel private constructor(
                 }
                 const statusClasses = Array.from(statusLabelElement.classList);
                 let statusValue = null;
-                if (statusClasses.includes('sa-status-label_failure')) {
+                if (statusClasses.includes('sa-status-label_failure')
+                    || statusClasses.includes('sa-status-label_failure-simplified')) {
                     statusValue = 'failure';
-                } else if (statusClasses.includes('sa-status-label_regular')) {
+                } else if (statusClasses.includes('sa-status-label_regular')
+                    || statusClasses.includes('sa-status-label_regular-simplified')) {
                     statusValue = 'regular';
-                } else if (statusClasses.includes('sa-status-label_pending')) {
+                } else if (statusClasses.includes('sa-status-label_pending')
+                    || statusClasses.includes('sa-status-label_pending-simplified')) {
                     statusValue = 'pending';
-                } else if (statusClasses.includes('sa-status-label_success')) {
+                } else if (statusClasses.includes('sa-status-label_success')
+                    || statusClasses.includes('sa-status-label_success-simplified')) {
                     statusValue = 'success';
                 }
                 if (!statusValue) {

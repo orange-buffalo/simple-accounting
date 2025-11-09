@@ -120,10 +120,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
 
                 // Expand and verify details for each expense
                 staticItems[0].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Finalized",
+                        "Status" to finalizedStatus(),
                         "Category" to "Delivery",
                         "Date Paid" to "15 Jan 2025",
                         "Amount for Taxation Purposes" to "USD 100.00"
@@ -135,10 +135,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[1].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Conversion to USD pending",
+                        "Status" to pendingStatus("Conversion to USD pending"),
                         "Category" to "Delivery",
                         "Date Paid" to "14 Jan 2025",
                         "Amount for Taxation Purposes" to "Not yet provided"
@@ -157,10 +157,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[2].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Waiting for exchange rate",
+                        "Status" to pendingStatus("Waiting for exchange rate"),
                         "Category" to "Delivery",
                         "Date Paid" to "13 Jan 2025",
                         "Amount for Taxation Purposes" to "Not yet provided"
@@ -179,10 +179,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[3].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Finalized",
+                        "Status" to finalizedStatus(),
                         "Category" to "Delivery",
                         "Date Paid" to "12 Jan 2025",
                         "Amount for Taxation Purposes" to "USD 20.00"
@@ -197,10 +197,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[4].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Finalized",
+                        "Status" to finalizedStatus(),
                         "Category" to "Delivery",
                         "Date Paid" to "11 Jan 2025",
                         "Amount for Taxation Purposes" to "USD 100.00",
@@ -215,10 +215,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[5].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Finalized",
+                        "Status" to finalizedStatus(),
                         "Category" to "Delivery",
                         "Date Paid" to "10 Jan 2025",
                         "Amount for Taxation Purposes" to "USD 50.00"
@@ -233,10 +233,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[6].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Finalized",
+                        "Status" to finalizedStatus(),
                         "Category" to "Delivery",
                         "Date Paid" to "9 Jan 2025",
                         "Amount for Taxation Purposes" to "USD 60.00"
@@ -255,10 +255,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[7].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Finalized",
+                        "Status" to finalizedStatus(),
                         "Category" to "Delivery",
                         "Date Paid" to "8 Jan 2025",
                         "Amount for Taxation Purposes" to "USD 8.50"
@@ -277,10 +277,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[8].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Finalized",
+                        "Status" to finalizedStatus(),
                         "Category" to "Delivery",
                         "Date Paid" to "7 Jan 2025",
                         "Amount for Taxation Purposes" to "USD 40.00"
@@ -293,10 +293,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 )
 
                 staticItems[9].shouldHaveDetails(
-                    actions = listOf("Copy", "Edit"),
+                    actions = actions(),
                     DetailsSectionSpec(
                         title = "Summary",
-                        "Status" to "Finalized",
+                        "Status" to finalizedStatus(),
                         "Category" to "Delivery",
                         "Date Paid" to "6 Jan 2025",
                         "Amount for Taxation Purposes" to "USD 160.00",
@@ -335,12 +335,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         }
     }
 
+    private fun actions() = listOf(SaActionLink.copyActionLinkValue(), SaActionLink.editActionLinkValue())
+
     private fun datePaidAsPrimary(datePaid: String) =
         listOf(primaryAttribute(SaIconType.CALENDAR, text = datePaid))
 
     private fun finalizedStatus() = dataValues(SaStatusLabel.successStatusValue(), "Finalized")
 
-    private fun pendingStatus() = dataValues(SaStatusLabel.pendingStatusValue(), "Pending")
+    private fun pendingStatus(label: String = "Pending") = dataValues(SaStatusLabel.pendingStatusValue(), label)
 
     @Test
     fun `should support pagination`(page: Page) {
