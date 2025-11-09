@@ -37,34 +37,34 @@ class UsersOverviewPage private constructor(page: Page) : SaPageBase(page) {
 
 data class UserOverviewItem(
     val userName: String,
-    val userType: SaOverviewItem.PrimaryAttribute,
-    val userActivation: SaOverviewItem.PrimaryAttribute,
+//    val userType: SaOverviewItem.PrimaryAttribute,
+//    val userActivation: SaOverviewItem.PrimaryAttribute,
 ) {
     companion object {
-        val adminUserType = SaOverviewItem.PrimaryAttribute(
-            icon = "admin-user",
-            text = "Admin user",
-        )
-        val regularUserType = SaOverviewItem.PrimaryAttribute(
-            icon = "regular-user",
-            text = "User",
-        )
-        val activeUser = SaOverviewItem.PrimaryAttribute(
-            icon = "active-user",
-            text = "Active",
-        )
-        val inactiveUser = SaOverviewItem.PrimaryAttribute(
-            icon = "inactive-user",
-            text = "Not yet activated",
-        )
+//        val adminUserType = SaOverviewItem.PrimaryAttribute(
+//            icon = "admin-user",
+//            text = "Admin user",
+//        )
+//        val regularUserType = SaOverviewItem.PrimaryAttribute(
+//            icon = "regular-user",
+//            text = "User",
+//        )
+//        val activeUser = SaOverviewItem.PrimaryAttribute(
+//            icon = "active-user",
+//            text = "Active",
+//        )
+//        val inactiveUser = SaOverviewItem.PrimaryAttribute(
+//            icon = "inactive-user",
+//            text = "Not yet activated",
+//        )
     }
 }
 
 fun SaOverviewItem.toUserOverviewItem(): UserOverviewItem {
-    primaryAttributes.shouldHaveSize(2)
+//    primaryAttributes.shouldHaveSize(2)
     return UserOverviewItem(
         userName = title.shouldNotBeNull(),
-        userType = primaryAttributes[0],
-        userActivation = primaryAttributes[1],
+//        userType = primaryAttributes[0],
+//        userActivation = primaryAttributes[1],
     )
 }

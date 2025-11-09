@@ -6,6 +6,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageableItems.Companion.pageableItems
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.innerTextOrNull
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import kotlinx.serialization.Serializable
@@ -20,10 +21,7 @@ private const val DATA_JS = """
         
         // Extract primary attributes
         const primaryAttributes = Array.from(panel.querySelectorAll('.overview-item-primary-attribute')).map(attr => {
-            const iconElement = attr.querySelector('.overview-item-primary-attribute__icon');
-            const icon = iconElement ? iconElement.getAttribute('data-icon') : null;
-            const text = utils.getDynamicContent(attr);
-            return { icon, text };
+            return utils.getDynamicContent(attr);
         });
         
         // Extract middle column content (status information)
@@ -64,13 +62,13 @@ class SaOverviewItem private constructor(
     val lastColumnContent: String?
         get() = panel.locator(".overview-item__last-column").innerTextOrNull()
 
-    val primaryAttributes: List<PrimaryAttribute>
-        get() = panel.locator(".overview-item-primary-attribute").all().map {
-            PrimaryAttribute(
-                icon = it.locator(".overview-item-primary-attribute__icon").getAttribute("data-icon"),
-                text = it.innerTextOrNull() ?: "<primary attribute text is missing>",
-            )
-        }
+//    val primaryAttributes: List<PrimaryAttribute>
+//        get() = panel.locator(".overview-item-primary-attribute").all().map {
+//            PrimaryAttribute(
+//                icon = it.locator(".overview-item-primary-attribute__icon").getAttribute("data-icon"),
+//                text = it.innerTextOrNull() ?: "<primary attribute text is missing>",
+//            )
+//        }
 
     private val detailsTrigger = panel.locator(".overview-item__details-trigger")
 
@@ -132,29 +130,25 @@ class SaOverviewItem private constructor(
                 itemDataJs = DATA_JS,
                 itemDataSerializer = serializer<SaOverviewItemData>(),
             ) { container -> SaOverviewItem(container.locator(".overview-item__panel")) }
+
+        fun primaryAttribute(icon: SaIconType, text: String) = dataValues(SaIcon.iconValue(icon), text)
     }
-
-    @Serializable
-    data class PrimaryAttribute(
-        val icon: String?,
-        val text: String?,
-    )
-
-    @Serializable
-    data class SaOverviewItemData(
-        val title: String?,
-        val primaryAttributes: List<PrimaryAttribute>,
-        val middleColumnContent: String?,
-        val lastColumnContent: String?,
-        val attributePreviewIcons: List<String>,
-    )
 }
 
-fun SaPageableItems<SaOverviewItem, SaOverviewItem.SaOverviewItemData>.shouldHaveTitles(titles: List<String>) {
+@Serializable
+data class SaOverviewItemData(
+    val title: String? = null,
+    val primaryAttributes: List<String> = emptyList(),
+    val middleColumnContent: String? = null,
+    val lastColumnContent: String? = null,
+    val attributePreviewIcons: List<String> = emptyList(),
+)
+
+fun SaPageableItems<SaOverviewItem, SaOverviewItemData>.shouldHaveTitles(titles: List<String>) {
     shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(titles) }
 }
 
-fun SaPageableItems<SaOverviewItem, SaOverviewItem.SaOverviewItemData>.shouldHaveTitles(vararg titles: String) {
+fun SaPageableItems<SaOverviewItem, SaOverviewItemData>.shouldHaveTitles(vararg titles: String) {
     shouldHaveDataSatisfying { items -> items.map { it.title }.shouldContainExactly(*titles) }
 }
 

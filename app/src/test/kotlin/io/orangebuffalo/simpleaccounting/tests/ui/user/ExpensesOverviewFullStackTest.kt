@@ -5,15 +5,12 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DetailsSectionSpec
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Icons
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
-import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpenseOverviewItem
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.toExpenseOverviewItem
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -44,73 +41,73 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 // Verify all expenses with their complete data
                 shouldHaveDataSatisfying { data ->
                     data.shouldContainExactly(
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "Finalized USD",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "15 Jan 2025")),
-                            middleColumnContent = "Finalized",
+                            primaryAttributes = datePaidAsPrimary("15 Jan 2025"),
+                            middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 100.00",
                             attributePreviewIcons = emptyList(),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "Pending Conversion EUR",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "14 Jan 2025")),
-                            middleColumnContent = "Pending",
+                            primaryAttributes = datePaidAsPrimary("14 Jan 2025"),
+                            middleColumnContent = pendingStatus(),
                             lastColumnContent = "EUR 50.00",
                             attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "Pending Tax Conversion",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "13 Jan 2025")),
-                            middleColumnContent = "Pending",
+                            primaryAttributes = datePaidAsPrimary("13 Jan 2025"),
+                            middleColumnContent = pendingStatus(),
                             lastColumnContent = "USD 40.00",
                             attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "With Notes",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "12 Jan 2025")),
-                            middleColumnContent = "Finalized",
+                            primaryAttributes = datePaidAsPrimary("12 Jan 2025"),
+                            middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 20.00",
                             attributePreviewIcons = listOf(Icons.NOTES),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "With Tax",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "11 Jan 2025")),
-                            middleColumnContent = "Finalized",
+                            primaryAttributes = datePaidAsPrimary("11 Jan 2025"),
+                            middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 100.00",
                             attributePreviewIcons = listOf(Icons.TAX),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "With Attachments",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "10 Jan 2025")),
-                            middleColumnContent = "Finalized",
+                            primaryAttributes = datePaidAsPrimary("10 Jan 2025"),
+                            middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 50.00",
                             attributePreviewIcons = listOf(Icons.ATTACHMENT),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "Foreign Currency Same Amounts",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "9 Jan 2025")),
-                            middleColumnContent = "Finalized",
+                            primaryAttributes = datePaidAsPrimary("9 Jan 2025"),
+                            middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 60.00",
                             attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "Foreign Currency Different Amounts",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "8 Jan 2025")),
-                            middleColumnContent = "Finalized",
+                            primaryAttributes = datePaidAsPrimary("8 Jan 2025"),
+                            middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 8.50",
                             attributePreviewIcons = listOf(Icons.MULTI_CURRENCY),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "Partial Business",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "7 Jan 2025")),
-                            middleColumnContent = "Finalized",
+                            primaryAttributes = datePaidAsPrimary("7 Jan 2025"),
+                            middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 40.00",
                             attributePreviewIcons = listOf(Icons.PERCENT),
                         ),
-                        SaOverviewItem.SaOverviewItemData(
+                        SaOverviewItemData(
                             title = "Multiple Icons",
-                            primaryAttributes = listOf(SaOverviewItem.PrimaryAttribute(icon = Icons.CALENDAR, text = "6 Jan 2025")),
-                            middleColumnContent = "Finalized",
+                            primaryAttributes = datePaidAsPrimary("6 Jan 2025"),
+                            middleColumnContent = finalizedStatus(),
                             lastColumnContent = "USD 160.00",
                             attributePreviewIcons = listOf(
                                 Icons.NOTES,
@@ -342,6 +339,13 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             reportRendering("expenses-overview.loaded-expanded")
         }
     }
+
+    private fun datePaidAsPrimary(datePaid: String) =
+        listOf(primaryAttribute(SaIconType.CALENDAR, text = datePaid))
+
+    private fun finalizedStatus() = dataValues(SaStatusLabel.successStatusValue(), "Finalized")
+
+    private fun pendingStatus() = dataValues(SaStatusLabel.pendingStatusValue(), "Pending")
 
     @Test
     fun `should support pagination`(page: Page) {

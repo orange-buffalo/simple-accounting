@@ -8,6 +8,8 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import kotlin.time.Duration.Companion.milliseconds
@@ -155,26 +157,70 @@ fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) = r
 /**
  * Injects JavaScript utilities into a JavaScript snippet (typically, passed to [Locator.evaluate] or similar).
  */
-fun injectJsUtils(): String = /* language=javascript */ """
+fun injectJsUtils(): String = /* language=javascript */ $$"""
     // noinspection JSUnusedLocalSymbols
     const utils = {
         /**
           * For the given element, returns its text content trimmed to null.
           * Non-breaking spaces are replaced with regular spaces.
+          * Noteworthy components data is extracted via their specific data extractors.
         */
         getDynamicContent: function(el) {
             if (!el) {
                 return null;
             }
-            let allContent = el.textContent;
-            if (!allContent) {
+            let data = '';
+            const statusValue = ($${SaStatusLabel.jsDataExtractor()})(el);
+            if (statusValue) {
+                data += statusValue;
+            } else {
+                // SaStatusLabel has priority over SaIcon, as it can contain an icon inside
+                data += ($${SaIcon.jsDataExtractor()})(el) || '';
+            }
+            let textContent = el.textContent;
+            if (textContent) {
+                // replace non-breaking spaces with regular spaces
+                textContent = textContent.replace(/\u00A0/g, ' ');
+                // trim (to null later)
+                textContent = textContent.trim();
+            }
+            data += textContent || '';
+            return data === '' ? null : data;
+        },
+      
+        /**
+        * Converts a visual value into a data extraction representation.
+        * Must be in sync with the [visualToData] Kotlin function.
+        */
+        visualToData: (semantic, value) => {
+            return `[${semantic}:${value}]`;
+        },
+        
+        /**
+        * Finds the closest descendant (including the element itself) that has the specified class.
+        */
+        findClosestByClass: function(el, className) {
+            if (!el) {
                 return null;
             }
-            // replace non-breaking spaces with regular spaces
-            allContent = allContent.replace(/\u00A0/g, ' ');
-            // trim to null
-            allContent = allContent.trim();
-            return allContent.length > 0 ? allContent : null;
+            if (el.classList && el.classList.contains(className)) {
+                return el;
+            }
+            const descendants = el.getElementsByClassName(className);
+            return descendants.length > 0 ? descendants[0] : null;
         }
     };
 """
+
+/**
+ * A helper function for consistent representation of visual values in data extraction JavaScript.
+ * Intended to be used by components implementation, not by tests directly.
+ */
+fun visualToData(semantic: String, value: String): String = "[$semantic:$value]"
+
+/**
+ * A helper function to concatenate multiple data values into a single string,
+ * as used in data extraction JavaScript.
+ * Intended to be used by tests to provide the expected values.
+ */
+fun dataValues(vararg values: String): String = values.joinToString("")
