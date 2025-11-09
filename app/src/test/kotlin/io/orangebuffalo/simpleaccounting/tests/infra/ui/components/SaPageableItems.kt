@@ -91,6 +91,12 @@ class SaPageableItems<I, D : Any> private constructor(
         }
     }
 
+    fun shouldHaveExactData(vararg expectedData: D) {
+        shouldHaveDataSatisfying { data ->
+            data.shouldContainExactly(*expectedData)
+        }
+    }
+
     private fun getData(): List<D> {
         /* language=javascript */
         val dataJsonString = container.evaluate(

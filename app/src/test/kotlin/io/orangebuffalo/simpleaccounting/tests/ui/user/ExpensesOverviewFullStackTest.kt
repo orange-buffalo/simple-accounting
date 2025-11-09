@@ -2,7 +2,6 @@ package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldContainExactly
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
@@ -12,14 +11,12 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
-import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
 
     @Test
-    @RepeatedTest(100)
     fun `should display expenses with all possible states and attributes`(page: Page) {
         page.authenticateViaCookie(preconditionsAllStates.fry)
 
@@ -40,86 +37,84 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage {
             pageItems {
                 // Verify all expenses with their complete data
-                shouldHaveDataSatisfying { data ->
-                    data.shouldContainExactly(
-                        SaOverviewItemData(
-                            title = "Finalized USD",
-                            primaryAttributes = datePaidAsPrimary("15 Jan 2025"),
-                            middleColumnContent = finalizedStatus(),
-                            lastColumnContent = "USD 100.00",
-                            attributePreviewIcons = emptyList(),
+                shouldHaveExactData(
+                    SaOverviewItemData(
+                        title = "Finalized USD",
+                        primaryAttributes = datePaidAsPrimary("15 Jan 2025"),
+                        middleColumnContent = finalizedStatus(),
+                        lastColumnContent = "USD 100.00",
+                        attributePreviewIcons = emptyList(),
+                    ),
+                    SaOverviewItemData(
+                        title = "Pending Conversion EUR",
+                        primaryAttributes = datePaidAsPrimary("14 Jan 2025"),
+                        middleColumnContent = pendingStatus(),
+                        lastColumnContent = "EUR 50.00",
+                        attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
+                    ),
+                    SaOverviewItemData(
+                        title = "Pending Tax Conversion",
+                        primaryAttributes = datePaidAsPrimary("13 Jan 2025"),
+                        middleColumnContent = pendingStatus(),
+                        lastColumnContent = "USD 40.00",
+                        attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
+                    ),
+                    SaOverviewItemData(
+                        title = "With Notes",
+                        primaryAttributes = datePaidAsPrimary("12 Jan 2025"),
+                        middleColumnContent = finalizedStatus(),
+                        lastColumnContent = "USD 20.00",
+                        attributePreviewIcons = previewIcons(SaIconType.NOTES),
+                    ),
+                    SaOverviewItemData(
+                        title = "With Tax",
+                        primaryAttributes = datePaidAsPrimary("11 Jan 2025"),
+                        middleColumnContent = finalizedStatus(),
+                        lastColumnContent = "USD 100.00",
+                        attributePreviewIcons = previewIcons(SaIconType.TAX),
+                    ),
+                    SaOverviewItemData(
+                        title = "With Attachments",
+                        primaryAttributes = datePaidAsPrimary("10 Jan 2025"),
+                        middleColumnContent = finalizedStatus(),
+                        lastColumnContent = "USD 50.00",
+                        attributePreviewIcons = previewIcons(SaIconType.ATTACHMENT),
+                    ),
+                    SaOverviewItemData(
+                        title = "Foreign Currency Same Amounts",
+                        primaryAttributes = datePaidAsPrimary("9 Jan 2025"),
+                        middleColumnContent = finalizedStatus(),
+                        lastColumnContent = "USD 60.00",
+                        attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
+                    ),
+                    SaOverviewItemData(
+                        title = "Foreign Currency Different Amounts",
+                        primaryAttributes = datePaidAsPrimary("8 Jan 2025"),
+                        middleColumnContent = finalizedStatus(),
+                        lastColumnContent = "USD 8.50",
+                        attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
+                    ),
+                    SaOverviewItemData(
+                        title = "Partial Business",
+                        primaryAttributes = datePaidAsPrimary("7 Jan 2025"),
+                        middleColumnContent = finalizedStatus(),
+                        lastColumnContent = "USD 40.00",
+                        attributePreviewIcons = previewIcons(SaIconType.PERCENT),
+                    ),
+                    SaOverviewItemData(
+                        title = "Multiple Icons",
+                        primaryAttributes = datePaidAsPrimary("6 Jan 2025"),
+                        middleColumnContent = finalizedStatus(),
+                        lastColumnContent = "USD 160.00",
+                        attributePreviewIcons = previewIcons(
+                            SaIconType.NOTES,
+                            SaIconType.TAX,
+                            SaIconType.ATTACHMENT,
+                            SaIconType.MULTI_CURRENCY,
+                            SaIconType.PERCENT,
                         ),
-                        SaOverviewItemData(
-                            title = "Pending Conversion EUR",
-                            primaryAttributes = datePaidAsPrimary("14 Jan 2025"),
-                            middleColumnContent = pendingStatus(),
-                            lastColumnContent = "EUR 50.00",
-                            attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
-                        ),
-                        SaOverviewItemData(
-                            title = "Pending Tax Conversion",
-                            primaryAttributes = datePaidAsPrimary("13 Jan 2025"),
-                            middleColumnContent = pendingStatus(),
-                            lastColumnContent = "USD 40.00",
-                            attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
-                        ),
-                        SaOverviewItemData(
-                            title = "With Notes",
-                            primaryAttributes = datePaidAsPrimary("12 Jan 2025"),
-                            middleColumnContent = finalizedStatus(),
-                            lastColumnContent = "USD 20.00",
-                            attributePreviewIcons = previewIcons(SaIconType.NOTES),
-                        ),
-                        SaOverviewItemData(
-                            title = "With Tax",
-                            primaryAttributes = datePaidAsPrimary("11 Jan 2025"),
-                            middleColumnContent = finalizedStatus(),
-                            lastColumnContent = "USD 100.00",
-                            attributePreviewIcons = previewIcons(SaIconType.TAX),
-                        ),
-                        SaOverviewItemData(
-                            title = "With Attachments",
-                            primaryAttributes = datePaidAsPrimary("10 Jan 2025"),
-                            middleColumnContent = finalizedStatus(),
-                            lastColumnContent = "USD 50.00",
-                            attributePreviewIcons = previewIcons(SaIconType.ATTACHMENT),
-                        ),
-                        SaOverviewItemData(
-                            title = "Foreign Currency Same Amounts",
-                            primaryAttributes = datePaidAsPrimary("9 Jan 2025"),
-                            middleColumnContent = finalizedStatus(),
-                            lastColumnContent = "USD 60.00",
-                            attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
-                        ),
-                        SaOverviewItemData(
-                            title = "Foreign Currency Different Amounts",
-                            primaryAttributes = datePaidAsPrimary("8 Jan 2025"),
-                            middleColumnContent = finalizedStatus(),
-                            lastColumnContent = "USD 8.50",
-                            attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
-                        ),
-                        SaOverviewItemData(
-                            title = "Partial Business",
-                            primaryAttributes = datePaidAsPrimary("7 Jan 2025"),
-                            middleColumnContent = finalizedStatus(),
-                            lastColumnContent = "USD 40.00",
-                            attributePreviewIcons = previewIcons(SaIconType.PERCENT),
-                        ),
-                        SaOverviewItemData(
-                            title = "Multiple Icons",
-                            primaryAttributes = datePaidAsPrimary("6 Jan 2025"),
-                            middleColumnContent = finalizedStatus(),
-                            lastColumnContent = "USD 160.00",
-                            attributePreviewIcons = previewIcons(
-                                SaIconType.NOTES,
-                                SaIconType.TAX,
-                                SaIconType.ATTACHMENT,
-                                SaIconType.MULTI_CURRENCY,
-                                SaIconType.PERCENT,
-                            ),
-                        )
                     )
-                }
+                )
 
                 // Report rendering with all panels collapsed
                 this@shouldBeExpensesOverviewPage.reportRendering("expenses-overview.loaded-collapsed")
@@ -389,8 +384,14 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsFiltering.fry)
         page.openExpensesOverviewPage {
             pageItems {
+                // ensure data loaded
                 shouldHaveDataSatisfying { items ->
                     items.map { it.title }.shouldContainAll("Office", "Travel", "Meals")
+                }
+                // ensure we update paginator as well
+                paginator {
+                    shouldHaveActivePage(1)
+                    shouldHaveTotalPages(2)
                 }
             }
 
@@ -398,6 +399,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             filterInput { fill("office") }
             pageItems {
                 shouldHaveTitles("Office")
+                // ensure paginator updated
                 paginator {
                     shouldHaveActivePage(1)
                     shouldHaveTotalPages(1)

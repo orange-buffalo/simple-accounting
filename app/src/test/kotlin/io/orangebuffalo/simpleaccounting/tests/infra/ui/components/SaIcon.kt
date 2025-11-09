@@ -39,5 +39,10 @@ enum class SaIconType(val uiValue: String) {
     NOTES("notes"),
     PERCENT("percent"),
     TAX("tax"),
-    CALENDAR("calendar");
+    CALENDAR("calendar"),
+    ADMIN_USER("admin-user"),
+    REGULAR_USER("regular-user"),
+    ACTIVE_USER("active-user"),
+    INACTIVE_USER("inactive-user"),
+    PENCIL_SOLID("pencil-solid"),
 }
