@@ -143,6 +143,76 @@ fun Page.withBlockedApiResponse(
 }
 
 /**
+ * Intercepts the GraphQL API call started by the [initiator]. Upon call execution,
+ * blocks the response for the specified query or mutation and executes the provided [blockedRequestSpec].
+ * Then resumes the request with the original response. The method is blocked
+ * until both the [initiator] and [blockedRequestSpec] are executed.
+ *
+ * **Important**: [initiator] must invoke an assertion on a locator that ensures the request is initiated;
+ * without this, the [blockedRequestSpec] will be only invoked on the next locator interaction, which
+ * might be far away from the request initiation and cause unstable behavior.
+ *
+ * Both callbacks are executed _in the same thread_ due to the Playwright sync API design. This
+ * is the reason for this function to have two parameters instead of one.
+ *
+ * The motivation of this function is to provide clear visibility on how the blocked request
+ * is related to pre- and post-processing.
+ *
+ * @param queryOrMutationName the name of the GraphQL query or mutation to block
+ * @param initiator a function that initiates the request
+ * @param blockedRequestSpec a function that is executed when the request is blocked
+ */
+fun Page.withBlockedGqlApiResponse(
+    queryOrMutationName: String,
+    initiator: () -> Unit,
+    blockedRequestSpec: () -> Unit,
+    resetOnCompletion: Boolean = true,
+) {
+    log.trace { "Starting GraphQL API request blocking for $queryOrMutationName" }
+    var blockedRequestFailure: Throwable? = null
+    var routeExecuted = false
+    context().route("/api/graphql") { route ->
+        val postData = route.request().postData()
+        if (postData != null && postData.contains("\"operationName\":\"$queryOrMutationName\"")) {
+            log.trace { "Route hit for $queryOrMutationName: ${route.request().url()}" }
+            routeExecuted = true
+            try {
+                blockedRequestSpec()
+                log.trace { "Blocked request spec executed for $queryOrMutationName" }
+                route.resume()
+                if (resetOnCompletion) {
+                    context().unroute("/api/graphql")
+                }
+            } catch (e: Throwable) {
+                log.trace { "Blocked request spec failed: ${e.message}, aborting the route" }
+                blockedRequestFailure = e
+                route.abort()
+            }
+        } else {
+            // Let other GraphQL requests pass through
+            route.resume()
+        }
+    }
+
+    log.trace { "Initiating the request initiator" }
+    initiator()
+
+    shouldSatisfy("The contract of this function requires the initiator to trigger the request") {
+        // Playwright is synchronous, and route is hit only when we interact with the page;
+        // hence, we execute the body assertion to ensure the route is eventually hit
+        this.locator("body").shouldBeVisible()
+        routeExecuted.shouldBeTrue()
+    }
+
+    // exceptions will not be automatically propagated from the route handler,
+    // so we need to check if the blockedRequestSpec has thrown an exception,
+    // so that the test receives the proper failure
+    if (blockedRequestFailure != null) {
+        throw blockedRequestFailure
+    }
+}
+
+/**
  * Asserts that the locator satisfies the provided spec,
  * retrying the assertion until it succeeds or the timeout is reached.
  */
