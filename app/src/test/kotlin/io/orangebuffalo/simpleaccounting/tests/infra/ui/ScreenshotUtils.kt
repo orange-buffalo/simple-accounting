@@ -29,6 +29,29 @@ fun Locator.reportRendering(name: String) {
 
     val stopWatch = StopWatch()
 
+    // Ensure the element is scrolled into view and fully visible
+    this.scrollIntoViewIfNeeded()
+    
+    // Get the element's bounding box to determine if we need to adjust viewport
+    val boundingBox = this.boundingBox()
+        ?: throw IllegalStateException("Cannot capture screenshot - element has no bounding box")
+    
+    val page = this.page()
+    val originalViewport = page.viewportSize()
+    
+    // Calculate required viewport size to fit the entire element
+    val requiredWidth = (boundingBox.x + boundingBox.width).toInt()
+    val requiredHeight = (boundingBox.y + boundingBox.height).toInt()
+    
+    // Temporarily resize viewport if element is larger than current viewport
+    val needsResize = requiredWidth > originalViewport.width || requiredHeight > originalViewport.height
+    if (needsResize) {
+        page.setViewportSize(
+            maxOf(originalViewport.width, requiredWidth),
+            maxOf(originalViewport.height, requiredHeight)
+        )
+    }
+    
     val generatedScreenshot = this.screenshot(
         Locator.ScreenshotOptions()
             .setCaret(ScreenshotCaret.HIDE)
@@ -36,6 +59,11 @@ fun Locator.reportRendering(name: String) {
             .setAnimations(ScreenshotAnimations.DISABLED)
     )
     stopWatch.tick("screenshot")
+    
+    // Restore original viewport size
+    if (needsResize) {
+        page.setViewportSize(originalViewport.width, originalViewport.height)
+    }
 
     val generatedScreenshotFile = generatedScreenshotsDir.resolve("$name.png")
     Files.createDirectories(generatedScreenshotFile.parent)
