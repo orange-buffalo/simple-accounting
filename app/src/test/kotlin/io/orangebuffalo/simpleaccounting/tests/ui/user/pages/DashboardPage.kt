@@ -22,6 +22,18 @@ class DashboardPage private constructor(page: Page) : SaPageBase(page) {
         header.shouldBeVisible()
     }
 
+    fun shouldBeLoaded() {
+        expensesCard {
+            shouldBeLoaded()
+        }
+        incomesCard {
+            shouldBeLoaded()
+        }
+        profitCard {
+            shouldBeLoaded()
+        }
+    }
+
     fun shouldHaveInvoiceCards(count: Int) {
         invoiceCardsLocator.shouldHaveCount(count)
     }

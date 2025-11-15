@@ -23,7 +23,7 @@ class UiInfrastructureFullStackTest(
             passwordInput { fill(preconditions.fry.passwordHash) }
             loginButton { click() }
         }
-        page.shouldBeDashboardPage {}
+        page.shouldBeDashboardPage { shouldBeLoaded() }
 
         // force auth expiration
         jwtService.rotateKeys()
