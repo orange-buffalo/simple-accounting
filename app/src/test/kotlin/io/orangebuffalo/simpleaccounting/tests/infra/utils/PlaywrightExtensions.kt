@@ -8,7 +8,9 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaDocumentsList
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaMarkdownOutput
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -247,6 +249,23 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
                 // SaStatusLabel has priority over SaIcon, as it can contain an icon inside
                 data += ($${SaIcon.jsDataExtractor()})(el) || '';
             }
+            
+            // Check for markdown content
+            const markdownValue = ($${SaMarkdownOutput.jsDataExtractor()})(el);
+            if (markdownValue) {
+                data += markdownValue;
+                // Don't add text content if we found markdown
+                return data === '' ? null : data;
+            }
+            
+            // Check for documents list
+            const documentsValue = ($${SaDocumentsList.jsDataExtractor()})(el);
+            if (documentsValue) {
+                data += documentsValue;
+                // Don't add text content if we found documents
+                return data === '' ? null : data;
+            }
+            
             let textContent = el.textContent;
             if (textContent) {
                 // replace non-breaking spaces with regular spaces
