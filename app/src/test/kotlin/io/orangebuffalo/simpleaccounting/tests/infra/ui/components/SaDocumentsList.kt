@@ -34,14 +34,14 @@ class SaDocumentsList {
                     return null;
                 }
                 
-                // Check if storage is not active
-                const failedStorageMessage = documentsListElement.querySelector('.sa-failed-documents-storage-message');
+                // Check if storage is not active (shows an error alert)
+                const failedStorageMessage = documentsListElement.querySelector('.el-alert--error');
                 if (failedStorageMessage) {
                     return null;
                 }
                 
-                // Find all document elements
-                const documentElements = Array.from(documentsListElement.querySelectorAll('.sa-documents-list__document'));
+                // Find all document elements (using the root class from SaDocument component)
+                const documentElements = Array.from(documentsListElement.querySelectorAll('.sa-document'));
                 if (documentElements.length === 0) {
                     return null;
                 }
