@@ -1,22 +1,26 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
+import com.expediagroup.graphql.generator.SchemaGenerator
 import com.expediagroup.graphql.generator.SchemaGeneratorConfig
-import com.expediagroup.graphql.generator.TopLevelNames
+import com.expediagroup.graphql.generator.TopLevelObject
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.directives.KotlinDirectiveWiringFactory
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
-import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.federation.directives.ContactDirective
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.expediagroup.graphql.server.Schema
-import com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties
-import graphql.schema.GraphQLEnumType
-import graphql.schema.GraphQLType
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import com.expediagroup.graphql.server.operations.Mutation
+import com.expediagroup.graphql.server.operations.Query
+import com.expediagroup.graphql.server.operations.Subscription
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
+import graphql.schema.GraphQLSchema
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Component
 import java.util.Optional
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 @ContactDirective(
     name = "Simple Accounting",
@@ -40,45 +44,38 @@ class SaSchemaGeneratorHooks : SchemaGeneratorHooks {
 
 /**
  * Configuration for GraphQL schema generation that includes additional cross-cutting concern types.
- * This overrides the default auto-configuration to inject additional types into the schema.
+ * Provides additional KTypes to the schema generator for introspection.
  */
 @Configuration
 class SaGraphQlSchemaConfig {
     
     /**
-     * Provides the SchemaGeneratorConfig with additional types for cross-cutting concerns.
-     * This includes error type enums and other infrastructure types that need to be
-     * exposed in the schema for type-safe client code generation.
+     * Overrides the default schema bean to include additional types for introspection.
+     * This allows cross-cutting concern types like error enums to be exposed in the schema
+     * without being directly referenced in queries or mutations.
      */
     @Bean
-    @ConditionalOnMissingBean
-    fun schemaConfig(
-        config: GraphQLConfigurationProperties,
-        topLevelNames: Optional<TopLevelNames>,
-        hooks: Optional<SchemaGeneratorHooks>,
-        dataFetcherFactoryProvider: KotlinDataFetcherFactoryProvider,
-    ): SchemaGeneratorConfig {
-        val saGrapQlErrorTypeEnum = GraphQLEnumType.newEnum()
-            .name("SaGrapQlErrorType")
-            .description(
-                "Defines the error types that can be returned in GraphQL errors. " +
-                "These error types are included in the `extensions.errorType` field of GraphQL errors."
-            )
-            .value(
-                "NOT_AUTHORIZED",
-                SaGrapQlErrorType.NOT_AUTHORIZED,
-                "Indicates that the request requires authentication or the user is not authorized to perform the operation."
-            )
-            .build()
+    @Primary
+    fun schema(
+        queries: Optional<List<Query>>,
+        mutations: Optional<List<Mutation>>,
+        subscriptions: Optional<List<Subscription>>,
+        schemaConfig: SchemaGeneratorConfig,
+        schemaObject: Optional<Schema>,
+    ): GraphQLSchema {
+        val generator = SchemaGenerator(schemaConfig)
         
-        val additionalTypes: Set<GraphQLType> = setOf(saGrapQlErrorTypeEnum)
+        val additionalTypes: Set<KType> = setOf(
+            typeOf<SaGrapQlErrorType>()
+        )
         
-        return SchemaGeneratorConfig(
-            supportedPackages = config.packages,
-            topLevelNames = topLevelNames.orElse(TopLevelNames()),
-            hooks = hooks.orElseGet { com.expediagroup.graphql.generator.hooks.NoopSchemaGeneratorHooks },
-            dataFetcherFactoryProvider = dataFetcherFactoryProvider,
-            additionalTypes = additionalTypes
+        return generator.generateSchema(
+            queries = queries.orElse(emptyList()).map { TopLevelObject(it) },
+            mutations = mutations.orElse(emptyList()).map { TopLevelObject(it) },
+            subscriptions = subscriptions.orElse(emptyList()).map { TopLevelObject(it) },
+            additionalTypes = additionalTypes,
+            additionalInputTypes = emptySet(),
+            schemaObject = schemaObject.orElse(null)?.let { TopLevelObject(it) }
         )
     }
 }
