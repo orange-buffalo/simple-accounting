@@ -81,8 +81,7 @@
     } catch (e: unknown) {
       if (e instanceof ResourceNotFoundError) {
         status.value = 'BAD_TOKEN';
-      }
-      if (e instanceof ApiBusinessError) {
+      } else if (e instanceof ApiBusinessError) {
         const { error } = e.errorAs<UserActivationTokensApiActivateUserErrors>();
         if (error === 'TokenExpired') {
           status.value = 'BAD_TOKEN';

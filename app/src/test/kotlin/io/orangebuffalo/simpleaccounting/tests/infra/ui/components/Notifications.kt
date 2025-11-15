@@ -20,6 +20,15 @@ class Notifications(
         assertNotification(typeClassSuffix = "warning", message = message)
     }
 
+    fun error(message: String? = null) {
+        assertNotification(typeClassSuffix = "error", message = message)
+    }
+
+    fun shouldHaveNoNotifications() {
+        val allNotifications = page.locator(".sa-notification")
+        allNotifications.shouldBeHidden()
+    }
+
     private fun assertNotification(
         typeClassSuffix: String,
         message: String?,

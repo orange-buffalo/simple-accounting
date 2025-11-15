@@ -90,6 +90,9 @@ class PasswordChangeFullStackTest(
                     input { fill("newPassword1") }
                 }
                 changePasswordButton { click() }
+                page.shouldHaveNotifications {
+                    validationFailed()
+                }
                 newPasswordConfirmation {
                     shouldHaveValidationError("New password confirmation does not match")
                 }
@@ -114,6 +117,9 @@ class PasswordChangeFullStackTest(
                     input { fill("newPassword") }
                 }
                 changePasswordButton { click() }
+                page.shouldHaveNotifications {
+                    validationFailed()
+                }
                 currentPassword {
                     shouldHaveValidationError("Current password does not match")
                 }

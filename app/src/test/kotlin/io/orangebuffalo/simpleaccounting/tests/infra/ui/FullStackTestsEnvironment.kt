@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui
 import com.microsoft.playwright.*
 import com.microsoft.playwright.impl.AssertionsTimeout
 import io.orangebuffalo.simpleaccounting.tests.infra.environment.TestConfig
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.UI_ASSERTIONS_TIMEOUT_MS
 import org.junit.jupiter.api.extension.*
 import org.springframework.context.ApplicationContextInitializer
@@ -73,6 +74,13 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
     override fun afterEach(extensionContext: ExtensionContext) {
         val playwrightContext = threadLocalPlaywrightContext.get()
             ?: throw IllegalStateException("Playwright context is not initialized for the current thread")
+        
+        // Verify no notifications are visible after each test
+        if (extensionContext.executionException.isEmpty) {
+            val page = playwrightContext.pageContextStrategy.getPageForTheTest()
+            Notifications(page).shouldHaveNoNotifications()
+        }
+        
         if (extensionContext.executionException.isPresent) {
             val browserContext = playwrightContext.pageContextStrategy.getBrowserContext()
             browserContext.tracing()

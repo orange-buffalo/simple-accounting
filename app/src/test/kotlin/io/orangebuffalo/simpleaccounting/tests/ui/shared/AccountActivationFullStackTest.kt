@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.infra.TimeService
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldHaveNotifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.AccountActivationPage.Companion.openAccountActivationPage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.LoginPage.Companion.shouldBeLoginPage
@@ -87,6 +88,9 @@ class AccountActivationFullStackTest(
                 withHint("Should validate password match when confirmation is not provided") {
                     newPassword.input.fill("abc")
                     activateAccountButton.click()
+                    page.shouldHaveNotifications {
+                        validationFailed()
+                    }
                     shouldBeVisible()
                     newPassword.shouldNotHaveValidationErrors()
                     newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
@@ -96,6 +100,9 @@ class AccountActivationFullStackTest(
                     newPassword.input.fill("abc")
                     newPasswordConfirmation.input.fill("def")
                     activateAccountButton.click()
+                    page.shouldHaveNotifications {
+                        validationFailed()
+                    }
                     shouldBeVisible()
                     newPassword.shouldNotHaveValidationErrors()
                     newPasswordConfirmation.shouldHaveValidationError("Passwords do not match")
@@ -105,6 +112,9 @@ class AccountActivationFullStackTest(
                     newPassword.input.fill("")
                     newPasswordConfirmation.input.fill("")
                     activateAccountButton.click()
+                    page.shouldHaveNotifications {
+                        validationFailed()
+                    }
                     shouldBeVisible()
                     newPassword.shouldHaveValidationError("This value is required and should not be blank")
                     newPasswordConfirmation.shouldNotHaveValidationErrors()
@@ -114,6 +124,9 @@ class AccountActivationFullStackTest(
                     newPassword.input.fill("  ")
                     newPasswordConfirmation.input.fill("  ")
                     activateAccountButton.click()
+                    page.shouldHaveNotifications {
+                        validationFailed()
+                    }
                     shouldBeVisible()
                     newPassword.shouldHaveValidationError("This value is required and should not be blank")
                     newPasswordConfirmation.shouldNotHaveValidationErrors()
@@ -123,6 +136,9 @@ class AccountActivationFullStackTest(
                     newPassword.input.fill("a".repeat(101))
                     newPasswordConfirmation.input.fill("a".repeat(101))
                     activateAccountButton.click()
+                    page.shouldHaveNotifications {
+                        validationFailed()
+                    }
                     shouldBeVisible()
                     newPassword.shouldHaveValidationError("The length of this value should be no longer than 100 characters")
                     newPasswordConfirmation.shouldNotHaveValidationErrors()
