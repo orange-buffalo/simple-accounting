@@ -26,6 +26,9 @@ spring:
     netty:
       # this disables unnecessary graceful shutdown handling in tests (2 seconds overhead per context)
       shutdown-quiet-period: 0ms
+server:
+  # this is needed to speed up tests context shutdown
+  shutdown: immediate
 
 logging:
   level:
