@@ -46,7 +46,7 @@ class SaSchemaGeneratorHooks : SchemaGeneratorHooks {
 }
 
 /**
- * Configuration for GraphQL schema generation that includes additional cross-cutting concern types.
+ * Configuration for GraphQL schema generation.
  */
 @Configuration
 class SaGraphQlSchemaConfig(
@@ -54,7 +54,6 @@ class SaGraphQlSchemaConfig(
 ) {
     
     @Bean
-    @ConditionalOnMissingBean
     fun schemaConfig(
         topLevelNames: Optional<TopLevelNames>,
         hooks: Optional<SchemaGeneratorHooks>,
@@ -67,38 +66,5 @@ class SaGraphQlSchemaConfig(
         dataFetcherFactoryProvider = dataFetcherFactoryProvider,
         introspectionEnabled = config.introspection.enabled,
         typeResolver = typeResolver
-    )
-    
-    /**
-     * Overrides the default schema bean to include additional types for introspection.
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    fun schema(
-        queries: Optional<List<Query>>,
-        mutations: Optional<List<Mutation>>,
-        subscriptions: Optional<List<Subscription>>,
-        schemaConfig: SchemaGeneratorConfig,
-        schemaObject: Optional<Schema>,
-        additionalTypes: Optional<Set<KType>>
-    ): GraphQLSchema {
-        val generator = SchemaGenerator(schemaConfig)
-        return generator.generateSchema(
-            queries = queries.orElse(emptyList()).map { TopLevelObject(it) },
-            mutations = mutations.orElse(emptyList()).map { TopLevelObject(it) },
-            subscriptions = subscriptions.orElse(emptyList()).map { TopLevelObject(it) },
-            additionalTypes = additionalTypes.orElse(emptySet()),
-            additionalInputTypes = emptySet(),
-            schemaObject = schemaObject.orElse(null)?.let { TopLevelObject(it) }
-        )
-    }
-    
-    /**
-     * Provides additional KTypes for introspection to include cross-cutting concern types in the schema.
-     */
-    @Bean
-    @ConditionalOnMissingBean(name = ["graphQLAdditionalTypes"])
-    fun graphQLAdditionalTypes(): Set<KType> = setOf(
-        kotlin.reflect.typeOf<SaGrapQlErrorType>()
     )
 }
