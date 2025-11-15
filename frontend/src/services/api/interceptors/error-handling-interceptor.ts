@@ -54,7 +54,7 @@ export const errorHandlingInterceptor: Middleware = {
         if (reason instanceof ApiRequestCancelledError) {
           // see useRequestConfig for the reason
           throw reason;
-        } else if (reason instanceof DOMException && reason.name === 'TimeoutError') {
+        } else if (reason?.name === 'TimeoutError') {
           // when useRequestConfig is used and timout is reached, it is wrapped into an AbortError
           throw new ApiTimeoutError('Request timed out');
         }
