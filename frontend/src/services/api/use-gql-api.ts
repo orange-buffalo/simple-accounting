@@ -1,4 +1,4 @@
-import { ref, Ref } from 'vue';
+import { nextTick, ref, Ref } from 'vue';
 import { AnyVariables, DocumentInput } from '@urql/core';
 import { gqlClient } from '@/services/api/gql-api-client.ts';
 import useNavigation from '@/services/use-navigation.ts';
@@ -40,6 +40,7 @@ export function useQuery<
         showWarningNotification($t.value.infra.sessionExpired(), {
           duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
         });
+        await nextTick();
         await navigateByPath('/login');
       }
       throw e;
