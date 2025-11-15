@@ -31,13 +31,13 @@ class SaDocumentsList {
                 // Check if storage is loading
                 const loadingPlaceholder = documentsListElement.querySelector('.sa-documents-list__loading-placeholder');
                 if (loadingPlaceholder) {
-                    return null;
+                    return '<loading>';
                 }
                 
                 // Check if storage is not active (shows an error alert)
                 const failedStorageMessage = documentsListElement.querySelector('.el-alert--error');
                 if (failedStorageMessage) {
-                    return null;
+                    return '<storage not active>';
                 }
                 
                 // Find all document elements (using the root class from SaDocument component)
@@ -48,18 +48,18 @@ class SaDocumentsList {
                 
                 // Check if any documents are still loading (have loader elements)
                 const hasLoadingDocuments = documentElements.some(doc => {
-                    return doc.querySelector('.sa-document__loader__file-icon') !== null ||
-                           doc.querySelector('.sa-document__loader__file-description') !== null;
+                    return doc.querySelector('.sa-document__loader__file-icon') !== null;
                 });
                 if (hasLoadingDocuments) {
-                    return null;
+                    return '<document loading>';
                 }
                 
                 // Extract document names from loaded documents
                 const documentNames = documentElements
                     .map(doc => {
                         const nameElement = doc.querySelector('.sa-document__file-description__header__file-name');
-                        return nameElement ? nameElement.textContent.trim() : '';
+                        const textContent = utils.transformTextContent(nameElement ? nameElement.textContent : null);
+                        return textContent || '';
                     })
                     .filter(name => name !== '');
                 

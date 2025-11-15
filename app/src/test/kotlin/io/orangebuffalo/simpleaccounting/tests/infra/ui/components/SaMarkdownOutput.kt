@@ -27,10 +27,7 @@ class SaMarkdownOutput {
                     return null;
                 }
                 // Get the text content, trimmed and normalized
-                let textContent = markdownElement.textContent;
-                if (textContent) {
-                    textContent = textContent.replace(/\u00A0/g, ' ').trim();
-                }
+                const textContent = utils.transformTextContent(markdownElement.textContent);
                 return textContent ? utils.visualToData('$VISUAL_SEMANTIC', textContent) : null;
             }
         """

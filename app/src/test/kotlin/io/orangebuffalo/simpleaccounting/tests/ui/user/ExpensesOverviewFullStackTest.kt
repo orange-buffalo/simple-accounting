@@ -229,9 +229,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Original Amount" to "USD 50.00"
                     ),
                     DetailsSectionSpec(
-                        title = "Attachments"
-                        // TODO: Content verification temporarily disabled for debugging
-                        // content = SaDocumentsList.documentsValue("Receipt 1", "Receipt 2")
+                        title = "Attachments",
+                        content = SaDocumentsList.documentsValue("Receipt 1", "Receipt 2")
                     )
                 )
 
@@ -320,9 +319,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Amount in USD for taxation purposes" to "USD 160.00"
                     ),
                     DetailsSectionSpec(
-                        title = "Attachments"
-                        // TODO: Content verification temporarily disabled for debugging
-                        // content = SaDocumentsList.documentsValue("Receipt 1")
+                        title = "Attachments",
+                        content = SaDocumentsList.documentsValue("Receipt 1")
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",

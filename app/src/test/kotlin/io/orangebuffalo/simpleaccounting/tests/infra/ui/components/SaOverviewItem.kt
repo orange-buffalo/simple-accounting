@@ -50,17 +50,13 @@ private const val DETAILS_DATA_JS = """
 
             // Extract free content from .col elements that are not inside .overview-item-details-section-attribute
             let content = null;
-            const colElements = section.querySelectorAll('.row > .col');
-            for (const colEl of colElements) {
-                // Skip if this col is inside an attribute
-                if (colEl.closest('.overview-item-details-section-attribute')) {
-                    continue;
-                }
-                const colContent = utils.getDynamicContent(colEl);
-                if (colContent) {
-                    content = colContent;
-                    break;
-                }
+            const nonAttributeColElements = Array.from(section.querySelectorAll('.row > .col'))
+                .filter(colEl => !colEl.closest('.overview-item-details-section-attribute'));
+            
+            if (nonAttributeColElements.length > 1) {
+                content = '<multiple non-attribute content elements found, not supported>';
+            } else if (nonAttributeColElements.length === 1) {
+                content = utils.getDynamicContent(nonAttributeColElements[0]);
             }
 
             return { title: title.toUpperCase(), attributes, content };

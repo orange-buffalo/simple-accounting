@@ -242,6 +242,8 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
                 return null;
             }
             let data = '';
+            
+            // Extract status value (has priority)
             const statusValue = ($${SaStatusLabel.jsDataExtractor()})(el);
             if (statusValue) {
                 data += statusValue;
@@ -250,30 +252,21 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
                 data += ($${SaIcon.jsDataExtractor()})(el) || '';
             }
             
-            // Check for markdown content
+            // Check for specialized components
             const markdownValue = ($${SaMarkdownOutput.jsDataExtractor()})(el);
+            const documentsValue = ($${SaDocumentsList.jsDataExtractor()})(el);
+            
+            // If we found specialized content, use it instead of text content
             if (markdownValue) {
                 data += markdownValue;
-                // Don't add text content if we found markdown
-                return data === '' ? null : data;
-            }
-            
-            // Check for documents list
-            const documentsValue = ($${SaDocumentsList.jsDataExtractor()})(el);
-            if (documentsValue) {
+            } else if (documentsValue) {
                 data += documentsValue;
-                // Don't add text content if we found documents
-                return data === '' ? null : data;
+            } else {
+                // Fall back to text content if no specialized components found
+                const textContent = utils.transformTextContent(el.textContent);
+                data += textContent || '';
             }
             
-            let textContent = el.textContent;
-            if (textContent) {
-                // replace non-breaking spaces with regular spaces
-                textContent = textContent.replace(/\u00A0/g, ' ');
-                // trim (to null later)
-                textContent = textContent.trim();
-            }
-            data += textContent || '';
             return data === '' ? null : data;
         },
       
@@ -297,6 +290,20 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
             }
             const descendants = el.getElementsByClassName(className);
             return descendants.length > 0 ? descendants[0] : null;
+        },
+        
+        /**
+        * Transforms text content by replacing non-breaking spaces and trimming.
+        */
+        transformTextContent: function(textContent) {
+            if (!textContent) {
+                return null;
+            }
+            // replace non-breaking spaces with regular spaces
+            textContent = textContent.replace(/\u00A0/g, ' ');
+            // trim
+            textContent = textContent.trim();
+            return textContent === '' ? null : textContent;
         }
     };
 """
