@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui
 import com.microsoft.playwright.*
 import com.microsoft.playwright.impl.AssertionsTimeout
 import io.orangebuffalo.simpleaccounting.tests.infra.environment.TestConfig
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.UI_ASSERTIONS_TIMEOUT_MS
 import org.junit.jupiter.api.extension.*
 import org.springframework.context.ApplicationContextInitializer
@@ -76,22 +77,8 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
         
         // Verify no notifications are visible after each test
         if (extensionContext.executionException.isEmpty) {
-            try {
-                val page = playwrightContext.pageContextStrategy.getPageForTheTest()
-                val allNotifications = page.locator(".sa-notification")
-                val notificationCount = allNotifications.count()
-                if (notificationCount > 0) {
-                    throw AssertionError(
-                        "Test left $notificationCount unverified notification(s) visible on the screen. " +
-                        "Each test that issues a notification must verify it explicitly."
-                    )
-                }
-            } catch (e: AssertionError) {
-                throw e
-            } catch (e: Exception) {
-                // Ignore exceptions during notification check (e.g., page might be closed or navigated away)
-                log.debug { "Could not verify notifications after test: ${e.message}" }
-            }
+            val page = playwrightContext.pageContextStrategy.getPageForTheTest()
+            Notifications(page).shouldHaveNoNotifications()
         }
         
         if (extensionContext.executionException.isPresent) {
