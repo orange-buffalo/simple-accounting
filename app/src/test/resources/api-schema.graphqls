@@ -95,3 +95,9 @@ enum AuthType {
   "Requires a request to be executed by a regular user, i.e. authenticated and not an admin user."
   REGULAR_USER
 }
+
+"Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."
+enum SaGrapQlErrorType {
+  "Indicates that the request requires authentication or the user is not authorized to perform the operation."
+  NOT_AUTHORIZED
+}
