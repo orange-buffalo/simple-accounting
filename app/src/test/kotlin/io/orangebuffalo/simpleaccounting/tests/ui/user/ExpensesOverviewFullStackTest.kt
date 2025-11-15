@@ -192,7 +192,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Original Amount" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
-                        title = "Additional Notes"
+                        title = "Additional Notes",
+                        content = SaMarkdownOutput.markdownValue("Important expense notes")
                     )
                 )
 
@@ -228,7 +229,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Original Amount" to "USD 50.00"
                     ),
                     DetailsSectionSpec(
-                        title = "Attachments"
+                        title = "Attachments",
+                        content = SaDocumentsList.documentsValue("Receipt 1", "Receipt 2")
                     )
                 )
 
@@ -317,10 +319,12 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         "Amount in USD for taxation purposes" to "USD 160.00"
                     ),
                     DetailsSectionSpec(
-                        title = "Attachments"
+                        title = "Attachments",
+                        content = SaDocumentsList.documentsValue("Receipt 1")
                     ),
                     DetailsSectionSpec(
-                        title = "Additional Notes"
+                        title = "Additional Notes",
+                        content = SaMarkdownOutput.markdownValue("Complex expense with all attributes")
                     )
                 )
 
@@ -423,7 +427,13 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
 
     private val preconditionsAllStates by lazyPreconditions {
         object {
-            val fry = fry()
+            val fry = platformUser(
+                userName = "Fry",
+                passwordHash = "qwertyHash",
+                isAdmin = false,
+                activated = true,
+                documentsStorage = "noop"
+            )
             val workspace = workspace(owner = fry)
             val category = category(workspace = workspace)
             val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
