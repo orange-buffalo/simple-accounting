@@ -26,13 +26,7 @@ class Notifications(
 
     fun shouldHaveNoNotifications() {
         val allNotifications = page.locator(".sa-notification")
-        val notificationCount = allNotifications.count()
-        if (notificationCount > 0) {
-            throw AssertionError(
-                "Test left $notificationCount unverified notification(s) visible on the screen. " +
-                "Each test that issues a notification must verify it explicitly."
-            )
-        }
+        allNotifications.shouldBeHidden()
     }
 
     private fun assertNotification(
