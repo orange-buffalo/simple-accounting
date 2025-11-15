@@ -34,10 +34,9 @@ class UiInfrastructureFullStackTest(
 
         page.shouldBeLoginPage {
             reportRendering("ui-infra.expired-auth.login-page")
-            // TODO #2068: uncomment, investigate and ensure stable behaviour
-//            shouldHaveNotifications {
-//                warning("Your session has expired. Please login again.")
-//            }
+            shouldHaveNotifications {
+                warning("Your session has expired. Please login again.")
+            }
             loginInput { fill(preconditions.fry.userName) }
             passwordInput { fill(preconditions.fry.passwordHash) }
             loginButton { click() }

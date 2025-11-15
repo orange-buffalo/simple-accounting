@@ -73,6 +73,27 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
     override fun afterEach(extensionContext: ExtensionContext) {
         val playwrightContext = threadLocalPlaywrightContext.get()
             ?: throw IllegalStateException("Playwright context is not initialized for the current thread")
+        
+        // Verify no notifications are visible after each test
+        if (extensionContext.executionException.isEmpty) {
+            try {
+                val page = playwrightContext.pageContextStrategy.getPageForTheTest()
+                val allNotifications = page.locator(".sa-notification")
+                val notificationCount = allNotifications.count()
+                if (notificationCount > 0) {
+                    throw AssertionError(
+                        "Test left $notificationCount unverified notification(s) visible on the screen. " +
+                        "Each test that issues a notification must verify it explicitly."
+                    )
+                }
+            } catch (e: AssertionError) {
+                throw e
+            } catch (e: Exception) {
+                // Ignore exceptions during notification check (e.g., page might be closed or navigated away)
+                log.debug { "Could not verify notifications after test: ${e.message}" }
+            }
+        }
+        
         if (extensionContext.executionException.isPresent) {
             val browserContext = playwrightContext.pageContextStrategy.getBrowserContext()
             browserContext.tracing()
