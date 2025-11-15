@@ -62,8 +62,6 @@ type Mutation {
 }
 
 type Query {
-  "Internal query used to expose cross-cutting concern types in the schema. This query should not be called by clients. It exists solely to ensure type definitions are available for error handling and other infrastructure concerns."
-  schemaTypes: SchemaTypes! @auth(type : ADMIN_USER) @deprecated(reason : "This query is for schema generation only and should not be called.")
   "Returns the current user profile information. Current is defined as the user that is authenticated in the current request."
   userProfile: UserProfile! @auth(type : AUTHENTICATED_USER)
 }
@@ -72,12 +70,6 @@ type Query {
 type RefreshAccessTokenResponse {
   "The new access token if authentication was successful, null otherwise."
   accessToken: String
-}
-
-"Container for cross-cutting concern types exposed in the schema."
-type SchemaTypes {
-  "Error types that can be returned in GraphQL error extensions."
-  errorType: SaGrapQlErrorType!
 }
 
 "Information about the user profile."
