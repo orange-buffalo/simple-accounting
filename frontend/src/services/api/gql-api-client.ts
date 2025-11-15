@@ -5,6 +5,7 @@ import { updateApiToken, useAuth } from '@/services/api/auth.ts';
 import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
 import { ApiAuthError, ApiError, ClientApiError } from '@/services/api/api-errors.ts';
+import { SaGrapQlErrorType } from '@/services/api/gql/graphql.ts';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
     mutation refreshAccessToken {
@@ -34,7 +35,7 @@ const jwtAuthExchange = authExchange(async utils => {
 
     didAuthError(error, _operation) {
       // see SaGrapQlException
-      return error.graphQLErrors.some(e => e.extensions?.errorType === 'NOT_AUTHORIZED');
+      return error.graphQLErrors.some(e => e.extensions?.errorType === SaGrapQlErrorType.NotAuthorized);
     },
 
     async refreshAuth() {
@@ -105,7 +106,7 @@ async function executeGqlRequestAndHandleErrors<Data>(
       throw new ApiError('Unknown error');
     }
     const graphQLError = result.error.graphQLErrors[0];
-    if (graphQLError.extensions?.errorType === 'NOT_AUTHORIZED') {
+    if (graphQLError.extensions?.errorType === SaGrapQlErrorType.NotAuthorized) {
       throw new ApiAuthError();
     }
 

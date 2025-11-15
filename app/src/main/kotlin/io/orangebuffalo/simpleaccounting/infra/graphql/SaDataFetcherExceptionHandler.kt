@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.ErrorClassification
 import graphql.ErrorType
 import graphql.ExceptionWhileDataFetching
@@ -45,7 +46,12 @@ class SaDataFetcherExceptionHandler : DataFetcherExceptionHandler {
     }
 }
 
+@GraphQLDescription(
+    "Defines the error types that can be returned in GraphQL errors. " +
+    "These error types are included in the `extensions.errorType` field of GraphQL errors."
+)
 enum class SaGrapQlErrorType {
+    @GraphQLDescription("Indicates that the request requires authentication or the user is not authorized to perform the operation.")
     NOT_AUTHORIZED,
 }
 
