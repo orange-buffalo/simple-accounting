@@ -25,7 +25,7 @@ class UserProfileFullStackTest : SaFullStackTestBase() {
         page.withBlockedGqlApiResponse(
             "userProfile",
             initiator = {
-                page.navigate("/my-profile")
+                page.openMyProfilePage { }
             },
             blockedRequestSpec = {
                 page.shouldBeMyProfilePage {

@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedGqlApiResponse
+import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.shouldBeMyProfilePage
 import org.junit.jupiter.api.Test
 
@@ -28,7 +29,7 @@ class AdminProfileFullStackTest : SaFullStackTestBase() {
         page.withBlockedGqlApiResponse(
             "userProfile",
             initiator = {
-                page.navigate("/my-profile")
+                page.openMyProfilePage { }
             },
             blockedRequestSpec = {
                 page.shouldBeMyProfilePage {
