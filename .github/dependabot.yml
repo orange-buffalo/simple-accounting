@@ -67,6 +67,9 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     ignore:
+      # https://github.com/jreleaser/jreleaser/issues/2009
+      - dependency-name: "org.jreleaser:jreleaser"
+        versions: [ "1.21.0" ]
       # until JReleaser migrates to JGit 7x
       - dependency-name: "com.github.jmongard.git-semver-plugin"
     groups:
