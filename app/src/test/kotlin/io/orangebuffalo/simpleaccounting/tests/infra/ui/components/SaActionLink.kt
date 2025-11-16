@@ -27,13 +27,13 @@ class SaActionLink {
         /**
          * Tests can use this method to produce mark as sent action link data value.
          */
-        fun markAsSentActionLinkValue(label: String = "Mark as Sent"): String =
+        fun markAsSentActionLinkValue(label: String = "Sent today"): String =
             actionLinkValue(SaIconType.SEND_SOLID, label)
 
         /**
          * Tests can use this method to produce mark as paid action link data value.
          */
-        fun markAsPaidActionLinkValue(label: String = "Mark as Paid"): String =
+        fun markAsPaidActionLinkValue(label: String = "Paid"): String =
             actionLinkValue(SaIconType.INCOME_SOLID, label)
     }
 }

@@ -39,75 +39,19 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 // Verify all invoices with their complete data
                 shouldHaveExactData(
                     SaOverviewItemData(
-                        title = "Paid Invoice",
+                        title = "Invoice With All Attributes",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "15 Jan 2025")
+                            primaryAttribute(SaIconType.CALENDAR, text = "6 Jan 2025")
                         ),
                         middleColumnContent = paidStatus(),
-                        lastColumnContent = "USD 100.00",
-                    ),
-                    SaOverviewItemData(
-                        title = "Sent Invoice",
-                        primaryAttributes = listOf(
-                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer")
+                        lastColumnContent = "EUR 140.00",
+                        attributePreviewIcons = previewIcons(
+                            SaIconType.NOTES,
+                            SaIconType.ATTACHMENT,
+                            SaIconType.TAX,
+                            SaIconType.MULTI_CURRENCY,
                         ),
-                        middleColumnContent = sentStatus(),
-                        lastColumnContent = "USD 200.00",
-                    ),
-                    SaOverviewItemData(
-                        title = "Overdue Invoice",
-                        primaryAttributes = listOf(
-                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer")
-                        ),
-                        middleColumnContent = overdueStatus(),
-                        lastColumnContent = "USD 150.00",
-                    ),
-                    SaOverviewItemData(
-                        title = "Draft Invoice",
-                        primaryAttributes = listOf(
-                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer")
-                        ),
-                        middleColumnContent = draftStatus(),
-                        lastColumnContent = "USD 75.00",
-                    ),
-                    SaOverviewItemData(
-                        title = "Cancelled Invoice",
-                        primaryAttributes = listOf(
-                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer")
-                        ),
-                        middleColumnContent = cancelledStatus(),
-                        lastColumnContent = "USD 50.00",
-                    ),
-                    SaOverviewItemData(
-                        title = "Foreign Currency Invoice",
-                        primaryAttributes = listOf(
-                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "10 Jan 2025")
-                        ),
-                        middleColumnContent = paidStatus(),
-                        lastColumnContent = "EUR 80.00",
-                        attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
-                    ),
-                    SaOverviewItemData(
-                        title = "Invoice With Tax",
-                        primaryAttributes = listOf(
-                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "9 Jan 2025")
-                        ),
-                        middleColumnContent = paidStatus(),
-                        lastColumnContent = "USD 120.00",
-                        attributePreviewIcons = previewIcons(SaIconType.TAX),
-                    ),
-                    SaOverviewItemData(
-                        title = "Invoice With Attachments",
-                        primaryAttributes = listOf(
-                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "8 Jan 2025")
-                        ),
-                        middleColumnContent = paidStatus(),
-                        lastColumnContent = "USD 90.00",
-                        attributePreviewIcons = previewIcons(SaIconType.ATTACHMENT),
                     ),
                     SaOverviewItemData(
                         title = "Invoice With Notes",
@@ -120,19 +64,75 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         attributePreviewIcons = previewIcons(SaIconType.NOTES),
                     ),
                     SaOverviewItemData(
-                        title = "Invoice With All Attributes",
+                        title = "Invoice With Attachments",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "6 Jan 2025")
+                            primaryAttribute(SaIconType.CALENDAR, text = "8 Jan 2025")
                         ),
                         middleColumnContent = paidStatus(),
-                        lastColumnContent = "EUR 140.00",
-                        attributePreviewIcons = previewIcons(
-                            SaIconType.NOTES,
-                            SaIconType.TAX,
-                            SaIconType.ATTACHMENT,
-                            SaIconType.MULTI_CURRENCY,
+                        lastColumnContent = "USD 90.00",
+                        attributePreviewIcons = previewIcons(SaIconType.ATTACHMENT),
+                    ),
+                    SaOverviewItemData(
+                        title = "Invoice With Tax",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
+                            primaryAttribute(SaIconType.CALENDAR, text = "9 Jan 2025")
                         ),
+                        middleColumnContent = paidStatus(),
+                        lastColumnContent = "USD 120.00",
+                        attributePreviewIcons = previewIcons(SaIconType.TAX),
+                    ),
+                    SaOverviewItemData(
+                        title = "Foreign Currency Invoice",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
+                            primaryAttribute(SaIconType.CALENDAR, text = "10 Jan 2025")
+                        ),
+                        middleColumnContent = paidStatus(),
+                        lastColumnContent = "EUR 80.00",
+                        attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
+                    ),
+                    SaOverviewItemData(
+                        title = "Cancelled Invoice",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer")
+                        ),
+                        middleColumnContent = cancelledStatus(),
+                        lastColumnContent = "USD 50.00",
+                    ),
+                    SaOverviewItemData(
+                        title = "Draft Invoice",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer")
+                        ),
+                        middleColumnContent = draftStatus(),
+                        lastColumnContent = "USD 75.00",
+                    ),
+                    SaOverviewItemData(
+                        title = "Overdue Invoice",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer")
+                        ),
+                        middleColumnContent = overdueStatus(),
+                        lastColumnContent = "USD 150.00",
+                    ),
+                    SaOverviewItemData(
+                        title = "Sent Invoice",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer")
+                        ),
+                        middleColumnContent = sentStatus(),
+                        lastColumnContent = "USD 200.00",
+                    ),
+                    SaOverviewItemData(
+                        title = "Paid Invoice",
+                        primaryAttributes = listOf(
+                            primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
+                            primaryAttribute(SaIconType.CALENDAR, text = "15 Jan 2025")
+                        ),
+                        middleColumnContent = paidStatus(),
+                        lastColumnContent = "USD 100.00",
                     )
                 )
 
@@ -146,120 +146,32 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "General Information",
                         "Status" to paidStatus("Finalized"),
                         "Customer" to "Space Customer",
-                        "Amount" to "USD 100.00",
-                        "Date Issued" to "1 Jan 2025",
-                        "Due Date" to "5 Jan 2025",
-                        "Date Sent" to "3 Jan 2025",
-                        "Date Paid" to "15 Jan 2025"
+                        "Invoice Currency" to "EUR",
+                        "Invoice Amount" to "EUR 140.00",
+                        "Date Issued" to "10 Jan 2025",
+                        "Due Date" to "14 Jan 2025",
+                        "Date Sent" to "11 Jan 2025",
+                        "Date Paid" to "6 Jan 2025",
+                        "Applicable General Tax" to "VAT",
+                        "Applicable General Tax Rate" to "20%"
+                    ),
+                    DetailsSectionSpec(
+                        title = "Attachments",
+                        content = SaDocumentsList.documentsValue("Invoice 1")
+                    ),
+                    DetailsSectionSpec(
+                        title = "Additional Notes",
+                        content = SaMarkdownOutput.markdownValue("Complex invoice with all attributes")
                     )
                 )
 
                 staticItems[1].shouldHaveDetails(
-                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = true),
-                    DetailsSectionSpec(
-                        title = "General Information",
-                        "Status" to sentStatus("Sent"),
-                        "Customer" to "Space Customer",
-                        "Amount" to "USD 200.00",
-                        "Date Issued" to "2 Jan 2025",
-                        "Due Date" to "30 Jan 2025",
-                        "Date Sent" to "5 Jan 2025"
-                    )
-                )
-
-                staticItems[2].shouldHaveDetails(
-                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = true),
-                    DetailsSectionSpec(
-                        title = "General Information",
-                        "Status" to overdueStatus("Overdue"),
-                        "Customer" to "Space Customer",
-                        "Amount" to "USD 150.00",
-                        "Date Issued" to "3 Jan 2025",
-                        "Due Date" to "5 Jan 2025",
-                        "Date Sent" to "4 Jan 2025"
-                    )
-                )
-
-                staticItems[3].shouldHaveDetails(
-                    actions = actions(hasEdit = true, hasMarkSent = true, hasMarkPaid = false),
-                    DetailsSectionSpec(
-                        title = "General Information",
-                        "Status" to draftStatus("Draft"),
-                        "Customer" to "Space Customer",
-                        "Amount" to "USD 75.00",
-                        "Date Issued" to "4 Jan 2025",
-                        "Due Date" to "20 Jan 2025"
-                    )
-                )
-
-                staticItems[4].shouldHaveDetails(
-                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
-                    DetailsSectionSpec(
-                        title = "General Information",
-                        "Status" to cancelledStatus("Cancelled"),
-                        "Customer" to "Space Customer",
-                        "Amount" to "USD 50.00",
-                        "Date Issued" to "5 Jan 2025",
-                        "Due Date" to "15 Jan 2025"
-                    )
-                )
-
-                staticItems[5].shouldHaveDetails(
                     actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
                     DetailsSectionSpec(
                         title = "General Information",
                         "Status" to paidStatus("Finalized"),
                         "Customer" to "Space Customer",
-                        "Currency" to "EUR",
-                        "Amount" to "EUR 80.00",
-                        "Date Issued" to "6 Jan 2025",
-                        "Due Date" to "10 Jan 2025",
-                        "Date Sent" to "7 Jan 2025",
-                        "Date Paid" to "10 Jan 2025"
-                    )
-                )
-
-                staticItems[6].shouldHaveDetails(
-                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
-                    DetailsSectionSpec(
-                        title = "General Information",
-                        "Status" to paidStatus("Finalized"),
-                        "Customer" to "Space Customer",
-                        "Amount" to "USD 120.00",
-                        "Date Issued" to "7 Jan 2025",
-                        "Due Date" to "11 Jan 2025",
-                        "Date Sent" to "8 Jan 2025",
-                        "Date Paid" to "9 Jan 2025",
-                        "General Tax" to "VAT",
-                        "General Tax Rate" to "20%"
-                    )
-                )
-
-                staticItems[7].shouldHaveDetails(
-                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
-                    DetailsSectionSpec(
-                        title = "General Information",
-                        "Status" to paidStatus("Finalized"),
-                        "Customer" to "Space Customer",
-                        "Amount" to "USD 90.00",
-                        "Date Issued" to "8 Jan 2025",
-                        "Due Date" to "12 Jan 2025",
-                        "Date Sent" to "9 Jan 2025",
-                        "Date Paid" to "8 Jan 2025"
-                    ),
-                    DetailsSectionSpec(
-                        title = "Attachments",
-                        content = SaDocumentsList.documentsValue("Invoice 1", "Invoice 2")
-                    )
-                )
-
-                staticItems[8].shouldHaveDetails(
-                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
-                    DetailsSectionSpec(
-                        title = "General Information",
-                        "Status" to paidStatus("Finalized"),
-                        "Customer" to "Space Customer",
-                        "Amount" to "USD 60.00",
+                        "Invoice Amount" to "USD 60.00",
                         "Date Issued" to "9 Jan 2025",
                         "Due Date" to "13 Jan 2025",
                         "Date Sent" to "10 Jan 2025",
@@ -271,28 +183,116 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     )
                 )
 
+                staticItems[2].shouldHaveDetails(
+                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Status" to paidStatus("Finalized"),
+                        "Customer" to "Space Customer",
+                        "Invoice Amount" to "USD 90.00",
+                        "Date Issued" to "8 Jan 2025",
+                        "Due Date" to "12 Jan 2025",
+                        "Date Sent" to "9 Jan 2025",
+                        "Date Paid" to "8 Jan 2025"
+                    ),
+                    DetailsSectionSpec(
+                        title = "Attachments",
+                        content = SaDocumentsList.documentsValue("Invoice 1", "Invoice 2")
+                    )
+                )
+
+                staticItems[3].shouldHaveDetails(
+                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Status" to paidStatus("Finalized"),
+                        "Customer" to "Space Customer",
+                        "Invoice Amount" to "USD 120.00",
+                        "Date Issued" to "7 Jan 2025",
+                        "Due Date" to "11 Jan 2025",
+                        "Date Sent" to "8 Jan 2025",
+                        "Date Paid" to "9 Jan 2025",
+                        "Applicable General Tax" to "VAT",
+                        "Applicable General Tax Rate" to "20%"
+                    )
+                )
+
+                staticItems[4].shouldHaveDetails(
+                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Status" to paidStatus("Finalized"),
+                        "Customer" to "Space Customer",
+                        "Invoice Currency" to "EUR",
+                        "Invoice Amount" to "EUR 80.00",
+                        "Date Issued" to "6 Jan 2025",
+                        "Due Date" to "10 Jan 2025",
+                        "Date Sent" to "7 Jan 2025",
+                        "Date Paid" to "10 Jan 2025"
+                    )
+                )
+
+                staticItems[5].shouldHaveDetails(
+                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Status" to cancelledStatus("Cancelled"),
+                        "Customer" to "Space Customer",
+                        "Invoice Amount" to "USD 50.00",
+                        "Date Issued" to "5 Jan 2025",
+                        "Due Date" to "15 Jan 2025"
+                    )
+                )
+
+                staticItems[6].shouldHaveDetails(
+                    actions = actions(hasEdit = true, hasMarkSent = true, hasMarkPaid = false),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Status" to draftStatus("Draft"),
+                        "Customer" to "Space Customer",
+                        "Invoice Amount" to "USD 75.00",
+                        "Date Issued" to "4 Jan 2025",
+                        "Due Date" to "20 Jan 2025"
+                    )
+                )
+
+                staticItems[7].shouldHaveDetails(
+                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = true),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Status" to overdueStatus("Overdue"),
+                        "Customer" to "Space Customer",
+                        "Invoice Amount" to "USD 150.00",
+                        "Date Issued" to "3 Jan 2025",
+                        "Due Date" to "5 Jan 2025",
+                        "Date Sent" to "4 Jan 2025"
+                    )
+                )
+
+                staticItems[8].shouldHaveDetails(
+                    actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = true),
+                    DetailsSectionSpec(
+                        title = "General Information",
+                        "Status" to sentStatus("Sent"),
+                        "Customer" to "Space Customer",
+                        "Invoice Amount" to "USD 200.00",
+                        "Date Issued" to "2 Jan 2025",
+                        "Due Date" to "30 Jan 2025",
+                        "Date Sent" to "5 Jan 2025"
+                    )
+                )
+
                 staticItems[9].shouldHaveDetails(
                     actions = actions(hasEdit = true, hasMarkSent = false, hasMarkPaid = false),
                     DetailsSectionSpec(
                         title = "General Information",
                         "Status" to paidStatus("Finalized"),
                         "Customer" to "Space Customer",
-                        "Currency" to "EUR",
-                        "Amount" to "EUR 140.00",
-                        "Date Issued" to "10 Jan 2025",
-                        "Due Date" to "14 Jan 2025",
-                        "Date Sent" to "11 Jan 2025",
-                        "Date Paid" to "6 Jan 2025",
-                        "General Tax" to "VAT",
-                        "General Tax Rate" to "20%"
-                    ),
-                    DetailsSectionSpec(
-                        title = "Attachments",
-                        content = SaDocumentsList.documentsValue("Invoice 1")
-                    ),
-                    DetailsSectionSpec(
-                        title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Complex invoice with all attributes")
+                        "Invoice Amount" to "USD 100.00",
+                        "Date Issued" to "1 Jan 2025",
+                        "Due Date" to "5 Jan 2025",
+                        "Date Sent" to "3 Jan 2025",
+                        "Date Paid" to "15 Jan 2025"
                     )
                 )
 
