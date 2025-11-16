@@ -61,11 +61,12 @@
       const { currentWorkspaceId } = useCurrentWorkspace();
 
       try {
-        documents.value = await consumeAllPages((pageRequest) => documentsApi.getDocuments({
+        documents.value = (await consumeAllPages((pageRequest) => documentsApi.getDocuments({
           workspaceId: currentWorkspaceId,
           ...pageRequest,
           idIn: props.documentsIds,
-        }, requestConfig));
+        }, requestConfig)))
+          .sort((a, b) => a.name.localeCompare(b.name));
       } finally {
         documentsLoading.value = false;
       }

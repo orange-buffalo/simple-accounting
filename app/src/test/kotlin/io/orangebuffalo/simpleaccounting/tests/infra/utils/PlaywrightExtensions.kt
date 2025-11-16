@@ -8,7 +8,9 @@ import io.kotest.assertions.withClue
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaDocumentsList
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaIcon
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaMarkdownOutput
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaStatusLabel
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -227,7 +229,7 @@ fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) = r
 /**
  * Injects JavaScript utilities into a JavaScript snippet (typically, passed to [Locator.evaluate] or similar).
  */
-fun injectJsUtils(): String = /* language=javascript */ $$"""
+fun injectJsUtils(): String = /* language=javascript */ $$""";
     // noinspection JSUnusedLocalSymbols
     const utils = {
         /**
@@ -239,7 +241,19 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
             if (!el) {
                 return null;
             }
+
+            // Check for specialized components
+            const markdownValue = ($${SaMarkdownOutput.jsDataExtractor()})(el);
+            if (markdownValue) {
+                return markdownValue;
+            }
+            const documentsValue = ($${SaDocumentsList.jsDataExtractor()})(el);
+            if (documentsValue) {
+                return documentsValue;
+            }
+            
             let data = '';
+            // Extract status value (has priority)
             const statusValue = ($${SaStatusLabel.jsDataExtractor()})(el);
             if (statusValue) {
                 data += statusValue;
@@ -247,14 +261,10 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
                 // SaStatusLabel has priority over SaIcon, as it can contain an icon inside
                 data += ($${SaIcon.jsDataExtractor()})(el) || '';
             }
-            let textContent = el.textContent;
-            if (textContent) {
-                // replace non-breaking spaces with regular spaces
-                textContent = textContent.replace(/\u00A0/g, ' ');
-                // trim (to null later)
-                textContent = textContent.trim();
-            }
+             
+            const textContent = utils.transformTextContent(el.textContent);
             data += textContent || '';
+            
             return data === '' ? null : data;
         },
       
@@ -278,6 +288,20 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
             }
             const descendants = el.getElementsByClassName(className);
             return descendants.length > 0 ? descendants[0] : null;
+        },
+        
+        /**
+        * Transforms text content by replacing non-breaking spaces and trimming.
+        */
+        transformTextContent: function(textContent) {
+            if (!textContent) {
+                return null;
+            }
+            // replace non-breaking spaces with regular spaces
+            textContent = textContent.replace(/\u00A0/g, ' ');
+            // trim
+            textContent = textContent.trim();
+            return textContent === '' ? null : textContent;
         }
     };
 """

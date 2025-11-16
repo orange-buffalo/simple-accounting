@@ -48,7 +48,18 @@ private const val DETAILS_DATA_JS = """
                 return [label, value];
             });
 
-            return { title: title.toUpperCase(), attributes };
+            // Extract free content from .col elements that are not inside .overview-item-details-section-attribute
+            let content = null;
+            const nonAttributeColElements = Array.from(section.querySelectorAll('.row > .col'))
+                .filter(colEl => !colEl.closest('.overview-item-details-section-attribute'));
+            
+            if (nonAttributeColElements.length > 1) {
+                content = '<multiple non-attribute content elements found, not supported>';
+            } else if (nonAttributeColElements.length === 1) {
+                content = utils.getDynamicContent(nonAttributeColElements[0]);
+            }
+
+            return { title: title.toUpperCase(), attributes, content };
         });
 
         return { actions, sections };
@@ -81,9 +92,15 @@ class SaOverviewItem private constructor(
                 }
                 """,
             ) as String
-            val detailsData = Json.decodeFromString<DetailsData>( detailsDataJson)
+            val detailsData = Json.decodeFromString<DetailsData>(detailsDataJson)
             detailsData.actions.shouldContainExactly(actions)
-            val expectedSections = sections.map { DetailsSection(it.title.uppercase(), it.attributes.map { pair -> listOf(pair.first, pair.second) }) }
+            val expectedSections = sections.map {
+                DetailsSection(
+                    it.title.uppercase(),
+                    it.attributes.map { pair -> listOf(pair.first, pair.second) },
+                    it.content
+                )
+            }
             detailsData.sections.shouldContainExactly(expectedSections)
         }
     }
@@ -130,7 +147,8 @@ private data class DetailsData(
 @Serializable
 private data class DetailsSection(
     val title: String?,
-    val attributes: List<List<String>>
+    val attributes: List<List<String>>,
+    val content: String? = null
 )
 
 fun SaPageableItems<SaOverviewItem, SaOverviewItemData>.shouldHaveTitles(titles: List<String>) {
@@ -143,7 +161,9 @@ fun SaPageableItems<SaOverviewItem, SaOverviewItemData>.shouldHaveTitles(vararg 
 
 data class DetailsSectionSpec(
     val title: String,
-    val attributes: List<Pair<String, String>> = emptyList()
+    val attributes: List<Pair<String, String>> = emptyList(),
+    val content: String? = null
 ) {
-    constructor(title: String, vararg attributes: Pair<String, String>) : this(title, attributes.toList())
+    constructor(title: String, vararg attributes: Pair<String, String>) : this(title, attributes.toList(), null)
+    constructor(title: String, content: String) : this(title, emptyList(), content)
 }
