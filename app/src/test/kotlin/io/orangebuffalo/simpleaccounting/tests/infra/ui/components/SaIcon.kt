@@ -46,4 +46,7 @@ enum class SaIconType(val uiValue: String) {
     INACTIVE_USER("inactive-user"),
     PENCIL_SOLID("pencil-solid"),
     COPY("copy"),
+    CUSTOMER("customer"),
+    SEND_SOLID("send-solid"),
+    INCOME_SOLID("income-solid"),
 }

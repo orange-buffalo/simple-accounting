@@ -23,5 +23,17 @@ class SaActionLink {
          */
         fun copyActionLinkValue(label: String = "Copy"): String =
             actionLinkValue(SaIconType.COPY, label)
+
+        /**
+         * Tests can use this method to produce mark as sent action link data value.
+         */
+        fun markAsSentActionLinkValue(label: String = "Mark as Sent"): String =
+            actionLinkValue(SaIconType.SEND_SOLID, label)
+
+        /**
+         * Tests can use this method to produce mark as paid action link data value.
+         */
+        fun markAsPaidActionLinkValue(label: String = "Mark as Paid"): String =
+            actionLinkValue(SaIconType.INCOME_SOLID, label)
     }
 }
