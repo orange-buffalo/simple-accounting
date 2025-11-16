@@ -229,7 +229,7 @@ fun Locator.shouldSatisfy(message: String? = null, spec: Locator.() -> Unit) = r
 /**
  * Injects JavaScript utilities into a JavaScript snippet (typically, passed to [Locator.evaluate] or similar).
  */
-fun injectJsUtils(): String = /* language=javascript */ $$"""
+fun injectJsUtils(): String = /* language=javascript */ $$""";
     // noinspection JSUnusedLocalSymbols
     const utils = {
         /**
@@ -241,8 +241,18 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
             if (!el) {
                 return null;
             }
-            let data = '';
+
+            // Check for specialized components
+            const markdownValue = ($${SaMarkdownOutput.jsDataExtractor()})(el);
+            if (markdownValue) {
+                return markdownValue;
+            }
+            const documentsValue = ($${SaDocumentsList.jsDataExtractor()})(el);
+            if (documentsValue) {
+                return documentsValue;
+            }
             
+            let data = '';
             // Extract status value (has priority)
             const statusValue = ($${SaStatusLabel.jsDataExtractor()})(el);
             if (statusValue) {
@@ -251,21 +261,9 @@ fun injectJsUtils(): String = /* language=javascript */ $$"""
                 // SaStatusLabel has priority over SaIcon, as it can contain an icon inside
                 data += ($${SaIcon.jsDataExtractor()})(el) || '';
             }
-            
-            // Check for specialized components
-            const markdownValue = ($${SaMarkdownOutput.jsDataExtractor()})(el);
-            const documentsValue = ($${SaDocumentsList.jsDataExtractor()})(el);
-            
-            // If we found specialized content, use it instead of text content
-            if (markdownValue) {
-                data += markdownValue;
-            } else if (documentsValue) {
-                data += documentsValue;
-            } else {
-                // Fall back to text content if no specialized components found
-                const textContent = utils.transformTextContent(el.textContent);
-                data += textContent || '';
-            }
+             
+            const textContent = utils.transformTextContent(el.textContent);
+            data += textContent || '';
             
             return data === '' ? null : data;
         },

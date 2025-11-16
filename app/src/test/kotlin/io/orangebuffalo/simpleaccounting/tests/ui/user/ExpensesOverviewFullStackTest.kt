@@ -429,7 +429,6 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         object {
             val fry = platformUser(
                 userName = "Fry",
-                passwordHash = "qwertyHash",
                 isAdmin = false,
                 activated = true,
                 documentsStorage = "noop"

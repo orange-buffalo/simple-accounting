@@ -12,7 +12,7 @@ class SaDocumentsList {
          * Tests can use this method to produce documents list data value from document names.
          * This is used for JS-based data extractors, like [SaPageableItems].
          */
-        fun documentsValue(vararg documentNames: String): String = 
+        fun documentsValue(vararg documentNames: String): String =
             visualToData(VISUAL_SEMANTIC, documentNames.joinToString(", "))
 
         /**
@@ -37,7 +37,7 @@ class SaDocumentsList {
                 // Check if storage is not active (shows an error alert)
                 const failedStorageMessage = documentsListElement.querySelector('.el-alert--error');
                 if (failedStorageMessage) {
-                    return '<storage not active>';
+                    return utils.getDynamicContent(failedStorageMessage);
                 }
                 
                 // Find all document elements (using the root class from SaDocument component)
@@ -46,26 +46,17 @@ class SaDocumentsList {
                     return null;
                 }
                 
-                // Check if any documents are still loading (have loader elements)
-                const hasLoadingDocuments = documentElements.some(doc => {
-                    return doc.querySelector('.sa-document__loader__file-icon') !== null;
-                });
-                if (hasLoadingDocuments) {
-                    return '<document loading>';
-                }
-                
-                // Extract document names from loaded documents
                 const documentNames = documentElements
                     .map(doc => {
+                        const loadinIndicator = doc.querySelector('.sa-document__loader__file-icon');
+                        if (loadinIndicator) {
+                            return '<document loading>';
+                        }
                         const nameElement = doc.querySelector('.sa-document__file-description__header__file-name');
-                        const textContent = utils.transformTextContent(nameElement ? nameElement.textContent : null);
-                        return textContent || '';
-                    })
-                    .filter(name => name !== '');
+                        return utils.getDynamicContent(nameElement);
+                    });
                 
-                return documentNames.length > 0 
-                    ? utils.visualToData('$VISUAL_SEMANTIC', documentNames.join(', '))
-                    : null;
+                return utils.visualToData('$VISUAL_SEMANTIC', documentNames.join(', '));
             }
         """
     }

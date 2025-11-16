@@ -92,14 +92,14 @@ class SaOverviewItem private constructor(
                 }
                 """,
             ) as String
-            val detailsData = Json.decodeFromString<DetailsData>( detailsDataJson)
+            val detailsData = Json.decodeFromString<DetailsData>(detailsDataJson)
             detailsData.actions.shouldContainExactly(actions)
-            val expectedSections = sections.map { 
+            val expectedSections = sections.map {
                 DetailsSection(
-                    it.title.uppercase(), 
+                    it.title.uppercase(),
                     it.attributes.map { pair -> listOf(pair.first, pair.second) },
                     it.content
-                ) 
+                )
             }
             detailsData.sections.shouldContainExactly(expectedSections)
         }
