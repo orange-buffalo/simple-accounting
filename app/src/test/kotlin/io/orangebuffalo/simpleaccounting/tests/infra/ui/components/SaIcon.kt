@@ -49,4 +49,5 @@ enum class SaIconType(val uiValue: String) {
     CUSTOMER("customer"),
     SEND_SOLID("send-solid"),
     INCOME_SOLID("income-solid"),
+    INVOICE("invoice"),
 }
