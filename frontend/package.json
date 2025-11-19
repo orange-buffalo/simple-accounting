@@ -86,7 +86,7 @@
     "typescript": "5.9.3",
     "vite": "7.2.1",
     "vite-svg-loader": "5.1.0",
-    "vitest": "4.0.9",
+    "vitest": "4.0.10",
     "vue-eslint-parser": "10.2.0",
     "vue-tsc": "3.1.4",
     "whatwg-fetch": "3.6.20"
