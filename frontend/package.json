@@ -50,7 +50,7 @@
     "@storybook/theming": "8.1.11",
     "@storybook/vue3": "8.1.11",
     "@storybook/vue3-vite": "7.6.17",
-    "@types/cldrjs": "0.4.28",
+    "@types/cldrjs": "0.4.29",
     "@types/dompurify": "3.2.0",
     "@types/dropzone": "5.7.9",
     "@types/event-source-polyfill": "1.0.5",
