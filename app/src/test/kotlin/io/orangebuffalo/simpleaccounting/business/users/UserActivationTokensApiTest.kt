@@ -364,7 +364,7 @@ class UserActivationTokensApiTest(
 
             withHint("User should be activated") {
                 val user = aggregateTemplate.findById(preconditions.user.id!!, PlatformUser::class.java)
-                user.activated.shouldBeTrue()
+                user?.activated.shouldBeTrue()
             }
 
             withHint("Token should be removed") {

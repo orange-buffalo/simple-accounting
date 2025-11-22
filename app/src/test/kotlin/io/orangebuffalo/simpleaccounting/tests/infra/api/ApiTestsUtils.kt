@@ -109,7 +109,7 @@ fun WebTestClient.RequestBodySpec.sendJson(spec: JsonObjectBuilder.() -> Unit): 
     return sendJson(jsonElement.toString())
 }
 
-fun <T> StepVerifier.Step<T>.assertNextJsonIs(
+fun <T : Any> StepVerifier.Step<T>.assertNextJsonIs(
     jsonObject: String
 ): StepVerifier.Step<T> {
     return assertNext { data ->

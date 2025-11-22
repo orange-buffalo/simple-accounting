@@ -55,7 +55,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     fun `should load client information on fully specified client`() {
         val data = setupPreconditions()
         val actualToken: OAuth2AuthorizedClient? =
-            clientService.loadAuthorizedClient<OAuth2AuthorizedClient?>("clientRegistration", "fullClient").block()
+            clientService.loadAuthorizedClient<OAuth2AuthorizedClient>("clientRegistration", "fullClient").block()
 
         assertThat(actualToken).isNotNull().all {
             prop("accessToken") { it.accessToken }.isNotNull().all {
@@ -80,7 +80,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     fun `should load client information on a client without refresh token`() {
         val data = setupPreconditions()
         val actualToken: OAuth2AuthorizedClient? =
-            clientService.loadAuthorizedClient<OAuth2AuthorizedClient?>("clientRegistration", "noRefreshTokenClient")
+            clientService.loadAuthorizedClient<OAuth2AuthorizedClient>("clientRegistration", "noRefreshTokenClient")
                 .block()
 
         assertThat(actualToken).isNotNull().all {

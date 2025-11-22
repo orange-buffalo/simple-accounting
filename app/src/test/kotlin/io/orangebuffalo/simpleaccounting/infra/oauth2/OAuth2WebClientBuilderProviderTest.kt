@@ -18,6 +18,7 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.support.TransactionTemplate
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.server.ServerWebExchange
+import reactor.core.publisher.Mono
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit.SECONDS
@@ -164,14 +165,15 @@ class OAuth2WebClientBuilderProviderTest(
 
     private fun getPersistedClientsCount() = jdbcAggregateTemplate.count(PersistentOAuth2AuthorizedClient::class.java)
 
-    @Suppress("DEPRECATION")
     private fun executeResourceRequest(): ClientResponse? = webClientBuilderProvider
         .forClient("test-client")
         .baseUrl("http://localhost:$wireMockPort")
         .build()
         .get()
         .uri("/resource")
-        .exchange()
+        .exchangeToMono { response -> 
+            Mono.just(response)
+        }
         .contextWrite { context ->
             // required by Spring OAuth2 support to renew the token
             context.put(ServerWebExchange::class.java, MockServerWebExchange.from(MockServerHttpRequest.get("/test")))

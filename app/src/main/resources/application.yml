@@ -3,6 +3,12 @@ spring:
     banner-mode: "off"
     web-application-type: reactive
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-null-for-primitives: true
+
   datasource:
     url: jdbc:h2:/data/db/simple-accounting
 

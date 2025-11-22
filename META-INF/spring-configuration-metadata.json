@@ -1,0 +1,90 @@
+{
+  "groups": [
+    {
+      "name": "graphql",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties"
+    },
+    {
+      "name": "graphql.automatic-persisted-queries",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$AutomaticPersistedQueriesConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getAutomaticPersistedQueries()"
+    },
+    {
+      "name": "graphql.batching",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$BatchingConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getBatching()"
+    },
+    {
+      "name": "graphql.federation",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$FederationConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getFederation()"
+    },
+    {
+      "name": "graphql.federation.tracing",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$FederationTracingConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$FederationConfigurationProperties",
+      "sourceMethod": "getTracing()"
+    },
+    {
+      "name": "graphql.graphiql",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$GraphiQLConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getGraphiql()"
+    },
+    {
+      "name": "graphql.introspection",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$IntrospectionConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getIntrospection()"
+    },
+    {
+      "name": "graphql.playground",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$PlaygroundConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getPlayground()"
+    },
+    {
+      "name": "graphql.sdl",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$SDLConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getSdl()"
+    },
+    {
+      "name": "graphql.subscriptions",
+      "type": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties$SubscriptionConfigurationProperties",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "sourceMethod": "getSubscriptions()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "graphql.endpoint",
+      "type": "java.lang.String",
+      "description": "GraphQL server endpoint, defaults to 'graphql'",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties"
+    },
+    {
+      "name": "graphql.packages",
+      "type": "java.util.List<java.lang.String>",
+      "description": "List of supported packages that can contain GraphQL schema type definitions",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties"
+    },
+    {
+      "name": "graphql.print-schema",
+      "type": "java.lang.Boolean",
+      "description": "Boolean flag indicating whether to print the schema after generator creates it",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "graphql.serialization-library",
+      "type": "com.expediagroup.graphql.server.spring.SerializationLibrary",
+      "sourceType": "com.expediagroup.graphql.server.spring.GraphQLConfigurationProperties"
+    }
+  ],
+  "hints": []
+}

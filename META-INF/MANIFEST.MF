@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Built-By: Expedia Group
+Build-Jdk: 17.0.15 (Azul Systems, Inc. 17.0.15+6-LTS)
+Build-Timestamp: 2025-06-16T17:12:14.771966342Z
+Created-By: Gradle 8.8
+Implementation-Title: graphql-kotlin-spring-server
+Implementation-Version: 8.8.1
+
