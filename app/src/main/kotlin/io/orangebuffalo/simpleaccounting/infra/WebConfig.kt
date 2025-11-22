@@ -7,8 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.authentication.JwtTokenAuthenticationConverter
 import io.orangebuffalo.simpleaccounting.infra.ui.SpaWebFilter
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest
-import org.springframework.boot.actuate.health.HealthEndpoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.CacheControl
@@ -79,8 +77,8 @@ class WebConfig : WebFluxConfigurer {
             .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
             .authorizeExchange { authorizeExchange ->
                 authorizeExchange
-                    .matchers(EndpointRequest.to(HealthEndpoint::class.java)).permitAll()
-                    .matchers(EndpointRequest.toAnyEndpoint()).denyAll()
+                    .pathMatchers("/actuator/health").permitAll()
+                    .pathMatchers("/actuator/**").denyAll()
                     .pathMatchers("/api/graphql/**").permitAll()
                     .pathMatchers("/api/auth/**").permitAll()
                     .pathMatchers("/api/downloads/**").permitAll()

@@ -20,6 +20,7 @@ import org.springframework.web.reactive.function.BodyInserters.fromMultipartData
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 private val log = mu.KotlinLogging.logger {}
 
@@ -173,9 +174,7 @@ class GoogleDriveApiAdapter(
     ): ClientResponse {
         log.debug { "Executing request: $this" }
         val clientResponse = try {
-            @Suppress("DEPRECATION")
-            // Spring 5.3 does not provide coroutine-compatible API to achieve the sameSecurityUtils
-            this.exchange().awaitSingle()
+            this.exchangeToMono { response -> Mono.just(response) }.awaitSingle()
         } catch (e: OAuth2AuthorizationException) {
             log.debug { "Authorization error: ${e.message}" }
             throw StorageAuthorizationRequiredException(cause = e)

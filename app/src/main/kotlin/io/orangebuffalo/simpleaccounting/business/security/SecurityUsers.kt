@@ -65,12 +65,12 @@ private class SecurityPrincipalImpl(
     authorities: Collection<GrantedAuthority>?,
     override val isTransient: Boolean
 
-) : User(userName, password, authorities), SpringSecurityPrincipal {
+) : User(userName, password ?: "", authorities ?: emptyList()), SpringSecurityPrincipal {
 
     override val roles: Collection<String> = authorities
         ?.asSequence()
-        ?.filter { it.authority.startsWith("ROLE_") }
-        ?.map { it.authority.removePrefix("ROLE_") }
+        ?.filter { it.authority?.startsWith("ROLE_") == true }
+        ?.map { it.authority?.removePrefix("ROLE_") ?: "" }
         ?.toList()
         ?: emptyList()
 }

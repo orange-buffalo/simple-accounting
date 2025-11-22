@@ -101,7 +101,7 @@ class AuthenticationService(
     }
 
     fun setUserPassword(user: PlatformUser, password: String) {
-        user.passwordHash = passwordEncoder.encode(password)
+        user.passwordHash = passwordEncoder.encode(password) ?: throw IllegalStateException("Password encoding failed")
     }
 }
 
