@@ -7,8 +7,11 @@ import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspacesService
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.services.persistence.model.Tables
 import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPage
-import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiExecutorBuilderLegacy
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.ApiPageRequest
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.FilteringApiExecutorBuilder
+import io.orangebuffalo.simpleaccounting.infra.rest.filtering.NoOpSorting
 import org.hibernate.validator.constraints.Length
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
 import java.time.LocalDate
@@ -21,7 +24,7 @@ class IncomeTaxPaymentsApi(
     private val taxPaymentService: IncomeTaxPaymentService,
     private val timeService: TimeService,
     private val workspacesService: WorkspacesService,
-    filteringApiExecutorBuilder: FilteringApiExecutorBuilderLegacy
+    filteringApiExecutorBuilder: FilteringApiExecutorBuilder
 ) {
 
     @PostMapping
@@ -47,8 +50,11 @@ class IncomeTaxPaymentsApi(
         attachmentsIds?.asSequence()?.map(::IncomeTaxPaymentAttachment)?.toSet() ?: emptySet()
 
     @GetMapping
-    suspend fun getTaxPayments(@PathVariable workspaceId: Long): ApiPage<IncomeTaxPaymentDto> =
-        filteringApiExecutor.executeFiltering(workspaceId)
+    suspend fun getTaxPayments(
+        @PathVariable workspaceId: Long,
+        @ParameterObject request: IncomeTaxPaymentsFilteringRequest
+    ): ApiPage<IncomeTaxPaymentDto> =
+        filteringApiExecutor.executeFiltering(request, workspaceId)
 
     @GetMapping("{taxPaymentId}")
     suspend fun getTaxPayment(
@@ -86,7 +92,7 @@ class IncomeTaxPaymentsApi(
             .mapToIncomeTaxPaymentDto()
     }
 
-    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<IncomeTaxPayment, IncomeTaxPaymentDto> {
+    private val filteringApiExecutor = filteringApiExecutorBuilder.executor<IncomeTaxPayment, IncomeTaxPaymentDto, NoOpSorting, IncomeTaxPaymentsFilteringRequest> {
         query(Tables.INCOME_TAX_PAYMENT) {
             addDefaultSorting { root.datePaid.desc() }
             addDefaultSorting { root.timeRecorded.asc() }
@@ -94,6 +100,10 @@ class IncomeTaxPaymentsApi(
         }
         mapper { mapToIncomeTaxPaymentDto() }
     }
+}
+
+class IncomeTaxPaymentsFilteringRequest : ApiPageRequest<NoOpSorting>() {
+    override var sortBy: NoOpSorting? = null
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -40,6 +40,8 @@ export interface GetTaxPaymentRequest {
 
 export interface GetTaxPaymentsRequest {
     workspaceId: number;
+    pageNumber?: number;
+    pageSize?: number;
 }
 
 export interface UpdateTaxPaymentRequest {
@@ -143,6 +145,14 @@ export class IncomeTaxPaymentsApiApi extends runtime.BaseAPI {
         }
 
         const queryParameters: any = {};
+
+        if (requestParameters['pageNumber'] != null) {
+            queryParameters['pageNumber'] = requestParameters['pageNumber'];
+        }
+
+        if (requestParameters['pageSize'] != null) {
+            queryParameters['pageSize'] = requestParameters['pageSize'];
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 

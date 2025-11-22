@@ -88,6 +88,67 @@ internal class IncomeTaxPaymentsApiTest(
     }
 
     @Test
+    @WithMockFryUser
+    fun `should return income tax payments with pagination parameters`() {
+        client.get()
+            .uri { uriBuilder ->
+                uriBuilder.path("/api/workspaces/{workspaceId}/income-tax-payments")
+                    .queryParam("pageNumber", "1")
+                    .queryParam("pageSize", "1")
+                    .build(preconditions.planetExpressWorkspace.id)
+            }
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 1)
+                put("pageSize", 1)
+                put("totalElements", 2)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("title", "first space income tax payment")
+                        put("amount", 50)
+                        putJsonArray("attachments") {
+                            add(preconditions.spaceDeliveryPayslip.id)
+                        }
+                        put("id", preconditions.firstSpaceIncomeTaxPayment.id)
+                        put("notes", "tax? hah?")
+                        put("reportingDate", "1999-04-07")
+                        put("datePaid", "1999-03-30")
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        put("version", 0)
+                    }
+                }
+            }
+    }
+
+    @Test
+    @WithMockFryUser
+    fun `should return second page of income tax payments`() {
+        client.get()
+            .uri { uriBuilder ->
+                uriBuilder.path("/api/workspaces/{workspaceId}/income-tax-payments")
+                    .queryParam("pageNumber", "2")
+                    .queryParam("pageSize", "1")
+                    .build(preconditions.planetExpressWorkspace.id)
+            }
+            .verifyOkAndJsonBodyEqualTo {
+                put("pageNumber", 2)
+                put("pageSize", 1)
+                put("totalElements", 2)
+                putJsonArray("data") {
+                    addJsonObject {
+                        put("title", "second space income tax payment")
+                        put("amount", 100)
+                        put("datePaid", MOCK_DATE_VALUE)
+                        put("reportingDate", MOCK_DATE_VALUE)
+                        put("id", preconditions.secondSpaceIncome.id)
+                        put("version", 0)
+                        put("timeRecorded", MOCK_TIME_VALUE)
+                        putJsonArray("attachments") {}
+                    }
+                }
+            }
+    }
+
+    @Test
     fun `should allow GET access for an income only for logged in users`() {
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/expenses/${preconditions.firstSpaceIncomeTaxPayment.id}")
