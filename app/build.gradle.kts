@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.ktor.auth)
 
     kapt("org.springframework.boot:spring-boot-configuration-processor")
+    kaptTest("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")
     runtimeOnly("com.h2database:h2")
@@ -89,7 +90,7 @@ dependencies {
     testImplementation(libs.testcontainers)
     testImplementation(libs.testcontainers.nginx)
     testImplementation(libs.playwright)
-    testImplementation("org.springframework.retry:spring-retry")
+    testImplementation(libs.springRetry)
     testImplementation(libs.kotest.assertionsCore)
     testImplementation(libs.mockOauth2Server)
     testImplementation(libs.kotest.assertionsPlaywright)
