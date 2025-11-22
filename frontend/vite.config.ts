@@ -19,7 +19,6 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      // cannot use import.meta.url, storybook fails
       '@': fileURLToPath(new URL('./src', `file://${__filename}`)),
     },
   },
