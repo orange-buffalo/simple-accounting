@@ -3,7 +3,6 @@ import vue from 'eslint-plugin-vue';
 import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import vueParser from 'vue-eslint-parser';
-import storybook from 'eslint-plugin-storybook';
 import importPlugin from 'eslint-plugin-import';
 import globals from 'globals';
 
@@ -33,7 +32,6 @@ export default [
     plugins: {
       vue,
       '@typescript-eslint': typescript,
-      storybook,
       import: importPlugin,
     },
     rules: {
@@ -67,12 +65,10 @@ export default [
       'import/prefer-default-export': 'off',
       'import/no-extraneous-dependencies': ['error', {
         devDependencies: [
-          '**/*.stories.ts',
           '**/*.spec.ts',
           'vite.config.ts',
           'eslint.config.js',
           'build-config/**/*.*',
-          'src/__storybook__/**',
         ],
       }],
       'import/no-import-module-exports': 'off',
@@ -130,17 +126,6 @@ export default [
         ...globals.node,
         ...globals.vitest,
       },
-    },
-  },
-
-  // Storybook-specific configuration
-  {
-    files: ['**/*.stories.@(js|jsx|ts|tsx)'],
-    plugins: {
-      storybook,
-    },
-    rules: {
-      ...storybook.configs.recommended.rules,
     },
   },
 

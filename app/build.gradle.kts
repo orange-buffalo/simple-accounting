@@ -134,12 +134,10 @@ jib {
     }
 }
 
-val screenshotsTestPattern = "*UiComponentsScreenshotsTest"
 val e2eTestPattern = "*E2eTests"
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
     filter {
-        excludeTestsMatching(screenshotsTestPattern)
         excludeTestsMatching(e2eTestPattern)
     }
     // Default logging for tests is too verbose for CI; reduce extra load on the infrastructure
@@ -162,21 +160,6 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         csv.required.set(false)
         html.required.set(false)
-    }
-}
-
-tasks.register<Test>("screenshotsTest") {
-    description = "Runs screenshot tests for UI components"
-    filter {
-        includeTestsMatching(screenshotsTestPattern)
-    }
-    // any change in frontend code could change the stories outcome
-    inputs.files(project(":frontend").projectDir)
-    // do not add this dependency in dev to avoid storybook rebuild on each change,
-    // as we recommend to run tests against running storybook locally
-    ifCi {
-        dependsOn(tasks.getByPath(":frontend:buildStorybook"))
-        inputs.files(tasks.getByPath(":frontend:buildStorybook").outputs)
     }
 }
 

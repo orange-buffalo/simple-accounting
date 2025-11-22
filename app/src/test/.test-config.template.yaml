@@ -1,9 +1,3 @@
-# configuration for components screenshot tests
-screenshots:
-  # if failed screenshots should be automatically updated
-  replaceCommittedFiles: true
-  # if to use storybook dev server
-  useCompliedStorybook: false
 # configuration for full stack tests (UI + backend)
 fullStackTestsConfig:
   # if true, Playwright will download the browser locally - useful to debug the tests

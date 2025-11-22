@@ -19,11 +19,6 @@ updates:
           - "@vue/*"
           - "vue-eslint-parser"
           - "vue-tsc"
-      # Storybook ecosystem (same organization)
-      storybook:
-        patterns:
-          - "@storybook/*"
-          - "storybook"
       # TypeScript ESLint project (same project/team)
       typescript-eslint:
         patterns:
