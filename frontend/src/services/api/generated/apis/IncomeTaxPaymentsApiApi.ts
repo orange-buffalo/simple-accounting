@@ -40,8 +40,10 @@ export interface GetTaxPaymentRequest {
 
 export interface GetTaxPaymentsRequest {
     workspaceId: number;
+    sortBy?: GetTaxPaymentsSortByEnum;
     pageNumber?: number;
     pageSize?: number;
+    sortOrder?: GetTaxPaymentsSortOrderEnum;
 }
 
 export interface UpdateTaxPaymentRequest {
@@ -146,12 +148,20 @@ export class IncomeTaxPaymentsApiApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
+        if (requestParameters['sortBy'] != null) {
+            queryParameters['sortBy'] = requestParameters['sortBy'];
+        }
+
         if (requestParameters['pageNumber'] != null) {
             queryParameters['pageNumber'] = requestParameters['pageNumber'];
         }
 
         if (requestParameters['pageSize'] != null) {
             queryParameters['pageSize'] = requestParameters['pageSize'];
+        }
+
+        if (requestParameters['sortOrder'] != null) {
+            queryParameters['sortOrder'] = requestParameters['sortOrder'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -222,3 +232,19 @@ export class IncomeTaxPaymentsApiApi extends runtime.BaseAPI {
     }
 
 }
+
+/**
+ * @export
+ */
+export const GetTaxPaymentsSortByEnum = {
+    NotSupported: '_NOT_SUPPORTED'
+} as const;
+export type GetTaxPaymentsSortByEnum = typeof GetTaxPaymentsSortByEnum[keyof typeof GetTaxPaymentsSortByEnum];
+/**
+ * @export
+ */
+export const GetTaxPaymentsSortOrderEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type GetTaxPaymentsSortOrderEnum = typeof GetTaxPaymentsSortOrderEnum[keyof typeof GetTaxPaymentsSortOrderEnum];
