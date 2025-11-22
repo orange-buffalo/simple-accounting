@@ -149,6 +149,35 @@ This task:
 
 **Important**: Always run this task after making GraphQL API changes to keep the schema file in sync.
 
+### REST API (OpenAPI) Schema Management
+
+Simple Accounting uses SpringDoc OpenAPI to automatically generate an OpenAPI specification from REST API controllers.
+The specification is stored as `app/src/test/resources/api-spec.yaml` for version control, and TypeScript client code
+is generated from it into `frontend/src/services/api/generated/`.
+
+#### Updating the OpenAPI Schema and TypeScript Client
+
+When you make changes to REST API endpoints (add new endpoints, modify parameters, change request/response types),
+you need to update both the committed OpenAPI spec and the generated TypeScript client. Use the `ApiSpecTest` test
+with auto-update enabled:
+
+```bash
+OVERRIDE_COMMITTED_FILES=true ./gradlew :app:test --tests "ApiSpecTest"
+```
+
+This command:
+* Runs the Spring Boot application to generate the current OpenAPI specification
+* Compares it with the committed `app/src/test/resources/api-spec.yaml`
+* Updates the spec file if different
+* Generates TypeScript client code using OpenAPI Generator
+* Updates files in `frontend/src/services/api/generated/` if different
+
+**Important**: 
+* Always run this after making REST API changes to keep the spec and TypeScript client in sync
+* The test will fail if there are differences, prompting you to run it with `OVERRIDE_COMMITTED_FILES=true`
+* Commit both the updated `api-spec.yaml` and the generated TypeScript files
+* Do not manually edit files in `frontend/src/services/api/generated/` as they will be overwritten
+
 #### Load Tests
 
 At this point we decided to not include load test into the CI pipeline. Load test are executed on demand locally.
