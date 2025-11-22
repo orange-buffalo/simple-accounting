@@ -2,7 +2,6 @@ val prodConfigs = arrayOf(
     ".eslintignore", ".eslintrc.cjs", "package.json",
     "bun.lock", "build-config/vite-plugins.ts", "vite.config.ts",
 )
-val storybookConfigs = arrayOf(".babelrc", "build-config/storybook/**")
 
 val installFrontendDependencies by tasks.register<SaFrontendTask>("installFrontendDependencies") {
     args.set("install --frozen-lockfile")
@@ -33,20 +32,8 @@ val lint by tasks.register<SaCacheableFrontendTask>("lint") {
     args.set("run lint")
     inputFiles {
         prodConfigs.forEach { include(it) }
-        storybookConfigs.forEach { include(it) }
-        readTsConfig(file("tsconfig.storybook-config.json")).applyIncludesExcludes(this)
+        readTsConfig(file("tsconfig.vitest.json")).applyIncludesExcludes(this)
     }
-    dependsOn(installFrontendDependencies)
-}
-
-val buildStorybook by tasks.register<SaCacheableFrontendTask>("buildStorybook") {
-    args.set("run build-storybook")
-    inputFiles {
-        prodConfigs.forEach { include(it) }
-        storybookConfigs.forEach { include(it) }
-        readTsConfig(file("tsconfig.storybook-config.json")).applyIncludesExcludes(this)
-    }
-    outputDirectories.set(files("build/storybook"))
     dependsOn(installFrontendDependencies)
 }
 
@@ -60,7 +47,6 @@ val cleanFrontend by tasks.register("cleanFrontend") {
     doLast {
         delete(files("src/services/i18n/l10n"))
         delete(files("dist"))
-        delete(files("build/storybook"))
     }
 }
 

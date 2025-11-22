@@ -45,11 +45,6 @@ jobs:
           
           exit $TEST_EXIT_CODE
 
-      - name: "Test (screenshots)"
-        env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
-        run: ./gradlew screenshotsTest --scan --console=plain --build-cache
-
       - name: "Test (end-to-end)"
         run: ./gradlew e2eTest --scan --console=plain --build-cache
 

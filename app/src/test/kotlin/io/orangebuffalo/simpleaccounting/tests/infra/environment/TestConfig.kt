@@ -6,7 +6,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.yamlObjectMapper
 import java.io.File
 
 data class TestConfig(
-    val screenshots: ScreenshotsConfig = ScreenshotsConfig(),
     val fullStackTests: FullStackTestsConfig = FullStackTestsConfig(),
     val apiContracts: ApiContractsConfig = ApiContractsConfig(),
     val hostIpInDockerContainer: String = "172.17.0.1",
@@ -15,10 +14,6 @@ data class TestConfig(
         val instance: TestConfig by lazy { loadTestConfig() }
     }
 }
-
-data class ScreenshotsConfig(
-    val useCompliedStorybook: Boolean = true,
-)
 
 data class FullStackTestsConfig(
     val useHeadlessBrowser: Boolean = true,
