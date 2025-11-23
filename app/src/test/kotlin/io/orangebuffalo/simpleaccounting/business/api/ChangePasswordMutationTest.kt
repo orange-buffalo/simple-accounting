@@ -1,0 +1,93 @@
+package io.orangebuffalo.simpleaccounting.business.api
+
+import io.kotest.matchers.equals.shouldBeEqual
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
+import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
+import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
+import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
+import org.springframework.beans.factory.annotation.Autowired
+
+class ChangePasswordMutationTest(
+    @param:Autowired private val client: ApiTestClient,
+) : SaIntegrationTestBase() {
+
+    private val preconditions by lazyPreconditions {
+        object {
+            val fry = fry()
+            val farnsworth = farnsworth()
+            val workspaceAccessToken = workspaceAccessToken()
+        }
+    }
+
+    @Test
+    fun `should change password for regular user`() {
+        testSuccessPath(preconditions.fry)
+    }
+
+    @Test
+    fun `should change password for admin user`() {
+        testSuccessPath(preconditions.farnsworth)
+    }
+
+    @Test
+    fun `should return NOT_AUTHORIZED error for anonymous requests`() {
+        client
+            .graphqlMutation { changePasswordMutation("current-password", "new-password") }
+            .fromAnonymous()
+            .executeAndVerifySingleError(
+                message = "User is not authenticated",
+                errorType = "NOT_AUTHORIZED",
+                locationColumn = 3,
+                locationLine = 2,
+                path = "changePassword"
+            )
+    }
+
+    @Test
+    fun `should return NOT_AUTHORIZED error when changing password by a transient user`() {
+        client
+            .graphqlMutation { changePasswordMutation("current-password", "new-password") }
+            .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
+            .executeAndVerifySingleError(
+                message = "User is not authenticated",
+                errorType = "NOT_AUTHORIZED",
+                locationColumn = 3,
+                locationLine = 2,
+                path = "changePassword"
+            )
+    }
+
+    private fun testSuccessPath(user: PlatformUser) {
+        whenever(passwordEncoder.matches("current-password", user.passwordHash)) doReturn true
+        whenever(passwordEncoder.encode("new-password")) doReturn "new password hash"
+
+        client
+            .graphqlMutation { changePasswordMutation("current-password", "new-password") }
+            .from(user)
+            .executeAndVerifySuccessResponse(
+                "changePassword" to buildJsonObject {
+                    put("success", true)
+                }
+            )
+
+        aggregateTemplate.findAll<PlatformUser>()
+            .filter { it.id == user.id }
+            .shouldBeSingle()
+            .passwordHash.shouldBeEqual("new password hash")
+    }
+
+    private fun MutationProjection.changePasswordMutation(
+        currentPassword: String,
+        newPassword: String
+    ): MutationProjection = changePassword(currentPassword, newPassword) {
+        success
+    }
+}

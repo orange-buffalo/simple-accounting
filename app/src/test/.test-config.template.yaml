@@ -11,3 +11,7 @@ fullStackTestsConfig:
   # useful for local development, should be false on CI
   usePersistentContext: false
 hostIpInDockerContainer: "172.17.0.1"
+# configuration for API contract tests
+apiContracts:
+  # If true, the tests will override the committed GraphQL schema with the generated one
+  overrideCommittedSchema: true
