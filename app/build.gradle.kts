@@ -60,6 +60,9 @@ dependencies {
     implementation(libs.ktor.auth)
 
     kapt("org.springframework.boot:spring-boot-configuration-processor")
+    // JSR-305 annotations for KAPT to avoid "unknown enum constant When.NEVER" warnings
+    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
+    kapt("com.google.code.findbugs:jsr305:3.0.2")
 
     runtimeOnly("org.flywaydb:flyway-core")
     runtimeOnly("com.h2database:h2")

@@ -23,8 +23,8 @@ import org.springframework.web.server.WebFilterChain
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.shaded.com.google.common.io.Files
 import java.io.File
+import java.nio.file.Files
 import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
@@ -95,7 +95,7 @@ class ApiSpecTest(
         val baseCommittedDirectory = File("../frontend/src/services/api/generated")
         val committedFiles = getRelativeFilePathsByBaseDir(baseCommittedDirectory)
 
-        val tmpDir = Files.createTempDir()
+        val tmpDir = Files.createTempDirectory("api-spec-test").toFile()
         val generator = OpenApiGenerator()
             .withFileSystemBind("src/test/resources/api-spec.yaml", "/api-spec.yaml", BindMode.READ_ONLY)
             .withFileSystemBind(tmpDir.absolutePath, "/out", BindMode.READ_WRITE)
