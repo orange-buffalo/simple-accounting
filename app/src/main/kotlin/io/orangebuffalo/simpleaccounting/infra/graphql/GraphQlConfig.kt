@@ -13,10 +13,12 @@ import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import graphql.schema.GraphQLSchema
+import io.orangebuffalo.simpleaccounting.business.api.directives.MAX_LENGTH_DIRECTIVE_NAME
+import io.orangebuffalo.simpleaccounting.business.api.directives.MaxLengthDirectiveWiring
+import io.orangebuffalo.simpleaccounting.business.api.directives.NOT_BLANK_DIRECTIVE_NAME
+import io.orangebuffalo.simpleaccounting.business.api.directives.NotBlankDirectiveWiring
 import io.orangebuffalo.simpleaccounting.business.api.directives.REQUIRED_AUTH_DIRECTIVE_NAME
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuthDirectiveWiring
-import io.orangebuffalo.simpleaccounting.business.api.directives.VALIDATED_DIRECTIVE_NAME
-import io.orangebuffalo.simpleaccounting.business.api.directives.ValidatedDirectiveWiring
 import org.springframework.aop.framework.Advised
 import org.springframework.aop.support.AopUtils
 import org.springframework.context.annotation.Bean
@@ -39,7 +41,8 @@ class SaSchemaGeneratorHooks : SchemaGeneratorHooks {
     private val directiveWiringFactory = KotlinDirectiveWiringFactory(
         manualWiring = mapOf<String, KotlinSchemaDirectiveWiring>(
             REQUIRED_AUTH_DIRECTIVE_NAME to RequiredAuthDirectiveWiring(),
-            VALIDATED_DIRECTIVE_NAME to ValidatedDirectiveWiring(),
+            NOT_BLANK_DIRECTIVE_NAME to NotBlankDirectiveWiring(),
+            MAX_LENGTH_DIRECTIVE_NAME to MaxLengthDirectiveWiring(),
         )
     )
     override val wiringFactory: KotlinDirectiveWiringFactory
