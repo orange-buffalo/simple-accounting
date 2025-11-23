@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.jjwt.api)
     implementation(libs.springdocOpenapi.starterCommon)
     implementation(libs.graphqlKotlin.springServer)
-    implementation(libs.graphqlJava.extendedValidation)
 
     implementation(libs.ktor.clientCore)
     implementation(libs.ktor.clientCio)

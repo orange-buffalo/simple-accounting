@@ -33,12 +33,6 @@ directive @include(
     if: Boolean!
   ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-"Validates that string arguments' length does not exceed the specified maximum. If validation fails, returns an error with `FIELD_VALIDATION_FAILURE` error type."
-directive @maxLength(value: Int!) on FIELD_DEFINITION | ARGUMENT_DEFINITION
-
-"Validates that string arguments are not null, not empty, and contain at least one non-whitespace character. If validation fails, returns an error with `FIELD_VALIDATION_FAILURE` error type."
-directive @notBlank on FIELD_DEFINITION | ARGUMENT_DEFINITION
-
 "Indicates an Input Object is a OneOf Input Object."
 directive @oneOf on INPUT_OBJECT
 
@@ -71,9 +65,9 @@ type Mutation {
   "Changes the password of the current user."
   changePassword(
     "The current password of the user."
-    currentPassword: String! @maxLength(value : 100) @notBlank,
+    currentPassword: String!,
     "The new password to set for the user."
-    newPassword: String! @maxLength(value : 100) @notBlank
+    newPassword: String!
   ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
