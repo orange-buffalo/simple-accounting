@@ -19,6 +19,7 @@ import io.orangebuffalo.simpleaccounting.business.api.directives.NOT_BLANK_DIREC
 import io.orangebuffalo.simpleaccounting.business.api.directives.NotBlankDirectiveWiring
 import io.orangebuffalo.simpleaccounting.business.api.directives.REQUIRED_AUTH_DIRECTIVE_NAME
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuthDirectiveWiring
+import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import org.springframework.aop.framework.Advised
 import org.springframework.aop.support.AopUtils
 import org.springframework.context.annotation.Bean

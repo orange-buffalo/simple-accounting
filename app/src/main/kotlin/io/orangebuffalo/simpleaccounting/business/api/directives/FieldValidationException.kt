@@ -2,8 +2,8 @@ package io.orangebuffalo.simpleaccounting.business.api.directives
 
 import graphql.ErrorClassification
 import graphql.ErrorType
-import io.orangebuffalo.simpleaccounting.infra.graphql.SaGrapQlErrorType
-import io.orangebuffalo.simpleaccounting.infra.graphql.SaGrapQlException
+import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
+import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
 
 /**
  * Exception thrown when field validation fails in a GraphQL directive.

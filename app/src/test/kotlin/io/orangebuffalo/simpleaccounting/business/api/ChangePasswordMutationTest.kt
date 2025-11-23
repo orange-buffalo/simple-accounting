@@ -80,9 +80,35 @@ class ChangePasswordMutationTest(
     }
 
     @Test
+    fun `should return FIELD_VALIDATION_FAILURE when currentPassword is empty`() {
+        client
+            .graphqlMutation { changePasswordMutation("", "new-password") }
+            .from(preconditions.fry)
+            .executeAndVerifyValidationError(
+                field = "currentPassword",
+                error = "MustNotBeBlank",
+                message = "must not be blank",
+                path = "changePassword"
+            )
+    }
+
+    @Test
     fun `should return FIELD_VALIDATION_FAILURE when newPassword is blank`() {
         client
             .graphqlMutation { changePasswordMutation("current-password", "  ") }
+            .from(preconditions.fry)
+            .executeAndVerifyValidationError(
+                field = "newPassword",
+                error = "MustNotBeBlank",
+                message = "must not be blank",
+                path = "changePassword"
+            )
+    }
+
+    @Test
+    fun `should return FIELD_VALIDATION_FAILURE when newPassword is empty`() {
+        client
+            .graphqlMutation { changePasswordMutation("current-password", "") }
             .from(preconditions.fry)
             .executeAndVerifyValidationError(
                 field = "newPassword",

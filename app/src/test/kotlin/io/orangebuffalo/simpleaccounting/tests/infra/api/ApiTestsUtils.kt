@@ -231,7 +231,9 @@ class GraphqlClientRequestExecutor(
         error: String,
         message: String,
         path: String,
-        params: Map<String, String>? = null
+        params: Map<String, String>? = null,
+        locationColumn: Int = 3,
+        locationLine: Int = 2
     ) {
         requestSpec
             .exchange()
@@ -259,8 +261,8 @@ class GraphqlClientRequestExecutor(
                         })
                         putJsonArray("locations") {
                             add(buildJsonObject {
-                                put("column", 3)
-                                put("line", 2)
+                                put("column", locationColumn)
+                                put("line", locationLine)
                             })
                         }
                         putJsonArray("path") {

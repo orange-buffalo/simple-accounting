@@ -4,10 +4,10 @@ import com.expediagroup.graphql.generator.directives.KotlinFieldDirectiveEnviron
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.generator.extensions.get
 import graphql.schema.GraphQLFieldDefinition
+import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
+import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
 import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
-import io.orangebuffalo.simpleaccounting.infra.graphql.SaGrapQlErrorType
-import io.orangebuffalo.simpleaccounting.infra.graphql.SaGrapQlException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging

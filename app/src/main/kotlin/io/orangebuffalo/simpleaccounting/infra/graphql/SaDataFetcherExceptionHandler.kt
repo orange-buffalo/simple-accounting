@@ -1,8 +1,6 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
-import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import graphql.ErrorClassification
-import graphql.ErrorType
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandler
@@ -10,6 +8,7 @@ import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import graphql.language.SourceLocation
 import io.orangebuffalo.simpleaccounting.business.api.directives.FieldValidationException
+import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
@@ -46,23 +45,6 @@ class SaDataFetcherExceptionHandler : DataFetcherExceptionHandler {
         return exception
     }
 }
-
-@GraphQLDescription(
-    "Defines the error types that can be returned in GraphQL errors. " +
-    "These error types are included in the `extensions.errorType` field of GraphQL errors."
-)
-enum class SaGrapQlErrorType {
-    @GraphQLDescription("Indicates that the request requires authentication or the user is not authorized to perform the operation.")
-    NOT_AUTHORIZED,
-    @GraphQLDescription("Indicates that one or more input fields failed validation constraints.")
-    FIELD_VALIDATION_FAILURE,
-}
-
-open class SaGrapQlException(
-    message: String,
-    val errorType: SaGrapQlErrorType,
-    val errorClassification: ErrorClassification = ErrorType.ValidationError,
-) : RuntimeException(message)
 
 private class SaGrapQlError(
     val exception: SaGrapQlException,
