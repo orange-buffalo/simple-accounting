@@ -33,8 +33,17 @@ directive @include(
     if: Boolean!
   ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+"Validates that the string is not null, empty, or blank"
+directive @notBlank on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 "Indicates an Input Object is a OneOf Input Object."
 directive @oneOf on INPUT_OBJECT
+
+"Validates the size of a string"
+directive @size(
+    "Maximum size"
+    max: Int!
+  ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
 "Directs the executor to skip this field or fragment when the `if` argument is true."
 directive @skip(
@@ -65,9 +74,9 @@ type Mutation {
   "Changes the password of the current user."
   changePassword(
     "The current password of the user."
-    currentPassword: String!,
+    currentPassword: String! @notBlank @size(max : 100),
     "The new password to set for the user."
-    newPassword: String!
+    newPassword: String! @notBlank @size(max : 100)
   ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)

@@ -48,11 +48,13 @@ class SaSchemaGeneratorHooks : SchemaGeneratorHooks {
  * Configuration for GraphQL schema generation.
  */
 @Configuration
-class SaGraphQlSchemaConfig {
+class SaGraphQlSchemaConfig(
+    private val validationSchemaTransformer: ValidationSchemaTransformer
+) {
 
     /**
      * Full copy of [com.expediagroup.graphql.server.spring.NonFederatedSchemaAutoConfiguration.schema] but with
-     * additional types added.
+     * additional types added and validation directives transformation.
      */
     @Bean
     fun schema(
@@ -63,7 +65,7 @@ class SaGraphQlSchemaConfig {
         schemaObject: Optional<Schema>
     ): GraphQLSchema {
         val generator = SchemaGenerator(config = schemaConfig)
-        return generator.use {
+        val baseSchema = generator.use {
             it.generateSchema(
                 queries = queries.orElse(emptyList()).toTopLevelObjects(),
                 mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
@@ -72,6 +74,13 @@ class SaGraphQlSchemaConfig {
                 additionalTypes = setOf(SaGrapQlErrorType::class.createType())
             )
         }
+        
+        // Transform schema to add validation directives based on Jakarta annotations
+        return validationSchemaTransformer.transform(
+            baseSchema,
+            mutations.orElse(emptyList()),
+            queries.orElse(emptyList())
+        )
     }
 
     private fun List<Any>.toTopLevelObjects(): List<TopLevelObject> = this.map {
