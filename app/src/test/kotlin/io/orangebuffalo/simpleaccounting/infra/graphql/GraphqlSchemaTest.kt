@@ -29,7 +29,7 @@ class GraphqlSchemaTest(
                 val actualSchema = body.responseBody.shouldNotBeNull()
                 val shouldOverrideSchema = System.getProperty("simpleaccounting.graphql.updateSchema")?.toBoolean()
                         ?: TestConfig.instance.apiContracts.overrideCommittedSchema
-                
+
                 if (shouldOverrideSchema) {
                     logger.info { "Overriding GraphQL schema at $COMMITTED_SCHEMA_PATH" }
                     Files.writeString(
