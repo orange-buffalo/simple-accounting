@@ -13,6 +13,7 @@ import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import graphql.schema.GraphQLSchema
+import io.orangebuffalo.simpleaccounting.business.api.REQUIRED_AUTH_DIRECTIVE_NAME
 import org.springframework.aop.framework.Advised
 import org.springframework.aop.support.AopUtils
 import org.springframework.context.annotation.Bean
