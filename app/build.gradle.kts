@@ -1,5 +1,4 @@
 import com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask
-import org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jreleaser.model.Active
 
@@ -16,7 +15,6 @@ buildscript {
 plugins {
     kotlin("jvm")
     alias(libs.plugins.kotlin.serialization)
-    kotlin("kapt")
     id("io.spring.dependency-management")
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.springBoot)
@@ -58,8 +56,6 @@ dependencies {
     implementation(libs.ktor.contentNegotiation)
     implementation(libs.ktor.kotlinxJson)
     implementation(libs.ktor.auth)
-
-    kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     runtimeOnly("org.flywaydb:flyway-core")
     runtimeOnly("com.h2database:h2")
@@ -114,10 +110,6 @@ tasks.bootJar {
 
 tasks.resolveMainClassName {
     enabled = false
-}
-
-tasks.withType<KaptGenerateStubs> {
-    dependsOn("jooqGenerateSources")
 }
 
 jib {
