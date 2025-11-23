@@ -9,6 +9,7 @@ import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import graphql.language.SourceLocation
+import io.orangebuffalo.simpleaccounting.business.api.directives.FieldValidationException
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
@@ -53,6 +54,8 @@ class SaDataFetcherExceptionHandler : DataFetcherExceptionHandler {
 enum class SaGrapQlErrorType {
     @GraphQLDescription("Indicates that the request requires authentication or the user is not authorized to perform the operation.")
     NOT_AUTHORIZED,
+    @GraphQLDescription("Indicates that one or more input fields failed validation constraints.")
+    FIELD_VALIDATION_FAILURE,
 }
 
 open class SaGrapQlException(
@@ -71,9 +74,25 @@ private class SaGrapQlError(
 
     override fun getErrorType(): ErrorClassification = exception.errorClassification
 
-    override fun getExtensions(): Map<String, Any>? = mapOf(
-        "errorType" to exception.errorType,
-    )
+    override fun getExtensions(): Map<String, Any>? {
+        val extensions = mutableMapOf<String, Any>(
+            "errorType" to exception.errorType
+        )
+        
+        if (exception is FieldValidationException) {
+            extensions["validationErrors"] = exception.validationErrors.map { error ->
+                mutableMapOf<String, Any>(
+                    "field" to error.field,
+                    "error" to error.error,
+                    "message" to error.message
+                ).apply {
+                    error.params?.let { put("params", it) }
+                }
+            }
+        }
+        
+        return extensions
+    }
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
 }

@@ -225,4 +225,49 @@ class GraphqlClientRequestExecutor(
                 }
             }
     }
+
+    fun executeAndVerifyValidationError(
+        field: String,
+        error: String,
+        message: String,
+        path: String,
+        params: Map<String, String>? = null
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBodyEqualTo {
+                putJsonArray("errors") {
+                    add(buildJsonObject {
+                        put("message", "Validation failed")
+                        put("extensions", buildJsonObject {
+                            put("errorType", "FIELD_VALIDATION_FAILURE")
+                            putJsonArray("validationErrors") {
+                                add(buildJsonObject {
+                                    put("field", field)
+                                    put("error", error)
+                                    put("message", message)
+                                    params?.let {
+                                        put("params", buildJsonObject {
+                                            it.forEach { (key, value) ->
+                                                put(key, value)
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                        putJsonArray("locations") {
+                            add(buildJsonObject {
+                                put("column", 3)
+                                put("line", 2)
+                            })
+                        }
+                        putJsonArray("path") {
+                            add(path)
+                        }
+                    })
+                }
+            }
+    }
 }

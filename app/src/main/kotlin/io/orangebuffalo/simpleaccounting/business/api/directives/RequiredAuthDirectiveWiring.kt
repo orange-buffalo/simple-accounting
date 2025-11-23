@@ -1,13 +1,13 @@
-package io.orangebuffalo.simpleaccounting.infra.graphql
+package io.orangebuffalo.simpleaccounting.business.api.directives
 
 import com.expediagroup.graphql.generator.directives.KotlinFieldDirectiveEnvironment
 import com.expediagroup.graphql.generator.directives.KotlinSchemaDirectiveWiring
 import com.expediagroup.graphql.generator.extensions.get
 import graphql.schema.GraphQLFieldDefinition
-import io.orangebuffalo.simpleaccounting.business.api.REQUIRED_AUTH_DIRECTIVE_NAME
-import io.orangebuffalo.simpleaccounting.business.api.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.security.SaUserRoles
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipalOrNull
+import io.orangebuffalo.simpleaccounting.infra.graphql.SaGrapQlErrorType
+import io.orangebuffalo.simpleaccounting.infra.graphql.SaGrapQlException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
