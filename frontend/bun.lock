@@ -36,7 +36,7 @@
         "@types/dropzone": "5.7.9",
         "@types/event-source-polyfill": "1.0.5",
         "@types/flat": "5.0.5",
-        "@types/globalize": "1.5.5",
+        "@types/globalize": "1.5.6",
         "@types/js-yaml": "4.0.9",
         "@types/jsdom": "21.1.7",
         "@types/lodash": "4.17.20",
@@ -471,7 +471,7 @@
 
     "@types/glob-to-regexp": ["@types/glob-to-regexp@0.4.4", "", {}, "sha512-nDKoaKJYbnn1MZxUY0cA1bPmmgZbg0cTq7Rh13d0KWYNOiKbqoR+2d89SnRPszGh7ROzSwZ/GOjZ4jPbmmZ6Eg=="],
 
-    "@types/globalize": ["@types/globalize@1.5.5", "", { "dependencies": { "@types/cldrjs": "*" } }, "sha512-UINIthRJ3ElD3JP4kTiX+YNkctR6duTCpyzcEkafiGLxoLowvW9WiL2miayN45g9mOVqrBy2a1tgFQuCD6vdOw=="],
+    "@types/globalize": ["@types/globalize@1.5.6", "", { "dependencies": { "@types/cldrjs": "*" } }, "sha512-uL/PiPLowamCMA1U2KPd/txK1EIpIYrMLCt+FhU3fi2GTCXeVjeJQV5xY/V8UU2/ll1BkfGnV16xaSkioFQHwQ=="],
 
     "@types/jquery": ["@types/jquery@3.5.29", "", { "dependencies": { "@types/sizzle": "*" } }, "sha512-oXQQC9X9MOPRrMhPHHOsXqeQDnWeCDT3PelUIg/Oy8FAbzSZtFHRjc7IpbfFVmpLtJ+UOoywpRsuO5Jxjybyeg=="],
 
@@ -1710,8 +1710,6 @@
     "@theguild/federation-composition/json5": ["json5@2.2.3", "", { "bin": { "json5": "lib/cli.js" } }, "sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg=="],
 
     "@types/dompurify/dompurify": ["dompurify@3.2.1", "", { "optionalDependencies": { "@types/trusted-types": "^2.0.7" } }, "sha512-NBHEsc0/kzRYQd+AY6HR6B/IgsqzBABrqJbpCDQII/OK6h7B7LXzweZTDsqSW2LkTRpoxf18YUP+YjGySk6B3w=="],
-
-    "@types/globalize/@types/cldrjs": ["@types/cldrjs@0.4.28", "", {}, "sha512-3sU6qBTMONeM8BvBzKtylN7Q9xXwaJVc2DvGa9p3HsTvo+rhExRNSu0bapsxf/AVl2x0ZKVY7wKrRNglQ4SQzA=="],
 
     "@types/jsdom/@types/node": ["@types/node@20.12.13", "", { "dependencies": { "undici-types": "~5.26.4" } }, "sha512-gBGeanV41c1L171rR7wjbMiEpEI/l5XFQdLLfhr/REwpgDy/4U8y89+i8kRiLzDyZdOkXh+cRaTetUnCYutoXA=="],
 
