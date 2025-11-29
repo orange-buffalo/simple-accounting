@@ -6,6 +6,7 @@ import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.language.IntValue
 import graphql.schema.*
+import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorParam
 import jakarta.validation.ConstraintViolation
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
@@ -25,7 +26,7 @@ data class ValidationDirectiveMapping(
     val directiveArgumentsBuilder: (GraphQLDirective.Builder) -> Unit = {},
     val appliedDirectiveArgumentsBuilder: (GraphQLAppliedDirective.Builder, Annotation) -> Unit = { _, _ -> },
     val errorCode: String,
-    val paramsExtractor: ((ConstraintViolation<*>) -> Map<String, String>)? = null
+    val paramsExtractor: ((ConstraintViolation<*>) -> List<ValidationErrorParam>)? = null
 ) {
     fun buildAppliedDirective(annotation: Annotation): GraphQLAppliedDirective =
         GraphQLAppliedDirective.newDirective()
@@ -83,9 +84,9 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
         errorCode = "SizeConstraintViolated",
         paramsExtractor = { violation ->
             val attributes = violation.constraintDescriptor.attributes
-            mapOf(
-                "min" to (attributes["min"]?.toString() ?: "0"),
-                "max" to (attributes["max"]?.toString() ?: "2147483647")
+            listOf(
+                ValidationErrorParam("min", attributes["min"]?.toString() ?: "0"),
+                ValidationErrorParam("max", attributes["max"]?.toString() ?: "2147483647")
             )
         }
     )

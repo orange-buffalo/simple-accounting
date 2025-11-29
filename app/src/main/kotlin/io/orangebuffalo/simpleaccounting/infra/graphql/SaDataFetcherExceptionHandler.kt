@@ -9,6 +9,7 @@ import graphql.execution.DataFetcherExceptionHandlerResult
 import graphql.language.SourceLocation
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlException
+import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
 import jakarta.validation.ConstraintViolation
 import jakarta.validation.ConstraintViolationException
 import mu.KotlinLogging
@@ -92,7 +93,7 @@ private class ValidationErrorGraphQLError(
 
     override fun getExtensions(): Map<String, Any> {
         val validationErrors = exception.constraintViolations.map { violation ->
-            buildValidationError(violation)
+            buildValidationErrorDetails(violation)
         }
         
         return mapOf(
@@ -103,7 +104,7 @@ private class ValidationErrorGraphQLError(
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
     
-    private fun buildValidationError(violation: ConstraintViolation<*>): Map<String, Any> {
+    private fun buildValidationErrorDetails(violation: ConstraintViolation<*>): ValidationErrorDetails {
         val annotationClass = violation.constraintDescriptor.annotation.annotationClass
         val mapping = mappingsByAnnotationClass[annotationClass]
             ?: throw IllegalStateException("No mapping found for validation annotation ${annotationClass.simpleName}")
@@ -111,18 +112,11 @@ private class ValidationErrorGraphQLError(
         // Extract just the field name from the property path (skip method name)
         val fieldPath = violation.propertyPath.drop(1).joinToString(".") { it.name }
         
-        val error = mutableMapOf<String, Any>(
-            "path" to fieldPath,
-            "error" to mapping.errorCode,
-            "message" to violation.message
+        return ValidationErrorDetails(
+            path = fieldPath,
+            error = mapping.errorCode,
+            message = violation.message,
+            params = mapping.paramsExtractor?.invoke(violation)?.takeIf { it.isNotEmpty() }
         )
-        
-        // Add constraint parameters if available
-        val params = mapping.paramsExtractor?.invoke(violation)
-        if (params != null && params.isNotEmpty()) {
-            error["params"] = params
-        }
-        
-        return error
     }
 }

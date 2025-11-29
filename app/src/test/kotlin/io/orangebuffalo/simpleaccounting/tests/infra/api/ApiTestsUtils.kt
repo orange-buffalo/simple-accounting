@@ -250,11 +250,14 @@ class GraphqlClientRequestExecutor(
                                     put("error", error)
                                     put("message", message)
                                     params?.let {
-                                        put("params", buildJsonObject {
+                                        putJsonArray("params") {
                                             it.forEach { (key, value) ->
-                                                put(key, value)
+                                                add(buildJsonObject {
+                                                    put("name", key)
+                                                    put("value", value)
+                                                })
                                             }
-                                        })
+                                        }
                                     }
                                 })
                             }

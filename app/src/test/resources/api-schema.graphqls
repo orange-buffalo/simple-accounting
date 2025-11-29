@@ -105,6 +105,26 @@ type UserProfile {
   userName: String!
 }
 
+"Details of a field validation error that occurred during input validation."
+type ValidationErrorDetails {
+  "The error code identifying the type of validation failure (e.g., 'MustNotBeBlank', 'SizeConstraintViolated')."
+  error: String!
+  "A human-readable message describing the validation failure."
+  message: String!
+  "Additional constraint parameters if applicable (e.g., min/max values for size constraints)."
+  params: [ValidationErrorParam!]
+  "The path to the field that failed validation (e.g., 'currentPassword')."
+  path: String!
+}
+
+"A key-value pair for validation constraint parameters."
+type ValidationErrorParam {
+  "The parameter name (e.g., 'min', 'max')."
+  name: String!
+  "The parameter value."
+  value: String!
+}
+
 "Defines the type of authorization required to execute the request. This is used in conjunction with the `@auth` directive."
 enum AuthType {
   "Requires a request to be executed by an admin user, i.e. authenticated and has admin privileges."
