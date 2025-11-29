@@ -92,10 +92,9 @@ function convertValidationErrorsToFieldErrors(
   validationErrors: ValidationErrorDetails[],
 ): FieldErrorDto[] {
   return validationErrors.map((validationError) => {
-    const params: { [key: string]: string } | undefined = validationError.params?.reduce(
-      (acc, param) => ({ ...acc, [param.name]: param.value }),
-      {} as { [key: string]: string },
-    );
+    const params: { [key: string]: string } | undefined = validationError.params
+      ? Object.fromEntries(validationError.params.map((param) => [param.name, param.value]))
+      : undefined;
 
     return {
       field: validationError.path,
@@ -129,8 +128,13 @@ async function executeGqlRequestAndHandleErrors<Data>(
       throw new ApiAuthError();
     }
     if (graphQLError.extensions?.errorType === SaGrapQlErrorType.FieldValidationFailure) {
-      const validationErrors = graphQLError.extensions.validationErrors as ValidationErrorDetails[];
-      throw new ApiFieldLevelValidationError(convertValidationErrorsToFieldErrors(validationErrors));
+      const validationErrors = graphQLError.extensions.validationErrors;
+      if (!Array.isArray(validationErrors)) {
+        throw new ApiError(`Invalid validation errors format: ${JSON.stringify(graphQLError)}`);
+      }
+      throw new ApiFieldLevelValidationError(
+        convertValidationErrorsToFieldErrors(validationErrors as ValidationErrorDetails[]),
+      );
     }
 
     throw new ApiError(
