@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.business.api
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Query
+import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUsersService
 import jakarta.validation.constraints.Size

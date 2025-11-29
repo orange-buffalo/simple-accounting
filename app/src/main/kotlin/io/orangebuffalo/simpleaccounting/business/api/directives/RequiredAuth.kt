@@ -1,4 +1,4 @@
-package io.orangebuffalo.simpleaccounting.business.api
+package io.orangebuffalo.simpleaccounting.business.api.directives
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLDirective

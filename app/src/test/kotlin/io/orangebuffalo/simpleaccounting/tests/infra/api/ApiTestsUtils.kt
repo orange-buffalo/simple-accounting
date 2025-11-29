@@ -225,4 +225,54 @@ class GraphqlClientRequestExecutor(
                 }
             }
     }
+
+    fun executeAndVerifyValidationError(
+        violationPath: String,
+        error: String,
+        message: String,
+        path: String,
+        params: Map<String, String>? = null,
+        locationColumn: Int = 3,
+        locationLine: Int = 2
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBodyEqualTo {
+                putJsonArray("errors") {
+                    add(buildJsonObject {
+                        put("message", "Validation failed")
+                        put("extensions", buildJsonObject {
+                            put("errorType", "FIELD_VALIDATION_FAILURE")
+                            putJsonArray("validationErrors") {
+                                add(buildJsonObject {
+                                    put("path", violationPath)
+                                    put("error", error)
+                                    put("message", message)
+                                    params?.let {
+                                        putJsonArray("params") {
+                                            it.forEach { (key, value) ->
+                                                add(buildJsonObject {
+                                                    put("name", key)
+                                                    put("value", value)
+                                                })
+                                            }
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                        putJsonArray("locations") {
+                            add(buildJsonObject {
+                                put("column", locationColumn)
+                                put("line", locationLine)
+                            })
+                        }
+                        putJsonArray("path") {
+                            add(path)
+                        }
+                    })
+                }
+            }
+    }
 }

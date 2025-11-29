@@ -13,7 +13,12 @@ import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import graphql.schema.GraphQLSchema
-import io.orangebuffalo.simpleaccounting.business.api.REQUIRED_AUTH_DIRECTIVE_NAME
+import io.orangebuffalo.simpleaccounting.business.api.directives.REQUIRED_AUTH_DIRECTIVE_NAME
+import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuthDirectiveWiring
+import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
+import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorCode
+import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
+import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorParam
 import org.springframework.aop.framework.Advised
 import org.springframework.aop.support.AopUtils
 import org.springframework.context.annotation.Bean
@@ -50,7 +55,7 @@ class SaGraphQlSchemaConfig {
 
     /**
      * Full copy of [com.expediagroup.graphql.server.spring.NonFederatedSchemaAutoConfiguration.schema] but with
-     * additional types added.
+     * additional types added and validation directives transformation.
      */
     @Bean
     fun schema(
@@ -58,18 +63,31 @@ class SaGraphQlSchemaConfig {
         mutations: Optional<List<Mutation>>,
         subscriptions: Optional<List<Subscription>>,
         schemaConfig: SchemaGeneratorConfig,
-        schemaObject: Optional<Schema>
+        schemaObject: Optional<Schema>,
+        validationSchemaTransformer: ValidationSchemaTransformer
     ): GraphQLSchema {
         val generator = SchemaGenerator(config = schemaConfig)
-        return generator.use {
+        val baseSchema = generator.use {
             it.generateSchema(
                 queries = queries.orElse(emptyList()).toTopLevelObjects(),
                 mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
                 subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects(),
                 schemaObject = schemaObject.orElse(null)?.toTopLevelObject(),
-                additionalTypes = setOf(SaGrapQlErrorType::class.createType())
+                additionalTypes = setOf(
+                    SaGrapQlErrorType::class.createType(),
+                    ValidationErrorCode::class.createType(),
+                    ValidationErrorDetails::class.createType(),
+                    ValidationErrorParam::class.createType()
+                )
             )
         }
+        
+        // Transform schema to add validation directives based on Jakarta annotations
+        return validationSchemaTransformer.transform(
+            baseSchema,
+            mutations.orElse(emptyList()),
+            queries.orElse(emptyList())
+        )
     }
 
     private fun List<Any>.toTopLevelObjects(): List<TopLevelObject> = this.map {

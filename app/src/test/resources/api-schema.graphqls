@@ -33,8 +33,19 @@ directive @include(
     if: Boolean!
   ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+"Validates that the string is not null, empty, or blank"
+directive @notBlank on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 "Indicates an Input Object is a OneOf Input Object."
 directive @oneOf on INPUT_OBJECT
+
+"Validates the size of a string"
+directive @size(
+    "Maximum size"
+    max: Int!,
+    "Minimum size"
+    min: Int!
+  ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
 "Directs the executor to skip this field or fragment when the `if` argument is true."
 directive @skip(
@@ -65,9 +76,9 @@ type Mutation {
   "Changes the password of the current user."
   changePassword(
     "The current password of the user."
-    currentPassword: String!,
+    currentPassword: String! @notBlank @size(max : 100, min : 0),
     "The new password to set for the user."
-    newPassword: String!
+    newPassword: String! @notBlank @size(max : 100, min : 0)
   ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
@@ -94,6 +105,26 @@ type UserProfile {
   userName: String!
 }
 
+"Details of a field validation error that occurred during input validation."
+type ValidationErrorDetails {
+  "The error code identifying the type of validation failure."
+  error: ValidationErrorCode!
+  "A human-readable message describing the validation failure."
+  message: String!
+  "Additional constraint parameters if applicable (e.g., min/max values for size constraints)."
+  params: [ValidationErrorParam!]
+  "The path to the field that failed validation (e.g., 'currentPassword')."
+  path: String!
+}
+
+"A key-value pair for validation constraint parameters."
+type ValidationErrorParam {
+  "The parameter name (e.g., 'min', 'max')."
+  name: String!
+  "The parameter value."
+  value: String!
+}
+
 "Defines the type of authorization required to execute the request. This is used in conjunction with the `@auth` directive."
 enum AuthType {
   "Requires a request to be executed by an admin user, i.e. authenticated and has admin privileges."
@@ -110,6 +141,16 @@ enum AuthType {
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."
 enum SaGrapQlErrorType {
+  "Indicates that one or more input fields failed validation constraints."
+  FIELD_VALIDATION_FAILURE
   "Indicates that the request requires authentication or the user is not authorized to perform the operation."
   NOT_AUTHORIZED
+}
+
+"Error codes for validation failures, matching REST API constraint violation error keys."
+enum ValidationErrorCode {
+  "The field must not be null, empty, or blank."
+  MustNotBeBlank
+  "The field size must be within the specified min/max bounds."
+  SizeConstraintViolated
 }
