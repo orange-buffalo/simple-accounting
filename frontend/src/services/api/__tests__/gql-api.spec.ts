@@ -3,8 +3,8 @@ import fetchMock from 'fetch-mock';
 import 'whatwg-fetch';
 import type { Auth } from '@/services/api';
 import { GrapQlClient } from '@/services/api/gql-api-client.ts';
-import { ApiAuthError } from '@/services/api/api-errors.ts';
-import { SaGrapQlErrorType } from '@/services/api/gql/graphql.ts';
+import { ApiAuthError, ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
+import { SaGrapQlErrorType, ValidationErrorCode } from '@/services/api/gql/graphql.ts';
 
 // eslint-disable-next-line vue/max-len
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
@@ -124,6 +124,97 @@ describe('GraphQL API Client', () => {
       }, 'ApiAuthError');
     },
   );
+
+  test('throws ApiFieldLevelValidationError on validation failure', async () => {
+    await setApiToken(TOKEN);
+
+    mockRequest(apiMutationAssertions(TOKEN), validationFailureResponse([
+      {
+        path: 'currentPassword',
+        error: ValidationErrorCode.MustNotBeBlank,
+        message: 'must not be blank',
+      },
+    ]));
+
+    const error = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
+      await executeApiMutation();
+    }, 'ApiFieldLevelValidationError');
+
+    expect(error.fieldErrors).toHaveLength(1);
+    expect(error.fieldErrors[0]).toEqual({
+      field: 'currentPassword',
+      error: ValidationErrorCode.MustNotBeBlank,
+      message: 'must not be blank',
+      params: undefined,
+    });
+  });
+
+  test('throws ApiFieldLevelValidationError with params on validation failure', async () => {
+    await setApiToken(TOKEN);
+
+    mockRequest(apiMutationAssertions(TOKEN), validationFailureResponse([
+      {
+        path: 'password',
+        error: ValidationErrorCode.SizeConstraintViolated,
+        message: 'size must be between 6 and 100',
+        params: [
+          { name: 'min', value: '6' },
+          { name: 'max', value: '100' },
+        ],
+      },
+    ]));
+
+    const error = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
+      await executeApiMutation();
+    }, 'ApiFieldLevelValidationError');
+
+    expect(error.fieldErrors).toHaveLength(1);
+    expect(error.fieldErrors[0]).toEqual({
+      field: 'password',
+      error: ValidationErrorCode.SizeConstraintViolated,
+      message: 'size must be between 6 and 100',
+      params: { min: '6', max: '100' },
+    });
+  });
+
+  test('throws ApiFieldLevelValidationError with multiple validation errors', async () => {
+    await setApiToken(TOKEN);
+
+    mockRequest(apiMutationAssertions(TOKEN), validationFailureResponse([
+      {
+        path: 'currentPassword',
+        error: ValidationErrorCode.MustNotBeBlank,
+        message: 'must not be blank',
+      },
+      {
+        path: 'newPassword',
+        error: ValidationErrorCode.SizeConstraintViolated,
+        message: 'size must be between 6 and 100',
+        params: [
+          { name: 'min', value: '6' },
+          { name: 'max', value: '100' },
+        ],
+      },
+    ]));
+
+    const error = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
+      await executeApiMutation();
+    }, 'ApiFieldLevelValidationError');
+
+    expect(error.fieldErrors).toHaveLength(2);
+    expect(error.fieldErrors[0]).toEqual({
+      field: 'currentPassword',
+      error: ValidationErrorCode.MustNotBeBlank,
+      message: 'must not be blank',
+      params: undefined,
+    });
+    expect(error.fieldErrors[1]).toEqual({
+      field: 'newPassword',
+      error: ValidationErrorCode.SizeConstraintViolated,
+      message: 'size must be between 6 and 100',
+      params: { min: '6', max: '100' },
+    });
+  });
 
   // TODO enable test when https://github.com/urql-graphql/urql/issues/3801 is fixed
   // test('throws ApiTimeoutError on timeout', async () => {
@@ -383,4 +474,21 @@ async function expectToFailWith<T>(
   }
   expect('API call expected to fail', 'API call expected to fail')
     .toBeDefined();
+}
+
+function validationFailureResponse(validationErrors: Array<{
+  path: string;
+  error: ValidationErrorCode;
+  message: string;
+  params?: Array<{ name: string; value: string }>;
+}>): any {
+  return {
+    errors: [{
+      message: 'Validation failed',
+      extensions: {
+        errorType: SaGrapQlErrorType.FieldValidationFailure,
+        validationErrors,
+      },
+    }],
+  };
 }

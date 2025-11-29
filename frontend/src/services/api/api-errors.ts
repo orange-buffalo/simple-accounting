@@ -1,4 +1,4 @@
-import { FieldErrorDto, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api/generated';
+import type { FieldErrorDto, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api/generated';
 
 /**
  * Base class for API errors. All API errors should extend this class.
@@ -33,7 +33,7 @@ export class ClientApiError extends ApiError {
 export class ServerApiError extends ApiError {
   response?: Response;
 
-  constructor(message: string, response: Response) {
+  constructor(message: string, response?: Response) {
     super(message);
     this.name = 'ServerApiError';
     this.response = response?.clone();
@@ -56,10 +56,20 @@ export class ResourceNotFoundError extends ServerApiError {
 export class ApiFieldLevelValidationError extends ServerApiError {
   fieldErrors: Array<FieldErrorDto>;
 
-  constructor(response: Response, responseBody: InvalidInputErrorDto) {
-    super('Request failed with invalid input', response);
+  constructor(fieldErrors: Array<FieldErrorDto>, response?: Response);
+  constructor(response: Response, responseBody: InvalidInputErrorDto);
+  constructor(
+    fieldErrorsOrResponse: Array<FieldErrorDto> | Response,
+    responseOrBody?: Response | InvalidInputErrorDto,
+  ) {
+    if (Array.isArray(fieldErrorsOrResponse)) {
+      super('Request failed with invalid input', responseOrBody as Response | undefined);
+      this.fieldErrors = fieldErrorsOrResponse;
+    } else {
+      super('Request failed with invalid input', fieldErrorsOrResponse);
+      this.fieldErrors = (responseOrBody as InvalidInputErrorDto).requestErrors;
+    }
     this.name = 'ApiFieldLevelValidationError';
-    this.fieldErrors = responseBody.requestErrors;
   }
 }
 
