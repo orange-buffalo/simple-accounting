@@ -72,7 +72,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("  ", "new-password") }
             .from(preconditions.fry)
             .executeAndVerifyValidationError(
-                field = "currentPassword",
+                violationPath = "changePassword.currentPassword",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
                 path = "changePassword"
@@ -85,7 +85,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("", "new-password") }
             .from(preconditions.fry)
             .executeAndVerifyValidationError(
-                field = "currentPassword",
+                violationPath = "changePassword.currentPassword",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
                 path = "changePassword"
@@ -98,7 +98,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("current-password", "  ") }
             .from(preconditions.fry)
             .executeAndVerifyValidationError(
-                field = "newPassword",
+                violationPath = "changePassword.newPassword",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
                 path = "changePassword"
@@ -111,7 +111,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("current-password", "") }
             .from(preconditions.fry)
             .executeAndVerifyValidationError(
-                field = "newPassword",
+                violationPath = "changePassword.newPassword",
                 error = "MustNotBeBlank",
                 message = "must not be blank",
                 path = "changePassword"
@@ -125,7 +125,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation(tooLongPassword, "new-password") }
             .from(preconditions.fry)
             .executeAndVerifyValidationError(
-                field = "currentPassword",
+                violationPath = "changePassword.currentPassword",
                 error = "SizeConstraintViolated",
                 message = "size must be between 0 and 100",
                 path = "changePassword",
@@ -140,7 +140,7 @@ class ChangePasswordMutationTest(
             .graphqlMutation { changePasswordMutation("current-password", tooLongPassword) }
             .from(preconditions.fry)
             .executeAndVerifyValidationError(
-                field = "newPassword",
+                violationPath = "changePassword.newPassword",
                 error = "SizeConstraintViolated",
                 message = "size must be between 0 and 100",
                 path = "changePassword",

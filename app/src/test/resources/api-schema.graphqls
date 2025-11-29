@@ -42,7 +42,9 @@ directive @oneOf on INPUT_OBJECT
 "Validates the size of a string"
 directive @size(
     "Maximum size"
-    max: Int!
+    max: Int!,
+    "Minimum size"
+    min: Int!
   ) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
 "Directs the executor to skip this field or fragment when the `if` argument is true."
@@ -74,9 +76,9 @@ type Mutation {
   "Changes the password of the current user."
   changePassword(
     "The current password of the user."
-    currentPassword: String! @notBlank @size(max : 100),
+    currentPassword: String! @notBlank @size(max : 100, min : 0),
     "The new password to set for the user."
-    newPassword: String! @notBlank @size(max : 100)
+    newPassword: String! @notBlank @size(max : 100, min : 0)
   ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)

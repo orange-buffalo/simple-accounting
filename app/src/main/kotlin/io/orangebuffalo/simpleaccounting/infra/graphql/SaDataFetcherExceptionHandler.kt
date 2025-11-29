@@ -15,8 +15,12 @@ import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+import kotlin.reflect.KClass
 
 private val log = KotlinLogging.logger { }
+
+private val mappingsByAnnotationClass: Map<KClass<out Annotation>, ValidationDirectiveMapping> =
+    validationDirectiveMappings.associateBy { it.annotationClass }
 
 @Component
 class SaDataFetcherExceptionHandler : DataFetcherExceptionHandler {
@@ -67,11 +71,7 @@ private class SaGrapQlError(
 
     override fun getErrorType(): ErrorClassification = exception.errorClassification
 
-    override fun getExtensions(): Map<String, Any>? {
-        return mutableMapOf<String, Any>(
-            "errorType" to exception.errorType
-        )
-    }
+    override fun getExtensions(): Map<String, Any> = mapOf("errorType" to exception.errorType)
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
 }
@@ -104,45 +104,22 @@ private class ValidationErrorGraphQLError(
     override fun getPath(): List<Any> = handlerParameters.path.toList()
     
     private fun buildValidationError(violation: ConstraintViolation<*>): Map<String, Any> {
-        val fieldName = extractFieldName(violation)
-        val constraintAnnotation = violation.constraintDescriptor.annotation.annotationClass.simpleName ?: "Unknown"
-        val mapping = validationErrorMappings[constraintAnnotation]
+        val annotationClass = violation.constraintDescriptor.annotation.annotationClass
+        val mapping = mappingsByAnnotationClass[annotationClass]
+            ?: throw IllegalStateException("No mapping found for validation annotation ${annotationClass.simpleName}")
         
         val error = mutableMapOf<String, Any>(
-            "field" to fieldName,
-            "error" to (mapping?.error ?: constraintAnnotation),
+            "path" to violation.propertyPath.toString(),
+            "error" to mapping.errorCode,
             "message" to violation.message
         )
         
         // Add constraint parameters if available
-        val params = mapping?.paramsExtractor?.invoke(violation)
+        val params = mapping.paramsExtractor?.invoke(violation)
         if (params != null && params.isNotEmpty()) {
             error["params"] = params
         }
         
         return error
     }
-    
-    private fun extractFieldName(violation: ConstraintViolation<*>): String {
-        val path = violation.propertyPath.toString()
-        // Path format is typically "methodName.parameterName" for method parameters
-        // We want just the parameter name
-        return path.substringAfterLast('.')
-    }
 }
-
-private data class ValidationErrorMapping(
-    val error: String,
-    val paramsExtractor: ((ConstraintViolation<*>) -> Map<String, String>)? = null
-)
-
-private val validationErrorMappings = mapOf(
-    "NotBlank" to ValidationErrorMapping("MustNotBeBlank"),
-    "Size" to ValidationErrorMapping("SizeConstraintViolated") { violation ->
-        val attributes = violation.constraintDescriptor.attributes
-        mapOf(
-            "min" to (attributes["min"]?.toString() ?: "0"),
-            "max" to (attributes["max"]?.toString() ?: "2147483647")
-        )
-    }
-)

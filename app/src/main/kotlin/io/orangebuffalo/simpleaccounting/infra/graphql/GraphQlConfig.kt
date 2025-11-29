@@ -48,9 +48,7 @@ class SaSchemaGeneratorHooks : SchemaGeneratorHooks {
  * Configuration for GraphQL schema generation.
  */
 @Configuration
-class SaGraphQlSchemaConfig(
-    private val validationSchemaTransformer: ValidationSchemaTransformer
-) {
+class SaGraphQlSchemaConfig {
 
     /**
      * Full copy of [com.expediagroup.graphql.server.spring.NonFederatedSchemaAutoConfiguration.schema] but with
@@ -62,7 +60,8 @@ class SaGraphQlSchemaConfig(
         mutations: Optional<List<Mutation>>,
         subscriptions: Optional<List<Subscription>>,
         schemaConfig: SchemaGeneratorConfig,
-        schemaObject: Optional<Schema>
+        schemaObject: Optional<Schema>,
+        validationSchemaTransformer: ValidationSchemaTransformer
     ): GraphQLSchema {
         val generator = SchemaGenerator(config = schemaConfig)
         val baseSchema = generator.use {

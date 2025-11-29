@@ -227,7 +227,7 @@ class GraphqlClientRequestExecutor(
     }
 
     fun executeAndVerifyValidationError(
-        field: String,
+        violationPath: String,
         error: String,
         message: String,
         path: String,
@@ -246,7 +246,7 @@ class GraphqlClientRequestExecutor(
                             put("errorType", "FIELD_VALIDATION_FAILURE")
                             putJsonArray("validationErrors") {
                                 add(buildJsonObject {
-                                    put("field", field)
+                                    put("path", violationPath)
                                     put("error", error)
                                     put("message", message)
                                     params?.let {
