@@ -107,8 +107,8 @@ type UserProfile {
 
 "Details of a field validation error that occurred during input validation."
 type ValidationErrorDetails {
-  "The error code identifying the type of validation failure (e.g., 'MustNotBeBlank', 'SizeConstraintViolated')."
-  error: String!
+  "The error code identifying the type of validation failure."
+  error: ValidationErrorCode!
   "A human-readable message describing the validation failure."
   message: String!
   "Additional constraint parameters if applicable (e.g., min/max values for size constraints)."
@@ -145,4 +145,12 @@ enum SaGrapQlErrorType {
   FIELD_VALIDATION_FAILURE
   "Indicates that the request requires authentication or the user is not authorized to perform the operation."
   NOT_AUTHORIZED
+}
+
+"Error codes for validation failures, matching REST API constraint violation error keys."
+enum ValidationErrorCode {
+  "The field must not be null, empty, or blank."
+  MustNotBeBlank
+  "The field size must be within the specified min/max bounds."
+  SizeConstraintViolated
 }
