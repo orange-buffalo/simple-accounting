@@ -6,6 +6,7 @@ import graphql.Scalars
 import graphql.introspection.Introspection
 import graphql.language.IntValue
 import graphql.schema.*
+import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorCode
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorParam
 import jakarta.validation.ConstraintViolation
 import jakarta.validation.constraints.NotBlank
@@ -25,7 +26,7 @@ data class ValidationDirectiveMapping(
     val directiveDescription: String,
     val directiveArgumentsBuilder: (GraphQLDirective.Builder) -> Unit = {},
     val appliedDirectiveArgumentsBuilder: (GraphQLAppliedDirective.Builder, Annotation) -> Unit = { _, _ -> },
-    val errorCode: String,
+    val errorCode: ValidationErrorCode,
     val paramsExtractor: ((ConstraintViolation<*>) -> List<ValidationErrorParam>)? = null
 ) {
     fun buildAppliedDirective(annotation: Annotation): GraphQLAppliedDirective =
@@ -44,7 +45,7 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
         annotationClass = NotBlank::class,
         directiveName = "notBlank",
         directiveDescription = "Validates that the string is not null, empty, or blank",
-        errorCode = "MustNotBeBlank"
+        errorCode = ValidationErrorCode.MustNotBeBlank
     ),
     ValidationDirectiveMapping(
         annotationClass = Size::class,
@@ -81,7 +82,7 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
                     .build()
             )
         },
-        errorCode = "SizeConstraintViolated",
+        errorCode = ValidationErrorCode.SizeConstraintViolated,
         paramsExtractor = { violation ->
             val attributes = violation.constraintDescriptor.attributes
             listOf(

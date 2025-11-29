@@ -16,6 +16,7 @@ import graphql.schema.GraphQLSchema
 import io.orangebuffalo.simpleaccounting.business.api.directives.REQUIRED_AUTH_DIRECTIVE_NAME
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuthDirectiveWiring
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
+import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorCode
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorDetails
 import io.orangebuffalo.simpleaccounting.business.api.errors.ValidationErrorParam
 import org.springframework.aop.framework.Advised
@@ -74,6 +75,7 @@ class SaGraphQlSchemaConfig {
                 schemaObject = schemaObject.orElse(null)?.toTopLevelObject(),
                 additionalTypes = setOf(
                     SaGrapQlErrorType::class.createType(),
+                    ValidationErrorCode::class.createType(),
                     ValidationErrorDetails::class.createType(),
                     ValidationErrorParam::class.createType()
                 )

@@ -8,8 +8,8 @@ data class ValidationErrorDetails(
     @GraphQLDescription("The path to the field that failed validation (e.g., 'currentPassword').")
     val path: String,
 
-    @GraphQLDescription("The error code identifying the type of validation failure (e.g., 'MustNotBeBlank', 'SizeConstraintViolated').")
-    val error: String,
+    @GraphQLDescription("The error code identifying the type of validation failure.")
+    val error: ValidationErrorCode,
 
     @GraphQLDescription("A human-readable message describing the validation failure.")
     val message: String,
@@ -27,3 +27,12 @@ data class ValidationErrorParam(
     @GraphQLDescription("The parameter value.")
     val value: String
 )
+
+@GraphQLDescription("Error codes for validation failures, matching REST API constraint violation error keys.")
+enum class ValidationErrorCode {
+    @GraphQLDescription("The field must not be null, empty, or blank.")
+    MustNotBeBlank,
+
+    @GraphQLDescription("The field size must be within the specified min/max bounds.")
+    SizeConstraintViolated
+}
