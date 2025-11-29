@@ -108,8 +108,11 @@ private class ValidationErrorGraphQLError(
         val mapping = mappingsByAnnotationClass[annotationClass]
             ?: throw IllegalStateException("No mapping found for validation annotation ${annotationClass.simpleName}")
         
+        // Extract just the field name from the property path (skip method name)
+        val fieldPath = violation.propertyPath.drop(1).joinToString(".") { it.name }
+        
         val error = mutableMapOf<String, Any>(
-            "path" to violation.propertyPath.toString(),
+            "path" to fieldPath,
             "error" to mapping.errorCode,
             "message" to violation.message
         )

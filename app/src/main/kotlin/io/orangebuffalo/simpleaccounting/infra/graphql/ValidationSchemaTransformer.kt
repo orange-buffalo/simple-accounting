@@ -23,10 +23,16 @@ data class ValidationDirectiveMapping(
     val directiveName: String,
     val directiveDescription: String,
     val directiveArgumentsBuilder: (GraphQLDirective.Builder) -> Unit = {},
-    val appliedDirectiveBuilder: (Annotation) -> GraphQLAppliedDirective,
+    val appliedDirectiveArgumentsBuilder: (GraphQLAppliedDirective.Builder, Annotation) -> Unit = { _, _ -> },
     val errorCode: String,
     val paramsExtractor: ((ConstraintViolation<*>) -> Map<String, String>)? = null
-)
+) {
+    fun buildAppliedDirective(annotation: Annotation): GraphQLAppliedDirective =
+        GraphQLAppliedDirective.newDirective()
+            .name(directiveName)
+            .apply { appliedDirectiveArgumentsBuilder(this, annotation) }
+            .build()
+}
 
 /**
  * Single registry of all supported validation annotations with their directive mappings.
@@ -37,11 +43,6 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
         annotationClass = NotBlank::class,
         directiveName = "notBlank",
         directiveDescription = "Validates that the string is not null, empty, or blank",
-        appliedDirectiveBuilder = {
-            GraphQLAppliedDirective.newDirective()
-                .name("notBlank")
-                .build()
-        },
         errorCode = "MustNotBeBlank"
     ),
     ValidationDirectiveMapping(
@@ -63,25 +64,21 @@ val validationDirectiveMappings: List<ValidationDirectiveMapping> = listOf(
                     .build()
             )
         },
-        appliedDirectiveBuilder = { annotation ->
+        appliedDirectiveArgumentsBuilder = { builder, annotation ->
             val size = annotation as Size
-            GraphQLAppliedDirective.newDirective()
-                .name("size")
-                .argument(
-                    GraphQLAppliedDirectiveArgument.newArgument()
-                        .name("min")
-                        .valueLiteral(IntValue.newIntValue(size.min.toBigInteger()).build())
-                        .type(Scalars.GraphQLInt)
-                        .build()
-                )
-                .argument(
-                    GraphQLAppliedDirectiveArgument.newArgument()
-                        .name("max")
-                        .valueLiteral(IntValue.newIntValue(size.max.toBigInteger()).build())
-                        .type(Scalars.GraphQLInt)
-                        .build()
-                )
-                .build()
+            builder.argument(
+                GraphQLAppliedDirectiveArgument.newArgument()
+                    .name("min")
+                    .valueLiteral(IntValue.newIntValue(size.min.toBigInteger()).build())
+                    .type(Scalars.GraphQLInt)
+                    .build()
+            ).argument(
+                GraphQLAppliedDirectiveArgument.newArgument()
+                    .name("max")
+                    .valueLiteral(IntValue.newIntValue(size.max.toBigInteger()).build())
+                    .type(Scalars.GraphQLInt)
+                    .build()
+            )
         },
         errorCode = "SizeConstraintViolated",
         paramsExtractor = { violation ->
@@ -154,8 +151,7 @@ class ValidationSchemaTransformer {
                     
                     val directives = param.annotations.mapNotNull { annotation ->
                         mappingsByAnnotationClass[annotation.annotationClass]
-                            ?.appliedDirectiveBuilder
-                            ?.invoke(annotation)
+                            ?.buildAppliedDirective(annotation)
                     }
                     
                     if (directives.isNotEmpty()) {
