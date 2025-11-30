@@ -1,4 +1,15 @@
-import type { FieldErrorDto, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api/generated';
+import type { InvalidInputErrorDto, SaApiErrorDto } from '@/services/api/generated';
+
+/**
+ * Represents a field-level validation error.
+ * This type is independent of REST API generated types to support both REST and GraphQL clients.
+ */
+export interface FieldError {
+  field: string;
+  error: string;
+  message: string;
+  params?: { [key: string]: string };
+}
 
 /**
  * Base class for API errors. All API errors should extend this class.
@@ -54,12 +65,12 @@ export class ResourceNotFoundError extends ServerApiError {
  * Indicates a field-level validation error (400 HTTP status with detailed information about failing fields).
  */
 export class ApiFieldLevelValidationError extends ServerApiError {
-  fieldErrors: Array<FieldErrorDto>;
+  fieldErrors: Array<FieldError>;
 
-  constructor(fieldErrors: Array<FieldErrorDto>, response?: Response);
+  constructor(fieldErrors: Array<FieldError>, response?: Response);
   constructor(response: Response, responseBody: InvalidInputErrorDto);
   constructor(
-    fieldErrorsOrResponse: Array<FieldErrorDto> | Response,
+    fieldErrorsOrResponse: Array<FieldError> | Response,
     responseOrBody?: Response | InvalidInputErrorDto,
   ) {
     if (Array.isArray(fieldErrorsOrResponse)) {

@@ -4,9 +4,10 @@ import { graphql } from '@/services/api/gql';
 import { updateApiToken, useAuth } from '@/services/api/auth.ts';
 import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
-import { ApiAuthError, ApiError, ApiFieldLevelValidationError, ClientApiError } from '@/services/api/api-errors.ts';
+import {
+  ApiAuthError, ApiError, ApiFieldLevelValidationError, ClientApiError, FieldError,
+} from '@/services/api/api-errors.ts';
 import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/graphql.ts';
-import type { FieldErrorDto } from '@/services/api/generated';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
     mutation refreshAccessToken {
@@ -90,7 +91,7 @@ export interface GrapQlClient {
 
 function convertValidationErrorsToFieldErrors(
   validationErrors: ValidationErrorDetails[],
-): FieldErrorDto[] {
+): FieldError[] {
   return validationErrors.map((validationError) => {
     const params: { [key: string]: string } | undefined = validationError.params
       ? Object.fromEntries(validationError.params.map((param) => [param.name, param.value]))
