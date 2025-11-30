@@ -64,7 +64,8 @@ class SaGraphQlSchemaConfig {
         subscriptions: Optional<List<Subscription>>,
         schemaConfig: SchemaGeneratorConfig,
         schemaObject: Optional<Schema>,
-        validationSchemaTransformer: ValidationSchemaTransformer
+        validationSchemaTransformer: ValidationSchemaTransformer,
+        businessErrorSchemaTransformer: BusinessErrorSchemaTransformer
     ): GraphQLSchema {
         val generator = SchemaGenerator(config = schemaConfig)
         val baseSchema = generator.use {
@@ -83,11 +84,14 @@ class SaGraphQlSchemaConfig {
         }
         
         // Transform schema to add validation directives based on Jakarta annotations
-        return validationSchemaTransformer.transform(
+        val schemaWithValidation = validationSchemaTransformer.transform(
             baseSchema,
             mutations.orElse(emptyList()),
             queries.orElse(emptyList())
         )
+        
+        // Transform schema to add business error directives based on @BusinessError annotations
+        return businessErrorSchemaTransformer.transform(schemaWithValidation)
     }
 
     private fun List<Any>.toTopLevelObjects(): List<TopLevelObject> = this.map {

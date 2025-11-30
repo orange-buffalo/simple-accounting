@@ -7,6 +7,12 @@ schema @contact(description : "For any questions, issues or feature requests, pl
 "Defines the authorization requirements for the request. If a request context does not satisfy the requirements, it will be rejected with an error code `NOT_AUTHORIZED`."
 directive @auth(type: AuthType!) on FIELD_DEFINITION
 
+"Declares business errors that can be returned by this operation. When a business error occurs, the response will include an error with extensions.errorType = 'BUSINESS_ERROR' and extensions.errorCode containing one of the declared error codes."
+directive @businessError(
+    "List of possible business error codes for this operation."
+    errorCodes: [String!]!
+  ) on FIELD_DEFINITION
+
 "Provides contact information of the owner responsible for this subgraph schema."
 directive @contact(description: String!, name: String!, url: String!) on SCHEMA
 
@@ -79,7 +85,7 @@ type Mutation {
     currentPassword: String! @notBlank @size(max : 100, min : 0),
     "The new password to set for the user."
     newPassword: String! @notBlank @size(max : 100, min : 0)
-  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER)
+  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(errorCodes : [CurrentPasswordMismatch, TransientUser])
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
 }
@@ -139,8 +145,18 @@ enum AuthType {
   REGULAR_USER
 }
 
+"Possible business error codes for the changePassword operation."
+enum ChangePasswordErrorCode {
+  "The provided current password does not match the user's actual password."
+  CurrentPasswordMismatch
+  "Cannot change password for a transient user (e.g., shared workspace token user)."
+  TransientUser
+}
+
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."
 enum SaGrapQlErrorType {
+  "Indicates that a business error occurred during the operation. The specific error code will be provided in `extensions.errorCode`."
+  BUSINESS_ERROR
   "Indicates that one or more input fields failed validation constraints."
   FIELD_VALIDATION_FAILURE
   "Indicates that the request requires authentication or the user is not authorized to perform the operation."

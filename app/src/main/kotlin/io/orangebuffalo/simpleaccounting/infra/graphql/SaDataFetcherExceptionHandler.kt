@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.infra.graphql
 
 import graphql.ErrorClassification
+import graphql.ErrorType
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandler
@@ -24,7 +25,9 @@ private val mappingsByAnnotationClass: Map<KClass<out Annotation>, ValidationDir
     validationDirectiveMappings.associateBy { it.annotationClass }
 
 @Component
-class SaDataFetcherExceptionHandler : DataFetcherExceptionHandler {
+class SaDataFetcherExceptionHandler(
+    private val businessErrorRegistry: BusinessErrorRegistry,
+) : DataFetcherExceptionHandler {
     override fun handleException(handlerParameters: DataFetcherExceptionHandlerParameters): CompletableFuture<DataFetcherExceptionHandlerResult> {
         return CompletableFuture.completedFuture(mapToResult(handlerParameters))
     }
@@ -43,6 +46,17 @@ class SaDataFetcherExceptionHandler : DataFetcherExceptionHandler {
             return DataFetcherExceptionHandlerResult.newResult()
                 .error(SaGrapQlError(exception, handlerParameters))
                 .build()
+        }
+        
+        // Handle business errors declared via @BusinessError annotation
+        val operationName = handlerParameters.path.segmentName
+        if (operationName != null) {
+            val errorCode = businessErrorRegistry.findErrorCode(operationName, exception)
+            if (errorCode != null) {
+                return DataFetcherExceptionHandlerResult.newResult()
+                    .error(BusinessErrorGraphQLError(exception, errorCode, handlerParameters))
+                    .build()
+            }
         }
         
         log.error(handlerParameters.exception) { "Unexpected exception happened during GraphQL execution" }
@@ -73,6 +87,28 @@ private class SaGrapQlError(
     override fun getErrorType(): ErrorClassification = exception.errorClassification
 
     override fun getExtensions(): Map<String, Any> = mapOf("errorType" to exception.errorType)
+
+    override fun getPath(): List<Any> = handlerParameters.path.toList()
+}
+
+/**
+ * GraphQL error for business errors declared via @BusinessError annotation.
+ */
+private class BusinessErrorGraphQLError(
+    private val exception: Throwable,
+    private val errorCode: String,
+    private val handlerParameters: DataFetcherExceptionHandlerParameters,
+) : GraphQLError {
+    override fun getMessage(): String = exception.message ?: "Business error occurred"
+
+    override fun getLocations(): List<SourceLocation> = listOf(handlerParameters.sourceLocation)
+
+    override fun getErrorType(): ErrorClassification = ErrorType.DataFetchingException
+
+    override fun getExtensions(): Map<String, Any> = mapOf(
+        "errorType" to SaGrapQlErrorType.BUSINESS_ERROR,
+        "errorCode" to errorCode
+    )
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
 }

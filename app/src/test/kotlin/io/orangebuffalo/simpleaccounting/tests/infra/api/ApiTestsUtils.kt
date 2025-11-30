@@ -275,4 +275,36 @@ class GraphqlClientRequestExecutor(
                 }
             }
     }
+
+    fun executeAndVerifyBusinessError(
+        message: String,
+        errorCode: String,
+        path: String,
+        locationColumn: Int = 3,
+        locationLine: Int = 2
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBodyEqualTo {
+                putJsonArray("errors") {
+                    add(buildJsonObject {
+                        put("message", message)
+                        put("extensions", buildJsonObject {
+                            put("errorType", "BUSINESS_ERROR")
+                            put("errorCode", errorCode)
+                        })
+                        putJsonArray("locations") {
+                            add(buildJsonObject {
+                                put("column", locationColumn)
+                                put("line", locationLine)
+                            })
+                        }
+                        putJsonArray("path") {
+                            add(path)
+                        }
+                    })
+                }
+            }
+    }
 }
