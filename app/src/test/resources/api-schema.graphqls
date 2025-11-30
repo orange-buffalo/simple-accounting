@@ -82,7 +82,7 @@ type Mutation {
     currentPassword: String! @notBlank @size(max : 100, min : 0),
     "The new password to set for the user."
     newPassword: String! @notBlank @size(max : 100, min : 0)
-  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(description : "The provided current password does not match the user's actual password.", errorCode : "CURRENT_PASSWORD_MISMATCH") @businessError(description : "Cannot change password for a transient user (e.g., shared workspace token user).", errorCode : "TRANSIENT_USER")
+  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_ACTOR) @businessError(description : "The provided current password does not match the user's actual password.", errorCode : "CURRENT_PASSWORD_MISMATCH") @businessError(description : "Cannot change password for a transient user (e.g., shared workspace token user).", errorCode : "TRANSIENT_USER")
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
 }

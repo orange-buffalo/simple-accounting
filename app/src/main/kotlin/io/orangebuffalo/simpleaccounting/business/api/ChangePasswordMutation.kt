@@ -18,7 +18,7 @@ class ChangePasswordMutation(
 ) : Mutation {
     @Suppress("unused")
     @GraphQLDescription("Changes the password of the current user.")
-    @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
+    @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_ACTOR)
     @BusinessError(
         exceptionClass = PasswordChangeException.InvalidCurrentPasswordException::class,
         errorCode = "CURRENT_PASSWORD_MISMATCH",
