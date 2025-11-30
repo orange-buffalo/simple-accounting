@@ -5,7 +5,7 @@ import { updateApiToken, useAuth } from '@/services/api/auth.ts';
 import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
 import {
-  ApiAuthError, ApiError, ApiFieldLevelValidationError, ClientApiError, FieldError,
+  ApiAuthError, ApiBusinessError, ApiError, ApiFieldLevelValidationError, ClientApiError, FieldError,
 } from '@/services/api/api-errors.ts';
 import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/graphql.ts';
 
@@ -136,6 +136,16 @@ async function executeGqlRequestAndHandleErrors<Data>(
       throw new ApiFieldLevelValidationError(
         convertValidationErrorsToFieldErrors(validationErrors as ValidationErrorDetails[]),
       );
+    }
+    if (graphQLError.extensions?.errorType === SaGrapQlErrorType.BusinessError) {
+      const errorCode = graphQLError.extensions.errorCode;
+      if (typeof errorCode !== 'string') {
+        throw new ApiError(`Invalid business error format: ${JSON.stringify(graphQLError)}`);
+      }
+      throw new ApiBusinessError({
+        error: errorCode,
+        message: graphQLError.message,
+      });
     }
 
     throw new ApiError(

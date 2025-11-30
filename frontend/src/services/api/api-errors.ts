@@ -85,15 +85,26 @@ export class ApiFieldLevelValidationError extends ServerApiError {
 }
 
 /**
- * Indicates a business error (400 HTTP status with custom body).
+ * Indicates a business error (400 HTTP status with custom body for REST, or BUSINESS_ERROR error type for GraphQL).
  */
 export class ApiBusinessError extends ServerApiError {
   error: SaApiErrorDto;
 
-  constructor(response: Response, error: SaApiErrorDto) {
-    super(`Business error: ${error.error}`, response);
+  constructor(error: SaApiErrorDto, response?: Response);
+  constructor(response: Response, error: SaApiErrorDto);
+  constructor(
+    errorOrResponse: SaApiErrorDto | Response,
+    responseOrError?: Response | SaApiErrorDto,
+  ) {
+    if (errorOrResponse instanceof Response) {
+      const error = responseOrError as SaApiErrorDto;
+      super(`Business error: ${error.error}`, errorOrResponse);
+      this.error = error;
+    } else {
+      super(`Business error: ${errorOrResponse.error}`, responseOrError as Response | undefined);
+      this.error = errorOrResponse;
+    }
     this.name = 'ApiBusinessError';
-    this.error = error;
   }
 
   errorAs<T extends SaApiErrorDto>(): T {
