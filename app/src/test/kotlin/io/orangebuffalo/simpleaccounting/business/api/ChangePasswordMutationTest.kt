@@ -53,13 +53,15 @@ class ChangePasswordMutationTest(
     }
 
     @Test
-    fun `should return BUSINESS_ERROR with TRANSIENT_USER when changing password by a transient user`() {
+    fun `should return NOT_AUTHORIZED error when changing password by a transient user`() {
         client
             .graphqlMutation { changePasswordMutation("current-password", "new-password") }
             .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
-            .executeAndVerifyBusinessError(
-                message = "Cannot change password for transient user",
-                errorCode = "TRANSIENT_USER",
+            .executeAndVerifySingleError(
+                message = "User is not authenticated",
+                errorType = "NOT_AUTHORIZED",
+                locationColumn = 3,
+                locationLine = 2,
                 path = "changePassword"
             )
     }
