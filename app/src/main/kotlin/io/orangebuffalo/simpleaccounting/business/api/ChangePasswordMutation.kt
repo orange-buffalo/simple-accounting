@@ -21,13 +21,13 @@ class ChangePasswordMutation(
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
     @BusinessError(
         exceptionClass = PasswordChangeException.InvalidCurrentPasswordException::class,
+        errorCodeClass = ChangePasswordErrorCode::class,
         errorCode = "CurrentPasswordMismatch",
-        description = "The provided current password does not match the user's actual password."
     )
     @BusinessError(
         exceptionClass = PasswordChangeException.TransientUserException::class,
+        errorCodeClass = ChangePasswordErrorCode::class,
         errorCode = "TransientUser",
-        description = "Cannot change password for a transient user (e.g., shared workspace token user)."
     )
     suspend fun changePassword(
         @GraphQLDescription("The current password of the user.")

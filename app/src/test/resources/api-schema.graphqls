@@ -7,11 +7,8 @@ schema @contact(description : "For any questions, issues or feature requests, pl
 "Defines the authorization requirements for the request. If a request context does not satisfy the requirements, it will be rejected with an error code `NOT_AUTHORIZED`."
 directive @auth(type: AuthType!) on FIELD_DEFINITION
 
-"Declares business errors that can be returned by this operation. When a business error occurs, the response will include an error with extensions.errorType = 'BUSINESS_ERROR' and extensions.errorCode containing one of the declared error codes."
-directive @businessError(
-    "List of possible business error codes for this operation."
-    errorCodes: [String!]!
-  ) on FIELD_DEFINITION
+"Declares a business error that can be returned by this operation. When the specified exception is thrown, the response will include an error with extensions.errorType = 'BUSINESS_ERROR' and extensions.errorCode containing the declared error code."
+directive @businessError(errorCode: String!) repeatable on FIELD_DEFINITION
 
 "Provides contact information of the owner responsible for this subgraph schema."
 directive @contact(description: String!, name: String!, url: String!) on SCHEMA
@@ -85,7 +82,7 @@ type Mutation {
     currentPassword: String! @notBlank @size(max : 100, min : 0),
     "The new password to set for the user."
     newPassword: String! @notBlank @size(max : 100, min : 0)
-  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(errorCodes : [CurrentPasswordMismatch, TransientUser])
+  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(errorCode : "CurrentPasswordMismatch") @businessError(errorCode : "TransientUser")
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
 }

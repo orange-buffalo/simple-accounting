@@ -13,6 +13,7 @@ import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import graphql.schema.GraphQLSchema
+import io.orangebuffalo.simpleaccounting.business.api.ChangePasswordErrorCode
 import io.orangebuffalo.simpleaccounting.business.api.directives.REQUIRED_AUTH_DIRECTIVE_NAME
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuthDirectiveWiring
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
@@ -65,7 +66,6 @@ class SaGraphQlSchemaConfig {
         schemaConfig: SchemaGeneratorConfig,
         schemaObject: Optional<Schema>,
         validationSchemaTransformer: ValidationSchemaTransformer,
-        businessErrorSchemaTransformer: BusinessErrorSchemaTransformer
     ): GraphQLSchema {
         val generator = SchemaGenerator(config = schemaConfig)
         val baseSchema = generator.use {
@@ -78,20 +78,18 @@ class SaGraphQlSchemaConfig {
                     SaGrapQlErrorType::class.createType(),
                     ValidationErrorCode::class.createType(),
                     ValidationErrorDetails::class.createType(),
-                    ValidationErrorParam::class.createType()
+                    ValidationErrorParam::class.createType(),
+                    ChangePasswordErrorCode::class.createType(),
                 )
             )
         }
         
         // Transform schema to add validation directives based on Jakarta annotations
-        val schemaWithValidation = validationSchemaTransformer.transform(
+        return validationSchemaTransformer.transform(
             baseSchema,
             mutations.orElse(emptyList()),
             queries.orElse(emptyList())
         )
-        
-        // Transform schema to add business error directives based on @BusinessError annotations
-        return businessErrorSchemaTransformer.transform(schemaWithValidation)
     }
 
     private fun List<Any>.toTopLevelObjects(): List<TopLevelObject> = this.map {

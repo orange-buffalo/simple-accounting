@@ -12,9 +12,7 @@ import kotlin.reflect.full.memberFunctions
  * Registry that collects and provides access to business error mappings from GraphQL operations.
  * 
  * This registry scans mutations and queries for [BusinessError] annotations and creates
- * a mapping structure that can be used by:
- * 1. [SaDataFetcherExceptionHandler] to handle exceptions at runtime
- * 2. [BusinessErrorSchemaTransformer] to generate schema directives
+ * a mapping structure that can be used by [SaDataFetcherExceptionHandler] to handle exceptions at runtime.
  */
 @Component
 class BusinessErrorRegistry(
@@ -38,7 +36,6 @@ class BusinessErrorRegistry(
                         BusinessErrorMapping(
                             exceptionClass = annotation.exceptionClass,
                             errorCode = annotation.errorCode,
-                            description = annotation.description
                         )
                     }
                     result[function.name] = OperationBusinessErrors(
@@ -78,5 +75,4 @@ data class OperationBusinessErrors(
 data class BusinessErrorMapping(
     val exceptionClass: KClass<out Exception>,
     val errorCode: String,
-    val description: String
 )
