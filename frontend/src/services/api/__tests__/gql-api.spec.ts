@@ -3,7 +3,7 @@ import fetchMock from 'fetch-mock';
 import 'whatwg-fetch';
 import type { Auth } from '@/services/api';
 import { GrapQlClient } from '@/services/api/gql-api-client.ts';
-import { ApiAuthError, ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
+import { ApiAuthError, ApiBusinessError, ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
 import { SaGrapQlErrorType, ValidationErrorCode } from '@/services/api/gql/graphql.ts';
 
 // eslint-disable-next-line vue/max-len
@@ -214,6 +214,45 @@ describe('GraphQL API Client', () => {
       message: 'size must be between 6 and 100',
       params: { min: '6', max: '100' },
     });
+  });
+
+  test('throws ApiBusinessError on business error response', async () => {
+    await setApiToken(TOKEN);
+
+    mockRequest(apiMutationAssertions(TOKEN), businessErrorResponse(
+      'CURRENT_PASSWORD_MISMATCH',
+      'The provided current password does not match the user\'s actual password.',
+    ));
+
+    const error = await expectToFailWith<ApiBusinessError>(async () => {
+      await executeApiMutation();
+    }, 'ApiBusinessError');
+
+    expect(error.error).toEqual({
+      error: 'CURRENT_PASSWORD_MISMATCH',
+      message: 'The provided current password does not match the user\'s actual password.',
+    });
+    expect(error.errorAs<{ error: string; message: string }>()).toEqual({
+      error: 'CURRENT_PASSWORD_MISMATCH',
+      message: 'The provided current password does not match the user\'s actual password.',
+    });
+  });
+
+  test('throws ApiBusinessError with minimal message on business error response', async () => {
+    await setApiToken(TOKEN);
+
+    mockRequest(apiMutationAssertions(TOKEN), businessErrorResponse(
+      'SOME_ERROR_CODE',
+      'Error message',
+    ));
+
+    const error = await expectToFailWith<ApiBusinessError>(async () => {
+      await executeApiMutation();
+    }, 'ApiBusinessError');
+
+    expect(error.error.error).toBe('SOME_ERROR_CODE');
+    expect(error.error.message).toBe('Error message');
+    expect(error.message).toBe('Business error: SOME_ERROR_CODE');
   });
 
   // TODO enable test when https://github.com/urql-graphql/urql/issues/3801 is fixed
@@ -488,6 +527,18 @@ function validationFailureResponse(validationErrors: Array<{
       extensions: {
         errorType: SaGrapQlErrorType.FieldValidationFailure,
         validationErrors,
+      },
+    }],
+  };
+}
+
+function businessErrorResponse(errorCode: string, message: string): any {
+  return {
+    errors: [{
+      message,
+      extensions: {
+        errorType: SaGrapQlErrorType.BusinessError,
+        errorCode,
       },
     }],
   };
