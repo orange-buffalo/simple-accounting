@@ -3,7 +3,9 @@ package io.orangebuffalo.simpleaccounting.business.api
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
+import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService
+import io.orangebuffalo.simpleaccounting.business.security.authentication.PasswordChangeException
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
@@ -17,6 +19,11 @@ class ChangePasswordMutation(
     @Suppress("unused")
     @GraphQLDescription("Changes the password of the current user.")
     @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
+    @BusinessError(
+        exceptionClass = PasswordChangeException.InvalidCurrentPasswordException::class,
+        errorCode = "CURRENT_PASSWORD_MISMATCH",
+        description = "The provided current password does not match the user's actual password.",
+    )
     suspend fun changePassword(
         @GraphQLDescription("The current password of the user.")
         @NotBlank

@@ -7,6 +7,9 @@ schema @contact(description : "For any questions, issues or feature requests, pl
 "Defines the authorization requirements for the request. If a request context does not satisfy the requirements, it will be rejected with an error code `NOT_AUTHORIZED`."
 directive @auth(type: AuthType!) on FIELD_DEFINITION
 
+"Declares a business error that can be returned by this operation. When the specified exception is thrown, the response will include an error with extensions.errorType = 'BUSINESS_ERROR' and extensions.errorCode containing the declared error code."
+directive @businessError(description: String!, errorCode: String!) repeatable on FIELD_DEFINITION
+
 "Provides contact information of the owner responsible for this subgraph schema."
 directive @contact(description: String!, name: String!, url: String!) on SCHEMA
 
@@ -79,7 +82,7 @@ type Mutation {
     currentPassword: String! @notBlank @size(max : 100, min : 0),
     "The new password to set for the user."
     newPassword: String! @notBlank @size(max : 100, min : 0)
-  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER)
+  ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(description : "The provided current password does not match the user's actual password.", errorCode : "CURRENT_PASSWORD_MISMATCH")
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
 }
@@ -139,8 +142,16 @@ enum AuthType {
   REGULAR_USER
 }
 
+"Possible business error codes for the changePassword operation."
+enum ChangePasswordErrorCodes {
+  "The provided current password does not match the user's actual password."
+  CURRENT_PASSWORD_MISMATCH
+}
+
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."
 enum SaGrapQlErrorType {
+  "Indicates that a business error occurred during the operation. The specific error code will be provided in `extensions.errorCode`."
+  BUSINESS_ERROR
   "Indicates that one or more input fields failed validation constraints."
   FIELD_VALIDATION_FAILURE
   "Indicates that the request requires authentication or the user is not authorized to perform the operation."

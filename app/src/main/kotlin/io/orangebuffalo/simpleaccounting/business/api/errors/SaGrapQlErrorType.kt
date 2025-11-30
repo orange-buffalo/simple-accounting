@@ -11,4 +11,7 @@ enum class SaGrapQlErrorType {
     NOT_AUTHORIZED,
     @GraphQLDescription("Indicates that one or more input fields failed validation constraints.")
     FIELD_VALIDATION_FAILURE,
+    @GraphQLDescription("Indicates that a business error occurred during the operation. " +
+            "The specific error code will be provided in `extensions.errorCode`.")
+    BUSINESS_ERROR,
 }

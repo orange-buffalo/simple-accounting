@@ -67,6 +67,20 @@ class ChangePasswordMutationTest(
     }
 
     @Test
+    fun `should return BUSINESS_ERROR with CURRENT_PASSWORD_MISMATCH when current password does not match`() {
+        whenever(passwordEncoder.matches("wrong-password", preconditions.fry.passwordHash)) doReturn false
+
+        client
+            .graphqlMutation { changePasswordMutation("wrong-password", "new-password") }
+            .from(preconditions.fry)
+            .executeAndVerifyBusinessError(
+                message = "Invalid current password",
+                errorCode = "CURRENT_PASSWORD_MISMATCH",
+                path = "changePassword"
+            )
+    }
+
+    @Test
     fun `should return FIELD_VALIDATION_FAILURE when currentPassword is blank`() {
         client
             .graphqlMutation { changePasswordMutation("  ", "new-password") }
