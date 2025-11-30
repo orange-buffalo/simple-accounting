@@ -67,7 +67,7 @@ class ChangePasswordMutationTest(
     }
 
     @Test
-    fun `should return BUSINESS_ERROR with CurrentPasswordMismatch when current password does not match`() {
+    fun `should return BUSINESS_ERROR with CURRENT_PASSWORD_MISMATCH when current password does not match`() {
         whenever(passwordEncoder.matches("wrong-password", preconditions.fry.passwordHash)) doReturn false
 
         client
@@ -75,7 +75,7 @@ class ChangePasswordMutationTest(
             .from(preconditions.fry)
             .executeAndVerifyBusinessError(
                 message = "Invalid current password",
-                errorCode = "CurrentPasswordMismatch",
+                errorCode = "CURRENT_PASSWORD_MISMATCH",
                 path = "changePassword"
             )
     }

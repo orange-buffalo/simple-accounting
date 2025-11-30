@@ -4,12 +4,25 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
 import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
+import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessErrorCode
 import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService
 import io.orangebuffalo.simpleaccounting.business.security.authentication.PasswordChangeException
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
+
+/**
+ * Error codes for the changePassword mutation.
+ */
+@GraphQLDescription("Possible business error codes for the changePassword operation.")
+enum class ChangePasswordErrorCode : BusinessErrorCode {
+    @GraphQLDescription("The provided current password does not match the user's actual password.")
+    CURRENT_PASSWORD_MISMATCH,
+
+    @GraphQLDescription("Cannot change password for a transient user (e.g., shared workspace token user).")
+    TRANSIENT_USER,
+}
 
 @Component
 @Validated
@@ -22,12 +35,12 @@ class ChangePasswordMutation(
     @BusinessError(
         exceptionClass = PasswordChangeException.InvalidCurrentPasswordException::class,
         errorCodeClass = ChangePasswordErrorCode::class,
-        errorCode = "CurrentPasswordMismatch",
+        errorCode = "CURRENT_PASSWORD_MISMATCH",
     )
     @BusinessError(
         exceptionClass = PasswordChangeException.TransientUserException::class,
         errorCodeClass = ChangePasswordErrorCode::class,
-        errorCode = "TransientUser",
+        errorCode = "TRANSIENT_USER",
     )
     suspend fun changePassword(
         @GraphQLDescription("The current password of the user.")

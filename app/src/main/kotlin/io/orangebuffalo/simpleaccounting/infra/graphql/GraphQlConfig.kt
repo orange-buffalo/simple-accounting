@@ -13,7 +13,6 @@ import com.expediagroup.graphql.server.operations.Mutation
 import com.expediagroup.graphql.server.operations.Query
 import com.expediagroup.graphql.server.operations.Subscription
 import graphql.schema.GraphQLSchema
-import io.orangebuffalo.simpleaccounting.business.api.ChangePasswordErrorCode
 import io.orangebuffalo.simpleaccounting.business.api.directives.REQUIRED_AUTH_DIRECTIVE_NAME
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuthDirectiveWiring
 import io.orangebuffalo.simpleaccounting.business.api.errors.SaGrapQlErrorType
@@ -66,21 +65,27 @@ class SaGraphQlSchemaConfig {
         schemaConfig: SchemaGeneratorConfig,
         schemaObject: Optional<Schema>,
         validationSchemaTransformer: ValidationSchemaTransformer,
+        businessErrorRegistry: BusinessErrorRegistry,
     ): GraphQLSchema {
         val generator = SchemaGenerator(config = schemaConfig)
+        
+        // Collect base additional types
+        val additionalTypes = mutableSetOf(
+            SaGrapQlErrorType::class.createType(),
+            ValidationErrorCode::class.createType(),
+            ValidationErrorDetails::class.createType(),
+            ValidationErrorParam::class.createType(),
+        )
+        // Add business error enum types from the registry
+        additionalTypes.addAll(businessErrorRegistry.errorCodeEnumTypes)
+        
         val baseSchema = generator.use {
             it.generateSchema(
                 queries = queries.orElse(emptyList()).toTopLevelObjects(),
                 mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
                 subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects(),
                 schemaObject = schemaObject.orElse(null)?.toTopLevelObject(),
-                additionalTypes = setOf(
-                    SaGrapQlErrorType::class.createType(),
-                    ValidationErrorCode::class.createType(),
-                    ValidationErrorDetails::class.createType(),
-                    ValidationErrorParam::class.createType(),
-                    ChangePasswordErrorCode::class.createType(),
-                )
+                additionalTypes = additionalTypes
             )
         }
         
