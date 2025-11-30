@@ -4,8 +4,10 @@ import { graphql } from '@/services/api/gql';
 import { updateApiToken, useAuth } from '@/services/api/auth.ts';
 import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
-import { ApiAuthError, ApiError, ClientApiError } from '@/services/api/api-errors.ts';
-import { SaGrapQlErrorType } from '@/services/api/gql/graphql.ts';
+import {
+  ApiAuthError, ApiError, ApiFieldLevelValidationError, ClientApiError, FieldError,
+} from '@/services/api/api-errors.ts';
+import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/graphql.ts';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
     mutation refreshAccessToken {
@@ -87,6 +89,23 @@ export interface GrapQlClient {
   ): Promise<Data>;
 }
 
+function convertValidationErrorsToFieldErrors(
+  validationErrors: ValidationErrorDetails[],
+): FieldError[] {
+  return validationErrors.map((validationError) => {
+    const params: { [key: string]: string } | undefined = validationError.params
+      ? Object.fromEntries(validationError.params.map((param) => [param.name, param.value]))
+      : undefined;
+
+    return {
+      field: validationError.path,
+      error: validationError.error,
+      message: validationError.message,
+      params: params && Object.keys(params).length > 0 ? params : undefined,
+    };
+  });
+}
+
 async function executeGqlRequestAndHandleErrors<Data>(
   operation: () => Promise<OperationResult<Data>>,
 ): Promise<Data> {
@@ -108,6 +127,15 @@ async function executeGqlRequestAndHandleErrors<Data>(
     const graphQLError = result.error.graphQLErrors[0];
     if (graphQLError.extensions?.errorType === SaGrapQlErrorType.NotAuthorized) {
       throw new ApiAuthError();
+    }
+    if (graphQLError.extensions?.errorType === SaGrapQlErrorType.FieldValidationFailure) {
+      const validationErrors = graphQLError.extensions.validationErrors;
+      if (!Array.isArray(validationErrors)) {
+        throw new ApiError(`Invalid validation errors format: ${JSON.stringify(graphQLError)}`);
+      }
+      throw new ApiFieldLevelValidationError(
+        convertValidationErrorsToFieldErrors(validationErrors as ValidationErrorDetails[]),
+      );
     }
 
     throw new ApiError(
