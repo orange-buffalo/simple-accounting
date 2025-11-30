@@ -6,21 +6,16 @@ import graphql.introspection.Introspection
 import kotlin.reflect.KClass
 
 /**
- * Marker interface for business error code enums.
- * Each enum that represents business error codes should implement this interface.
- */
-interface BusinessErrorCode
-
-/**
  * Maps an exception thrown by a GraphQL mutation/query to a business error code.
  * The system will:
  * 1. Generate a schema directive that describes the business errors returned by this operation.
- * 2. Handle runtime exceptions declared in the annotations and transform them to GraphQL errors
+ * 2. Generate an enum type `<OperationName>ErrorCodes` containing all error codes for this operation.
+ * 3. Handle runtime exceptions declared in the annotations and transform them to GraphQL errors
  *    with the specified error code.
  *
  * Each operation can have multiple [BusinessError] annotations to declare multiple error mappings.
- * Each operation should define its own enum type for error codes that implements [BusinessErrorCode].
- * The enum class must be added to the `additionalTypes` in the GraphQL schema configuration.
+ * The enum types are dynamically generated based on the operation name using the convention
+ * `<OperationName>ErrorCodes` (e.g., `ChangePasswordErrorCodes` for the `changePassword` mutation).
  *
  * @see SaDataFetcherExceptionHandler
  */
@@ -40,16 +35,14 @@ annotation class BusinessError(
      */
     val exceptionClass: KClass<out Exception>,
     /**
-     * The enum class containing the error code.
-     * This should be an enum that implements [BusinessErrorCode].
-     * The enum must be added to the GraphQL schema via `additionalTypes`.
-     * This parameter ensures type safety - use constants from this enum for [errorCode].
-     */
-    val errorCodeClass: KClass<out BusinessErrorCode>,
-    /**
-     * The error code name (must match an enum constant in [errorCodeClass]).
-     * This will be included in the schema directive and in the error extensions.
+     * The error code to return in the GraphQL error response.
+     * This will be included in the schema directive, in a dynamically generated enum type,
+     * and in the error extensions at runtime.
      */
     @param:GraphQLDescription("The error code that will be returned in the GraphQL error response.")
     val errorCode: String,
+    /**
+     * Description of the error code for the GraphQL schema documentation.
+     */
+    val description: String = "",
 )

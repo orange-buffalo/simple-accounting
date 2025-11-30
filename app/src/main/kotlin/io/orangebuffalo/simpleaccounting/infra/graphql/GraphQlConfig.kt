@@ -65,19 +65,9 @@ class SaGraphQlSchemaConfig {
         schemaConfig: SchemaGeneratorConfig,
         schemaObject: Optional<Schema>,
         validationSchemaTransformer: ValidationSchemaTransformer,
-        businessErrorRegistry: BusinessErrorRegistry,
+        businessErrorSchemaTransformer: BusinessErrorSchemaTransformer,
     ): GraphQLSchema {
         val generator = SchemaGenerator(config = schemaConfig)
-        
-        // Collect base additional types
-        val additionalTypes = mutableSetOf(
-            SaGrapQlErrorType::class.createType(),
-            ValidationErrorCode::class.createType(),
-            ValidationErrorDetails::class.createType(),
-            ValidationErrorParam::class.createType(),
-        )
-        // Add business error enum types from the registry
-        additionalTypes.addAll(businessErrorRegistry.errorCodeEnumTypes)
         
         val baseSchema = generator.use {
             it.generateSchema(
@@ -85,16 +75,24 @@ class SaGraphQlSchemaConfig {
                 mutations = mutations.orElse(emptyList()).toTopLevelObjects(),
                 subscriptions = subscriptions.orElse(emptyList()).toTopLevelObjects(),
                 schemaObject = schemaObject.orElse(null)?.toTopLevelObject(),
-                additionalTypes = additionalTypes
+                additionalTypes = setOf(
+                    SaGrapQlErrorType::class.createType(),
+                    ValidationErrorCode::class.createType(),
+                    ValidationErrorDetails::class.createType(),
+                    ValidationErrorParam::class.createType(),
+                )
             )
         }
         
         // Transform schema to add validation directives based on Jakarta annotations
-        return validationSchemaTransformer.transform(
+        val schemaWithValidation = validationSchemaTransformer.transform(
             baseSchema,
             mutations.orElse(emptyList()),
             queries.orElse(emptyList())
         )
+        
+        // Transform schema to add dynamically generated business error enum types
+        return businessErrorSchemaTransformer.transform(schemaWithValidation)
     }
 
     private fun List<Any>.toTopLevelObjects(): List<TopLevelObject> = this.map {
