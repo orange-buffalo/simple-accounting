@@ -48,7 +48,7 @@
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications';
-  import { handleApiBusinessError } from '@/services/api';
+  import { handleGqlApiBusinessError } from '@/services/api';
   import { ClientSideValidationError, FieldError } from '@/components/form/sa-form-api';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
@@ -83,6 +83,7 @@
   `), 'changePassword');
 
   const submitChangePassword = async () => {
+    // Validate password confirmation
     if (formValues.value.newPasswordConfirmation !== formValues.value.newPassword) {
       const errors: FieldError[] = [{
         field: 'newPasswordConfirmation',
@@ -97,6 +98,7 @@
         newPassword: formValues.value.newPassword,
       });
 
+      // Clear form after successful password change
       formValues.value = {
         currentPassword: '',
         newPassword: '',
@@ -105,8 +107,8 @@
 
       showSuccessNotification($t.value.myProfile.changePassword.feedback.success());
     } catch (e: unknown) {
-      const errorResponse = handleApiBusinessError<{ error: ChangePasswordErrorCodes }>(e);
-      if (errorResponse.error === ChangePasswordErrorCodes.CurrentPasswordMismatch) {
+      const errorCode = handleGqlApiBusinessError<ChangePasswordErrorCodes>(e);
+      if (errorCode === ChangePasswordErrorCodes.CurrentPasswordMismatch) {
         const errors: FieldError[] = [{
           field: 'currentPassword',
           message: $t.value.myProfile.changePassword.validations.currentPasswordMismatch(),
