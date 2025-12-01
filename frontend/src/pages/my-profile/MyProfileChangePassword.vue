@@ -48,11 +48,11 @@
   import SaForm from '@/components/form/SaForm.vue';
   import SaFormInput from '@/components/form/SaFormInput.vue';
   import useNotifications from '@/components/notifications/use-notifications';
-  import {
-    handleApiBusinessError,
-    profileApi, ProfileApiChangePasswordErrors,
-  } from '@/services/api';
+  import { handleApiBusinessError } from '@/services/api';
   import { ClientSideValidationError, FieldError } from '@/components/form/sa-form-api';
+  import { graphql } from '@/services/api/gql';
+  import { useMutation } from '@/services/api/use-gql-api.ts';
+  import { ChangePasswordErrorCodes } from '@/services/api/gql/graphql.ts';
 
   interface PasswordFormValues {
     currentPassword: string,
@@ -74,8 +74,15 @@
 
   const { showSuccessNotification } = useNotifications();
 
+  const changePasswordMutation = useMutation(graphql(/* GraphQL */ `
+    mutation changePassword($currentPassword: String!, $newPassword: String!) {
+      changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {
+        success
+      }
+    }
+  `), 'changePassword');
+
   const submitChangePassword = async () => {
-    // Validate password confirmation
     if (formValues.value.newPasswordConfirmation !== formValues.value.newPassword) {
       const errors: FieldError[] = [{
         field: 'newPasswordConfirmation',
@@ -85,14 +92,11 @@
     }
 
     try {
-      await profileApi.changePassword({
-        changePasswordRequestDto: {
-          currentPassword: formValues.value.currentPassword,
-          newPassword: formValues.value.newPassword,
-        },
+      await changePasswordMutation({
+        currentPassword: formValues.value.currentPassword,
+        newPassword: formValues.value.newPassword,
       });
 
-      // Clear form after successful password change
       formValues.value = {
         currentPassword: '',
         newPassword: '',
@@ -101,8 +105,8 @@
 
       showSuccessNotification($t.value.myProfile.changePassword.feedback.success());
     } catch (e: unknown) {
-      const errorResponse = handleApiBusinessError<ProfileApiChangePasswordErrors>(e);
-      if (errorResponse.error === 'CurrentPasswordMismatch') {
+      const errorResponse = handleApiBusinessError<{ error: ChangePasswordErrorCodes }>(e);
+      if (errorResponse.error === ChangePasswordErrorCodes.CurrentPasswordMismatch) {
         const errors: FieldError[] = [{
           field: 'currentPassword',
           message: $t.value.myProfile.changePassword.validations.currentPasswordMismatch(),

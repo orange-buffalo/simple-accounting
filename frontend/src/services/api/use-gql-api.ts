@@ -17,6 +17,19 @@ export type UseGqlOptions<Variables extends AnyVariables> = {
   variables?: Variables,
 }
 
+async function handleAuthError(e: unknown): Promise<void> {
+  if (e instanceof ApiAuthError) {
+    const { navigateByPath } = useNavigation();
+    const { showWarningNotification } = useNotifications();
+    showWarningNotification($t.value.infra.sessionExpired(), {
+      duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
+    });
+    await nextTick();
+    await navigateByPath('/login');
+  }
+  throw e;
+}
+
 export function useQuery<
   GqlResponse = any,
   K extends keyof GqlResponse = keyof GqlResponse,
@@ -28,22 +41,13 @@ export function useQuery<
 ): UseGqlQueryType<GqlResponse[K]> {
   const loading: Ref<boolean> = ref(true);
   const data: Ref<GqlResponse[K] | null> = ref(null);
-  const { navigateByPath } = useNavigation();
-  const { showWarningNotification } = useNotifications();
 
   const doLoad = async () => {
     try {
       const result = await gqlClient.query(query, options.variables);
       data.value = result[queryName];
     } catch (e: unknown) {
-      if (e instanceof ApiAuthError) {
-        showWarningNotification($t.value.infra.sessionExpired(), {
-          duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
-        });
-        await nextTick();
-        await navigateByPath('/login');
-      }
-      throw e;
+      await handleAuthError(e);
     } finally {
       loading.value = false;
     }
@@ -53,4 +57,27 @@ export function useQuery<
   doLoad();
 
   return [loading, data];
+}
+
+export type MutationExecutor<GqlResponse, K extends keyof GqlResponse, Variables extends AnyVariables> = (
+  variables: Variables,
+) => Promise<GqlResponse[K]>;
+
+export function useMutation<
+  GqlResponse = any,
+  K extends keyof GqlResponse = keyof GqlResponse,
+  Variables extends AnyVariables = AnyVariables,
+>(
+  mutation: DocumentInput<GqlResponse, Variables>,
+  mutationName: K,
+): MutationExecutor<GqlResponse, K, Variables> {
+  return async (variables: Variables): Promise<GqlResponse[K]> => {
+    try {
+      const result = await gqlClient.mutation(mutation, variables);
+      return result[mutationName];
+    } catch (e: unknown) {
+      await handleAuthError(e);
+      throw e;
+    }
+  };
 }
