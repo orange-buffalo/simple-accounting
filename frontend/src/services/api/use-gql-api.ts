@@ -17,7 +17,7 @@ export type UseGqlOptions<Variables extends AnyVariables> = {
   variables?: Variables,
 }
 
-async function handleAuthError(e: unknown): Promise<void> {
+async function handleAuthErrorAndRethrow(e: unknown): Promise<never> {
   if (e instanceof ApiAuthError) {
     const { navigateByPath } = useNavigation();
     const { showWarningNotification } = useNotifications();
@@ -47,7 +47,7 @@ export function useQuery<
       const result = await gqlClient.query(query, options.variables);
       data.value = result[queryName];
     } catch (e: unknown) {
-      await handleAuthError(e);
+      await handleAuthErrorAndRethrow(e);
     } finally {
       loading.value = false;
     }
@@ -76,8 +76,7 @@ export function useMutation<
       const result = await gqlClient.mutation(mutation, variables);
       return result[mutationName];
     } catch (e: unknown) {
-      await handleAuthError(e);
-      throw e;
+      await handleAuthErrorAndRethrow(e);
     }
   };
 }
