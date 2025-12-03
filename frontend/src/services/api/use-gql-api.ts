@@ -17,19 +17,6 @@ export type UseGqlOptions<Variables extends AnyVariables> = {
   variables?: Variables,
 }
 
-async function handleAuthErrorAndRethrow(e: unknown): Promise<never> {
-  if (e instanceof ApiAuthError) {
-    const { navigateByPath } = useNavigation();
-    const { showWarningNotification } = useNotifications();
-    showWarningNotification($t.value.infra.sessionExpired(), {
-      duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
-    });
-    await nextTick();
-    await navigateByPath('/login');
-  }
-  throw e;
-}
-
 export function useQuery<
   GqlResponse = any,
   K extends keyof GqlResponse = keyof GqlResponse,
@@ -41,13 +28,22 @@ export function useQuery<
 ): UseGqlQueryType<GqlResponse[K]> {
   const loading: Ref<boolean> = ref(true);
   const data: Ref<GqlResponse[K] | null> = ref(null);
+  const { navigateByPath } = useNavigation();
+  const { showWarningNotification } = useNotifications();
 
   const doLoad = async () => {
     try {
       const result = await gqlClient.query(query, options.variables);
       data.value = result[queryName];
     } catch (e: unknown) {
-      await handleAuthErrorAndRethrow(e);
+      if (e instanceof ApiAuthError) {
+        showWarningNotification($t.value.infra.sessionExpired(), {
+          duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
+        });
+        await nextTick();
+        await navigateByPath('/login');
+      }
+      throw e;
     } finally {
       loading.value = false;
     }
@@ -71,12 +67,22 @@ export function useMutation<
   mutation: DocumentInput<GqlResponse, Variables>,
   mutationName: K,
 ): MutationExecutor<GqlResponse, K, Variables> {
+  const { navigateByPath } = useNavigation();
+  const { showWarningNotification } = useNotifications();
+
   return async (variables: Variables): Promise<GqlResponse[K]> => {
     try {
       const result = await gqlClient.mutation(mutation, variables);
       return result[mutationName];
     } catch (e: unknown) {
-      await handleAuthErrorAndRethrow(e);
+      if (e instanceof ApiAuthError) {
+        showWarningNotification($t.value.infra.sessionExpired(), {
+          duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
+        });
+        await nextTick();
+        await navigateByPath('/login');
+      }
+      throw e;
     }
   };
 }
