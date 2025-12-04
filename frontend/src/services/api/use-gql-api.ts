@@ -54,3 +54,35 @@ export function useQuery<
 
   return [loading, data];
 }
+
+export type MutationExecutor<GqlResponse, K extends keyof GqlResponse, Variables extends AnyVariables> = (
+  variables: Variables,
+) => Promise<GqlResponse[K]>;
+
+export function useMutation<
+  GqlResponse = any,
+  K extends keyof GqlResponse = keyof GqlResponse,
+  Variables extends AnyVariables = AnyVariables,
+>(
+  mutation: DocumentInput<GqlResponse, Variables>,
+  mutationName: K,
+): MutationExecutor<GqlResponse, K, Variables> {
+  const { navigateByPath } = useNavigation();
+  const { showWarningNotification } = useNotifications();
+
+  return async (variables: Variables): Promise<GqlResponse[K]> => {
+    try {
+      const result = await gqlClient.mutation(mutation, variables);
+      return result[mutationName];
+    } catch (e: unknown) {
+      if (e instanceof ApiAuthError) {
+        showWarningNotification($t.value.infra.sessionExpired(), {
+          duration: NOTIFICATION_ALWAYS_VISIBLE_DURATION,
+        });
+        await nextTick();
+        await navigateByPath('/login');
+      }
+      throw e;
+    }
+  };
+}

@@ -15,28 +15,18 @@
 
 import * as runtime from '../runtime';
 import type {
-  ChangePasswordRequestDto,
   DocumentsStorageStatus,
-  ProfileApiChangePasswordErrors,
   ProfileDto,
   UpdateProfileRequestDto,
 } from '../models/index';
 import {
-    ChangePasswordRequestDtoFromJSON,
-    ChangePasswordRequestDtoToJSON,
     DocumentsStorageStatusFromJSON,
     DocumentsStorageStatusToJSON,
-    ProfileApiChangePasswordErrorsFromJSON,
-    ProfileApiChangePasswordErrorsToJSON,
     ProfileDtoFromJSON,
     ProfileDtoToJSON,
     UpdateProfileRequestDtoFromJSON,
     UpdateProfileRequestDtoToJSON,
 } from '../models/index';
-
-export interface ChangePasswordRequest {
-    changePasswordRequestDto: ChangePasswordRequestDto;
-}
 
 export interface UpdateProfileRequest {
     updateProfileRequestDto: UpdateProfileRequestDto;
@@ -46,39 +36,6 @@ export interface UpdateProfileRequest {
  * 
  */
 export class ProfileApiApi extends runtime.BaseAPI {
-
-    /**
-     */
-    async changePasswordRaw(requestParameters: ChangePasswordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters['changePasswordRequestDto'] == null) {
-            throw new runtime.RequiredError(
-                'changePasswordRequestDto',
-                'Required parameter "changePasswordRequestDto" was null or undefined when calling changePassword().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/api/profile/change-password`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: ChangePasswordRequestDtoToJSON(requestParameters['changePasswordRequestDto']),
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    async changePassword(requestParameters: ChangePasswordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.changePasswordRaw(requestParameters, initOverrides);
-    }
 
     /**
      */

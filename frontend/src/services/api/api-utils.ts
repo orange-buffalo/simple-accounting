@@ -53,6 +53,18 @@ export function handleApiBusinessError<T extends SaApiErrorDto>(error: unknown):
 }
 
 /**
+ * If a provided error is an API business error, returns its error code.
+ * Otherwise, throws the error further.
+ * This is a convenience function for GraphQL API business errors where the error code is the primary concern.
+ */
+export function handleGqlApiBusinessError<T extends string>(error: unknown): T {
+  if (error instanceof ApiBusinessError) {
+    return error.error.error as T;
+  }
+  throw error;
+}
+
+/**
  * Configuration for {@link #useRequestConfig}.
  */
 export interface RequestConfigParams {

@@ -2,13 +2,9 @@ package io.orangebuffalo.simpleaccounting.business.users
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsService
-import io.orangebuffalo.simpleaccounting.business.security.authentication.AuthenticationService
-import io.orangebuffalo.simpleaccounting.business.security.authentication.PasswordChangeException
-import io.orangebuffalo.simpleaccounting.infra.rest.errorhandling.ApiErrorMapping
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -16,7 +12,6 @@ import org.springframework.web.bind.annotation.*
 class ProfileApi(
     private val platformUsersService: PlatformUsersService,
     private val documentsService: DocumentsService,
-    private val authenticationService: AuthenticationService,
 ) {
     @GetMapping
     suspend fun getProfile(): ProfileDto = platformUsersService
@@ -38,17 +33,6 @@ class ProfileApi(
 
     @GetMapping("/documents-storage")
     suspend fun getDocumentsStorageStatus() = documentsService.getCurrentUserStorageStatus()
-
-    @PostMapping("/change-password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ApiErrorMapping(PasswordChangeException.InvalidCurrentPasswordException::class, "CurrentPasswordMismatch")
-    @ApiErrorMapping(PasswordChangeException.TransientUserException::class, "TransientUser")
-    @ApiErrorMapping(PasswordChangeException.UserNotAuthenticatedException::class, "NotAuthenticated")
-    suspend fun changePassword(
-        @RequestBody @Valid request: ChangePasswordRequestDto
-    ) {
-        authenticationService.changeCurrentUserPassword(request.currentPassword, request.newPassword)
-    }
 }
 
 private fun PlatformUser.mapToProfileDto() = ProfileDto(
@@ -76,9 +60,4 @@ data class I18nSettingsDto(
 data class UpdateProfileRequestDto(
     @field:Size(max = 255) val documentsStorage: String?,
     @field:Valid val i18n: I18nSettingsDto
-)
-
-data class ChangePasswordRequestDto(
-    @field:NotBlank @field:Size(max = 100) val currentPassword: String,
-    @field:NotBlank @field:Size(max = 100) val newPassword: String,
 )
