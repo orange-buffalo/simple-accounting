@@ -67,7 +67,7 @@
     "fetch-mock": "12.6.0",
     "flat": "6.0.1",
     "globals": "16.4.0",
-    "js-yaml": "4.1.0",
+    "js-yaml": "4.1.1",
     "jsdom": "27.2.0",
     "rollup-plugin-visualizer": "6.0.5",
     "sass": "1.94.2",
