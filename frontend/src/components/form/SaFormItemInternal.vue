@@ -17,7 +17,7 @@
    */
   import { ElFormItem, FormItemContext } from 'element-plus';
   import {
-    defineProps, onMounted, onUnmounted, ref, watch,
+    onMounted, onUnmounted, ref, watch,
   } from 'vue';
   import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
   import { ensureDefined } from '@/services/utils.ts';
