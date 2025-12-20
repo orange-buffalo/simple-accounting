@@ -29,7 +29,7 @@ snakeYaml = "2.5"
 springBoot = "3.5.7"
 springDependencyManagement = "1.1.7"
 springdocOpenapi = "2.8.14"
-testContainers = "1.21.3"
+testContainers = "1.21.4"
 wireMock = "3.13.2"
 zjsonpatch = "0.4.16"
 
