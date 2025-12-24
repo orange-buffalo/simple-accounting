@@ -173,9 +173,8 @@ class GoogleDriveApiAdapter(
     ): ClientResponse {
         log.debug { "Executing request: $this" }
         val clientResponse = try {
-            @Suppress("DEPRECATION")
-            // Spring 5.3 does not provide coroutine-compatible API to achieve the sameSecurityUtils
-            this.exchange().awaitSingle()
+            // Use exchangeToMono instead of deprecated exchange()
+            this.exchangeToMono { response -> reactor.core.publisher.Mono.just(response) }.awaitSingle()
         } catch (e: OAuth2AuthorizationException) {
             log.debug { "Authorization error: ${e.message}" }
             throw StorageAuthorizationRequiredException(cause = e)

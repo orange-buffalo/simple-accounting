@@ -13,7 +13,7 @@ suspend fun ensureRegularUserPrincipal(): SecurityPrincipal = getCurrentPrincipa
 
 suspend fun getAuthenticationOrNull(): Authentication? {
     return ReactiveSecurityContextHolder.getContext()
-        .map { it.authentication }
+        .map { it.authentication!! }
         .awaitFirstOrNull()
 }
 

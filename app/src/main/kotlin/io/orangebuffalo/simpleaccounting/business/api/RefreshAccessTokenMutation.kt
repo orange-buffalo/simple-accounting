@@ -32,14 +32,14 @@ class RefreshAccessTokenMutation(
         env: DataFetchingEnvironment
     ): RefreshAccessTokenResponse {
         val currentAuth = ReactiveSecurityContextHolder.getContext()
-            .map { it.authentication }
+            .mapNotNull { it.authentication }
             .awaitFirstOrNull()
 
         // Extract refresh token from cookies
         val refreshToken = extractRefreshTokenFromRequest(env)
 
         val authenticatedAuth = when {
-            currentAuth != null && currentAuth.isAuthenticated -> currentAuth
+            currentAuth != null && currentAuth.isAuthenticated() -> currentAuth
             refreshToken != null -> {
                 try {
                     val authenticationToken = RefreshAuthenticationToken(refreshToken)
@@ -56,7 +56,8 @@ class RefreshAccessTokenMutation(
             return RefreshAccessTokenResponse(accessToken = null)
         }
 
-        val principal = authenticatedAuth.principal as SecurityPrincipal
+        val principal = authenticatedAuth.principal as? SecurityPrincipal
+            ?: return RefreshAccessTokenResponse(accessToken = null)
         val jwtToken = if (principal.isTransient) {
             val workspaceAccessToken = workspaceAccessTokensService.getValidToken(principal.userName)
             if (workspaceAccessToken != null) {

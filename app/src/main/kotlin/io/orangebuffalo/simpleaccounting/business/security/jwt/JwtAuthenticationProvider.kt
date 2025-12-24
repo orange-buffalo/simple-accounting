@@ -14,8 +14,8 @@ class JwtAuthenticationProvider(
     override fun authenticate(authentication: Authentication): Mono<Authentication> = authentication
         .mono<JwtAuthenticationToken> { jwtAuthenticationToken ->
             jwtAuthenticationToken
-                .let { it.credentials as String }
+                .let { it.credentials as? String ?: "" }
                 .let { jwtService.validateTokenAndBuildUserDetails(it) }
-                .let { JwtAuthenticationToken(it.password, it) }
+                .let { JwtAuthenticationToken(it.password ?: "", it) }
         }
 }

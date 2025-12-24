@@ -61,18 +61,36 @@ fun PlatformUser.toSecurityPrincipal(): SpringSecurityPrincipal = createRegularU
 
 private class SecurityPrincipalImpl(
     override val userName: String,
-    password: String?,
-    authorities: Collection<GrantedAuthority>?,
+    private val password: String?,
+    private val authorities: Collection<GrantedAuthority>?,
     override val isTransient: Boolean
 
-) : User(userName, password, authorities), SpringSecurityPrincipal {
+) : SpringSecurityPrincipal {
+
+    private val delegate = User.builder()
+        .username(userName)
+        .password(password ?: "")
+        .authorities(authorities ?: emptyList())
+        .build()
 
     override val roles: Collection<String> = authorities
         ?.asSequence()
-        ?.filter { it.authority.startsWith("ROLE_") }
-        ?.map { it.authority.removePrefix("ROLE_") }
+        ?.filter { it.authority?.startsWith("ROLE_") == true }
+        ?.map { it.authority?.removePrefix("ROLE_") ?: "" }
         ?.toList()
         ?: emptyList()
+
+    override fun getAuthorities(): Collection<GrantedAuthority> = delegate.authorities
+    override fun getPassword(): String = delegate.password ?: ""
+    override fun getUsername(): String = delegate.username ?: ""
+    override fun isAccountNonExpired(): Boolean = delegate.isAccountNonExpired
+    override fun isAccountNonLocked(): Boolean = delegate.isAccountNonLocked
+    override fun isCredentialsNonExpired(): Boolean = delegate.isCredentialsNonExpired
+    override fun isEnabled(): Boolean = delegate.isEnabled
+
+    override fun equals(other: Any?): Boolean = delegate.equals(other)
+    override fun hashCode(): Int = delegate.hashCode()
+    override fun toString(): String = delegate.toString()
 }
 
 class InsufficientUserType : RuntimeException()
