@@ -39,7 +39,7 @@
     "@graphql-codegen/cli": "^6.0.0",
     "@graphql-codegen/client-preset": "^5.0.0",
     "@rushstack/eslint-patch": "1.15.0",
-    "@sinonjs/fake-timers": "15.0.0",
+    "@sinonjs/fake-timers": "15.1.0",
     "@types/cldrjs": "0.4.29",
     "@types/dompurify": "3.2.0",
     "@types/dropzone": "5.7.9",
