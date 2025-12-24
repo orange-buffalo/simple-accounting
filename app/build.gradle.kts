@@ -85,7 +85,7 @@ dependencies {
     testImplementation(libs.testcontainers)
     testImplementation(libs.testcontainers.nginx)
     testImplementation(libs.playwright)
-    testImplementation("org.springframework.retry:spring-retry")
+    testImplementation(libs.springRetry)
     testImplementation(libs.kotest.assertionsCore)
     testImplementation(libs.mockOauth2Server)
     testImplementation(libs.kotest.assertionsPlaywright)

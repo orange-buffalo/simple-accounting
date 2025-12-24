@@ -14,9 +14,7 @@ import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2Autho
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mock
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.registration.ClientRegistration
@@ -42,7 +40,7 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
         .clientId("cid")
         .build()
 
-    @field:Mock
+    @field:MockitoBean
     lateinit var principal: Authentication
 
     @BeforeEach
@@ -55,8 +53,8 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     @Test
     fun `should load client information on fully specified client`() {
         val data = setupPreconditions()
-        val actualToken: OAuth2AuthorizedClient? =
-            clientService.loadAuthorizedClient<OAuth2AuthorizedClient?>("clientRegistration", "fullClient").block()
+        val actualToken: OAuth2AuthorizedClient =
+            clientService.loadAuthorizedClient<OAuth2AuthorizedClient>("clientRegistration", "fullClient").block()!!
 
         assertThat(actualToken).isNotNull().all {
             prop("accessToken") { it.accessToken }.isNotNull().all {
@@ -80,9 +78,9 @@ internal class DbReactiveOAuth2AuthorizedClientServiceTest(
     @Test
     fun `should load client information on a client without refresh token`() {
         val data = setupPreconditions()
-        val actualToken: OAuth2AuthorizedClient? =
-            clientService.loadAuthorizedClient<OAuth2AuthorizedClient?>("clientRegistration", "noRefreshTokenClient")
-                .block()
+        val actualToken: OAuth2AuthorizedClient =
+            clientService.loadAuthorizedClient<OAuth2AuthorizedClient>("clientRegistration", "noRefreshTokenClient")
+                .block()!!
 
         assertThat(actualToken).isNotNull().all {
             prop("accessToken") { it.accessToken }.isNotNull().all {

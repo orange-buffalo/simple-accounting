@@ -78,15 +78,15 @@ private fun getWireMockPort(): Int {
  * JUnit extension to configure the [WireMockServer] and handle its lifecycle.
  */
 class WireMockExtension : Extension, BeforeAllCallback, AfterAllCallback, AfterEachCallback, ParameterResolver {
-    override fun afterAll(context: ExtensionContext?) {
+    override fun afterAll(context: ExtensionContext) {
         wireMockServer.stop()
     }
 
-    override fun beforeAll(context: ExtensionContext?) {
+    override fun beforeAll(context: ExtensionContext) {
         WireMock.configureFor(getWireMockPort())
     }
 
-    override fun afterEach(context: ExtensionContext?) {
+    override fun afterEach(context: ExtensionContext) {
         try {
             Assertions.assertThat(WireMock.findUnmatchedRequests()).isEmpty()
         } finally {
@@ -95,10 +95,10 @@ class WireMockExtension : Extension, BeforeAllCallback, AfterAllCallback, AfterE
         }
     }
 
-    override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext?) =
+    override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext) =
         parameterContext.isAnnotated(WireMockPort::class.java)
 
-    override fun resolveParameter(parameterContext: ParameterContext?, extensionContext: ExtensionContext?) =
+    override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any =
         getWireMockPort()
 }
 

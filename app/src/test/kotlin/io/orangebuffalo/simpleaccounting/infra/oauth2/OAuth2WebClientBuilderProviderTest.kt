@@ -171,11 +171,11 @@ class OAuth2WebClientBuilderProviderTest(
         .build()
         .get()
         .uri("/resource")
-        .exchange()
-        .contextWrite { context ->
-            // required by Spring OAuth2 support to renew the token
-            context.put(ServerWebExchange::class.java, MockServerWebExchange.from(MockServerHttpRequest.get("/test")))
-        }
+        .exchangeToMono { response -> reactor.core.publisher.Mono.just(response) }
+        .contextWrite(reactor.util.context.Context.of(
+            ServerWebExchange::class.java,
+            MockServerWebExchange.from(MockServerHttpRequest.get("/test"))
+        ))
         .block(Duration.ofSeconds(20))
 
     private val preconditions by lazyPreconditions {

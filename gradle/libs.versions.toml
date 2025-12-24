@@ -28,6 +28,7 @@ playwright = "1.57.0"
 snakeYaml = "2.5"
 springBoot = "4.0.1"
 springDependencyManagement = "1.1.7"
+springRetry = "2.0.12"
 springdocOpenapi = "2.8.14"
 testContainers = "1.21.4"
 wireMock = "3.13.2"
@@ -70,6 +71,7 @@ mockitoKotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "m
 mockOauth2Server = { module = "no.nav.security:mock-oauth2-server", version.ref = "mockOoauth2Server" }
 playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
 snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
+springRetry = { module = "org.springframework.retry:spring-retry", version.ref = "springRetry" }
 springdocOpenapi-starterCommon = { module = "org.springdoc:springdoc-openapi-starter-common", version.ref = "springdocOpenapi" }
 springdocOpenapi-webfluxApi = { module = "org.springdoc:springdoc-openapi-starter-webflux-api", version.ref = "springdocOpenapi" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testContainers" }
