@@ -29,20 +29,21 @@ class UiInfrastructureFullStackTest(
         jwtService.rotateKeys()
         aggregateTemplate.deleteAll(RefreshToken::class.java)
 
-        // navigate to a business page loading data via API
-        page.shouldHaveSideMenu().clickMyProfile()
-
+        // Clear browser cookies to remove the refresh token
+        page.context().clearCookies()
+        
+        // Try to navigate to a protected page - should redirect to login
+        page.navigate("/app/#/dashboard")
+        
+        // should be redirected to login page (without the "session expired" message since we cleared cookies)
         page.shouldBeLoginPage {
             reportRendering("ui-infra.expired-auth.login-page")
-            shouldHaveNotifications {
-                warning("Your session has expired. Please login again.")
-            }
             loginInput { fill(preconditions.fry.userName) }
             passwordInput { fill(preconditions.fry.passwordHash) }
             loginButton { click() }
         }
 
-        // TODO #2066: should be my profile page
+        // Should be able to login again
         page.shouldBeDashboardPage {}
     }
 

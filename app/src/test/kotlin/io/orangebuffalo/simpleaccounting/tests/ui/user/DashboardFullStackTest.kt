@@ -10,7 +10,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.openDashboard
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.shouldBeDashboardPage
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -24,11 +23,6 @@ private val testFixedDate: LocalDate = TEST_FIXED_DATE_TIME
     .toLocalDate()
 
 class DashboardFullStackTest : SaFullStackTestBase() {
-    
-    @BeforeEach
-    fun setupClock(page: Page) {
-        page.installFixedClock()
-    }
 
     @Test
     fun `should use default dates when localStorage is empty`(page: Page) {

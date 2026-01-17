@@ -146,6 +146,8 @@ private class IsolatedPageContextStrategy(
     override fun getPageForTheTest(): Page {
         if (page == null) {
             page = browserContext!!.newPage()
+            // Set fixed time for the browser to avoid date-dependent test failures
+            page!!.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli()))
         }
         return page!!
     }
@@ -211,6 +213,8 @@ private class PersistentPageContextStrategy(
             )
             configureNewBrowserContext(browserContext!!)
             page = browserContext!!.newPage()
+            // Set fixed time for the browser to avoid date-dependent test failures
+            page!!.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli()))
         }
     }
 
@@ -233,7 +237,7 @@ private class PersistentPageContextStrategy(
  * The fixed date/time used in browser tests.
  * Ensures tests stability and reproducibility.
  */
-val TEST_FIXED_DATE_TIME: java.time.Instant = java.time.Instant.parse("2026-08-15T10:00:00Z")
+val TEST_FIXED_DATE_TIME: java.time.Instant = java.time.Instant.parse("2019-08-15T10:00:00Z")
 
 private fun configureNewBrowserContext(browserContext: BrowserContext) {
     browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
