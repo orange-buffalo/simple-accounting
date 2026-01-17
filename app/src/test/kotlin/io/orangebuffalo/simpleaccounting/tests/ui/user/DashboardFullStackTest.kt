@@ -288,12 +288,11 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             
             init {
                 val today = LocalDate.now()
-                val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 expense(
                     workspace = workspace,
                     category = officeCategory,
-                    datePaid = startOfYear.plusDays(10),
+                    datePaid = today.minusDays(10),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -302,7 +301,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 expense(
                     workspace = workspace,
                     category = travelCategory,
-                    datePaid = startOfYear.plusDays(20),
+                    datePaid = today.minusDays(5),
                     originalAmount = 2000,
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
@@ -312,7 +311,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     category = consultingCategory,
-                    dateReceived = startOfYear.plusDays(15),
+                    dateReceived = today.minusDays(8),
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(20000),
@@ -321,7 +320,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     category = salesCategory,
-                    dateReceived = startOfYear.plusDays(25),
+                    dateReceived = today.minusDays(3),
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(5000),
@@ -342,12 +341,11 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             
             init {
                 val today = LocalDate.now()
-                val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 expense(
                     workspace = workspace,
                     category = officeCategory,
-                    datePaid = startOfYear.plusDays(10),
+                    datePaid = today.minusDays(10),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -356,7 +354,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 expense(
                     workspace = workspace,
                     category = travelCategory,
-                    datePaid = startOfYear.plusDays(20),
+                    datePaid = today.minusDays(5),
                     originalAmount = 2000,
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
@@ -365,7 +363,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 expense(
                     workspace = workspace,
                     category = travelCategory,
-                    datePaid = startOfYear.plusDays(30),
+                    datePaid = today.minusDays(2),
                     originalAmount = 1500,
                     convertedAmounts = amountsInDefaultCurrency(1500),
                     incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
@@ -375,7 +373,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     category = consultingCategory,
-                    dateReceived = startOfYear.plusDays(15),
+                    dateReceived = today.minusDays(8),
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(20000),
@@ -384,7 +382,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     category = salesCategory,
-                    dateReceived = startOfYear.plusDays(25),
+                    dateReceived = today.minusDays(3),
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(5000),
@@ -393,7 +391,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     category = salesCategory,
-                    dateReceived = startOfYear.plusDays(30),
+                    dateReceived = today.minusDays(2),
                     originalAmount = 3000,
                     convertedAmounts = emptyAmountsInDefaultCurrency(),
                     incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
@@ -402,7 +400,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 income(
                     workspace = workspace,
                     category = consultingCategory,
-                    dateReceived = startOfYear.plusDays(35),
+                    dateReceived = today.minusDays(1),
                     originalAmount = 4000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
                     incomeTaxableAmounts = emptyAmountsInDefaultCurrency(),
@@ -422,23 +420,22 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             
             init {
                 val today = LocalDate.now()
-                val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 invoice(
                     customer = customer1,
                     title = "Invoice 1",
-                    dateIssued = startOfYear.plusDays(10),
-                    dateSent = startOfYear.plusDays(11),
-                    dueDate = startOfYear.plusDays(40),
+                    dateIssued = today.minusDays(30),
+                    dateSent = today.minusDays(29),
+                    dueDate = today.plusDays(10),
                     amount = 10000,
                     status = InvoiceStatus.SENT
                 )
                 invoice(
                     customer = customer2,
                     title = "Invoice 2",
-                    dateIssued = startOfYear.plusDays(5),
-                    dateSent = startOfYear.plusDays(6),
-                    dueDate = startOfYear.minusDays(1),
+                    dateIssued = today.minusDays(35),
+                    dateSent = today.minusDays(34),
+                    dueDate = today.minusDays(5),
                     amount = 15000,
                     status = InvoiceStatus.OVERDUE
                 )
@@ -454,32 +451,31 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             
             init {
                 val today = LocalDate.now()
-                val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 invoice(
                     customer = customer,
                     title = "Draft Invoice",
-                    dateIssued = startOfYear.plusDays(10),
-                    dueDate = startOfYear.plusDays(40),
+                    dateIssued = today.minusDays(30),
+                    dueDate = today.plusDays(10),
                     amount = 10000,
                     status = InvoiceStatus.DRAFT
                 )
                 invoice(
                     customer = customer,
                     title = "Paid Invoice",
-                    dateIssued = startOfYear.plusDays(5),
-                    dateSent = startOfYear.plusDays(6),
-                    datePaid = startOfYear.plusDays(20),
-                    dueDate = startOfYear.plusDays(30),
+                    dateIssued = today.minusDays(35),
+                    dateSent = today.minusDays(34),
+                    datePaid = today.minusDays(20),
+                    dueDate = today.minusDays(10),
                     amount = 15000,
                     status = InvoiceStatus.PAID
                 )
                 invoice(
                     customer = customer,
                     title = "Cancelled Invoice",
-                    dateIssued = startOfYear.plusDays(15),
-                    dateSent = startOfYear.plusDays(16),
-                    dueDate = startOfYear.plusDays(45),
+                    dateIssued = today.minusDays(25),
+                    dateSent = today.minusDays(24),
+                    dueDate = today.plusDays(15),
                     amount = 20000,
                     status = InvoiceStatus.CANCELLED
                 )
@@ -496,63 +492,65 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             init {
                 val today = LocalDate.now()
                 val startOfYear = LocalDate.of(today.year, 1, 1)
+                val daysSinceStartOfYear = today.toEpochDay() - startOfYear.toEpochDay()
                 
-                // Expense in Q1
+                // Ensure all dates are within the current year and before today
+                // Expense 1 - recent (10 days ago or 10% into the year, whichever is earlier)
                 expense(
                     workspace = workspace,
                     category = category,
-                    datePaid = startOfYear.plusDays(30),
+                    datePaid = startOfYear.plusDays(minOf(10, daysSinceStartOfYear / 3)),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
                     status = ExpenseStatus.FINALIZED
                 )
-                // Expense in Q2
+                // Expense 2 - mid-range
                 expense(
                     workspace = workspace,
                     category = category,
-                    datePaid = startOfYear.plusDays(120),
+                    datePaid = startOfYear.plusDays(minOf((daysSinceStartOfYear * 2 / 3), daysSinceStartOfYear - 1)),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
                     status = ExpenseStatus.FINALIZED
                 )
-                // Expense in Q3
+                // Expense 3 - older (but still within current year)
                 expense(
                     workspace = workspace,
                     category = category,
-                    datePaid = startOfYear.plusDays(200),
+                    datePaid = startOfYear.plusDays(minOf((daysSinceStartOfYear / 3), daysSinceStartOfYear - 2)),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
                     status = ExpenseStatus.FINALIZED
                 )
                 
-                // Income in Q1
+                // Income 1 - recent
                 income(
                     workspace = workspace,
                     category = category,
-                    dateReceived = startOfYear.plusDays(30),
+                    dateReceived = startOfYear.plusDays(minOf(10, daysSinceStartOfYear / 3)),
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(20000),
                     status = IncomeStatus.FINALIZED
                 )
-                // Income in Q2
+                // Income 2 - mid-range
                 income(
                     workspace = workspace,
                     category = category,
-                    dateReceived = startOfYear.plusDays(120),
+                    dateReceived = startOfYear.plusDays(minOf((daysSinceStartOfYear * 2 / 3), daysSinceStartOfYear - 1)),
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(20000),
                     status = IncomeStatus.FINALIZED
                 )
-                // Income in Q3
+                // Income 3 - older (but still within current year)
                 income(
                     workspace = workspace,
                     category = category,
-                    dateReceived = startOfYear.plusDays(200),
+                    dateReceived = startOfYear.plusDays(minOf((daysSinceStartOfYear / 3), daysSinceStartOfYear - 2)),
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(20000),
