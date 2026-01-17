@@ -147,7 +147,7 @@ private class IsolatedPageContextStrategy(
         if (page == null) {
             page = browserContext!!.newPage()
             // Set fixed time for the browser to avoid date-dependent test failures
-            page!!.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME))
+            page!!.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli()))
         }
         return page!!
     }
@@ -214,7 +214,7 @@ private class PersistentPageContextStrategy(
             configureNewBrowserContext(browserContext!!)
             page = browserContext!!.newPage()
             // Set fixed time for the browser to avoid date-dependent test failures
-            page!!.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME))
+            page!!.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli()))
         }
     }
 
@@ -235,11 +235,9 @@ private class PersistentPageContextStrategy(
 
 /**
  * The fixed date/time used in browser tests.
- * Set to a date late in the year to ensure all test data (which may use dates
- * throughout the year) falls within the "start of year to today" filter range.
- * All browser JavaScript code will see this as the "current time".
+ * Ensures tests stability and reproducibility.
  */
-val TEST_FIXED_DATE_TIME = "2026-08-15T10:00:00Z"
+val TEST_FIXED_DATE_TIME: java.time.Instant = java.time.Instant.parse("2019-08-15T10:00:00Z")
 
 private fun configureNewBrowserContext(browserContext: BrowserContext) {
     browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())

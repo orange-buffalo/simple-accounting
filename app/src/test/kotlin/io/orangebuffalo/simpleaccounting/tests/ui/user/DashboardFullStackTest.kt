@@ -11,21 +11,18 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiRespons
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.openDashboard
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.shouldBeDashboardPage
 import org.junit.jupiter.api.Test
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 
-class DashboardFullStackTest : SaFullStackTestBase() {
+/**
+ * The fixed date used in tests, matching the browser's mocked time.
+ * This ensures test data and browser date filters are always in sync.
+ */
+private val testFixedDate: LocalDate = TEST_FIXED_DATE_TIME
+    .atZone(ZoneOffset.UTC)
+    .toLocalDate()
 
-    companion object {
-        /**
-         * The fixed date used in tests, matching the browser's mocked time.
-         * This ensures test data and browser date filters are always in sync.
-         */
-        private val testFixedDate: LocalDate = Instant.parse(TEST_FIXED_DATE_TIME)
-            .atZone(ZoneOffset.UTC)
-            .toLocalDate()
-    }
+class DashboardFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should use default dates when localStorage is empty`(page: Page) {
