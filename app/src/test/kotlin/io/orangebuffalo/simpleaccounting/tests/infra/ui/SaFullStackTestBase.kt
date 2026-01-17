@@ -1,5 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui
 
+import com.microsoft.playwright.Clock
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.options.Cookie
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshToken
@@ -43,5 +44,13 @@ abstract class SaFullStackTestBase : SaIntegrationTestBase() {
                 .setUrl(getBrowserUrl())
                 .setHttpOnly(true),
         ))
+    }
+    
+    /**
+     * Install fixed clock for tests that need date stability.
+     * Should be called before any page navigation in the test.
+     */
+    protected fun Page.installFixedClock() {
+        this.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli()))
     }
 }
