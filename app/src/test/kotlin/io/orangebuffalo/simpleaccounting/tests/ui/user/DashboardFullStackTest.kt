@@ -494,63 +494,66 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                 val startOfYear = LocalDate.of(today.year, 1, 1)
                 val daysSinceStartOfYear = today.toEpochDay() - startOfYear.toEpochDay()
                 
-                // Ensure all dates are within the current year and before today
-                // Expense 1 - recent (10 days ago or 10% into the year, whichever is earlier)
+                // Create 3 expenses and 3 incomes spread evenly across the year so far
+                // Use max(3, ...) to ensure we have distinct dates even very early in the year
+                val totalDays = maxOf(3L, daysSinceStartOfYear)
+                
+                // Expense 1 - most recent (33% back from today)
                 expense(
                     workspace = workspace,
                     category = category,
-                    datePaid = startOfYear.plusDays(minOf(10, daysSinceStartOfYear / 3)),
+                    datePaid = today.minusDays(totalDays / 3),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
                     status = ExpenseStatus.FINALIZED
                 )
-                // Expense 2 - mid-range
+                // Expense 2 - mid-range (67% back from today)
                 expense(
                     workspace = workspace,
                     category = category,
-                    datePaid = startOfYear.plusDays(minOf((daysSinceStartOfYear * 2 / 3), daysSinceStartOfYear - 1)),
+                    datePaid = today.minusDays((totalDays * 2) / 3),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
                     status = ExpenseStatus.FINALIZED
                 )
-                // Expense 3 - older (but still within current year)
+                // Expense 3 - oldest (back to start of year or close to it)
                 expense(
                     workspace = workspace,
                     category = category,
-                    datePaid = startOfYear.plusDays(minOf((daysSinceStartOfYear / 3), daysSinceStartOfYear - 2)),
+                    datePaid = startOfYear.plusDays(1),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
                     status = ExpenseStatus.FINALIZED
                 )
                 
-                // Income 1 - recent
+                // Income 1 - most recent (33% back from today)
                 income(
                     workspace = workspace,
                     category = category,
-                    dateReceived = startOfYear.plusDays(minOf(10, daysSinceStartOfYear / 3)),
+                    dateReceived = today.minusDays(totalDays / 3),
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(20000),
                     status = IncomeStatus.FINALIZED
                 )
-                // Income 2 - mid-range
+                // Income 2 - mid-range (67% back from today)
                 income(
                     workspace = workspace,
                     category = category,
-                    dateReceived = startOfYear.plusDays(minOf((daysSinceStartOfYear * 2 / 3), daysSinceStartOfYear - 1)),
+                    dateReceived = today.minusDays((totalDays * 2) / 3),
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(20000),
                     status = IncomeStatus.FINALIZED
                 )
-                // Income 3 - older (but still within current year)
+                // Income 3 - oldest (back to start of year or close to it)
                 income(
                     workspace = workspace,
                     category = category,
-                    dateReceived = startOfYear.plusDays(minOf((daysSinceStartOfYear / 3), daysSinceStartOfYear - 2)),
+                    dateReceived = startOfYear.plusDays(1),
                     originalAmount = 20000,
                     convertedAmounts = amountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(20000),
