@@ -5,19 +5,29 @@ import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_FIXED_DATE_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.openDashboard
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.shouldBeDashboardPage
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.ZoneOffset
+
+/**
+ * The fixed date used in tests, matching the browser's mocked time.
+ * This ensures test data and browser date filters are always in sync.
+ */
+private val testFixedDate: LocalDate = TEST_FIXED_DATE_TIME
+    .atZone(ZoneOffset.UTC)
+    .toLocalDate()
 
 class DashboardFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should use default dates when localStorage is empty`(page: Page) {
         page.authenticateViaCookie(preconditionsEmpty.fry)
-        val today = LocalDate.now()
+        val today = testFixedDate
         val startOfYear = LocalDate.of(today.year, 1, 1)
         
         page.openDashboard {
@@ -248,7 +258,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should filter data by selected date range`(page: Page) {
         page.authenticateViaCookie(preconditionsForDateFiltering.fry)
         
-        val today = LocalDate.now()
+        val today = testFixedDate
         val startOfYear = LocalDate.of(today.year, 1, 1)
         
         page.openDashboard {
@@ -287,7 +297,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             val salesCategory = category(workspace = workspace, name = "Sales")
             
             init {
-                val today = LocalDate.now()
+                val today = testFixedDate
                 val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 expense(
@@ -341,7 +351,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             val salesCategory = category(workspace = workspace, name = "Sales")
             
             init {
-                val today = LocalDate.now()
+                val today = testFixedDate
                 val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 expense(
@@ -421,7 +431,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             val customer2 = customer(workspace = workspace, name = "Customer B")
             
             init {
-                val today = LocalDate.now()
+                val today = testFixedDate
                 val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 invoice(
@@ -453,7 +463,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             val customer = customer(workspace = workspace, name = "Customer C")
             
             init {
-                val today = LocalDate.now()
+                val today = testFixedDate
                 val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 invoice(
@@ -494,7 +504,7 @@ class DashboardFullStackTest : SaFullStackTestBase() {
             val category = category(workspace = workspace)
             
             init {
-                val today = LocalDate.now()
+                val today = testFixedDate
                 val startOfYear = LocalDate.of(today.year, 1, 1)
                 
                 // Expense in Q1
