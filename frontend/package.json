@@ -63,7 +63,7 @@
     "cldrjs": "0.5.5",
     "eslint": "9.39.2",
     "eslint-plugin-import": "2.32.0",
-    "eslint-plugin-vue": "10.6.2",
+    "eslint-plugin-vue": "10.7.0",
     "fetch-mock": "12.6.0",
     "flat": "6.0.1",
     "globals": "17.0.0",
