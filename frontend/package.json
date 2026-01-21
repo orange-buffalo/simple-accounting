@@ -59,7 +59,7 @@
     "@vue/eslint-config-airbnb": "8.0.0",
     "@vue/eslint-config-typescript": "13.0.0",
     "@vue/test-utils": "2.4.6",
-    "cldr-data": "36.0.4",
+    "cldr-data": "36.0.5",
     "cldrjs": "0.5.5",
     "eslint": "9.39.2",
     "eslint-plugin-import": "2.32.0",
