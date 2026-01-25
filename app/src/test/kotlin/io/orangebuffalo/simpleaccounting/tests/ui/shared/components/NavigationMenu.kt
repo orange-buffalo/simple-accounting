@@ -24,6 +24,11 @@ class NavigationMenu(private val page: Page) {
         return this
     }
 
+    fun clickExpenses(): NavigationMenu {
+        container.getByText("Expenses").click()
+        return this
+    }
+
     fun clickUsersOverview(): NavigationMenu {
         container.getByText("Users").click()
         return this

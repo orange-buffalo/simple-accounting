@@ -69,3 +69,4 @@ class FormItem<I : UiComponent<*>> private constructor(
         fun ComponentsAccessors.formItemCheckboxByLabel(label: String) =
             formItemByLabel(label) { Checkbox.checkboxByOwnLabel(it, label) }
     }
+}

@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import java.nio.file.Path
 
 class DocumentsUpload private constructor(
     private val rootLocator: Locator,
@@ -10,7 +11,7 @@ class DocumentsUpload private constructor(
     fun shouldBeVisible() = rootLocator.shouldBeVisible()
 
     // The component auto-creates an empty upload slot, so we can just upload to it
-    fun uploadDocument(filePath: String) {
+    fun uploadDocument(filePath: Path) {
         val fileInput = rootLocator.locator("input[type='file']").first()
         fileInput.setInputFiles(filePath)
     }
