@@ -16,6 +16,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.shouldBeCreateExpensePage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -396,20 +397,16 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
     private fun Page.setupPreconditionsAndNavigateToCreatePage(spec: CreateExpensePage.() -> Unit) {
         authenticateViaCookie(preconditions.fry)
-        openCreateExpensePage {
-            // Advance clock to allow any debounced operations to complete
-            clock().runFor(1000)
-            spec()
-        }
+        // Navigate to expenses overview first to ensure workspace context is loaded
+        openExpensesOverviewPage()
+        openCreateExpensePage(spec)
     }
 
     private fun Page.setupPreconditionsForDropdownsAndNavigateToCreatePage(spec: CreateExpensePage.() -> Unit) {
         authenticateViaCookie(preconditionsDropdowns.fry)
-        openCreateExpensePage {
-            // Advance clock to allow any debounced operations to complete  
-            clock().runFor(1000)
-            spec()
-        }
+        // Navigate to expenses overview first to ensure workspace context is loaded
+        openExpensesOverviewPage()
+        openCreateExpensePage(spec)
     }
 
     private val preconditions by lazyPreconditions {
