@@ -41,5 +41,31 @@ class FormItem<I : UiComponent<*>> private constructor(
 
         fun ComponentsAccessors.formItemSelectByLabel(label: String) =
             formItemByLabel(label) { Select.byContainer(it) }
+
+        fun ComponentsAccessors.formItemMoneyInputByLabel(label: String) =
+            formItemByLabel(label) { MoneyInput.byContainer(it) }
+
+        fun ComponentsAccessors.formItemCategoryInputByLabel(label: String) =
+            formItemByLabel(label) { CategoryInput.byContainer(it) }
+
+        fun ComponentsAccessors.formItemCurrencyInputByLabel(label: String) =
+            formItemByLabel(label) { CurrencyInput.byContainer(it) }
+
+        fun ComponentsAccessors.formItemDatePickerByLabel(label: String) =
+            formItemByLabel(label) { DatePicker.byContainer(it) }
+
+        fun ComponentsAccessors.formItemInputNumberByLabel(label: String) =
+            formItemByLabel(label) { InputNumber.byContainer(it) }
+
+        fun ComponentsAccessors.formItemGeneralTaxInputByLabel(label: String) =
+            formItemByLabel(label) { GeneralTaxInput.byContainer(it) }
+
+        fun ComponentsAccessors.formItemNotesInputByLabel(label: String) =
+            formItemByLabel(label) { NotesInput.byContainer(it) }
+
+        fun ComponentsAccessors.formItemDocumentsUploadByLabel(label: String) =
+            formItemByLabel(label) { DocumentsUpload.byContainer(it) }
+
+        fun ComponentsAccessors.formItemCheckboxByLabel(label: String) =
+            formItemByLabel(label) { Checkbox.checkboxByOwnLabel(it, label) }
     }
-}

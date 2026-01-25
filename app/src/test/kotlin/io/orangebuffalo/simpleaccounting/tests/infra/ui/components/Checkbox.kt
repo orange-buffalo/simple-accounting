@@ -11,9 +11,13 @@ class Checkbox private constructor(
     fun shouldBeChecked() = locator.shouldBeChecked()
     fun shouldBeEnabled() = locator.shouldBeEnabled()
     fun shouldBeDisabled() = locator.shouldBeDisabled()
+    fun click() = locator.click()
 
     companion object {
         fun ComponentsAccessors.checkboxByOwnLabel(label: String) =
             Checkbox(page.getByLabel(label))
+
+        fun checkboxByOwnLabel(container: Locator, label: String) =
+            Checkbox(container.getByLabel(label))
     }
 }
