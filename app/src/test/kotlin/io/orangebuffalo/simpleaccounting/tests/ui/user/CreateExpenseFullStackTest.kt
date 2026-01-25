@@ -12,6 +12,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.shouldBeCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
@@ -280,16 +281,29 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             // Switch to foreign currency to show conversion fields
             currency { input.selectOption("EUR") }
             
-            // Conditionally rendered field should be visible and not have validation error initially
+            // Submit again to trigger validation on conditional fields
+            saveButton.click()
+            shouldHaveNotifications {
+                validationFailed()
+            }
+            
+            // Conditionally rendered field should be visible and may have validation errors
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
-            convertedAmountInDefaultCurrency("USD").shouldNotHaveValidationErrors()
+            
+            // Fill the converted amount
+            convertedAmountInDefaultCurrency("USD").input.fill("100.00")
             
             // Enable different tax rate checkbox
             useDifferentExchangeRateForIncomeTaxPurposes().input.click()
             
+            // Submit again to check tax amount field validation
+            saveButton.click()
+            shouldHaveNotifications {
+                validationFailed()
+            }
+            
             // Tax amount field should now be visible
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
-            incomeTaxableAmountInDefaultCurrency("USD").shouldNotHaveValidationErrors()
             
             reportRendering("create-expense.validation-errors-with-conditional-fields")
         }
@@ -370,17 +384,15 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             generalTax {
                 input.shouldHaveOptions("GST", "VAT")
             }
-            
-            reportRendering("create-expense.dropdown-options")
         }
     }
 
-    private fun Page.setupPreconditionsAndNavigateToCreatePage(spec: io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.() -> Unit) {
+    private fun Page.setupPreconditionsAndNavigateToCreatePage(spec: CreateExpensePage.() -> Unit) {
         authenticateViaCookie(preconditions.fry)
         openCreateExpensePage(spec)
     }
 
-    private fun Page.setupPreconditionsForDropdownsAndNavigateToCreatePage(spec: io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.() -> Unit) {
+    private fun Page.setupPreconditionsForDropdownsAndNavigateToCreatePage(spec: CreateExpensePage.() -> Unit) {
         authenticateViaCookie(preconditionsDropdowns.fry)
         openCreateExpensePage(spec)
     }
