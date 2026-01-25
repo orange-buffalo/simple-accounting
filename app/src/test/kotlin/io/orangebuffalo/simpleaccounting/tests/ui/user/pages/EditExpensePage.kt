@@ -57,16 +57,6 @@ class CreateExpensePage private constructor(page: Page) : EditExpensePageBase(pa
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
-        // Wait for any loading masks to disappear before interacting with the form
-        try {
-            components.page.locator(".el-loading-mask").first().waitFor(
-                com.microsoft.playwright.Locator.WaitForOptions()
-                    .setState(com.microsoft.playwright.options.WaitForSelectorState.HIDDEN)
-                    .setTimeout(15000.0)
-            )
-        } catch (e: com.microsoft.playwright.TimeoutError) {
-            // If loading mask doesn't disappear, continue anyway - it might not be present
-        }
     }
 
     companion object {

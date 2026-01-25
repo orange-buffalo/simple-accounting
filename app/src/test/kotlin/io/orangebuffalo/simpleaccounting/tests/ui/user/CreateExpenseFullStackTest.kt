@@ -396,12 +396,20 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
     private fun Page.setupPreconditionsAndNavigateToCreatePage(spec: CreateExpensePage.() -> Unit) {
         authenticateViaCookie(preconditions.fry)
-        openCreateExpensePage(spec)
+        openCreateExpensePage {
+            // Advance clock to allow any debounced operations to complete
+            clock().runFor(1000)
+            spec()
+        }
     }
 
     private fun Page.setupPreconditionsForDropdownsAndNavigateToCreatePage(spec: CreateExpensePage.() -> Unit) {
         authenticateViaCookie(preconditionsDropdowns.fry)
-        openCreateExpensePage(spec)
+        openCreateExpensePage {
+            // Advance clock to allow any debounced operations to complete  
+            clock().runFor(1000)
+            spec()
+        }
     }
 
     private val preconditions by lazyPreconditions {

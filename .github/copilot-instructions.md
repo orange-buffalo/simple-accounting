@@ -289,6 +289,39 @@ Cover these scenarios for each endpoint:
 Full stack tests verify the complete integration between frontend and backend components using Playwright for browser
 automation. These tests should follow the Page Object pattern for maintainable and reusable test code.
 
+### Playwright Clock and Time
+
+**CRITICAL**: Full stack tests run with a **paused Playwright clock** set to a fixed time (`2019-08-15T10:00:00Z`). This means:
+- JavaScript `setTimeout`, `setInterval`, and similar time-based functions will NOT fire automatically
+- If the UI uses timeouts/debouncing (e.g., for loading states), you may need to advance the clock manually using `page.clock().runFor(milliseconds)`
+- Alternatively, resume the clock with `page.clock().resume()` if the test needs real-time behavior
+- The paused clock ensures test stability and reproducibility
+
+### Full Stack Test Debugging
+
+When full stack tests fail, extensive debugging information is automatically captured:
+- **Playwright traces**: Saved to `app/build/playwright-traces/` as `.zip` files (can be viewed with `npx playwright show-trace <file>`)
+- **Screenshots**: Saved to `app/build/playwright-traces/` as `.png` files on test failure
+- **Network requests/responses**: Logged at DEBUG level, including request bodies and response bodies (limited to 10KB)
+- **Browser console**: All console messages logged at DEBUG level
+- **Trace and screenshot paths**: Logged at INFO level when tests fail
+
+Use this information to diagnose issues before making changes to the code.
+
+### Page Object Guidelines
+
+**CRITICAL RULES**:
+1. **Never use `waitFor()` unless explicitly allowed by the user** - Playwright assertions have built-in smart waiting
+2. **Never use direct element lookups in page objects** - Always use component wrappers (`components.formItemTextInputByLabel()`, etc.)
+3. **Never use fully qualified class names** - Always use imports unless there's a naming clash
+4. **Tests should never directly use locators or selectors** - All DOM interactions must be encapsulated in component wrappers
+
+Component wrappers ensure:
+- Issues are fixed once for all tests
+- Refactorings are addressed centrally
+- Consistent waiting and interaction patterns
+- Better maintainability
+
 ### Test Structure
 
 Extend `SaFullStackTestBase` and structure tests around business scenarios:
