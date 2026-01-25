@@ -60,8 +60,8 @@ class FormItem<I : UiComponent<*>> private constructor(
         fun ComponentsAccessors.formItemGeneralTaxInputByLabel(label: String) =
             formItemByLabel(label) { Select.byContainer(it) }
 
-        fun ComponentsAccessors.formItemNotesInputByLabel(label: String) =
-            formItemByLabel(label) { NotesInput.byContainer(it) }
+        fun ComponentsAccessors.formItemMarkdownByLabel(label: String) =
+            formItemByLabel(label) { Markdown.byContainer(it) }
 
         fun ComponentsAccessors.formItemDocumentsUploadByLabel(label: String) =
             formItemByLabel(label) { DocumentsUpload.byContainer(it) }

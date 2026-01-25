@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Comp
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemGeneralTaxInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemInputNumberByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemMoneyInputByLabel
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemNotesInputByLabel
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemMarkdownByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
@@ -29,7 +29,7 @@ abstract class EditExpensePageBase(page: Page) : SaPageBase(page) {
     val originalAmount = components.formItemMoneyInputByLabel("Original Amount")
     val datePaid = components.formItemDatePickerByLabel("Date Paid")
     val generalTax = components.formItemGeneralTaxInputByLabel("Included General Tax")
-    val notes = components.formItemNotesInputByLabel("Notes")
+    val notes = components.formItemMarkdownByLabel("Notes")
     val documentsUpload = DocumentsUpload.byContainer(components.page.locator("body"))
 
     val saveButton = components.buttonByText("Save")

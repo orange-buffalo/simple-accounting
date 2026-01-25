@@ -6,9 +6,9 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveValue
 
-class NotesInput private constructor(
+class Markdown private constructor(
     private val rootLocator: Locator,
-) : UiComponent<NotesInput>() {
+) : UiComponent<Markdown>() {
     private val textareaLocator = rootLocator.locator(".sa-notes-input__input textarea")
     private val previewLocator = rootLocator.locator(".sa-notes-input__preview")
 
@@ -25,6 +25,6 @@ class NotesInput private constructor(
     fun shouldHavePreview() = previewLocator.shouldBeVisible()
 
     companion object {
-        fun byContainer(container: Locator) = NotesInput(container.locator(".sa-notes-input"))
+        fun byContainer(container: Locator) = Markdown(container.locator(".sa-notes-input"))
     }
 }
