@@ -64,6 +64,21 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
         }
         playwrightContext.pageContextStrategy.beforeTest()
         val browserContext: BrowserContext = playwrightContext.pageContextStrategy.getBrowserContext()
+        
+        // Capture network requests
+        browserContext.onRequest { request ->
+            log.debug { "Network request: ${request.method()} ${request.url()}" }
+        }
+        browserContext.onResponse { response ->
+            log.debug { "Network response: ${response.status()} ${response.url()}" }
+        }
+        
+        // Capture browser console
+        val page = playwrightContext.pageContextStrategy.getPageForTheTest()
+        page.onConsoleMessage { msg ->
+            log.debug { "Browser console [${msg.type()}]: ${msg.text()}" }
+        }
+        
         browserContext.tracing().start(
             Tracing.StartOptions()
                 .setScreenshots(true)
@@ -83,16 +98,26 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
         
         if (extensionContext.executionException.isPresent) {
             val browserContext = playwrightContext.pageContextStrategy.getBrowserContext()
+            val tracesDir = Path.of("build", "playwright-traces")
+            tracesDir.toFile().mkdirs()  // Ensure directory exists
+            
+            val tracePath = tracesDir.resolve(
+                "${extensionContext.requiredTestClass.simpleName}-${extensionContext.requiredTestMethod.name}.zip"
+            )
             browserContext.tracing()
                 .stop(
                     Tracing.StopOptions()
-                        .setPath(
-                            Path.of(
-                                "build", "playwright-traces",
-                                "${extensionContext.requiredTestClass.simpleName}-${extensionContext.requiredTestMethod.name}.zip"
-                            )
-                        )
+                        .setPath(tracePath)
                 )
+            log.info { "Playwright trace saved to: ${tracePath.toAbsolutePath()}" }
+            
+            // Take screenshot on test failure
+            val page = playwrightContext.pageContextStrategy.getPageForTheTest()
+            val screenshotPath = tracesDir.resolve(
+                "${extensionContext.requiredTestClass.simpleName}-${extensionContext.requiredTestMethod.name}.png"
+            )
+            page.screenshot(Page.ScreenshotOptions().setPath(screenshotPath))
+            log.info { "Screenshot saved to: ${screenshotPath.toAbsolutePath()}" }
         } else {
             // if the test has passed, do not keep the trace to save disk space
             playwrightContext.pageContextStrategy.getBrowserContext().tracing().stop()

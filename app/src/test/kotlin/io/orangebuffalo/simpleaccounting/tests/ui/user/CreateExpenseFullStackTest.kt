@@ -8,6 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCu
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
@@ -55,14 +56,13 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
                     status = ExpenseStatus.FINALIZED,
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
-                    timeRecorded = Instant.now(),
+                    timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
                     generalTaxId = null,
                 ),
                 ignoredProperties = arrayOf(
                     Expense::id,
                     Expense::version,
-                    Expense::timeRecorded,
                 )
             )
     }
@@ -101,7 +101,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
                     incomeTaxableAmounts = AmountsInDefaultCurrency(11000),
                     status = ExpenseStatus.FINALIZED,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
-                    timeRecorded = Instant.now(),
+                    timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
                     percentOnBusiness = 100,
                     generalTaxId = null,
@@ -109,7 +109,6 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
                 ignoredProperties = arrayOf(
                     Expense::id,
                     Expense::version,
-                    Expense::timeRecorded,
                 )
             )
     }
@@ -150,7 +149,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
                     incomeTaxableAmounts = AmountsInDefaultCurrency(9500),
                     status = ExpenseStatus.FINALIZED,
                     useDifferentExchangeRateForIncomeTaxPurposes = true,
-                    timeRecorded = Instant.now(),
+                    timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
                     percentOnBusiness = 100,
                     generalTaxId = null,
@@ -158,7 +157,6 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
                 ignoredProperties = arrayOf(
                     Expense::id,
                     Expense::version,
-                    Expense::timeRecorded,
                 )
             )
     }
@@ -277,6 +275,23 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category {
                 shouldHaveValidationError("Please select a category")
             }
+            
+            // Test conditionally rendered fields
+            // Switch to foreign currency to show conversion fields
+            currency { input.selectOption("EUR") }
+            
+            // Conditionally rendered field should be visible and not have validation error initially
+            convertedAmountInDefaultCurrency("USD").shouldBeVisible()
+            convertedAmountInDefaultCurrency("USD").shouldNotHaveValidationErrors()
+            
+            // Enable different tax rate checkbox
+            useDifferentExchangeRateForIncomeTaxPurposes().input.click()
+            
+            // Tax amount field should now be visible
+            incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
+            incomeTaxableAmountInDefaultCurrency("USD").shouldNotHaveValidationErrors()
+            
+            reportRendering("create-expense.validation-errors-with-conditional-fields")
         }
     }
 
@@ -343,8 +358,30 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         }
     }
 
+    @Test
+    fun `should display dropdown options correctly`(page: Page) {
+        page.setupPreconditionsForDropdownsAndNavigateToCreatePage {
+            // Verify category dropdown has all categories sorted alphabetically
+            category {
+                input.shouldHaveOptions("Category A", "Category B", "Category C")
+            }
+            
+            // Verify general tax dropdown has all taxes
+            generalTax {
+                input.shouldHaveOptions("GST", "VAT")
+            }
+            
+            reportRendering("create-expense.dropdown-options")
+        }
+    }
+
     private fun Page.setupPreconditionsAndNavigateToCreatePage(spec: io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.() -> Unit) {
         authenticateViaCookie(preconditions.fry)
+        openCreateExpensePage(spec)
+    }
+
+    private fun Page.setupPreconditionsForDropdownsAndNavigateToCreatePage(spec: io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.() -> Unit) {
+        authenticateViaCookie(preconditionsDropdowns.fry)
         openCreateExpensePage(spec)
     }
 
@@ -359,6 +396,27 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             val workspace = workspace(owner = fry)
             val category = category(workspace = workspace, name = "Delivery")
             val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
+        }
+    }
+
+    private val preconditionsDropdowns by lazyPreconditions {
+        object {
+            val fry = platformUser(
+                userName = "Fry",
+                isAdmin = false,
+                activated = true,
+                documentsStorage = "noop"
+            )
+            val workspace = workspace(owner = fry)
+            
+            // Create multiple categories to test sorting
+            val categoryC = category(workspace = workspace, name = "Category C")
+            val categoryA = category(workspace = workspace, name = "Category A")
+            val categoryB = category(workspace = workspace, name = "Category B")
+            
+            // Create multiple taxes
+            val vat = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
+            val gst = generalTax(workspace = workspace, title = "GST", rateInBps = 1000)
         }
     }
 }
