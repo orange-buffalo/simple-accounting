@@ -68,8 +68,7 @@ class CreateExpensePage private constructor(page: Page) : EditExpensePageBase(pa
         }
 
         fun Page.openCreateExpensePage(spec: CreateExpensePage.() -> Unit = {}) {
-            shouldHaveSideMenu().clickExpenses()
-            navigate("/app/#/expenses/new")
+            navigate("/expenses/new")
             shouldBeCreateExpensePage(spec)
         }
     }
