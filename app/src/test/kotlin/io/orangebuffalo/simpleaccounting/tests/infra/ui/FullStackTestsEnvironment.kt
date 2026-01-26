@@ -67,21 +67,22 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
         
         // Capture network requests
         browserContext.onRequest { request ->
-            val postData = try { request.postData() } catch (e: Exception) { null }
-            log.debug { "Network request: ${request.method()} ${request.url()}" }
-            if (postData != null) {
-                log.debug { "Request body: $postData" }
+            try {
+                val postData = try { request.postData() } catch (e: Exception) { null }
+                log.debug { "Network request: ${request.method()} ${request.url()}" }
+                if (postData != null) {
+                    log.debug { "Request body: $postData" }
+                }
+            } catch (e: Exception) {
+                // Ignore errors during teardown
             }
         }
         browserContext.onResponse { response ->
-            log.debug { "Network response: ${response.status()} ${response.url()}" }
             try {
-                val body = response.text()
-                if (body.isNotEmpty() && body.length < 10000) { // Limit body size in logs
-                    log.debug { "Response body: $body" }
-                }
+                log.debug { "Network response: ${response.status()} ${response.url()}" }
+                // Note: Avoid calling response.text() here as it can cause issues during page teardown
             } catch (e: Exception) {
-                log.debug { "Could not read response body: ${e.message}" }
+                // Ignore errors during teardown
             }
         }
         
