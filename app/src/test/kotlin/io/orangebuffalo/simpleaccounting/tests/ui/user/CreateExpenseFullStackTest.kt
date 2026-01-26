@@ -25,8 +25,10 @@ import java.time.LocalDate
 class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
     @BeforeEach
-    fun mockTime() {
+    fun setup(page: Page) {
         mockCurrentTime(timeService)
+        // Resume clock to allow IMask debouncing to work
+        page.clock().resume()
     }
 
     @Test
