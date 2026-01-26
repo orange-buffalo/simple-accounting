@@ -13,7 +13,10 @@ class MoneyInput private constructor(
     private val inputLocator = rootLocator.locator(".sa-money-input__input")
     private val currencyLocator = rootLocator.locator(".sa-money-input__currency")
 
-    fun fill(value: String) = inputLocator.fill(value)
+    fun fill(value: String) {
+        inputLocator.waitFor()
+        inputLocator.fill(value)
+    }
 
     fun shouldBeVisible() = inputLocator.shouldBeVisible()
 
@@ -29,6 +32,6 @@ class MoneyInput private constructor(
     fun shouldBeDisabled() = inputLocator.shouldBeDisabled()
 
     companion object {
-        fun byContainer(container: Locator) = MoneyInput(container.locator(".sa-money-input"))
+        fun byContainer(container: Locator) = MoneyInput(container)
     }
 }

@@ -134,7 +134,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
 
-            useDifferentExchangeRateForIncomeTaxPurposes().input.click()
+            useDifferentExchangeRateForIncomeTaxPurposes().click()
 
             incomeTaxableAmountInDefaultCurrency("USD").input.fill("95.00")
 
@@ -179,7 +179,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             originalAmount { input.fill("100.00") }
             datePaid { input.fill("2025-01-15") }
 
-            partialForBusiness().input.click()
+            partialForBusiness().click()
 
             percentOnBusiness().input.fill("75")
 
@@ -303,7 +303,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
             
             // Enable different tax rate checkbox
-            useDifferentExchangeRateForIncomeTaxPurposes().input.click()
+            useDifferentExchangeRateForIncomeTaxPurposes().click()
             
             // Submit again to check tax amount field validation
             saveButton.click()
@@ -350,12 +350,11 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
             // Verify foreign currency fields appear
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
-            useDifferentExchangeRateForIncomeTaxPurposes().shouldBeVisible()
 
             reportRendering("create-expense.foreign-currency-fields-visible")
 
             // Enable different tax rate checkbox
-            useDifferentExchangeRateForIncomeTaxPurposes().input.click()
+            useDifferentExchangeRateForIncomeTaxPurposes().click()
 
             // Verify tax amount field appears
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
@@ -371,7 +370,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             reportRendering("create-expense.back-to-default-currency")
 
             // Enable partial business checkbox
-            partialForBusiness().input.click()
+            partialForBusiness().click()
 
             // Verify percentage field appears
             percentOnBusiness().shouldBeVisible()

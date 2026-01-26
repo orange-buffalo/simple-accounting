@@ -2,6 +2,7 @@ package io.orangebuffalo.simpleaccounting.tests.ui.user.pages
 
 import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Checkbox.Companion.checkboxByOwnLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.ComponentsAccessors
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemCategoryInputByLabel
@@ -40,13 +41,13 @@ abstract class EditExpensePageBase(page: Page) : SaPageBase(page) {
         components.formItemMoneyInputByLabel("Amount in $defaultCurrency")
 
     fun useDifferentExchangeRateForIncomeTaxPurposes() =
-        components.formItemCheckboxByLabel("Using different exchange rate for taxation purposes")
+        components.checkboxByOwnLabel("Using different exchange rate for taxation purposes")
 
     fun incomeTaxableAmountInDefaultCurrency(defaultCurrency: String) =
         components.formItemMoneyInputByLabel("Amount in $defaultCurrency for taxation purposes")
 
     fun partialForBusiness() =
-        components.formItemCheckboxByLabel("Partial Business Purpose")
+        components.checkboxByOwnLabel("Partial Business Purpose")
 
     fun percentOnBusiness() =
         components.formItemInputNumberByLabel("% related to business activities")

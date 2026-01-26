@@ -21,6 +21,6 @@ class DatePicker private constructor(
     fun shouldBeDisabled() = inputLocator.shouldBeDisabled()
 
     companion object {
-        fun byContainer(container: Locator) = DatePicker(container.locator(".el-date-editor"))
+        fun byContainer(container: Locator) = DatePicker(container)
     }
 }

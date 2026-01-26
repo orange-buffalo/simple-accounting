@@ -22,6 +22,6 @@ class InputNumber private constructor(
     fun shouldBeDisabled() = inputLocator.shouldBeDisabled()
 
     companion object {
-        fun byContainer(container: Locator) = InputNumber(container.locator(".el-input-number"))
+        fun byContainer(container: Locator) = InputNumber(container)
     }
 }

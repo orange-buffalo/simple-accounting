@@ -22,6 +22,6 @@ class DocumentsUpload private constructor(
     }
 
     companion object {
-        fun byContainer(container: Locator) = DocumentsUpload(container.locator(".sa-documents-upload"))
+        fun byContainer(container: Locator) = DocumentsUpload(container)
     }
 }

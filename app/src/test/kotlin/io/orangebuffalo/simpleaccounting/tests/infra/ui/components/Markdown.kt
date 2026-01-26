@@ -25,6 +25,6 @@ class Markdown private constructor(
     fun shouldHavePreview() = previewLocator.shouldBeVisible()
 
     companion object {
-        fun byContainer(container: Locator) = Markdown(container.locator(".sa-notes-input"))
+        fun byContainer(container: Locator) = Markdown(container)
     }
 }

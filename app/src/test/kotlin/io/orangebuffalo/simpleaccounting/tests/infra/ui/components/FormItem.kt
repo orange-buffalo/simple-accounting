@@ -11,7 +11,7 @@ class FormItem<I : UiComponent<*>> private constructor(
 ) : UiComponent<FormItem<I>>() {
     private val validationErrorLocator = rootLocator.locator(".el-form-item__error")
     private val inputLocator =
-        rootLocator.locator("xpath=//*[@class='el-form-item__content']/*[@class != 'el-form-item__error']")
+        rootLocator.locator(".el-form-item__content > :not(.el-form-item__error)")
     val input: I = inputProvider(inputLocator)
 
     fun shouldBeVisible () = rootLocator.shouldBeVisible()
