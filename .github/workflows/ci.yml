@@ -29,6 +29,8 @@ jobs:
         run: ./gradlew assemble --scan --console=plain --build-cache
 
       - name: "Test"
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: |
           # Start thread dump collection in background
           .github/scripts/collect-thread-dumps.sh thread-dumps 30 40 &
@@ -46,6 +48,8 @@ jobs:
           exit $TEST_EXIT_CODE
 
       - name: "Test (end-to-end)"
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: ./gradlew e2eTest --scan --console=plain --build-cache
 
       - name: Publish Test Report
