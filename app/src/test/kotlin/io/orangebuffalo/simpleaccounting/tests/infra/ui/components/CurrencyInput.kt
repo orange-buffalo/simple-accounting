@@ -27,7 +27,9 @@ class CurrencyInput private constructor(
     
     fun fill(text: String) {
         input.click()
-        input.fill(text)
+        // Find the actual input element inside the wrapper for filtering
+        val actualInput = input.locator("input.el-select__input")
+        actualInput.fill(text)
     }
 
     fun shouldBeVisible() = select.shouldBeVisible()

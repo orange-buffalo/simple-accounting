@@ -120,16 +120,13 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                         shouldHaveSize(2)
                     }
                     groups[0].name.shouldBe("Recently Used Currencies")
-                    groups[0].options.shouldWithClue("Should have single item in shortlist") {
-                        shouldHaveSize(1)
-                        // EUR should be in recent list
-                        single().shouldWithClue("Should contain EUR") {
-                            startsWith("EUR").shouldBe(true)
-                        }
+                    groups[0].options.shouldWithClue("Should have single EUR item in shortlist") {
+                        shouldContainExactlyInAnyOrder("EUREuro")
                     }
                     groups[1].name.shouldBe("All Currencies")
                     groups[1].options.shouldWithClue("All group should have 302 currencies (303 - 1 in shortlist)") {
                         shouldHaveSize(302)
+                        none { it == "EUREuro" }.shouldBe(true)
                     }
                 }
             }
@@ -159,16 +156,15 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                         shouldHaveSize(2)
                     }
                     groups[0].name.shouldBe("Recently Used Currencies")
-                    groups[0].options.shouldWithClue("Should have 3 items in shortlist") {
-                        shouldHaveSize(3)
-                        // Verify EUR, GBP, USD are in shortlist
-                        count { it.startsWith("EUR") }.shouldBe(1)
-                        count { it.startsWith("GBP") }.shouldBe(1)
-                        count { it.startsWith("USD") }.shouldBe(1)
+                    groups[0].options.shouldWithClue("Should have EUR, GBP, USD in shortlist") {
+                        shouldContainExactlyInAnyOrder("EUREuro", "GBPBritish Pound", "USDUS Dollar")
                     }
                     groups[1].name.shouldBe("All Currencies")
                     groups[1].options.shouldWithClue("All group should have 300 currencies (303 - 3 in shortlist)") {
                         shouldHaveSize(300)
+                        none { it == "EUREuro" }.shouldBe(true)
+                        none { it == "GBPBritish Pound" }.shouldBe(true)
+                        none { it == "USDUS Dollar" }.shouldBe(true)
                     }
                 }
             }
@@ -244,10 +240,7 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveGroupedOptions { groups ->
                     val allOptions = groups.flatMap { it.options }
                     allOptions.shouldWithClue("Should have exactly one currency matching ZMW") {
-                        shouldHaveSize(1)
-                        single().shouldWithClue("Should be ZMW currency") {
-                            startsWith("ZMW").shouldBe(true)
-                        }
+                        shouldContainExactlyInAnyOrder("ZMWZambian Kwacha")
                     }
                 }
             }
