@@ -33,6 +33,13 @@ import EditUser from '@/pages/admin/users/EditUser.vue';
 import AccountSetupPage from '@/pages/account-setup/AccountSetupPage.vue';
 
 const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: Number(route.params.id) });
+const PROTOTYPE_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => {
+  const result: { prototype?: string } = {};
+  if (route.params.prototype) {
+    result.prototype = route.params.prototype as string;
+  }
+  return result;
+};
 
 const ANONYMOUS_PAGES: Array<RouteRecordSingleView> = [
   {
@@ -130,7 +137,7 @@ export default function setupRouter() {
           {
             path: 'expenses/create/:prototype?',
             name: 'create-new-expense',
-            props: true,
+            props: PROTOTYPE_ROUTER_PARAM_PROCESSOR,
             component: EditExpense,
           },
           {

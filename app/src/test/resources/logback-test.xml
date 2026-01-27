@@ -4,4 +4,5 @@
 
     <logger name="net.javacrumbs.jsonunit.difference.diff" level="all"/>
     <logger name="org.springframework.test.context.cache" level="debug"/>
+    <logger name="io.orangebuffalo.simpleaccounting" level="trace"/>
 </configuration>

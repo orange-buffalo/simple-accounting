@@ -11,7 +11,7 @@ class FormItem<I : UiComponent<*>> private constructor(
 ) : UiComponent<FormItem<I>>() {
     private val validationErrorLocator = rootLocator.locator(".el-form-item__error")
     private val inputLocator =
-        rootLocator.locator("xpath=//*[@class='el-form-item__content']/*[@class != 'el-form-item__error']")
+        rootLocator.locator(".el-form-item__content > :not(.el-form-item__error)")
     val input: I = inputProvider(inputLocator)
 
     fun shouldBeVisible () = rootLocator.shouldBeVisible()
@@ -41,5 +41,32 @@ class FormItem<I : UiComponent<*>> private constructor(
 
         fun ComponentsAccessors.formItemSelectByLabel(label: String) =
             formItemByLabel(label) { Select.byContainer(it) }
+
+        fun ComponentsAccessors.formItemMoneyInputByLabel(label: String) =
+            formItemByLabel(label) { MoneyInput.byContainer(it) }
+
+        fun ComponentsAccessors.formItemCategoryInputByLabel(label: String) =
+            formItemByLabel(label) { Select.byContainer(it) }
+
+        fun ComponentsAccessors.formItemCurrencyInputByLabel(label: String) =
+            formItemByLabel(label) { CurrencyInput.byContainer(it) }
+
+        fun ComponentsAccessors.formItemDatePickerByLabel(label: String) =
+            formItemByLabel(label) { DatePicker.byContainer(it) }
+
+        fun ComponentsAccessors.formItemInputNumberByLabel(label: String) =
+            formItemByLabel(label) { InputNumber.byContainer(it) }
+
+        fun ComponentsAccessors.formItemGeneralTaxInputByLabel(label: String) =
+            formItemByLabel(label) { Select.byContainer(it) }
+
+        fun ComponentsAccessors.formItemMarkdownByLabel(label: String) =
+            formItemByLabel(label) { Markdown.byContainer(it) }
+
+        fun ComponentsAccessors.formItemDocumentsUploadByLabel(label: String) =
+            formItemByLabel(label) { DocumentsUpload.byContainer(it) }
+
+        fun ComponentsAccessors.formItemCheckboxByLabel(label: String) =
+            formItemByLabel(label) { Checkbox.checkboxByOwnLabel(it, label) }
     }
 }
