@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 
 class CurrencyInput private constructor(
     private val rootLocator: Locator,
@@ -9,21 +10,25 @@ class CurrencyInput private constructor(
     private val input = rootLocator.locator(".el-select__wrapper")
 
     /**
-     * Selects a currency by its code (e.g., "EUR", "USD").
+     * Selects a currency by its label (e.g., "EUR - Euro").
      * Works with the custom currency option template that displays code and name separately.
      */
-    fun selectOption(currencyCode: String) {
+    fun selectOption(currencyLabel: String) {
         val popper = Popper.openOrLocateByTrigger(input)
-        // Currency options have custom markup with separate spans for code and name
-        // We locate by the currency code span
+        // Currency options have custom markup but Element Plus still uses the label for selection
+        // The label format is "CODE - Name" (e.g., "EUR - Euro")
         popper.rootLocator
-            .locator(".sa-currency-input__currency-code:has-text(\"$currencyCode\")")
-            .first()
+            .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}][normalize-space(.)='$currencyLabel']")
             .click()
         popper.shouldBeClosed()
     }
 
     fun shouldHaveSelectedValue(value: String) = select.shouldHaveSelectedValue(value)
+    
+    fun fill(text: String) {
+        input.click()
+        input.fill(text)
+    }
 
     fun shouldBeVisible() = select.shouldBeVisible()
 

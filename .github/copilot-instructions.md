@@ -510,126 +510,33 @@ assertExternalServiceRequests(expectedRequest1, expectedRequest2)
 
 ### Component Testing Patterns
 
-When testing UI components in full stack tests, follow these patterns:
+#### Custom Templates in Components
 
-#### Testing Component with Custom Templates
+Components with custom templates (like CurrencyInput) may need wrapper methods adapted to their DOM structure. Analyze the Vue template, create custom methods if needed, document the approach.
 
-Some components (like CurrencyInput) use custom templates that deviate from standard Element Plus structures. When creating wrappers for such components:
+#### Exact Matching in Tests
 
-1. **Analyze the component's Vue template** to understand its actual DOM structure
-2. **Create custom selection/interaction methods** if the standard Select wrapper doesn't work
-3. **Document the custom structure** in the wrapper
+- Use exact string matching, not substrings (`==` not `contains()`)
+- Avoid `.first()` - it hides misconfiguration and causes flaky tests
+- Comment when `.first()` is genuinely needed
 
-Example from CurrencyInput:
+#### Test Preconditions
+
+For test-specific preconditions, use direct `preconditions { }` call:
 ```kotlin
-class CurrencyInput private constructor(
-    private val rootLocator: Locator,
-) : UiComponent<CurrencyInput>() {
-    private val select = Select.byContainer(rootLocator)
-    private val input = rootLocator.locator(".el-select__wrapper")
-
-    /**
-     * Selects a currency by its code (e.g., "EUR", "USD").
-     * Works with the custom currency option template that displays code and name separately.
-     */
-    fun selectOption(currencyCode: String) {
-        val popper = Popper.openOrLocateByTrigger(input)
-        // Currency options have custom markup with separate spans for code and name
-        // We locate by the currency code span
-        popper.rootLocator
-            .locator(".sa-currency-input__currency-code:has-text(\"$currencyCode\")")
-            .first()
-            .click()
-        popper.shouldBeClosed()
+@Test
+fun `my test`() {
+    val testData = preconditions {
+        object {
+            val user = platformUser(...)
+            val item = someEntity(...)
+        }
     }
+    // use testData.user, testData.item
 }
 ```
 
-#### Understanding Label vs Value in Element Plus Selects
-
-Element Plus `ElSelect` with `ElOption` has two key attributes:
-- **`:value`**: The actual data value (e.g., "EUR") that gets bound to `v-model`
-- **`:label`**: The display text (e.g., "EUR - Euro") shown when the option is selected
-
-When testing:
-- Use the **value** (currency code like "EUR") to select options via `selectOption()`
-- Verify using the **label** format (like "EUR - Euro") via `shouldHaveSelectedValue()`
-
-This is because the label is what's displayed in the select box when an option is selected, even if you select by value.
-
-#### Component State Coverage
-
-When testing a component comprehensively, ensure you cover:
-
-1. **Loading states**: Initial load, with/without preconditions
-2. **Data variations**: Empty, single item, multiple items
-3. **Interactions**: Selection, input, changes
-4. **Conditional rendering**: Fields that appear/disappear based on state
-5. **Edge cases**: Default values, pre-loaded values, no data scenarios
-6. **Visual states**: For rendering reports
-
-Example test structure for CurrencyInput:
-- Loading without value (uses default)
-- Loading with existing value
-- Empty shortlist
-- Single item in shortlist
-- Multiple items in shortlist
-- Selecting from different groups
-- Verifying dropdown structure
-
-#### Rendering Reports
-
-Use `reportRendering("name")` to capture screenshots of distinct component states:
-- Call it from the page object level (not inside nested lambdas)
-- Use descriptive names like "component-name.state-description"
-- Capture before major interactions (loading, open dropdown, filled state)
-
-For components with dropdowns:
-- Capture both closed and open states
-- Include different data scenarios (empty, populated, grouped)
-
-Example:
-```kotlin
-currency {
-    input.shouldHaveGroupedOptions { groups ->
-        // Assertions about options
-    }
-}
-reportRendering("currency-input.open-with-shortlist")
-```
-
-#### Async Component Loading
-
-Some components load data asynchronously (like CurrencyInput fetching the shortlist):
-- Resume the clock with `page.clock().resume()` in `@BeforeEach` if the component needs async operations
-- Account for loading states in your assertions
-- The component may show a loading spinner that resolves after data loads
-
-#### Creating Multiple Precondition Sets
-
-Use different precondition sets to test various scenarios:
-
-```kotlin
-private val preconditionsEmptyShortlist by lazyPreconditions {
-    object {
-        val user = platformUser(...)
-        val workspace = workspace(owner = user)
-        // No expenses = empty shortlist
-    }
-}
-
-private val preconditionsWithShortlist by lazyPreconditions {
-    object {
-        val user = platformUser(...)
-        val workspace = workspace(owner = user)
-        val expense1 = expense(workspace = workspace, currency = "EUR")
-        val expense2 = expense(workspace = workspace, currency = "GBP")
-        // Multiple expenses = populated shortlist
-    }
-}
-```
-
-This allows you to test how the component behaves with different backend data without cluttering individual test methods.
+Only use `lazyPreconditions` property for data shared across multiple tests.
 
 # Commits and Pull Requests
 1. We follow Conventional Commits specification for commit messages.
