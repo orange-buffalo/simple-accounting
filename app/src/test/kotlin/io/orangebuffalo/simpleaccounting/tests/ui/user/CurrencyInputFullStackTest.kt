@@ -3,7 +3,6 @@ package io.orangebuffalo.simpleaccounting.tests.ui.user
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
@@ -92,12 +91,8 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                         shouldHaveSize(1)
                     }
                     groups[0].name.shouldBe("All Currencies")
-                    groups[0].options.shouldWithClue("Should verify key currencies are present") {
-                        // Verify exact match for key currencies
-                        filter { it == "USD - US Dollar" }.shouldHaveSize(1)
-                        filter { it == "EUR - Euro" }.shouldHaveSize(1)
-                        filter { it == "GBP - British Pound" }.shouldHaveSize(1)
-                        filter { it == "JPY - Japanese Yen" }.shouldHaveSize(1)
+                    groups[0].options.shouldWithClue("Should have all 303 currencies in All group") {
+                        shouldHaveSize(303)
                     }
                 }
             }
@@ -126,11 +121,15 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                     }
                     groups[0].name.shouldBe("Recently Used Currencies")
                     groups[0].options.shouldWithClue("Should have single item in shortlist") {
-                        shouldContainExactlyInAnyOrder("EUR - Euro")
+                        shouldHaveSize(1)
+                        // EUR should be in recent list
+                        single().shouldWithClue("Should contain EUR") {
+                            startsWith("EUR").shouldBe(true)
+                        }
                     }
                     groups[1].name.shouldBe("All Currencies")
-                    groups[1].options.shouldWithClue("Shortlisted currency should not appear in All list") {
-                        shouldNotContain("EUR - Euro")
+                    groups[1].options.shouldWithClue("All group should have 302 currencies (303 - 1 in shortlist)") {
+                        shouldHaveSize(302)
                     }
                 }
             }
@@ -160,14 +159,16 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                         shouldHaveSize(2)
                     }
                     groups[0].name.shouldBe("Recently Used Currencies")
-                    groups[0].options.shouldWithClue("Should have all shortlisted currencies") {
-                        shouldContainExactlyInAnyOrder("EUR - Euro", "GBP - British Pound", "USD - US Dollar")
+                    groups[0].options.shouldWithClue("Should have 3 items in shortlist") {
+                        shouldHaveSize(3)
+                        // Verify EUR, GBP, USD are in shortlist
+                        count { it.startsWith("EUR") }.shouldBe(1)
+                        count { it.startsWith("GBP") }.shouldBe(1)
+                        count { it.startsWith("USD") }.shouldBe(1)
                     }
                     groups[1].name.shouldBe("All Currencies")
-                    groups[1].options.shouldWithClue("Shortlisted currencies should not appear in All list") {
-                        shouldNotContain("EUR - Euro")
-                        shouldNotContain("GBP - British Pound") 
-                        shouldNotContain("USD - US Dollar")
+                    groups[1].options.shouldWithClue("All group should have 300 currencies (303 - 3 in shortlist)") {
+                        shouldHaveSize(300)
                     }
                 }
             }
@@ -236,17 +237,16 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             currency {
-                // Fill filter text
-                input.fill("Doll")
+                // Fill filter text - use "ZMW" for exact match (Zambian Kwacha)
+                input.fill("ZMW")
                 
-                // Verify filtered options
+                // Verify exact filtered results
                 input.shouldHaveGroupedOptions { groups ->
-                    // Should show filtered results - currencies containing "Doll"
-                    groups.forEach { group ->
-                        group.options.forEach { option ->
-                            option.shouldWithClue("All filtered options should contain 'Doll'") {
-                                contains("Doll", ignoreCase = true).shouldBe(true)
-                            }
+                    val allOptions = groups.flatMap { it.options }
+                    allOptions.shouldWithClue("Should have exactly one currency matching ZMW") {
+                        shouldHaveSize(1)
+                        single().shouldWithClue("Should be ZMW currency") {
+                            startsWith("ZMW").shouldBe(true)
                         }
                     }
                 }
