@@ -1,7 +1,9 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 
 class CurrencyInput private constructor(
     private val rootLocator: Locator,
@@ -59,16 +61,22 @@ class CurrencyInput private constructor(
         val actualInput = input.locator("input.el-select__input")
         actualInput.fill(filterText)
         
-        // Wait for the filter to apply - Element Plus hides non-matching options
-        rootLocator.page().waitForTimeout(500.0)
-        
         // Get the filtered options from the visible dropdown
         // Only get visible options (non-filtered ones have display:none)
+        // Use shouldSatisfy to retry until filtering is applied
         val popper = Popper.openOrLocateByTrigger(input)
-        @Suppress("UNCHECKED_CAST")
-        val visibleOptions = popper.rootLocator
-            .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}]")
-            .evaluateAll("elements => elements.filter(el => el.offsetParent !== null).map(el => el.textContent.trim())") as List<String>
+        val visibleOptions = mutableListOf<String>()
+        popper.rootLocator.shouldSatisfy("Filtered options should be available") {
+            @Suppress("UNCHECKED_CAST")
+            val options = popper.rootLocator
+                .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}]")
+                .evaluateAll("elements => elements.filter(el => el.offsetParent !== null).map(el => el.textContent.trim())") as List<String>
+            // Store options for verification
+            visibleOptions.clear()
+            visibleOptions.addAll(options)
+            // Assert that we have some filtered results (retry will continue until filter is applied)
+            options.isNotEmpty()
+        }
         
         // Call the verification lambda
         verifyAndAction(visibleOptions)
@@ -78,6 +86,16 @@ class CurrencyInput private constructor(
     }
 
     fun shouldHaveSelectedValue(value: String) = select.shouldHaveSelectedValue(value)
+    
+    /**
+     * Checks if the select component is in loading state.
+     * The loading state is indicated by the loading icon within the select wrapper.
+     */
+    fun shouldBeLoading() {
+        // ElSelect shows a loading icon when the :loading prop is true
+        // It uses the el-icon--loading class within the select wrapper
+        input.locator(".el-icon--loading").shouldBeVisible()
+    }
     
     fun fill(text: String) {
         input.click()

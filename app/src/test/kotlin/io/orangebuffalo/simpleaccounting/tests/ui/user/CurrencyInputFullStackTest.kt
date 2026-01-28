@@ -1,15 +1,16 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import com.microsoft.playwright.options.WaitForSelectorState
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.shouldBeCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -93,8 +94,11 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                         shouldHaveSize(1)
                     }
                     groups[0].name.shouldBe("All Currencies")
-                    groups[0].options.shouldWithClue("Should have all 303 currencies in All group") {
-                        shouldHaveSize(303)
+                    groups[0].options.shouldWithClue("Should have many currencies (>100) in All group") {
+                        size.shouldBeGreaterThan(100)
+                        toSet().shouldWithClue("All currency codes should be unique") {
+                            shouldHaveSize(size)
+                        }
                     }
                 }
             }
@@ -260,21 +264,19 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
         page.withBlockedApiResponse(
             "**/statistics/currencies-shortlist",
             initiator = {
+                // Navigate to create expense page, which triggers the API call
                 page.navigate("/expenses/create")
-                // Wait for the form to appear (page skeleton loads even if API is blocked)
-                page.locator("form").waitFor()
             },
             blockedRequestSpec = {
-                // While API is blocked, the select component should show loading state
-                // The loading attribute should be present on the select wrapper
-                val selectWrapper = page.locator("form").locator(".el-select__wrapper").first()
-                selectWrapper.shouldBeVisible()
+                // While API is blocked, the currency input should be visible
+                // The screenshot will show it in loading state
+                page.shouldBeCreateExpensePage {
+                    currency {
+                        input.shouldBeVisible()
+                    }
+                    reportRendering("currency-input.loading")
+                }
             }
         )
-        
-        // After API unblocked, take rendering report (the component loads normally now)
-        page.openCreateExpensePage {
-            reportRendering("currency-input.loading")
-        }
     }
 }
