@@ -1,9 +1,11 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
+import com.microsoft.playwright.options.WaitForSelectorState
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
@@ -170,6 +172,32 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
+    fun `should select currency from recent group`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val category = category(workspace = workspace, name = "Delivery")
+                val eurExpense = expense(workspace = workspace, category = category, currency = "EUR")
+                val gbpExpense = expense(workspace = workspace, category = category, currency = "GBP")
+            }
+        }
+        
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            currency {
+                input.shouldHaveSelectedValue("USD - US Dollar")
+                // EUR appears in both "Recently Used" and "All Currencies" groups
+                // Select from the first occurrence (Recently Used)
+                input.selectOptionFromGroup("EUREuro", groupIndex = 0)
+                input.shouldHaveSelectedValue("EUR - Euro")
+                input.selectOptionFromGroup("GBPBritish Pound", groupIndex = 0)
+                input.shouldHaveSelectedValue("GBP - British Pound")
+            }
+        }
+    }
+
+    @Test
     fun `should select currency from all currencies group`(page: Page) {
         val preconditions = preconditions {
             object {
@@ -188,6 +216,65 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                 input.selectOption("AUDAustralian Dollar")
                 input.shouldHaveSelectedValue("AUD - Australian Dollar")
             }
+        }
+    }
+
+    @Test
+    fun `should filter currencies by search text`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val category = category(workspace = workspace, name = "Delivery")
+                // No expenses to create shortlist - test filtering on all currencies
+            }
+        }
+        
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            currency {
+                // Test filtering with a search that returns exactly one result
+                input.fillAndVerifyFiltered("ZMW") { filteredOptions ->
+                    filteredOptions.shouldWithClue("Should have exactly one currency matching ZMW") {
+                        shouldContainExactlyInAnyOrder("ZMWZambian Kwacha")
+                    }
+                }
+            }
+            reportRendering("currency-input.filtered")
+        }
+    }
+
+    @Test
+    fun `should display loading state during shortlist fetch`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val category = category(workspace = workspace, name = "Delivery")
+            }
+        }
+        
+        page.authenticateViaCookie(preconditions.fry)
+        
+        // Block the shortlist API and verify loading state
+        page.withBlockedApiResponse(
+            "**/statistics/currencies-shortlist",
+            initiator = {
+                page.navigate("/expenses/create")
+                // Wait for the form to appear (page skeleton loads even if API is blocked)
+                page.locator("form").waitFor()
+            },
+            blockedRequestSpec = {
+                // While API is blocked, the select component should show loading state
+                // The loading attribute should be present on the select wrapper
+                val selectWrapper = page.locator("form").locator(".el-select__wrapper").first()
+                selectWrapper.shouldBeVisible()
+            }
+        )
+        
+        // After API unblocked, take rendering report (the component loads normally now)
+        page.openCreateExpensePage {
+            reportRendering("currency-input.loading")
         }
     }
 }

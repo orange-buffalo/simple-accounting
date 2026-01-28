@@ -24,6 +24,59 @@ class CurrencyInput private constructor(
         popper.shouldBeClosed()
     }
 
+    /**
+     * Selects a currency from a specific group by index.
+     * Use this when the same currency appears in multiple groups (e.g., "Recently Used" and "All Currencies").
+     * 
+     * @param currencyInnerText The currency's innerText (e.g., "EUREuro")
+     * @param groupIndex The zero-based index of the group (0 for first group, 1 for second)
+     */
+    fun selectOptionFromGroup(currencyInnerText: String, groupIndex: Int) {
+        val popper = Popper.openOrLocateByTrigger(input)
+        // Locate the specific group, then find the option within it
+        val groups = popper.rootLocator.locator("xpath=//*[${XPath.hasClass("el-select-group__wrap")}]")
+        val targetGroup = groups.nth(groupIndex)
+        // Use .first() here because we're already scoped to a specific group
+        targetGroup
+            .locator("xpath=.//*[${XPath.hasClass("el-select-dropdown__item")}][normalize-space(.)='$currencyInnerText']")
+            .click()
+        popper.shouldBeClosed()
+    }
+
+    /**
+     * Fills the filter input and verifies the filtered options.
+     * This method handles the interaction properly by filling the input,
+     * waiting for the filter to apply, and then checking the filtered results.
+     * 
+     * @param filterText The text to type into the filter
+     * @param verifyAndAction Lambda that receives the filtered options and can verify them + take screenshots
+     */
+    fun fillAndVerifyFiltered(filterText: String, verifyAndAction: (List<String>) -> Unit) {
+        // Click to open the dropdown
+        input.click()
+        
+        // Fill the filter text in the actual input element
+        val actualInput = input.locator("input.el-select__input")
+        actualInput.fill(filterText)
+        
+        // Wait for the filter to apply - Element Plus hides non-matching options
+        rootLocator.page().waitForTimeout(500.0)
+        
+        // Get the filtered options from the visible dropdown
+        // Only get visible options (non-filtered ones have display:none)
+        val popper = Popper.openOrLocateByTrigger(input)
+        @Suppress("UNCHECKED_CAST")
+        val visibleOptions = popper.rootLocator
+            .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}]")
+            .evaluateAll("elements => elements.filter(el => el.offsetParent !== null).map(el => el.textContent.trim())") as List<String>
+        
+        // Call the verification lambda
+        verifyAndAction(visibleOptions)
+        
+        // Close the dropdown by pressing Escape
+        actualInput.press("Escape")
+    }
+
     fun shouldHaveSelectedValue(value: String) = select.shouldHaveSelectedValue(value)
     
     fun fill(text: String) {
