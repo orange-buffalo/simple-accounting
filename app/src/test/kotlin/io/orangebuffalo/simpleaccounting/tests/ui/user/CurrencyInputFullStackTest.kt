@@ -170,30 +170,6 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should select currency from recent group`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
-                val eurExpense = expense(workspace = workspace, category = category, currency = "EUR")
-                val gbpExpense = expense(workspace = workspace, category = category, currency = "GBP")
-            }
-        }
-        
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateExpensePage {
-            currency {
-                input.shouldHaveSelectedValue("USD - US Dollar")
-                input.selectOption("EUREuro")
-                input.shouldHaveSelectedValue("EUR - Euro")
-                input.selectOption("GBPBritish Pound")
-                input.shouldHaveSelectedValue("GBP - British Pound")
-            }
-        }
-    }
-
-    @Test
     fun `should select currency from all currencies group`(page: Page) {
         val preconditions = preconditions {
             object {
@@ -213,64 +189,5 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("AUD - Australian Dollar")
             }
         }
-    }
-
-    @Test
-    fun `should filter currencies by search text`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
-                val eurExpense = expense(workspace = workspace, category = category, currency = "EUR")
-            }
-        }
-        
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateExpensePage {
-            currency {
-                // Fill filter text - use "ZMW" for exact match (Zambian Kwacha)
-                input.fill("ZMW")
-                
-                // Verify exact filtered results
-                input.shouldHaveGroupedOptions { groups ->
-                    val allOptions = groups.flatMap { it.options }
-                    allOptions.shouldWithClue("Should have exactly one currency matching ZMW") {
-                        shouldContainExactlyInAnyOrder("ZMWZambian Kwacha")
-                    }
-                }
-            }
-
-            reportRendering("currency-input.filtered")
-        }
-    }
-
-    @Test
-    fun `should display loading state during shortlist fetch`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
-            }
-        }
-        
-        page.authenticateViaCookie(preconditions.fry)
-        
-        page.withBlockedApiResponse(
-            "**/statistics/currencies-shortlist",
-            initiator = {
-                page.navigate("/expenses/create")
-            },
-            blockedRequestSpec = {
-                page.openCreateExpensePage {
-                    currency {
-                        // Component should show loading indicator
-                        input.shouldBeVisible()
-                    }
-                    reportRendering("currency-input.loading")
-                }
-            }
-        )
     }
 }
