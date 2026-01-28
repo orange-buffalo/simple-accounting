@@ -124,9 +124,8 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                         shouldContainExactlyInAnyOrder("EUREuro")
                     }
                     groups[1].name.shouldBe("All Currencies")
-                    groups[1].options.shouldWithClue("All group should have 302 currencies (303 - 1 in shortlist)") {
-                        shouldHaveSize(302)
-                        none { it == "EUREuro" }.shouldBe(true)
+                    groups[1].options.shouldWithClue("All group should have all 303 currencies") {
+                        shouldHaveSize(303)
                     }
                 }
             }
@@ -160,11 +159,8 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                         shouldContainExactlyInAnyOrder("EUREuro", "GBPBritish Pound", "USDUS Dollar")
                     }
                     groups[1].name.shouldBe("All Currencies")
-                    groups[1].options.shouldWithClue("All group should have 300 currencies (303 - 3 in shortlist)") {
-                        shouldHaveSize(300)
-                        none { it == "EUREuro" }.shouldBe(true)
-                        none { it == "GBPBritish Pound" }.shouldBe(true)
-                        none { it == "USDUS Dollar" }.shouldBe(true)
+                    groups[1].options.shouldWithClue("All group should have all 303 currencies") {
+                        shouldHaveSize(303)
                     }
                 }
             }
@@ -189,9 +185,9 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
         page.openCreateExpensePage {
             currency {
                 input.shouldHaveSelectedValue("USD - US Dollar")
-                input.selectOption("EUR - Euro")
+                input.selectOption("EUREuro")
                 input.shouldHaveSelectedValue("EUR - Euro")
-                input.selectOption("GBP - British Pound")
+                input.selectOption("GBPBritish Pound")
                 input.shouldHaveSelectedValue("GBP - British Pound")
             }
         }
@@ -211,9 +207,9 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
         page.openCreateExpensePage {
             currency {
                 input.shouldHaveSelectedValue("USD - US Dollar")
-                input.selectOption("JPY - Japanese Yen")
+                input.selectOption("JPYJapanese Yen")
                 input.shouldHaveSelectedValue("JPY - Japanese Yen")
-                input.selectOption("AUD - Australian Dollar")
+                input.selectOption("AUDAustralian Dollar")
                 input.shouldHaveSelectedValue("AUD - Australian Dollar")
             }
         }

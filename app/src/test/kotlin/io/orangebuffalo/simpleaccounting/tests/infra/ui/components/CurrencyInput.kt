@@ -10,15 +10,16 @@ class CurrencyInput private constructor(
     private val input = rootLocator.locator(".el-select__wrapper")
 
     /**
-     * Selects a currency by its label (e.g., "EUR - Euro").
+     * Selects a currency by matching its innerText (e.g., "EUREuro").
      * Works with the custom currency option template that displays code and name separately.
+     * The innerText format is "CODEName" with no separator (e.g., "EUREuro", "USDUS Dollar").
      */
-    fun selectOption(currencyLabel: String) {
+    fun selectOption(currencyInnerText: String) {
         val popper = Popper.openOrLocateByTrigger(input)
-        // Currency options have custom markup but Element Plus still uses the label for selection
-        // The label format is "CODE - Name" (e.g., "EUR - Euro")
+        // Currency options have custom markup with separate spans for code and name
+        // The innerText concatenates them without separator
         popper.rootLocator
-            .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}][normalize-space(.)='$currencyLabel']")
+            .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}][normalize-space(.)='$currencyInnerText']")
             .click()
         popper.shouldBeClosed()
     }
