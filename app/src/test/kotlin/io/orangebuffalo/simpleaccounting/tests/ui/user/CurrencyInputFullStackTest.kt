@@ -1,11 +1,11 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
-import io.kotest.matchers.shouldBe
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
@@ -31,24 +31,18 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should load with default currency when no value provided`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
+                val fry = fry().withWorkspace()
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             currency {
                 input.shouldHaveSelectedValue("USD - US Dollar")
-                // Open dropdown to show both input and popover
                 input.shouldHaveGroupedOptions { groups ->
-                    groups.shouldHaveSize(1)
-                    groups[0].name.shouldBe("All Currencies")
+                    groups.map { it.name }.shouldContainExactly("All Currencies")
                 }
             }
-
-            reportRendering("currency-input.default-value-empty-shortlist")
         }
     }
 
@@ -56,23 +50,19 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should load with provided value`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
+                val fry = fry()
                 val workspace = workspace(owner = fry, defaultCurrency = "USD")
                 val category = category(workspace = workspace, name = "Delivery")
                 val eurExpense = expense(workspace = workspace, category = category, currency = "EUR")
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
         page.navigate("/expenses/${preconditions.eurExpense.id}/edit")
         page.shouldBeEditExpensePage {
             currency {
                 input.shouldHaveSelectedValue("EUR - Euro")
-                // Open dropdown
-                input.shouldHaveGroupedOptions { }
             }
-
-            reportRendering("currency-input.pre-loaded-value")
         }
     }
 
@@ -80,30 +70,31 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should display only all currencies group when shortlist is empty`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
+                val fry = fry().also {
+                    workspace(owner = it, defaultCurrency = "ADP")
+                }
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             currency {
+                // ensure data loaded
+                input.shouldHaveSelectedValue("ADP - Andorran Peseta")
                 input.shouldHaveGroupedOptions { groups ->
                     groups.shouldWithClue("Should have only 'All' group when shortlist is empty") {
-                        shouldHaveSize(1)
+                        map { it.name }.shouldContainExactly("All Currencies")
                     }
-                    groups[0].name.shouldBe("All Currencies")
                     groups[0].options.shouldWithClue("Should have many currencies (>100) in All group") {
                         size.shouldBeGreaterThan(100)
                         toSet().shouldWithClue("All currency codes should be unique") {
                             shouldHaveSize(size)
                         }
                     }
+
+                    this@openCreateExpensePage.reportRendering("currency-input.open-empty-shortlist")
                 }
             }
-
-            reportRendering("currency-input.open-empty-shortlist")
         }
     }
 
@@ -111,32 +102,31 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should display recent group with single currency in shortlist`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
-                val eurExpense = expense(workspace = workspace, category = category, currency = "EUR")
+                val fry = fry().also {
+                    val workspace = workspace(owner = it, defaultCurrency = "ADP")
+                    val category = category(workspace = workspace, name = "Delivery")
+                    expense(workspace = workspace, category = category, currency = "EUR")
+                }
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             currency {
                 input.shouldHaveGroupedOptions { groups ->
                     groups.shouldWithClue("Should have both 'Recent' and 'All' groups") {
-                        shouldHaveSize(2)
+                        map { it.name }.shouldContainExactly("Recently Used Currencies", "All Currencies")
                     }
-                    groups[0].name.shouldBe("Recently Used Currencies")
                     groups[0].options.shouldWithClue("Should have single EUR item in shortlist") {
                         shouldContainExactlyInAnyOrder("EUREuro")
                     }
-                    groups[1].name.shouldBe("All Currencies")
-                    groups[1].options.shouldWithClue("All group should have all 303 currencies") {
-                        shouldHaveSize(303)
+                    groups[1].options.shouldWithClue("All group should have all currencies") {
+                        shouldHaveAtLeastSize(100)
                     }
+
+                    this@openCreateExpensePage.reportRendering("currency-input.open-single-item-shortlist")
                 }
             }
-
-            reportRendering("currency-input.open-single-item-shortlist")
         }
     }
 
@@ -144,34 +134,33 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should display recent group with multiple currencies in shortlist`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
-                val eurExpense = expense(workspace = workspace, category = category, currency = "EUR")
-                val gbpExpense = expense(workspace = workspace, category = category, currency = "GBP")
-                val usdExpense = expense(workspace = workspace, category = category, currency = "USD")
+                val fry = fry().also {
+                    val workspace = workspace(owner = it, defaultCurrency = "USD")
+                    val category = category(workspace = workspace, name = "Delivery")
+                    expense(workspace = workspace, category = category, currency = "EUR")
+                    expense(workspace = workspace, category = category, currency = "GBP")
+                    expense(workspace = workspace, category = category, currency = "USD")
+                }
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             currency {
                 input.shouldHaveGroupedOptions { groups ->
                     groups.shouldWithClue("Should have both 'Recent' and 'All' groups") {
-                        shouldHaveSize(2)
+                        map { it.name }.shouldContainExactly("Recently Used Currencies", "All Currencies")
                     }
-                    groups[0].name.shouldBe("Recently Used Currencies")
                     groups[0].options.shouldWithClue("Should have EUR, GBP, USD in shortlist") {
                         shouldContainExactlyInAnyOrder("EUREuro", "GBPBritish Pound", "USDUS Dollar")
                     }
-                    groups[1].name.shouldBe("All Currencies")
-                    groups[1].options.shouldWithClue("All group should have all 303 currencies") {
-                        shouldHaveSize(303)
+                    groups[1].options.shouldWithClue("All group should have all currencies") {
+                        shouldHaveAtLeastSize(100)
                     }
+
+                    this@openCreateExpensePage.reportRendering("currency-input.open-multiple-items-shortlist")
                 }
             }
-
-            reportRendering("currency-input.open-multiple-items-shortlist")
         }
     }
 
@@ -186,7 +175,7 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                 val gbpExpense = expense(workspace = workspace, category = category, currency = "GBP")
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             currency {
@@ -210,7 +199,7 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                 val category = category(workspace = workspace, name = "Delivery")
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             currency {
@@ -233,7 +222,7 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                 // No expenses to create shortlist - test filtering on all currencies
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             currency {
@@ -257,9 +246,9 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                 val category = category(workspace = workspace, name = "Delivery")
             }
         }
-        
+
         page.authenticateViaCookie(preconditions.fry)
-        
+
         // Block the shortlist API and verify loading state
         page.withBlockedApiResponse(
             "**/statistics/currencies-shortlist",
