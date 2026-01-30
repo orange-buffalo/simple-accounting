@@ -168,11 +168,12 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should select currency from recent group`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
-                val eurExpense = expense(workspace = workspace, category = category, currency = "EUR")
-                val gbpExpense = expense(workspace = workspace, category = category, currency = "GBP")
+                val fry = fry().also {
+                    val workspace = workspace(owner = it, defaultCurrency = "USD")
+                    val category = category(workspace = workspace, name = "Delivery")
+                    expense(workspace = workspace, category = category, currency = "EUR")
+                    expense(workspace = workspace, category = category, currency = "GBP")
+                }
             }
         }
 
@@ -194,9 +195,7 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should select currency from all currencies group`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
+                val fry = fry().withWorkspace()
             }
         }
 
@@ -216,10 +215,7 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should filter currencies by search text`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
-                // No expenses to create shortlist - test filtering on all currencies
+                val fry = fry().withWorkspace()
             }
         }
 
@@ -231,9 +227,9 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
                     filteredOptions.shouldWithClue("Should have exactly one currency matching ZMW") {
                         shouldContainExactlyInAnyOrder("ZMWZambian Kwacha")
                     }
+                    this@openCreateExpensePage.reportRendering("currency-input.filtered")
                 }
             }
-            reportRendering("currency-input.filtered")
         }
     }
 
@@ -241,9 +237,7 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
     fun `should display loading state during shortlist fetch`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", isAdmin = false, activated = true, documentsStorage = "noop")
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
+                val fry = fry().withWorkspace()
             }
         }
 
@@ -254,14 +248,18 @@ class CurrencyInputFullStackTest : SaFullStackTestBase() {
             "**/statistics/currencies-shortlist",
             initiator = {
                 // Navigate to create expense page, which triggers the API call
-                page.navigate("/expenses/create")
+                page.openCreateExpensePage {
+                    currency {
+                        input.focus()
+                    }
+                }
             },
             blockedRequestSpec = {
                 // While API is blocked, the currency input should be visible
                 // The screenshot will show it in loading state
                 page.shouldBeCreateExpensePage {
                     currency {
-                        input.shouldBeVisible()
+                        input.shouldBeLoading()
                     }
                     reportRendering("currency-input.loading")
                 }
