@@ -40,8 +40,8 @@ class OAuthAuthorizationPopup private constructor(page: Page) : SaPageBase(page)
                 initiator = {
                     val popup = waitForPopup(action)
                     // somehow the popup is extremely unstable (locator fails just on creation);
-                    // none of sane approaches works, so we just wait for a second
-                    Thread.sleep(1000)
+                    // none of sane approaches works, so we just wait for a few seconds
+                    Thread.sleep(2000)
                     authorizationPopup = OAuthAuthorizationPopup(popup)
                     withHint("OAuth authorization popup should be visible") {
                         authorizationPopup.pageContainer.shouldBeVisible()
