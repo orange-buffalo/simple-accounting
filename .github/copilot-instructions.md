@@ -508,6 +508,36 @@ assertExternalServiceRequests(expectedRequest1, expectedRequest2)
 5. **State Persistence**: Verify changes are saved and restored correctly
 6. **UI Feedback**: Loading states, success/error messages, proper status updates
 
+### Component Testing Patterns
+
+#### Custom Templates in Components
+
+Components with custom templates (like CurrencyInput) may need wrapper methods adapted to their DOM structure. Analyze the Vue template, create custom methods if needed, document the approach.
+
+#### Exact Matching in Tests
+
+- Use exact string matching, not substrings (`==` not `contains()`)
+- Avoid `.first()` - it hides misconfiguration and causes flaky tests
+- Comment when `.first()` is genuinely needed
+
+#### Test Preconditions
+
+For test-specific preconditions, use direct `preconditions { }` call:
+```kotlin
+@Test
+fun `my test`() {
+    val testData = preconditions {
+        object {
+            val user = platformUser(...)
+            val item = someEntity(...)
+        }
+    }
+    // use testData.user, testData.item
+}
+```
+
+Only use `lazyPreconditions` property for data shared across multiple tests.
+
 # Commits and Pull Requests
 1. We follow Conventional Commits specification for commit messages.
 2. We prefer single-line commit messages with a reference to the issue at the end, e.g.
