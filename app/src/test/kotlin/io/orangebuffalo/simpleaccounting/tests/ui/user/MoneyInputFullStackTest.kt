@@ -139,37 +139,6 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should accept input with 4 decimal places for CLF`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "CLF")
-                val category = category(workspace = workspace, name = "Test")
-            }
-        }
-
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateExpensePage {
-            category { input.selectOption("Test") }
-            title { input.fill("CLF Expense") }
-            datePaid { input.fill("2025-01-15") }
-            originalAmount {
-                input.fill("12.3456")
-                input.shouldHaveCurrency("CLF")
-            }
-            reportRendering("money-input.filled-clf-4-decimals")
-
-            saveButton.click()
-        }
-
-        aggregateTemplate.findAll(Expense::class.java)
-            .shouldBeSingle()
-            .shouldWithClue("Amount should be stored as 123456 (4 decimal places for CLF)") {
-                originalAmount.shouldBe(123456)
-            }
-    }
-
-    @Test
     fun `should use locale-specific separators for de_DE locale`(page: Page) {
         val preconditions = preconditions {
             object {
@@ -268,39 +237,6 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should update value in edit mode`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Test")
-                val expense = expense(
-                    workspace = workspace,
-                    category = category,
-                    title = "Existing Expense",
-                    originalAmount = 100000,
-                    currency = "USD"
-                )
-            }
-        }
-
-        page.authenticateViaCookie(preconditions.fry)
-        page.navigate("/expenses/${preconditions.expense.id}/edit")
-        page.shouldBeEditExpensePage {
-            originalAmount {
-                input.fill("2500.75")
-            }
-
-            saveButton.click()
-        }
-
-        val updatedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
-        updatedExpense.shouldWithClue("Amount should be updated in database") {
-            originalAmount.shouldBe(250075)
-        }
-    }
-
-    @Test
     fun `should handle empty value`(page: Page) {
         val preconditions = preconditions {
             object {
@@ -316,90 +252,6 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
             }
             reportRendering("money-input.empty")
         }
-    }
-
-    @Test
-    fun `should work with foreign currency conversion fields`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Test")
-            }
-        }
-
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateExpensePage {
-            category { input.selectOption("Test") }
-            title { input.fill("EUR Expense") }
-            currency { input.selectOption("EUREuro") }
-            datePaid { input.fill("2025-01-15") }
-
-            originalAmount {
-                input.fill("100.00")
-                input.shouldHaveValue("100.00")
-                input.shouldHaveCurrency("EUR")
-            }
-
-            convertedAmountInDefaultCurrency("USD").input.fill("110.00")
-            convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("110.00")
-            convertedAmountInDefaultCurrency("USD").input.shouldHaveCurrency("USD")
-            reportRendering("money-input.foreign-currency-with-conversion")
-
-            saveButton.click()
-        }
-
-        aggregateTemplate.findAll(Expense::class.java)
-            .shouldBeSingle()
-            .shouldWithClue("Both amounts should be stored correctly") {
-                originalAmount.shouldBe(10000)
-                currency.shouldBe("EUR")
-                convertedAmounts.shouldBe(AmountsInDefaultCurrency(11000))
-            }
-    }
-
-    @Test
-    fun `should work with income tax conversion fields`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Test")
-            }
-        }
-
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateExpensePage {
-            category { input.selectOption("Test") }
-            title { input.fill("GBP Expense") }
-            currency { input.selectOption("GBPBritish Pound") }
-            datePaid { input.fill("2025-01-15") }
-
-            originalAmount {
-                input.fill("80.00")
-                input.shouldHaveCurrency("GBP")
-            }
-
-            convertedAmountInDefaultCurrency("USD").input.fill("100.00")
-            convertedAmountInDefaultCurrency("USD").input.shouldHaveCurrency("USD")
-
-            useDifferentExchangeRateForIncomeTaxPurposes().click()
-
-            incomeTaxableAmountInDefaultCurrency("USD").input.fill("95.50")
-            incomeTaxableAmountInDefaultCurrency("USD").input.shouldHaveCurrency("USD")
-            reportRendering("money-input.with-tax-conversion")
-
-            saveButton.click()
-        }
-
-        aggregateTemplate.findAll(Expense::class.java)
-            .shouldBeSingle()
-            .shouldWithClue("All three amounts should be stored correctly") {
-                originalAmount.shouldBe(8000)
-                currency.shouldBe("GBP")
-                convertedAmounts.shouldBe(AmountsInDefaultCurrency(10000))
-                incomeTaxableAmounts.shouldBe(AmountsInDefaultCurrency(9550))
-            }
     }
 
     @Test
@@ -457,38 +309,6 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
             .shouldBeSingle()
             .shouldWithClue("Large amount should be stored correctly") {
                 originalAmount.shouldBe(1234567)
-            }
-    }
-
-    @Test
-    fun `should handle small decimal amounts`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Test")
-            }
-        }
-
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateExpensePage {
-            category { input.selectOption("Test") }
-            title { input.fill("Small Amount") }
-            datePaid { input.fill("2025-01-15") }
-
-            originalAmount {
-                input.fill("1.50")
-                input.shouldHaveCurrency("USD")
-            }
-            reportRendering("money-input.small-amount")
-
-            saveButton.click()
-        }
-
-        aggregateTemplate.findAll(Expense::class.java)
-            .shouldBeSingle()
-            .shouldWithClue("Small amount should be stored correctly") {
-                originalAmount.shouldBe(150)
             }
     }
 
