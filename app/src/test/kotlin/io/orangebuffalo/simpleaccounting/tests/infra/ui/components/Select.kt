@@ -3,6 +3,7 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.microsoft.playwright.Locator
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
@@ -86,6 +87,99 @@ class Select private constructor(
 
     fun shouldBeDisabled() {
         input.shouldContainClass("is-disabled")
+    }
+
+    /**
+     * Opens the dropdown without selecting any option.
+     * Useful for verifying dropdown content or state.
+     */
+    fun openDropdown() {
+        input.click()
+    }
+
+    /**
+     * Verifies that the select is in an empty/unselected state.
+     * Works by checking if the placeholder is visible or no selection is shown.
+     */
+    fun shouldBeEmpty() {
+        input.locator(".el-select__placeholder").shouldBeVisible()
+    }
+
+    /**
+     * Verifies that the select shows the specified placeholder text.
+     */
+    fun shouldHavePlaceholder(placeholder: String) {
+        input.locator(".el-select__placeholder").shouldHaveText(placeholder)
+    }
+
+    /**
+     * Clears the current selection by clicking the clear button.
+     * Only works when clearable is enabled and a value is selected.
+     */
+    fun clearSelection() {
+        val clearIcon = input.locator(".el-select__clear")
+        clearIcon.click()
+    }
+
+    /**
+     * Verifies that the clear button is visible.
+     * The clear button appears when clearable=true and a value is selected.
+     */
+    fun shouldHaveClearButton() {
+        // Hover to make clear button visible
+        input.hover()
+        input.locator(".el-select__clear").shouldBeVisible()
+    }
+
+    /**
+     * Verifies that no options are available in the dropdown.
+     */
+    fun shouldHaveNoOptions() {
+        shouldHaveOptions { options ->
+            options.shouldWithClue("Should have no options") {
+                shouldBeEmpty()
+            }
+        }
+    }
+
+    /**
+     * Verifies the select is in a loading state.
+     * This checks for the loading indicator within SaInputLoader wrapper.
+     */
+    fun shouldBeLoading() {
+        val loadingIndicator = input.page().locator(".sa-input-loader__indicator")
+        loadingIndicator.shouldBeVisible()
+    }
+
+    /**
+     * Fills the filter input for filterable selects and verifies filtered options.
+     * 
+     * @param filterText The text to type into the filter
+     * @param verifyAndAction Lambda that receives the filtered options and can verify them + take screenshots
+     */
+    fun fillAndVerifyFiltered(filterText: String, verifyAndAction: (List<String>) -> Unit) {
+        // Click to open the dropdown
+        input.click()
+
+        // Fill the filter text in the actual input element
+        val actualInput = input.locator("input.el-select__input")
+        actualInput.fill(filterText)
+
+        // Get the filtered options from the visible dropdown
+        val popper = Popper.openOrLocateByTrigger(input)
+        val visibleOptions = mutableListOf<String>()
+        popper.rootLocator.shouldSatisfy("Filtered options should be available") {
+            @Suppress("UNCHECKED_CAST")
+            val options = popper.rootLocator
+                .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}]")
+                .evaluateAll("elements => elements.filter(el => el.offsetParent !== null).map(el => el.textContent.trim())") as List<String>
+            visibleOptions.clear()
+            visibleOptions.addAll(options)
+            verifyAndAction(visibleOptions)
+        }
+
+        // Close the dropdown by pressing Escape
+        actualInput.press("Escape")
     }
 
     companion object {

@@ -1,0 +1,266 @@
+package io.orangebuffalo.simpleaccounting.tests.ui.user
+
+import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.shouldBeCreateExpensePage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
+import org.junit.jupiter.api.Test
+
+/**
+ * Comprehensive full stack tests for Select component (SaFormSelect and SaCategoryInput).
+ * Uses Create Expense and Edit Expense pages with Category input as testing grounds.
+ */
+class SelectFullStackTest : SaFullStackTestBase() {
+
+    @Test
+    fun `should load with empty selection and placeholder`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry().withWorkspace()
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            category {
+                input.shouldBeEmpty()
+                input.shouldHavePlaceholder("Select category")
+            }
+            reportRendering("select.empty-with-placeholder")
+        }
+    }
+
+    @Test
+    fun `should display categories when dropdown is opened`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    category(workspace = workspace, name = "Office Supplies")
+                    category(workspace = workspace, name = "Travel")
+                    category(workspace = workspace, name = "Marketing")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            category {
+                input.shouldHaveOptions { options ->
+                    options.shouldWithClue("Should display all created categories") {
+                        shouldContainExactlyInAnyOrder("Office Supplies", "Travel", "Marketing")
+                    }
+                    this@openCreateExpensePage.reportRendering("select.open-with-items")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should display empty dropdown when no categories exist`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry().withWorkspace()
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            category {
+                input.shouldHaveOptions { options ->
+                    options.shouldWithClue("Should have no categories") {
+                        shouldBeEmpty()
+                    }
+                    this@openCreateExpensePage.reportRendering("select.open-empty")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should select a category from dropdown`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    category(workspace = workspace, name = "Office Supplies")
+                    category(workspace = workspace, name = "Travel")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            category {
+                input.shouldBeEmpty()
+                input.selectOption("Travel")
+                input.shouldHaveSelectedValue("Travel")
+            }
+            reportRendering("select.with-selection")
+        }
+    }
+
+    @Test
+    fun `should load with pre-selected category in edit mode`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val officeCategory = category(workspace = workspace, name = "Office Supplies")
+                val travelCategory = category(workspace = workspace, name = "Travel")
+                val expense = expense(
+                    workspace = workspace,
+                    category = officeCategory,
+                    title = "Test Expense"
+                )
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+        page.shouldBeEditExpensePage {
+            category {
+                input.shouldHaveSelectedValue("Office Supplies")
+            }
+        }
+    }
+
+    @Test
+    fun `should change selected category`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val officeCategory = category(workspace = workspace, name = "Office Supplies")
+                val travelCategory = category(workspace = workspace, name = "Travel")
+                val expense = expense(
+                    workspace = workspace,
+                    category = officeCategory,
+                    title = "Test Expense"
+                )
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+        page.shouldBeEditExpensePage {
+            category {
+                input.shouldHaveSelectedValue("Office Supplies")
+                input.selectOption("Travel")
+                input.shouldHaveSelectedValue("Travel")
+            }
+        }
+    }
+
+    @Test
+    fun `should clear selected category when clearable is enabled`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    category(workspace = workspace, name = "Office Supplies")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            category {
+                input.selectOption("Office Supplies")
+                input.shouldHaveSelectedValue("Office Supplies")
+                input.shouldHaveClearButton()
+            }
+            reportRendering("select.with-clear-button")
+            category {
+                input.clearSelection()
+                input.shouldBeEmpty()
+            }
+            reportRendering("select.cleared-value")
+        }
+    }
+
+    @Test
+    fun `should display loading state while fetching categories`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry().withWorkspace()
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+
+        // Block the categories API and verify loading state
+        page.withBlockedApiResponse(
+            "**/categories*",
+            initiator = {
+                page.navigate("/expenses/create")
+            },
+            blockedRequestSpec = {
+                page.shouldBeCreateExpensePage {
+                    category {
+                        input.shouldBeLoading()
+                    }
+                    reportRendering("select.loading")
+                }
+            }
+        )
+    }
+
+    @Test
+    fun `should display single category in dropdown`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    category(workspace = workspace, name = "Only Category")
+                }
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            category {
+                input.shouldHaveOptions { options ->
+                    options.shouldWithClue("Should have exactly one category") {
+                        shouldHaveSize(1)
+                        shouldContainExactlyInAnyOrder("Only Category")
+                    }
+                    this@openCreateExpensePage.reportRendering("select.single-item")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `should display many categories in dropdown`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    // Create 10 categories
+                    (1..10).forEach { i ->
+                        category(workspace = workspace, name = "Category $i")
+                    }
+                }
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            category {
+                input.shouldHaveOptions { options ->
+                    options.shouldWithClue("Should have 10 categories") {
+                        shouldHaveSize(10)
+                    }
+                    this@openCreateExpensePage.reportRendering("select.many-items")
+                }
+            }
+        }
+    }
+}
