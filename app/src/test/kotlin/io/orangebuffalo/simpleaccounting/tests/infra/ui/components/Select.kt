@@ -3,13 +3,16 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.microsoft.playwright.Locator
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 
 class Select private constructor(
     rootLocator: Locator,
@@ -86,6 +89,48 @@ class Select private constructor(
 
     fun shouldBeDisabled() {
         input.shouldContainClass("is-disabled")
+    }
+
+    /**
+     * Opens the dropdown without selecting any option.
+     * Useful for verifying dropdown content or state.
+     */
+    fun openDropdown() {
+        input.click()
+    }
+
+    /**
+     * Verifies that the select is in an empty/unselected state.
+     * Works by checking if the placeholder is visible or no selection is shown.
+     */
+    fun shouldBeEmpty() {
+        input.locator(".el-select__placeholder").shouldBeVisible()
+    }
+
+    /**
+     * Verifies that the select shows the specified placeholder text.
+     */
+    fun shouldHavePlaceholder(placeholder: String) {
+        input.locator(".el-select__placeholder").shouldHaveText(placeholder)
+    }
+
+    /**
+     * Clears the current selection by clicking the clear button.
+     * Only works when clearable is enabled and a value is selected.
+     */
+    fun clearSelection() {
+        val clearIcon = input.locator(".el-select__clear")
+        clearIcon.click()
+    }
+
+    /**
+     * Verifies that the clear button is visible.
+     * The clear button appears when clearable=true and a value is selected.
+     */
+    fun shouldHaveClearButton() {
+        // Hover to make clear button visible
+        input.hover()
+        input.locator(".el-select__clear").shouldBeVisible()
     }
 
     companion object {
