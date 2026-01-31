@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.gitSemverPlugin)
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.spring.dependencyManagement) apply false
+    alias(libs.plugins.detekt)
 }
 
 semver {
@@ -22,6 +23,9 @@ val ver = semver.version
 allprojects {
     group = "io.orangebuffalo.simpleaccounting"
     version = ver
+    repositories {
+        mavenCentral()
+    }
 }
 
 subprojects {
@@ -54,5 +58,23 @@ develocity {
         publishing {
             onlyIf { System.getenv("CI") == "true" }
         }
+    }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(files("$rootDir/detekt.yml"))
+    baseline = file("$rootDir/detekt-baseline.xml")
+    source.setFrom(files("app/src/main/kotlin", "app/src/test/kotlin", "buildSrc/src/main/kotlin"))
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    reports {
+        html.required.set(true)
+        xml.required.set(false)
+        txt.required.set(false)
+        sarif.required.set(false)
+        md.required.set(true)
     }
 }

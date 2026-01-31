@@ -62,10 +62,14 @@ After making changes, ALWAYS run this validation sequence:
    ./gradlew assemble --console=plain --build-cache
    ```
 
-2. **Run unit tests**:
+2. **Run unit tests and static analysis**:
    ```bash
    ./gradlew check --console=plain --build-cache
    ```
+   
+   This includes:
+   - Unit and integration tests
+   - detekt static code analysis (violations are recorded in baseline)
 
 ## GraphQL API Development
 
@@ -105,6 +109,8 @@ cd frontend && bun graphql-codegen
 ```bash
 ./gradlew assemble check
 ```
+
+Note: The `check` task includes running detekt for static code analysis.
 
 ## Architecture Notes
 

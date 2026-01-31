@@ -155,6 +155,10 @@ tasks.jacocoTestReport {
     }
 }
 
+tasks.check {
+    dependsOn(rootProject.tasks.named("detekt"))
+}
+
 tasks.register<Test>("e2eTest") {
     description = "Runs E2E tests."
 

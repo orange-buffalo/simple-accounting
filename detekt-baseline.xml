@@ -1,0 +1,306 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$@EventListener @Transactional fun createDemoData(event: ContextRefreshedEvent)</ID>
+    <ID>EmptyFunctionBlock:ParameterObjectArgumentResolverTest.kt$ParameterObjectArgumentResolverTest${ }</ID>
+    <ID>EnumNaming:FilteringApiExecutorTest.kt$FilteringApiExecutorTest.TestDummySortFields$id</ID>
+    <ID>EnumNaming:FilteringApiTypes.kt$ApiPageRequestSortOrder$asc</ID>
+    <ID>EnumNaming:FilteringApiTypes.kt$ApiPageRequestSortOrder$desc</ID>
+    <ID>EnumNaming:FilteringApiTypes.kt$NoOpSorting$_NOT_SUPPORTED</ID>
+    <ID>ForbiddenComment:GoogleDriveDocumentsStorageServiceTest.kt$GoogleDriveDocumentsStorageServiceTest$* TODO: this test is mostly covered by [io.orangebuffalo.simpleaccounting.tests.ui.user.UserProfileGoogleDriveDocumentStorageFullStackTest]. * The remaining parts to be covered by the pages that use upload / download functionality.</ID>
+    <ID>FunctionOnlyReturningConstant:ApiSecurityTest.kt$ApiAuthenticationTest.ApiSecurityTestController$@GetMapping("$API_PATH/non-admin-endpoint") fun regularUserEndpoint(): String</ID>
+    <ID>FunctionOnlyReturningConstant:ApiSecurityTest.kt$ApiAuthenticationTest.ApiSecurityTestController$@GetMapping("$API_PATH/users/test") fun adminEndpoint(): String</ID>
+    <ID>FunctionOnlyReturningConstant:CustomersApiTest.kt$CustomersApiTest.&lt;no name provided&gt;$fun defaultNewCustomer(): String</ID>
+    <ID>FunctionOnlyReturningConstant:GeneralTaxesApiTest.kt$GeneralTaxesApiTest.&lt;no name provided&gt;$fun defaultNewTax(): String</ID>
+    <ID>LargeClass:ExpensesApiTest.kt$ExpensesApiTest : SaIntegrationTestBase</ID>
+    <ID>LargeClass:IncomesApiTest.kt$IncomesApiTest : SaIntegrationTestBase</ID>
+    <ID>LongMethod:AccountActivationFullStackTest.kt$AccountActivationFullStackTest$@Test fun `should validate user input`(page: Page)</ID>
+    <ID>LongMethod:ApiRequestsValidationsArgumentsProviderTest.kt$ApiRequestsValidationsArgumentsProviderTest$@Test fun `should generate proper arguments for api requests validations`()</ID>
+    <ID>LongMethod:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$@EventListener @Transactional fun createDemoData(event: ContextRefreshedEvent)</ID>
+    <ID>LongMethod:DropboxApiClientTest.kt$DropboxApiClientTest$@Test fun `should list folder with pagination`(): Unit</ID>
+    <ID>LongMethod:DropboxApiClientTest.kt$DropboxApiClientTest$@Test fun `should list folder`(): Unit</ID>
+    <ID>LongMethod:ExpensesApiTest.kt$ExpensesApiTest$@Test @WithMockFryUser fun `should return expenses of a workspace of current user`()</ID>
+    <ID>LongMethod:ExpensesFilteringApiTest.kt$ExpensesFilteringApiTest.Companion$@Suppress("unused") @JvmStatic fun createTestCases()</ID>
+    <ID>LongMethod:ExpensesOverviewFullStackTest.kt$ExpensesOverviewFullStackTest$@Test fun `should display expenses with all possible states and attributes`(page: Page)</ID>
+    <ID>LongMethod:FilteringApiQueryExecutorLegacyTest.kt$FilteringApiQueryExecutorLegacyTest.Companion$@Suppress("unused") @JvmStatic fun getUseCases(): Stream&lt;FilteringApiQueryExecutorUseCase&gt;</ID>
+    <ID>LongMethod:FilteringApiRequestResolverTest.kt$FilteringApiRequestResolverTest.Companion$@Suppress("unused") @JvmStatic fun getUseCases(): Stream&lt;FilteringApiRequestResolverUseCase&gt;</ID>
+    <ID>LongMethod:IncomeTaxPaymentsOverviewFullStackTest.kt$IncomeTaxPaymentsOverviewFullStackTest$@Test fun `should display income tax payments with all possible attributes`(page: Page)</ID>
+    <ID>LongMethod:IncomesApiTest.kt$IncomesApiTest$@Test @WithMockFryUser fun `should return incomes of a workspace of current user`()</ID>
+    <ID>LongMethod:IncomesFilteringApiTest.kt$IncomesFilteringApiTest.Companion$@Suppress("unused") @JvmStatic fun createTestCases()</ID>
+    <ID>LongMethod:IncomesOverviewFullStackTest.kt$IncomesOverviewFullStackTest$@Test fun `should display incomes with all possible states and attributes`(page: Page)</ID>
+    <ID>LongMethod:InvoicesFilteringApiTest.kt$InvoicesFilteringApiTest.Companion$@Suppress("unused") @JvmStatic fun createTestCases()</ID>
+    <ID>LongMethod:InvoicesOverviewFullStackTest.kt$InvoicesOverviewFullStackTest$@Test fun `should display invoices with all possible states and attributes`(page: Page)</ID>
+    <ID>LongMethod:InvoicesServiceTest.kt$InvoicesServiceTest.TestDataHolder$@Suppress("unused") @JvmStatic fun invoiceStatusTestData(): Stream&lt;(EntitiesFactoryInfra) -&gt; InvoiceStatusTestData&gt;</ID>
+    <ID>LongMethod:PlaywrightExtensions.kt$fun injectJsUtils(): String</ID>
+    <ID>LongMethod:UsersApiTest.kt$UsersApiTest.GetUsers.FilteringAndSorting$override fun createTestCases()</ID>
+    <ID>LongParameterList:ApiTestsUtils.kt$GraphqlClientRequestExecutor$( violationPath: String, error: String, message: String, path: String, params: Map&lt;String, String&gt;? = null, locationColumn: Int = 3, locationLine: Int = 2 )</ID>
+    <ID>LongParameterList:EntitiesFactory.kt$EntitiesFactory$( category: Category? = null, workspace: Workspace? = null, title: String = "Expense", timeRecorded: Instant = MOCK_TIME, datePaid: LocalDate = MOCK_DATE, currency: String = "USD", originalAmount: Long = 100, convertedAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100), incomeTaxableAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100), useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false, attachments: Set&lt;Document&gt; = setOf(), percentOnBusiness: Int = 100, generalTax: GeneralTax? = null, generalTaxRateInBps: Int? = null, generalTaxAmount: Long? = null, notes: String? = null, status: ExpenseStatus = ExpenseStatus.FINALIZED )</ID>
+    <ID>LongParameterList:EntitiesFactory.kt$EntitiesFactory$( category: Category? = null, workspace: Workspace? = null, title: String = "Income", timeRecorded: Instant = MOCK_TIME, dateReceived: LocalDate = MOCK_DATE, currency: String = "USD", originalAmount: Long = 100, convertedAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100), incomeTaxableAmounts: AmountsInDefaultCurrency = AmountsInDefaultCurrency(100, 100), useDifferentExchangeRateForIncomeTaxPurposes: Boolean = false, attachments: Set&lt;Document&gt; = setOf(), notes: String? = null, generalTax: GeneralTax? = null, generalTaxRateInBps: Int? = null, generalTaxAmount: Long? = null, status: IncomeStatus = IncomeStatus.FINALIZED, linkedInvoice: Invoice? = null )</ID>
+    <ID>LongParameterList:EntitiesFactory.kt$EntitiesFactory$( customer: Customer? = null, title: String = "invoice", timeRecorded: Instant = MOCK_TIME, dateIssued: LocalDate = MOCK_DATE, dateSent: LocalDate? = null, datePaid: LocalDate? = null, timeCancelled: Instant? = null, dueDate: LocalDate = MOCK_DATE, currency: String = "USD", amount: Long = 100, attachments: Set&lt;Document&gt; = setOf(), notes: String? = null, generalTax: GeneralTax? = null, status: InvoiceStatus = InvoiceStatus.DRAFT )</ID>
+    <ID>LongParameterList:EntitiesFactory.kt$EntitiesFactory$( name: String = "Slurm Receipt", workspace: Workspace? = null, timeUploaded: Instant = MOCK_TIME, storageId: String = "test-storage", storageLocation: String? = "test-location", sizeInBytes: Long? = null )</ID>
+    <ID>LongParameterList:EntitiesFactory.kt$EntitiesFactory$( userName: String = "Nibbler ${sequenceValue++}", passwordHash: String = "nopassword", isAdmin: Boolean = false, documentsStorage: String? = null, i18nSettings: I18nSettings = I18nSettings(locale = "en_AU", language = "en"), activated: Boolean = true, )</ID>
+    <ID>LongParameterList:EntitiesFactory.kt$EntitiesFactory$( workspace: Workspace? = null, timeRecorded: Instant = MOCK_TIME, datePaid: LocalDate = MOCK_DATE, reportingDate: LocalDate = MOCK_DATE, amount: Long = 100, title: String = "Tax Payment", attachments: Set&lt;Document&gt; = setOf(), notes: String? = null )</ID>
+    <ID>LongParameterList:Expense.kt$Expense$( var categoryId: Long?, var workspaceId: Long, var title: String, var timeRecorded: Instant, var datePaid: LocalDate, /** * Original currency of this receipt/invoice/etc. */ var currency: String, /** * Amount in original currency as stated in the receipt/invoice/etc. */ var originalAmount: Long, /** * Converted amounts in default currency (i.e. from bank transaction in domestic currency). */ @field:Embedded.Empty(prefix = "CONVERTED_") var convertedAmounts: AmountsInDefaultCurrency, /** * Indicates if [incomeTaxableAmounts] are using different exchange rate than [convertedAmounts] * (i.e. by using Tax Office exchange rate). */ var useDifferentExchangeRateForIncomeTaxPurposes: Boolean, /** * Amounts for income tax purposes. In case [useDifferentExchangeRateForIncomeTaxPurposes] * is `false`, are the same as [convertedAmounts]. Otherwise amounts are different. */ @field:Embedded.Empty(prefix = "INCOME_TAXABLE_") var incomeTaxableAmounts: AmountsInDefaultCurrency, @field:MappedCollection(idColumn = "EXPENSE_ID") var attachments: Set&lt;ExpenseAttachment&gt; = setOf(), var percentOnBusiness: Int, var generalTaxId: Long?, var generalTaxRateInBps: Int? = null, /** * Amount that is a part of original amount (after conversion to the default currency, * if applicable) and is related to the [GeneralTax] applied to this expense. * This amount is deducted from the `originalAmountInDefaultCurrency` when * `adjustedAmountInDefaultCurrency` is calculated. */ var generalTaxAmount: Long? = null, var notes: String? = null, var status: ExpenseStatus )</ID>
+    <ID>LongParameterList:ExpenseServiceTest.kt$ExpenseServiceTest$( expense: Expense, expectedOriginalAmount: Long, expectedConvertedAmounts: AmountsInDefaultCurrency, expectedIncomeTaxableAmounts: AmountsInDefaultCurrency, expectedGeneralTax: GeneralTax?, expectedGeneralTaxRateInBps: Int?, expectedGeneralTaxAmount: Long?, expectedStatus: ExpenseStatus, expectedUseDifferentExchangeRates: Boolean )</ID>
+    <ID>LongParameterList:GraphQlConfig.kt$SaGraphQlSchemaConfig$( queries: Optional&lt;List&lt;Query&gt;&gt;, mutations: Optional&lt;List&lt;Mutation&gt;&gt;, subscriptions: Optional&lt;List&lt;Subscription&gt;&gt;, schemaConfig: SchemaGeneratorConfig, schemaObject: Optional&lt;Schema&gt;, validationSchemaTransformer: ValidationSchemaTransformer, businessErrorSchemaTransformer: BusinessErrorSchemaTransformer, )</ID>
+    <ID>LongParameterList:Income.kt$Income$( var categoryId: Long?, var workspaceId: Long, var title: String, var timeRecorded: Instant, var dateReceived: LocalDate, /** * Original currency of this income. */ var currency: String, /** * Amount in original currency. */ var originalAmount: Long, /** * Converted amounts in default currency (i.e. from bank transaction in domestic currency). */ @field:Embedded.Empty(prefix = "CONVERTED_") var convertedAmounts: AmountsInDefaultCurrency, /** * Indicates if [incomeTaxableAmounts] are using different exchange rate than [convertedAmounts] * (i.e. by using Tax Office exchange rate). */ var useDifferentExchangeRateForIncomeTaxPurposes: Boolean, /** * Amounts for income tax purposes. In case [useDifferentExchangeRateForIncomeTaxPurposes] * is `false`, are the same as [convertedAmounts]. Otherwise amounts are different. */ @field:Embedded.Empty(prefix = "INCOME_TAXABLE_") var incomeTaxableAmounts: AmountsInDefaultCurrency, @field:MappedCollection(idColumn = "INCOME_ID") var attachments: Set&lt;IncomeAttachment&gt; = setOf(), var notes: String? = null, var generalTaxId: Long?, var generalTaxRateInBps: Int? = null, var generalTaxAmount: Long? = null, var status: IncomeStatus, var linkedInvoiceId: Long? = null )</ID>
+    <ID>LongParameterList:IncomeTaxPayment.kt$IncomeTaxPayment$( var workspaceId: Long, var timeRecorded: Instant, var datePaid: LocalDate, var reportingDate: LocalDate, var amount: Long, var title: String, @field:MappedCollection(idColumn = "INCOME_TAX_PAYMENT_ID") var attachments: Set&lt;IncomeTaxPaymentAttachment&gt; = setOf(), var notes: String? = null )</ID>
+    <ID>LongParameterList:IncomesServiceTest.kt$IncomesServiceTest$( income: Income, expectedOriginalAmount: Long, expectedConvertedAmounts: AmountsInDefaultCurrency, expectedIncomeTaxableAmounts: AmountsInDefaultCurrency, expectedGeneralTax: GeneralTax?, expectedGeneralTaxRateInBps: Int?, expectedGeneralTaxAmount: Long?, expectedStatus: IncomeStatus, expectedUseDifferentExchangeRates: Boolean )</ID>
+    <ID>LongParameterList:Invoice.kt$Invoice$( var customerId: Long, var title: String, var timeRecorded: Instant, var dateIssued: LocalDate, var dateSent: LocalDate? = null, var datePaid: LocalDate? = null, var timeCancelled: Instant? = null, var dueDate: LocalDate, var currency: String, var amount: Long, @field:MappedCollection(idColumn = "INVOICE_ID") var attachments: Set&lt;InvoiceAttachment&gt; = setOf(), var notes: String? = null, var generalTaxId: Long? = null, var status: InvoiceStatus = InvoiceStatus.DRAFT )</ID>
+    <ID>LongParameterList:InvoicesService.kt$InvoicesService$( private val invoicesRepository: InvoicesRepository, private val customersService: CustomersService, private val generalTaxesService: GeneralTaxesService, private val workspacesService: WorkspacesService, private val documentsService: DocumentsService, private val timeService: TimeService, @param:Qualifier(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME) private val taskExecutor: AsyncTaskExecutor )</ID>
+    <ID>LongParameterList:PersistentOAuth2AuthorizedClient.kt$PersistentOAuth2AuthorizedClient$( val clientRegistrationId: String, val userName: String, var accessToken: String, var accessTokenIssuedAt: Instant?, var accessTokenExpiresAt: Instant?, @field:MappedCollection(idColumn = "CLIENT_ID") var accessTokenScopes: Set&lt;ClientTokenScope&gt;, var refreshToken: String?, var refreshTokenIssuedAt: Instant? )</ID>
+    <ID>LongParameterList:PlatformUser.kt$PlatformUser$( var userName: String, var passwordHash: String, var isAdmin: Boolean, var activated: Boolean, var documentsStorage: String? = null, @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY) val loginStatistics: LoginStatistics = LoginStatistics(0, null), @field:Embedded(onEmpty = Embedded.OnEmpty.USE_EMPTY) val i18nSettings: I18nSettings = I18nSettings( locale = "en_AU", language = "en" ) )</ID>
+    <ID>LoopWithTooManyJumpStatements:ValidationSchemaTransformer.kt$ValidationSchemaTransformer$for</ID>
+    <ID>MagicNumber:AdminUserRecoveryService.kt$AdminUserRecoveryService$15</ID>
+    <ID>MagicNumber:AuthenticationService.kt$1.5</ID>
+    <ID>MagicNumber:AuthenticationService.kt$24</ID>
+    <ID>MagicNumber:AuthenticationService.kt$AuthenticationService$1000</ID>
+    <ID>MagicNumber:CiTestsProfileData.kt$CiTestsProfileData$10</ID>
+    <ID>MagicNumber:CiTestsProfileData.kt$CiTestsProfileData$3000</ID>
+    <ID>MagicNumber:CiTestsProfileData.kt$CiTestsProfileData$4</ID>
+    <ID>MagicNumber:CoroutinesSupport.kt$20</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$1900</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$2000</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$2850</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$30</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$3000</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$48</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$50</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$6650</ID>
+    <ID>MagicNumber:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$7000</ID>
+    <ID>MagicNumber:ExpensesApi.kt$ExpensesApi$100</ID>
+    <ID>MagicNumber:Extensions.kt$20</ID>
+    <ID>MagicNumber:FilteringApiQueryExecutor.kt$FilteringApiQueryExecutor.FilteringApiQuerySpecIml$10</ID>
+    <ID>MagicNumber:FilteringApiRequestResolver.kt$FilteringApiRequestResolver$10</ID>
+    <ID>MagicNumber:GeneralTaxesApi.kt$EditGeneralTaxDto$100_00</ID>
+    <ID>MagicNumber:JwtService.kt$JwtService$10</ID>
+    <ID>MagicNumber:LocalFileSystemDocumentsStorage.kt$10</ID>
+    <ID>MagicNumber:NoopDocumentsStorage.kt$NoopDocumentsStorage$100</ID>
+    <ID>MagicNumber:NoopDocumentsStorage.kt$NoopDocumentsStorage$20_000</ID>
+    <ID>MagicNumber:NoopDocumentsStorage.kt$NoopDocumentsStorage$30</ID>
+    <ID>MagicNumber:NoopDocumentsStorage.kt$NoopDocumentsStorage$30_000</ID>
+    <ID>MagicNumber:PlatformUsersService.kt$PlatformUsersService$100</ID>
+    <ID>MagicNumber:WebConfig.kt$WebConfig$365</ID>
+    <ID>MatchingDeclarationName:BusinessErrorAnnotations.kt$BusinessError</ID>
+    <ID>MatchingDeclarationName:FilteringApiUtilsImpl.kt$FilteringApiTestCasesBuilderImpl&lt;T : Any&gt; : FilteringApiTestCasesBuilder</ID>
+    <ID>MatchingDeclarationName:OAuth2AuthorizedClientRepositoryExtImpl.kt$PersistentOAuth2AuthorizedClientRepositoryExtImpl : PersistentOAuth2AuthorizedClientRepositoryExt</ID>
+    <ID>MatchingDeclarationName:TestContainersExtensions.kt$KNginxContainer : NginxContainer</ID>
+    <ID>MaxLineLength:AccountActivationFullStackTest.kt$AccountActivationFullStackTest$newPassword.shouldHaveValidationError("The length of this value should be no longer than 100 characters")</ID>
+    <ID>MaxLineLength:AccountActivationFullStackTest.kt$AccountActivationFullStackTest$shouldBeRegular("Please provide your new password. You will then need to login using your username and new password.")</ID>
+    <ID>MaxLineLength:AccountActivationPage.kt$AccountActivationPage.Companion$AccountActivationPage(navigateAndDisableAnimations("/activate-account${if (token != null) "/$token" else ""}")).spec()</ID>
+    <ID>MaxLineLength:AdminProfileFullStackTest.kt$AdminProfileFullStackTest$*</ID>
+    <ID>MaxLineLength:ApiErrorHandler.kt$HandleApiErrorsWith$* Error handler class to be used for this endpoint. Typically, implementations extend [ComplexResponseBodyErrorHandler].</ID>
+    <ID>MaxLineLength:ApiErrorsRegistry.kt$ApiErrorsRegistry$?:</ID>
+    <ID>MaxLineLength:ApiRequestsValidationsArgumentsProviderTest.kt$ApiRequestsValidationsArgumentsProviderTest$description = "mandatoryNested.deeplyNested.deeplyNestedStringA: should pass when exactly 3 characters"</ID>
+    <ID>MaxLineLength:ApiRequestsValidationsTestBase.kt$ApiRequestsValidationsStringFieldSpec$"$name: defaultValidValue $defaultValidValue should be between minLength and maxLength ($minLength, $maxLength)"</ID>
+    <ID>MaxLineLength:ApiTestsUtils.kt$fun</ID>
+    <ID>MaxLineLength:AuthenticationApiTest.kt$AuthenticationApiTest$whenever(refreshTokensService.generateRefreshToken(preconditions.fry.userName)) doReturn "refreshTokenForFry"</ID>
+    <ID>MaxLineLength:Checkbox.kt$Checkbox.Companion$Checkbox(container.getByRole(com.microsoft.playwright.options.AriaRole.CHECKBOX, Locator.GetByRoleOptions().setName(label)))</ID>
+    <ID>MaxLineLength:Checkbox.kt$Checkbox.Companion$Checkbox(page.getByRole(com.microsoft.playwright.options.AriaRole.CHECKBOX, Page.GetByRoleOptions().setName(label)))</ID>
+    <ID>MaxLineLength:CurrencyInput.kt$CurrencyInput$.</ID>
+    <ID>MaxLineLength:CustomersApiTest.kt$CustomersApiTest$.</ID>
+    <ID>MaxLineLength:DocumentsApiTest.kt$DocumentsApiTest$.</ID>
+    <ID>MaxLineLength:DocumentsStorage.kt$DocumentStorageException : RuntimeException</ID>
+    <ID>MaxLineLength:DropboxApiClientTest.kt$DropboxApiClientTest$"grant_type=refresh_token&amp;client_id=TestClientId&amp;client_secret=TestClientSecret&amp;refresh_token=TestRefreshToken"</ID>
+    <ID>MaxLineLength:ExpenseServiceTest.kt$ExpenseServiceTest$fun</ID>
+    <ID>MaxLineLength:FilteringApiExecutorTest.kt$FilteringApiExecutorTest$lateinit var filteringApiExecutor: FilteringApiExecutor&lt;TestDummy, TestDummyDto, TestDummySortFields, TestDummyApiPageRequest&gt;</ID>
+    <ID>MaxLineLength:FilteringApiQueryExecutorLegacy.kt$FilteringApiQueryExecutorLegacy.FilteringApiQuerySpecIml$private</ID>
+    <ID>MaxLineLength:FilteringApiQueryExecutorLegacy.kt$FilteringApiQueryExecutorLegacy.FilteringApiQuerySpecIml.FieldConditionsSpecImpl$?:</ID>
+    <ID>MaxLineLength:GeneralTaxesApiTest.kt$GeneralTaxesApiTest$.</ID>
+    <ID>MaxLineLength:GeneralTaxesReportingService.kt$GeneralTaxesReportingService$suspend</ID>
+    <ID>MaxLineLength:GoogleDriveDocumentsStorageServiceTest.kt$GoogleDriveDocumentsStorageServiceTest$*</ID>
+    <ID>MaxLineLength:IncomeTaxPaymentsApi.kt$IncomeTaxPaymentsApi$private</ID>
+    <ID>MaxLineLength:IncomeTaxPaymentsApiTest.kt$IncomeTaxPaymentsApiTest$.</ID>
+    <ID>MaxLineLength:IncomeTaxPaymentsApiTest.kt$IncomeTaxPaymentsApiTest$fun</ID>
+    <ID>MaxLineLength:IncomeTaxPaymentsOverviewFullStackTest.kt$IncomeTaxPaymentsOverviewFullStackTest$this@shouldBeIncomeTaxPaymentsOverviewPage.reportRendering("income-tax-payments-overview.loaded-collapsed")</ID>
+    <ID>MaxLineLength:IncomesApiTest.kt$IncomesApiTest$.</ID>
+    <ID>MaxLineLength:InvoicesApiTest.kt$InvoicesApiTest$.</ID>
+    <ID>MaxLineLength:LanguagePreferencesFullStackTest.kt$LanguagePreferencesFullStackTest$*</ID>
+    <ID>MaxLineLength:OAuthMocks.kt$OAuthMocks.OAuthMocksTokenImpl$accessTokenExpiresAt = if (expired) now.minusSeconds(100) else now.plusSeconds(TOKEN_EXPIRY_SECONDS)</ID>
+    <ID>MaxLineLength:PasswordChangeFullStackTest.kt$PasswordChangeFullStackTest$*</ID>
+    <ID>MaxLineLength:RequiredAuthDirectiveWiring.kt$RequiredAuthDirectiveWiring$log.trace { "This operation requires admin user, but principal is transient or has no ADMIN role" }</ID>
+    <ID>MaxLineLength:RequiredAuthDirectiveWiring.kt$RequiredAuthDirectiveWiring$log.trace { "This operation requires authenticated actor, principal is found, continue with data fetching" }</ID>
+    <ID>MaxLineLength:RequiredAuthDirectiveWiring.kt$RequiredAuthDirectiveWiring$log.trace { "This operation requires regular user, but principal is transient or has no USER role" }</ID>
+    <ID>MaxLineLength:SaDataFetcherExceptionHandler.kt$SaDataFetcherExceptionHandler$override</ID>
+    <ID>MaxLineLength:SaDataFetcherExceptionHandler.kt$SaDataFetcherExceptionHandler$private</ID>
+    <ID>MaxLineLength:SaDgsCodegenPlugin.kt$SaDgsCodegenPlugin$throw RuntimeException("Gradle versions &lt; 7.1 are no longer supported by DGS Codegen. Please upgrade your Gradle version.")</ID>
+    <ID>MaxLineLength:SaDocumentsList.kt$SaDocumentsList.Companion$*</ID>
+    <ID>MaxLineLength:SaGrapQlErrorType.kt$SaGrapQlErrorType.NOT_AUTHORIZED$@GraphQLDescription("Indicates that the request requires authentication or the user is not authorized to perform the operation.")</ID>
+    <ID>MaxLineLength:SaHotReloadPlugin.kt$SaHotReloadPlugin$println("SaHotReloadPlugin: No hotReloadEnabled property found in test config file at ${configFile.absolutePath}, hot reload is not enabled")</ID>
+    <ID>MaxLineLength:SaHotReloadPlugin.kt$SaHotReloadPlugin$println("SaHotReloadPlugin: No test config file found at ${configFile.absolutePath}, hot reload is not enabled")</ID>
+    <ID>MaxLineLength:SaPageableItems.kt$SaPageableItems.Companion$*</ID>
+    <ID>MaxLineLength:UserAccountSetupTest.kt$UserAccountSetupTest$defaultCurrency { shouldHaveValidationError("The length of this value should be no longer than 3 characters") }</ID>
+    <ID>MaxLineLength:UserAccountSetupTest.kt$UserAccountSetupTest$workspaceName { shouldHaveValidationError("The length of this value should be no longer than 255 characters") }</ID>
+    <ID>MaxLineLength:UserActivationTokensApiTest.kt$UserActivationTokensApiTest.CreateToken$.</ID>
+    <ID>MaxLineLength:UserEditingFullStackTest.kt$UserEditingFullStackTest$userName { shouldHaveValidationError("User with username \"${preconditions.farnsworth.userName}\" already exists") }</ID>
+    <ID>MaxLineLength:UserProfileFullStackTest.kt$UserProfileFullStackTest$*</ID>
+    <ID>MaxLineLength:UserProfileGoogleDriveDocumentStorageFullStackTest.kt$UserProfileGoogleDriveDocumentStorageFullStackTest$*</ID>
+    <ID>NestedBlockDepth:ValidationSchemaTransformer.kt$ValidationSchemaTransformer$private fun buildAppliedDirectivesMap( mutations: List&lt;Mutation&gt;, queries: List&lt;Query&gt; ): Map&lt;String, Map&lt;String, List&lt;GraphQLAppliedDirective&gt;&gt;&gt;</ID>
+    <ID>ReturnCount:ExpenseService.kt$ExpenseService$private fun calculateAdjustedAmounts( expense: Expense, targetAmounts: AmountsInDefaultCurrency, generalTax: GeneralTax? ): AdjustedAmounts</ID>
+    <ID>ReturnCount:FilteringApiQueryExecutor.kt$FilteringApiQueryExecutor.FilteringApiQuerySpecIml.Filters$fun queryPredicate(pageRequest: PR): Condition</ID>
+    <ID>ReturnCount:IncomesService.kt$IncomesService$private fun calculateAdjustedAmount( targetAmounts: AmountsInDefaultCurrency, generalTax: GeneralTax? ): AdjustedAmounts</ID>
+    <ID>ReturnCount:JwtIdMatcher.kt$JwtIdMatcher$override fun match(value: String?): MatchResult</ID>
+    <ID>ReturnCount:PlatformUsersService.kt$PlatformUsersService$private suspend fun ensureTokenIsNotExpired(token: UserActivationToken?): UserActivationToken?</ID>
+    <ID>ReturnCount:SaDataFetcherExceptionHandler.kt$SaDataFetcherExceptionHandler$private fun mapToResult(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult</ID>
+    <ID>ReturnCount:SaHotReloadPlugin.kt$SaHotReloadPlugin$private fun hotReloadEnabled(project: Project): Boolean</ID>
+    <ID>SpreadOperator:AnyExtensions.kt$(*values)</ID>
+    <ID>SpreadOperator:AnyExtensions.kt$(*values, superHashCode())</ID>
+    <ID>SpreadOperator:Extensions.kt$( "-javaagent:${mockitoAgent.asPath}", *additionalJvmArgs.toTypedArray(), )</ID>
+    <ID>SpreadOperator:FilteringApiQueryExecutor.kt$FilteringApiQueryExecutor.FilteringApiQuerySpecIml$(*root.fields())</ID>
+    <ID>SpreadOperator:FilteringApiQueryExecutorLegacy.kt$FilteringApiQueryExecutorLegacy.FilteringApiQuerySpecIml$(*root.fields())</ID>
+    <ID>SpreadOperator:InvoicesRepositoryExtImpl.kt$InvoicesRepositoryExtImpl$(*invoice.fields())</ID>
+    <ID>SpreadOperator:SaFrontendBuildUtils.kt$SaFrontendTask$( "bun", *(userInput.split(" ").map { it.trim() }.toTypedArray()) )</ID>
+    <ID>SpreadOperator:SavedWorkspaceAccessTokensRepositoryExtImpl.kt$SavedWorkspaceAccessTokensRepositoryExtImpl$(*workspace.fields())</ID>
+    <ID>SpreadOperator:SimpleAccountingApplication.kt$(*args)</ID>
+    <ID>SpreadOperator:WorkspaceAccessTokensRepositoryExtImpl.kt$WorkspaceAccessTokensRepositoryExtImpl$(*workspace.fields())</ID>
+    <ID>SpreadOperator:WorkspacesRepositoryExtImpl.kt$WorkspacesRepositoryExtImpl$(*workspace.fields())</ID>
+    <ID>SwallowedException:FullStackTestsEnvironment.kt$SaPlaywrightExtension$e: Exception</ID>
+    <ID>SwallowedException:RefreshAccessTokenMutation.kt$RefreshAccessTokenMutation$e: AuthenticationException</ID>
+    <ID>ThrowsCount:AuthenticationService.kt$AuthenticationService$suspend fun changeCurrentUserPassword(currentPassword: String, newPassword: String)</ID>
+    <ID>ThrowsCount:FilteringApiRequestResolver.kt$FilteringApiRequestResolver$private fun validateAndExtractSort( queryParams: MultiValueMap&lt;String, String&gt;, request: FilteringApiRequest ): FilteringApiRequest</ID>
+    <ID>ThrowsCount:GoogleDriveApiAdapter.kt$GoogleDriveApiAdapter$private suspend inline fun WebClient.RequestHeadersSpec&lt;*&gt;.executeDriveRequest( errorDescriptor: (errorJson: String?) -&gt; String ): ClientResponse</ID>
+    <ID>ThrowsCount:InvoicesService.kt$InvoicesService$suspend fun cancelInvoice(invoiceId: Long, workspaceId: Long): Invoice</ID>
+    <ID>TooGenericExceptionCaught:SaDgsCodegenPlugin.kt$SaDgsCodegenPlugin$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:NoopDocumentsStorage.kt$NoopDocumentsStorage$throw RuntimeException("Upload failed")</ID>
+    <ID>TooGenericExceptionThrown:SaDgsCodegenPlugin.kt$SaDgsCodegenPlugin$throw RuntimeException("Gradle versions &lt; 7.1 are no longer supported by DGS Codegen. Please upgrade your Gradle version.")</ID>
+    <ID>TooManyFunctions:IncomesService.kt$IncomesService</ID>
+    <ID>TooManyFunctions:JooqExtensions.kt$io.orangebuffalo.simpleaccounting.infra.jooq.JooqExtensions.kt</ID>
+    <ID>TooManyFunctions:PlatformUsersService.kt$PlatformUsersService</ID>
+    <ID>TooManyFunctions:RestApiControllerExceptionsHandler.kt$RestApiControllerExceptionsHandler</ID>
+    <ID>TooManyFunctions:WorkspacesService.kt$WorkspacesService</ID>
+    <ID>TopLevelPropertyNaming:DownloadsRepository.kt$private const val tokenLifetimeInMs = 120_000L</ID>
+    <ID>TopLevelPropertyNaming:FullStackTestsEnvironment.kt$private const val viteDevServerPort: Int = 5173</ID>
+    <ID>UnusedParameter:CiTestsProfileData.kt$CiTestsProfileData$event: ContextRefreshedEvent</ID>
+    <ID>UnusedParameter:DemoStartupServiceCiTestsProfileData.kt$DemoStartupServiceCiTestsProfileData$event: ContextRefreshedEvent</ID>
+    <ID>UnusedPrivateMember:SaIntegrationTestBase.kt$SaIntegrationTestBase$@BeforeEach private fun setupSaIntegrationTestBase()</ID>
+    <ID>UnusedPrivateProperty:SaFrontendBuildUtils.kt$SaCacheableFrontendTask$private val outputFilesPatterns: PatternSet = PatternSet()</ID>
+    <ID>UseCheckOrError:ApiErrorsRegistry.kt$ApiErrorsRegistry$throw IllegalStateException("$errorHandlerClass (from ${handlerMethod.method}) cannot be instantiated")</ID>
+    <ID>UseCheckOrError:AuthenticationService.kt$AuthenticationService$throw IllegalStateException("Current principal is not resolved to a user")</ID>
+    <ID>UseCheckOrError:BruteForceDefenseTest.kt$BruteForceDefenseTest$throw IllegalStateException("Fry is not found?!")</ID>
+    <ID>UseCheckOrError:DocumentsService.kt$DocumentsService$throw IllegalStateException("$document has not location assigned")</ID>
+    <ID>UseCheckOrError:DocumentsService.kt$DocumentsService$throw IllegalStateException("User ${request.workspace.ownerId} has no documents storage")</ID>
+    <ID>UseCheckOrError:DownloadsService.kt$DownloadsService$throw IllegalStateException("Cannot find provider ${downloadRequest.providerId}")</ID>
+    <ID>UseCheckOrError:DownloadsService.kt$DownloadsService$throw IllegalStateException("Cannot find user ${downloadRequest.userName}")</ID>
+    <ID>UseCheckOrError:FilteringApiUtilsImpl.kt$FilteringApiTestCasesBuilderImpl$throw IllegalStateException("$entityType does not have required ID property")</ID>
+    <ID>UseCheckOrError:FullStackTestsEnvironment.kt$IsolatedPageContextStrategy$throw IllegalStateException("beforeTest was not called")</ID>
+    <ID>UseCheckOrError:FullStackTestsEnvironment.kt$PersistentPageContextStrategy$throw IllegalStateException("beforeTest was not called")</ID>
+    <ID>UseCheckOrError:FullStackTestsEnvironment.kt$SaPlaywrightExtension$throw IllegalStateException("Playwright context is not initialized for the current thread")</ID>
+    <ID>UseCheckOrError:InMemorySavedAuthorizationRequestRepository.kt$InMemorySavedAuthorizationRequestRepository$throw IllegalStateException("State $state is not known")</ID>
+    <ID>UseCheckOrError:JooqExtensions.kt$throw IllegalStateException("$targetEntityType is not a known entity type")</ID>
+    <ID>UseCheckOrError:JooqExtensions.kt$throw IllegalStateException("Filed $name is not found for $this")</ID>
+    <ID>UseCheckOrError:JooqExtensions.kt$throw IllegalStateException("JOOQ configuration is not attached")</ID>
+    <ID>UseCheckOrError:PlatformUsersService.kt$PlatformUsersService$throw IllegalStateException("Current principal is not resolved to a user")</ID>
+    <ID>UseCheckOrError:RestApiControllerExceptionsHandler.kt$ComplexResponseBodyErrorHandler$throw IllegalStateException("Cannot instantiate $responseType")</ID>
+    <ID>UseCheckOrError:SaDataFetcherExceptionHandler.kt$ValidationErrorGraphQLError$throw IllegalStateException("No mapping found for validation annotation ${annotationClass.simpleName}")</ID>
+    <ID>UseCheckOrError:SaJooqCodeGenPlugin.kt$SaJooqCodeGenPlugin$throw IllegalStateException("Java compile task is not found")</ID>
+    <ID>UseCheckOrError:SaJooqCodeGenPlugin.kt$SaJooqCodeGenPlugin$throw IllegalStateException("Kotlin compile task is not found")</ID>
+    <ID>UseCheckOrError:SecurityUtils.kt$throw IllegalStateException("Authentication is not set")</ID>
+    <ID>UseRequire:ScreenshotUtils.kt$throw IllegalArgumentException("Name [$name] must not contain slashes, as it is used to create a file path")</ID>
+    <ID>UtilityClassWithPublicConstructor:Config.kt$Config</ID>
+    <ID>UtilityClassWithPublicConstructor:SaActionLink.kt$SaActionLink</ID>
+    <ID>UtilityClassWithPublicConstructor:SaDocumentsList.kt$SaDocumentsList</ID>
+    <ID>UtilityClassWithPublicConstructor:SaIcon.kt$SaIcon</ID>
+    <ID>UtilityClassWithPublicConstructor:SaMarkdownOutput.kt$SaMarkdownOutput</ID>
+    <ID>WildcardImport:ApiRequestsValidationsArgumentsProviderTest.kt$import kotlinx.serialization.json.*</ID>
+    <ID>WildcardImport:ApiRequestsValidationsTestBase.kt$import kotlinx.serialization.json.*</ID>
+    <ID>WildcardImport:ApiSpecTest.kt$import org.junit.jupiter.api.*</ID>
+    <ID>WildcardImport:ApiTestsUtils.kt$import kotlinx.serialization.json.*</ID>
+    <ID>WildcardImport:AuthenticationApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:AuthenticationApiTest.kt$import org.mockito.kotlin.*</ID>
+    <ID>WildcardImport:BruteForceDefenseTest.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:BusinessErrorSchemaTransformer.kt$import graphql.schema.*</ID>
+    <ID>WildcardImport:CategoriesApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:ChangePasswordMutationTest.kt$import kotlinx.serialization.json.*</ID>
+    <ID>WildcardImport:CoroutinesSupport.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:CustomersApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:CustomersApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:DocumentsApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:DocumentsApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:DocumentsApiTest.kt$import org.mockito.kotlin.*</ID>
+    <ID>WildcardImport:DownloadsRepository.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.call.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.engine.cio.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.plugins.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.plugins.auth.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.plugins.auth.providers.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.plugins.contentnegotiation.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.request.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.client.request.forms.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.http.*</ID>
+    <ID>WildcardImport:DropboxApiClient.kt$import io.ktor.serialization.kotlinx.json.*</ID>
+    <ID>WildcardImport:DropboxApiClientTest.kt$import com.github.tomakehurst.wiremock.client.WireMock.*</ID>
+    <ID>WildcardImport:ExpensesApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:ExpensesApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:ExpensesApiTest.kt$import kotlinx.serialization.json.*</ID>
+    <ID>WildcardImport:ExpensesOverviewFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*</ID>
+    <ID>WildcardImport:ExpensesRepositoryExtImpl.kt$import org.jooq.impl.DSL.*</ID>
+    <ID>WildcardImport:FilteringApiQueryExecutor.kt$import org.jooq.*</ID>
+    <ID>WildcardImport:FilteringApiQueryExecutorLegacy.kt$import org.jooq.*</ID>
+    <ID>WildcardImport:FilteringApiQueryExecutorLegacyTest.kt$import org.jooq.*</ID>
+    <ID>WildcardImport:FilteringApiUtilsImpl.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:FullStackTestsEnvironment.kt$import com.microsoft.playwright.*</ID>
+    <ID>WildcardImport:FullStackTestsEnvironment.kt$import org.junit.jupiter.api.extension.*</ID>
+    <ID>WildcardImport:GeneralTaxesApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:GeneralTaxesApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:GeneralTaxesReportingRepository.kt$import org.jooq.impl.DSL.*</ID>
+    <ID>WildcardImport:GoogleDriveApiMocks.kt$import com.github.tomakehurst.wiremock.client.WireMock.*</ID>
+    <ID>WildcardImport:GoogleDriveDocumentsStorage.kt$import io.orangebuffalo.simpleaccounting.business.documents.storage.*</ID>
+    <ID>WildcardImport:GoogleDriveDocumentsStorageServiceTest.kt$import com.github.tomakehurst.wiremock.client.WireMock.*</ID>
+    <ID>WildcardImport:GoogleDriveDocumentsStorageServiceTest.kt$import io.orangebuffalo.simpleaccounting.infra.oauth2.*</ID>
+    <ID>WildcardImport:GoogleDriveDocumentsStorageServiceTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:GoogleDriveDocumentsStorageServiceTest.kt$import org.mockito.kotlin.*</ID>
+    <ID>WildcardImport:InMemorySavedAuthorizationRequestRepository.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:IncomeTaxPaymentsApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:IncomeTaxPaymentsApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:IncomeTaxPaymentsApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:IncomeTaxPaymentsOverviewFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*</ID>
+    <ID>WildcardImport:IncomesApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:IncomesApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:IncomesApiTest.kt$import kotlinx.serialization.json.*</ID>
+    <ID>WildcardImport:IncomesOverviewFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*</ID>
+    <ID>WildcardImport:IncomesRepositoryExtImpl.kt$import org.jooq.impl.DSL.*</ID>
+    <ID>WildcardImport:InvoicesApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:InvoicesApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:InvoicesOverviewFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*</ID>
+    <ID>WildcardImport:JooqExtensions.kt$import org.jooq.*</ID>
+    <ID>WildcardImport:LoginFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:NavigationMenu.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:OAuth2CallbackApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:OAuth2CallbackApiTest.kt$import org.mockito.kotlin.*</ID>
+    <ID>WildcardImport:OAuth2ClientAuthorizationProviderTest.kt$import org.assertj.core.api.Assertions.*</ID>
+    <ID>WildcardImport:OAuth2ClientAuthorizationProviderTest.kt$import org.mockito.kotlin.*</ID>
+    <ID>WildcardImport:OAuth2WebClientBuilderProviderTest.kt$import com.github.tomakehurst.wiremock.client.WireMock.*</ID>
+    <ID>WildcardImport:OAuth2WebClientBuilderProviderTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:OAuth2WebClientBuilderProviderTest.kt$import org.assertj.core.api.Assertions.*</ID>
+    <ID>WildcardImport:ProfileApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:ProfileRestApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:ProfileRestApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:PushNotificationService.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:RefreshAccessTokenMutationTest.kt$import org.mockito.kotlin.*</ID>
+    <ID>WildcardImport:ReportingApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:SaFrontendBuildUtils.kt$import org.gradle.api.tasks.*</ID>
+    <ID>WildcardImport:SaJooqCodeGenPlugin.kt$import org.gradle.api.tasks.*</ID>
+    <ID>WildcardImport:SaJooqCodeGenPlugin.kt$import org.jooq.meta.*</ID>
+    <ID>WildcardImport:SaJooqCodeGenPlugin.kt$import org.jooq.meta.jaxb.*</ID>
+    <ID>WildcardImport:SaOverviewItem.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:StatisticsApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:UserActivationTokensApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:UserActivationTokensApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:UserActivationTokensApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:UserCreationFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:UserCreationFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.ui.admin.pages.*</ID>
+    <ID>WildcardImport:UserEditingFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:UserNamePasswordAuthenticationProvider.kt$import kotlinx.coroutines.*</ID>
+    <ID>WildcardImport:UserProfileGoogleDriveDocumentStorageFullStackTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:UsersApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:UsersApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.api.*</ID>
+    <ID>WildcardImport:UsersApiTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.utils.*</ID>
+    <ID>WildcardImport:ValidationSchemaTransformer.kt$import graphql.schema.*</ID>
+    <ID>WildcardImport:WireMockUtls.kt$import org.junit.jupiter.api.extension.*</ID>
+    <ID>WildcardImport:WorkspaceAccessTokensApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:WorkspacesApi.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:WorkspacesServiceTest.kt$import io.orangebuffalo.simpleaccounting.tests.infra.security.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

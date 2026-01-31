@@ -47,6 +47,13 @@ jobs:
           
           exit $TEST_EXIT_CODE
 
+      - name: "Add detekt report to summary"
+        run: |
+          if [ -f build/reports/detekt/detekt.md ]; then
+            cat build/reports/detekt/detekt.md >> $GITHUB_STEP_SUMMARY
+          fi
+        if: ${{ always() }}
+
       - name: "Test (end-to-end)"
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'

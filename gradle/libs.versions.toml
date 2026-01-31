@@ -1,6 +1,7 @@
 [versions]
 assertk = "0.28.1"
 awaitility = "4.3.0"
+detekt = "1.23.8"
 dsgCodegen = "8.3.0"
 # version pinned as newer has major JGit changed which is not compatible with jreleaser
 gitSemverPlugin = "0.13.0"
@@ -78,6 +79,7 @@ wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref
 zjsonpatch = { module = "com.flipkart.zjsonpatch:zjsonpatch", version.ref = "zjsonpatch" }
 
 [plugins]
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 gitSemverPlugin = { id = "com.github.jmongard.git-semver-plugin", version.ref = "gitSemverPlugin" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "jib" }
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
