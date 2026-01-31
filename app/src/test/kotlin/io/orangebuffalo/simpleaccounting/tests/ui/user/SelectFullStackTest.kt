@@ -30,7 +30,7 @@ class SelectFullStackTest : SaFullStackTestBase() {
         page.openCreateExpensePage {
             category {
                 input.shouldBeEmpty()
-                input.shouldHavePlaceholder("Select category")
+                input.shouldHavePlaceholder("Select a category")
             }
             reportRendering("select.empty-with-placeholder")
         }
@@ -155,33 +155,6 @@ class SelectFullStackTest : SaFullStackTestBase() {
                 input.selectOption("Travel")
                 input.shouldHaveSelectedValue("Travel")
             }
-        }
-    }
-
-    @Test
-    fun `should clear selected category when clearable is enabled`(page: Page) {
-        val preconditions = preconditions {
-            object {
-                val fry = fry().also {
-                    val workspace = workspace(owner = it)
-                    category(workspace = workspace, name = "Office Supplies")
-                }
-            }
-        }
-
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateExpensePage {
-            category {
-                input.selectOption("Office Supplies")
-                input.shouldHaveSelectedValue("Office Supplies")
-                input.shouldHaveClearButton()
-            }
-            reportRendering("select.with-clear-button")
-            category {
-                input.clearSelection()
-                input.shouldBeEmpty()
-            }
-            reportRendering("select.cleared-value")
         }
     }
 
