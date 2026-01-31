@@ -240,4 +240,33 @@ class SelectFullStackTest : SaFullStackTestBase() {
             }
         }
     }
+
+    @Test
+    fun `should clear selected value when clearable is enabled`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry)
+                val vat = generalTax(workspace = workspace, title = "VAT")
+                val gst = generalTax(workspace = workspace, title = "GST")
+                val expense = expense(
+                    workspace = workspace,
+                    category = category(workspace = workspace, name = "Office"),
+                    generalTax = vat,
+                    title = "Test Expense"
+                )
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+        page.shouldBeEditExpensePage {
+            generalTax {
+                input.shouldHaveSelectedValue("VAT")
+                input.shouldHaveClearButton()
+                input.clearSelection()
+                input.shouldBeEmpty()
+            }
+        }
+    }
 }

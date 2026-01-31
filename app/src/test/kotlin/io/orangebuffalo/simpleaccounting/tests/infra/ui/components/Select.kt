@@ -133,48 +133,6 @@ class Select private constructor(
         input.locator(".el-select__clear").shouldBeVisible()
     }
 
-    /**
-     * Verifies that no options are available in the dropdown.
-     */
-    fun shouldHaveNoOptions() {
-        shouldHaveOptions { options ->
-            options.shouldWithClue("Should have no options") {
-                shouldBeEmpty()
-            }
-        }
-    }
-
-    /**
-     * Fills the filter input for filterable selects and verifies filtered options.
-     *
-     * @param filterText The text to type into the filter
-     * @param verifyAndAction Lambda that receives the filtered options and can verify them + take screenshots
-     */
-    fun fillAndVerifyFiltered(filterText: String, verifyAndAction: (List<String>) -> Unit) {
-        // Click to open the dropdown
-        input.click()
-
-        // Fill the filter text in the actual input element
-        val actualInput = input.locator("input.el-select__input")
-        actualInput.fill(filterText)
-
-        // Get the filtered options from the visible dropdown
-        val popper = Popper.openOrLocateByTrigger(input)
-        val visibleOptions = mutableListOf<String>()
-        popper.rootLocator.shouldSatisfy("Filtered options should be available") {
-            @Suppress("UNCHECKED_CAST")
-            val options = popper.rootLocator
-                .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}]")
-                .evaluateAll("elements => elements.filter(el => el.offsetParent !== null).map(el => el.textContent.trim())") as List<String>
-            visibleOptions.clear()
-            visibleOptions.addAll(options)
-            verifyAndAction(visibleOptions)
-        }
-
-        // Close the dropdown by pressing Escape
-        actualInput.press("Escape")
-    }
-
     companion object {
         fun byContainer(container: Locator) = Select(container)
     }
