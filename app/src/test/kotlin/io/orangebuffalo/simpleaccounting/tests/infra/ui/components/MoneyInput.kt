@@ -16,6 +16,8 @@ class MoneyInput private constructor(
     fun fill(value: String) {
         inputLocator.waitFor()
         inputLocator.fill(value)
+        // Trigger blur to ensure IMask processes the value
+        inputLocator.blur()
     }
 
     fun shouldBeVisible() = inputLocator.shouldBeVisible()
