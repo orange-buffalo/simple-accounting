@@ -2,8 +2,8 @@ package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
@@ -111,9 +111,10 @@ class SelectFullStackTest : SaFullStackTestBase() {
         val preconditions = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry)
+                val workspace = workspace(owner = fry).also {
+                    category(workspace = it, name = "Travel")
+                }
                 val officeCategory = category(workspace = workspace, name = "Office Supplies")
-                val travelCategory = category(workspace = workspace, name = "Travel")
                 val expense = expense(
                     workspace = workspace,
                     category = officeCategory,
@@ -136,9 +137,10 @@ class SelectFullStackTest : SaFullStackTestBase() {
         val preconditions = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry)
+                val workspace = workspace(owner = fry).also {
+                    category(workspace = it, name = "Travel")
+                }
                 val officeCategory = category(workspace = workspace, name = "Office Supplies")
-                val travelCategory = category(workspace = workspace, name = "Travel")
                 val expense = expense(
                     workspace = workspace,
                     category = officeCategory,
@@ -152,6 +154,9 @@ class SelectFullStackTest : SaFullStackTestBase() {
         page.shouldBeEditExpensePage {
             category {
                 input.shouldHaveSelectedValue("Office Supplies")
+                input.shouldHaveOptions {
+                    this@shouldBeEditExpensePage.reportRendering("select.open-with-selection")
+                }
                 input.selectOption("Travel")
                 input.shouldHaveSelectedValue("Travel")
             }
@@ -177,7 +182,7 @@ class SelectFullStackTest : SaFullStackTestBase() {
             blockedRequestSpec = {
                 page.shouldBeCreateExpensePage {
                     category {
-                        input.shouldBeLoading()
+                        shouldBeLoading()
                     }
                     reportRendering("select.loading")
                 }
@@ -201,10 +206,8 @@ class SelectFullStackTest : SaFullStackTestBase() {
             category {
                 input.shouldHaveOptions { options ->
                     options.shouldWithClue("Should have exactly one category") {
-                        shouldHaveSize(1)
                         shouldContainExactlyInAnyOrder("Only Category")
                     }
-                    this@openCreateExpensePage.reportRendering("select.single-item")
                 }
             }
         }
@@ -216,7 +219,6 @@ class SelectFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry().also {
                     val workspace = workspace(owner = it)
-                    // Create 10 categories
                     (1..10).forEach { i ->
                         category(workspace = workspace, name = "Category $i")
                     }
@@ -229,9 +231,11 @@ class SelectFullStackTest : SaFullStackTestBase() {
             category {
                 input.shouldHaveOptions { options ->
                     options.shouldWithClue("Should have 10 categories") {
-                        shouldHaveSize(10)
+                        shouldContainExactly(
+                            "Category 1", "Category 10", "Category 2", "Category 3", "Category 4",
+                            "Category 5", "Category 6", "Category 7", "Category 8", "Category 9"
+                        )
                     }
-                    this@openCreateExpensePage.reportRendering("select.many-items")
                 }
             }
         }

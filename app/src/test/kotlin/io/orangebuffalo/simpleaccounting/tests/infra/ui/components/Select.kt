@@ -10,7 +10,9 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldContainClass
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 
 class Select private constructor(
     rootLocator: Locator,
@@ -143,17 +145,8 @@ class Select private constructor(
     }
 
     /**
-     * Verifies the select is in a loading state.
-     * This checks for the loading indicator within SaInputLoader wrapper.
-     */
-    fun shouldBeLoading() {
-        val loadingIndicator = input.page().locator(".sa-input-loader__indicator")
-        loadingIndicator.shouldBeVisible()
-    }
-
-    /**
      * Fills the filter input for filterable selects and verifies filtered options.
-     * 
+     *
      * @param filterText The text to type into the filter
      * @param verifyAndAction Lambda that receives the filtered options and can verify them + take screenshots
      */

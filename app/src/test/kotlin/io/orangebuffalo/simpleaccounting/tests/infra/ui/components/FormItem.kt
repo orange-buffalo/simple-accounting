@@ -27,6 +27,10 @@ class FormItem<I : UiComponent<*>> private constructor(
         validationErrorLocator.shouldBeHidden()
     }
 
+    fun shouldBeLoading() {
+        rootLocator.locator(".sa-input-loader__indicator").shouldBeVisible()
+    }
+
     companion object {
         fun <I : UiComponent<*>> ComponentsAccessors.formItemByLabel(
             label: String,
