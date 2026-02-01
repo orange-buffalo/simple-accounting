@@ -1,15 +1,13 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
-import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
-import io.orangebuffalo.kotestplaywrightassertions.shouldContainText
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.assumeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import org.junit.jupiter.api.Test
@@ -106,7 +104,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                 input.openPopover()
             }
             reportRendering("date-picker.popover-open")
-            
+
             datePaid {
                 input.clickDay(20)
                 input.shouldHaveValue("2024-01-20")
@@ -291,31 +289,18 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
             }
         }
 
+        // Note: Using direct locator access here due to Ukrainian language - page object validation expects English
         page.authenticateViaCookie(preconditions.fry)
         page.navigate("/expenses/${preconditions.expense.id}/edit")
-        
-        page.locator("h1").shouldBeVisible()
-        
-        // Note: Using direct locator access here due to Ukrainian language - page object validation expects English
-        val dateInput = page.locator("//*[@class='el-form-item__label' and text()='Дата Оплати']/..//input").first()
-        dateInput.click()
-        
-        val popover = page.locator(".el-picker-panel__body-wrapper")
-        popover.shouldBeVisible()
-        
-        val header = popover.locator(".el-date-picker__header")
-        header.shouldContainText("2024 January")
-        
-        popover.locator("th", Locator.LocatorOptions().setHasText("Mon")).first().shouldBeVisible()
-        popover.locator("th", Locator.LocatorOptions().setHasText("Tue")).first().shouldBeVisible()
-        
-        page.screenshot(
-            object : Page.ScreenshotOptions() {
-                init {
-                    setPath(java.nio.file.Paths.get("/home/runner/work/simple-accounting/simple-accounting/app/build/rendering-report/date-picker.popover-ukrainian.png"))
-                }
+        page.assumeEditExpensePage {
+            datePaidUk {
+                input.openPopover()
+                input.shouldHavePopoverMonthYear("2024 January")
+                input.shouldHavePopoverWeekday("Mo")
+                input.shouldHavePopoverWeekday("Tu")
             }
-        )
+            reportRendering("date-picker.popover-ukrainian")
+        }
     }
 }
 
