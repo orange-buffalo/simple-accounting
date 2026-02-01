@@ -229,6 +229,26 @@ In this example:
    (e.g., `fry()`, `workspace()`, `category()`).
 5. In your test methods, you can access the created entities through the `preconditions` property.
 
+### Important: Only Expose Used Preconditions
+
+**Never expose entities in precondition objects that are not actually used in tests.** Only include properties that test methods will reference.
+
+For entities that are needed to set up the environment but not referenced later, use `.also {}` to create them inline without exposing:
+
+```kotlin
+val preconditions = preconditions {
+    object {
+        val fry = fry().also {
+            val workspace = workspace(owner = it, defaultCurrency = "USD")
+            category(workspace = workspace, name = "Test")
+        }
+    }
+}
+// Only `fry` is exposed; workspace and category are created but not accessible
+```
+
+This keeps preconditions clean and makes it clear what data the test actually depends on.
+
 ## REST API Testing
 
 REST API tests should follow a consistent structure to ensure comprehensive coverage and maintainability.
@@ -478,7 +498,40 @@ page.withBlockedApiResponse(
 
 #### Database Validation
 
-Verify backend state changes with appropriate assertions:
+**CRITICAL**: Always verify UI completion before asserting database state to avoid flaky tests.
+
+When tests save data and then check the database, you **must** verify that the save operation completed successfully in the UI before querying the database. Otherwise, the database query may run before the save finishes, causing intermittent test failures.
+
+Verify UI completion using one of these patterns:
+- Check for navigation to another page: `page.shouldBeExpensesOverviewPage()`
+- Check for a success notification: `shouldHaveNotifications { success() }`
+- Verify a specific UI state change that indicates completion
+
+**Bad Example** (flaky - database check happens before save completes):
+```kotlin
+originalAmount { input.fill("1234.56") }
+saveButton.click()
+
+// BAD: Checking database immediately without waiting for save to complete
+aggregateTemplate.findSingle<Expense>(id)
+    .originalAmount.shouldBe(123456)
+```
+
+**Good Example** (stable - waits for navigation before database check):
+```kotlin
+originalAmount { input.fill("1234.56") }
+saveButton.click()
+}
+
+// GOOD: Wait for navigation to confirm save completed
+page.shouldBeExpensesOverviewPage()
+
+// Now safe to check database
+aggregateTemplate.findSingle<Expense>(id)
+    .originalAmount.shouldBe(123456)
+```
+
+General database validation pattern:
 
 ```kotlin
 withHint("Should update the database state") {
