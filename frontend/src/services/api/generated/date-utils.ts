@@ -1,4 +1,14 @@
 /**
+ * MANUALLY PATCHED FILE - DO NOT REGENERATE WITHOUT REAPPLYING PATCHES
+ * 
+ * This file has been created to fix timezone-dependent date serialization bugs.
+ * The OpenAPI generator uses `toISOString().substring(0,10)` which incorrectly converts
+ * dates to UTC before extracting the date string, causing dates to shift in non-UTC timezones.
+ * 
+ * This utility provides a timezone-agnostic date formatter that uses local timezone methods.
+ * 
+ * Related Issue: DatePickerFullStackTest is timezone dependent
+ * 
  * Formats a Date object to ISO date string (YYYY-MM-DD) using local timezone.
  * This avoids the timezone conversion issue with toISOString() which converts to UTC.
  * 
