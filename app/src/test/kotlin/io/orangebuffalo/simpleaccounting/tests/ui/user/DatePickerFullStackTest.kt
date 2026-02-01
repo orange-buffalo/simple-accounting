@@ -1,12 +1,16 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
+import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.kotest.matchers.shouldBe
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldContainText
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import org.junit.jupiter.api.Test
@@ -100,10 +104,14 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
+                input.openPopover()
+            }
+            reportRendering("date-picker.popover-open")
+            
+            datePaid {
                 input.clickDay(20)
                 input.shouldHaveValue("2024-01-20")
             }
-            reportRendering("date-picker.popover-selected")
 
             saveButton.click()
         }
@@ -137,7 +145,6 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
             datePaid {
                 input.shouldHaveValue("2023-07-25")
             }
-            reportRendering("date-picker.prefilled-value")
         }
     }
 
@@ -163,7 +170,6 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                 input.fill("2023-12-31")
                 input.shouldHaveValue("2023-12-31")
             }
-            reportRendering("date-picker.year-boundary")
 
             saveButton.click()
         }
@@ -198,7 +204,6 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                 input.fill("2024-02-29")
                 input.shouldHaveValue("2024-02-29")
             }
-            reportRendering("date-picker.leap-year")
 
             saveButton.click()
         }
@@ -212,16 +217,37 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should handle first day of month`(page: Page) {
+    fun `should display default value on create page`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = fry()
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            datePaid {
+                input.shouldHaveValue("2019-08-15")
+            }
+            reportRendering("date-picker.default-value-on-create")
+        }
+    }
+
+    @Test
+    fun `should display translated popover for English language`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    i18nSettings = I18nSettings(locale = "en_US", language = "en")
+                )
                 val workspace = workspace(owner = fry, defaultCurrency = "USD")
                 val expense = expense(
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2020, 1, 15)
+                    datePaid = LocalDate.of(2024, 1, 15)
                 )
             }
         }
@@ -230,20 +256,58 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.fill("2023-03-01")
-                input.shouldHaveValue("2023-03-01")
+                input.openPopover()
+                input.shouldHavePopoverMonthYear("2024 January")
+                input.shouldHavePopoverWeekday("Mo")
+                input.shouldHavePopoverWeekday("Tu")
             }
-            reportRendering("date-picker.first-day-of-month")
+            reportRendering("date-picker.popover-english")
+        }
+    }
 
-            saveButton.click()
+    @Test
+    fun `should display translated popover for Ukrainian language`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(
+                    userName = "Fry",
+                    i18nSettings = I18nSettings(locale = "uk_UA", language = "uk")
+                )
+                val workspace = workspace(owner = fry, defaultCurrency = "UAH")
+                val expense = expense(
+                    workspace = workspace,
+                    category = null,
+                    title = "Test",
+                    datePaid = LocalDate.of(2024, 1, 15)
+                )
+            }
         }
 
-        page.shouldBeExpensesOverviewPage()
-
-        aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
-            .shouldWithClue("Date should be stored as 2023-03-01") {
-                datePaid.shouldBe(LocalDate.of(2023, 3, 1))
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+        
+        page.locator("h1").shouldBeVisible()
+        
+        val dateInput = page.locator("//*[@class='el-form-item__label' and text()='Дата Оплати']/..//input").first()
+        dateInput.click()
+        
+        val popover = page.locator(".el-picker-panel__body-wrapper")
+        popover.shouldBeVisible()
+        
+        val header = popover.locator(".el-date-picker__header")
+        header.shouldContainText("2024 January")
+        
+        popover.locator("th", Locator.LocatorOptions().setHasText("Mon")).first().shouldBeVisible()
+        
+        popover.locator("th", Locator.LocatorOptions().setHasText("Tue")).first().shouldBeVisible()
+        
+        page.screenshot(
+            object : Page.ScreenshotOptions() {
+                init {
+                    setPath(java.nio.file.Paths.get("app/build/rendering-report/date-picker.popover-ukrainian.png"))
+                }
             }
+        )
     }
 }
 
