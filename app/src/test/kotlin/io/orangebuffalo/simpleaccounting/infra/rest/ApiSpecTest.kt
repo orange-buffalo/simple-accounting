@@ -110,7 +110,7 @@ class ApiSpecTest(
         generatedFiles.remove(".openapi-generator/VERSION")
         
         // Files that have been manually patched to fix timezone bugs - skip comparison for these
-        val manuallymPatchedFiles = setOf(
+        val manuallyPatchedFiles = setOf(
             "date-utils.ts",
             "PATCHED_FILES.md",
             "models/EditExpenseDto.ts",
@@ -129,7 +129,7 @@ class ApiSpecTest(
             val existingFiles = generatedFiles.intersect(committedFiles)
 
             // Account for manually added files
-            val effectiveDeletedFiles = deletedFiles.subtract(manuallymPatchedFiles)
+            val effectiveDeletedFiles = deletedFiles.subtract(manuallyPatchedFiles)
             
             softly.assertThat(effectiveDeletedFiles)
                 .`as`("Some files are no longer generated (excluding manually patched files)")
@@ -142,7 +142,7 @@ class ApiSpecTest(
             val changedFiles = mutableMapOf<String, String>()
             existingFiles.forEach { relativePath ->
                 // Skip comparison for manually patched files
-                if (relativePath in manuallymPatchedFiles) {
+                if (relativePath in manuallyPatchedFiles) {
                     return@forEach
                 }
                 
