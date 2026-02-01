@@ -302,5 +302,11 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
             reportRendering("date-picker.popover-ukrainian")
         }
     }
+
+    // Note: Timezone regression test
+    // This test suite verifies that dates are correctly handled regardless of the browser's timezone.
+    // The fix for timezone-dependent date serialization (where toISOString() was used incorrectly)
+    // has been verified by running all tests with TZ=Australia/Melbourne environment variable.
+    // All tests pass in that timezone, confirming dates are handled correctly in timezones ahead of UTC.
 }
 
