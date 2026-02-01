@@ -13,6 +13,7 @@
  */
 
 import { mapValues } from '../runtime';
+import { formatLocalDateToISO } from '../date-utils';
 /**
  * 
  * @export
@@ -92,8 +93,8 @@ export function EditIncomeTaxPaymentDtoToJSON(value?: EditIncomeTaxPaymentDto | 
     }
     return {
         
-        'datePaid': ((value['datePaid']).toISOString().substring(0,10)),
-        'reportingDate': value['reportingDate'] == null ? undefined : ((value['reportingDate']).toISOString().substring(0,10)),
+        'datePaid': formatLocalDateToISO(value['datePaid']),
+        'reportingDate': value['reportingDate'] == null ? undefined : formatLocalDateToISO(value['reportingDate']),
         'amount': value['amount'],
         'attachments': value['attachments'],
         'notes': value['notes'],

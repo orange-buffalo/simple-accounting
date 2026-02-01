@@ -13,6 +13,7 @@
  */
 
 import { mapValues } from '../runtime';
+import { formatLocalDateToISO } from '../date-utils';
 import type { ExpenseAmountsDto } from './ExpenseAmountsDto';
 import {
     ExpenseAmountsDtoFromJSON,
@@ -208,7 +209,7 @@ export function ExpenseDtoToJSON(value?: ExpenseDto | null): any {
         'category': value['category'],
         'title': value['title'],
         'timeRecorded': ((value['timeRecorded']).toISOString()),
-        'datePaid': ((value['datePaid']).toISOString().substring(0,10)),
+        'datePaid': formatLocalDateToISO(value['datePaid']),
         'currency': value['currency'],
         'originalAmount': value['originalAmount'],
         'attachments': value['attachments'],

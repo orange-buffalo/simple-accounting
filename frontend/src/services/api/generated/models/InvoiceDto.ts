@@ -13,6 +13,7 @@
  */
 
 import { mapValues } from '../runtime';
+import { formatLocalDateToISO } from '../date-utils';
 /**
  * 
  * @export
@@ -180,10 +181,10 @@ export function InvoiceDtoToJSON(value?: InvoiceDto | null): any {
         'title': value['title'],
         'customer': value['customer'],
         'timeRecorded': ((value['timeRecorded']).toISOString()),
-        'dateIssued': ((value['dateIssued']).toISOString().substring(0,10)),
-        'dateSent': value['dateSent'] == null ? undefined : ((value['dateSent']).toISOString().substring(0,10)),
-        'datePaid': value['datePaid'] == null ? undefined : ((value['datePaid']).toISOString().substring(0,10)),
-        'dueDate': ((value['dueDate']).toISOString().substring(0,10)),
+        'dateIssued': formatLocalDateToISO(value['dateIssued']),
+        'dateSent': value['dateSent'] == null ? undefined : formatLocalDateToISO(value['dateSent']),
+        'datePaid': value['datePaid'] == null ? undefined : formatLocalDateToISO(value['datePaid']),
+        'dueDate': formatLocalDateToISO(value['dueDate']),
         'currency': value['currency'],
         'amount': value['amount'],
         'attachments': value['attachments'],
