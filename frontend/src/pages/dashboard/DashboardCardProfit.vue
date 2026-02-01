@@ -84,22 +84,22 @@
     const [expenses, incomes, incomeTaxPayments] = await Promise.all([
       statisticsApi.getExpensesStatistics({
         workspaceId: currentWorkspaceId,
-        fromDate: props.fromDate,
-        toDate: props.toDate,
+        fromDate: props.fromDate.toISOString().substring(0, 10),
+        toDate: props.toDate.toISOString().substring(0, 10),
       }, {
         signal: abortController.signal,
       }),
       statisticsApi.getIncomesStatistics({
         workspaceId: currentWorkspaceId,
-        fromDate: props.fromDate,
-        toDate: props.toDate,
+        fromDate: props.fromDate.toISOString().substring(0, 10),
+        toDate: props.toDate.toISOString().substring(0, 10),
       }, {
         signal: abortController.signal,
       }),
       statisticsApi.getTaxPaymentsStatistics({
         workspaceId: currentWorkspaceId,
-        fromDate: props.fromDate,
-        toDate: props.toDate,
+        fromDate: props.fromDate.toISOString().substring(0, 10),
+        toDate: props.toDate.toISOString().substring(0, 10),
       }, {
         signal: abortController.signal,
       }),

@@ -99,7 +99,10 @@ class ApiSpecTest(
         val generator = OpenApiGenerator()
             .withFileSystemBind("src/test/resources/api-spec.yaml", "/api-spec.yaml", BindMode.READ_ONLY)
             .withFileSystemBind(tmpDir.absolutePath, "/out", BindMode.READ_WRITE)
-            .withCommand("generate", "-g", "typescript-fetch", "-o", "/out", "-i", "/api-spec.yaml")
+            .withCommand(
+                "generate", "-g", "typescript-fetch", "-o", "/out", "-i", "/api-spec.yaml",
+                "--type-mappings=Date=string"
+            )
             .withLogConsumer { logger.info { it.utf8String } }
             .waitingFor(Wait.forLogMessage(".*Thanks for using OpenAPI Generator.*", 1))
         generator.start()
@@ -108,31 +111,14 @@ class ApiSpecTest(
         generatedFiles.remove(".openapi-generator-ignore")
         generatedFiles.remove(".openapi-generator/FILES")
         generatedFiles.remove(".openapi-generator/VERSION")
-        
-        // Files that have been manually patched to fix timezone bugs - skip comparison for these
-        val manuallyPatchedFiles = setOf(
-            "date-utils.ts",
-            "PATCHED_FILES.md",
-            "models/EditExpenseDto.ts",
-            "models/ExpenseDto.ts",
-            "models/EditIncomeDto.ts",
-            "models/IncomeDto.ts",
-            "models/EditInvoiceDto.ts",
-            "models/InvoiceDto.ts",
-            "models/EditIncomeTaxPaymentDto.ts",
-            "models/IncomeTaxPaymentDto.ts"
-        )
 
         assertSoftly { softly ->
             val deletedFiles = committedFiles.subtract(generatedFiles)
             val addedFiles = generatedFiles.subtract(committedFiles)
             val existingFiles = generatedFiles.intersect(committedFiles)
 
-            // Account for manually added files
-            val effectiveDeletedFiles = deletedFiles.subtract(manuallyPatchedFiles)
-            
-            softly.assertThat(effectiveDeletedFiles)
-                .`as`("Some files are no longer generated (excluding manually patched files)")
+            softly.assertThat(deletedFiles)
+                .`as`("Some files are no longer generated")
                 .isEmpty()
 
             softly.assertThat(addedFiles)
@@ -141,11 +127,6 @@ class ApiSpecTest(
 
             val changedFiles = mutableMapOf<String, String>()
             existingFiles.forEach { relativePath ->
-                // Skip comparison for manually patched files
-                if (relativePath in manuallyPatchedFiles) {
-                    return@forEach
-                }
-                
                 val committedContent = File(baseCommittedDirectory, relativePath).readText()
                 val generatedContent = File(tmpDir, relativePath).readText()
                 if (committedContent != generatedContent) {
@@ -159,7 +140,7 @@ class ApiSpecTest(
             if (shouldOverrideCommittedFiles()) {
                 logger.warn { "Overriding committed client" }
 
-                effectiveDeletedFiles.forEach { relativePath ->
+                deletedFiles.forEach { relativePath ->
                     logger.info { "Deleting $relativePath" }
                     File(baseCommittedDirectory, relativePath).delete()
                 }

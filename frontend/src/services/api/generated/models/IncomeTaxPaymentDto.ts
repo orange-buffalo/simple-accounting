@@ -13,7 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import { formatLocalDateToISO } from '../date-utils';
 /**
  * 
  * @export
@@ -40,22 +39,22 @@ export interface IncomeTaxPaymentDto {
     title: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof IncomeTaxPaymentDto
      */
-    timeRecorded: Date;
+    timeRecorded: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof IncomeTaxPaymentDto
      */
-    datePaid: Date;
+    datePaid: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof IncomeTaxPaymentDto
      */
-    reportingDate: Date;
+    reportingDate: string;
     /**
      * 
      * @type {number}
@@ -104,9 +103,9 @@ export function IncomeTaxPaymentDtoFromJSONTyped(json: any, ignoreDiscriminator:
         'id': json['id'],
         'version': json['version'],
         'title': json['title'],
-        'timeRecorded': (new Date(json['timeRecorded'])),
-        'datePaid': (new Date(json['datePaid'])),
-        'reportingDate': (new Date(json['reportingDate'])),
+        'timeRecorded': json['timeRecorded'],
+        'datePaid': json['datePaid'],
+        'reportingDate': json['reportingDate'],
         'amount': json['amount'],
         'attachments': json['attachments'],
         'notes': json['notes'] == null ? undefined : json['notes'],
@@ -122,9 +121,9 @@ export function IncomeTaxPaymentDtoToJSON(value?: IncomeTaxPaymentDto | null): a
         'id': value['id'],
         'version': value['version'],
         'title': value['title'],
-        'timeRecorded': ((value['timeRecorded']).toISOString()),
-        'datePaid': formatLocalDateToISO(value['datePaid']),
-        'reportingDate': formatLocalDateToISO(value['reportingDate']),
+        'timeRecorded': value['timeRecorded'],
+        'datePaid': value['datePaid'],
+        'reportingDate': value['reportingDate'],
         'amount': value['amount'],
         'attachments': value['attachments'],
         'notes': value['notes'],

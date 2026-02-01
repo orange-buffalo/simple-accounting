@@ -65,8 +65,8 @@
     async (_, workspaceId) => {
       const response = await statisticsApi.getExpensesStatistics({
         workspaceId,
-        fromDate: props.fromDate,
-        toDate: props.toDate,
+        fromDate: props.fromDate.toISOString().substring(0, 10),
+        toDate: props.toDate.toISOString().substring(0, 10),
       });
       response.items.sort((a, b) => b.totalAmount - a.totalAmount);
       return response;

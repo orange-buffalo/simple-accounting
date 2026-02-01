@@ -13,7 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import { formatLocalDateToISO } from '../date-utils';
 /**
  * 
  * @export
@@ -28,10 +27,10 @@ export interface EditIncomeDto {
     category?: number;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof EditIncomeDto
      */
-    dateReceived: Date;
+    dateReceived: string;
     /**
      * 
      * @type {string}
@@ -117,7 +116,7 @@ export function EditIncomeDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
     return {
         
         'category': json['category'] == null ? undefined : json['category'],
-        'dateReceived': (new Date(json['dateReceived'])),
+        'dateReceived': json['dateReceived'],
         'title': json['title'],
         'currency': json['currency'],
         'originalAmount': json['originalAmount'],
@@ -138,7 +137,7 @@ export function EditIncomeDtoToJSON(value?: EditIncomeDto | null): any {
     return {
         
         'category': value['category'],
-        'dateReceived': formatLocalDateToISO(value['dateReceived']),
+        'dateReceived': value['dateReceived'],
         'title': value['title'],
         'currency': value['currency'],
         'originalAmount': value['originalAmount'],

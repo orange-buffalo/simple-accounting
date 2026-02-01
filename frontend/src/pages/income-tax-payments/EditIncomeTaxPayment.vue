@@ -42,6 +42,7 @@
               <ElDatePicker
                 v-model="taxPayment.datePaid"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editIncomeTaxPayment.generalInformation.datePaid.placeholder()"
               />
             </ElFormItem>
@@ -54,6 +55,7 @@
               <ElDatePicker
                 v-model="taxPayment.reportingDate"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editIncomeTaxPayment.generalInformation.reportingDate.placeholder()"
               />
             </ElFormItem>
@@ -149,7 +151,7 @@
   };
 
   const taxPayment = ref<TaxPaymentFormValues>({
-    datePaid: new Date(),
+    datePaid: new Date().toISOString().substring(0, 10),
     attachments: [],
   });
 

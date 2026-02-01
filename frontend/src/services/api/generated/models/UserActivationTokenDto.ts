@@ -27,10 +27,10 @@ export interface UserActivationTokenDto {
     token: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof UserActivationTokenDto
      */
-    expiresAt: Date;
+    expiresAt: string;
 }
 
 /**
@@ -53,7 +53,7 @@ export function UserActivationTokenDtoFromJSONTyped(json: any, ignoreDiscriminat
     return {
         
         'token': json['token'],
-        'expiresAt': (new Date(json['expiresAt'])),
+        'expiresAt': json['expiresAt'],
     };
 }
 
@@ -64,7 +64,7 @@ export function UserActivationTokenDtoToJSON(value?: UserActivationTokenDto | nu
     return {
         
         'token': value['token'],
-        'expiresAt': ((value['expiresAt']).toISOString()),
+        'expiresAt': value['expiresAt'],
     };
 }
 

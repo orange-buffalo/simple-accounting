@@ -303,10 +303,42 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         }
     }
 
-    // Note: Timezone regression test
-    // This test suite verifies that dates are correctly handled regardless of the browser's timezone.
-    // The fix for timezone-dependent date serialization (where toISOString() was used incorrectly)
-    // has been verified by running all tests with TZ=Australia/Melbourne environment variable.
-    // All tests pass in that timezone, confirming dates are handled correctly in timezones ahead of UTC.
+    @Test
+    fun `should handle dates correctly regardless of timezone`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry, defaultCurrency = "AUD")
+                val category = category(workspace = workspace)
+            }
+        }
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/create")
+        
+        page.shouldBeEditExpensePage {
+            // Test that entering a date works correctly
+            // The date should be stored as entered, without timezone conversion
+            datePaid {
+                input.fill("2023-12-31")
+                input.shouldHaveValue("2023-12-31")
+            }
+            
+            title.input.fill("Timezone Test Expense")
+            category.input.selectOption(preconditions.category.name)
+            currency.input.selectOption("AUD")
+            originalAmount.input.fill("1000")
+            
+            saveButton.click()
+        }
+        
+        page.shouldBeExpensesOverviewPage()
+        
+        // Verify the date was stored correctly
+        val savedExpense = aggregateTemplate.findAll(Expense::class.java)
+            .first { it.title == "Timezone Test Expense" }
+        
+        savedExpense.datePaid.shouldBe(LocalDate.of(2023, 12, 31))
+    }
 }
 

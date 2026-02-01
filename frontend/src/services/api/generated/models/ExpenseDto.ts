@@ -13,7 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import { formatLocalDateToISO } from '../date-utils';
 import type { ExpenseAmountsDto } from './ExpenseAmountsDto';
 import {
     ExpenseAmountsDtoFromJSON,
@@ -41,16 +40,16 @@ export interface ExpenseDto {
     title: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof ExpenseDto
      */
-    timeRecorded: Date;
+    timeRecorded: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof ExpenseDto
      */
-    datePaid: Date;
+    datePaid: string;
     /**
      * 
      * @type {string}
@@ -181,8 +180,8 @@ export function ExpenseDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         
         'category': json['category'] == null ? undefined : json['category'],
         'title': json['title'],
-        'timeRecorded': (new Date(json['timeRecorded'])),
-        'datePaid': (new Date(json['datePaid'])),
+        'timeRecorded': json['timeRecorded'],
+        'datePaid': json['datePaid'],
         'currency': json['currency'],
         'originalAmount': json['originalAmount'],
         'attachments': json['attachments'],
@@ -208,8 +207,8 @@ export function ExpenseDtoToJSON(value?: ExpenseDto | null): any {
         
         'category': value['category'],
         'title': value['title'],
-        'timeRecorded': ((value['timeRecorded']).toISOString()),
-        'datePaid': formatLocalDateToISO(value['datePaid']),
+        'timeRecorded': value['timeRecorded'],
+        'datePaid': value['datePaid'],
         'currency': value['currency'],
         'originalAmount': value['originalAmount'],
         'attachments': value['attachments'],

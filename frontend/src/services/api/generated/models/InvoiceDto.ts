@@ -13,7 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import { formatLocalDateToISO } from '../date-utils';
 /**
  * 
  * @export
@@ -34,34 +33,34 @@ export interface InvoiceDto {
     customer: number;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof InvoiceDto
      */
-    timeRecorded: Date;
+    timeRecorded: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof InvoiceDto
      */
-    dateIssued: Date;
+    dateIssued: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof InvoiceDto
      */
-    dateSent?: Date;
+    dateSent?: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof InvoiceDto
      */
-    datePaid?: Date;
+    datePaid?: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof InvoiceDto
      */
-    dueDate: Date;
+    dueDate: string;
     /**
      * 
      * @type {string}
@@ -156,11 +155,11 @@ export function InvoiceDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         
         'title': json['title'],
         'customer': json['customer'],
-        'timeRecorded': (new Date(json['timeRecorded'])),
-        'dateIssued': (new Date(json['dateIssued'])),
-        'dateSent': json['dateSent'] == null ? undefined : (new Date(json['dateSent'])),
-        'datePaid': json['datePaid'] == null ? undefined : (new Date(json['datePaid'])),
-        'dueDate': (new Date(json['dueDate'])),
+        'timeRecorded': json['timeRecorded'],
+        'dateIssued': json['dateIssued'],
+        'dateSent': json['dateSent'] == null ? undefined : json['dateSent'],
+        'datePaid': json['datePaid'] == null ? undefined : json['datePaid'],
+        'dueDate': json['dueDate'],
         'currency': json['currency'],
         'amount': json['amount'],
         'attachments': json['attachments'],
@@ -180,11 +179,11 @@ export function InvoiceDtoToJSON(value?: InvoiceDto | null): any {
         
         'title': value['title'],
         'customer': value['customer'],
-        'timeRecorded': ((value['timeRecorded']).toISOString()),
-        'dateIssued': formatLocalDateToISO(value['dateIssued']),
-        'dateSent': value['dateSent'] == null ? undefined : formatLocalDateToISO(value['dateSent']),
-        'datePaid': value['datePaid'] == null ? undefined : formatLocalDateToISO(value['datePaid']),
-        'dueDate': formatLocalDateToISO(value['dueDate']),
+        'timeRecorded': value['timeRecorded'],
+        'dateIssued': value['dateIssued'],
+        'dateSent': value['dateSent'],
+        'datePaid': value['datePaid'],
+        'dueDate': value['dueDate'],
         'currency': value['currency'],
         'amount': value['amount'],
         'attachments': value['attachments'],

@@ -248,7 +248,7 @@
   const markSent = async () => {
     const invoiceRequest = {
       ...props.invoice,
-      dateSent: new Date(),
+      dateSent: new Date().toISOString().substring(0, 10),
     };
     await invoicesApi.updateInvoice({
       invoiceId: props.invoice.id,

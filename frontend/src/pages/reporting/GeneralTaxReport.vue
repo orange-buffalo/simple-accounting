@@ -88,8 +88,8 @@
   const reloadReport = async () => {
     report.value = await reportingApi.getGeneralTaxReport({
       workspaceId: currentWorkspaceId,
-      fromDate: props.dateRange[0],
-      toDate: props.dateRange[1],
+      fromDate: props.dateRange[0].toISOString().substring(0, 10),
+      toDate: props.dateRange[1].toISOString().substring(0, 10),
     });
     emit('report-loaded');
   };

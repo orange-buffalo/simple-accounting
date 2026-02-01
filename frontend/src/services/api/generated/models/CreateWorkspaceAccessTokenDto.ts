@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface CreateWorkspaceAccessTokenDto {
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof CreateWorkspaceAccessTokenDto
      */
-    validTill: Date;
+    validTill: string;
 }
 
 /**
@@ -45,7 +45,7 @@ export function CreateWorkspaceAccessTokenDtoFromJSONTyped(json: any, ignoreDisc
     }
     return {
         
-        'validTill': (new Date(json['validTill'])),
+        'validTill': json['validTill'],
     };
 }
 
@@ -55,7 +55,7 @@ export function CreateWorkspaceAccessTokenDtoToJSON(value?: CreateWorkspaceAcces
     }
     return {
         
-        'validTill': ((value['validTill']).toISOString()),
+        'validTill': value['validTill'],
     };
 }
 

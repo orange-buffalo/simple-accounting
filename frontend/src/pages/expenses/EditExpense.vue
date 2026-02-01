@@ -60,6 +60,7 @@
               <ElDatePicker
                 v-model="expense.datePaid"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editExpense.generalInformation.datePaid.placeholder()"
               />
             </ElFormItem>
@@ -225,7 +226,7 @@
   const expense = ref<ExpenseFormValues>({
     attachments: [],
     percentOnBusiness: 100,
-    datePaid: new Date(),
+    datePaid: new Date().toISOString().substring(0, 10),
     currency: defaultCurrency,
     useDifferentExchangeRateForIncomeTaxPurposes: false,
   });
