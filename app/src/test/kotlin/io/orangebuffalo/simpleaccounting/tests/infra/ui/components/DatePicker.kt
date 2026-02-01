@@ -17,6 +17,11 @@ class DatePicker private constructor(
         inputLocator.blur()
     }
 
+    fun clear() {
+        inputLocator.fill("")
+        inputLocator.blur()
+    }
+
     fun shouldBeVisible() = inputLocator.shouldBeVisible()
 
     fun shouldHaveValue(value: String) = inputLocator.shouldHaveValue(value)

@@ -10,7 +10,6 @@ import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
-import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import org.junit.jupiter.api.Test
@@ -217,20 +216,29 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should display default value on create page`(page: Page) {
+    fun `should display empty input after clearing value`(page: Page) {
         val preconditions = preconditions {
             object {
                 val fry = fry()
                 val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val expense = expense(
+                    workspace = workspace,
+                    category = null,
+                    title = "Test",
+                    datePaid = LocalDate.of(2023, 7, 25)
+                )
             }
         }
 
         page.authenticateViaCookie(preconditions.fry)
-        page.openCreateExpensePage {
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+        page.shouldBeEditExpensePage {
             datePaid {
-                input.shouldHaveValue("2019-08-15")
+                input.shouldHaveValue("2023-07-25")
+                input.clear()
+                input.shouldHaveValue("")
             }
-            reportRendering("date-picker.default-value-on-create")
+            reportRendering("date-picker.empty-input")
         }
     }
 
@@ -288,6 +296,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         
         page.locator("h1").shouldBeVisible()
         
+        // Note: Using direct locator access here due to Ukrainian language - page object validation expects English
         val dateInput = page.locator("//*[@class='el-form-item__label' and text()='Дата Оплати']/..//input").first()
         dateInput.click()
         
@@ -298,13 +307,12 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         header.shouldContainText("2024 January")
         
         popover.locator("th", Locator.LocatorOptions().setHasText("Mon")).first().shouldBeVisible()
-        
         popover.locator("th", Locator.LocatorOptions().setHasText("Tue")).first().shouldBeVisible()
         
         page.screenshot(
             object : Page.ScreenshotOptions() {
                 init {
-                    setPath(java.nio.file.Paths.get("app/build/rendering-report/date-picker.popover-ukrainian.png"))
+                    setPath(java.nio.file.Paths.get("/home/runner/work/simple-accounting/simple-accounting/app/build/rendering-report/date-picker.popover-ukrainian.png"))
                 }
             }
         )
