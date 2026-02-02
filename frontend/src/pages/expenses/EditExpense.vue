@@ -184,6 +184,7 @@
   import { expensesApi } from '@/services/api';
   import { ensureDefined } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
 
   const props = defineProps<{
     id?: number,
@@ -226,7 +227,7 @@
   const expense = ref<ExpenseFormValues>({
     attachments: [],
     percentOnBusiness: 100,
-    datePaid: new Date().toISOString().substring(0, 10),
+    datePaid: formatDateToLocalISOString(new Date()),
     currency: defaultCurrency,
     useDifferentExchangeRateForIncomeTaxPurposes: false,
   });

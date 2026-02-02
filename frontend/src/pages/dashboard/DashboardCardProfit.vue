@@ -57,6 +57,7 @@
   import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
 
   const props = defineProps<{
     fromDate: Date,
@@ -84,22 +85,22 @@
     const [expenses, incomes, incomeTaxPayments] = await Promise.all([
       statisticsApi.getExpensesStatistics({
         workspaceId: currentWorkspaceId,
-        fromDate: props.fromDate.toISOString().substring(0, 10),
-        toDate: props.toDate.toISOString().substring(0, 10),
+        fromDate: formatDateToLocalISOString(props.fromDate),
+        toDate: formatDateToLocalISOString(props.toDate),
       }, {
         signal: abortController.signal,
       }),
       statisticsApi.getIncomesStatistics({
         workspaceId: currentWorkspaceId,
-        fromDate: props.fromDate.toISOString().substring(0, 10),
-        toDate: props.toDate.toISOString().substring(0, 10),
+        fromDate: formatDateToLocalISOString(props.fromDate),
+        toDate: formatDateToLocalISOString(props.toDate),
       }, {
         signal: abortController.signal,
       }),
       statisticsApi.getTaxPaymentsStatistics({
         workspaceId: currentWorkspaceId,
-        fromDate: props.fromDate.toISOString().substring(0, 10),
-        toDate: props.toDate.toISOString().substring(0, 10),
+        fromDate: formatDateToLocalISOString(props.fromDate),
+        toDate: formatDateToLocalISOString(props.toDate),
       }, {
         signal: abortController.signal,
       }),

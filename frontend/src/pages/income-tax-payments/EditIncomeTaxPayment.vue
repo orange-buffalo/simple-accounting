@@ -116,6 +116,7 @@
   import type { EditIncomeTaxPaymentDto } from '@/services/api';
   import type { PartialBy } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
   import { incomeTaxPaymentsApi } from '@/services/api';
   import { ensureDefined } from '@/services/utils';
 
@@ -151,7 +152,7 @@
   };
 
   const taxPayment = ref<TaxPaymentFormValues>({
-    datePaid: new Date().toISOString().substring(0, 10),
+    datePaid: formatDateToLocalISOString(new Date()),
     attachments: [],
   });
 

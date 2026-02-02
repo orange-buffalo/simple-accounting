@@ -5,6 +5,8 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_FIXED_DATE_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.getBrowserUrl
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.assumeEditExpensePage
@@ -313,32 +315,50 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
             }
         }
 
-        page.authenticateViaCookie(preconditions.fry)
-        page.navigate("/expenses/create")
-        
-        page.shouldBeEditExpensePage {
-            // Test that entering a date works correctly
-            // The date should be stored as entered, without timezone conversion
-            datePaid {
-                input.fill("2023-12-31")
-                input.shouldHaveValue("2023-12-31")
+        // Create a new browser context with Australia/Melbourne timezone to reproduce the bug
+        val melbourneContext = page.context().browser().newContext(
+            com.microsoft.playwright.Browser.NewContextOptions()
+                .setTimezoneId("Australia/Melbourne")
+                .setBaseURL(getBrowserUrl())
+                .setViewportSize(1920, 1080)
+        )
+        val melbournePage = melbourneContext.newPage()
+        melbournePage.clock().install(
+            com.microsoft.playwright.Clock.InstallOptions()
+                .setTime(TEST_FIXED_DATE_TIME.toEpochMilli())
+        )
+
+        try {
+            melbournePage.authenticateViaCookie(preconditions.fry)
+            melbournePage.navigate("/expenses/create")
+            
+            melbournePage.shouldBeEditExpensePage {
+                // Test that entering a date works correctly
+                // The date should be stored as entered, without timezone conversion
+                datePaid {
+                    input.fill("2023-12-31")
+                    input.shouldHaveValue("2023-12-31")
+                }
+                
+                title.input.fill("Timezone Test Expense")
+                category.input.selectOption(preconditions.category.name)
+                currency.input.selectOption("AUD")
+                originalAmount.input.fill("1000")
+                
+                saveButton.click()
             }
             
-            title.input.fill("Timezone Test Expense")
-            category.input.selectOption(preconditions.category.name)
-            currency.input.selectOption("AUD")
-            originalAmount.input.fill("1000")
+            melbournePage.shouldBeExpensesOverviewPage()
             
-            saveButton.click()
+            // Verify the date was stored correctly
+            val savedExpense = aggregateTemplate.findAll(Expense::class.java)
+                .first { it.title == "Timezone Test Expense" }
+            
+            savedExpense.datePaid.shouldBe(LocalDate.of(2023, 12, 31))
+        } finally {
+            melbournePage.close()
+            melbourneContext.close()
         }
-        
-        page.shouldBeExpensesOverviewPage()
-        
-        // Verify the date was stored correctly
-        val savedExpense = aggregateTemplate.findAll(Expense::class.java)
-            .first { it.title == "Timezone Test Expense" }
-        
-        savedExpense.datePaid.shouldBe(LocalDate.of(2023, 12, 31))
     }
 }
 

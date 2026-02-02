@@ -205,6 +205,7 @@
   import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
   import useNavigation from '@/services/use-navigation';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { EditInvoiceDto, InvoiceDtoStatusEnum } from '@/services/api';
@@ -268,7 +269,7 @@
 
   const invoice = ref<InvoiceFormValues>({
     attachments: [],
-    dateIssued: new Date().toISOString().substring(0, 10),
+    dateIssued: formatDateToLocalISOString(new Date()),
     currency: defaultCurrency,
   });
 

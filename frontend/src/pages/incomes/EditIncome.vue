@@ -172,6 +172,7 @@
   import type { PartialBy } from '@/services/utils';
   import { ensureDefined } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
 
   const props = defineProps<{
     id?: number,
@@ -213,7 +214,7 @@
 
   const income = ref<IncomeFormValues>({
     attachments: [],
-    dateReceived: new Date().toISOString().substring(0, 10),
+    dateReceived: formatDateToLocalISOString(new Date()),
     currency: defaultCurrency,
     useDifferentExchangeRateForIncomeTaxPurposes: false,
     linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
