@@ -40,16 +40,16 @@ export interface IncomeDto {
     title: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof IncomeDto
      */
-    timeRecorded: Date;
+    timeRecorded: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof IncomeDto
      */
-    dateReceived: Date;
+    dateReceived: string;
     /**
      * 
      * @type {string}
@@ -179,8 +179,8 @@ export function IncomeDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         
         'category': json['category'] == null ? undefined : json['category'],
         'title': json['title'],
-        'timeRecorded': (new Date(json['timeRecorded'])),
-        'dateReceived': (new Date(json['dateReceived'])),
+        'timeRecorded': json['timeRecorded'],
+        'dateReceived': json['dateReceived'],
         'currency': json['currency'],
         'originalAmount': json['originalAmount'],
         'attachments': json['attachments'],
@@ -206,8 +206,8 @@ export function IncomeDtoToJSON(value?: IncomeDto | null): any {
         
         'category': value['category'],
         'title': value['title'],
-        'timeRecorded': ((value['timeRecorded']).toISOString()),
-        'dateReceived': ((value['dateReceived']).toISOString().substring(0,10)),
+        'timeRecorded': value['timeRecorded'],
+        'dateReceived': value['dateReceived'],
         'currency': value['currency'],
         'originalAmount': value['originalAmount'],
         'attachments': value['attachments'],

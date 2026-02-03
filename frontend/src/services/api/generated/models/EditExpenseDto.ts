@@ -27,10 +27,10 @@ export interface EditExpenseDto {
     category?: number;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof EditExpenseDto
      */
-    datePaid: Date;
+    datePaid: string;
     /**
      * 
      * @type {string}
@@ -116,7 +116,7 @@ export function EditExpenseDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     return {
         
         'category': json['category'] == null ? undefined : json['category'],
-        'datePaid': (new Date(json['datePaid'])),
+        'datePaid': json['datePaid'],
         'title': json['title'],
         'currency': json['currency'],
         'originalAmount': json['originalAmount'],
@@ -137,7 +137,7 @@ export function EditExpenseDtoToJSON(value?: EditExpenseDto | null): any {
     return {
         
         'category': value['category'],
-        'datePaid': ((value['datePaid']).toISOString().substring(0,10)),
+        'datePaid': value['datePaid'],
         'title': value['title'],
         'currency': value['currency'],
         'originalAmount': value['originalAmount'],

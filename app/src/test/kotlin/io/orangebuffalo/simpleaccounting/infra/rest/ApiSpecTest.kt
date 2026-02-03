@@ -99,7 +99,10 @@ class ApiSpecTest(
         val generator = OpenApiGenerator()
             .withFileSystemBind("src/test/resources/api-spec.yaml", "/api-spec.yaml", BindMode.READ_ONLY)
             .withFileSystemBind(tmpDir.absolutePath, "/out", BindMode.READ_WRITE)
-            .withCommand("generate", "-g", "typescript-fetch", "-o", "/out", "-i", "/api-spec.yaml")
+            .withCommand(
+                "generate", "-g", "typescript-fetch", "-o", "/out", "-i", "/api-spec.yaml",
+                "--type-mappings=Date=string"
+            )
             .withLogConsumer { logger.info { it.utf8String } }
             .waitingFor(Wait.forLogMessage(".*Thanks for using OpenAPI Generator.*", 1))
         generator.start()

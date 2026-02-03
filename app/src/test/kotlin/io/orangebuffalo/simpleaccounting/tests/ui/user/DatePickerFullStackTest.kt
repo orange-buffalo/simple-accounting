@@ -1,14 +1,19 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
+import com.microsoft.playwright.Browser
+import com.microsoft.playwright.Clock
 import com.microsoft.playwright.Page
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_FIXED_DATE_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.getBrowserUrl
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.assumeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.shouldBeCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -300,6 +305,70 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                 input.shouldHavePopoverWeekday("Tu")
             }
             reportRendering("date-picker.popover-ukrainian")
+        }
+    }
+
+    @Test
+    fun `should handle dates correctly regardless of timezone`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = fry()
+                val workspace = workspace(owner = fry, defaultCurrency = "AUD")
+                val category = category(workspace = workspace)
+            }
+        }
+
+        // Create a new browser context with Australia/Melbourne timezone to reproduce the bug
+        val melbourneContext = page.context().browser()!!.newContext(
+            Browser.NewContextOptions()
+                .setTimezoneId("Australia/Melbourne")
+                .setBaseURL(getBrowserUrl())
+                .setViewportSize(1920, 1080)
+        )
+        
+        // Configure the context similarly to the main test context
+        melbourneContext.setDefaultTimeout(10000.0)
+        melbourneContext.addInitScript(
+            """
+                window.saRunningInTest = true;
+                console.info("Playwright test environment initialized for Melbourne timezone");
+            """.trimIndent()
+        )
+        
+        val melbournePage = melbourneContext.newPage()
+        melbournePage.clock().install(
+            Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli())
+        )
+
+        try {
+            melbournePage.authenticateViaCookie(preconditions.fry)
+            melbournePage.navigate("${getBrowserUrl()}/expenses/create")
+            
+            melbournePage.shouldBeCreateExpensePage {
+                // Test that entering a date works correctly
+                // The date should be stored as entered, without timezone conversion
+                datePaid {
+                    input.fill("2023-12-31")
+                    input.shouldHaveValue("2023-12-31")
+                }
+                
+                title.input.fill("Timezone Test Expense")
+                category.input.selectOption(preconditions.category.name)
+                originalAmount.input.fill("1000")
+                
+                saveButton.click()
+            }
+            
+            melbournePage.shouldBeExpensesOverviewPage()
+            
+            // Verify the date was stored correctly
+            val savedExpense = aggregateTemplate.findAll(Expense::class.java)
+                .first { it.title == "Timezone Test Expense" }
+            
+            savedExpense.datePaid.shouldBe(LocalDate.of(2023, 12, 31))
+        } finally {
+            melbournePage.close()
+            melbourneContext.close()
         }
     }
 }

@@ -59,6 +59,7 @@
               <ElDatePicker
                 v-model="income.dateReceived"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editIncome.generalInformation.dateReceived.placeholder()"
               />
             </ElFormItem>
@@ -171,6 +172,7 @@
   import type { PartialBy } from '@/services/utils';
   import { ensureDefined } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
 
   const props = defineProps<{
     id?: number,
@@ -212,7 +214,7 @@
 
   const income = ref<IncomeFormValues>({
     attachments: [],
-    dateReceived: new Date(),
+    dateReceived: formatDateToLocalISOString(new Date()),
     currency: defaultCurrency,
     useDifferentExchangeRateForIncomeTaxPurposes: false,
     linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,

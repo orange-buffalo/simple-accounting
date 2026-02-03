@@ -48,6 +48,7 @@
   import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
   import { reportingApi } from '@/services/api';
   import { $t } from '@/services/i18n';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
 
   function transformTaxes(finalizedTaxes: FinalizedTaxSummaryItemDto[], pendingTaxes: PendingTaxSummaryItemDto[]) {
     let taxes: GeneralTaxReportItem[] = finalizedTaxes.map((tax) => ({
@@ -88,8 +89,8 @@
   const reloadReport = async () => {
     report.value = await reportingApi.getGeneralTaxReport({
       workspaceId: currentWorkspaceId,
-      fromDate: props.dateRange[0],
-      toDate: props.dateRange[1],
+      fromDate: formatDateToLocalISOString(props.dateRange[0]),
+      toDate: formatDateToLocalISOString(props.dateRange[1]),
     });
     emit('report-loaded');
   };

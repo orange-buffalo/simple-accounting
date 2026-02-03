@@ -31,20 +31,20 @@ export interface GetCurrenciesShortlistRequest {
 
 export interface GetExpensesStatisticsRequest {
     workspaceId: number;
-    fromDate: Date;
-    toDate: Date;
+    fromDate: string;
+    toDate: string;
 }
 
 export interface GetIncomesStatisticsRequest {
     workspaceId: number;
-    fromDate: Date;
-    toDate: Date;
+    fromDate: string;
+    toDate: string;
 }
 
 export interface GetTaxPaymentsStatisticsRequest {
     workspaceId: number;
-    fromDate: Date;
-    toDate: Date;
+    fromDate: string;
+    toDate: string;
 }
 
 /**
@@ -110,11 +110,11 @@ export class StatisticsApiApi extends runtime.BaseAPI {
         const queryParameters: any = {};
 
         if (requestParameters['fromDate'] != null) {
-            queryParameters['fromDate'] = (requestParameters['fromDate'] as any).toISOString().substring(0,10);
+            queryParameters['fromDate'] = requestParameters['fromDate'];
         }
 
         if (requestParameters['toDate'] != null) {
-            queryParameters['toDate'] = (requestParameters['toDate'] as any).toISOString().substring(0,10);
+            queryParameters['toDate'] = requestParameters['toDate'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -163,11 +163,11 @@ export class StatisticsApiApi extends runtime.BaseAPI {
         const queryParameters: any = {};
 
         if (requestParameters['fromDate'] != null) {
-            queryParameters['fromDate'] = (requestParameters['fromDate'] as any).toISOString().substring(0,10);
+            queryParameters['fromDate'] = requestParameters['fromDate'];
         }
 
         if (requestParameters['toDate'] != null) {
-            queryParameters['toDate'] = (requestParameters['toDate'] as any).toISOString().substring(0,10);
+            queryParameters['toDate'] = requestParameters['toDate'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -216,11 +216,11 @@ export class StatisticsApiApi extends runtime.BaseAPI {
         const queryParameters: any = {};
 
         if (requestParameters['fromDate'] != null) {
-            queryParameters['fromDate'] = (requestParameters['fromDate'] as any).toISOString().substring(0,10);
+            queryParameters['fromDate'] = requestParameters['fromDate'];
         }
 
         if (requestParameters['toDate'] != null) {
-            queryParameters['toDate'] = (requestParameters['toDate'] as any).toISOString().substring(0,10);
+            queryParameters['toDate'] = requestParameters['toDate'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

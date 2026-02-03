@@ -39,10 +39,10 @@ export interface DocumentDto {
     name: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof DocumentDto
      */
-    timeUploaded: Date;
+    timeUploaded: string;
     /**
      * 
      * @type {number}
@@ -75,7 +75,7 @@ export function DocumentDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'id': json['id'],
         'version': json['version'],
         'name': json['name'],
-        'timeUploaded': (new Date(json['timeUploaded'])),
+        'timeUploaded': json['timeUploaded'],
         'sizeInBytes': json['sizeInBytes'] == null ? undefined : json['sizeInBytes'],
     };
 }
@@ -89,7 +89,7 @@ export function DocumentDtoToJSON(value?: DocumentDto | null): any {
         'id': value['id'],
         'version': value['version'],
         'name': value['name'],
-        'timeUploaded': ((value['timeUploaded']).toISOString()),
+        'timeUploaded': value['timeUploaded'],
         'sizeInBytes': value['sizeInBytes'],
     };
 }

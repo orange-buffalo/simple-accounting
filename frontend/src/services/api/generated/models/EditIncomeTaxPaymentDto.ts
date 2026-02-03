@@ -21,16 +21,16 @@ import { mapValues } from '../runtime';
 export interface EditIncomeTaxPaymentDto {
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof EditIncomeTaxPaymentDto
      */
-    datePaid: Date;
+    datePaid: string;
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof EditIncomeTaxPaymentDto
      */
-    reportingDate?: Date;
+    reportingDate?: string;
     /**
      * 
      * @type {number}
@@ -77,8 +77,8 @@ export function EditIncomeTaxPaymentDtoFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
         
-        'datePaid': (new Date(json['datePaid'])),
-        'reportingDate': json['reportingDate'] == null ? undefined : (new Date(json['reportingDate'])),
+        'datePaid': json['datePaid'],
+        'reportingDate': json['reportingDate'] == null ? undefined : json['reportingDate'],
         'amount': json['amount'],
         'attachments': json['attachments'] == null ? undefined : json['attachments'],
         'notes': json['notes'] == null ? undefined : json['notes'],
@@ -92,8 +92,8 @@ export function EditIncomeTaxPaymentDtoToJSON(value?: EditIncomeTaxPaymentDto | 
     }
     return {
         
-        'datePaid': ((value['datePaid']).toISOString().substring(0,10)),
-        'reportingDate': value['reportingDate'] == null ? undefined : ((value['reportingDate']).toISOString().substring(0,10)),
+        'datePaid': value['datePaid'],
+        'reportingDate': value['reportingDate'],
         'amount': value['amount'],
         'attachments': value['attachments'],
         'notes': value['notes'],

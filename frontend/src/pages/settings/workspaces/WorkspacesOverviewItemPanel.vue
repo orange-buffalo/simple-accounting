@@ -123,7 +123,7 @@
     await workspaceAccessTokensApi.createAccessToken({
       workspaceId: ensureDefined(props.workspace.id),
       createWorkspaceAccessTokenDto: {
-        validTill: newShareValidTill.value,
+        validTill: newShareValidTill.value.toISOString(),
       },
     });
     await reloadAccessTokens();

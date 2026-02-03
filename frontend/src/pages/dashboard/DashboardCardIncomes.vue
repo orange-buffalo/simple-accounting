@@ -49,6 +49,7 @@
   import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import { $t } from '@/services/i18n';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
 
   const props = defineProps<{
     fromDate: Date,
@@ -65,8 +66,8 @@
     async (_, workspaceId) => {
       const response = await statisticsApi.getIncomesStatistics({
         workspaceId,
-        fromDate: props.fromDate,
-        toDate: props.toDate,
+        fromDate: formatDateToLocalISOString(props.fromDate),
+        toDate: formatDateToLocalISOString(props.toDate),
       });
       response.items.sort((a, b) => b.totalAmount - a.totalAmount);
       return response;

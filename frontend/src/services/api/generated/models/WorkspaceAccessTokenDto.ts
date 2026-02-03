@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface WorkspaceAccessTokenDto {
     /**
      * 
-     * @type {Date}
+     * @type {string}
      * @memberof WorkspaceAccessTokenDto
      */
-    validTill: Date;
+    validTill: string;
     /**
      * 
      * @type {boolean}
@@ -73,7 +73,7 @@ export function WorkspaceAccessTokenDtoFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
         
-        'validTill': (new Date(json['validTill'])),
+        'validTill': json['validTill'],
         'revoked': json['revoked'],
         'token': json['token'],
         'id': json['id'],
@@ -87,7 +87,7 @@ export function WorkspaceAccessTokenDtoToJSON(value?: WorkspaceAccessTokenDto | 
     }
     return {
         
-        'validTill': ((value['validTill']).toISOString()),
+        'validTill': value['validTill'],
         'revoked': value['revoked'],
         'token': value['token'],
         'id': value['id'],

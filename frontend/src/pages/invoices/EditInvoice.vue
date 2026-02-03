@@ -80,6 +80,7 @@
               <ElDatePicker
                 v-model="invoice.dateIssued"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editInvoice.generalInformation.dateIssued.placeholder()"
               />
             </ElFormItem>
@@ -92,6 +93,7 @@
               <ElDatePicker
                 v-model="invoice.dueDate"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editInvoice.generalInformation.dueDate.placeholder()"
               />
             </ElFormItem>
@@ -122,6 +124,7 @@
               <ElDatePicker
                 v-model="invoice.dateSent"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editInvoice.generalInformation.dateSent.placeholder()"
               />
             </ElFormItem>
@@ -141,6 +144,7 @@
               <ElDatePicker
                 v-model="invoice.datePaid"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editInvoice.generalInformation.datePaid.placeholder()"
               />
             </ElFormItem>
@@ -201,6 +205,7 @@
   import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
   import useNavigation from '@/services/use-navigation';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import type { EditInvoiceDto, InvoiceDtoStatusEnum } from '@/services/api';
@@ -264,7 +269,7 @@
 
   const invoice = ref<InvoiceFormValues>({
     attachments: [],
-    dateIssued: new Date(),
+    dateIssued: formatDateToLocalISOString(new Date()),
     currency: defaultCurrency,
   });
 

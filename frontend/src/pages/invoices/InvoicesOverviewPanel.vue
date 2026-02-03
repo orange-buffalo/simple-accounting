@@ -229,6 +229,7 @@
   import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
   import useNavigation from '@/services/use-navigation';
   import { useCurrentWorkspace } from '@/services/workspaces';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
   import type { InvoiceDto } from '@/services/api';
   import { generalTaxesApi, invoicesApi } from '@/services/api';
   import { $t } from '@/services/i18n';
@@ -248,7 +249,7 @@
   const markSent = async () => {
     const invoiceRequest = {
       ...props.invoice,
-      dateSent: new Date(),
+      dateSent: formatDateToLocalISOString(new Date()),
     };
     await invoicesApi.updateInvoice({
       invoiceId: props.invoice.id,

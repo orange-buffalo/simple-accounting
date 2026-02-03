@@ -42,6 +42,7 @@
               <ElDatePicker
                 v-model="taxPayment.datePaid"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editIncomeTaxPayment.generalInformation.datePaid.placeholder()"
               />
             </ElFormItem>
@@ -54,6 +55,7 @@
               <ElDatePicker
                 v-model="taxPayment.reportingDate"
                 type="date"
+                value-format="YYYY-MM-DD"
                 :placeholder="$t.editIncomeTaxPayment.generalInformation.reportingDate.placeholder()"
               />
             </ElFormItem>
@@ -114,6 +116,7 @@
   import type { EditIncomeTaxPaymentDto } from '@/services/api';
   import type { PartialBy } from '@/services/utils';
   import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+  import { formatDateToLocalISOString } from '@/services/date-utils';
   import { incomeTaxPaymentsApi } from '@/services/api';
   import { ensureDefined } from '@/services/utils';
 
@@ -149,7 +152,7 @@
   };
 
   const taxPayment = ref<TaxPaymentFormValues>({
-    datePaid: new Date(),
+    datePaid: formatDateToLocalISOString(new Date()),
     attachments: [],
   });
 
