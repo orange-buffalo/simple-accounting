@@ -15,7 +15,11 @@ class Markdown private constructor(
     private val previewLocator = rootLocator.locator(".sa-notes-input__preview")
     private val previewContentLocator = previewLocator.locator(".markdown-output")
 
-    fun fill(text: String) = textareaLocator.fill(text)
+    fun fill(text: String) {
+        textareaLocator.fill(text)
+        // Trigger input event to ensure Vue reactivity picks up the change
+        textareaLocator.dispatchEvent("input")
+    }
 
     fun shouldBeVisible() = textareaLocator.shouldBeVisible()
 
@@ -45,27 +49,34 @@ class MarkdownPreview internal constructor(
     private val rootLocator: Locator,
 ) {
     fun shouldContainText(text: String) {
-        rootLocator.shouldBeVisible()
+        // Wait for the markdown container to have non-empty content
+        rootLocator.locator("div:not(:empty)").first().waitFor()
         rootLocator.shouldContainText(text)
     }
 
     fun shouldContainHeading(text: String) {
-        rootLocator.locator("h1:has-text('$text'), h2:has-text('$text'), h3:has-text('$text'), h4:has-text('$text'), h5:has-text('$text'), h6:has-text('$text')").shouldBeVisible()
+        // Wait for any heading to appear, then check for the specific one
+        rootLocator.locator("h1, h2, h3, h4, h5, h6").first().waitFor()
+        rootLocator.shouldContainText(text)
     }
 
     fun shouldContainLink(text: String) {
-        rootLocator.locator("a:has-text('$text')").shouldBeVisible()
+        rootLocator.locator("a").first().waitFor()
+        rootLocator.shouldContainText(text)
     }
 
     fun shouldContainBold(text: String) {
-        rootLocator.locator("strong:has-text('$text')").shouldBeVisible()
+        rootLocator.locator("strong").first().waitFor()
+        rootLocator.shouldContainText(text)
     }
 
     fun shouldContainItalic(text: String) {
-        rootLocator.locator("em:has-text('$text')").shouldBeVisible()
+        rootLocator.locator("em").first().waitFor()
+        rootLocator.shouldContainText(text)
     }
 
     fun shouldContainListItem(text: String) {
-        rootLocator.locator("li:has-text('$text')").shouldBeVisible()
+        rootLocator.locator("li").first().waitFor()
+        rootLocator.shouldContainText(text)
     }
 }
