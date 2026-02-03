@@ -13,13 +13,8 @@ class Markdown private constructor(
 ) : UiComponent<Markdown>() {
     private val textareaLocator = rootLocator.locator(".sa-notes-input__input textarea")
     private val previewLocator = rootLocator.locator(".sa-notes-input__preview")
-    private val previewContentLocator = previewLocator.locator(".markdown-output")
 
-    fun fill(text: String) {
-        textareaLocator.fill(text)
-        // Trigger input event to ensure Vue reactivity picks up the change
-        textareaLocator.dispatchEvent("input")
-    }
+    fun fill(text: String) = textareaLocator.fill(text)
 
     fun shouldBeVisible() = textareaLocator.shouldBeVisible()
 
@@ -33,50 +28,14 @@ class Markdown private constructor(
 
     fun shouldNotHavePreview() = previewLocator.shouldBeHidden()
 
-    fun shouldHavePreviewContaining(text: String) {
-        previewContentLocator.shouldBeVisible()
-        previewContentLocator.shouldContainText(text)
+    fun shouldHavePreviewWithHeading(text: String) {
+        previewLocator.shouldBeVisible()
+        previewLocator.getByRole(com.microsoft.playwright.options.AriaRole.HEADING).filter(
+            com.microsoft.playwright.Locator.FilterOptions().setHasText(text)
+        ).shouldBeVisible()
     }
-
-    fun preview() = MarkdownPreview(previewContentLocator)
 
     companion object {
         fun byContainer(container: Locator) = Markdown(container)
-    }
-}
-
-class MarkdownPreview internal constructor(
-    private val rootLocator: Locator,
-) {
-    fun shouldContainText(text: String) {
-        // Wait for the markdown container to have non-empty content
-        rootLocator.locator("div:not(:empty)").first().waitFor()
-        rootLocator.shouldContainText(text)
-    }
-
-    fun shouldContainHeading(text: String) {
-        // Wait for any heading to appear, then check for the specific one
-        rootLocator.locator("h1, h2, h3, h4, h5, h6").first().waitFor()
-        rootLocator.shouldContainText(text)
-    }
-
-    fun shouldContainLink(text: String) {
-        rootLocator.locator("a").first().waitFor()
-        rootLocator.shouldContainText(text)
-    }
-
-    fun shouldContainBold(text: String) {
-        rootLocator.locator("strong").first().waitFor()
-        rootLocator.shouldContainText(text)
-    }
-
-    fun shouldContainItalic(text: String) {
-        rootLocator.locator("em").first().waitFor()
-        rootLocator.shouldContainText(text)
-    }
-
-    fun shouldContainListItem(text: String) {
-        rootLocator.locator("li").first().waitFor()
-        rootLocator.shouldContainText(text)
     }
 }
