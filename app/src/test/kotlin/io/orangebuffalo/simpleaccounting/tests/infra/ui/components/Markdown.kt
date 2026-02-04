@@ -1,6 +1,8 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
+import com.microsoft.playwright.Locator.FilterOptions
+import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
@@ -30,8 +32,8 @@ class Markdown private constructor(
 
     fun shouldHavePreviewWithHeading(text: String) {
         previewLocator.shouldBeVisible()
-        previewLocator.getByRole(com.microsoft.playwright.options.AriaRole.HEADING).filter(
-            com.microsoft.playwright.Locator.FilterOptions().setHasText(text)
+        previewLocator.getByRole(AriaRole.HEADING).filter(
+            FilterOptions().setHasText(text)
         ).shouldBeVisible()
     }
 

@@ -32,7 +32,6 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
                 input.fill("Simple plain text note")
                 input.shouldHaveValue("Simple plain text note")
             }
-            reportRendering("notes-input.plain-text")
 
             saveButton.click()
         }
@@ -64,7 +63,6 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
                 page.clock().runFor(400)
                 input.shouldHavePreviewWithHeading("Important Heading")
             }
-            reportRendering("notes-input.markdown-heading")
 
             saveButton.click()
         }
@@ -124,7 +122,6 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
                 page.clock().runFor(400)
                 input.shouldHavePreviewWithHeading("Meeting Notes")
             }
-            reportRendering("notes-input.pre-filled-edit-mode")
         }
     }
 
@@ -141,18 +138,18 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             notes {
-                input.fill("Initial text")
+                input.fill("# Initial heading")
                 page.clock().runFor(400)
                 input.shouldHavePreview()
+                input.shouldHavePreviewWithHeading("Initial heading")
             }
-            reportRendering("notes-input.preview-update-step-1")
 
             notes {
-                input.fill("**Updated** text")
+                input.fill("# Updated heading")
                 page.clock().runFor(400)
                 input.shouldHavePreview()
+                input.shouldHavePreviewWithHeading("Updated heading")
             }
-            reportRendering("notes-input.preview-update-step-2")
         }
     }
 
@@ -169,10 +166,29 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             notes {
-                input.fill("# Heading with **bold** and *italic* text")
+                input.fill("""
+                    # Project Overview
+                    
+                    ## Executive Summary
+                    This project aims to **revolutionize** the industry through *innovative* approaches.
+                    
+                    ### Key Objectives
+                    - Improve efficiency by 50%
+                    - Reduce costs significantly
+                    - Enhance customer satisfaction
+                    
+                    #### Technical Details
+                    > "Innovation distinguishes between a leader and a follower."
+                    > - Steve Jobs
+                    
+                    For more information, visit our [documentation](https://example.com/docs).
+                    
+                    ##### Implementation Notes
+                    The system uses cutting-edge technology.
+                """.trimIndent())
                 // Advance clock past debounce timeout
                 page.clock().runFor(400)
-                input.shouldHavePreviewWithHeading("Heading with")
+                input.shouldHavePreviewWithHeading("Project Overview")
             }
             reportRendering("notes-input.complex-markdown")
         }
