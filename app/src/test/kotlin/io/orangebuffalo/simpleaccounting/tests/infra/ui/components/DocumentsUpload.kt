@@ -44,12 +44,14 @@ class DocumentsUpload private constructor(
 
     fun uploadFile(filePath: Path): DocumentsUpload {
         val fileInput = rootLocator.locator("input[type='file']").first()
+        fileInput.waitFor()
         fileInput.setInputFiles(filePath)
         return this
     }
 
     fun uploadFiles(vararg filePaths: Path): DocumentsUpload {
         val fileInput = rootLocator.locator("input[type='file']").first()
+        fileInput.waitFor()
         fileInput.setInputFiles(filePaths.toList().toTypedArray())
         return this
     }

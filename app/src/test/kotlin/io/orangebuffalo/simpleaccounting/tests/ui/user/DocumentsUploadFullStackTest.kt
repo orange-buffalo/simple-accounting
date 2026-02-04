@@ -60,15 +60,18 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
     ) : DocumentsStorage by mockStorage {
         private val uploadedDocuments = mutableMapOf<String, ByteArray>()
 
-        fun mockStorageActive() {
+        init {
+            // Always return "test-storage" as ID
             whenever(mockStorage.getId()) doReturn "test-storage"
+        }
+
+        fun mockStorageActive() {
             mockStorage.stub {
                 onBlocking { getCurrentUserStorageStatus() } doReturn DocumentsStorageStatus(active = true)
             }
         }
 
         fun mockStorageInactive() {
-            whenever(mockStorage.getId()) doReturn "test-storage"
             mockStorage.stub {
                 onBlocking { getCurrentUserStorageStatus() } doReturn DocumentsStorageStatus(active = false)
             }
@@ -254,6 +257,9 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
+                // Wait for component to be ready (empty slot should be visible)
+                shouldHaveEmptyUploadSlot()
+                
                 uploadFile(testFile)
                 reportRendering("documents-upload.single-file-selected")
 
