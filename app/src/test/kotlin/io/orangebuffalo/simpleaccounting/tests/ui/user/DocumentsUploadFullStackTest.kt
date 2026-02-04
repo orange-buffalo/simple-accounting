@@ -332,6 +332,247 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
         }
     }
 
+    @Test
+    fun `should load and display multiple pre-existing documents`(page: Page) {
+        val document1Content = "First document content".toByteArray()
+        val document2Content = "Second document content".toByteArray()
+        val document3Content = "Third document content".toByteArray()
+
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val doc1 = document(
+                    workspace = workspace,
+                    name = "invoice.pdf",
+                    storageId = "test-storage",
+                    storageLocation = "location-1",
+                    sizeInBytes = document1Content.size.toLong(),
+                    timeUploaded = MOCK_TIME
+                )
+                val doc2 = document(
+                    workspace = workspace,
+                    name = "receipt.jpg",
+                    storageId = "test-storage",
+                    storageLocation = "location-2",
+                    sizeInBytes = document2Content.size.toLong(),
+                    timeUploaded = MOCK_TIME
+                )
+                val doc3 = document(
+                    workspace = workspace,
+                    name = "contract.docx",
+                    storageId = "test-storage",
+                    storageLocation = "location-3",
+                    sizeInBytes = document3Content.size.toLong(),
+                    timeUploaded = MOCK_TIME
+                )
+                val expense = expense(
+                    workspace = workspace,
+                    category = null,
+                    title = "Test",
+                    originalAmount = 0,
+                    currency = "USD",
+                    attachments = setOf(doc1, doc2, doc3)
+                )
+            }
+        }
+
+        testDocumentsStorage.mockStorageActive()
+        testDocumentsStorage.mockDocumentContent("location-1", document1Content)
+        testDocumentsStorage.mockDocumentContent("location-2", document2Content)
+        testDocumentsStorage.mockDocumentContent("location-3", document3Content)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                shouldHaveDocuments(4) // 3 existing + 1 empty slot
+                shouldHaveDocumentWithName("invoice.pdf")
+                shouldHaveDocumentWithName("receipt.jpg")
+                shouldHaveDocumentWithName("contract.docx")
+                reportRendering("documents-upload.multiple-pre-existing")
+            }
+        }
+    }
+
+    @Test
+    fun `should upload multiple files`(page: Page) {
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val expense = expense(
+                    workspace = workspace,
+                    category = null,
+                    title = "Test",
+                    originalAmount = 0,
+                    currency = "USD",
+                    attachments = emptySet()
+                )
+            }
+        }
+
+        testDocumentsStorage.mockStorageActive()
+
+        val file1Content = "First file content".toByteArray()
+        val file2Content = "Second file content".toByteArray()
+        val file3Content = "Third file content".toByteArray()
+
+        val file1 = createTestFile("receipt1.pdf", file1Content)
+        val file2 = createTestFile("receipt2.pdf", file2Content)
+        val file3 = createTestFile("receipt3.pdf", file3Content)
+
+        testDocumentsStorage.mockDocumentUpload("receipt1.pdf", file1Content)
+        testDocumentsStorage.mockDocumentUpload("receipt2.pdf", file2Content)
+        testDocumentsStorage.mockDocumentUpload("receipt3.pdf", file3Content)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                uploadFile(file1)
+                uploadFile(file2)
+                uploadFile(file3)
+
+                shouldHaveDocuments(3)
+                shouldHaveDocumentWithName("receipt1.pdf")
+                shouldHaveDocumentWithName("receipt2.pdf")
+                shouldHaveDocumentWithName("receipt3.pdf")
+                reportRendering("documents-upload.multiple-files-selected")
+            }
+
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        // Verify all three documents were saved
+        val savedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
+        savedExpense.shouldWithClue("Expense should have three attachments") {
+            attachments.shouldHaveSize(3)
+        }
+    }
+
+    @Test
+    fun `should remove pre-existing document before save`(page: Page) {
+        val documentContent = "Document to be removed".toByteArray()
+
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val document = document(
+                    workspace = workspace,
+                    name = "to-remove.pdf",
+                    storageId = "test-storage",
+                    storageLocation = "remove-location",
+                    sizeInBytes = documentContent.size.toLong(),
+                    timeUploaded = MOCK_TIME
+                )
+                val expense = expense(
+                    workspace = workspace,
+                    category = null,
+                    title = "Test",
+                    originalAmount = 0,
+                    currency = "USD",
+                    attachments = setOf(document)
+                )
+            }
+        }
+
+        testDocumentsStorage.mockStorageActive()
+        testDocumentsStorage.mockDocumentContent("remove-location", documentContent)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                shouldHaveDocumentWithName("to-remove.pdf")
+                reportRendering("documents-upload.before-removal")
+
+                removeDocument("to-remove.pdf")
+                shouldNotHaveDocument("to-remove.pdf")
+                reportRendering("documents-upload.after-removal")
+            }
+
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        // Verify document was removed
+        val savedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
+        savedExpense.shouldWithClue("Expense should have no attachments after removal") {
+            attachments.shouldHaveSize(0)
+        }
+    }
+
+    @Test
+    fun `should handle mixed scenario with existing and new documents`(page: Page) {
+        val existingContent = "Existing document content".toByteArray()
+        val newFileContent = "New file content".toByteArray()
+
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val existingDoc = document(
+                    workspace = workspace,
+                    name = "existing.pdf",
+                    storageId = "test-storage",
+                    storageLocation = "existing-loc",
+                    sizeInBytes = existingContent.size.toLong(),
+                    timeUploaded = MOCK_TIME
+                )
+                val expense = expense(
+                    workspace = workspace,
+                    category = null,
+                    title = "Test",
+                    originalAmount = 0,
+                    currency = "USD",
+                    attachments = setOf(existingDoc)
+                )
+            }
+        }
+
+        testDocumentsStorage.mockStorageActive()
+        testDocumentsStorage.mockDocumentContent("existing-loc", existingContent)
+
+        val newFile = createTestFile("new-receipt.pdf", newFileContent)
+        testDocumentsStorage.mockDocumentUpload("new-receipt.pdf", newFileContent)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                // Verify existing document is present
+                shouldHaveDocumentWithName("existing.pdf")
+
+                // Add new document
+                uploadFile(newFile)
+                shouldHaveDocumentWithName("new-receipt.pdf")
+
+                // Should now have both
+                shouldHaveDocuments(2)
+                reportRendering("documents-upload.mixed-existing-and-new")
+            }
+
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        // Verify both documents are saved
+        val savedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
+        savedExpense.shouldWithClue("Expense should have two attachments") {
+            attachments.shouldHaveSize(2)
+        }
+    }
+
     private fun createTestFile(fileName: String, content: ByteArray): Path {
         val testFile = Files.createTempFile("test-upload-", "-$fileName")
         testFile.writeBytes(content)
