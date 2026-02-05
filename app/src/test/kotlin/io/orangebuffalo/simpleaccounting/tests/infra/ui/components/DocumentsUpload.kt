@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -30,8 +31,11 @@ class DocumentsUpload private constructor(
         return this
     }
 
-    fun shouldHaveStorageErrorMessage(): DocumentsUpload {
+    fun shouldHaveStorageErrorMessage(expectedMessage: String): DocumentsUpload {
         storageErrorAlert.shouldBeVisible()
+        storageErrorAlert.shouldSatisfy("Error message should contain expected text") {
+            textContent()?.contains(expectedMessage, ignoreCase = false) shouldBe true
+        }
         return this
     }
 
@@ -47,11 +51,13 @@ class DocumentsUpload private constructor(
     }
 
     fun shouldHaveDocuments(vararg expected: UploadedDocument): DocumentsUpload {
-        val documentLocators = rootLocator.locator(".sa-documents-upload__document").all()
-        val actualDocuments = documentLocators.map { documentLocator ->
-            extractDocumentInfo(documentLocator)
+        shouldSatisfy("Documents should match expected state") {
+            val documentLocators = rootLocator.locator(".sa-documents-upload__document").all()
+            val actualDocuments = documentLocators.map { documentLocator ->
+                extractDocumentInfo(documentLocator)
+            }
+            actualDocuments.shouldContainExactly(expected.toList())
         }
-        actualDocuments.shouldContainExactly(expected.toList())
         return this
     }
 
@@ -136,6 +142,8 @@ class DocumentsUpload private constructor(
     }
 
     companion object {
+        val Empty = UploadedDocument("", DocumentState.EMPTY)
+
         fun singleton(page: Page): DocumentsUpload {
             val container = page.locator(".sa-documents-upload")
             return DocumentsUpload(container, page)

@@ -1,6 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
@@ -45,7 +46,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveStorageErrorMessage()
+                shouldHaveStorageErrorMessage("Documents storage is not active")
                 reportRendering("documents-upload.storage-not-configured")
             }
         }
@@ -67,7 +68,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveStorageErrorMessage()
+                shouldHaveStorageErrorMessage("Documents storage is not active")
                 reportRendering("documents-upload.storage-not-ready")
             }
         }
@@ -87,9 +88,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeEditExpensePage {
             documentsUpload {
-                shouldHaveDocuments(
-                    DocumentsUpload.UploadedDocument("", DocumentsUpload.DocumentState.EMPTY)
-                )
+                shouldHaveDocuments(DocumentsUpload.Empty)
                 reportRendering("documents-upload.empty-upload-slot")
             }
         }
@@ -123,7 +122,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
             documentsUpload {
                 shouldHaveDocuments(
                     DocumentsUpload.UploadedDocument("existing-receipt.pdf", DocumentsUpload.DocumentState.COMPLETED),
-                    DocumentsUpload.UploadedDocument("", DocumentsUpload.DocumentState.EMPTY)
+                    DocumentsUpload.Empty
                 )
                 reportRendering("documents-upload.single-pre-existing")
 
@@ -185,7 +184,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
                     DocumentsUpload.UploadedDocument("invoice.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.UploadedDocument("receipt.jpg", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.UploadedDocument("contract.docx", DocumentsUpload.DocumentState.COMPLETED),
-                    DocumentsUpload.UploadedDocument("", DocumentsUpload.DocumentState.EMPTY)
+                    DocumentsUpload.Empty
                 )
                 reportRendering("documents-upload.multiple-pre-existing")
             }
@@ -220,15 +219,13 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
             documentsUpload {
                 shouldHaveDocuments(
                     DocumentsUpload.UploadedDocument("to-remove.pdf", DocumentsUpload.DocumentState.COMPLETED),
-                    DocumentsUpload.UploadedDocument("", DocumentsUpload.DocumentState.EMPTY)
+                    DocumentsUpload.Empty
                 )
                 reportRendering("documents-upload.before-removal")
 
                 removeDocument("to-remove.pdf")
                 
-                shouldHaveDocuments(
-                    DocumentsUpload.UploadedDocument("", DocumentsUpload.DocumentState.EMPTY)
-                )
+                shouldHaveDocuments(DocumentsUpload.Empty)
                 reportRendering("documents-upload.after-removal")
             }
 
@@ -242,6 +239,134 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
         savedExpense.shouldWithClue("Expense should have no attachments after removal") {
             attachments.shouldBe(emptySet())
         }
+    }
+
+    @Test
+    fun `should upload single file and verify content`(page: Page) {
+        val fileContent = "Single file upload test content".toByteArray()
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val workspace = workspace(owner = fry)
+                val expense = expense(workspace = workspace)
+            }
+        }
+
+        val testFile = createTestFile("upload-test.pdf", fileContent)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                shouldHaveDocuments(DocumentsUpload.Empty)
+                
+                selectFileForUpload(testFile)
+                
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument("upload-test.pdf", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.Empty
+                )
+                reportRendering("documents-upload.file-selected-pending")
+            }
+
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        // Verify database state
+        val savedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
+        savedExpense.shouldWithClue("Expense should have one attachment") {
+            attachments.shouldHaveSize(1)
+        }
+
+        val documentId = savedExpense.attachments.first().documentId
+        val savedDocument = aggregateTemplate.findSingle<io.orangebuffalo.simpleaccounting.business.documents.Document>(documentId)
+        savedDocument.shouldWithClue("Document should have correct metadata") {
+            name.shouldBe("upload-test.pdf")
+            sizeInBytes.shouldBe(fileContent.size.toLong())
+            storageId.shouldBe("test-storage")
+        }
+
+        // Verify uploaded content matches original (binary equality)
+        val uploadedContent = testDocumentsStorage.getUploadedContent(savedDocument.storageLocation!!)
+        uploadedContent.shouldBe(fileContent)
+    }
+
+    @Test
+    fun `should upload multiple files and verify content`(page: Page) {
+        val file1Content = "First upload test content".toByteArray()
+        val file2Content = "Second upload test content".toByteArray()
+        val file3Content = "Third upload test content".toByteArray()
+
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val workspace = workspace(owner = fry)
+                val expense = expense(workspace = workspace)
+            }
+        }
+
+        val testFile1 = createTestFile("upload1.pdf", file1Content)
+        val testFile2 = createTestFile("upload2.jpg", file2Content)
+        val testFile3 = createTestFile("upload3.docx", file3Content)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.navigate("/expenses/${preconditions.expense.id}/edit")
+
+        page.shouldBeEditExpensePage {
+            documentsUpload {
+                // Select first file
+                selectFileForUpload(testFile1)
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument("upload1.pdf", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.Empty
+                )
+
+                // Select second file
+                selectFileForUpload(testFile2)
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument("upload1.pdf", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.UploadedDocument("upload2.jpg", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.Empty
+                )
+
+                // Select third file
+                selectFileForUpload(testFile3)
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument("upload1.pdf", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.UploadedDocument("upload2.jpg", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.UploadedDocument("upload3.docx", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.Empty
+                )
+                reportRendering("documents-upload.multiple-files-pending")
+            }
+
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        // Verify all three files were uploaded
+        val savedExpense = aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
+        savedExpense.shouldWithClue("Expense should have three attachments") {
+            attachments.shouldHaveSize(3)
+        }
+
+        // Verify content of each uploaded file (binary equality)
+        val documents = savedExpense.attachments.map { attachment ->
+            aggregateTemplate.findSingle<io.orangebuffalo.simpleaccounting.business.documents.Document>(attachment.documentId)
+        }
+
+        val doc1 = documents.find { it.name == "upload1.pdf" }!!
+        testDocumentsStorage.getUploadedContent(doc1.storageLocation!!).shouldBe(file1Content)
+
+        val doc2 = documents.find { it.name == "upload2.jpg" }!!
+        testDocumentsStorage.getUploadedContent(doc2.storageLocation!!).shouldBe(file2Content)
+
+        val doc3 = documents.find { it.name == "upload3.docx" }!!
+        testDocumentsStorage.getUploadedContent(doc3.storageLocation!!).shouldBe(file3Content)
     }
 
     private fun createTestFile(fileName: String, content: ByteArray): Path {
