@@ -6,9 +6,8 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
-import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
+import org.junit.jupiter.api.fail
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -19,7 +18,7 @@ class DocumentsUpload private constructor(
 
     private val loadingPlaceholder = rootLocator.locator(".sa-documents-upload__loading-placeholder")
     private val storageErrorAlert = rootLocator.locator(".el-alert--error")
-    private val emptyUploadSlots = rootLocator.locator(".sa-document-upload__file-selector")
+    private val dropzoneTrigger = rootLocator.locator(".sa-document-upload__file-selector")
 
     fun shouldBeVisible(): DocumentsUpload {
         rootLocator.shouldBeVisible()
@@ -39,14 +38,9 @@ class DocumentsUpload private constructor(
         return this
     }
 
-    fun shouldHaveEmptyUploadSlot(): DocumentsUpload {
-        emptyUploadSlots.shouldBeVisible()
-        return this
-    }
-
     fun selectFileForUpload(filePath: Path): DocumentsUpload {
-        val fileInput = rootLocator.locator("input[type='file']")
-        fileInput.setInputFiles(filePath)
+        val fileChooser = page.waitForFileChooser { dropzoneTrigger.click() }
+        fileChooser.setFiles(filePath)
         return this
     }
 
@@ -74,12 +68,13 @@ class DocumentsUpload private constructor(
         val state = when {
             documentLocator.locator(".sa-document__loader__file-icon").isVisible -> DocumentState.LOADING
             documentLocator.locator(".sa-document-upload__status")
-                .filter(Locator.FilterOptions().setHasText("Scheduled for upload"))
+                .filter(Locator.FilterOptions().setHasText("New document to be uploaded"))
                 .isVisible -> DocumentState.PENDING
+
             documentLocator.locator(".el-progress").isVisible -> DocumentState.UPLOADING
             documentLocator.locator(".sa-document-upload__status_error").isVisible -> DocumentState.UPLOAD_FAILED
             documentLocator.locator(".sa-document__file-description__file-extras__download-link").isVisible -> DocumentState.COMPLETED
-            else -> DocumentState.COMPLETED
+            else -> fail { "Could not determine document state for file '$fileName'" }
         }
 
         val uploadPercentage = if (state == DocumentState.UPLOADING) {
@@ -113,17 +108,14 @@ class DocumentsUpload private constructor(
         return content
     }
 
-    fun reportRendering(name: String): DocumentsUpload {
-        rootLocator.reportRendering(name)
-        return this
-    }
-
     private fun findDocumentByName(fileName: String): Locator {
         return rootLocator.locator(".sa-documents-upload__document")
-            .filter(Locator.FilterOptions().setHas(
-                page.locator(".sa-document__file-description__header__file-name")
-                    .locator("text=$fileName")
-            ))
+            .filter(
+                Locator.FilterOptions().setHas(
+                    page.locator(".sa-document__file-description__header__file-name")
+                        .locator("text=$fileName")
+                )
+            )
     }
 
     data class UploadedDocument(
@@ -142,7 +134,7 @@ class DocumentsUpload private constructor(
     }
 
     companion object {
-        val Empty = UploadedDocument("", DocumentState.EMPTY)
+        val EmptyDocument = UploadedDocument("", DocumentState.EMPTY)
 
         fun singleton(page: Page): DocumentsUpload {
             val container = page.locator(".sa-documents-upload")

@@ -11,6 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.support.TestPropertySourceUtils
 import org.springframework.test.util.TestSocketUtils
 import java.nio.file.Path
+import java.time.Instant
 import kotlin.io.path.absolute
 
 private val log = mu.KotlinLogging.logger {}
@@ -64,7 +65,7 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
         }
         playwrightContext.pageContextStrategy.beforeTest()
         val browserContext: BrowserContext = playwrightContext.pageContextStrategy.getBrowserContext()
-        
+
         // Capture network requests
         browserContext.onRequest { request ->
             try {
@@ -85,13 +86,13 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
                 // Ignore errors during teardown
             }
         }
-        
+
         // Capture browser console
         val page = playwrightContext.pageContextStrategy.getPageForTheTest()
         page.onConsoleMessage { msg ->
             log.debug { "Browser console [${msg.type()}]: ${msg.text()}" }
         }
-        
+
         browserContext.tracing().start(
             Tracing.StartOptions()
                 .setScreenshots(true)
@@ -102,18 +103,18 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
     override fun afterEach(extensionContext: ExtensionContext) {
         val playwrightContext = threadLocalPlaywrightContext.get()
             ?: throw IllegalStateException("Playwright context is not initialized for the current thread")
-        
+
         // Verify no notifications are visible after each test
         if (extensionContext.executionException.isEmpty) {
             val page = playwrightContext.pageContextStrategy.getPageForTheTest()
             Notifications(page).shouldHaveNoNotifications()
         }
-        
+
         if (extensionContext.executionException.isPresent) {
             val browserContext = playwrightContext.pageContextStrategy.getBrowserContext()
             val tracesDir = Path.of("build", "playwright-traces")
             tracesDir.toFile().mkdirs()  // Ensure directory exists
-            
+
             val tracePath = tracesDir.resolve(
                 "${extensionContext.requiredTestClass.simpleName}-${extensionContext.requiredTestMethod.name}.zip"
             )
@@ -123,7 +124,7 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
                         .setPath(tracePath)
                 )
             log.info { "Playwright trace saved to: ${tracePath.toAbsolutePath()}" }
-            
+
             // Take screenshot on test failure
             val page = playwrightContext.pageContextStrategy.getPageForTheTest()
             val screenshotPath = tracesDir.resolve(
@@ -275,7 +276,7 @@ private class PersistentPageContextStrategy(
  * The fixed date/time used in browser tests.
  * Ensures tests stability and reproducibility.
  */
-val TEST_FIXED_DATE_TIME: java.time.Instant = java.time.Instant.parse("2019-08-15T10:00:00Z")
+val TEST_FIXED_DATE_TIME: Instant = Instant.parse("2019-08-15T10:00:00Z")
 
 private fun configureNewBrowserContext(browserContext: BrowserContext) {
     browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
