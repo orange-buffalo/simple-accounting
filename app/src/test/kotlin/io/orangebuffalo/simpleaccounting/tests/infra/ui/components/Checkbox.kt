@@ -15,7 +15,9 @@ class Checkbox private constructor(
     fun click() {
         // Element Plus checkboxes have aria-hidden input
         // Use getByRole to find the actual clickable checkbox element
-        locator.click()
+        // Scroll into view first to ensure element is visible
+        locator.scrollIntoViewIfNeeded()
+        locator.click(Locator.ClickOptions().setForce(true))
     }
 
     companion object {

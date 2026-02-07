@@ -27,8 +27,8 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     @BeforeEach
     fun setup(page: Page) {
         mockCurrentTime(timeService)
-        // Resume clock to allow IMask debouncing to work
-        page.clock().resume()
+        // Keep clock paused by default for deterministic tests
+        // Advance clock when needed for specific interactions (e.g., debouncing)
     }
 
     @Test
@@ -37,6 +37,8 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Coffee supplies") }
             originalAmount { input.fill("50.00") }
+            // Advance clock past IMask debounce timeout
+            page.clock().runFor(400)
             datePaid { input.fill("2025-01-15") }
 
             reportRendering("create-expense.default-currency-filled")
@@ -81,9 +83,11 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             title { input.fill("EUR supplies") }
             currency { input.selectOption("EUREuro") }
             originalAmount { input.fill("100.00") }
+            page.clock().runFor(400)
             datePaid { input.fill("2025-01-15") }
 
             convertedAmountInDefaultCurrency("USD").input.fill("110.00")
+            page.clock().runFor(400)
 
             reportRendering("create-expense.foreign-currency-same-amounts")
 
@@ -122,15 +126,18 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
             title { input.fill("GBP supplies") }
-            currency { input.selectOption("GBPPound Sterling") }
+            currency { input.selectOption("GBPBritish Pound") }
             originalAmount { input.fill("80.00") }
+            page.clock().runFor(400)
             datePaid { input.fill("2025-01-16") }
 
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
+            page.clock().runFor(400)
 
             useDifferentExchangeRateForIncomeTaxPurposes().click()
 
             incomeTaxableAmountInDefaultCurrency("USD").input.fill("95.00")
+            page.clock().runFor(400)
 
             reportRendering("create-expense.foreign-currency-different-amounts")
 
@@ -170,6 +177,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Mixed purpose expense") }
             originalAmount { input.fill("100.00") }
+            page.clock().runFor(400)
             datePaid { input.fill("2025-01-15") }
 
             partialForBusiness().click()
@@ -196,10 +204,13 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Expense with notes") }
             originalAmount { input.fill("50.00") }
+            page.clock().runFor(400)
             datePaid { input.fill("2025-01-15") }
 
             notes {
                 input.fill("Important expense notes with **markdown**")
+                // Advance clock past markdown preview debounce
+                page.clock().runFor(400)
                 input.shouldHavePreview()
             }
 
@@ -223,6 +234,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             category { input.selectOption("Delivery") }
             title { input.fill("Taxable expense") }
             originalAmount { input.fill("100.00") }
+            page.clock().runFor(400)
             datePaid { input.fill("2025-01-15") }
 
             generalTax { input.selectOption("VAT") }
