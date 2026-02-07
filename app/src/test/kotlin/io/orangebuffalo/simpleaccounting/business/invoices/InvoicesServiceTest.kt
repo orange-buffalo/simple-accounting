@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ class InvoicesServiceTest(
     @Test
     fun `should move proper invoices into Overdue`() {
         val testData = setupOverdueTestPreconditions()
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         invoicesService.moveInvoicesToOverdue()
 
@@ -102,7 +102,7 @@ class InvoicesServiceTest(
     @WithMockFryUser
     fun `should save invoice and set proper status`(testDataFactory: (EntitiesFactoryInfra) -> InvoiceStatusTestData) {
         val testData = testDataFactory(entitiesFactoryInfra)
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         val savedInvoice = runBlocking {
             invoicesService.saveInvoice(

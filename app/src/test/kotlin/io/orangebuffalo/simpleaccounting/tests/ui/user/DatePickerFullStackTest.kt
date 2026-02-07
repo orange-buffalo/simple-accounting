@@ -7,8 +7,8 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_FIXED_DATE_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.getBrowserUrl
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.assumeEditExpensePage
@@ -337,7 +337,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         
         val melbournePage = melbourneContext.newPage()
         melbournePage.clock().install(
-            Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli())
+            Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli())
         )
 
         try {

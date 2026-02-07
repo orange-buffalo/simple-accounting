@@ -136,8 +136,6 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should retrieve valid activation token`(page: Page) {
-        mockCurrentTime(timeService)
-        page.mockCurrentTime()
         val data = preconditions {
             object {
                 val farnsworth = farnsworth()
@@ -173,8 +171,6 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should recreate activation token if expired`(page: Page) {
-        mockCurrentTime(timeService)
-        page.mockCurrentTime()
         val data = preconditions {
             object {
                 val farnsworth = farnsworth()
@@ -210,8 +206,6 @@ class UserEditingFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should create activation token if not exists`(page: Page) {
-        mockCurrentTime(timeService)
-        page.mockCurrentTime()
         val data = preconditions {
             object {
                 val farnsworth = farnsworth()

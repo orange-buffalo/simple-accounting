@@ -6,7 +6,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworth
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.addJsonObject
@@ -39,7 +38,7 @@ internal class InvoicesApiTest(
     @Test
     @WithMockFryUser
     fun `should return invoices of a workspace of current user`() {
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices")
@@ -112,7 +111,7 @@ internal class InvoicesApiTest(
     @Test
     @WithMockFryUser
     fun `should return invoice by id for current user`() {
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         client.get()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices/${preconditions.secondSpaceInvoice.id}")
@@ -169,7 +168,7 @@ internal class InvoicesApiTest(
     @Test
     @WithMockFryUser
     fun `should create a new invoice`() {
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         client.post()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices")
@@ -221,7 +220,7 @@ internal class InvoicesApiTest(
     @Test
     @WithMockFryUser
     fun `should create a new invoice with minimum data`() {
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         client.post()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices")
@@ -374,7 +373,7 @@ internal class InvoicesApiTest(
     @Test
     @WithMockFryUser
     fun `should update invoice of current user`() {
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         client.put()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices/${preconditions.secondSpaceInvoice.id}")
@@ -417,7 +416,7 @@ internal class InvoicesApiTest(
     @Test
     @WithMockFryUser
     fun `should update invoice of current user with minimum data`() {
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         client.put()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices/${preconditions.firstSpaceInvoice.id}")
@@ -617,7 +616,7 @@ internal class InvoicesApiTest(
     @Test
     @WithMockFryUser
     fun `should cancel invoice of current user`() {
-        mockCurrentDate(timeService)
+        mockCurrentTime(timeService)
 
         client.post()
             .uri("/api/workspaces/${preconditions.planetExpressWorkspace.id}/invoices/${preconditions.firstSpaceInvoice.id}/cancel")
