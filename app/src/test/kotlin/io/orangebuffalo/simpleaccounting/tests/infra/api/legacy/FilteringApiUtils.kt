@@ -5,7 +5,6 @@ import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactory
 import io.orangebuffalo.simpleaccounting.tests.infra.database.EntitiesFactoryInfra
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentDate
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -243,7 +242,6 @@ abstract class AbstractFilteringApiTest : SaIntegrationTestBase() {
     @ParameterizedTest
     @MethodSource("createTestCases")
     fun testFilteringApi(testCase: FilteringApiTestCase) {
-        mockCurrentDate(timeService)
         mockCurrentTime(timeService)
         testCase.execute(client, entitiesFactoryInfra)
     }

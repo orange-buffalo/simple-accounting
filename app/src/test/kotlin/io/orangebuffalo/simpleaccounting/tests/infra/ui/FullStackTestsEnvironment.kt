@@ -4,6 +4,7 @@ import com.microsoft.playwright.*
 import com.microsoft.playwright.impl.AssertionsTimeout
 import io.orangebuffalo.simpleaccounting.tests.infra.environment.TestConfig
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Notifications
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.UI_ASSERTIONS_TIMEOUT_MS
 import org.junit.jupiter.api.extension.*
 import org.springframework.context.ApplicationContextInitializer
@@ -11,7 +12,6 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.test.context.support.TestPropertySourceUtils
 import org.springframework.test.util.TestSocketUtils
 import java.nio.file.Path
-import java.time.Instant
 import kotlin.io.path.absolute
 
 private val log = mu.KotlinLogging.logger {}
@@ -186,7 +186,7 @@ private class IsolatedPageContextStrategy(
         if (page == null) {
             page = browserContext!!.newPage()
             // Set fixed time for the browser to avoid date-dependent test failures
-            page!!.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli()))
+            page!!.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
         }
         return page!!
     }
@@ -253,7 +253,7 @@ private class PersistentPageContextStrategy(
             configureNewBrowserContext(browserContext!!)
             page = browserContext!!.newPage()
             // Set fixed time for the browser to avoid date-dependent test failures
-            page!!.clock().install(Clock.InstallOptions().setTime(TEST_FIXED_DATE_TIME.toEpochMilli()))
+            page!!.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
         }
     }
 
@@ -271,12 +271,6 @@ private class PersistentPageContextStrategy(
         browserContext!!.clearCookies()
     }
 }
-
-/**
- * The fixed date/time used in browser tests.
- * Ensures tests stability and reproducibility.
- */
-val TEST_FIXED_DATE_TIME: Instant = Instant.parse("2019-08-15T10:00:00Z")
 
 private fun configureNewBrowserContext(browserContext: BrowserContext) {
     browserContext.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
