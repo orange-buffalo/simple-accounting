@@ -31,6 +31,36 @@ private val browserUrl = "http://localhost:$targetPort"
 
 fun getBrowserUrl(): String = browserUrl
 
+/**
+ * Creates a new browser context with standard configuration applied.
+ * Tests can use this to create additional contexts with custom settings without duplicating the configuration.
+ * 
+ * @param browser The browser instance to create the context in
+ * @param customize Optional lambda to customize the context options before creating the context
+ * @return A configured browser context with clock installed
+ */
+fun createConfiguredBrowserContext(
+    browser: Browser,
+    customize: (Browser.NewContextOptions) -> Browser.NewContextOptions = { it }
+): BrowserContext {
+    val options = Browser.NewContextOptions()
+        .setBaseURL(browserUrl)
+        .setViewportSize(1920, 1080)
+    val customizedOptions = customize(options)
+    val context = browser.newContext(customizedOptions)
+    configureNewBrowserContext(context)
+    return context
+}
+
+/**
+ * Installs the mock clock on a page.
+ * Tests creating custom pages can use this to set up the clock.
+ */
+fun Page.installMockClock() {
+    this.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
+}
+
+
 class FullStackTestsSpringContextInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
         TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
@@ -63,7 +93,13 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
             // setup assertions timeout
             AssertionsTimeout.setDefaultTimeout(UI_ASSERTIONS_TIMEOUT_MS.toDouble())
         }
-        playwrightContext.pageContextStrategy.beforeTest()
+        
+        // Check if the test instance implements BrowserContextCustomizer
+        val contextCustomizer = extensionContext.testInstance
+            .map { it as? BrowserContextCustomizer }
+            .orElse(null)
+        
+        playwrightContext.pageContextStrategy.beforeTest(contextCustomizer)
         val browserContext: BrowserContext = playwrightContext.pageContextStrategy.getBrowserContext()
 
         // Capture network requests
@@ -161,12 +197,24 @@ class SaPlaywrightExtension : Extension, BeforeEachCallback, AfterEachCallback, 
     }
 }
 
+/**
+ * Interface that tests can implement to customize the browser context options.
+ * This allows tests to set custom options like timezone without duplicating the shared configuration.
+ */
+interface BrowserContextCustomizer {
+    /**
+     * Customize the browser context options before the context is created.
+     * The provided options already contain the shared configuration (baseURL, viewport).
+     */
+    fun customizeBrowserContextOptions(options: Browser.NewContextOptions): Browser.NewContextOptions
+}
+
 private val threadLocalPlaywrightContext = ThreadLocal<PlaywrightContext?>()
 
 private interface PageContextStrategy {
     fun getPageForTheTest(): Page
     fun getBrowserContext(): BrowserContext
-    fun beforeTest()
+    fun beforeTest(contextCustomizer: BrowserContextCustomizer?)
     fun afterTest()
 }
 
@@ -195,7 +243,7 @@ private class IsolatedPageContextStrategy(
         return browserContext ?: throw IllegalStateException("beforeTest was not called")
     }
 
-    override fun beforeTest() {
+    override fun beforeTest(contextCustomizer: BrowserContextCustomizer?) {
         if (browser == null) {
             browser = playwright.chromium().launch(
                 BrowserType.LaunchOptions()
@@ -203,11 +251,16 @@ private class IsolatedPageContextStrategy(
                     .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
             )
         }
-        browserContext = browser!!.newContext(
-            Browser.NewContextOptions()
-                .setBaseURL(browserUrl)
-                .setViewportSize(1920, 1080)
-        )
+        var contextOptions = Browser.NewContextOptions()
+            .setBaseURL(browserUrl)
+            .setViewportSize(1920, 1080)
+        
+        // Allow tests to customize the context options
+        if (contextCustomizer != null) {
+            contextOptions = contextCustomizer.customizeBrowserContextOptions(contextOptions)
+        }
+        
+        browserContext = browser!!.newContext(contextOptions)
         configureNewBrowserContext(browserContext!!)
     }
 
@@ -233,22 +286,32 @@ private class PersistentPageContextStrategy(
         return browserContext ?: throw IllegalStateException("beforeTest was not called")
     }
 
-    override fun beforeTest() {
+    override fun beforeTest(contextCustomizer: BrowserContextCustomizer?) {
         if (page == null) {
             // for persistent context, we do not close the page for better developer experience
             val userDataDir = Path.of("..", "local-dev", "playwright-context")
             log.info { "Using persistent context at ${userDataDir.absolute()}" }
+            
+            var launchOptions = BrowserType.LaunchPersistentContextOptions()
+                // makes no sense to use headless mode with persistent context
+                .setHeadless(false)
+                .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
+                .setBaseURL(browserUrl)
+                // ensure viewport is a per window setting
+                .setViewportSize(null)
+                // auto open devtools for better developer experience
+                .setArgs(listOf("--auto-open-devtools-for-tabs"))
+            
+            // Note: BrowserContextCustomizer is not used for persistent context
+            // as it's created once and reused across tests. If needed, we can add
+            // a separate interface for persistent context customization.
+            if (contextCustomizer != null) {
+                log.warn { "Browser context customization is not supported for persistent context strategy" }
+            }
+            
             browserContext = playwright.chromium().launchPersistentContext(
                 userDataDir,
-                BrowserType.LaunchPersistentContextOptions()
-                    // makes no sense to use headless mode with persistent context
-                    .setHeadless(false)
-                    .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
-                    .setBaseURL(browserUrl)
-                    // ensure viewport is a per window setting
-                    .setViewportSize(null)
-                    // auto open devtools for better developer experience
-                    .setArgs(listOf("--auto-open-devtools-for-tabs"))
+                launchOptions
             )
             configureNewBrowserContext(browserContext!!)
             page = browserContext!!.newPage()
