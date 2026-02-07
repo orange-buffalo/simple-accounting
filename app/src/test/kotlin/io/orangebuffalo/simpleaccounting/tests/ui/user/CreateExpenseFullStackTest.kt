@@ -5,9 +5,11 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
@@ -15,11 +17,14 @@ import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPag
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import kotlin.io.path.name
+import kotlin.io.path.writeBytes
 
 class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
     @BeforeEach
     fun setup(page: Page) {
+        testDocumentsStorage.reset()
         page.clock().resume()
     }
 
@@ -161,9 +166,33 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         aggregateTemplate.findSingle<Expense>()
-            .should {
-                it.percentOnBusiness.shouldBe(75)
-            }
+            .shouldBeEntityWithFields(
+                Expense(
+                    title = "Mixed purpose expense",
+                    categoryId = preconditions.category.id!!,
+                    datePaid = LocalDate.of(2025, 1, 15),
+                    currency = "USD",
+                    originalAmount = 10000,
+                    convertedAmounts = AmountsInDefaultCurrency(
+                        originalAmountInDefaultCurrency = 10000,
+                        adjustedAmountInDefaultCurrency = 7500
+                    ),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(
+                        originalAmountInDefaultCurrency = 10000,
+                        adjustedAmountInDefaultCurrency = 7500
+                    ),
+                    status = ExpenseStatus.FINALIZED,
+                    percentOnBusiness = 75,
+                    useDifferentExchangeRateForIncomeTaxPurposes = false,
+                    timeRecorded = MOCK_TIME,
+                    workspaceId = preconditions.workspace.id!!,
+                    generalTaxId = null,
+                ),
+                ignoredProperties = arrayOf(
+                    Expense::id,
+                    Expense::version,
+                )
+            )
     }
 
     @Test
@@ -174,8 +203,10 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             originalAmount { input.fill("50.00") }
             datePaid { input.fill("2025-01-15") }
             notes {
-                input.fill("Important expense notes with **markdown**")
-                input.shouldHavePreview()
+                input.fill("# Important Note\n\nExpense notes with **markdown**")
+                // Advance clock past markdown preview debounce timeout
+                page.clock().runFor(400)
+                input.shouldHavePreviewWithHeading("Important Note")
             }
 
             reportRendering("create-expense.with-notes")
@@ -187,8 +218,91 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Expense>()
             .should {
-                it.notes.shouldBe("Important expense notes with **markdown**")
+                it.notes.shouldBe("# Important Note\n\nExpense notes with **markdown**")
             }
+    }
+
+    @Test
+    fun `should create expense with document attachments`(page: Page) {
+        val file1Content = "Receipt for coffee supplies".toByteArray()
+        val file2Content = "Invoice for office equipment".toByteArray()
+
+        val preconditions = preconditions {
+            object {
+                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val workspace = workspace(owner = fry)
+                val category = category(workspace = workspace, name = "Delivery")
+            }
+        }
+
+        val testFile1 = createTestFile("receipt.pdf", file1Content)
+        val testFile2 = createTestFile("invoice.pdf", file2Content)
+
+        page.authenticateViaCookie(preconditions.fry)
+        page.openCreateExpensePage {
+            category { input.selectOption("Delivery") }
+            title { input.fill("Expense with attachments") }
+            originalAmount { input.fill("75.00") }
+            datePaid { input.fill("2025-01-15") }
+
+            documentsUpload {
+                // Upload first document
+                selectFileForUpload(testFile1)
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument(testFile1.name, DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.EmptyDocument
+                )
+
+                // Upload second document
+                selectFileForUpload(testFile2)
+                shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument(testFile1.name, DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.UploadedDocument(testFile2.name, DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.EmptyDocument
+                )
+            }
+
+            reportRendering("create-expense.with-attachments")
+
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        // Verify expense was created with two attachments
+        val savedExpense = aggregateTemplate.findSingle<Expense>()
+        savedExpense.shouldWithClue("Expense should have two attachments") {
+            attachments.shouldHaveSize(2)
+        }
+
+        // Verify both documents were saved with correct metadata and content
+        val documents = savedExpense.attachments.map { attachment ->
+            aggregateTemplate.findSingle<Document>(attachment.documentId)
+        }
+
+        val doc1 = documents.find { it.name == testFile1.name }!!
+        doc1.shouldWithClue("First document metadata should be correct") {
+            this.name.shouldBe(testFile1.name)
+            this.sizeInBytes.shouldBe(file1Content.size.toLong())
+            this.storageId.shouldBe("test-storage")
+            this.workspaceId.shouldBe(preconditions.workspace.id)
+        }
+        testDocumentsStorage.getUploadedContent(doc1.storageLocation!!).shouldBe(file1Content)
+
+        val doc2 = documents.find { it.name == testFile2.name }!!
+        doc2.shouldWithClue("Second document metadata should be correct") {
+            this.name.shouldBe(testFile2.name)
+            this.sizeInBytes.shouldBe(file2Content.size.toLong())
+            this.storageId.shouldBe("test-storage")
+            this.workspaceId.shouldBe(preconditions.workspace.id)
+        }
+        testDocumentsStorage.getUploadedContent(doc2.storageLocation!!).shouldBe(file2Content)
+    }
+
+    private fun createTestFile(fileName: String, content: ByteArray): java.nio.file.Path {
+        val testFile = java.nio.file.Files.createTempFile("test-upload-", "-$fileName")
+        testFile.writeBytes(content)
+        return testFile
     }
 
     @Test
@@ -282,42 +396,123 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should handle all UI states correctly`(page: Page) {
+        data class ExpectedFieldsVisibility(
+            val category: Boolean = true,
+            val title: Boolean = true,
+            val currency: Boolean = true,
+            val originalAmount: Boolean = true,
+            val datePaid: Boolean = true,
+            val convertedAmount: Boolean = false,
+            val incomeTaxableAmount: Boolean = false,
+            val generalTax: Boolean = true,
+            val percentOnBusiness: Boolean = false,
+            val notes: Boolean = true,
+            val saveButton: Boolean = true,
+            val cancelButton: Boolean = true
+        )
+
+        fun CreateExpensePage.verifyFieldsVisibility(expected: ExpectedFieldsVisibility) {
+            // Always visible basic fields
+            if (expected.category) category.shouldBeVisible() else category.shouldBeHidden()
+            if (expected.title) title.shouldBeVisible() else title.shouldBeHidden()
+            if (expected.currency) currency.shouldBeVisible() else currency.shouldBeHidden()
+            if (expected.originalAmount) originalAmount.shouldBeVisible() else originalAmount.shouldBeHidden()
+            if (expected.datePaid) datePaid.shouldBeVisible() else datePaid.shouldBeHidden()
+            if (expected.generalTax) generalTax.shouldBeVisible() else generalTax.shouldBeHidden()
+            if (expected.notes) notes.shouldBeVisible() else notes.shouldBeHidden()
+            if (expected.saveButton) saveButton.shouldBeVisible() else saveButton.shouldBeHidden()
+            if (expected.cancelButton) cancelButton.shouldBeVisible() else cancelButton.shouldBeHidden()
+
+            // Conditionally visible - foreign currency fields
+            if (expected.convertedAmount) {
+                convertedAmountInDefaultCurrency("USD").shouldBeVisible()
+            } else {
+                convertedAmountInDefaultCurrency("USD").shouldBeHidden()
+            }
+
+            if (expected.incomeTaxableAmount) {
+                incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
+            } else {
+                incomeTaxableAmountInDefaultCurrency("USD").shouldBeHidden()
+            }
+
+            // Conditionally visible - partial business percentage field
+            if (expected.percentOnBusiness) {
+                percentOnBusiness().shouldBeVisible()
+            } else {
+                percentOnBusiness().shouldBeHidden()
+            }
+        }
+
         page.setupPreconditionsAndNavigateToCreatePage {
-            // Verify initial state with default currency
+            // Initial state - all basic fields visible, conditional fields hidden
+            var expectedState = ExpectedFieldsVisibility()
+            verifyFieldsVisibility(expectedState)
             currency {
                 input.shouldHaveSelectedValue("USD - US Dollar")
             }
 
-            // Change currency to trigger conditional fields
+            reportRendering("create-expense.initial-state")
+
+            // Change to foreign currency - converted amount field appears
             currency { input.selectOption("EUREuro") }
+            expectedState = expectedState.copy(convertedAmount = true)
+            verifyFieldsVisibility(expectedState)
 
-            // Verify foreign currency fields appear
-            convertedAmountInDefaultCurrency("USD").shouldBeVisible()
+            reportRendering("create-expense.foreign-currency-fields")
 
-            // Enable different tax rate checkbox
+            // Enable different tax rate - income taxable amount field appears
             useDifferentExchangeRateForIncomeTaxPurposes().click()
+            expectedState = expectedState.copy(incomeTaxableAmount = true)
+            verifyFieldsVisibility(expectedState)
 
-            // Verify tax amount field appears
-            incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
+            reportRendering("create-expense.different-tax-rate-enabled")
 
-            // Change back to default currency
+            // Change back to default currency - foreign currency fields disappear
             currency { input.selectOption("USDUS Dollar") }
+            expectedState = expectedState.copy(
+                convertedAmount = false,
+                incomeTaxableAmount = false
+            )
+            verifyFieldsVisibility(expectedState)
 
-            // Verify foreign currency fields are hidden
-            convertedAmountInDefaultCurrency("USD").shouldBeHidden()
+            reportRendering("create-expense.back-to-default-currency")
 
-            // Enable partial business checkbox
+            // Enable partial business - percentage field appears
             partialForBusiness().click()
-
-            // Verify percentage field appears
-            percentOnBusiness().shouldBeVisible()
+            expectedState = expectedState.copy(percentOnBusiness = true)
+            verifyFieldsVisibility(expectedState)
             percentOnBusiness().input.shouldHaveValue("100")
+
+            reportRendering("create-expense.partial-business-enabled")
+
+            // Disable partial business - percentage field disappears
+            partialForBusiness().click()
+            expectedState = expectedState.copy(percentOnBusiness = false)
+            verifyFieldsVisibility(expectedState)
+
+            reportRendering("create-expense.partial-business-disabled")
         }
     }
 
     @Test
     fun `should display dropdown options correctly`(page: Page) {
-        page.setupPreconditionsForDropdownsAndNavigateToCreatePage {
+        val testPreconditions = preconditions {
+            object {
+                val fry = fry().also { u ->
+                    workspace(owner = u).also {
+                        category(workspace = it, name = "Category C")
+                        category(workspace = it, name = "Category A")
+                        category(workspace = it, name = "Category B")
+                        generalTax(workspace = it, title = "VAT", rateInBps = 2000)
+                        generalTax(workspace = it, title = "GST", rateInBps = 1000)
+                    }
+                }
+            }
+        }
+        
+        page.authenticateViaCookie(testPreconditions.fry)
+        page.openCreateExpensePage {
             // Verify category dropdown has all categories sorted alphabetically
             category {
                 input.shouldHaveOptions("Category A", "Category B", "Category C")
@@ -335,31 +530,12 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         openCreateExpensePage(spec)
     }
 
-    private fun Page.setupPreconditionsForDropdownsAndNavigateToCreatePage(spec: CreateExpensePage.() -> Unit) {
-        authenticateViaCookie(preconditionsDropdowns.fry)
-        openCreateExpensePage(spec)
-    }
-
     private val preconditions by lazyPreconditions {
         object {
             val fry = fry()
             val workspace = workspace(owner = fry)
             val category = category(workspace = workspace, name = "Delivery")
             val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
-        }
-    }
-
-    private val preconditionsDropdowns by lazyPreconditions {
-        object {
-            val fry = fry().also { u ->
-                workspace(owner = u).also {
-                    category(workspace = it, name = "Category C")
-                    category(workspace = it, name = "Category A")
-                    category(workspace = it, name = "Category B")
-                    generalTax(workspace = it, title = "VAT", rateInBps = 2000)
-                    generalTax(workspace = it, title = "GST", rateInBps = 1000)
-                }
-            }
         }
     }
 }
