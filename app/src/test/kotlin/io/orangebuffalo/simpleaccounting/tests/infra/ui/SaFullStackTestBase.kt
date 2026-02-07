@@ -7,7 +7,12 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestExecutionListeners
@@ -30,6 +35,15 @@ import java.time.Instant
 )
 abstract class SaFullStackTestBase : SaIntegrationTestBase() {
 
+    @Autowired
+    protected lateinit var testDocumentsStorage: TestDocumentsStorage
+
+    @BeforeEach
+    fun setupFullStackTest() {
+        // Set the backend time to match the UI time, e.g. for proper token expiration handling
+        whenever(timeService.currentTime()) doReturn TEST_FIXED_DATE_TIME
+    }
+
     protected fun Page.authenticateViaCookie(user: PlatformUser) {
         val tokenValue = "test-refresh-token:${user.userName}"
         val refreshToken = RefreshToken(
@@ -38,10 +52,12 @@ abstract class SaFullStackTestBase : SaIntegrationTestBase() {
             expirationTime = Instant.parse("9999-12-31T23:59:59Z")
         )
         aggregateTemplate.insert(refreshToken)
-        this.context().addCookies(listOf(
-            Cookie("refreshToken", tokenValue)
-                .setUrl(getBrowserUrl())
-                .setHttpOnly(true),
-        ))
+        this.context().addCookies(
+            listOf(
+                Cookie("refreshToken", tokenValue)
+                    .setUrl(getBrowserUrl())
+                    .setHttpOnly(true),
+            )
+        )
     }
 }

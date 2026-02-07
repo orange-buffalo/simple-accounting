@@ -59,7 +59,9 @@
       document?: DocumentDto,
     ) {
       this.document = document || {};
-      this.key = document ? document.id.toString() : Math.random().toString(36).slice(2);
+      this.key = document ? document.id.toString() : Math.random()
+        .toString(36)
+        .slice(2);
       this.state = document ? 'upload-completed' : 'empty';
       this.onDocumentAggregateChange = onChange;
     }
@@ -86,9 +88,10 @@
     loadingOnCreate?: boolean
   }>();
 
-  const emit = defineEmits<{(e: 'uploads-failed'): void,
-                            (e: 'update:documentsIds', documentIds: number[]): void,
-                            (e: 'uploads-completed'): void,
+  const emit = defineEmits<{
+    (e: 'uploads-failed'): void,
+    (e: 'update:documentsIds', documentIds: number[]): void,
+    (e: 'uploads-completed'): void,
   }>();
 
   const { documentsStorageStatus } = useDocumentsStorageStatus();
@@ -155,10 +158,14 @@
         idIn: props.documentsIds,
         workspaceId: currentWorkspaceId,
       }));
-      documentsAggregates.value = documents.map((document) => new DocumentAggregate(
-        onDocumentAggregateChange,
-        document,
-      ));
+      documentsAggregates.value = documents
+        .sort((a, b) => {
+          return a.name.localeCompare(b.name);
+        })
+        .map((document) => new DocumentAggregate(
+          onDocumentAggregateChange,
+          document,
+        ));
       addEmptyDocumentAggregateIfNecessary();
     } finally {
       documentsLoading.value = false;

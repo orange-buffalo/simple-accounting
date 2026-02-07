@@ -29,7 +29,7 @@ abstract class EditExpensePageBase(page: Page) : SaPageBase(page) {
     val datePaidUk = components.formItemDatePickerByLabel("Дата Оплати")
     val generalTax = components.formItemGeneralTaxInputByLabel("Included General Tax")
     val notes = components.formItemMarkdownByLabel("Notes")
-    val documentsUpload = DocumentsUpload.byContainer(components.page.locator("body"))
+    val documentsUpload = DocumentsUpload.singleton(components.page)
 
     val saveButton = components.buttonByText("Save")
     val cancelButton = components.buttonByText("Cancel")
