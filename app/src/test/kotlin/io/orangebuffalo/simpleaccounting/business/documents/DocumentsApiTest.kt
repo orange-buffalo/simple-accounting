@@ -39,12 +39,12 @@ import java.util.function.Consumer
 @DisplayName("Documents API ")
 class DocumentsApiTest(
     @Autowired private val client: WebTestClient,
-    @Autowired private val testDocumentsStorage: TestDocumentsStorage,
+    @Autowired private val testDocumentsStorage: DocumentsStorageMockHolder,
 ) : SaIntegrationTestBase() {
 
     @BeforeEach
     fun setup() {
-        whenever(testDocumentsStorage.mock.getId()) doReturn "test-storage"
+        whenever(testDocumentsStorage.mock.getId()) doReturn "mocked-storage"
         mockCurrentTime(timeService)
     }
 
@@ -275,7 +275,7 @@ class DocumentsApiTest(
 
     private val preconditions by lazyPreconditions {
         object {
-            val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+            val fry = platformUser(userName = "Fry", documentsStorage = "mocked-storage")
             val fryWorkspace = workspace(owner = fry)
             val anotherFryWorkspace = workspace(owner = fry)
             val anotherFryWorkspaceDocument = document(workspace = anotherFryWorkspace)
@@ -283,7 +283,7 @@ class DocumentsApiTest(
             val coffeeReceipt = document(
                 name = "100_cups.pdf",
                 workspace = fryWorkspace,
-                storageId = "test-storage",
+                storageId = "mocked-storage",
                 storageLocation = "test-location",
                 timeUploaded = MOCK_TIME,
                 sizeInBytes = 42
@@ -313,13 +313,13 @@ class DocumentsApiTest(
         }
     }
 
-    class TestDocumentsStorage(
+    class DocumentsStorageMockHolder(
         val mock: DocumentsStorage = mock(DocumentsStorage::class.java)
     ) : DocumentsStorage by mock
 
     @TestConfiguration
     class DocumentControllerTestConfig {
         @Bean
-        fun testDocumentsStorage() = TestDocumentsStorage()
+        fun documentsStorageMockHolder() = DocumentsStorageMockHolder()
     }
 }
