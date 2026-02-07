@@ -5,8 +5,8 @@ import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.TEST_FIXED_DATE_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.openDashboard
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.DashboardPage.Companion.shouldBeDashboardPage
@@ -18,7 +18,7 @@ import java.time.ZoneOffset
  * The fixed date used in tests, matching the browser's mocked time.
  * This ensures test data and browser date filters are always in sync.
  */
-private val testFixedDate: LocalDate = TEST_FIXED_DATE_TIME
+private val testFixedDate: LocalDate = MOCK_TIME
     .atZone(ZoneOffset.UTC)
     .toLocalDate()
 
