@@ -327,7 +327,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
     fun `should load expense without documents`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = fry()
+                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Subscriptions")
                 val expense = expense(
@@ -341,8 +341,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     datePaid = LocalDate.of(2025, 2, 15),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
-                    status = ExpenseStatus.FINALIZED,
-                    attachments = setOf()
+                    status = ExpenseStatus.FINALIZED
                 )
             }
         }
