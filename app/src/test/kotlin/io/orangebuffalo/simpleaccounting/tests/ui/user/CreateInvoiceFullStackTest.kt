@@ -371,12 +371,14 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateInvoicePage {
-            // Verify customer dropdown has all customers sorted by ID descending (newest first)
+            // Verify customer dropdown - customers API sorts by ID descending
+            // Created in order: C (ID 1), A (ID 2), B (ID 3)
+            // Expected order: B (ID 3), A (ID 2), C (ID 1)
             customer {
                 input.shouldHaveOptions("Customer B", "Customer A", "Customer C")
             }
 
-            // Verify general tax dropdown has all taxes sorted alphabetically
+            // Verify general tax dropdown - taxes are sorted alphabetically by title
             generalTax {
                 input.shouldHaveOptions("GST", "VAT")
             }
