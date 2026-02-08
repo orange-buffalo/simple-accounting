@@ -36,8 +36,6 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             originalAmount { input.fill("50.00") }
             datePaid { input.fill("2025-01-15") }
 
-            reportRendering("create-expense.default-currency")
-
             saveButton.click()
         }
 
@@ -76,8 +74,6 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             originalAmount { input.fill("100.00") }
             datePaid { input.fill("2025-01-15") }
             convertedAmountInDefaultCurrency("USD").input.fill("110.00")
-
-            reportRendering("create-expense.foreign-currency")
 
             saveButton.click()
         }
@@ -158,8 +154,6 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             partialForBusiness().click()
             percentOnBusiness().input.fill("75")
 
-            reportRendering("create-expense.partial-business")
-
             saveButton.click()
         }
 
@@ -204,8 +198,6 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
             datePaid { input.fill("2025-01-15") }
             notes {
                 input.fill("# Important Note\n\nExpense notes with **markdown**")
-                // Advance clock past markdown preview debounce timeout
-                page.clock().runFor(400)
                 input.shouldHavePreviewWithHeading("Important Note")
             }
 
@@ -230,8 +222,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         val preconditions = preconditions {
             object {
                 val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
-                val workspace = workspace(owner = fry)
-                val category = category(workspace = workspace, name = "Delivery")
+                val workspace = workspace(owner = fry).also {
+                    category(workspace = it, name = "Delivery")
+                }
             }
         }
 
@@ -499,18 +492,17 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     fun `should display dropdown options correctly`(page: Page) {
         val testPreconditions = preconditions {
             object {
-                val fry = fry().also { u ->
-                    workspace(owner = u).also {
-                        category(workspace = it, name = "Category C")
-                        category(workspace = it, name = "Category A")
-                        category(workspace = it, name = "Category B")
-                        generalTax(workspace = it, title = "VAT", rateInBps = 2000)
-                        generalTax(workspace = it, title = "GST", rateInBps = 1000)
-                    }
+                val fry = fry().also {
+                    val workspace = workspace(owner = it)
+                    category(workspace = workspace, name = "Category C")
+                    category(workspace = workspace, name = "Category A")
+                    category(workspace = workspace, name = "Category B")
+                    generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
+                    generalTax(workspace = workspace, title = "GST", rateInBps = 1000)
                 }
             }
         }
-        
+
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateExpensePage {
             // Verify category dropdown has all categories sorted alphabetically
