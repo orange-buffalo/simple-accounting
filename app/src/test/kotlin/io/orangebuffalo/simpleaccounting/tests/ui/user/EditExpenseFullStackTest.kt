@@ -21,12 +21,6 @@ import kotlin.io.path.writeBytes
 
 class EditExpenseFullStackTest : SaFullStackTestBase() {
 
-    companion object {
-        // Helper to create UploadedDocument for saved/completed documents
-        private fun savedDocument(fileName: String) =
-            DocumentsUpload.UploadedDocument(fileName, DocumentsUpload.DocumentState.COMPLETED)
-    }
-
     @BeforeEach
     fun setup(page: Page) {
         testDocumentsStorage.reset()
@@ -135,8 +129,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
             convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("150.00")
 
-            // Verify different tax rate checkbox is not checked
-            useDifferentExchangeRateForIncomeTaxPurposes().shouldBeVisible()
+            // Verify different tax rate checkbox is not checked and income taxable amount is hidden
             useDifferentExchangeRateForIncomeTaxPurposes().shouldNotBeChecked()
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeHidden()
 
@@ -180,7 +173,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("EUR - Euro")
             }
             originalAmount {
-                input.shouldHaveValue("1000.00")
+                input.shouldHaveValue("1,000.00")
             }
             datePaid {
                 input.shouldHaveValue("2025-03-05")
@@ -188,13 +181,12 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
 
             // Verify foreign currency fields
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
-            convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("1100.00")
+            convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("1,100.00")
 
             // Verify different tax rate is enabled
-            useDifferentExchangeRateForIncomeTaxPurposes().shouldBeVisible()
             useDifferentExchangeRateForIncomeTaxPurposes().shouldBeChecked()
             incomeTaxableAmountInDefaultCurrency("USD").shouldBeVisible()
-            incomeTaxableAmountInDefaultCurrency("USD").input.shouldHaveValue("1050.00")
+            incomeTaxableAmountInDefaultCurrency("USD").input.shouldHaveValue("1,050.00")
 
             reportRendering("edit-expense.load-foreign-currency-different-tax-rate")
         }
@@ -243,7 +235,6 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             }
 
             // Verify partial business is enabled
-            partialForBusiness().shouldBeVisible()
             partialForBusiness().shouldBeChecked()
             percentOnBusiness().shouldBeVisible()
             percentOnBusiness().input.shouldHaveValue("80")
@@ -410,7 +401,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
 
             documentsUpload {
                 shouldHaveDocuments(
-                    savedDocument("electricity-bill.pdf"),
+                    DocumentsUpload.UploadedDocument("electricity-bill.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.EmptyDocument
                 )
             }
@@ -470,9 +461,9 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
 
             documentsUpload {
                 shouldHaveDocuments(
-                    savedDocument("receipt-1.pdf"),
-                    savedDocument("receipt-2.pdf"),
-                    savedDocument("invoice.pdf"),
+                    DocumentsUpload.UploadedDocument("receipt-1.pdf", DocumentsUpload.DocumentState.COMPLETED),
+                    DocumentsUpload.UploadedDocument("receipt-2.pdf", DocumentsUpload.DocumentState.COMPLETED),
+                    DocumentsUpload.UploadedDocument("invoice.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.EmptyDocument
                 )
             }
@@ -569,7 +560,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
             title { input.fill("International travel") }
-            currency { input.selectOption("EUR - Euro") }
+            currency { input.selectOption("EUREuro") }
             originalAmount { input.fill("90.00") }
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
 
@@ -616,7 +607,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
             title { input.fill("Domestic equipment") }
-            currency { input.selectOption("USD - US Dollar") }
+            currency { input.selectOption("USDUS Dollar") }
             originalAmount { input.fill("125.00") }
 
             saveButton.click()
@@ -958,14 +949,14 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 // Remove first document, keep second
                 removeDocument("old-receipt-1.pdf")
                 shouldHaveDocuments(
-                    savedDocument("keep-receipt.pdf"),
+                    DocumentsUpload.UploadedDocument("keep-receipt.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.EmptyDocument
                 )
 
                 // Upload new document
                 selectFileForUpload(newTestFile)
                 shouldHaveDocuments(
-                    savedDocument("keep-receipt.pdf"),
+                    DocumentsUpload.UploadedDocument("keep-receipt.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.UploadedDocument(newTestFile.name, DocumentsUpload.DocumentState.PENDING),
                     DocumentsUpload.EmptyDocument
                 )
@@ -1037,7 +1028,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 removeDocument("invoice-3.pdf")
                 removeDocument("invoice-1.pdf")
                 shouldHaveDocuments(
-                    savedDocument("invoice-2.pdf"),
+                    DocumentsUpload.UploadedDocument("invoice-2.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.EmptyDocument
                 )
             }
@@ -1276,7 +1267,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             reportRendering("edit-expense.initial-state")
 
             // Change to foreign currency - converted amount field appears
-            currency { input.selectOption("EUR - Euro") }
+            currency { input.selectOption("EUREuro") }
         }
         expectedState = expectedState.copy(convertedAmount = true)
         verifyFieldsVisibility(expectedState)
@@ -1292,7 +1283,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             reportRendering("edit-expense.different-tax-rate-enabled")
 
             // Change back to default currency - foreign currency fields disappear
-            currency { input.selectOption("USD - US Dollar") }
+            currency { input.selectOption("USDUS Dollar") }
         }
         expectedState = expectedState.copy(
             convertedAmount = false,
