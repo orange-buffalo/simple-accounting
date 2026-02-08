@@ -13,9 +13,11 @@ class Checkbox private constructor(
     fun shouldBeEnabled() = locator.shouldBeEnabled()
     fun shouldBeDisabled() = locator.shouldBeDisabled()
     fun click() {
-        // Element Plus checkboxes have aria-hidden input
-        // Use getByRole to find the actual clickable checkbox element
-        locator.click()
+        // Element Plus renders the <input> outside viewport for accessibility
+        // Click the parent .el-checkbox container instead which is visually in the correct position
+        val checkboxContainer = locator.locator("xpath=ancestor::label[contains(@class, 'el-checkbox')]").first()
+        checkboxContainer.scrollIntoViewIfNeeded()
+        checkboxContainer.click()
     }
 
     companion object {
