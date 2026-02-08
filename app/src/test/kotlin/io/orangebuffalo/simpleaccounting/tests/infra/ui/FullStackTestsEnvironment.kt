@@ -31,6 +31,48 @@ private val browserUrl = "http://localhost:$targetPort"
 
 fun getBrowserUrl(): String = browserUrl
 
+/**
+ * Creates standard browser context options with baseURL and viewport.
+ */
+private fun createStandardContextOptions(): Browser.NewContextOptions {
+    return Browser.NewContextOptions()
+        .setBaseURL(browserUrl)
+        .setViewportSize(1920, 1080)
+}
+
+/**
+ * Creates a new browser context with standard configuration applied.
+ * Tests can use this to create additional contexts with custom settings without duplicating the configuration.
+ * 
+ * @param browser The browser instance to create the context in
+ * @param customize Optional lambda to customize the context options before creating the context
+ * @return A configured browser context
+ */
+fun createConfiguredBrowserContext(
+    browser: Browser,
+    customize: (Browser.NewContextOptions) -> Browser.NewContextOptions = { it }
+): BrowserContext {
+    val options = createStandardContextOptions()
+    val customizedOptions = customize(options)
+    val context = browser.newContext(customizedOptions)
+    configureNewBrowserContext(context)
+    return context
+}
+
+/**
+ * Creates a new page in the given browser context with mock clock installed.
+ * Tests creating custom pages can use this to set up pages consistently.
+ * 
+ * @param context The browser context to create the page in
+ * @return A new page with mock clock installed
+ */
+fun createNewPage(context: BrowserContext): Page {
+    val page = context.newPage()
+    page.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
+    return page
+}
+
+
 class FullStackTestsSpringContextInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
         TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
@@ -203,11 +245,8 @@ private class IsolatedPageContextStrategy(
                     .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
             )
         }
-        browserContext = browser!!.newContext(
-            Browser.NewContextOptions()
-                .setBaseURL(browserUrl)
-                .setViewportSize(1920, 1080)
-        )
+        val contextOptions = createStandardContextOptions()
+        browserContext = browser!!.newContext(contextOptions)
         configureNewBrowserContext(browserContext!!)
     }
 
@@ -238,17 +277,20 @@ private class PersistentPageContextStrategy(
             // for persistent context, we do not close the page for better developer experience
             val userDataDir = Path.of("..", "local-dev", "playwright-context")
             log.info { "Using persistent context at ${userDataDir.absolute()}" }
+            
+            val launchOptions = BrowserType.LaunchPersistentContextOptions()
+                // makes no sense to use headless mode with persistent context
+                .setHeadless(false)
+                .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
+                .setBaseURL(browserUrl)
+                // ensure viewport is a per window setting
+                .setViewportSize(null)
+                // auto open devtools for better developer experience
+                .setArgs(listOf("--auto-open-devtools-for-tabs"))
+            
             browserContext = playwright.chromium().launchPersistentContext(
                 userDataDir,
-                BrowserType.LaunchPersistentContextOptions()
-                    // makes no sense to use headless mode with persistent context
-                    .setHeadless(false)
-                    .setSlowMo(TestConfig.instance.fullStackTests.slowMoMs.toDouble())
-                    .setBaseURL(browserUrl)
-                    // ensure viewport is a per window setting
-                    .setViewportSize(null)
-                    // auto open devtools for better developer experience
-                    .setArgs(listOf("--auto-open-devtools-for-tabs"))
+                launchOptions
             )
             configureNewBrowserContext(browserContext!!)
             page = browserContext!!.newPage()

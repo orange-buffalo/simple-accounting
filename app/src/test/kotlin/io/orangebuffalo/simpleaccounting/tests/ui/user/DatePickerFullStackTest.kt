@@ -1,14 +1,13 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
-import com.microsoft.playwright.Browser
-import com.microsoft.playwright.Clock
 import com.microsoft.playwright.Page
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.createConfiguredBrowserContext
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.createNewPage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.getBrowserUrl
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.assumeEditExpensePage
@@ -319,26 +318,11 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         }
 
         // Create a new browser context with Australia/Melbourne timezone to reproduce the bug
-        val melbourneContext = page.context().browser()!!.newContext(
-            Browser.NewContextOptions()
-                .setTimezoneId("Australia/Melbourne")
-                .setBaseURL(getBrowserUrl())
-                .setViewportSize(1920, 1080)
-        )
+        val melbourneContext = createConfiguredBrowserContext(page.context().browser()!!) { options ->
+            options.setTimezoneId("Australia/Melbourne")
+        }
         
-        // Configure the context similarly to the main test context
-        melbourneContext.setDefaultTimeout(10000.0)
-        melbourneContext.addInitScript(
-            """
-                window.saRunningInTest = true;
-                console.info("Playwright test environment initialized for Melbourne timezone");
-            """.trimIndent()
-        )
-        
-        val melbournePage = melbourneContext.newPage()
-        melbournePage.clock().install(
-            Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli())
-        )
+        val melbournePage = createNewPage(melbourneContext)
 
         try {
             melbournePage.authenticateViaCookie(preconditions.fry)
