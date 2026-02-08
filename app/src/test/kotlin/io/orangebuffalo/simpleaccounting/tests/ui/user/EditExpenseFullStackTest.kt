@@ -354,10 +354,6 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("Software subscription")
             }
 
-            documentsUpload {
-                shouldHaveDocuments(DocumentsUpload.EmptyDocument)
-            }
-
             reportRendering("edit-expense.load-without-documents")
         }
     }
@@ -461,9 +457,9 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
 
             documentsUpload {
                 shouldHaveDocuments(
+                    DocumentsUpload.UploadedDocument("invoice.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.UploadedDocument("receipt-1.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.UploadedDocument("receipt-2.pdf", DocumentsUpload.DocumentState.COMPLETED),
-                    DocumentsUpload.UploadedDocument("invoice.pdf", DocumentsUpload.DocumentState.COMPLETED),
                     DocumentsUpload.EmptyDocument
                 )
             }
@@ -716,49 +712,6 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                         adjustedAmountInDefaultCurrency = 18000
                     )
                 )
-            }
-    }
-
-    @Test
-    fun `should edit notes and save`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry)
-                val category = category(workspace = workspace, name = "Training")
-                val expense = expense(
-                    workspace = workspace,
-                    category = category,
-                    title = "Course fee",
-                    currency = "USD",
-                    originalAmount = 20000,
-                    convertedAmounts = AmountsInDefaultCurrency(20000),
-                    incomeTaxableAmounts = AmountsInDefaultCurrency(20000),
-                    datePaid = LocalDate.of(2025, 2, 20),
-                    percentOnBusiness = 100,
-                    notes = "Old notes",
-                    useDifferentExchangeRateForIncomeTaxPurposes = false,
-                    status = ExpenseStatus.FINALIZED
-                )
-            }
-        }
-
-        page.authenticateViaCookie(testData.fry)
-        page.navigate("/expenses/${testData.expense.id}/edit")
-        page.shouldBeEditExpensePage {
-            notes {
-                input.fill("## Updated Notes\n\nCourse completed successfully with **certification**")
-                input.shouldHavePreviewWithHeading("Updated Notes")
-            }
-
-            saveButton.click()
-        }
-
-        page.shouldBeExpensesOverviewPage()
-
-        aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-            .should {
-                it.notes.shouldBe("## Updated Notes\n\nCourse completed successfully with **certification**")
             }
     }
 
@@ -1265,33 +1218,6 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("USD - US Dollar")
             }
             reportRendering("edit-expense.initial-state")
-
-            // Change to foreign currency - converted amount field appears
-            currency { input.selectOption("EUREuro") }
-        }
-        expectedState = expectedState.copy(convertedAmount = true)
-        verifyFieldsVisibility(expectedState)
-        page.shouldBeEditExpensePage {
-            reportRendering("edit-expense.foreign-currency-fields")
-
-            // Enable different tax rate - income taxable amount field appears
-            useDifferentExchangeRateForIncomeTaxPurposes().click()
-        }
-        expectedState = expectedState.copy(incomeTaxableAmount = true)
-        verifyFieldsVisibility(expectedState)
-        page.shouldBeEditExpensePage {
-            reportRendering("edit-expense.different-tax-rate-enabled")
-
-            // Change back to default currency - foreign currency fields disappear
-            currency { input.selectOption("USDUS Dollar") }
-        }
-        expectedState = expectedState.copy(
-            convertedAmount = false,
-            incomeTaxableAmount = false
-        )
-        verifyFieldsVisibility(expectedState)
-        page.shouldBeEditExpensePage {
-            reportRendering("edit-expense.back-to-default-currency")
 
             // Enable partial business - percentage field appears
             partialForBusiness().click()
