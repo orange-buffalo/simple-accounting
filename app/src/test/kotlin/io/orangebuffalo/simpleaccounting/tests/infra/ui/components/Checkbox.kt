@@ -3,15 +3,21 @@ package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeChecked
+import io.orangebuffalo.kotestplaywrightassertions.shouldNotBeChecked
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeDisabled
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeEnabled
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
+import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 
 class Checkbox private constructor(
     private val locator: Locator,
 ) : UiComponent<Checkbox>() {
     fun shouldBeChecked() = locator.shouldBeChecked()
+    fun shouldNotBeChecked() = locator.shouldNotBeChecked()
     fun shouldBeEnabled() = locator.shouldBeEnabled()
     fun shouldBeDisabled() = locator.shouldBeDisabled()
+    fun shouldBeVisible() = locator.shouldBeVisible()
+    fun shouldBeHidden() = locator.shouldBeHidden()
     fun click() {
         // Element Plus renders the <input> outside viewport for accessibility
         // Click the parent .el-checkbox container instead which is visually in the correct position
