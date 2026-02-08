@@ -354,6 +354,10 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("Software subscription")
             }
 
+            documentsUpload {
+                shouldHaveDocuments(DocumentsUpload.EmptyDocument)
+            }
+
             reportRendering("edit-expense.load-without-documents")
         }
     }
@@ -566,14 +570,27 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-            .should {
-                it.title.shouldBe("International travel")
-                it.currency.shouldBe("EUR")
-                it.originalAmount.shouldBe(9000)
-                it.convertedAmounts.shouldBe(AmountsInDefaultCurrency(10000))
-                it.incomeTaxableAmounts.shouldBe(AmountsInDefaultCurrency(10000))
-                it.useDifferentExchangeRateForIncomeTaxPurposes.shouldBe(false)
-            }
+            .shouldBeEntityWithFields(
+                Expense(
+                    title = "International travel",
+                    categoryId = testData.category.id!!,
+                    datePaid = LocalDate.of(2025, 2, 1),
+                    currency = "EUR",
+                    originalAmount = 9000,
+                    convertedAmounts = AmountsInDefaultCurrency(10000),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
+                    status = ExpenseStatus.FINALIZED,
+                    percentOnBusiness = 100,
+                    useDifferentExchangeRateForIncomeTaxPurposes = false,
+                    timeRecorded = MOCK_TIME,
+                    workspaceId = testData.workspace.id!!,
+                    generalTaxId = null,
+                ),
+                ignoredProperties = arrayOf(
+                    Expense::id,
+                    Expense::version,
+                )
+            )
     }
 
     @Test
@@ -612,13 +629,27 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-            .should {
-                it.title.shouldBe("Domestic equipment")
-                it.currency.shouldBe("USD")
-                it.originalAmount.shouldBe(12500)
-                it.convertedAmounts.shouldBe(AmountsInDefaultCurrency(12500))
-                it.incomeTaxableAmounts.shouldBe(AmountsInDefaultCurrency(12500))
-            }
+            .shouldBeEntityWithFields(
+                Expense(
+                    title = "Domestic equipment",
+                    categoryId = testData.category.id!!,
+                    datePaid = LocalDate.of(2025, 2, 5),
+                    currency = "USD",
+                    originalAmount = 12500,
+                    convertedAmounts = AmountsInDefaultCurrency(12500),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(12500),
+                    status = ExpenseStatus.FINALIZED,
+                    percentOnBusiness = 100,
+                    useDifferentExchangeRateForIncomeTaxPurposes = false,
+                    timeRecorded = MOCK_TIME,
+                    workspaceId = testData.workspace.id!!,
+                    generalTaxId = null,
+                ),
+                ignoredProperties = arrayOf(
+                    Expense::id,
+                    Expense::version,
+                )
+            )
     }
 
     @Test
@@ -656,11 +687,27 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-            .should {
-                it.useDifferentExchangeRateForIncomeTaxPurposes.shouldBe(true)
-                it.convertedAmounts.shouldBe(AmountsInDefaultCurrency(55000))
-                it.incomeTaxableAmounts.shouldBe(AmountsInDefaultCurrency(52000))
-            }
+            .shouldBeEntityWithFields(
+                Expense(
+                    title = "Foreign consulting",
+                    categoryId = testData.category.id!!,
+                    datePaid = LocalDate.of(2025, 2, 10),
+                    currency = "EUR",
+                    originalAmount = 50000,
+                    convertedAmounts = AmountsInDefaultCurrency(55000),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(52000),
+                    status = ExpenseStatus.FINALIZED,
+                    percentOnBusiness = 100,
+                    useDifferentExchangeRateForIncomeTaxPurposes = true,
+                    timeRecorded = MOCK_TIME,
+                    workspaceId = testData.workspace.id!!,
+                    generalTaxId = null,
+                ),
+                ignoredProperties = arrayOf(
+                    Expense::id,
+                    Expense::version,
+                )
+            )
     }
 
     @Test
@@ -698,21 +745,33 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-            .should {
-                it.percentOnBusiness.shouldBe(60)
-                it.convertedAmounts.shouldBe(
-                    AmountsInDefaultCurrency(
+            .shouldBeEntityWithFields(
+                Expense(
+                    title = "Full business vehicle",
+                    categoryId = testData.category.id!!,
+                    datePaid = LocalDate.of(2025, 2, 15),
+                    currency = "USD",
+                    originalAmount = 30000,
+                    convertedAmounts = AmountsInDefaultCurrency(
                         originalAmountInDefaultCurrency = 30000,
                         adjustedAmountInDefaultCurrency = 18000
-                    )
-                )
-                it.incomeTaxableAmounts.shouldBe(
-                    AmountsInDefaultCurrency(
+                    ),
+                    incomeTaxableAmounts = AmountsInDefaultCurrency(
                         originalAmountInDefaultCurrency = 30000,
                         adjustedAmountInDefaultCurrency = 18000
-                    )
+                    ),
+                    status = ExpenseStatus.FINALIZED,
+                    percentOnBusiness = 60,
+                    useDifferentExchangeRateForIncomeTaxPurposes = false,
+                    timeRecorded = MOCK_TIME,
+                    workspaceId = testData.workspace.id!!,
+                    generalTaxId = null,
+                ),
+                ignoredProperties = arrayOf(
+                    Expense::id,
+                    Expense::version,
                 )
-            }
+            )
     }
 
     @Test
@@ -762,10 +821,29 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         val savedExpense = aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-        savedExpense.should {
-            it.title.shouldBe("Updated utility bills")
-            it.attachments.shouldHaveSize(2)
-        }
+        savedExpense.shouldBeEntityWithFields(
+            Expense(
+                title = "Updated utility bills",
+                categoryId = testData.category.id!!,
+                datePaid = LocalDate.of(2025, 2, 25),
+                currency = "USD",
+                originalAmount = 15000,
+                convertedAmounts = AmountsInDefaultCurrency(15000),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(15000),
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                timeRecorded = MOCK_TIME,
+                workspaceId = testData.workspace.id!!,
+                generalTaxId = null,
+            ),
+            ignoredProperties = arrayOf(
+                Expense::id,
+                Expense::version,
+                Expense::attachments,
+            )
+        )
+        savedExpense.attachments.shouldHaveSize(2)
 
         val documentIds = savedExpense.attachments.map { it.documentId }.toSet()
         documentIds.shouldBe(setOf(testData.document1.id!!, testData.document2.id!!))
@@ -836,9 +914,29 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         val savedExpense = aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-        savedExpense.should {
-            it.attachments.shouldHaveSize(2)
-        }
+        savedExpense.shouldBeEntityWithFields(
+            Expense(
+                title = "Office supplies",
+                categoryId = testData.category.id!!,
+                datePaid = LocalDate.of(2025, 3, 1),
+                currency = "USD",
+                originalAmount = 10000,
+                convertedAmounts = AmountsInDefaultCurrency(10000),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                timeRecorded = MOCK_TIME,
+                workspaceId = testData.workspace.id!!,
+                generalTaxId = null,
+            ),
+            ignoredProperties = arrayOf(
+                Expense::id,
+                Expense::version,
+                Expense::attachments,
+            )
+        )
+        savedExpense.attachments.shouldHaveSize(2)
 
         val documents = savedExpense.attachments.map { attachment ->
             aggregateTemplate.findSingle<Document>(attachment.documentId)
@@ -921,9 +1019,29 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         val savedExpense = aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-        savedExpense.should {
-            it.attachments.shouldHaveSize(2)
-        }
+        savedExpense.shouldBeEntityWithFields(
+            Expense(
+                title = "Marketing materials",
+                categoryId = testData.category.id!!,
+                datePaid = LocalDate.of(2025, 3, 5),
+                currency = "USD",
+                originalAmount = 25000,
+                convertedAmounts = AmountsInDefaultCurrency(25000),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(25000),
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                timeRecorded = MOCK_TIME,
+                workspaceId = testData.workspace.id!!,
+                generalTaxId = null,
+            ),
+            ignoredProperties = arrayOf(
+                Expense::id,
+                Expense::version,
+                Expense::attachments,
+            )
+        )
+        savedExpense.attachments.shouldHaveSize(2)
 
         val documentIds = savedExpense.attachments.map { it.documentId }.toSet()
         // Should have the kept document and a new one (not the removed one)
@@ -992,9 +1110,29 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         val savedExpense = aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-        savedExpense.should {
-            it.attachments.shouldHaveSize(1)
-        }
+        savedExpense.shouldBeEntityWithFields(
+            Expense(
+                title = "Consulting services",
+                categoryId = testData.category.id!!,
+                datePaid = LocalDate.of(2025, 3, 10),
+                currency = "USD",
+                originalAmount = 50000,
+                convertedAmounts = AmountsInDefaultCurrency(50000),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(50000),
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                timeRecorded = MOCK_TIME,
+                workspaceId = testData.workspace.id!!,
+                generalTaxId = null,
+            ),
+            ignoredProperties = arrayOf(
+                Expense::id,
+                Expense::version,
+                Expense::attachments,
+            )
+        )
+        savedExpense.attachments.shouldHaveSize(1)
 
         val documentIds = savedExpense.attachments.map { it.documentId }.toSet()
         documentIds.shouldBe(setOf(testData.document2.id!!))
@@ -1043,10 +1181,30 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
 
         page.shouldBeExpensesOverviewPage()
 
-        aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
-            .should {
-                it.attachments.shouldHaveSize(0)
-            }
+        val savedExpense = aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
+        savedExpense.shouldBeEntityWithFields(
+            Expense(
+                title = "Annual subscription",
+                categoryId = testData.category.id!!,
+                datePaid = LocalDate.of(2025, 3, 15),
+                currency = "USD",
+                originalAmount = 99900,
+                convertedAmounts = AmountsInDefaultCurrency(99900),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(99900),
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 100,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                timeRecorded = MOCK_TIME,
+                workspaceId = testData.workspace.id!!,
+                generalTaxId = null,
+            ),
+            ignoredProperties = arrayOf(
+                Expense::id,
+                Expense::version,
+                Expense::attachments,
+            )
+        )
+        savedExpense.attachments.shouldHaveSize(0)
     }
 
     @Test
