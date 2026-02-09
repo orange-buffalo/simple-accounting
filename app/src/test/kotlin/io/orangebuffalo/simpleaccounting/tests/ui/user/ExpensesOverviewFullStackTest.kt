@@ -2,13 +2,17 @@ package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
+import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
+import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.previewIcons
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.dataValues
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.shouldBeCreateExpensePage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import org.junit.jupiter.api.Test
@@ -663,6 +667,209 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     )
                 }
             }
+        }
+    }
+
+    @Test
+    fun `should open create expense page with default values from create button`(page: Page) {
+        page.authenticateViaCookie(preconditionsActions.fry)
+        page.openExpensesOverviewPage {
+            createButton.click()
+        }
+
+        page.shouldBeCreateExpensePage {
+            category {
+                input.shouldHaveSelectedValue("Select a category")
+            }
+            title {
+                input.shouldHaveValue("")
+            }
+            currency {
+                input.shouldHaveSelectedValue("USD - US Dollar")
+            }
+            originalAmount {
+                input.shouldHaveValue("")
+            }
+            datePaid {
+                input.shouldHaveValue("1999-03-28")
+            }
+            generalTax {
+                input.shouldHaveSelectedValue("Select a tax")
+            }
+            notes {
+                input.shouldHaveValue("")
+            }
+
+            partialForBusiness().shouldNotBeChecked()
+            percentOnBusiness().shouldBeHidden()
+
+            convertedAmountInDefaultCurrency("USD").shouldBeHidden()
+            useDifferentExchangeRateForIncomeTaxPurposes().shouldBeHidden()
+            incomeTaxableAmountInDefaultCurrency("USD").shouldBeHidden()
+        }
+    }
+
+    @Test
+    fun `should open edit expense page with loaded values from edit action`(page: Page) {
+        page.authenticateViaCookie(preconditionsActions.fry)
+        page.openExpensesOverviewPage {
+            pageItems {
+                shouldHaveTitles("Flight to London")
+                staticItems[0].executeEditAction()
+            }
+        }
+
+        page.shouldBeEditExpensePage {
+            category {
+                input.shouldHaveSelectedValue("Travel")
+            }
+            title {
+                input.shouldHaveValue("Flight to London")
+            }
+            currency {
+                input.shouldHaveSelectedValue("GBP - British Pound")
+            }
+            originalAmount {
+                input.shouldHaveValue("500.00")
+            }
+            datePaid {
+                input.shouldHaveValue("2025-01-15")
+            }
+            generalTax {
+                input.shouldHaveSelectedValue("VAT")
+            }
+            notes {
+                input.shouldHaveValue("Business trip")
+            }
+
+            convertedAmountInDefaultCurrency("USD").shouldBeVisible()
+            convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("625.00")
+
+            useDifferentExchangeRateForIncomeTaxPurposes().shouldNotBeChecked()
+            incomeTaxableAmountInDefaultCurrency("USD").shouldBeHidden()
+
+            partialForBusiness().shouldBeChecked()
+            percentOnBusiness().shouldBeVisible()
+            percentOnBusiness().input.shouldHaveValue("80")
+        }
+    }
+
+    @Test
+    fun `should open create expense page with pre-populated values from copy action and create new expense`(page: Page) {
+        page.authenticateViaCookie(preconditionsActions.fry)
+        page.openExpensesOverviewPage {
+            pageItems {
+                shouldHaveTitles("Flight to London")
+                staticItems[0].executeCopyAction()
+            }
+        }
+
+        page.shouldBeCreateExpensePage {
+            category {
+                input.shouldHaveSelectedValue("Travel")
+            }
+            title {
+                input.shouldHaveValue("Flight to London")
+            }
+            currency {
+                input.shouldHaveSelectedValue("GBP - British Pound")
+            }
+            originalAmount {
+                input.shouldHaveValue("500.00")
+            }
+            datePaid {
+                input.shouldHaveValue("")
+            }
+            generalTax {
+                input.shouldHaveSelectedValue("VAT")
+            }
+            notes {
+                input.shouldHaveValue("Business trip")
+            }
+
+            convertedAmountInDefaultCurrency("USD").shouldBeVisible()
+            convertedAmountInDefaultCurrency("USD").input.shouldHaveValue("")
+
+            useDifferentExchangeRateForIncomeTaxPurposes().shouldNotBeChecked()
+            incomeTaxableAmountInDefaultCurrency("USD").shouldBeHidden()
+
+            partialForBusiness().shouldBeChecked()
+            percentOnBusiness().shouldBeVisible()
+            percentOnBusiness().input.shouldHaveValue("80")
+
+            // Fill in the missing fields
+            datePaid { input.fill("2025-02-01") }
+            convertedAmountInDefaultCurrency("USD").input.fill("625.00")
+            saveButton.click()
+        }
+
+        page.shouldBeExpensesOverviewPage()
+
+        val expenses = aggregateTemplate.findAll<Expense>()
+        expenses.shouldHaveSize(2)
+
+        val copiedExpense = expenses.first { it.title == "Flight to London" && it.datePaid == LocalDate.of(2025, 2, 1) }
+        copiedExpense.shouldBeEntityWithFields(
+            Expense(
+                title = "Flight to London",
+                categoryId = preconditionsActions.category.id!!,
+                datePaid = LocalDate.of(2025, 2, 1),
+                currency = "GBP",
+                originalAmount = 50000,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = 62500,
+                    adjustedAmountInDefaultCurrency = 41667
+                ),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = 62500,
+                    adjustedAmountInDefaultCurrency = 41667
+                ),
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 80,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                timeRecorded = MOCK_TIME,
+                workspaceId = preconditionsActions.workspace.id!!,
+                generalTaxId = preconditionsActions.generalTax.id,
+                generalTaxAmount = 8333,
+                generalTaxRateInBps = 2000,
+                notes = "Business trip",
+            ),
+            ignoredProperties = arrayOf(
+                Expense::id,
+                Expense::version,
+            )
+        )
+    }
+
+    private val preconditionsActions by lazyPreconditions {
+        object {
+            val fry = fry()
+            val workspace = workspace(owner = fry)
+            val category = category(workspace = workspace, name = "Travel")
+            val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
+            val expense = expense(
+                workspace = workspace,
+                category = category,
+                title = "Flight to London",
+                datePaid = LocalDate.of(2025, 1, 15),
+                currency = "GBP",
+                originalAmount = 50000,
+                convertedAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = 62500,
+                    adjustedAmountInDefaultCurrency = 50000
+                ),
+                incomeTaxableAmounts = AmountsInDefaultCurrency(
+                    originalAmountInDefaultCurrency = 62500,
+                    adjustedAmountInDefaultCurrency = 50000
+                ),
+                status = ExpenseStatus.FINALIZED,
+                percentOnBusiness = 80,
+                useDifferentExchangeRateForIncomeTaxPurposes = false,
+                generalTax = generalTax,
+                generalTaxRateInBps = 2000,
+                generalTaxAmount = 12500,
+                notes = "Business trip"
+            )
         }
     }
 }

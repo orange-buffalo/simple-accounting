@@ -110,10 +110,17 @@ class SaOverviewItem private constructor(
     }
 
     fun executeAction(actionLinkText: String) {
-        panel
+        expandDetails()
+        // The details div is a sibling of the panel, both within a parent container
+        val container = panel.locator("xpath=..")
+        container
             .locator("xpath=.//*[${XPath.hasClass("sa-action-link")} and .//*[${XPath.hasText(actionLinkText)}]]")
             .click()
     }
+
+    fun executeEditAction() = executeAction("Edit")
+
+    fun executeCopyAction() = executeAction("Copy")
 
     companion object {
         fun ComponentsAccessors.overviewItems() =
