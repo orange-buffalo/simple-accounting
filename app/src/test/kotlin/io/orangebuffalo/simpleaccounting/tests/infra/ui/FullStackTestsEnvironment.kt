@@ -68,7 +68,8 @@ fun createConfiguredBrowserContext(
  */
 fun createNewPage(context: BrowserContext): Page {
     val page = context.newPage()
-    page.clock().setFixedTime(MOCK_TIME.toEpochMilli())
+    page.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
+    page.clock().setSystemTime(MOCK_TIME.toEpochMilli())
     return page
 }
 
@@ -227,8 +228,9 @@ private class IsolatedPageContextStrategy(
     override fun getPageForTheTest(): Page {
         if (page == null) {
             page = browserContext!!.newPage()
-            // Set fixed time for the browser but keep the clock running
-            page!!.clock().setFixedTime(MOCK_TIME.toEpochMilli())
+            // Install mock clock at fixed time but keep it running
+            page!!.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
+            page!!.clock().setSystemTime(MOCK_TIME.toEpochMilli())
         }
         return page!!
     }
@@ -294,8 +296,9 @@ private class PersistentPageContextStrategy(
             )
             configureNewBrowserContext(browserContext!!)
             page = browserContext!!.newPage()
-            // Set fixed time for the browser but keep the clock running
-            page!!.clock().setFixedTime(MOCK_TIME.toEpochMilli())
+            // Install mock clock at fixed time but keep it running
+            page!!.clock().install(Clock.InstallOptions().setTime(MOCK_TIME.toEpochMilli()))
+            page!!.clock().setSystemTime(MOCK_TIME.toEpochMilli())
         }
     }
 
