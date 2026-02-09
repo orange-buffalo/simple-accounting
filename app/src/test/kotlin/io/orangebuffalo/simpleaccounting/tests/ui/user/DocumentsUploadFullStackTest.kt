@@ -6,13 +6,13 @@ import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
@@ -24,13 +24,6 @@ import kotlin.io.path.writeBytes
  * Uses Edit Expense page as testing grounds.
  */
 class DocumentsUploadFullStackTest : SaFullStackTestBase() {
-
-    @BeforeEach
-    fun setup(page: Page) {
-        testDocumentsStorage.reset()
-        // Resume clock to allow debouncing and async operations to work
-        page.clock().resume()
-    }
 
     @Test
     fun `should display error when storage is not configured`(page: Page) {
@@ -58,7 +51,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val expense = expense(workspace = workspace(owner = fry))
             }
         }
@@ -78,7 +71,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
     fun `should show empty upload slot when no documents exist`(page: Page) {
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val expense = expense(workspace = workspace(owner = fry))
             }
         }
@@ -99,12 +92,12 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
         val documentContent = "Pre-existing document content".toByteArray()
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val doc = document(
                     workspace = workspace,
                     name = "existing-receipt.pdf",
-                    storageId = "test-storage",
+                    storageId = TestDocumentsStorage.STORAGE_ID,
                     storageLocation = "existing-location",
                     sizeInBytes = documentContent.size.toLong(),
                     timeUploaded = MOCK_TIME
@@ -141,28 +134,28 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val expense = expense(
                     workspace = workspace, attachments = setOf(
                         document(
                             workspace = workspace,
                             name = "contract.docx",
-                            storageId = "test-storage",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
                             storageLocation = "location-3",
                             sizeInBytes = document3Content.size.toLong(),
                             timeUploaded = MOCK_TIME
                         ), document(
                             workspace = workspace,
                             name = "invoice.pdf",
-                            storageId = "test-storage",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
                             storageLocation = "location-1",
                             sizeInBytes = document1Content.size.toLong(),
                             timeUploaded = MOCK_TIME
                         ), document(
                             workspace = workspace,
                             name = "receipt.jpg",
-                            storageId = "test-storage",
+                            storageId = TestDocumentsStorage.STORAGE_ID,
                             storageLocation = "location-2",
                             sizeInBytes = document2Content.size.toLong(),
                             timeUploaded = MOCK_TIME
@@ -197,12 +190,12 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
         val documentContent = "Document to be removed".toByteArray()
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val doc = document(
                     workspace = workspace,
                     name = "to-remove.pdf",
-                    storageId = "test-storage",
+                    storageId = TestDocumentsStorage.STORAGE_ID,
                     storageLocation = "remove-location",
                     sizeInBytes = documentContent.size.toLong(),
                     timeUploaded = MOCK_TIME
@@ -243,7 +236,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
         val fileContent = "Single file upload test content".toByteArray()
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val expense = expense(workspace = workspace)
             }
@@ -283,7 +276,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
         savedDocument.shouldWithClue("Document should have correct metadata") {
             name.shouldBe(testFile.name)
             sizeInBytes.shouldBe(fileContent.size.toLong())
-            storageId.shouldBe("test-storage")
+            storageId.shouldBe(TestDocumentsStorage.STORAGE_ID)
         }
 
         // Verify uploaded content matches original (binary equality)
@@ -299,7 +292,7 @@ class DocumentsUploadFullStackTest : SaFullStackTestBase() {
 
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val expense = expense(workspace = workspace)
             }

@@ -21,6 +21,7 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.users.UserActivationToken
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.business.workspaces.WorkspaceAccessToken
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import org.apache.commons.lang3.RandomStringUtils
@@ -153,7 +154,7 @@ class EntitiesFactory(private val infra: EntitiesFactoryInfra) {
         name: String = "Slurm Receipt",
         workspace: Workspace? = null,
         timeUploaded: Instant = MOCK_TIME,
-        storageId: String = "test-storage",
+        storageId: String = TestDocumentsStorage.STORAGE_ID,
         storageLocation: String? = "test-location",
         sizeInBytes: Long? = null
     ): Document {

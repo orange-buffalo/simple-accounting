@@ -9,23 +9,17 @@ import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.io.path.name
 import kotlin.io.path.writeBytes
 
 class EditExpenseFullStackTest : SaFullStackTestBase() {
-
-    @BeforeEach
-    fun setup(page: Page) {
-        testDocumentsStorage.reset()
-        page.clock().resume()
-    }
 
     @Test
     fun `should load expense in default currency`(page: Page) {
@@ -327,7 +321,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
     fun `should load expense without documents`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Subscriptions")
                 val expense = expense(
@@ -365,7 +359,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
     fun `should load expense with single document`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Utilities")
                 val document = document(
@@ -413,7 +407,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
     fun `should load expense with multiple documents`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Office")
                 val document1 = document(
@@ -777,7 +771,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
     fun `should keep existing documents when saving`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Utilities")
                 val document1 = document(
@@ -855,7 +849,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
 
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Office")
                 val oldDocument = document(
@@ -958,7 +952,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
 
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Marketing")
                 val document1 = document(
@@ -1052,7 +1046,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
     fun `should remove subset of documents when saving`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Services")
                 val document1 = document(
@@ -1141,7 +1135,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
     fun `should remove all documents when saving`(page: Page) {
         val testData = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry)
                 val category = category(workspace = workspace, name = "Subscriptions")
                 val document = document(

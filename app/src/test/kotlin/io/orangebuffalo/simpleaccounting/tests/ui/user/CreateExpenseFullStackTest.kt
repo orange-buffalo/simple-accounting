@@ -9,24 +9,18 @@ import io.orangebuffalo.simpleaccounting.business.documents.Document
 import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.business.expenses.ExpenseStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.TestDocumentsStorage
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DocumentsUpload
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import kotlin.io.path.name
 import kotlin.io.path.writeBytes
 
 class CreateExpenseFullStackTest : SaFullStackTestBase() {
-
-    @BeforeEach
-    fun setup(page: Page) {
-        testDocumentsStorage.reset()
-        page.clock().resume()
-    }
 
     @Test
     fun `should create expense in default currency`(page: Page) {
@@ -221,7 +215,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
         val preconditions = preconditions {
             object {
-                val fry = platformUser(userName = "Fry", documentsStorage = "test-storage")
+                val fry = platformUser(userName = "Fry", documentsStorage = TestDocumentsStorage.STORAGE_ID)
                 val workspace = workspace(owner = fry).also {
                     category(workspace = it, name = "Delivery")
                 }
@@ -277,7 +271,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         doc1.shouldWithClue("First document metadata should be correct") {
             this.name.shouldBe(testFile1.name)
             this.sizeInBytes.shouldBe(file1Content.size.toLong())
-            this.storageId.shouldBe("test-storage")
+            this.storageId.shouldBe(TestDocumentsStorage.STORAGE_ID)
             this.workspaceId.shouldBe(preconditions.workspace.id)
         }
         testDocumentsStorage.getUploadedContent(doc1.storageLocation!!).shouldBe(file1Content)
@@ -286,7 +280,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         doc2.shouldWithClue("Second document metadata should be correct") {
             this.name.shouldBe(testFile2.name)
             this.sizeInBytes.shouldBe(file2Content.size.toLong())
-            this.storageId.shouldBe("test-storage")
+            this.storageId.shouldBe(TestDocumentsStorage.STORAGE_ID)
             this.workspaceId.shouldBe(preconditions.workspace.id)
         }
         testDocumentsStorage.getUploadedContent(doc2.storageLocation!!).shouldBe(file2Content)

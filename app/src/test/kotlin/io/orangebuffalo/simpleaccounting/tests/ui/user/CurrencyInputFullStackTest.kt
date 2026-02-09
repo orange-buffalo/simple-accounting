@@ -12,7 +12,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiRespons
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.shouldBeCreateExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
@@ -20,12 +19,6 @@ import org.junit.jupiter.api.Test
  * Uses Create Expense and Edit Expense pages as testing grounds.
  */
 class CurrencyInputFullStackTest : SaFullStackTestBase() {
-
-    @BeforeEach
-    fun setup(page: Page) {
-        // Resume clock to allow component to load shortlist asynchronously
-        page.clock().resume()
-    }
 
     @Test
     fun `should load with default currency when no value provided`(page: Page) {
