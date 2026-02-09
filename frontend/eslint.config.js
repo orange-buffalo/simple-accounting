@@ -82,6 +82,7 @@ export default [
       'template-curly-spacing': 'off',
       indent: 'off',
       'no-unused-vars': 'off',
+      'no-useless-assignment': 'off',
       'consistent-return': 'off',
       'no-restricted-syntax': 'off',
       'max-classes-per-file': 'off',
