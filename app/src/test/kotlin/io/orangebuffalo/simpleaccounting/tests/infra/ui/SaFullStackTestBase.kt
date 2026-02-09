@@ -23,7 +23,10 @@ import java.time.Instant
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ExtendWith(SaPlaywrightExtension::class)
 @TestExecutionListeners(
-    listeners = [ThirdPartyApisMocksListener::class],
+    listeners = [
+        ThirdPartyApisMocksListener::class,
+        TestDocumentsStorageResetListener::class,
+    ],
     mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
 )
 @ContextConfiguration(

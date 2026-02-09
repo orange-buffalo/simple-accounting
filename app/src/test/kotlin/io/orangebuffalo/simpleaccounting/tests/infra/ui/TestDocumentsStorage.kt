@@ -20,7 +20,11 @@ class TestDocumentsStorage : DocumentsStorage {
     private val uploadedDocuments = mutableMapOf<String, ByteArray>()
     private var storageStatus = DocumentsStorageStatus(active = true)
 
-    override fun getId(): String = "test-storage"
+    override fun getId(): String = STORAGE_ID
+
+    companion object {
+        const val STORAGE_ID = "test-storage"
+    }
 
     override suspend fun getCurrentUserStorageStatus(): DocumentsStorageStatus = storageStatus
 

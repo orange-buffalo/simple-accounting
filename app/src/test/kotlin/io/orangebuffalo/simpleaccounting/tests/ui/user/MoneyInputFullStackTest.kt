@@ -9,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditExpensePage.Companion.shouldBeEditExpensePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
@@ -17,12 +16,6 @@ import org.junit.jupiter.api.Test
  * Uses Edit Expense page with Original Amount input as testing grounds.
  */
 class MoneyInputFullStackTest : SaFullStackTestBase() {
-
-    @BeforeEach
-    fun setup(page: Page) {
-        // Resume clock to allow IMask to initialize properly
-        page.clock().resume()
-    }
 
     @Test
     fun `should accept input with 2 decimal places for USD`(page: Page) {
