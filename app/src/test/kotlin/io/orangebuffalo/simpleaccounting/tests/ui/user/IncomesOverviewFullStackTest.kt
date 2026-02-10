@@ -489,7 +489,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
                     status = IncomeStatus.FINALIZED,
-                    notes = "Important income notes"
+                    notes = "Critical cargo payment notes"
                 )
 
                 // 5. With general tax

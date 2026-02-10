@@ -295,7 +295,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     incomeTaxableAmounts = AmountsInDefaultCurrency(20000),
                     datePaid = LocalDate.of(3025, 2, 1),
                     percentOnBusiness = 100,
-                    notes = "# Course Details\n\nCompleted advanced **programming** course",
+                    notes = "# Robot Training\n\nCompleted advanced **bending** course",
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
                 )
@@ -431,7 +431,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = category,
-                    title = "Office supplies bundle",
+                    title = "Robot parts bundle",
                     currency = "USD",
                     originalAmount = 30000,
                     convertedAmounts = AmountsInDefaultCurrency(30000),
@@ -449,7 +449,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
             title {
-                input.shouldHaveValue("Office supplies bundle")
+                input.shouldHaveValue("Robot parts bundle")
             }
 
             documentsUpload {
@@ -861,7 +861,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = category,
-                    title = "Office supplies",
+                    title = "Robot maintenance supplies",
                     currency = "USD",
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
@@ -909,7 +909,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         val savedExpense = aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
         savedExpense.shouldBeEntityWithFields(
             Expense(
-                title = "Office supplies",
+                title = "Robot maintenance supplies",
                 categoryId = testData.category.id!!,
                 datePaid = LocalDate.of(3025, 3, 1),
                 currency = "USD",
@@ -1210,7 +1210,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = category,
-                    title = "Test expense",
+                    title = "Cargo bay maintenance",
                     currency = "USD",
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
@@ -1340,11 +1340,11 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry()
                 val workspace = workspace(owner = fry)
-                val category = category(workspace = workspace, name = "Test")
+                val category = category(workspace = workspace, name = "Delivery")
                 val expense = expense(
                     workspace = workspace,
                     category = category,
-                    title = "Test expense",
+                    title = "Cargo bay maintenance",
                     currency = "USD",
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),

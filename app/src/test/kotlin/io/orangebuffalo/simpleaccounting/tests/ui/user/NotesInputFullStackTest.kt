@@ -102,13 +102,13 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace(owner = fry),
                     notes = """
-                        # Meeting Notes
+                        # Crew Meeting Notes
                         
                         ## Discussion Points
-                        - Budget review
-                        - **Urgent**: Approval needed
+                        - Delivery route review
+                        - **Urgent**: Professor's doomsday device approval needed
                         
-                        See [details](https://example.com)
+                        See [details](https://planetexpress.com)
                     """.trimIndent()
                 )
             }

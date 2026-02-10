@@ -336,7 +336,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     input.shouldHaveValue("3023-12-31")
                 }
                 
-                title.input.fill("Timezone Test Expense")
+                title.input.fill("Intergalactic timezone expense")
                 category.input.selectOption(preconditions.category.name)
                 originalAmount.input.fill("1000")
                 
@@ -347,7 +347,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
             
             // Verify the date was stored correctly
             val savedExpense = aggregateTemplate.findAll(Expense::class.java)
-                .first { it.title == "Timezone Test Expense" }
+                .first { it.title == "Intergalactic timezone expense" }
             
             savedExpense.datePaid.shouldBe(LocalDate.of(3023, 12, 31))
         } finally {

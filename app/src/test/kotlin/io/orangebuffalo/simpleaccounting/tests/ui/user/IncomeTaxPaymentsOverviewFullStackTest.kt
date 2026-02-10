@@ -219,7 +219,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                     reportingDate = LocalDate.of(3025, 1, 12),
                     amount = 20000,
                     attachments = setOf(document1),
-                    notes = "Complex payment with all attributes"
+                    notes = "Planet Express tax payment with all attributes"
                 )
             }
         }

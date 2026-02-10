@@ -493,7 +493,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
                     status = ExpenseStatus.FINALIZED,
-                    notes = "Important expense notes"
+                    notes = "Critical Slurm delivery notes"
                 )
 
                 // 5. With general tax
@@ -714,7 +714,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsActions.fry)
         page.openExpensesOverviewPage {
             pageItems {
-                shouldHaveTitles("Flight to London")
+                shouldHaveTitles("Spaceship fuel refill")
                 staticItems[0].executeEditAction()
             }
         }
@@ -724,7 +724,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("Travel")
             }
             title {
-                input.shouldHaveValue("Flight to London")
+                input.shouldHaveValue("Spaceship fuel refill")
             }
             currency {
                 input.shouldHaveSelectedValue("GBP - British Pound")
@@ -759,7 +759,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsActions.fry)
         page.openExpensesOverviewPage {
             pageItems {
-                shouldHaveTitles("Flight to London")
+                shouldHaveTitles("Spaceship fuel refill")
                 staticItems[0].executeCopyAction()
             }
         }
@@ -769,7 +769,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("Travel")
             }
             title {
-                input.shouldHaveValue("Flight to London")
+                input.shouldHaveValue("Spaceship fuel refill")
             }
             currency {
                 input.shouldHaveSelectedValue("GBP - British Pound")
@@ -808,10 +808,10 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         val expenses = aggregateTemplate.findAll<Expense>()
         expenses.shouldHaveSize(2)
 
-        val copiedExpense = expenses.first { it.title == "Flight to London" && it.datePaid == LocalDate.of(3025, 2, 1) }
+        val copiedExpense = expenses.first { it.title == "Spaceship fuel refill" && it.datePaid == LocalDate.of(3025, 2, 1) }
         copiedExpense.shouldBeEntityWithFields(
             Expense(
-                title = "Flight to London",
+                title = "Spaceship fuel refill",
                 categoryId = preconditionsActions.category.id!!,
                 datePaid = LocalDate.of(3025, 2, 1),
                 currency = "GBP",
@@ -850,7 +850,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val expense = expense(
                 workspace = workspace,
                 category = category,
-                title = "Flight to London",
+                title = "Spaceship fuel refill",
                 datePaid = LocalDate.of(3025, 1, 15),
                 currency = "GBP",
                 originalAmount = 50000,

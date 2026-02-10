@@ -354,9 +354,9 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             object {
                 val fry = fry().also {
                     val workspace = workspace(owner = it)
-                    customer(workspace = workspace, name = "Customer C")
+                    customer(workspace = workspace, name = "Nibbler Enterprises")
                     customer(workspace = workspace, name = "Customer A")
-                    customer(workspace = workspace, name = "Customer B")
+                    customer(workspace = workspace, name = "Hypnotoad Productions")
                     generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                     generalTax(workspace = workspace, title = "GST", rateInBps = 1000)
                 }

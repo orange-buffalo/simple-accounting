@@ -210,7 +210,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
 
     @Test
     fun `should create expense with document attachments`(page: Page) {
-        val file1Content = "Receipt for coffee supplies".toByteArray()
+        val file1Content = "Receipt for Slurm supplies".toByteArray()
         val file2Content = "Invoice for office equipment".toByteArray()
 
         val preconditions = preconditions {

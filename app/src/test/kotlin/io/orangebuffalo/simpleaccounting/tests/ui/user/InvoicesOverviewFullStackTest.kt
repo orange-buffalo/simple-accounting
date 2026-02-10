@@ -519,7 +519,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     dateSent = LocalDate.of(3025, 1, 10),
                     datePaid = LocalDate.of(3025, 1, 7),
                     amount = 6000,
-                    notes = "Important invoice notes",
+                    notes = "Critical delivery invoice notes",
                     status = InvoiceStatus.PAID
                 )
 
@@ -535,7 +535,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     amount = 14000,
                     generalTax = generalTax,
                     attachments = setOf(document1),
-                    notes = "Complex invoice with all attributes",
+                    notes = "Planet Express invoice with all attributes",
                     status = InvoiceStatus.PAID
                 )
             }
@@ -569,9 +569,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             val fry = fry()
             val workspace = workspace(owner = fry)
             val officeCustomer = customer(workspace = workspace, name = "Office")
-            val travelCustomer = customer(workspace = workspace, name = "Travel")
+            val travelCustomer = customer(workspace = workspace, name = "Slurm Corp")
             val mealsCustomer = customer(workspace = workspace, name = "Meals")
-            val otherCustomer = customer(workspace = workspace, name = "Other")
+            val otherCustomer = customer(workspace = workspace, name = "Omicronians Inc")
 
             init {
                 val baseDate = LocalDate.of(3025, 1, 1)
@@ -598,7 +598,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     dueDate = baseDate.plusDays(10),
                     amount = 3000,
                     status = InvoiceStatus.DRAFT,
-                    notes = "This is urgent"
+                    notes = "This is a Zoidberg emergency"
                 )
                 (1..10).forEach { index ->
                     invoice(
