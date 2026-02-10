@@ -647,7 +647,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     convertedAmounts = amountsInDefaultCurrency(3000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(3000),
                     status = IncomeStatus.FINALIZED,
-                    notes = "This is important"
+                    notes = "This is a Farnsworth priority"
                 )
                 (1..10).forEach { index ->
                     income(

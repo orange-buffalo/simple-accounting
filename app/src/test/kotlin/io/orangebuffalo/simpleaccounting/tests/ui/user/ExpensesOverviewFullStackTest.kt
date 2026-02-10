@@ -652,7 +652,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     convertedAmounts = amountsInDefaultCurrency(3000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(3000),
                     status = ExpenseStatus.FINALIZED,
-                    notes = "This is urgent"
+                    notes = "This is a Zoidberg emergency"
                 )
                 (1..10).forEach { index ->
                     expense(
