@@ -71,7 +71,7 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
             .shouldWithClue("Markdown should be stored as-is") {
-                notes.shouldBe("# Important Heading")
+                notes.shouldBe("# Planet Express Delivery")
             }
     }
 
@@ -141,14 +141,14 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
                 input.fill("# Delivery to Mars")
                 page.clock().runFor(400)
                 input.shouldHavePreview()
-                input.shouldHavePreviewWithHeading("Initial heading")
+                input.shouldHavePreviewWithHeading("Delivery to Mars")
             }
 
             notes {
                 input.fill("# Delivery to Moon")
                 page.clock().runFor(400)
                 input.shouldHavePreview()
-                input.shouldHavePreviewWithHeading("Updated heading")
+                input.shouldHavePreviewWithHeading("Delivery to Moon")
             }
         }
     }
