@@ -111,7 +111,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
 
             datePaid {
                 input.clickDay(20)
-                input.shouldHaveValue("2024-01-20")
+                input.shouldHaveValue("3024-01-20")
             }
 
             saveButton.click()
@@ -202,8 +202,8 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.fill("2024-02-29")
-                input.shouldHaveValue("2024-02-29")
+                input.fill("3024-02-29")
+                input.shouldHaveValue("3024-02-29")
             }
 
             saveButton.click()
@@ -267,7 +267,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.shouldBeEditExpensePage {
             datePaid {
                 input.openPopover()
-                input.shouldHavePopoverMonthYear("2024 January")
+                input.shouldHavePopoverMonthYear("3024 January")
                 input.shouldHavePopoverWeekday("Mo")
                 input.shouldHavePopoverWeekday("Tu")
             }
@@ -299,7 +299,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.assumeEditExpensePage {
             datePaidUk {
                 input.openPopover()
-                input.shouldHavePopoverMonthYear("2024 January")
+                input.shouldHavePopoverMonthYear("3024 January")
                 input.shouldHavePopoverWeekday("Mo")
                 input.shouldHavePopoverWeekday("Tu")
             }
