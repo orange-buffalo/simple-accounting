@@ -416,7 +416,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by notes
-            filterInput { fill("important") }
+            filterInput { fill("Farnsworth") }
             pageItems {
                 shouldHaveTitles("Commission")
             }

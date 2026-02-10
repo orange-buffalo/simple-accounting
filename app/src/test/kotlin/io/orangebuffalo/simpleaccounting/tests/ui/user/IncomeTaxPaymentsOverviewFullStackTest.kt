@@ -113,7 +113,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Complex payment with all attributes")
+                        content = SaMarkdownOutput.markdownValue("Planet Express tax payment with all attributes")
                     )
                 )
 

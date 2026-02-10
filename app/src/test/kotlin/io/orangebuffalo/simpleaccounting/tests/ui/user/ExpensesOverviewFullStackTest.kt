@@ -422,7 +422,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by notes
-            filterInput { fill("urgent") }
+            filterInput { fill("Zoidberg") }
             pageItems {
                 shouldHaveTitles("Meals")
             }
