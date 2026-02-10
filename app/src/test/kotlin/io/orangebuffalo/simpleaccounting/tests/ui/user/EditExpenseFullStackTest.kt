@@ -309,8 +309,8 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("Online course")
             }
             notes {
-                input.shouldHaveValue("# Course Details\n\nCompleted advanced **programming** course")
-                input.shouldHavePreviewWithHeading("Course Details")
+                input.shouldHaveValue("# Robot Training\n\nCompleted advanced **bending** course")
+                input.shouldHavePreviewWithHeading("Robot Training")
             }
 
             reportRendering("edit-expense.load-with-notes")

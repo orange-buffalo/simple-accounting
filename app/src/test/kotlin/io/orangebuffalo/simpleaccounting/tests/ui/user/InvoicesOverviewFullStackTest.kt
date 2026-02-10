@@ -395,7 +395,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by notes
-            filterInput { fill("urgent") }
+            filterInput { fill("Zoidberg") }
             pageItems {
                 shouldHaveTitles("Meals Invoice")
             }
@@ -568,9 +568,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
         object {
             val fry = fry()
             val workspace = workspace(owner = fry)
-            val officeCustomer = customer(workspace = workspace, name = "Office")
+            val officeCustomer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
             val travelCustomer = customer(workspace = workspace, name = "Slurm Corp")
-            val mealsCustomer = customer(workspace = workspace, name = "Meals")
+            val mealsCustomer = customer(workspace = workspace, name = "Fishy Joe's")
             val otherCustomer = customer(workspace = workspace, name = "Omicronians Inc")
 
             init {
