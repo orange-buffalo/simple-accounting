@@ -83,7 +83,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Important payment notes")
+                        content = SaMarkdownOutput.markdownValue("Critical tax payment notes")
                     )
                 )
 
@@ -198,7 +198,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                     datePaid = LocalDate.of(3025, 1, 14),
                     reportingDate = LocalDate.of(3025, 1, 14),
                     amount = 5000,
-                    notes = "Important payment notes"
+                    notes = "Critical tax payment notes"
                 )
 
                 // 3. Payment with attachments (multiple)

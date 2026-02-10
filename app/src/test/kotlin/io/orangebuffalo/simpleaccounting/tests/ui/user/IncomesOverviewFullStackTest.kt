@@ -192,7 +192,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Important income notes")
+                        content = SaMarkdownOutput.markdownValue("Critical cargo payment notes")
                     )
                 )
 

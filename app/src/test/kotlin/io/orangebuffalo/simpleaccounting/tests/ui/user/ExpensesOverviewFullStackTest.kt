@@ -197,7 +197,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Important expense notes")
+                        content = SaMarkdownOutput.markdownValue("Critical Slurm delivery notes")
                     )
                 )
 

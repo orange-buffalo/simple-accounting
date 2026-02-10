@@ -179,7 +179,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Important invoice notes")
+                        content = SaMarkdownOutput.markdownValue("Critical delivery invoice notes")
                     )
                 )
 
