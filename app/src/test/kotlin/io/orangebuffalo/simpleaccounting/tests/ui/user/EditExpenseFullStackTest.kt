@@ -505,7 +505,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
             .shouldBeEntityWithFields(
                 Expense(
-                    title = "Updated office supplies",
+                    title = "Updated robot parts",
                     categoryId = testData.category2.id!!,
                     datePaid = LocalDate.of(3025, 1, 15),
                     currency = "USD",
@@ -565,7 +565,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
             .shouldBeEntityWithFields(
                 Expense(
-                    title = "International travel",
+                    title = "Interplanetary travel",
                     categoryId = testData.category.id!!,
                     datePaid = LocalDate.of(3025, 2, 1),
                     currency = "EUR",
@@ -624,7 +624,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
             .shouldBeEntityWithFields(
                 Expense(
-                    title = "Domestic equipment",
+                    title = "Planet Express equipment",
                     categoryId = testData.category.id!!,
                     datePaid = LocalDate.of(3025, 2, 5),
                     currency = "USD",
@@ -816,7 +816,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         val savedExpense = aggregateTemplate.findSingle<Expense>(testData.expense.id!!)
         savedExpense.shouldBeEntityWithFields(
             Expense(
-                title = "Updated utility bills",
+                title = "Updated power plant bills",
                 categoryId = testData.category.id!!,
                 datePaid = LocalDate.of(3025, 2, 25),
                 currency = "USD",
