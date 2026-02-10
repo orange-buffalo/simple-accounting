@@ -26,7 +26,7 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = null,
-                    title = "Test",
+                    title = "Delivery run",
                     originalAmount = 0,
                     currency = "USD"
                 )
@@ -63,7 +63,7 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = null,
-                    title = "Test",
+                    title = "Delivery run",
                     originalAmount = 0,
                     currency = "JPY"
                 )
@@ -100,7 +100,7 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = null,
-                    title = "Test",
+                    title = "Delivery run",
                     originalAmount = 0,
                     currency = "BHD"
                 )
@@ -140,7 +140,7 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = null,
-                    title = "Test",
+                    title = "Delivery run",
                     originalAmount = 0,
                     currency = "EUR"
                 )
@@ -181,7 +181,7 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = null,
-                    title = "Test",
+                    title = "Delivery run",
                     originalAmount = 0,
                     currency = "EUR"
                 )
@@ -244,7 +244,7 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = null,
-                    title = "Test",
+                    title = "Delivery run",
                     originalAmount = 0,
                     currency = "USD"
                 )
@@ -281,7 +281,7 @@ class MoneyInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = null,
-                    title = "Test",
+                    title = "Delivery run",
                     originalAmount = 0,
                     currency = "USD"
                 )

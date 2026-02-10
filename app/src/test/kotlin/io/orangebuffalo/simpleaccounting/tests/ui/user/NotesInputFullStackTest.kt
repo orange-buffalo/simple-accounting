@@ -29,8 +29,8 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             notes {
-                input.fill("Simple plain text note")
-                input.shouldHaveValue("Simple plain text note")
+                input.fill("Good news, everyone! This delivery is complete")
+                input.shouldHaveValue("Good news, everyone! This delivery is complete")
             }
 
             saveButton.click()
@@ -40,7 +40,7 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
             .shouldWithClue("Notes should be stored as plain text") {
-                notes.shouldBe("Simple plain text note")
+                notes.shouldBe("Good news, everyone! This delivery is complete")
             }
     }
 
@@ -57,11 +57,11 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             notes {
-                input.fill("# Important Heading")
-                input.shouldHaveValue("# Important Heading")
+                input.fill("# Planet Express Delivery")
+                input.shouldHaveValue("# Planet Express Delivery")
                 // Advance clock past debounce timeout (300ms)
                 page.clock().runFor(400)
-                input.shouldHavePreviewWithHeading("Important Heading")
+                input.shouldHavePreviewWithHeading("Planet Express Delivery")
             }
 
             saveButton.click()
@@ -71,7 +71,7 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
             .shouldWithClue("Markdown should be stored as-is") {
-                notes.shouldBe("# Important Heading")
+                notes.shouldBe("# Planet Express Delivery")
             }
     }
 
@@ -102,13 +102,13 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace(owner = fry),
                     notes = """
-                        # Meeting Notes
+                        # Crew Meeting Notes
                         
                         ## Discussion Points
-                        - Budget review
-                        - **Urgent**: Approval needed
+                        - Delivery route review
+                        - **Urgent**: Professor's doomsday device approval needed
                         
-                        See [details](https://example.com)
+                        See [details](https://planetexpress.com)
                     """.trimIndent()
                 )
             }
@@ -138,17 +138,17 @@ class NotesInputFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             notes {
-                input.fill("# Initial heading")
+                input.fill("# Delivery to Mars")
                 page.clock().runFor(400)
                 input.shouldHavePreview()
-                input.shouldHavePreviewWithHeading("Initial heading")
+                input.shouldHavePreviewWithHeading("Delivery to Mars")
             }
 
             notes {
-                input.fill("# Updated heading")
+                input.fill("# Delivery to Moon")
                 page.clock().runFor(400)
                 input.shouldHavePreview()
-                input.shouldHavePreviewWithHeading("Updated heading")
+                input.shouldHavePreviewWithHeading("Delivery to Moon")
             }
         }
     }

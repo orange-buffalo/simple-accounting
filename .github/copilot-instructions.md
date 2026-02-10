@@ -249,6 +249,53 @@ val preconditions = preconditions {
 
 This keeps preconditions clean and makes it clear what data the test actually depends on.
 
+## Test Data Conventions
+
+All test data should follow the **Futurama theme** for consistency across the codebase:
+
+### Character Names
+- Use Futurama character names for users: `Fry`, `Leela`, `Bender`, `Farnsworth`, `Hermes`, `Zoidberg`, `Amy`, `Wernstrom`, etc.
+- Avoid generic names like `userX`, `new-admin`, `testUser`, etc.
+
+### Dates
+- Use dates in the **3000s** (matching Futurama's time period) or **pre-2000** dates
+- Examples: `LocalDate.of(3025, 1, 15)`, formatted as `"15 Jan 3025"`
+- Mock date is `1999-03-28` (from `MOCK_DATE` in `DateTimeUtils.kt`)
+- **Never use 2000-2999 dates** in test data
+
+### Titles and Descriptions
+- Expense/Invoice titles: Use Futurama-themed items
+  - ✅ Good: `"Slurm supplies"`, `"Robot oil"`, `"Spaceship parts"`, `"Planet Express equipment"`
+  - ❌ Bad: `"Coffee supplies"`, `"Office supplies"`, `"Generic item"`
+- Delivery-related: Reference planets, moons, or Futurama locations
+  - ✅ Good: `"Delivery to Mars"`, `"Moon cargo"`, `"Interplanetary travel"`
+  - ❌ Bad: `"International shipping"`, `"Domestic delivery"`
+
+### Workspace and Company Names
+- Default workspace: `"Planet Express"`
+- Category examples: `"Delivery"`, `"Robot maintenance"`
+
+### Notes and Markdown
+- Use Futurama references in test notes
+  - ✅ Good: `"Good news, everyone! This delivery is complete"`
+  - ❌ Bad: `"Simple plain text note"`
+
+### Example
+```kotlin
+val preconditions = preconditions {
+    object {
+        val fry = fry()  // Futurama character
+        val workspace = workspace(owner = fry, name = "Planet Express")
+        val expense = expense(
+            workspace = workspace,
+            title = "Slurm supplies",  // Futurama-themed
+            datePaid = LocalDate.of(3025, 1, 15),  // 3000s date
+            notes = "Delivery to Omicron Persei 8"  // Futurama reference
+        )
+    }
+}
+```
+
 ## REST API Testing
 
 REST API tests should follow a consistent structure to ensure comprehensive coverage and maintainability.

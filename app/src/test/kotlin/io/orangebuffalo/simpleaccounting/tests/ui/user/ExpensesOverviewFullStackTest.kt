@@ -44,69 +44,69 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveExactData(
                     SaOverviewItemData(
                         title = "Finalized USD",
-                        primaryAttributes = datePaidAsPrimary("15 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("15 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 100.00",
                     ),
                     SaOverviewItemData(
                         title = "Pending Conversion EUR",
-                        primaryAttributes = datePaidAsPrimary("14 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("14 Jan 3025"),
                         middleColumnContent = pendingStatus(),
                         lastColumnContent = "EUR 50.00",
                         attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                     ),
                     SaOverviewItemData(
                         title = "Pending Tax Conversion",
-                        primaryAttributes = datePaidAsPrimary("13 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("13 Jan 3025"),
                         middleColumnContent = pendingStatus(),
                         lastColumnContent = "USD 40.00",
                         attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                     ),
                     SaOverviewItemData(
                         title = "With Notes",
-                        primaryAttributes = datePaidAsPrimary("12 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("12 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 20.00",
                         attributePreviewIcons = previewIcons(SaIconType.NOTES),
                     ),
                     SaOverviewItemData(
                         title = "With Tax",
-                        primaryAttributes = datePaidAsPrimary("11 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("11 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 100.00",
                         attributePreviewIcons = previewIcons(SaIconType.TAX),
                     ),
                     SaOverviewItemData(
                         title = "With Attachments",
-                        primaryAttributes = datePaidAsPrimary("10 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("10 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 50.00",
                         attributePreviewIcons = previewIcons(SaIconType.ATTACHMENT),
                     ),
                     SaOverviewItemData(
                         title = "Foreign Currency Same Amounts",
-                        primaryAttributes = datePaidAsPrimary("9 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("9 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 60.00",
                         attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                     ),
                     SaOverviewItemData(
                         title = "Foreign Currency Different Amounts",
-                        primaryAttributes = datePaidAsPrimary("8 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("8 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 8.50",
                         attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                     ),
                     SaOverviewItemData(
                         title = "Partial Business",
-                        primaryAttributes = datePaidAsPrimary("7 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("7 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 40.00",
                         attributePreviewIcons = previewIcons(SaIconType.PERCENT),
                     ),
                     SaOverviewItemData(
                         title = "Multiple Icons",
-                        primaryAttributes = datePaidAsPrimary("6 Jan 2025"),
+                        primaryAttributes = datePaidAsPrimary("6 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 160.00",
                         attributePreviewIcons = previewIcons(
@@ -129,7 +129,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Paid" to "15 Jan 2025",
+                        "Date Paid" to "15 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 100.00"
                     ),
                     DetailsSectionSpec(
@@ -144,7 +144,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to pendingStatus("Conversion to USD pending"),
                         "Category" to "Delivery",
-                        "Date Paid" to "14 Jan 2025",
+                        "Date Paid" to "14 Jan 3025",
                         "Amount for Taxation Purposes" to "Not yet provided"
                     ),
                     DetailsSectionSpec(
@@ -166,7 +166,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to pendingStatus("Waiting for exchange rate"),
                         "Category" to "Delivery",
-                        "Date Paid" to "13 Jan 2025",
+                        "Date Paid" to "13 Jan 3025",
                         "Amount for Taxation Purposes" to "Not yet provided"
                     ),
                     DetailsSectionSpec(
@@ -188,7 +188,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Paid" to "12 Jan 2025",
+                        "Date Paid" to "12 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
@@ -197,7 +197,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Important expense notes")
+                        content = SaMarkdownOutput.markdownValue("Critical Slurm delivery notes")
                     )
                 )
 
@@ -207,7 +207,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Paid" to "11 Jan 2025",
+                        "Date Paid" to "11 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 100.00",
                         "Applicable General Tax" to "VAT",
                         "Applicable General Tax Rate" to "20%",
@@ -225,7 +225,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Paid" to "10 Jan 2025",
+                        "Date Paid" to "10 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 50.00"
                     ),
                     DetailsSectionSpec(
@@ -244,7 +244,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Paid" to "9 Jan 2025",
+                        "Date Paid" to "9 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 60.00"
                     ),
                     DetailsSectionSpec(
@@ -266,7 +266,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Paid" to "8 Jan 2025",
+                        "Date Paid" to "8 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 8.50"
                     ),
                     DetailsSectionSpec(
@@ -288,7 +288,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Paid" to "7 Jan 2025",
+                        "Date Paid" to "7 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 40.00"
                     ),
                     DetailsSectionSpec(
@@ -304,7 +304,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Paid" to "6 Jan 2025",
+                        "Date Paid" to "6 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 160.00",
                         "Applicable General Tax" to "VAT",
                         "Applicable General Tax Rate" to "20%",
@@ -328,7 +328,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Complex expense with all attributes")
+                        content = SaMarkdownOutput.markdownValue("Planet Express delivery with all attributes")
                     )
                 )
 
@@ -422,7 +422,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by notes
-            filterInput { fill("urgent") }
+            filterInput { fill("Zoidberg") }
             pageItems {
                 shouldHaveTitles("Meals")
             }
@@ -449,7 +449,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Finalized USD",
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -461,7 +461,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Conversion EUR",
-                    datePaid = LocalDate.of(2025, 1, 14),
+                    datePaid = LocalDate.of(3025, 1, 14),
                     currency = "EUR",
                     originalAmount = 5000,
                     convertedAmounts = emptyAmountsInDefaultCurrency(),
@@ -474,7 +474,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Tax Conversion",
-                    datePaid = LocalDate.of(2025, 1, 13),
+                    datePaid = LocalDate.of(3025, 1, 13),
                     currency = "GBP",
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
@@ -488,12 +488,12 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Notes",
-                    datePaid = LocalDate.of(2025, 1, 12),
+                    datePaid = LocalDate.of(3025, 1, 12),
                     originalAmount = 2000,
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
                     status = ExpenseStatus.FINALIZED,
-                    notes = "Important expense notes"
+                    notes = "Critical Slurm delivery notes"
                 )
 
                 // 5. With general tax
@@ -501,7 +501,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Tax",
-                    datePaid = LocalDate.of(2025, 1, 11),
+                    datePaid = LocalDate.of(3025, 1, 11),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -516,7 +516,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Attachments",
-                    datePaid = LocalDate.of(2025, 1, 10),
+                    datePaid = LocalDate.of(3025, 1, 10),
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(5000),
@@ -529,7 +529,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Same Amounts",
-                    datePaid = LocalDate.of(2025, 1, 9),
+                    datePaid = LocalDate.of(3025, 1, 9),
                     currency = "CAD",
                     originalAmount = 8000,
                     convertedAmounts = amountsInDefaultCurrency(6000),
@@ -543,7 +543,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Different Amounts",
-                    datePaid = LocalDate.of(2025, 1, 8),
+                    datePaid = LocalDate.of(3025, 1, 8),
                     currency = "JPY",
                     originalAmount = 100000,
                     convertedAmounts = amountsInDefaultCurrency(900),
@@ -557,7 +557,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Partial Business",
-                    datePaid = LocalDate.of(2025, 1, 7),
+                    datePaid = LocalDate.of(3025, 1, 7),
                     originalAmount = 4000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(4000),
@@ -570,7 +570,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Multiple Icons",
-                    datePaid = LocalDate.of(2025, 1, 6),
+                    datePaid = LocalDate.of(3025, 1, 6),
                     currency = "CHF",
                     originalAmount = 15000,
                     convertedAmounts = amountsInDefaultCurrency(16000),
@@ -581,7 +581,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     generalTaxAmount = 3200,
                     attachments = setOf(document1),
                     percentOnBusiness = 60,
-                    notes = "Complex expense with all attributes",
+                    notes = "Planet Express delivery with all attributes",
                     useDifferentExchangeRateForIncomeTaxPurposes = false
                 )
             }
@@ -595,7 +595,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val category = category(workspace = workspace)
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 (1..15).forEach { index ->
                     expense(
                         workspace = workspace,
@@ -622,7 +622,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val otherCategory = category(workspace = workspace, name = "Other")
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 expense(
                     workspace = workspace,
                     category = officeCategory,
@@ -652,7 +652,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     convertedAmounts = amountsInDefaultCurrency(3000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(3000),
                     status = ExpenseStatus.FINALIZED,
-                    notes = "This is urgent"
+                    notes = "This is a Zoidberg emergency"
                 )
                 (1..10).forEach { index ->
                     expense(
@@ -714,7 +714,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsActions.fry)
         page.openExpensesOverviewPage {
             pageItems {
-                shouldHaveTitles("Flight to London")
+                shouldHaveTitles("Spaceship fuel refill")
                 staticItems[0].executeEditAction()
             }
         }
@@ -724,7 +724,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("Travel")
             }
             title {
-                input.shouldHaveValue("Flight to London")
+                input.shouldHaveValue("Spaceship fuel refill")
             }
             currency {
                 input.shouldHaveSelectedValue("GBP - British Pound")
@@ -733,13 +733,13 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("500.00")
             }
             datePaid {
-                input.shouldHaveValue("2025-01-15")
+                input.shouldHaveValue("3025-01-15")
             }
             generalTax {
                 input.shouldHaveSelectedValue("VAT")
             }
             notes {
-                input.shouldHaveValue("Business trip")
+                input.shouldHaveValue("Intergalactic delivery mission")
             }
 
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
@@ -759,7 +759,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsActions.fry)
         page.openExpensesOverviewPage {
             pageItems {
-                shouldHaveTitles("Flight to London")
+                shouldHaveTitles("Spaceship fuel refill")
                 staticItems[0].executeCopyAction()
             }
         }
@@ -769,7 +769,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("Travel")
             }
             title {
-                input.shouldHaveValue("Flight to London")
+                input.shouldHaveValue("Spaceship fuel refill")
             }
             currency {
                 input.shouldHaveSelectedValue("GBP - British Pound")
@@ -784,7 +784,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("VAT")
             }
             notes {
-                input.shouldHaveValue("Business trip")
+                input.shouldHaveValue("Intergalactic delivery mission")
             }
 
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
@@ -798,7 +798,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             percentOnBusiness().input.shouldHaveValue("80")
 
             // Fill in the missing fields
-            datePaid { input.fill("2025-02-01") }
+            datePaid { input.fill("3025-02-01") }
             convertedAmountInDefaultCurrency("USD").input.fill("625.00")
             saveButton.click()
         }
@@ -808,12 +808,12 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         val expenses = aggregateTemplate.findAll<Expense>()
         expenses.shouldHaveSize(2)
 
-        val copiedExpense = expenses.first { it.title == "Flight to London" && it.datePaid == LocalDate.of(2025, 2, 1) }
+        val copiedExpense = expenses.first { it.title == "Spaceship fuel refill" && it.datePaid == LocalDate.of(3025, 2, 1) }
         copiedExpense.shouldBeEntityWithFields(
             Expense(
-                title = "Flight to London",
+                title = "Spaceship fuel refill",
                 categoryId = preconditionsActions.category.id!!,
-                datePaid = LocalDate.of(2025, 2, 1),
+                datePaid = LocalDate.of(3025, 2, 1),
                 currency = "GBP",
                 originalAmount = 50000,
                 convertedAmounts = AmountsInDefaultCurrency(
@@ -832,7 +832,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 generalTaxId = preconditionsActions.generalTax.id,
                 generalTaxAmount = 8333,
                 generalTaxRateInBps = 2000,
-                notes = "Business trip",
+                notes = "Intergalactic delivery mission",
             ),
             ignoredProperties = arrayOf(
                 Expense::id,
@@ -850,8 +850,8 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val expense = expense(
                 workspace = workspace,
                 category = category,
-                title = "Flight to London",
-                datePaid = LocalDate.of(2025, 1, 15),
+                title = "Spaceship fuel refill",
+                datePaid = LocalDate.of(3025, 1, 15),
                 currency = "GBP",
                 originalAmount = 50000,
                 convertedAmounts = AmountsInDefaultCurrency(
@@ -868,7 +868,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 generalTax = generalTax,
                 generalTaxRateInBps = 2000,
                 generalTaxAmount = 12500,
-                notes = "Business trip"
+                notes = "Intergalactic delivery mission"
             )
         }
     }

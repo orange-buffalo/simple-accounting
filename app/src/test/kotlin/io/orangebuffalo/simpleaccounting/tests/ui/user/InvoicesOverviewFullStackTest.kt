@@ -42,7 +42,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Invoice With All Attributes",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "6 Jan 2025")
+                            primaryAttribute(SaIconType.CALENDAR, text = "6 Jan 3025")
                         ),
                         middleColumnContent = paidStatus(),
                         lastColumnContent = "EUR 140.00",
@@ -57,7 +57,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Invoice With Notes",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "7 Jan 2025")
+                            primaryAttribute(SaIconType.CALENDAR, text = "7 Jan 3025")
                         ),
                         middleColumnContent = paidStatus(),
                         lastColumnContent = "USD 60.00",
@@ -67,7 +67,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Invoice With Attachments",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "8 Jan 2025")
+                            primaryAttribute(SaIconType.CALENDAR, text = "8 Jan 3025")
                         ),
                         middleColumnContent = paidStatus(),
                         lastColumnContent = "USD 90.00",
@@ -77,7 +77,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Invoice With Tax",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "9 Jan 2025")
+                            primaryAttribute(SaIconType.CALENDAR, text = "9 Jan 3025")
                         ),
                         middleColumnContent = paidStatus(),
                         lastColumnContent = "USD 120.00",
@@ -87,7 +87,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Foreign Currency Invoice",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "10 Jan 2025")
+                            primaryAttribute(SaIconType.CALENDAR, text = "10 Jan 3025")
                         ),
                         middleColumnContent = paidStatus(),
                         lastColumnContent = "EUR 80.00",
@@ -129,7 +129,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Paid Invoice",
                         primaryAttributes = listOf(
                             primaryAttribute(SaIconType.CUSTOMER, text = "Space Customer"),
-                            primaryAttribute(SaIconType.CALENDAR, text = "15 Jan 2025")
+                            primaryAttribute(SaIconType.CALENDAR, text = "15 Jan 3025")
                         ),
                         middleColumnContent = paidStatus(),
                         lastColumnContent = "USD 100.00",
@@ -148,10 +148,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Customer" to "Space Customer",
                         "Invoice Currency" to "EUR",
                         "Invoice Amount" to "EUR 140.00",
-                        "Date Issued" to "10 Jan 2025",
-                        "Due Date" to "14 Jan 2025",
-                        "Date Sent" to "11 Jan 2025",
-                        "Date Paid" to "6 Jan 2025",
+                        "Date Issued" to "10 Jan 3025",
+                        "Due Date" to "14 Jan 3025",
+                        "Date Sent" to "11 Jan 3025",
+                        "Date Paid" to "6 Jan 3025",
                         "Applicable General Tax" to "VAT",
                         "Applicable General Tax Rate" to "20%"
                     ),
@@ -161,7 +161,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Complex invoice with all attributes")
+                        content = SaMarkdownOutput.markdownValue("Planet Express invoice with all attributes")
                     )
                 )
 
@@ -172,14 +172,14 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to paidStatus("Finalized"),
                         "Customer" to "Space Customer",
                         "Invoice Amount" to "USD 60.00",
-                        "Date Issued" to "9 Jan 2025",
-                        "Due Date" to "13 Jan 2025",
-                        "Date Sent" to "10 Jan 2025",
-                        "Date Paid" to "7 Jan 2025"
+                        "Date Issued" to "9 Jan 3025",
+                        "Due Date" to "13 Jan 3025",
+                        "Date Sent" to "10 Jan 3025",
+                        "Date Paid" to "7 Jan 3025"
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Important invoice notes")
+                        content = SaMarkdownOutput.markdownValue("Critical delivery invoice notes")
                     )
                 )
 
@@ -190,10 +190,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to paidStatus("Finalized"),
                         "Customer" to "Space Customer",
                         "Invoice Amount" to "USD 90.00",
-                        "Date Issued" to "8 Jan 2025",
-                        "Due Date" to "12 Jan 2025",
-                        "Date Sent" to "9 Jan 2025",
-                        "Date Paid" to "8 Jan 2025"
+                        "Date Issued" to "8 Jan 3025",
+                        "Due Date" to "12 Jan 3025",
+                        "Date Sent" to "9 Jan 3025",
+                        "Date Paid" to "8 Jan 3025"
                     ),
                     DetailsSectionSpec(
                         title = "Attachments",
@@ -208,10 +208,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to paidStatus("Finalized"),
                         "Customer" to "Space Customer",
                         "Invoice Amount" to "USD 120.00",
-                        "Date Issued" to "7 Jan 2025",
-                        "Due Date" to "11 Jan 2025",
-                        "Date Sent" to "8 Jan 2025",
-                        "Date Paid" to "9 Jan 2025",
+                        "Date Issued" to "7 Jan 3025",
+                        "Due Date" to "11 Jan 3025",
+                        "Date Sent" to "8 Jan 3025",
+                        "Date Paid" to "9 Jan 3025",
                         "Applicable General Tax" to "VAT",
                         "Applicable General Tax Rate" to "20%"
                     )
@@ -225,10 +225,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Customer" to "Space Customer",
                         "Invoice Currency" to "EUR",
                         "Invoice Amount" to "EUR 80.00",
-                        "Date Issued" to "6 Jan 2025",
-                        "Due Date" to "10 Jan 2025",
-                        "Date Sent" to "7 Jan 2025",
-                        "Date Paid" to "10 Jan 2025"
+                        "Date Issued" to "6 Jan 3025",
+                        "Due Date" to "10 Jan 3025",
+                        "Date Sent" to "7 Jan 3025",
+                        "Date Paid" to "10 Jan 3025"
                     )
                 )
 
@@ -239,8 +239,8 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to cancelledStatus("Cancelled"),
                         "Customer" to "Space Customer",
                         "Invoice Amount" to "USD 50.00",
-                        "Date Issued" to "5 Jan 2025",
-                        "Due Date" to "15 Jan 2025"
+                        "Date Issued" to "5 Jan 3025",
+                        "Due Date" to "15 Jan 3025"
                     )
                 )
 
@@ -251,8 +251,8 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to draftStatus("Draft"),
                         "Customer" to "Space Customer",
                         "Invoice Amount" to "USD 75.00",
-                        "Date Issued" to "4 Jan 2025",
-                        "Due Date" to "20 Jan 2025"
+                        "Date Issued" to "4 Jan 3025",
+                        "Due Date" to "20 Jan 3025"
                     )
                 )
 
@@ -263,9 +263,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to overdueStatus("Overdue"),
                         "Customer" to "Space Customer",
                         "Invoice Amount" to "USD 150.00",
-                        "Date Issued" to "3 Jan 2025",
-                        "Due Date" to "5 Jan 2025",
-                        "Date Sent" to "4 Jan 2025"
+                        "Date Issued" to "3 Jan 3025",
+                        "Due Date" to "5 Jan 3025",
+                        "Date Sent" to "4 Jan 3025"
                     )
                 )
 
@@ -276,9 +276,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to sentStatus("Sent"),
                         "Customer" to "Space Customer",
                         "Invoice Amount" to "USD 200.00",
-                        "Date Issued" to "2 Jan 2025",
-                        "Due Date" to "30 Jan 2025",
-                        "Date Sent" to "5 Jan 2025"
+                        "Date Issued" to "2 Jan 3025",
+                        "Due Date" to "30 Jan 3025",
+                        "Date Sent" to "5 Jan 3025"
                     )
                 )
 
@@ -289,10 +289,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                         "Status" to paidStatus("Finalized"),
                         "Customer" to "Space Customer",
                         "Invoice Amount" to "USD 100.00",
-                        "Date Issued" to "1 Jan 2025",
-                        "Due Date" to "5 Jan 2025",
-                        "Date Sent" to "3 Jan 2025",
-                        "Date Paid" to "15 Jan 2025"
+                        "Date Issued" to "1 Jan 3025",
+                        "Due Date" to "5 Jan 3025",
+                        "Date Sent" to "3 Jan 3025",
+                        "Date Paid" to "15 Jan 3025"
                     )
                 )
 
@@ -395,7 +395,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by notes
-            filterInput { fill("urgent") }
+            filterInput { fill("Zoidberg") }
             pageItems {
                 shouldHaveTitles("Meals Invoice")
             }
@@ -421,10 +421,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Paid Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 1),
-                    dueDate = LocalDate.of(2025, 1, 5),
-                    dateSent = LocalDate.of(2025, 1, 3),
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    dateIssued = LocalDate.of(3025, 1, 1),
+                    dueDate = LocalDate.of(3025, 1, 5),
+                    dateSent = LocalDate.of(3025, 1, 3),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     amount = 10000,
                     status = InvoiceStatus.PAID
                 )
@@ -433,9 +433,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Sent Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 2),
-                    dueDate = LocalDate.of(2025, 1, 30),
-                    dateSent = LocalDate.of(2025, 1, 5),
+                    dateIssued = LocalDate.of(3025, 1, 2),
+                    dueDate = LocalDate.of(3025, 1, 30),
+                    dateSent = LocalDate.of(3025, 1, 5),
                     amount = 20000,
                     status = InvoiceStatus.SENT
                 )
@@ -444,9 +444,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Overdue Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 3),
-                    dueDate = LocalDate.of(2025, 1, 5),
-                    dateSent = LocalDate.of(2025, 1, 4),
+                    dateIssued = LocalDate.of(3025, 1, 3),
+                    dueDate = LocalDate.of(3025, 1, 5),
+                    dateSent = LocalDate.of(3025, 1, 4),
                     amount = 15000,
                     status = InvoiceStatus.OVERDUE
                 )
@@ -455,8 +455,8 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Draft Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 4),
-                    dueDate = LocalDate.of(2025, 1, 20),
+                    dateIssued = LocalDate.of(3025, 1, 4),
+                    dueDate = LocalDate.of(3025, 1, 20),
                     amount = 7500,
                     status = InvoiceStatus.DRAFT
                 )
@@ -465,8 +465,8 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Cancelled Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 5),
-                    dueDate = LocalDate.of(2025, 1, 15),
+                    dateIssued = LocalDate.of(3025, 1, 5),
+                    dueDate = LocalDate.of(3025, 1, 15),
                     amount = 5000,
                     status = InvoiceStatus.CANCELLED
                 )
@@ -475,10 +475,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Foreign Currency Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 6),
-                    dueDate = LocalDate.of(2025, 1, 10),
-                    dateSent = LocalDate.of(2025, 1, 7),
-                    datePaid = LocalDate.of(2025, 1, 10),
+                    dateIssued = LocalDate.of(3025, 1, 6),
+                    dueDate = LocalDate.of(3025, 1, 10),
+                    dateSent = LocalDate.of(3025, 1, 7),
+                    datePaid = LocalDate.of(3025, 1, 10),
                     currency = "EUR",
                     amount = 8000,
                     status = InvoiceStatus.PAID
@@ -488,10 +488,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Invoice With Tax",
-                    dateIssued = LocalDate.of(2025, 1, 7),
-                    dueDate = LocalDate.of(2025, 1, 11),
-                    dateSent = LocalDate.of(2025, 1, 8),
-                    datePaid = LocalDate.of(2025, 1, 9),
+                    dateIssued = LocalDate.of(3025, 1, 7),
+                    dueDate = LocalDate.of(3025, 1, 11),
+                    dateSent = LocalDate.of(3025, 1, 8),
+                    datePaid = LocalDate.of(3025, 1, 9),
                     amount = 12000,
                     generalTax = generalTax,
                     status = InvoiceStatus.PAID
@@ -501,10 +501,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Invoice With Attachments",
-                    dateIssued = LocalDate.of(2025, 1, 8),
-                    dueDate = LocalDate.of(2025, 1, 12),
-                    dateSent = LocalDate.of(2025, 1, 9),
-                    datePaid = LocalDate.of(2025, 1, 8),
+                    dateIssued = LocalDate.of(3025, 1, 8),
+                    dueDate = LocalDate.of(3025, 1, 12),
+                    dateSent = LocalDate.of(3025, 1, 9),
+                    datePaid = LocalDate.of(3025, 1, 8),
                     amount = 9000,
                     attachments = setOf(document1, document2),
                     status = InvoiceStatus.PAID
@@ -514,12 +514,12 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Invoice With Notes",
-                    dateIssued = LocalDate.of(2025, 1, 9),
-                    dueDate = LocalDate.of(2025, 1, 13),
-                    dateSent = LocalDate.of(2025, 1, 10),
-                    datePaid = LocalDate.of(2025, 1, 7),
+                    dateIssued = LocalDate.of(3025, 1, 9),
+                    dueDate = LocalDate.of(3025, 1, 13),
+                    dateSent = LocalDate.of(3025, 1, 10),
+                    datePaid = LocalDate.of(3025, 1, 7),
                     amount = 6000,
-                    notes = "Important invoice notes",
+                    notes = "Critical delivery invoice notes",
                     status = InvoiceStatus.PAID
                 )
 
@@ -527,15 +527,15 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Invoice With All Attributes",
-                    dateIssued = LocalDate.of(2025, 1, 10),
-                    dueDate = LocalDate.of(2025, 1, 14),
-                    dateSent = LocalDate.of(2025, 1, 11),
-                    datePaid = LocalDate.of(2025, 1, 6),
+                    dateIssued = LocalDate.of(3025, 1, 10),
+                    dueDate = LocalDate.of(3025, 1, 14),
+                    dateSent = LocalDate.of(3025, 1, 11),
+                    datePaid = LocalDate.of(3025, 1, 6),
                     currency = "EUR",
                     amount = 14000,
                     generalTax = generalTax,
                     attachments = setOf(document1),
-                    notes = "Complex invoice with all attributes",
+                    notes = "Planet Express invoice with all attributes",
                     status = InvoiceStatus.PAID
                 )
             }
@@ -549,7 +549,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             val customer = customer(workspace = workspace)
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 (1..15).forEach { index ->
                     invoice(
                         customer = customer,
@@ -568,13 +568,13 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
         object {
             val fry = fry()
             val workspace = workspace(owner = fry)
-            val officeCustomer = customer(workspace = workspace, name = "Office")
-            val travelCustomer = customer(workspace = workspace, name = "Travel")
-            val mealsCustomer = customer(workspace = workspace, name = "Meals")
-            val otherCustomer = customer(workspace = workspace, name = "Other")
+            val officeCustomer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
+            val travelCustomer = customer(workspace = workspace, name = "Slurm Corp")
+            val mealsCustomer = customer(workspace = workspace, name = "Fishy Joe's")
+            val otherCustomer = customer(workspace = workspace, name = "Omicronians Inc")
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 invoice(
                     customer = officeCustomer,
                     title = "Office Invoice",
@@ -598,7 +598,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     dueDate = baseDate.plusDays(10),
                     amount = 3000,
                     status = InvoiceStatus.DRAFT,
-                    notes = "This is urgent"
+                    notes = "This is a Zoidberg emergency"
                 )
                 (1..10).forEach { index ->
                     invoice(

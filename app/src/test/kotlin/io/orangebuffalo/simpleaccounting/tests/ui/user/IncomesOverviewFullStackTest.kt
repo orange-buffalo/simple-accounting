@@ -40,62 +40,62 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveExactData(
                     SaOverviewItemData(
                         title = "Finalized USD",
-                        primaryAttributes = dateReceivedAsPrimary("15 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("15 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 100.00",
                     ),
                     SaOverviewItemData(
                         title = "Pending Conversion EUR",
-                        primaryAttributes = dateReceivedAsPrimary("14 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("14 Jan 3025"),
                         middleColumnContent = pendingStatus(),
                         lastColumnContent = "EUR 50.00",
                         attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                     ),
                     SaOverviewItemData(
                         title = "Pending Tax Conversion",
-                        primaryAttributes = dateReceivedAsPrimary("13 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("13 Jan 3025"),
                         middleColumnContent = pendingStatus(),
                         lastColumnContent = "USD 40.00",
                         attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                     ),
                     SaOverviewItemData(
                         title = "With Notes",
-                        primaryAttributes = dateReceivedAsPrimary("12 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("12 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 20.00",
                         attributePreviewIcons = previewIcons(SaIconType.NOTES),
                     ),
                     SaOverviewItemData(
                         title = "With Tax",
-                        primaryAttributes = dateReceivedAsPrimary("11 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("11 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 100.00",
                         attributePreviewIcons = previewIcons(SaIconType.TAX),
                     ),
                     SaOverviewItemData(
                         title = "With Attachments",
-                        primaryAttributes = dateReceivedAsPrimary("10 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("10 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 50.00",
                         attributePreviewIcons = previewIcons(SaIconType.ATTACHMENT),
                     ),
                     SaOverviewItemData(
                         title = "Foreign Currency Same Amounts",
-                        primaryAttributes = dateReceivedAsPrimary("9 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("9 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 60.00",
                         attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                     ),
                     SaOverviewItemData(
                         title = "Foreign Currency Different Amounts",
-                        primaryAttributes = dateReceivedAsPrimary("8 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("8 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 8.50",
                         attributePreviewIcons = previewIcons(SaIconType.MULTI_CURRENCY),
                     ),
                     SaOverviewItemData(
                         title = "Multiple Icons",
-                        primaryAttributes = dateReceivedAsPrimary("7 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("7 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 160.00",
                         attributePreviewIcons = previewIcons(
@@ -107,7 +107,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     SaOverviewItemData(
                         title = "With Invoice",
-                        primaryAttributes = dateReceivedAsPrimary("6 Jan 2025"),
+                        primaryAttributes = dateReceivedAsPrimary("6 Jan 3025"),
                         middleColumnContent = finalizedStatus(),
                         lastColumnContent = "USD 30.00",
                         attributePreviewIcons = previewIcons(SaIconType.INVOICE),
@@ -124,7 +124,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Received" to "15 Jan 2025",
+                        "Date Received" to "15 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 100.00"
                     ),
                     DetailsSectionSpec(
@@ -139,7 +139,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to pendingStatus("Conversion to USD pending"),
                         "Category" to "Delivery",
-                        "Date Received" to "14 Jan 2025",
+                        "Date Received" to "14 Jan 3025",
                         "Amount for Taxation Purposes" to "Not yet provided"
                     ),
                     DetailsSectionSpec(
@@ -161,7 +161,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to pendingStatus("Waiting for exchange rate"),
                         "Category" to "Delivery",
-                        "Date Received" to "13 Jan 2025",
+                        "Date Received" to "13 Jan 3025",
                         "Amount for Taxation Purposes" to "Not yet provided"
                     ),
                     DetailsSectionSpec(
@@ -183,7 +183,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Received" to "12 Jan 2025",
+                        "Date Received" to "12 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 20.00"
                     ),
                     DetailsSectionSpec(
@@ -192,7 +192,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Important income notes")
+                        content = SaMarkdownOutput.markdownValue("Critical cargo payment notes")
                     )
                 )
 
@@ -202,7 +202,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Received" to "11 Jan 2025",
+                        "Date Received" to "11 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 100.00",
                         "Applicable General Tax" to "VAT",
                         "Applicable General Tax Rate" to "20%",
@@ -220,7 +220,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Received" to "10 Jan 2025",
+                        "Date Received" to "10 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 50.00"
                     ),
                     DetailsSectionSpec(
@@ -239,7 +239,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Received" to "9 Jan 2025",
+                        "Date Received" to "9 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 60.00"
                     ),
                     DetailsSectionSpec(
@@ -261,7 +261,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Received" to "8 Jan 2025",
+                        "Date Received" to "8 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 8.50"
                     ),
                     DetailsSectionSpec(
@@ -283,7 +283,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Received" to "7 Jan 2025",
+                        "Date Received" to "7 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 160.00",
                         "Applicable General Tax" to "VAT",
                         "Applicable General Tax Rate" to "20%",
@@ -306,7 +306,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Complex income with all attributes")
+                        content = SaMarkdownOutput.markdownValue("Planet Express income with all attributes")
                     )
                 )
 
@@ -316,7 +316,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                         title = "Summary",
                         "Status" to finalizedStatus(),
                         "Category" to "Delivery",
-                        "Date Received" to "6 Jan 2025",
+                        "Date Received" to "6 Jan 3025",
                         "Amount for Taxation Purposes" to "USD 30.00"
                     ),
                     DetailsSectionSpec(
@@ -416,7 +416,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             }
 
             // Filter by notes
-            filterInput { fill("important") }
+            filterInput { fill("Farnsworth") }
             pageItems {
                 shouldHaveTitles("Commission")
             }
@@ -445,7 +445,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Finalized USD",
-                    dateReceived = LocalDate.of(2025, 1, 15),
+                    dateReceived = LocalDate.of(3025, 1, 15),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -457,7 +457,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Conversion EUR",
-                    dateReceived = LocalDate.of(2025, 1, 14),
+                    dateReceived = LocalDate.of(3025, 1, 14),
                     currency = "EUR",
                     originalAmount = 5000,
                     convertedAmounts = emptyAmountsInDefaultCurrency(),
@@ -470,7 +470,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Tax Conversion",
-                    dateReceived = LocalDate.of(2025, 1, 13),
+                    dateReceived = LocalDate.of(3025, 1, 13),
                     currency = "GBP",
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
@@ -484,12 +484,12 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Notes",
-                    dateReceived = LocalDate.of(2025, 1, 12),
+                    dateReceived = LocalDate.of(3025, 1, 12),
                     originalAmount = 2000,
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
                     status = IncomeStatus.FINALIZED,
-                    notes = "Important income notes"
+                    notes = "Critical cargo payment notes"
                 )
 
                 // 5. With general tax
@@ -497,7 +497,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Tax",
-                    dateReceived = LocalDate.of(2025, 1, 11),
+                    dateReceived = LocalDate.of(3025, 1, 11),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -512,7 +512,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Attachments",
-                    dateReceived = LocalDate.of(2025, 1, 10),
+                    dateReceived = LocalDate.of(3025, 1, 10),
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(5000),
@@ -525,7 +525,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Same Amounts",
-                    dateReceived = LocalDate.of(2025, 1, 9),
+                    dateReceived = LocalDate.of(3025, 1, 9),
                     currency = "CAD",
                     originalAmount = 8000,
                     convertedAmounts = amountsInDefaultCurrency(6000),
@@ -539,7 +539,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Different Amounts",
-                    dateReceived = LocalDate.of(2025, 1, 8),
+                    dateReceived = LocalDate.of(3025, 1, 8),
                     currency = "JPY",
                     originalAmount = 100000,
                     convertedAmounts = amountsInDefaultCurrency(900),
@@ -553,7 +553,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Multiple Icons",
-                    dateReceived = LocalDate.of(2025, 1, 7),
+                    dateReceived = LocalDate.of(3025, 1, 7),
                     currency = "CHF",
                     originalAmount = 15000,
                     convertedAmounts = amountsInDefaultCurrency(16000),
@@ -563,7 +563,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     generalTaxRateInBps = 2000,
                     generalTaxAmount = 3200,
                     attachments = setOf(document1),
-                    notes = "Complex income with all attributes",
+                    notes = "Planet Express income with all attributes",
                     useDifferentExchangeRateForIncomeTaxPurposes = false
                 )
 
@@ -572,7 +572,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Invoice",
-                    dateReceived = LocalDate.of(2025, 1, 6),
+                    dateReceived = LocalDate.of(3025, 1, 6),
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(3000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(3000),
@@ -590,7 +590,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             val category = category(workspace = workspace)
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 (1..15).forEach { index ->
                     income(
                         workspace = workspace,
@@ -617,7 +617,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             val otherCategory = category(workspace = workspace, name = "Other")
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 income(
                     workspace = workspace,
                     category = consultingCategory,
@@ -647,7 +647,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     convertedAmounts = amountsInDefaultCurrency(3000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(3000),
                     status = IncomeStatus.FINALIZED,
-                    notes = "This is important"
+                    notes = "This is a Farnsworth priority"
                 )
                 (1..10).forEach { index ->
                     income(

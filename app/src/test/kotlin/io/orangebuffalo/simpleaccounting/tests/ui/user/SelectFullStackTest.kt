@@ -118,7 +118,7 @@ class SelectFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = officeCategory,
-                    title = "Test Expense"
+                    title = "Spaceship maintenance"
                 )
             }
         }
@@ -144,7 +144,7 @@ class SelectFullStackTest : SaFullStackTestBase() {
                 val expense = expense(
                     workspace = workspace,
                     category = officeCategory,
-                    title = "Test Expense"
+                    title = "Spaceship maintenance"
                 )
             }
         }
@@ -253,7 +253,7 @@ class SelectFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category(workspace = workspace, name = "Office"),
                     generalTax = vat,
-                    title = "Test Expense"
+                    title = "Spaceship maintenance"
                 )
             }
         }

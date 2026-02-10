@@ -33,7 +33,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2020, 1, 1)
+                    datePaid = LocalDate.of(3020, 1, 1)
                 )
             }
         }
@@ -42,8 +42,8 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.fill("2023-12-15")
-                input.shouldHaveValue("2023-12-15")
+                input.fill("3023-12-15")
+                input.shouldHaveValue("3023-12-15")
             }
             reportRendering("date-picker.typed-iso-format")
 
@@ -54,7 +54,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
             .shouldWithClue("Date should be stored as 2023-12-15") {
-                datePaid.shouldBe(LocalDate.of(2023, 12, 15))
+                datePaid.shouldBe(LocalDate.of(3023, 12, 15))
             }
     }
 
@@ -71,7 +71,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2023, 7, 25)
+                    datePaid = LocalDate.of(3023, 7, 25)
                 )
             }
         }
@@ -80,7 +80,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.shouldHaveValue("2023-07-25")
+                input.shouldHaveValue("3023-07-25")
             }
             reportRendering("date-picker.de-locale-iso-format")
         }
@@ -96,7 +96,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2024, 1, 15)
+                    datePaid = LocalDate.of(3024, 1, 15)
                 )
             }
         }
@@ -111,7 +111,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
 
             datePaid {
                 input.clickDay(20)
-                input.shouldHaveValue("2024-01-20")
+                input.shouldHaveValue("3024-01-20")
             }
 
             saveButton.click()
@@ -121,7 +121,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
             .shouldWithClue("Date should be stored as 2024-01-20") {
-                datePaid.shouldBe(LocalDate.of(2024, 1, 20))
+                datePaid.shouldBe(LocalDate.of(3024, 1, 20))
             }
     }
 
@@ -135,7 +135,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Existing Expense",
-                    datePaid = LocalDate.of(2023, 7, 25)
+                    datePaid = LocalDate.of(3023, 7, 25)
                 )
             }
         }
@@ -144,7 +144,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.shouldHaveValue("2023-07-25")
+                input.shouldHaveValue("3023-07-25")
             }
         }
     }
@@ -159,7 +159,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2020, 1, 1)
+                    datePaid = LocalDate.of(3020, 1, 1)
                 )
             }
         }
@@ -168,8 +168,8 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.fill("2023-12-31")
-                input.shouldHaveValue("2023-12-31")
+                input.fill("3023-12-31")
+                input.shouldHaveValue("3023-12-31")
             }
 
             saveButton.click()
@@ -179,7 +179,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
             .shouldWithClue("Date should be stored as 2023-12-31") {
-                datePaid.shouldBe(LocalDate.of(2023, 12, 31))
+                datePaid.shouldBe(LocalDate.of(3023, 12, 31))
             }
     }
 
@@ -193,7 +193,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2020, 1, 1)
+                    datePaid = LocalDate.of(3020, 1, 1)
                 )
             }
         }
@@ -202,8 +202,8 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.fill("2024-02-29")
-                input.shouldHaveValue("2024-02-29")
+                input.fill("3024-02-29")
+                input.shouldHaveValue("3024-02-29")
             }
 
             saveButton.click()
@@ -213,7 +213,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Expense>(preconditions.expense.id!!)
             .shouldWithClue("Date should be stored as 2024-02-29") {
-                datePaid.shouldBe(LocalDate.of(2024, 2, 29))
+                datePaid.shouldBe(LocalDate.of(3024, 2, 29))
             }
     }
 
@@ -227,7 +227,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2023, 7, 25)
+                    datePaid = LocalDate.of(3023, 7, 25)
                 )
             }
         }
@@ -236,7 +236,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${preconditions.expense.id}/edit")
         page.shouldBeEditExpensePage {
             datePaid {
-                input.shouldHaveValue("2023-07-25")
+                input.shouldHaveValue("3023-07-25")
                 input.clear()
                 input.shouldHaveValue("")
             }
@@ -257,7 +257,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2024, 1, 15)
+                    datePaid = LocalDate.of(3024, 1, 15)
                 )
             }
         }
@@ -267,7 +267,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.shouldBeEditExpensePage {
             datePaid {
                 input.openPopover()
-                input.shouldHavePopoverMonthYear("2024 January")
+                input.shouldHavePopoverMonthYear("3024 January")
                 input.shouldHavePopoverWeekday("Mo")
                 input.shouldHavePopoverWeekday("Tu")
             }
@@ -288,7 +288,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = null,
                     title = "Test",
-                    datePaid = LocalDate.of(2024, 1, 15)
+                    datePaid = LocalDate.of(3024, 1, 15)
                 )
             }
         }
@@ -299,7 +299,7 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
         page.assumeEditExpensePage {
             datePaidUk {
                 input.openPopover()
-                input.shouldHavePopoverMonthYear("2024 January")
+                input.shouldHavePopoverMonthYear("3024 January")
                 input.shouldHavePopoverWeekday("Mo")
                 input.shouldHavePopoverWeekday("Tu")
             }
@@ -332,11 +332,11 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
                 // Test that entering a date works correctly
                 // The date should be stored as entered, without timezone conversion
                 datePaid {
-                    input.fill("2023-12-31")
-                    input.shouldHaveValue("2023-12-31")
+                    input.fill("3023-12-31")
+                    input.shouldHaveValue("3023-12-31")
                 }
                 
-                title.input.fill("Timezone Test Expense")
+                title.input.fill("Intergalactic timezone expense")
                 category.input.selectOption(preconditions.category.name)
                 originalAmount.input.fill("1000")
                 
@@ -347,9 +347,9 @@ class DatePickerFullStackTest : SaFullStackTestBase() {
             
             // Verify the date was stored correctly
             val savedExpense = aggregateTemplate.findAll(Expense::class.java)
-                .first { it.title == "Timezone Test Expense" }
+                .first { it.title == "Intergalactic timezone expense" }
             
-            savedExpense.datePaid.shouldBe(LocalDate.of(2023, 12, 31))
+            savedExpense.datePaid.shouldBe(LocalDate.of(3023, 12, 31))
         } finally {
             melbournePage.close()
             melbourneContext.close()
