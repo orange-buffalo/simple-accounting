@@ -328,7 +328,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Complex expense with all attributes")
+                        content = SaMarkdownOutput.markdownValue("Planet Express delivery with all attributes")
                     )
                 )
 

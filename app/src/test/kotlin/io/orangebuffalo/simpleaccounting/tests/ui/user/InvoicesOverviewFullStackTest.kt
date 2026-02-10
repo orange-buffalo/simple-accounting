@@ -161,7 +161,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Complex invoice with all attributes")
+                        content = SaMarkdownOutput.markdownValue("Planet Express invoice with all attributes")
                     )
                 )
 

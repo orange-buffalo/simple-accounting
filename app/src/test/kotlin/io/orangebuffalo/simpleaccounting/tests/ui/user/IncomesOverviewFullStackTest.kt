@@ -306,7 +306,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     ),
                     DetailsSectionSpec(
                         title = "Additional Notes",
-                        content = SaMarkdownOutput.markdownValue("Complex income with all attributes")
+                        content = SaMarkdownOutput.markdownValue("Planet Express income with all attributes")
                     )
                 )
 
