@@ -110,7 +110,10 @@ class SaOverviewItem private constructor(
     }
 
     fun executeAction(actionLinkText: String) {
-        expandDetails()
+        // Only expand details if the details trigger exists (some overview items like Users don't have details)
+        if (detailsTrigger.count() > 0) {
+            expandDetails()
+        }
         // The details div is a sibling of the panel, both within a parent container
         val container = panel.locator("xpath=..")
         container
