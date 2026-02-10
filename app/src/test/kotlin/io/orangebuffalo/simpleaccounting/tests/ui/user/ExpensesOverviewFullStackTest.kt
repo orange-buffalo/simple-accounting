@@ -581,7 +581,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     generalTaxAmount = 3200,
                     attachments = setOf(document1),
                     percentOnBusiness = 60,
-                    notes = "Complex expense with all attributes",
+                    notes = "Planet Express delivery with all attributes",
                     useDifferentExchangeRateForIncomeTaxPurposes = false
                 )
             }
@@ -739,7 +739,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("VAT")
             }
             notes {
-                input.shouldHaveValue("Business trip")
+                input.shouldHaveValue("Intergalactic delivery mission")
             }
 
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
@@ -784,7 +784,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveSelectedValue("VAT")
             }
             notes {
-                input.shouldHaveValue("Business trip")
+                input.shouldHaveValue("Intergalactic delivery mission")
             }
 
             convertedAmountInDefaultCurrency("USD").shouldBeVisible()
@@ -832,7 +832,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 generalTaxId = preconditionsActions.generalTax.id,
                 generalTaxAmount = 8333,
                 generalTaxRateInBps = 2000,
-                notes = "Business trip",
+                notes = "Intergalactic delivery mission",
             ),
             ignoredProperties = arrayOf(
                 Expense::id,
@@ -868,7 +868,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 generalTax = generalTax,
                 generalTaxRateInBps = 2000,
                 generalTaxAmount = 12500,
-                notes = "Business trip"
+                notes = "Intergalactic delivery mission"
             )
         }
     }

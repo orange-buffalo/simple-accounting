@@ -563,7 +563,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     generalTaxRateInBps = 2000,
                     generalTaxAmount = 3200,
                     attachments = setOf(document1),
-                    notes = "Complex income with all attributes",
+                    notes = "Planet Express income with all attributes",
                     useDifferentExchangeRateForIncomeTaxPurposes = false
                 )
 
