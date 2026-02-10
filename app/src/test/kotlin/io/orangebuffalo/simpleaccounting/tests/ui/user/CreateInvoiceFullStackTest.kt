@@ -355,7 +355,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
                 val fry = fry().also {
                     val workspace = workspace(owner = it)
                     customer(workspace = workspace, name = "Nibbler Enterprises")
-                    customer(workspace = workspace, name = "Customer A")
+                    customer(workspace = workspace, name = "Bender's Big Score LLC")
                     customer(workspace = workspace, name = "Hypnotoad Productions")
                     generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                     generalTax(workspace = workspace, title = "GST", rateInBps = 1000)
@@ -366,10 +366,10 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateInvoicePage {
             // Verify customer dropdown - customers API sorts by ID descending
-            // Created in order: C (ID 1), A (ID 2), B (ID 3)
-            // Expected order: B (ID 3), A (ID 2), C (ID 1)
+            // Created in order: Nibbler (ID 1), Bender's (ID 2), Hypnotoad (ID 3)
+            // Expected order: Hypnotoad (ID 3), Bender's (ID 2), Nibbler (ID 1)
             customer {
-                input.shouldHaveOptions("Customer B", "Customer A", "Customer C")
+                input.shouldHaveOptions("Hypnotoad Productions", "Bender's Big Score LLC", "Nibbler Enterprises")
             }
 
             // Verify general tax dropdown - taxes are sorted alphabetically by title
