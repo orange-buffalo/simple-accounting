@@ -20,11 +20,11 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should create a new user`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
-            userName { input.fill("userX") }
+            userName { input.fill("Leela") }
             activationStatus { shouldBeHidden() }
             saveButton { click() }
             shouldHaveNotifications {
-                success("User userX has been successfully saved")
+                success("User Leela has been successfully saved")
             }
         }
 
@@ -36,11 +36,11 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
             .shouldWithClue("Expected exactly one user created (and one pre-seeded with preconditions)") {
                 shouldHaveSize(2)
             }
-            .filter { it.userName == "userX" }
+            .filter { it.userName == "Leela" }
             .shouldBeSingle()
             .shouldBeEntityWithFields(
                 PlatformUser(
-                    userName = "userX",
+                    userName = "Leela",
                     activated = false,
                     passwordHash = "",
                     isAdmin = false,
@@ -59,7 +59,7 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveOptions("User", "Admin user")
                 input.selectOption("User")
             }
-            userName { input.fill("user") }
+            userName { input.fill("Hermes") }
             saveButton { click() }
             shouldHaveNotifications {
                 success()
@@ -71,7 +71,7 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
         }
 
         aggregateTemplate.findAll<PlatformUser>()
-            .filter { it.userName == "user" }
+            .filter { it.userName == "Hermes" }
             .shouldBeSingle()
             .should {
                 it.isAdmin.shouldBeFalse()
@@ -82,7 +82,7 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
         }
 
         page.shouldBeCreateUserPage {
-            userName { input.fill("new-admin") }
+            userName { input.fill("Wernstrom") }
             role {
                 input.selectOption("Admin user")
             }
@@ -93,7 +93,7 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
         }
 
         aggregateTemplate.findAll<PlatformUser>()
-            .filter { it.userName == "new-admin" }
+            .filter { it.userName == "Wernstrom" }
             .shouldBeSingle()
             .should {
                 it.isAdmin.shouldBeTrue()
@@ -143,9 +143,9 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should validate user name uniqueness`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
-            userName { input.fill("admin") }
+            userName { input.fill("Farnsworth") }
             saveButton { click() }
-            userName { shouldHaveValidationError("User with username \"admin\" already exists") }
+            userName { shouldHaveValidationError("User with username \"Farnsworth\" already exists") }
             shouldHaveNotifications {
                 validationFailed()
             }
@@ -163,8 +163,8 @@ class UserCreationFullStackTest : SaFullStackTestBase() {
     private val preconditions by lazyPreconditions {
         object {
             val farnsworth = platformUser(
-                userName = "admin",
-                passwordHash = "admin",
+                userName = "Farnsworth",
+                passwordHash = "scienceBasedHash",
                 isAdmin = true,
             )
         }

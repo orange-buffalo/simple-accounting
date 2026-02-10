@@ -27,8 +27,8 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("Spaceship Repairs Inc") }
             title { input.fill("Delivery services") }
             amount { input.fill("150.00") }
-            dateIssued { input.fill("2025-01-15") }
-            dueDate { input.fill("2025-02-15") }
+            dateIssued { input.fill("3025-01-15") }
+            dueDate { input.fill("3025-02-15") }
 
             saveButton.click()
         }
@@ -40,8 +40,8 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
                 Invoice(
                     title = "Delivery services",
                     customerId = preconditions.customer.id!!,
-                    dateIssued = LocalDate.of(2025, 1, 15),
-                    dueDate = LocalDate.of(2025, 2, 15),
+                    dateIssued = LocalDate.of(3025, 1, 15),
+                    dueDate = LocalDate.of(3025, 2, 15),
                     currency = "USD",
                     amount = 15000,
                     status = InvoiceStatus.DRAFT,
@@ -62,8 +62,8 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
             customer { input.selectOption("Spaceship Repairs Inc") }
             title { input.fill("Taxable delivery") }
             amount { input.fill("100.00") }
-            dateIssued { input.fill("2025-01-15") }
-            dueDate { input.fill("2025-02-15") }
+            dateIssued { input.fill("3025-01-15") }
+            dueDate { input.fill("3025-02-15") }
             generalTax { input.selectOption("VAT") }
 
             saveButton.click()
@@ -81,10 +81,10 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should create invoice with notes`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Invoice with notes") }
+            title { input.fill("Delivery to Omicron Persei 8") }
             amount { input.fill("75.00") }
-            dateIssued { input.fill("2025-01-15") }
-            dueDate { input.fill("2025-02-15") }
+            dateIssued { input.fill("3025-01-15") }
+            dueDate { input.fill("3025-02-15") }
             notes {
                 input.fill("# Payment Terms\n\nNet 30 days")
                 input.shouldHavePreviewWithHeading("Payment Terms")
@@ -123,10 +123,10 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateInvoicePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Invoice with attachments") }
+            title { input.fill("Moon cargo delivery") }
             amount { input.fill("200.00") }
-            dateIssued { input.fill("2025-01-15") }
-            dueDate { input.fill("2025-02-15") }
+            dateIssued { input.fill("3025-01-15") }
+            dueDate { input.fill("3025-02-15") }
 
             documentsUpload {
                 // Upload first document
@@ -192,18 +192,18 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should create invoice with sent and paid dates`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Completed service") }
+            title { input.fill("Robot repair service") }
             amount { input.fill("300.00") }
-            dateIssued { input.fill("2025-01-10") }
-            dueDate { input.fill("2025-02-10") }
+            dateIssued { input.fill("3025-01-10") }
+            dueDate { input.fill("3025-02-10") }
 
             // Mark as already sent
             alreadySent().click()
-            dateSent().input.fill("2025-01-11")
+            dateSent().input.fill("3025-01-11")
 
             // Mark as already paid
             alreadyPaid().click()
-            datePaid().input.fill("2025-01-20")
+            datePaid().input.fill("3025-01-20")
 
             saveButton.click()
         }
@@ -212,8 +212,8 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
 
         aggregateTemplate.findSingle<Invoice>()
             .should {
-                it.dateSent.shouldBe(LocalDate.of(2025, 1, 11))
-                it.datePaid.shouldBe(LocalDate.of(2025, 1, 20))
+                it.dateSent.shouldBe(LocalDate.of(3025, 1, 11))
+                it.datePaid.shouldBe(LocalDate.of(3025, 1, 20))
                 it.status.shouldBe(InvoiceStatus.PAID)
             }
     }
@@ -251,7 +251,7 @@ class CreateInvoiceFullStackTest : SaFullStackTestBase() {
     fun `should navigate to overview on cancel`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             customer { input.selectOption("Spaceship Repairs Inc") }
-            title { input.fill("Will be cancelled") }
+            title { input.fill("Cancelled Mars trip") }
 
             cancelButton.click()
         }

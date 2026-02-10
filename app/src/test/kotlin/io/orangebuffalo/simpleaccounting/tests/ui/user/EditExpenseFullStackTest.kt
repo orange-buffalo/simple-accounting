@@ -36,7 +36,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 5000,
                     convertedAmounts = AmountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(5000),
-                    datePaid = LocalDate.of(2025, 1, 20),
+                    datePaid = LocalDate.of(3025, 1, 20),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -61,7 +61,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("50.00")
             }
             datePaid {
-                input.shouldHaveValue("2025-01-20")
+                input.shouldHaveValue("3025-01-20")
             }
 
             // Verify conditional fields are hidden for default currency
@@ -92,7 +92,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 12000,
                     convertedAmounts = AmountsInDefaultCurrency(15000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(15000),
-                    datePaid = LocalDate.of(2025, 2, 10),
+                    datePaid = LocalDate.of(3025, 2, 10),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -116,7 +116,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("120.00")
             }
             datePaid {
-                input.shouldHaveValue("2025-02-10")
+                input.shouldHaveValue("3025-02-10")
             }
 
             // Verify foreign currency fields are visible
@@ -146,7 +146,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 100000,
                     convertedAmounts = AmountsInDefaultCurrency(110000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(105000),
-                    datePaid = LocalDate.of(2025, 3, 5),
+                    datePaid = LocalDate.of(3025, 3, 5),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = true,
                     status = ExpenseStatus.FINALIZED
@@ -170,7 +170,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("1,000.00")
             }
             datePaid {
-                input.shouldHaveValue("2025-03-05")
+                input.shouldHaveValue("3025-03-05")
             }
 
             // Verify foreign currency fields
@@ -207,7 +207,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                         originalAmountInDefaultCurrency = 50000,
                         adjustedAmountInDefaultCurrency = 40000
                     ),
-                    datePaid = LocalDate.of(2025, 1, 25),
+                    datePaid = LocalDate.of(3025, 1, 25),
                     percentOnBusiness = 80,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -253,7 +253,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
-                    datePaid = LocalDate.of(2025, 1, 30),
+                    datePaid = LocalDate.of(3025, 1, 30),
                     percentOnBusiness = 100,
                     generalTax = generalTax,
                     generalTaxRateInBps = 2000,
@@ -293,7 +293,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 20000,
                     convertedAmounts = AmountsInDefaultCurrency(20000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(20000),
-                    datePaid = LocalDate.of(2025, 2, 1),
+                    datePaid = LocalDate.of(3025, 2, 1),
                     percentOnBusiness = 100,
                     notes = "# Course Details\n\nCompleted advanced **programming** course",
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
@@ -332,7 +332,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 9900,
                     convertedAmounts = AmountsInDefaultCurrency(9900),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(9900),
-                    datePaid = LocalDate.of(2025, 2, 15),
+                    datePaid = LocalDate.of(3025, 2, 15),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -376,7 +376,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 15000,
                     convertedAmounts = AmountsInDefaultCurrency(15000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(15000),
-                    datePaid = LocalDate.of(2025, 2, 20),
+                    datePaid = LocalDate.of(3025, 2, 20),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED,
@@ -436,7 +436,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 30000,
                     convertedAmounts = AmountsInDefaultCurrency(30000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(30000),
-                    datePaid = LocalDate.of(2025, 3, 1),
+                    datePaid = LocalDate.of(3025, 3, 1),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED,
@@ -481,7 +481,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 5000,
                     convertedAmounts = AmountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(5000),
-                    datePaid = LocalDate.of(2025, 1, 10),
+                    datePaid = LocalDate.of(3025, 1, 10),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -493,9 +493,9 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
             category { input.selectOption("Marketing") }
-            title { input.fill("Updated office supplies") }
+            title { input.fill("Updated robot parts") }
             originalAmount { input.fill("75.50") }
-            datePaid { input.fill("2025-01-15") }
+            datePaid { input.fill("3025-01-15") }
 
             saveButton.click()
         }
@@ -507,7 +507,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 Expense(
                     title = "Updated office supplies",
                     categoryId = testData.category2.id!!,
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     currency = "USD",
                     originalAmount = 7550,
                     convertedAmounts = AmountsInDefaultCurrency(7550),
@@ -541,7 +541,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
-                    datePaid = LocalDate.of(2025, 2, 1),
+                    datePaid = LocalDate.of(3025, 2, 1),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -552,7 +552,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
-            title { input.fill("International travel") }
+            title { input.fill("Interplanetary travel") }
             currency { input.selectOption("EUREuro") }
             originalAmount { input.fill("90.00") }
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
@@ -567,7 +567,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 Expense(
                     title = "International travel",
                     categoryId = testData.category.id!!,
-                    datePaid = LocalDate.of(2025, 2, 1),
+                    datePaid = LocalDate.of(3025, 2, 1),
                     currency = "EUR",
                     originalAmount = 9000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
@@ -601,7 +601,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 8000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
-                    datePaid = LocalDate.of(2025, 2, 5),
+                    datePaid = LocalDate.of(3025, 2, 5),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -612,7 +612,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
-            title { input.fill("Domestic equipment") }
+            title { input.fill("Planet Express equipment") }
             currency { input.selectOption("USDUS Dollar") }
             originalAmount { input.fill("125.00") }
 
@@ -626,7 +626,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 Expense(
                     title = "Domestic equipment",
                     categoryId = testData.category.id!!,
-                    datePaid = LocalDate.of(2025, 2, 5),
+                    datePaid = LocalDate.of(3025, 2, 5),
                     currency = "USD",
                     originalAmount = 12500,
                     convertedAmounts = AmountsInDefaultCurrency(12500),
@@ -660,7 +660,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 50000,
                     convertedAmounts = AmountsInDefaultCurrency(55000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(55000),
-                    datePaid = LocalDate.of(2025, 2, 10),
+                    datePaid = LocalDate.of(3025, 2, 10),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -684,7 +684,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 Expense(
                     title = "Foreign consulting",
                     categoryId = testData.category.id!!,
-                    datePaid = LocalDate.of(2025, 2, 10),
+                    datePaid = LocalDate.of(3025, 2, 10),
                     currency = "EUR",
                     originalAmount = 50000,
                     convertedAmounts = AmountsInDefaultCurrency(55000),
@@ -718,7 +718,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 30000,
                     convertedAmounts = AmountsInDefaultCurrency(30000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(30000),
-                    datePaid = LocalDate.of(2025, 2, 15),
+                    datePaid = LocalDate.of(3025, 2, 15),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -742,7 +742,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                 Expense(
                     title = "Full business vehicle",
                     categoryId = testData.category.id!!,
-                    datePaid = LocalDate.of(2025, 2, 15),
+                    datePaid = LocalDate.of(3025, 2, 15),
                     currency = "USD",
                     originalAmount = 30000,
                     convertedAmounts = AmountsInDefaultCurrency(
@@ -794,7 +794,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 15000,
                     convertedAmounts = AmountsInDefaultCurrency(15000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(15000),
-                    datePaid = LocalDate.of(2025, 2, 25),
+                    datePaid = LocalDate.of(3025, 2, 25),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED,
@@ -806,7 +806,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
-            title { input.fill("Updated utility bills") }
+            title { input.fill("Updated power plant bills") }
 
             saveButton.click()
         }
@@ -818,7 +818,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             Expense(
                 title = "Updated utility bills",
                 categoryId = testData.category.id!!,
-                datePaid = LocalDate.of(2025, 2, 25),
+                datePaid = LocalDate.of(3025, 2, 25),
                 currency = "USD",
                 originalAmount = 15000,
                 convertedAmounts = AmountsInDefaultCurrency(15000),
@@ -866,7 +866,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
-                    datePaid = LocalDate.of(2025, 3, 1),
+                    datePaid = LocalDate.of(3025, 3, 1),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED,
@@ -911,7 +911,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             Expense(
                 title = "Office supplies",
                 categoryId = testData.category.id!!,
-                datePaid = LocalDate.of(2025, 3, 1),
+                datePaid = LocalDate.of(3025, 3, 1),
                 currency = "USD",
                 originalAmount = 10000,
                 convertedAmounts = AmountsInDefaultCurrency(10000),
@@ -975,7 +975,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 25000,
                     convertedAmounts = AmountsInDefaultCurrency(25000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(25000),
-                    datePaid = LocalDate.of(2025, 3, 5),
+                    datePaid = LocalDate.of(3025, 3, 5),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED,
@@ -1016,7 +1016,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             Expense(
                 title = "Marketing materials",
                 categoryId = testData.category.id!!,
-                datePaid = LocalDate.of(2025, 3, 5),
+                datePaid = LocalDate.of(3025, 3, 5),
                 currency = "USD",
                 originalAmount = 25000,
                 convertedAmounts = AmountsInDefaultCurrency(25000),
@@ -1075,7 +1075,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 50000,
                     convertedAmounts = AmountsInDefaultCurrency(50000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(50000),
-                    datePaid = LocalDate.of(2025, 3, 10),
+                    datePaid = LocalDate.of(3025, 3, 10),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED,
@@ -1107,7 +1107,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             Expense(
                 title = "Consulting services",
                 categoryId = testData.category.id!!,
-                datePaid = LocalDate.of(2025, 3, 10),
+                datePaid = LocalDate.of(3025, 3, 10),
                 currency = "USD",
                 originalAmount = 50000,
                 convertedAmounts = AmountsInDefaultCurrency(50000),
@@ -1152,7 +1152,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 99900,
                     convertedAmounts = AmountsInDefaultCurrency(99900),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(99900),
-                    datePaid = LocalDate.of(2025, 3, 15),
+                    datePaid = LocalDate.of(3025, 3, 15),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED,
@@ -1179,7 +1179,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
             Expense(
                 title = "Annual subscription",
                 categoryId = testData.category.id!!,
-                datePaid = LocalDate.of(2025, 3, 15),
+                datePaid = LocalDate.of(3025, 3, 15),
                 currency = "USD",
                 originalAmount = 99900,
                 convertedAmounts = AmountsInDefaultCurrency(99900),
@@ -1215,7 +1215,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -1259,7 +1259,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
-                    datePaid = LocalDate.of(2025, 1, 20),
+                    datePaid = LocalDate.of(3025, 1, 20),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED
@@ -1270,7 +1270,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/expenses/${testData.expense.id}/edit")
         page.shouldBeEditExpensePage {
-            title { input.fill("This will be cancelled") }
+            title { input.fill("Cancelled delivery run") }
 
             cancelButton.click()
         }
@@ -1349,7 +1349,7 @@ class EditExpenseFullStackTest : SaFullStackTestBase() {
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     percentOnBusiness = 100,
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
                     status = ExpenseStatus.FINALIZED

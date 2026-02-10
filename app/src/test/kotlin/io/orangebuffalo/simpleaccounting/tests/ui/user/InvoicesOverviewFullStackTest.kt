@@ -421,10 +421,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Paid Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 1),
-                    dueDate = LocalDate.of(2025, 1, 5),
-                    dateSent = LocalDate.of(2025, 1, 3),
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    dateIssued = LocalDate.of(3025, 1, 1),
+                    dueDate = LocalDate.of(3025, 1, 5),
+                    dateSent = LocalDate.of(3025, 1, 3),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     amount = 10000,
                     status = InvoiceStatus.PAID
                 )
@@ -433,9 +433,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Sent Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 2),
-                    dueDate = LocalDate.of(2025, 1, 30),
-                    dateSent = LocalDate.of(2025, 1, 5),
+                    dateIssued = LocalDate.of(3025, 1, 2),
+                    dueDate = LocalDate.of(3025, 1, 30),
+                    dateSent = LocalDate.of(3025, 1, 5),
                     amount = 20000,
                     status = InvoiceStatus.SENT
                 )
@@ -444,9 +444,9 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Overdue Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 3),
-                    dueDate = LocalDate.of(2025, 1, 5),
-                    dateSent = LocalDate.of(2025, 1, 4),
+                    dateIssued = LocalDate.of(3025, 1, 3),
+                    dueDate = LocalDate.of(3025, 1, 5),
+                    dateSent = LocalDate.of(3025, 1, 4),
                     amount = 15000,
                     status = InvoiceStatus.OVERDUE
                 )
@@ -455,8 +455,8 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Draft Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 4),
-                    dueDate = LocalDate.of(2025, 1, 20),
+                    dateIssued = LocalDate.of(3025, 1, 4),
+                    dueDate = LocalDate.of(3025, 1, 20),
                     amount = 7500,
                     status = InvoiceStatus.DRAFT
                 )
@@ -465,8 +465,8 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Cancelled Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 5),
-                    dueDate = LocalDate.of(2025, 1, 15),
+                    dateIssued = LocalDate.of(3025, 1, 5),
+                    dueDate = LocalDate.of(3025, 1, 15),
                     amount = 5000,
                     status = InvoiceStatus.CANCELLED
                 )
@@ -475,10 +475,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Foreign Currency Invoice",
-                    dateIssued = LocalDate.of(2025, 1, 6),
-                    dueDate = LocalDate.of(2025, 1, 10),
-                    dateSent = LocalDate.of(2025, 1, 7),
-                    datePaid = LocalDate.of(2025, 1, 10),
+                    dateIssued = LocalDate.of(3025, 1, 6),
+                    dueDate = LocalDate.of(3025, 1, 10),
+                    dateSent = LocalDate.of(3025, 1, 7),
+                    datePaid = LocalDate.of(3025, 1, 10),
                     currency = "EUR",
                     amount = 8000,
                     status = InvoiceStatus.PAID
@@ -488,10 +488,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Invoice With Tax",
-                    dateIssued = LocalDate.of(2025, 1, 7),
-                    dueDate = LocalDate.of(2025, 1, 11),
-                    dateSent = LocalDate.of(2025, 1, 8),
-                    datePaid = LocalDate.of(2025, 1, 9),
+                    dateIssued = LocalDate.of(3025, 1, 7),
+                    dueDate = LocalDate.of(3025, 1, 11),
+                    dateSent = LocalDate.of(3025, 1, 8),
+                    datePaid = LocalDate.of(3025, 1, 9),
                     amount = 12000,
                     generalTax = generalTax,
                     status = InvoiceStatus.PAID
@@ -501,10 +501,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Invoice With Attachments",
-                    dateIssued = LocalDate.of(2025, 1, 8),
-                    dueDate = LocalDate.of(2025, 1, 12),
-                    dateSent = LocalDate.of(2025, 1, 9),
-                    datePaid = LocalDate.of(2025, 1, 8),
+                    dateIssued = LocalDate.of(3025, 1, 8),
+                    dueDate = LocalDate.of(3025, 1, 12),
+                    dateSent = LocalDate.of(3025, 1, 9),
+                    datePaid = LocalDate.of(3025, 1, 8),
                     amount = 9000,
                     attachments = setOf(document1, document2),
                     status = InvoiceStatus.PAID
@@ -514,10 +514,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Invoice With Notes",
-                    dateIssued = LocalDate.of(2025, 1, 9),
-                    dueDate = LocalDate.of(2025, 1, 13),
-                    dateSent = LocalDate.of(2025, 1, 10),
-                    datePaid = LocalDate.of(2025, 1, 7),
+                    dateIssued = LocalDate.of(3025, 1, 9),
+                    dueDate = LocalDate.of(3025, 1, 13),
+                    dateSent = LocalDate.of(3025, 1, 10),
+                    datePaid = LocalDate.of(3025, 1, 7),
                     amount = 6000,
                     notes = "Important invoice notes",
                     status = InvoiceStatus.PAID
@@ -527,10 +527,10 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
                 invoice(
                     customer = customer,
                     title = "Invoice With All Attributes",
-                    dateIssued = LocalDate.of(2025, 1, 10),
-                    dueDate = LocalDate.of(2025, 1, 14),
-                    dateSent = LocalDate.of(2025, 1, 11),
-                    datePaid = LocalDate.of(2025, 1, 6),
+                    dateIssued = LocalDate.of(3025, 1, 10),
+                    dueDate = LocalDate.of(3025, 1, 14),
+                    dateSent = LocalDate.of(3025, 1, 11),
+                    datePaid = LocalDate.of(3025, 1, 6),
                     currency = "EUR",
                     amount = 14000,
                     generalTax = generalTax,
@@ -549,7 +549,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             val customer = customer(workspace = workspace)
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 (1..15).forEach { index ->
                     invoice(
                         customer = customer,
@@ -574,7 +574,7 @@ class InvoicesOverviewFullStackTest : SaFullStackTestBase() {
             val otherCustomer = customer(workspace = workspace, name = "Other")
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 invoice(
                     customer = officeCustomer,
                     title = "Office Invoice",

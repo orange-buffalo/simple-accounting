@@ -449,7 +449,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Finalized USD",
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -461,7 +461,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Conversion EUR",
-                    datePaid = LocalDate.of(2025, 1, 14),
+                    datePaid = LocalDate.of(3025, 1, 14),
                     currency = "EUR",
                     originalAmount = 5000,
                     convertedAmounts = emptyAmountsInDefaultCurrency(),
@@ -474,7 +474,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Tax Conversion",
-                    datePaid = LocalDate.of(2025, 1, 13),
+                    datePaid = LocalDate.of(3025, 1, 13),
                     currency = "GBP",
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
@@ -488,7 +488,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Notes",
-                    datePaid = LocalDate.of(2025, 1, 12),
+                    datePaid = LocalDate.of(3025, 1, 12),
                     originalAmount = 2000,
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
@@ -501,7 +501,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Tax",
-                    datePaid = LocalDate.of(2025, 1, 11),
+                    datePaid = LocalDate.of(3025, 1, 11),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -516,7 +516,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Attachments",
-                    datePaid = LocalDate.of(2025, 1, 10),
+                    datePaid = LocalDate.of(3025, 1, 10),
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(5000),
@@ -529,7 +529,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Same Amounts",
-                    datePaid = LocalDate.of(2025, 1, 9),
+                    datePaid = LocalDate.of(3025, 1, 9),
                     currency = "CAD",
                     originalAmount = 8000,
                     convertedAmounts = amountsInDefaultCurrency(6000),
@@ -543,7 +543,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Different Amounts",
-                    datePaid = LocalDate.of(2025, 1, 8),
+                    datePaid = LocalDate.of(3025, 1, 8),
                     currency = "JPY",
                     originalAmount = 100000,
                     convertedAmounts = amountsInDefaultCurrency(900),
@@ -557,7 +557,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Partial Business",
-                    datePaid = LocalDate.of(2025, 1, 7),
+                    datePaid = LocalDate.of(3025, 1, 7),
                     originalAmount = 4000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(4000),
@@ -570,7 +570,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Multiple Icons",
-                    datePaid = LocalDate.of(2025, 1, 6),
+                    datePaid = LocalDate.of(3025, 1, 6),
                     currency = "CHF",
                     originalAmount = 15000,
                     convertedAmounts = amountsInDefaultCurrency(16000),
@@ -595,7 +595,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val category = category(workspace = workspace)
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 (1..15).forEach { index ->
                     expense(
                         workspace = workspace,
@@ -622,7 +622,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             val otherCategory = category(workspace = workspace, name = "Other")
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 expense(
                     workspace = workspace,
                     category = officeCategory,
@@ -733,7 +733,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("500.00")
             }
             datePaid {
-                input.shouldHaveValue("2025-01-15")
+                input.shouldHaveValue("3025-01-15")
             }
             generalTax {
                 input.shouldHaveSelectedValue("VAT")
@@ -798,7 +798,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
             percentOnBusiness().input.shouldHaveValue("80")
 
             // Fill in the missing fields
-            datePaid { input.fill("2025-02-01") }
+            datePaid { input.fill("3025-02-01") }
             convertedAmountInDefaultCurrency("USD").input.fill("625.00")
             saveButton.click()
         }
@@ -808,12 +808,12 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
         val expenses = aggregateTemplate.findAll<Expense>()
         expenses.shouldHaveSize(2)
 
-        val copiedExpense = expenses.first { it.title == "Flight to London" && it.datePaid == LocalDate.of(2025, 2, 1) }
+        val copiedExpense = expenses.first { it.title == "Flight to London" && it.datePaid == LocalDate.of(3025, 2, 1) }
         copiedExpense.shouldBeEntityWithFields(
             Expense(
                 title = "Flight to London",
                 categoryId = preconditionsActions.category.id!!,
-                datePaid = LocalDate.of(2025, 2, 1),
+                datePaid = LocalDate.of(3025, 2, 1),
                 currency = "GBP",
                 originalAmount = 50000,
                 convertedAmounts = AmountsInDefaultCurrency(
@@ -851,7 +851,7 @@ class ExpensesOverviewFullStackTest : SaFullStackTestBase() {
                 workspace = workspace,
                 category = category,
                 title = "Flight to London",
-                datePaid = LocalDate.of(2025, 1, 15),
+                datePaid = LocalDate.of(3025, 1, 15),
                 currency = "GBP",
                 originalAmount = 50000,
                 convertedAmounts = AmountsInDefaultCurrency(

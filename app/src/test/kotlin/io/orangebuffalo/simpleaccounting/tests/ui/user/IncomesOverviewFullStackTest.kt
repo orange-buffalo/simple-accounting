@@ -445,7 +445,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Finalized USD",
-                    dateReceived = LocalDate.of(2025, 1, 15),
+                    dateReceived = LocalDate.of(3025, 1, 15),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -457,7 +457,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Conversion EUR",
-                    dateReceived = LocalDate.of(2025, 1, 14),
+                    dateReceived = LocalDate.of(3025, 1, 14),
                     currency = "EUR",
                     originalAmount = 5000,
                     convertedAmounts = emptyAmountsInDefaultCurrency(),
@@ -470,7 +470,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Pending Tax Conversion",
-                    dateReceived = LocalDate.of(2025, 1, 13),
+                    dateReceived = LocalDate.of(3025, 1, 13),
                     currency = "GBP",
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(4000),
@@ -484,7 +484,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Notes",
-                    dateReceived = LocalDate.of(2025, 1, 12),
+                    dateReceived = LocalDate.of(3025, 1, 12),
                     originalAmount = 2000,
                     convertedAmounts = amountsInDefaultCurrency(2000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(2000),
@@ -497,7 +497,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Tax",
-                    dateReceived = LocalDate.of(2025, 1, 11),
+                    dateReceived = LocalDate.of(3025, 1, 11),
                     originalAmount = 10000,
                     convertedAmounts = amountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(10000),
@@ -512,7 +512,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Attachments",
-                    dateReceived = LocalDate.of(2025, 1, 10),
+                    dateReceived = LocalDate.of(3025, 1, 10),
                     originalAmount = 5000,
                     convertedAmounts = amountsInDefaultCurrency(5000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(5000),
@@ -525,7 +525,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Same Amounts",
-                    dateReceived = LocalDate.of(2025, 1, 9),
+                    dateReceived = LocalDate.of(3025, 1, 9),
                     currency = "CAD",
                     originalAmount = 8000,
                     convertedAmounts = amountsInDefaultCurrency(6000),
@@ -539,7 +539,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Foreign Currency Different Amounts",
-                    dateReceived = LocalDate.of(2025, 1, 8),
+                    dateReceived = LocalDate.of(3025, 1, 8),
                     currency = "JPY",
                     originalAmount = 100000,
                     convertedAmounts = amountsInDefaultCurrency(900),
@@ -553,7 +553,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "Multiple Icons",
-                    dateReceived = LocalDate.of(2025, 1, 7),
+                    dateReceived = LocalDate.of(3025, 1, 7),
                     currency = "CHF",
                     originalAmount = 15000,
                     convertedAmounts = amountsInDefaultCurrency(16000),
@@ -572,7 +572,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
                     workspace = workspace,
                     category = category,
                     title = "With Invoice",
-                    dateReceived = LocalDate.of(2025, 1, 6),
+                    dateReceived = LocalDate.of(3025, 1, 6),
                     originalAmount = 3000,
                     convertedAmounts = amountsInDefaultCurrency(3000),
                     incomeTaxableAmounts = amountsInDefaultCurrency(3000),
@@ -590,7 +590,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             val category = category(workspace = workspace)
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 (1..15).forEach { index ->
                     income(
                         workspace = workspace,
@@ -617,7 +617,7 @@ class IncomesOverviewFullStackTest : SaFullStackTestBase() {
             val otherCategory = category(workspace = workspace, name = "Other")
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 income(
                     workspace = workspace,
                     category = consultingCategory,

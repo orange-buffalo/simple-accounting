@@ -26,9 +26,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     fun `should create expense in default currency`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
-            title { input.fill("Coffee supplies") }
+            title { input.fill("Slurm supplies") }
             originalAmount { input.fill("50.00") }
-            datePaid { input.fill("2025-01-15") }
+            datePaid { input.fill("3025-01-15") }
 
             saveButton.click()
         }
@@ -38,9 +38,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Expense>()
             .shouldBeEntityWithFields(
                 Expense(
-                    title = "Coffee supplies",
+                    title = "Slurm supplies",
                     categoryId = preconditions.category.id!!,
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     currency = "USD",
                     originalAmount = 5000,
                     convertedAmounts = AmountsInDefaultCurrency(5000),
@@ -63,10 +63,10 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     fun `should create expense in foreign currency with same tax reporting amount`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
-            title { input.fill("EUR supplies") }
+            title { input.fill("Robot oil supplies") }
             currency { input.selectOption("EUREuro") }
             originalAmount { input.fill("100.00") }
-            datePaid { input.fill("2025-01-15") }
+            datePaid { input.fill("3025-01-15") }
             convertedAmountInDefaultCurrency("USD").input.fill("110.00")
 
             saveButton.click()
@@ -77,9 +77,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Expense>()
             .shouldBeEntityWithFields(
                 Expense(
-                    title = "EUR supplies",
+                    title = "Robot oil supplies",
                     categoryId = preconditions.category.id!!,
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     currency = "EUR",
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(11000),
@@ -102,10 +102,10 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     fun `should create expense in foreign currency with different tax reporting amount`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
-            title { input.fill("GBP supplies") }
+            title { input.fill("Spaceship parts") }
             currency { input.selectOption("GBPBritish Pound") }
             originalAmount { input.fill("80.00") }
-            datePaid { input.fill("2025-01-16") }
+            datePaid { input.fill("3025-01-16") }
             convertedAmountInDefaultCurrency("USD").input.fill("100.00")
             useDifferentExchangeRateForIncomeTaxPurposes().click()
             incomeTaxableAmountInDefaultCurrency("USD").input.fill("95.00")
@@ -117,9 +117,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Expense>()
             .shouldBeEntityWithFields(
                 Expense(
-                    title = "GBP supplies",
+                    title = "Spaceship parts",
                     categoryId = preconditions.category.id!!,
-                    datePaid = LocalDate.of(2025, 1, 16),
+                    datePaid = LocalDate.of(3025, 1, 16),
                     currency = "GBP",
                     originalAmount = 8000,
                     convertedAmounts = AmountsInDefaultCurrency(10000),
@@ -142,9 +142,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     fun `should create expense with partial business usage`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
-            title { input.fill("Mixed purpose expense") }
+            title { input.fill("Mixed delivery expense") }
             originalAmount { input.fill("100.00") }
-            datePaid { input.fill("2025-01-15") }
+            datePaid { input.fill("3025-01-15") }
             partialForBusiness().click()
             percentOnBusiness().input.fill("75")
 
@@ -156,9 +156,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         aggregateTemplate.findSingle<Expense>()
             .shouldBeEntityWithFields(
                 Expense(
-                    title = "Mixed purpose expense",
+                    title = "Mixed delivery expense",
                     categoryId = preconditions.category.id!!,
-                    datePaid = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
                     currency = "USD",
                     originalAmount = 10000,
                     convertedAmounts = AmountsInDefaultCurrency(
@@ -187,9 +187,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     fun `should create expense with notes`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
-            title { input.fill("Expense with notes") }
+            title { input.fill("Intergalactic delivery") }
             originalAmount { input.fill("50.00") }
-            datePaid { input.fill("2025-01-15") }
+            datePaid { input.fill("3025-01-15") }
             notes {
                 input.fill("# Important Note\n\nExpense notes with **markdown**")
                 input.shouldHavePreviewWithHeading("Important Note")
@@ -228,9 +228,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateExpensePage {
             category { input.selectOption("Delivery") }
-            title { input.fill("Expense with attachments") }
+            title { input.fill("Oxygen tank refill") }
             originalAmount { input.fill("75.00") }
-            datePaid { input.fill("2025-01-15") }
+            datePaid { input.fill("3025-01-15") }
 
             documentsUpload {
                 // Upload first document
@@ -296,9 +296,9 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     fun `should create expense with general tax`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
-            title { input.fill("Taxable expense") }
+            title { input.fill("Hover scooter maintenance") }
             originalAmount { input.fill("100.00") }
-            datePaid { input.fill("2025-01-15") }
+            datePaid { input.fill("3025-01-15") }
             generalTax { input.selectOption("VAT") }
 
             saveButton.click()
@@ -368,7 +368,7 @@ class CreateExpenseFullStackTest : SaFullStackTestBase() {
     fun `should navigate to overview on cancel`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
             category { input.selectOption("Delivery") }
-            title { input.fill("Will be cancelled") }
+            title { input.fill("Cancelled moon trip") }
 
             cancelButton.click()
         }

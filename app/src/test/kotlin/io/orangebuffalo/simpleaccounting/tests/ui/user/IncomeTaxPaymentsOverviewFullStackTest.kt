@@ -186,8 +186,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                 incomeTaxPayment(
                     workspace = workspace,
                     title = "Basic Payment",
-                    datePaid = LocalDate.of(2025, 1, 15),
-                    reportingDate = LocalDate.of(2025, 1, 15),
+                    datePaid = LocalDate.of(3025, 1, 15),
+                    reportingDate = LocalDate.of(3025, 1, 15),
                     amount = 10000
                 )
 
@@ -195,8 +195,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                 incomeTaxPayment(
                     workspace = workspace,
                     title = "With Notes",
-                    datePaid = LocalDate.of(2025, 1, 14),
-                    reportingDate = LocalDate.of(2025, 1, 14),
+                    datePaid = LocalDate.of(3025, 1, 14),
+                    reportingDate = LocalDate.of(3025, 1, 14),
                     amount = 5000,
                     notes = "Important payment notes"
                 )
@@ -205,8 +205,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                 incomeTaxPayment(
                     workspace = workspace,
                     title = "With Attachments",
-                    datePaid = LocalDate.of(2025, 1, 13),
-                    reportingDate = LocalDate.of(2025, 1, 13),
+                    datePaid = LocalDate.of(3025, 1, 13),
+                    reportingDate = LocalDate.of(3025, 1, 13),
                     amount = 7500,
                     attachments = setOf(document1, document2)
                 )
@@ -215,8 +215,8 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                 incomeTaxPayment(
                     workspace = workspace,
                     title = "With All Attributes",
-                    datePaid = LocalDate.of(2025, 1, 12),
-                    reportingDate = LocalDate.of(2025, 1, 12),
+                    datePaid = LocalDate.of(3025, 1, 12),
+                    reportingDate = LocalDate.of(3025, 1, 12),
                     amount = 20000,
                     attachments = setOf(document1),
                     notes = "Complex payment with all attributes"
@@ -231,7 +231,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
             val workspace = workspace(owner = fry)
 
             init {
-                val baseDate = LocalDate.of(2025, 1, 1)
+                val baseDate = LocalDate.of(3025, 1, 1)
                 (1..15).forEach { index ->
                     incomeTaxPayment(
                         workspace = workspace,
