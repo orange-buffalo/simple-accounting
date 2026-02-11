@@ -40,6 +40,13 @@ const PROTOTYPE_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => {
   }
   return result;
 };
+const SOURCE_INVOICE_ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => {
+  const result: { sourceInvoiceId?: string } = {};
+  if (route.params.sourceInvoiceId) {
+    result.sourceInvoiceId = route.params.sourceInvoiceId as string;
+  }
+  return result;
+};
 
 const ANONYMOUS_PAGES: Array<RouteRecordSingleView> = [
   {
@@ -155,7 +162,7 @@ export default function setupRouter() {
             path: 'incomes/create/:sourceInvoiceId?',
             name: 'create-new-income',
             component: EditIncome,
-            props: true,
+            props: SOURCE_INVOICE_ID_ROUTER_PARAM_PROCESSOR,
           },
           {
             path: 'incomes/:id/edit',
