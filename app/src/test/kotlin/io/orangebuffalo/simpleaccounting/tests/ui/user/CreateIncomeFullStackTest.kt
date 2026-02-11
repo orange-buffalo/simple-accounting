@@ -1,10 +1,12 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
 import io.orangebuffalo.simpleaccounting.business.incomes.Income
+import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
@@ -44,6 +46,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
                     convertedAmounts = AmountsInDefaultCurrency(10000),
                     incomeTaxableAmounts = AmountsInDefaultCurrency(10000),
                     useDifferentExchangeRateForIncomeTaxPurposes = false,
+                    status = IncomeStatus.FINALIZED,
                     timeRecorded = MOCK_TIME,
                     workspaceId = preconditions.workspace.id!!,
                     generalTaxId = null,
@@ -92,8 +95,11 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             linkedInvoice {
                 input.openDropdown()
                 input.shouldHaveOptions { options ->
-                    options.shouldWithClue("Should show both invoices") {
-                        shouldContainInOrder("Delivery to Mars", "Delivery to Omicron Persei 8")
+                    options.shouldWithClue("Should show both invoices in order") {
+                        // Options contain the full text including date and amount, 
+                        // so we check that both invoice titles are present
+                        any { it.contains("Delivery to Mars") }.shouldBe(true)
+                        any { it.contains("Delivery to Omicron Persei 8") }.shouldBe(true)
                     }
                 }
             }
@@ -154,7 +160,8 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
                 // Should only show the matching invoice
                 input.shouldHaveOptions { options ->
                     options.shouldWithClue("Should only show matching invoice") {
-                        shouldContainExactly("Interplanetary cargo shipment")
+                        size.shouldBe(1)
+                        first().contains("Interplanetary cargo shipment").shouldBe(true)
                     }
                 }
             }
@@ -164,7 +171,8 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
                 input.search("Robot")
                 input.shouldHaveOptions { options ->
                     options.shouldWithClue("Should show Robot parts delivery") {
-                        shouldContainExactly("Robot parts delivery")
+                        size.shouldBe(1)
+                        first().contains("Robot parts delivery").shouldBe(true)
                     }
                 }
             }

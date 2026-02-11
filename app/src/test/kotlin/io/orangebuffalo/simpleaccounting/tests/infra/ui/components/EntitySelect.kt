@@ -97,10 +97,10 @@ class EntitySelect private constructor(
      */
     fun shouldShowMoreElementsIndicator(remainingCount: Int) {
         val popper = Popper.openOrLocateByTrigger(input)
-        popper.rootLocator
+        val indicator = popper.rootLocator
             .locator(".el-select-dropdown__item.is-disabled .sa-entity-select__list-footer--dimmed")
-            .shouldBeVisible()
-            .shouldHaveText("$remainingCount more elements...")
+        indicator.shouldBeVisible()
+        indicator.shouldHaveText("$remainingCount more elements...")
     }
 
     /**
