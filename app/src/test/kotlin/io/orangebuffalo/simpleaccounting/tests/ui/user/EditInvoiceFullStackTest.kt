@@ -28,7 +28,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Spaceship Repairs Inc")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Delivery services",
                     currency = "USD",
@@ -80,7 +79,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Hypnotoad Productions")
                 val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Video production services",
                     currency = "USD",
@@ -112,7 +110,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Robot maintenance contract",
                     currency = "USD",
@@ -145,7 +142,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Slurm Factory")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Slurm delivery",
                     currency = "USD",
@@ -182,7 +178,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                     sizeInBytes = 4096
                 )
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Delivery contract",
                     currency = "USD",
@@ -235,7 +230,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                     sizeInBytes = 5120
                 )
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Tourism marketing campaign",
                     currency = "USD",
@@ -273,7 +267,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Omicron Persei 8 Embassy")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Diplomatic delivery services",
                     currency = "USD",
@@ -311,7 +304,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer1 = customer(workspace = workspace, name = "Old Customer")
                 val customer2 = customer(workspace = workspace, name = "New Customer")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer1,
                     title = "Old title",
                     currency = "USD",
@@ -366,7 +358,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Bender's Big Score LLC")
                 val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Untaxed service",
                     currency = "USD",
@@ -404,7 +395,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val vat = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                 val gst = generalTax(workspace = workspace, title = "GST", rateInBps = 1000)
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Property management",
                     currency = "USD",
@@ -442,7 +432,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val customer = customer(workspace = workspace, name = "Central Bureaucracy")
                 val generalTax = generalTax(workspace = workspace, title = "VAT", rateInBps = 2000)
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Form processing",
                     currency = "USD",
@@ -458,7 +447,11 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/invoices/${testData.invoice.id}/edit")
         page.shouldBeEditInvoicePage {
-            generalTax { input.clearSelection() }
+            generalTax {
+                // Hover to make clear button visible, then clear
+                input.shouldHaveClearButton()
+                input.clearSelection()
+            }
 
             saveButton.click()
         }
@@ -479,7 +472,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Luna Park")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Entertainment services",
                     currency = "USD",
@@ -517,7 +509,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Applied Cryogenics")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Freezing services",
                     currency = "USD",
@@ -556,7 +547,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Amazonians United")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Interplanetary shipping",
                     currency = "USD",
@@ -594,7 +584,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Head Museum")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Tour guide services",
                     currency = "USD",
@@ -645,7 +634,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                     sizeInBytes = 2048
                 )
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Scientific consulting",
                     currency = "USD",
@@ -716,7 +704,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                     sizeInBytes = 1024
                 )
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Mutant sewer maintenance",
                     currency = "USD",
@@ -745,8 +732,8 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 selectFileForUpload(testFile2)
 
                 shouldHaveDocuments(
-                    DocumentsUpload.UploadedDocument("new-contract-1.pdf", DocumentsUpload.DocumentState.PENDING),
-                    DocumentsUpload.UploadedDocument("new-contract-2.pdf", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.UploadedDocument(testFile1.name, DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.UploadedDocument(testFile2.name, DocumentsUpload.DocumentState.PENDING),
                     DocumentsUpload.EmptyDocument
                 )
             }
@@ -806,7 +793,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                     sizeInBytes = 1024
                 )
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "DOOP supplies delivery",
                     currency = "USD",
@@ -830,7 +816,7 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
 
                 shouldHaveDocuments(
                     DocumentsUpload.UploadedDocument("contract.pdf", DocumentsUpload.DocumentState.COMPLETED),
-                    DocumentsUpload.UploadedDocument("new-schedule.pdf", DocumentsUpload.DocumentState.PENDING),
+                    DocumentsUpload.UploadedDocument(testFile.name, DocumentsUpload.DocumentState.PENDING),
                     DocumentsUpload.EmptyDocument
                 )
             }
@@ -889,7 +875,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                     sizeInBytes = 2048
                 )
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Military logistics support",
                     currency = "USD",
@@ -943,7 +928,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                     sizeInBytes = 4096
                 )
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Bureaucratic filing services",
                     currency = "USD",
@@ -984,7 +968,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Validation Test Corp")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Test invoice",
                     currency = "USD",
@@ -1027,7 +1010,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "Cancelled Test Inc")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "Original title",
                     currency = "USD",
@@ -1107,7 +1089,6 @@ class EditInvoiceFullStackTest : SaFullStackTestBase() {
                 val workspace = workspace(owner = fry)
                 val customer = customer(workspace = workspace, name = "UI States Test Corp")
                 val invoice = invoice(
-                    workspace = workspace,
                     customer = customer,
                     title = "UI test invoice",
                     currency = "USD",
