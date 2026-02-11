@@ -25,6 +25,9 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should create income with basic fields`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
+            // Wait for categories to load before interacting with the form
+            category { shouldNotBeLoading() }
+            
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery services") }
             originalAmount { input.fill("100.00") }
@@ -86,6 +89,9 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
+            // Wait for categories to load
+            category { shouldNotBeLoading() }
+            
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery services") }
             originalAmount { input.fill("150.00") }
@@ -149,6 +155,9 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
+            // Wait for categories to load
+            category { shouldNotBeLoading() }
+            
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
             originalAmount { input.fill("250.00") }
@@ -213,6 +222,9 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
+            // Wait for categories to load
+            category { shouldNotBeLoading() }
+            
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
             originalAmount { input.fill("100.00") }
@@ -248,6 +260,9 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
+            // Wait for categories to load
+            category { shouldNotBeLoading() }
+            
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery") }
             originalAmount { input.fill("100.00") }
@@ -297,6 +312,9 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
+            // Wait for categories to load
+            category { shouldNotBeLoading() }
+            
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
             originalAmount { input.fill("500.00") }
