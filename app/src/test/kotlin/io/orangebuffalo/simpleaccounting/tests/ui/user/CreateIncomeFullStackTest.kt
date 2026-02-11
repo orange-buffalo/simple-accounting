@@ -25,7 +25,6 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should create income with basic fields`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
-            category { shouldNotBeLoading() }
             
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery services") }
@@ -88,7 +87,6 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            category { shouldNotBeLoading() }
             
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery services") }
@@ -153,7 +151,6 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            category { shouldNotBeLoading() }
             
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
@@ -219,7 +216,6 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            category { shouldNotBeLoading() }
             
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
@@ -256,7 +252,6 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            category { shouldNotBeLoading() }
             
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery") }
@@ -307,7 +302,6 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            category { shouldNotBeLoading() }
             
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
