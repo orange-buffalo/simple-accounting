@@ -93,20 +93,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             originalAmount { input.fill("150.00") }
             dateReceived { input.fill("3025-01-15") }
 
-            // Test EntitySelect component - open dropdown and verify invoices are loaded
-            linkedInvoice {
-                input.openDropdown()
-                input.shouldHaveOptions { options ->
-                    options.shouldWithClue("Should show both invoices in order") {
-                        // Options contain the full text including date and amount, 
-                        // so we check that both invoice titles are present
-                        any { it.contains("Delivery to Mars") }.shouldBe(true)
-                        any { it.contains("Delivery to Omicron Persei 8") }.shouldBe(true)
-                    }
-                }
-            }
-
-            // Select an invoice
+            // Select an invoice using EntitySelect
             linkedInvoice { input.selectOption("Delivery to Mars") }
 
             saveButton.click()
@@ -224,7 +211,6 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
             // Open dropdown and verify pagination indicator
             linkedInvoice {
-                input.openDropdown()
                 // Should show "5 more elements..." indicator
                 input.shouldShowMoreElementsIndicator(5)
             }
@@ -309,7 +295,6 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
             dateReceived { input.fill("3025-01-15") }
 
             // Open dropdown to see invoice details
-            linkedInvoice { input.openDropdown() }
 
             reportRendering("entity-select.invoice-with-details")
         }

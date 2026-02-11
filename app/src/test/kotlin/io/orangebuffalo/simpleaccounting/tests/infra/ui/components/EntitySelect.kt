@@ -39,16 +39,24 @@ class EntitySelect private constructor(
 
     /**
      * Selects an option from the dropdown by its text.
-     * Works with custom option templates - will click on any option containing the text.
+     * For remote selects, this will search for the option text first.
      */
     fun selectOption(optionText: String) {
+        // For remote selects, we need to search first to load options
+        val searchInput = input.locator("input.el-select__input")
+        searchInput.click()
+        searchInput.fill(optionText)
+        
+        // Get the popper (should be open after clicking and typing)
         val popper = Popper.openOrLocateByTrigger(input)
-        // For entity select, options can have complex structure, so we search for text anywhere in the option
+        
+        // Click on the option containing the text
         popper.rootLocator
             .locator(".el-select-dropdown__item")
             .filter(Locator.FilterOptions().setHasText(optionText))
             .first()
             .click()
+            
         popper.shouldBeClosed()
         shouldHaveSelectedValue(optionText)
     }
@@ -83,6 +91,13 @@ class EntitySelect private constructor(
 
     fun shouldHaveOptions(spec: (actualOptions: List<String>) -> Unit) {
         val popper = Popper.openOrLocateByTrigger(input)
+        
+        // For remote selects, we need to trigger the search to load data
+        // Type a character then delete it to trigger remote search with empty query
+        val searchInput = input.locator("input.el-select__input")
+        searchInput.type("a")
+        searchInput.press("Backspace")
+        
         popper.rootLocator.shouldSatisfy {
             // Get all non-info items (exclude pagination/error messages)
             locator(".el-select-dropdown__item:not([disabled])")
