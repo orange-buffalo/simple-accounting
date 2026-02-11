@@ -30,27 +30,30 @@ class EntitySelect private constructor(
      * This triggers the remote search functionality.
      */
     fun search(query: String) {
-        // Open the dropdown if not already open
+        // Click to open the dropdown
         input.click()
-        // Type into the filterable input
-        val searchInput = input.locator("input.el-select__input")
+        
+        // Locate the input and fill it - this should trigger Vue's input handler
+        val searchInput = rootLocator.locator("input.el-select__input")
         searchInput.fill(query)
+        
+        // Trigger input event manually via JavaScript
+        searchInput.evaluate("el => el.dispatchEvent(new Event('input', { bubbles: true }))")
     }
 
     /**
      * Selects an option from the dropdown by its text.
-     * For remote selects, this will search for the option text first.
+     * For remote selects, this searches for the option text first.
      */
     fun selectOption(optionText: String) {
-        // For remote selects, we need to search first to load options
-        val searchInput = input.locator("input.el-select__input")
-        searchInput.click()
-        searchInput.fill(optionText)
+        // Ensure the select is visible and ready
+        rootLocator.shouldBeVisible()
         
-        // Get the popper (should be open after clicking and typing)
+        // For remote selects, search for the option to load results
+        search(optionText)
+        
+        // Click on the matching option
         val popper = Popper.openOrLocateByTrigger(input)
-        
-        // Click on the option containing the text
         popper.rootLocator
             .locator(".el-select-dropdown__item")
             .filter(Locator.FilterOptions().setHasText(optionText))
@@ -90,14 +93,13 @@ class EntitySelect private constructor(
     }
 
     fun shouldHaveOptions(spec: (actualOptions: List<String>) -> Unit) {
-        val popper = Popper.openOrLocateByTrigger(input)
-        
-        // For remote selects, we need to trigger the search to load data
-        // Type a character then delete it to trigger remote search with empty query
+        // Open dropdown and trigger search with empty query by typing and deleting
+        input.click()
         val searchInput = input.locator("input.el-select__input")
-        searchInput.type("a")
+        searchInput.pressSequentially("a")
         searchInput.press("Backspace")
         
+        val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator.shouldSatisfy {
             // Get all non-info items (exclude pagination/error messages)
             locator(".el-select-dropdown__item:not([disabled])")
