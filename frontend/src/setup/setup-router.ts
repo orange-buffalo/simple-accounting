@@ -206,7 +206,7 @@ export default function setupRouter() {
             component: EditCustomer,
           },
           {
-            path: 'setting/customers/:id/edit',
+            path: 'settings/customers/:id/edit',
             name: 'edit-customer',
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditCustomer,
