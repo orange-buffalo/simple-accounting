@@ -222,7 +222,7 @@ export default function setupRouter() {
             component: EditGeneralTax,
           },
           {
-            path: 'setting/general-taxes/:id/edit',
+            path: 'settings/general-taxes/:id/edit',
             name: 'edit-general-tax',
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditGeneralTax,

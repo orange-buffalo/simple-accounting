@@ -1,33 +1,29 @@
 <template>
-  <div class="tax-panel">
-    <div class="tax-info">
-      <div class="sa-item-title-panel">
-        <!--todo #163: localize-->
-        <h3>{{ tax.title }} ({{ tax.rateInBps / 100 }}%)</h3>
-        <span class="sa-item-edit-link">
-          <SaIcon icon="pencil-solid" />
-          <ElButton
-            link
-            @click="navigateToTaxEdit"
-          >Edit</ElButton>
-        </span>
-      </div>
+  <SaOverviewItem :title="`${tax.title} (${tax.rateInBps / 100}%)`">
+    <template
+      v-if="tax.description"
+      #details
+    >
+      <!--todo #80: linebreaks-->
+      <span class="sa-item-additional-info">{{ tax.description }}</span>
+    </template>
 
-      <div
-        v-if="tax.description"
-        class="sa-item-section"
+    <template #last-column>
+      <SaActionLink
+        icon="pencil-solid"
+        @click="navigateToTaxEdit"
       >
-        <!--todo #80: linebreaks-->
-        <span class="sa-item-additional-info">{{ tax.description }}</span>
-      </div>
-    </div>
-  </div>
+        Edit
+      </SaActionLink>
+    </template>
+  </SaOverviewItem>
 </template>
 
 <script lang="ts" setup>
-  import SaIcon from '@/components/SaIcon.vue';
-  import type { GeneralTaxDto } from '@/services/api';
+  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+  import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
+  import type { GeneralTaxDto } from '@/services/api';
 
   const props = defineProps<{
     tax: GeneralTaxDto,
@@ -39,21 +35,3 @@
     params: { id: props.tax.id },
   });
 </script>
-
-<style lang="scss">
-  @use "@/styles/main.scss" as *;
-
-  .tax-panel {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .tax-info {
-    @extend .sa-item-info-panel;
-    flex-grow: 1;
-
-    .sa-item-section {
-      margin-top: 0;
-    }
-  }
-</style>
