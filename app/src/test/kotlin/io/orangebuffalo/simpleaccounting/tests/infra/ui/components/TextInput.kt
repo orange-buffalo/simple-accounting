@@ -11,7 +11,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 class TextInput private constructor(
     rootLocator: Locator,
 ) : UiComponent<TextInput>() {
-    private val input = rootLocator.locator("input")
+    private val input = rootLocator.locator("input, textarea").first()
     fun fill(text: String) = input.fill(text)
 
     fun shouldBeVisible() = input.shouldBeVisible()

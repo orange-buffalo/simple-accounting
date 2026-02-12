@@ -100,7 +100,7 @@
   };
 
   const { navigateByViewName } = useNavigation();
-  const navigateToCategoriesOverview = async () => navigateByViewName('/settings/categories');
+  const navigateToCategoriesOverview = async () => navigateByViewName('settings-categories');
 
   const { currentWorkspaceId } = useCurrentWorkspace();
   const saveCategory = async () => {
