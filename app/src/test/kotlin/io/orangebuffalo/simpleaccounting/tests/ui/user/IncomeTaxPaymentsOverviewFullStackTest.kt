@@ -7,6 +7,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.previewIcons
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.primaryAttribute
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateIncomeTaxPaymentPage.Companion.shouldBeCreateIncomeTaxPaymentPage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditIncomeTaxPaymentPage.Companion.shouldBeEditIncomeTaxPaymentPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.IncomeTaxPaymentsOverviewPage.Companion.openIncomeTaxPaymentsOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.IncomeTaxPaymentsOverviewPage.Companion.shouldBeIncomeTaxPaymentsOverviewPage
 import org.junit.jupiter.api.Test
@@ -241,6 +243,79 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                         amount = 1000 * index.toLong()
                     )
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `should open create income tax payment page with default values from create button`(page: Page) {
+        page.authenticateViaCookie(preconditionsActions.fry)
+        page.openIncomeTaxPaymentsOverviewPage {
+            createButton.click()
+        }
+
+        page.shouldBeCreateIncomeTaxPaymentPage {
+            title {
+                input.shouldHaveValue("")
+            }
+            amount {
+                input.shouldHaveValue("")
+            }
+            datePaid {
+                input.shouldHaveValue("1999-03-28")
+            }
+            reportingDate {
+                input.shouldHaveValue("")
+            }
+            notes {
+                input.shouldHaveValue("")
+            }
+        }
+    }
+
+    @Test
+    fun `should open edit income tax payment page with loaded values from edit action`(page: Page) {
+        page.authenticateViaCookie(preconditionsActions.fry)
+        page.openIncomeTaxPaymentsOverviewPage {
+            pageItems {
+                shouldHaveTitles("Q1 Corporate Tax")
+                staticItems[0].executeEditAction()
+            }
+        }
+
+        page.shouldBeEditIncomeTaxPaymentPage {
+            title {
+                input.shouldHaveValue("Q1 Corporate Tax")
+            }
+            amount {
+                input.shouldHaveValue("3000.00")
+            }
+            datePaid {
+                input.shouldHaveValue("3025-03-15")
+            }
+            reportingDate {
+                input.shouldHaveValue("3025-03-10")
+            }
+            notes {
+                input.shouldHaveValue("Tax payment for Planet Express")
+            }
+        }
+    }
+
+    private val preconditionsActions by lazyPreconditions {
+        object {
+            val fry = fry()
+            val workspace = workspace(owner = fry)
+
+            init {
+                incomeTaxPayment(
+                    workspace = workspace,
+                    title = "Q1 Corporate Tax",
+                    amount = 300000,
+                    datePaid = LocalDate.of(3025, 3, 15),
+                    reportingDate = LocalDate.of(3025, 3, 10),
+                    notes = "Tax payment for Planet Express"
+                )
             }
         }
     }
