@@ -82,7 +82,7 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             name {
-                shouldHaveValidationError("Please select a name")
+                shouldHaveValidationError("Please provide a name")
             }
 
             reportRendering("edit-customer.validation-error")

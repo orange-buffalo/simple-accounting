@@ -55,7 +55,7 @@
   const customerValidationRules = {
     name: {
       required: true,
-      message: 'Please select a name',
+      message: 'Please provide a name',
     },
   };
 

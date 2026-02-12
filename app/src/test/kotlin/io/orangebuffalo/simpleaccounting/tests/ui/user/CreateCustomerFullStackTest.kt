@@ -48,7 +48,7 @@ class CreateCustomerFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             name {
-                shouldHaveValidationError("Please select a name")
+                shouldHaveValidationError("Please provide a name")
             }
 
             reportRendering("create-customer.validation-error")
