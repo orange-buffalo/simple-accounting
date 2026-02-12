@@ -288,7 +288,7 @@ class IncomeTaxPaymentsOverviewFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("Q1 Corporate Tax")
             }
             amount {
-                input.shouldHaveValue("3000.00")
+                input.shouldHaveValue("3,000.00")
             }
             datePaid {
                 input.shouldHaveValue("3025-03-15")

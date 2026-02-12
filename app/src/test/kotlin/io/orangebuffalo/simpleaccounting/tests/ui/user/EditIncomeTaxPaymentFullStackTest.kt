@@ -42,7 +42,7 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("Q1 Tax Payment")
             }
             amount {
-                input.shouldHaveValue("1250.00")
+                input.shouldHaveValue("1,250.00")
             }
             datePaid {
                 input.shouldHaveValue("3025-03-15")
@@ -90,7 +90,7 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
                 input.shouldHaveValue("Annual Corporate Tax")
             }
             amount {
-                input.shouldHaveValue("5000.00")
+                input.shouldHaveValue("5,000.00")
             }
             datePaid {
                 input.shouldHaveValue("3025-12-31")

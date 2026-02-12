@@ -9,7 +9,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 class IncomeTaxPaymentsOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Income Tax Payments")
     val pageItems = components.overviewItems()
-    val createButton = components.buttonByText("Create new income tax payment")
+    val createButton = components.buttonByText("Add new")
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
