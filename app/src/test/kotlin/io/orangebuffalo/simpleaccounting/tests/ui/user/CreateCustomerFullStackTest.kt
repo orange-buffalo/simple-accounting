@@ -1,10 +1,9 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.customers.Customer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateCustomerPage.Companion.openCreateCustomerPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CustomersOverviewPage.Companion.shouldBeCustomersOverviewPage
@@ -38,7 +37,6 @@ class CreateCustomerFullStackTest : SaFullStackTestBase() {
                 ignoredProperties = arrayOf(
                     Customer::id,
                     Customer::version,
-                    Customer::timeRecorded,
                 )
             )
     }
@@ -50,7 +48,7 @@ class CreateCustomerFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             name {
-                shouldHaveErrorMessage("Please select a name")
+                shouldHaveValidationError("Please select a name")
             }
 
             reportRendering("create-customer.validation-error")

@@ -4,6 +4,8 @@ import com.microsoft.playwright.Page
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaActionLink
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItemData
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CustomersOverviewPage.Companion.openCustomersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CustomersOverviewPage.Companion.shouldBeCustomersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateCustomerPage.Companion.shouldBeCreateCustomerPage
@@ -61,8 +63,9 @@ class CustomersOverviewFullStackTest : SaFullStackTestBase() {
                         hasDetails = false,
                     )
                 )
-                reportRendering("customers-overview.loaded")
             }
+
+            reportRendering("customers-overview.loaded")
         }
     }
 
@@ -96,7 +99,8 @@ class CustomersOverviewFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.openCustomersOverviewPage {
             pageItems {
-                staticItems[0].lastColumn.editLink().click()
+                shouldHaveTitles("Slurm Corp")
+                staticItems[0].executeEditAction()
             }
         }
 

@@ -4,6 +4,7 @@ import com.microsoft.playwright.Page
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.customers.Customer
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CustomersOverviewPage.Companion.shouldBeCustomersOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditCustomerPage.Companion.shouldBeEditCustomerPage
@@ -60,7 +61,6 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
                 ignoredProperties = arrayOf(
                     Customer::id,
                     Customer::version,
-                    Customer::timeRecorded,
                 )
             )
     }
@@ -82,7 +82,7 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
             saveButton.click()
 
             name {
-                shouldHaveErrorMessage("Please select a name")
+                shouldHaveValidationError("Please select a name")
             }
 
             reportRendering("edit-customer.validation-error")

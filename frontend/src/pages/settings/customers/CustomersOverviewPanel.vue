@@ -1,22 +1,19 @@
 <template>
-  <div class="customer-panel">
-    <div class="customer-info">
-      <div class="sa-item-title-panel">
-        <h3>{{ customer.name }}</h3>
-        <span class="sa-item-edit-link">
-          <SaIcon icon="pencil-solid" />
-          <ElButton
-            link
-            @click="navigateToCustomerEdit"
-          >{{ $t.customersOverview.edit() }}</ElButton>
-        </span>
-      </div>
-    </div>
-  </div>
+  <SaOverviewItem :title="customer.name">
+    <template #last-column>
+      <SaActionLink
+        icon="pencil-solid"
+        @click="navigateToCustomerEdit"
+      >
+        {{ $t.customersOverview.edit() }}
+      </SaActionLink>
+    </template>
+  </SaOverviewItem>
 </template>
 
 <script lang="ts" setup>
-  import SaIcon from '@/components/SaIcon.vue';
+  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+  import SaActionLink from '@/components/SaActionLink.vue';
   import useNavigation from '@/services/use-navigation';
   import type { CustomerDto } from '@/services/api';
   import { $t } from '@/services/i18n';
@@ -31,17 +28,3 @@
     params: { id: props.customer.id },
   });
 </script>
-
-<style lang="scss">
-  @use "@/styles/main.scss" as *;
-
-  .customer-panel {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .customer-info {
-    @extend .sa-item-info-panel;
-    flex-grow: 1;
-  }
-</style>
