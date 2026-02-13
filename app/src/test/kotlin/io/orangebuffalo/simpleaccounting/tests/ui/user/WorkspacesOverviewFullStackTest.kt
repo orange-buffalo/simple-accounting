@@ -81,6 +81,8 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         page.shouldBeCreateWorkspacePage()
     }
 
+    // TODO: This test is flaky - the create button click doesn't always navigate to the create page
+    // Need to investigate why it works in "should navigate to create workspace page" but fails here
     @Test
     fun `should create new workspace`(page: Page) {
         val testData = preconditions {
