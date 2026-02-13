@@ -1,27 +1,22 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import io.orangebuffalo.simpleaccounting.infra.database.AggregateTemplate
-import io.orangebuffalo.simpleaccounting.infra.utils.findSingle
+import io.kotest.matchers.shouldBe
+import io.orangebuffalo.simpleaccounting.business.expenses.Expense
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.withBlockedApiResponse
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.shouldHaveTitles
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.reportRendering
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.components.shouldHaveSideMenu
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.openExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.ExpensesOverviewPage.Companion.shouldBeExpensesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.WorkspaceEditorPage.Companion.shouldBeCreateWorkspacePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.WorkspacesOverviewPage.Companion.openWorkspacesOverviewPage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.WorkspacesOverviewPage.Companion.shouldBeWorkspacesOverviewPage
-import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.openCreateExpensePage
-import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateExpensePage.Companion.shouldBeCreateExpensePage
-import io.orangebuffalo.simpleaccounting.infra.withHint
-import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.business.expenses.domain.Expense
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 
 class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
-
-    @Autowired
-    lateinit var aggregateTemplate: AggregateTemplate
 
     @Test
     fun `should display single current workspace`(page: Page) {
@@ -93,7 +88,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            createButton.click()
+            clickCreateButton()
         }
 
         page.shouldBeCreateWorkspacePage()
@@ -110,7 +105,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            createButton.click()
+            clickCreateButton()
         }
 
         page.shouldBeCreateWorkspacePage {
@@ -118,7 +113,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                 input.fill("Mom's Friendly Robot Company")
             }
             defaultCurrency {
-                input.fill("USD")
+                input.selectOption("USDUS Dollar")
             }
             saveButton.click()
         }
@@ -143,15 +138,11 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").apply {
-                switchButton.click()
-            }
+            getOtherWorkspaceByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
         // Should navigate to dashboard after switching
         page.shouldHaveSideMenu().shouldHaveWorkspaceName("Mom's Friendly Robot Company")
-        
-        reportRendering("workspaces.switched-workspace-dashboard")
     }
 
     @Test
@@ -164,12 +155,14 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                 
                 init {
                     // Create an expense in Planet Express workspace
+                    val expenseCategory = category(workspace = planetExpress)
                     expense(
                         workspace = planetExpress,
+                        category = expenseCategory,
                         title = "Slurm supplies",
                         originalAmount = 5000,
-                        convertedAmounts = expense.CurrencyConverter(),
-                        incomeTaxableAmounts = expense.CurrencyConverter(),
+                        convertedAmounts = amountsInDefaultCurrency(5000),
+                        incomeTaxableAmounts = amountsInDefaultCurrency(5000),
                         useDifferentExchangeRateForIncomeTaxPurposes = false
                     )
                 }
@@ -185,9 +178,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         
         // Switch to Mom's workspace
         page.openWorkspacesOverviewPage {
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").apply {
-                switchButton.click()
-            }
+            getOtherWorkspaceByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
         // Navigate to expenses in new workspace
@@ -196,7 +187,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         // Verify expenses list is empty
         page.shouldBeExpensesOverviewPage {
             pageItems.shouldHaveTitles()
-            reportRendering("workspaces.switched-workspace-expenses-empty")
+            this.reportRendering("workspaces.switched-workspace-expenses-empty")
         }
     }
 
@@ -219,9 +210,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         
         // Switch to Mom's workspace
         page.openWorkspacesOverviewPage {
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").apply {
-                switchButton.click()
-            }
+            getOtherWorkspaceByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
         // Navigate to create expense page
@@ -243,12 +232,9 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         page.shouldBeExpensesOverviewPage()
 
         // Verify expense is created and linked to Mom's workspace
-        withHint("Expense should be created in Mom's workspace") {
-            val expense = aggregateTemplate.findSingle<Expense> { root ->
-                root.title.eq("Robot oil")
-            }
-            expense.workspaceId.shouldBe(testData.moms.id)
-            expense.originalAmount.shouldBe(10000)
-        }
+        val createdExpense = aggregateTemplate.findSingle<Expense>()
+        createdExpense.workspaceId.shouldBe(testData.moms.id)
+        createdExpense.originalAmount.shouldBe(10000)
+        createdExpense.title.shouldBe("Robot oil")
     }
 }
