@@ -7,6 +7,7 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.*
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 
@@ -39,17 +40,13 @@ class WorkspacePanel(
 
 class WorkspacesOverviewPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Workspaces")
-    private val createButtonLocator = page.locator("xpath=//button[${XPath.hasText("Create new workspace")}]")
+    val createButton = components.buttonByText("Create new workspace")
     
     private val currentWorkspaceHeaderLocator = page.locator("//h2[${XPath.hasText("Current Workspace")}]")
     private val myOtherWorkspacesHeaderLocator = page.locator("//h2[${XPath.hasText("My Other Workspaces")}]")
 
     private fun shouldBeOpen() {
         header.shouldBeVisible()
-    }
-    
-    fun clickCreateButton() {
-        createButtonLocator.click()
     }
 
     fun shouldHaveCurrentWorkspace(spec: WorkspacePanel.() -> Unit = {}): WorkspacesOverviewPage {

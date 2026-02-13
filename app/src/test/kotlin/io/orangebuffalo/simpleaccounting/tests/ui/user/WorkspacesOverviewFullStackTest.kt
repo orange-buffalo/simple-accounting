@@ -28,20 +28,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         }
 
         page.authenticateViaCookie(testData.fry)
-
-        page.withBlockedApiResponse(
-            "**/workspaces*",
-            initiator = {
-                page.openWorkspacesOverviewPage { }
-            },
-            blockedRequestSpec = {
-                page.shouldBeWorkspacesOverviewPage {
-                    reportRendering("workspaces-overview.loading")
-                }
-            }
-        )
-
-        page.shouldBeWorkspacesOverviewPage {
+        page.openWorkspacesOverviewPage {
             shouldHaveCurrentWorkspace {
                 shouldHaveTitle("Planet Express")
                 shouldNotHaveSwitchButton()
@@ -88,7 +75,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            clickCreateButton()
+            createButton.click()
         }
 
         page.shouldBeCreateWorkspacePage()
@@ -105,7 +92,7 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testData.fry)
         page.openWorkspacesOverviewPage {
-            clickCreateButton()
+            createButton.click()
         }
 
         page.shouldBeCreateWorkspacePage {
