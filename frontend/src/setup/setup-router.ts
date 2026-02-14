@@ -213,7 +213,7 @@ export default function setupRouter() {
             component: EditCustomer,
           },
           {
-            path: 'setting/customers/:id/edit',
+            path: 'settings/customers/:id/edit',
             name: 'edit-customer',
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditCustomer,
@@ -229,7 +229,7 @@ export default function setupRouter() {
             component: EditGeneralTax,
           },
           {
-            path: 'setting/general-taxes/:id/edit',
+            path: 'settings/general-taxes/:id/edit',
             name: 'edit-general-tax',
             props: ID_ROUTER_PARAM_PROCESSOR,
             component: EditGeneralTax,

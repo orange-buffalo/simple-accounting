@@ -6,8 +6,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Co
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaOverviewItem.Companion.overviewItems
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 
-class IncomeTaxPaymentsOverviewPage private constructor(page: Page) : SaPageBase(page) {
-    private val header = components.pageHeader("Income Tax Payments")
+class CustomersOverviewPage private constructor(page: Page) : SaPageBase(page) {
+    private val header = components.pageHeader("Customers")
     val pageItems = components.overviewItems()
     val createButton = components.buttonByText("Add new")
 
@@ -16,16 +16,16 @@ class IncomeTaxPaymentsOverviewPage private constructor(page: Page) : SaPageBase
     }
 
     companion object {
-        fun Page.shouldBeIncomeTaxPaymentsOverviewPage(spec: IncomeTaxPaymentsOverviewPage.() -> Unit = {}) {
-            IncomeTaxPaymentsOverviewPage(this).apply {
+        fun Page.shouldBeCustomersOverviewPage(spec: CustomersOverviewPage.() -> Unit = {}) {
+            CustomersOverviewPage(this).apply {
                 shouldBeOpen()
                 spec()
             }
         }
 
-        fun Page.openIncomeTaxPaymentsOverviewPage(spec: IncomeTaxPaymentsOverviewPage.() -> Unit = {}) {
-            navigate("/income-tax-payments")
-            shouldBeIncomeTaxPaymentsOverviewPage(spec)
+        fun Page.openCustomersOverviewPage(spec: CustomersOverviewPage.() -> Unit = {}) {
+            navigate("/settings/customers")
+            shouldBeCustomersOverviewPage(spec)
         }
     }
 }
