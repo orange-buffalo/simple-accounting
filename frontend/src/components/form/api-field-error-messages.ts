@@ -1,6 +1,6 @@
-import { FormItemContext } from 'element-plus';
-import { FieldError } from '@/components/form/sa-form-api.ts';
-import { FieldErrorDto } from '@/services/api';
+import type { FormItemContext } from 'element-plus';
+import type { FieldError } from '@/components/form/sa-form-api.ts';
+import type { FieldErrorDto } from '@/services/api';
 import { $t } from '@/services/i18n';
 
 /**
@@ -30,7 +30,7 @@ export function setFieldErrorsFromClientSideValidation(
     const formItem = formItems.get(fieldError.field);
     if (formItem) {
       formItem.validateState = 'error';
-      // @ts-ignore
+      // @ts-expect-error
       formItem.validateMessage = fieldError.message;
     } else {
       throw new Error(`Form item not found for field ${fieldError.field}`);

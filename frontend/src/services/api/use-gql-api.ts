@@ -1,5 +1,5 @@
-import { AnyVariables, DocumentInput } from '@urql/core';
-import { nextTick, Ref, ref } from 'vue';
+import type { AnyVariables, DocumentInput } from '@urql/core';
+import { nextTick, type Ref, ref } from 'vue';
 import useNotifications, {
   NOTIFICATION_ALWAYS_VISIBLE_DURATION,
 } from '@/components/notifications/use-notifications.ts';

@@ -4,6 +4,6 @@
  * tests and make them more stable.
  */
 export function isRunningInTest() {
-  // @ts-ignore
+  // @ts-expect-error
   return window.saRunningInTest === true;
 }

@@ -73,7 +73,7 @@ const props = defineProps<{
   clearable?: boolean;
 }>();
 
-const emit = defineEmits<{ (e: 'update:modelValue', value?: number): void }>();
+const emit = defineEmits<(e: 'update:modelValue', value?: number) => void>();
 
 let requestConfigData: RequestConfigReturn | undefined;
 

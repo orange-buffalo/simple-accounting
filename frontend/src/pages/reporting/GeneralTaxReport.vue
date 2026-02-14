@@ -72,7 +72,7 @@ const props = defineProps<{
   dateRange: Date[];
 }>();
 
-const emit = defineEmits<{ (e: 'report-loaded'): void }>();
+const emit = defineEmits<(e: 'report-loaded') => void>();
 
 const report = ref<GeneralTaxReportDto | undefined>();
 

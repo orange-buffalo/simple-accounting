@@ -46,7 +46,7 @@
 import { computed, ref } from 'vue';
 import SaForm from '@/components/form/SaForm.vue';
 import SaFormInput from '@/components/form/SaFormInput.vue';
-import { ClientSideValidationError, FieldError } from '@/components/form/sa-form-api';
+import { ClientSideValidationError, type FieldError } from '@/components/form/sa-form-api';
 import useNotifications from '@/components/notifications/use-notifications';
 import { handleGqlApiBusinessError } from '@/services/api';
 import { graphql } from '@/services/api/gql';

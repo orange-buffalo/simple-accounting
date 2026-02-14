@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import 'whatwg-fetch';
 import fetchMock from 'fetch-mock';
 import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
-import {
+import type {
   ApiAuthError,
   ApiBusinessError,
   ApiFieldLevelValidationError,

@@ -1,5 +1,5 @@
-import { FormItemContext } from 'element-plus';
-import { InjectionKey, inject, provide, Ref } from 'vue';
+import type { FormItemContext } from 'element-plus';
+import { type InjectionKey, inject, provide, type Ref } from 'vue';
 
 export type FormValues = Exclude<object, Function | null>; // not a primitive and not a function
 

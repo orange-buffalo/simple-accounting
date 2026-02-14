@@ -30,7 +30,7 @@ import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoog
 import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
 import MyProfileDocumentsStorageConfig from '@/pages/my-profile/MyProfileDocumentsStorageConfig.vue';
 import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
-import { ProfileDto, useAuth } from '@/services/api';
+import { type ProfileDto, useAuth } from '@/services/api';
 import { graphql } from '@/services/api/gql';
 import { useQuery } from '@/services/api/use-gql-api.ts';
 import { $t } from '@/services/i18n';

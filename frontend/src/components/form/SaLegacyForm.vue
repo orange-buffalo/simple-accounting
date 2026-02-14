@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ElForm, FormInstance, FormRules } from 'element-plus';
+import { ElForm, type FormInstance, type FormRules } from 'element-plus';
 import { ref } from 'vue';
-import { FormValues } from '@/components/form/sa-form-components-api.ts';
+import type { FormValues } from '@/components/form/sa-form-components-api.ts';
 
 type SaLegacyFormProps = {
   model: FormValues;

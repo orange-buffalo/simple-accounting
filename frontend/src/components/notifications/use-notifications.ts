@@ -37,7 +37,7 @@ const WARNING_NOTIFICATION: NotificationType = {
 };
 
 function showNotification(message: string, type: NotificationType) {
-  // @ts-ignore
+  // @ts-expect-error
   ElMessage({
     showClose: true,
     message,

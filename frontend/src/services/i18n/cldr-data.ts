@@ -100,7 +100,7 @@ async function loadCldrData(locale: string) {
 export async function updateLocale(locale: string) {
   Globalize.load(await loadCldrData(locale));
 
-  // @ts-ignore
+  // @ts-expect-error
   globalize = Globalize(locale);
   const { cldr } = globalize;
 

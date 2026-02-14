@@ -237,7 +237,7 @@ const props = defineProps<{
   invoice: InvoiceDto;
 }>();
 
-const emit = defineEmits<{ (e: 'invoice-update'): void }>();
+const emit = defineEmits<(e: 'invoice-update') => void>();
 
 const { currentWorkspace, currentWorkspaceId, defaultCurrency } = useCurrentWorkspace();
 

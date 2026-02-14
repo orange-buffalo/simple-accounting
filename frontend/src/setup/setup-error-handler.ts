@@ -1,4 +1,4 @@
-import { App } from 'vue';
+import type { App } from 'vue';
 import useNotifications from '@/components/notifications/use-notifications';
 import { ApiAuthError, ApiRequestCancelledError } from '@/services/api/api-errors.ts';
 import { $t } from '@/services/i18n';

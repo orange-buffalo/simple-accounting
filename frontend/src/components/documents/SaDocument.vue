@@ -94,7 +94,7 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits<{ (e: 'removed'): void }>();
+const emit = defineEmits<(e: 'removed') => void>();
 
 const documentTypeIcon = computed(() => getDocumentTypeIcon(props.documentName));
 

@@ -21,7 +21,7 @@ defineProps<{
   icon: string;
 }>();
 
-const emit = defineEmits<{ (e: 'click'): void }>();
+const emit = defineEmits<(e: 'click') => void>();
 
 const click = () => {
   emit('click');

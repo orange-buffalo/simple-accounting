@@ -28,7 +28,7 @@ import { ref } from 'vue';
 import SaForm from '@/components/form/SaForm.vue';
 import SaFormInput from '@/components/form/SaFormInput.vue';
 import SaPageWithoutSideMenu from '@/components/page-without-side-menu/SaPageWithoutSideMenu.vue';
-import { CreateWorkspaceDto, workspacesApi } from '@/services/api';
+import { type CreateWorkspaceDto, workspacesApi } from '@/services/api';
 import { $t } from '@/services/i18n';
 import useNavigation from '@/services/use-navigation';
 import { useWorkspaces } from '@/services/workspaces.ts';

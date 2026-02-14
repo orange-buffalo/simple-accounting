@@ -36,7 +36,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 import SaDocument from '@/components/documents/SaDocument.vue';
-import SaDocumentUpload from '@/components/documents/SaDocumentUpload.vue';
+import type SaDocumentUpload from '@/components/documents/SaDocumentUpload.vue';
 import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
 import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
 import type { DocumentDto } from '@/services/api';

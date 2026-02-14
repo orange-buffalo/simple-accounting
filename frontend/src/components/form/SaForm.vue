@@ -27,14 +27,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ElForm, FormInstance, FormItemContext } from 'element-plus';
+import { ElForm, type FormInstance, type FormItemContext } from 'element-plus';
 import { computed, nextTick, onMounted, ref } from 'vue';
 import {
   setFieldErrorsFromClientSideValidation,
   setFieldsErrorsFromApiResponse,
 } from '@/components/form/api-field-error-messages.ts';
 import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
-import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
+import { type FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
 import useNotifications from '@/components/notifications/use-notifications.ts';
 import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
 import { $t } from '@/services/i18n';

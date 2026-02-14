@@ -37,7 +37,7 @@ const props = defineProps<{
   disabled?: boolean;
 }>();
 
-const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
+const emit = defineEmits<(e: 'update:modelValue', value: string) => void>();
 
 const currenciesShortlist = ref<CurrencyInfo[]>([]);
 const currencies = getCurrenciesInfo();

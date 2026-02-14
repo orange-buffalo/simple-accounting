@@ -1,4 +1,11 @@
-import { AnyVariables, Client, DocumentInput, fetchExchange, OperationContext, OperationResult } from '@urql/core';
+import {
+  type AnyVariables,
+  Client,
+  type DocumentInput,
+  fetchExchange,
+  type OperationContext,
+  type OperationResult,
+} from '@urql/core';
 import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
 import {
@@ -7,11 +14,11 @@ import {
   ApiError,
   ApiFieldLevelValidationError,
   ClientApiError,
-  FieldError,
+  type FieldError,
 } from '@/services/api/api-errors.ts';
 import { updateApiToken, useAuth } from '@/services/api/auth.ts';
 import { graphql } from '@/services/api/gql';
-import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/graphql.ts';
+import { SaGrapQlErrorType, type ValidationErrorDetails } from '@/services/api/gql/graphql.ts';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
     mutation refreshAccessToken {

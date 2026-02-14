@@ -41,7 +41,7 @@ defineProps<{
   modelValue?: number;
 }>();
 
-const emit = defineEmits<{ (e: 'update:modelValue', value?: number): void }>();
+const emit = defineEmits<(e: 'update:modelValue', value?: number) => void>();
 
 // case required as Vue does not support generic slots/props
 const invoice = (entity: HasOptionalId) => entity as InvoiceDto;

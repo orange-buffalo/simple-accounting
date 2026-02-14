@@ -44,9 +44,9 @@ import SaInputLoader from '@/components/SaInputLoader.vue';
 import SaStatusLabel from '@/components/SaStatusLabel.vue';
 import {
   handleApiBusinessError,
-  UserActivationTokenDto,
-  UsersApiCreateUserErrors,
-  UsersApiUpdateUserErrors,
+  type UserActivationTokenDto,
+  type UsersApiCreateUserErrors,
+  type UsersApiUpdateUserErrors,
   userActivationTokensApi,
 } from '@/services/api';
 import { usersApi } from '@/services/api/api-client.ts';

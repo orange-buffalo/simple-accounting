@@ -62,8 +62,8 @@ import SaFormInput from '@/components/form/SaFormInput.vue';
 import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
 import SaStatusLabel from '@/components/SaStatusLabel.vue';
 import {
-  UserActivationRequestDto,
-  UserActivationTokensApiActivateUserErrors,
+  type UserActivationRequestDto,
+  type UserActivationTokensApiActivateUserErrors,
   userActivationTokensApi,
 } from '@/services/api';
 import { ApiBusinessError, ResourceNotFoundError } from '@/services/api/api-errors.ts';

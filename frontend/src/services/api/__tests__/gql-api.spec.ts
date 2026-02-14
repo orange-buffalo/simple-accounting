@@ -2,9 +2,9 @@ import fetchMock from 'fetch-mock';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import 'whatwg-fetch';
 import type { Auth } from '@/services/api';
-import { ApiAuthError, ApiBusinessError, ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
+import type { ApiAuthError, ApiBusinessError, ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
 import { SaGrapQlErrorType, ValidationErrorCode } from '@/services/api/gql/graphql.ts';
-import { GrapQlClient } from '@/services/api/gql-api-client.ts';
+import type { GrapQlClient } from '@/services/api/gql-api-client.ts';
 
 // eslint-disable-next-line vue/max-len
 const TOKEN =

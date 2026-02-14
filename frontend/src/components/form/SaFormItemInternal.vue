@@ -15,9 +15,9 @@
  * This is and internal component for form implementation. All form components should be wrapped in this component
  * in their implementation.
  */
-import { ElFormItem, FormItemContext } from 'element-plus';
+import { ElFormItem, type FormItemContext } from 'element-plus';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
-import { SaFormComponentProps } from '@/components/form/sa-form-api.ts';
+import type { SaFormComponentProps } from '@/components/form/sa-form-api.ts';
 import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
 import SaInputLoader from '@/components/SaInputLoader.vue';
 import { ensureDefined } from '@/services/utils.ts';

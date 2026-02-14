@@ -193,9 +193,7 @@ const onUserLogin = async () => {
   }
 };
 
-const emit = defineEmits<{
-  (e: 'login'): void;
-}>();
+const emit = defineEmits<(e: 'login') => void>();
 
 const { isLoggedIn, login, isAdmin } = useAuth();
 if (isLoggedIn()) {

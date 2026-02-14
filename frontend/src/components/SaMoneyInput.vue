@@ -27,14 +27,14 @@ const props = defineProps<{
   modelValue?: number;
   currency: string;
 }>();
-const emit = defineEmits<{ (e: 'update:modelValue', value?: number): void }>();
+const emit = defineEmits<(e: 'update:modelValue', value?: number) => void>();
 
 const currencyInfo = getCurrencyInfo(props.currency);
 const digitsMultiplier = 10 ** currencyInfo.digits;
 
 const inputEl = ref<HTMLElement | undefined>(undefined);
 // The library is not TS-friendly at all, we need to get rid of it
-// @ts-ignore
+// @ts-expect-error
 let mask: IMask.InputMask<IMask.AnyMaskedOptions> | undefined;
 
 const setMaskValue = () => {

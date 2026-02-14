@@ -14,18 +14,16 @@ const props = defineProps<{
 const slots = useSlots();
 
 const componentImpl = computed<Component>(() => {
-  const children = parseMessage(props.message)
-    .map((parsedToken) => {
-      if (parsedToken.type === 'content') {
-        return h('span', parsedToken.value);
-      }
-      const slot = slots[parsedToken.value];
-      if (!slot) {
-        throw new Error(`Cannot find slot ${parsedToken.value}`);
-      }
-      return slot();
-    })
-    .flat();
+  const children = parseMessage(props.message).flatMap((parsedToken) => {
+    if (parsedToken.type === 'content') {
+      return h('span', parsedToken.value);
+    }
+    const slot = slots[parsedToken.value];
+    if (!slot) {
+      throw new Error(`Cannot find slot ${parsedToken.value}`);
+    }
+    return slot();
+  });
   return () => children;
 });
 </script>

@@ -3,7 +3,7 @@ import { getCldr } from '@/services/i18n/cldr-data';
 export function fileSizeFormatter() {
   const byteFormatter = getCldr().unitFormatter('digital-byte', {
     form: 'short',
-    // @ts-ignore
+    // @ts-expect-error
     numberFormatter: getCldr().numberFormatter({
       maximumFractionDigits: 1,
     }),
@@ -11,7 +11,7 @@ export function fileSizeFormatter() {
 
   const kilobyteFormatter = getCldr().unitFormatter('digital-kilobyte', {
     form: 'short',
-    // @ts-ignore
+    // @ts-expect-error
     numberFormatter: getCldr().numberFormatter({
       maximumFractionDigits: 1,
     }),
@@ -19,7 +19,7 @@ export function fileSizeFormatter() {
 
   const megabyteFormatter = getCldr().unitFormatter('digital-megabyte', {
     form: 'short',
-    // @ts-ignore
+    // @ts-expect-error
     numberFormatter: getCldr().numberFormatter({
       maximumFractionDigits: 1,
     }),

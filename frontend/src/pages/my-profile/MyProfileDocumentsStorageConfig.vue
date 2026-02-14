@@ -21,8 +21,8 @@
 import { ref, watch } from 'vue';
 import SaForm from '@/components/form/SaForm.vue';
 import SaFormSwitchSection from '@/components/form/SaFormSwitchSection.vue';
-import { ProfileDto, profileApi } from '@/services/api';
-import { UserProfileQuery } from '@/services/api/gql/graphql.ts';
+import { type ProfileDto, profileApi } from '@/services/api';
+import type { UserProfileQuery } from '@/services/api/gql/graphql.ts';
 import { $t } from '@/services/i18n';
 
 const props = defineProps<{
@@ -32,9 +32,7 @@ const props = defineProps<{
   loading: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: 'profile-updated', profile: ProfileDto): void;
-}>();
+const emit = defineEmits<(e: 'profile-updated', profile: ProfileDto) => void>();
 
 type StorageConfigFormValues = {
   enabled: boolean;

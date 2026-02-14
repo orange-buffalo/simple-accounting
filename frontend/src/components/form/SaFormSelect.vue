@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
-import { SaFormComponentProps } from '@/components/form/sa-form-api';
+import type { SaFormComponentProps } from '@/components/form/sa-form-api';
 import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
 
 const inputValue = ref<unknown | null>();

@@ -50,8 +50,8 @@ import { ref, watch } from 'vue';
 import SaForm from '@/components/form/SaForm.vue';
 import SaFormSelect from '@/components/form/SaFormSelect.vue';
 import useNotifications from '@/components/notifications/use-notifications';
-import { ProfileDto, profileApi } from '@/services/api';
-import { UserProfileQuery } from '@/services/api/gql/graphql.ts';
+import { type ProfileDto, profileApi } from '@/services/api';
+import type { UserProfileQuery } from '@/services/api/gql/graphql.ts';
 import type { SupportedLanguage, SupportedLocale } from '@/services/i18n';
 import {
   $t,
@@ -67,9 +67,7 @@ const props = defineProps<{
   loading: boolean;
 }>();
 
-const emit = defineEmits<{
-  (e: 'profile-updated', profile: ProfileDto): void;
-}>();
+const emit = defineEmits<(e: 'profile-updated', profile: ProfileDto) => void>();
 
 const { showSuccessNotification } = useNotifications();
 
