@@ -17,12 +17,11 @@ updates:
           - "vue"
           - "vue-router"
           - "@vue/*"
-          - "vue-eslint-parser"
           - "vue-tsc"
-      # TypeScript ESLint project (same project/team)
-      typescript-eslint:
+      # Biome linter and formatter
+      biome:
         patterns:
-          - "@typescript-eslint/*"
+          - "@biomejs/*"
       # GraphQL Code Generator project (same organization)
       graphql-codegen:
         patterns:
