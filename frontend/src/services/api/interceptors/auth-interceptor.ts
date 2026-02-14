@@ -1,5 +1,5 @@
-import type { FetchParams, Middleware } from '@/services/api/generated';
 import { getAuthorizationHeader, tryAutoLogin } from '@/services/api/auth';
+import type { FetchParams, Middleware } from '@/services/api/generated';
 import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 
 export function applyAuthorization(init: RequestInit): RequestInit {
@@ -14,10 +14,7 @@ export function applyAuthorization(init: RequestInit): RequestInit {
 }
 
 export const authorizationTokenInterceptor: Middleware = {
-  async pre({
-    url,
-    init,
-  }): Promise<FetchParams | void> {
+  async pre({ url, init }): Promise<FetchParams | void> {
     return {
       url,
       init: applyAuthorization(init),
@@ -26,12 +23,7 @@ export const authorizationTokenInterceptor: Middleware = {
 };
 
 export const expiredTokenInterceptor: Middleware = {
-  async post({
-    response,
-    fetch,
-    init,
-    url,
-  }): Promise<Response | void> {
+  async post({ response, fetch, init, url }): Promise<Response | void> {
     if (response.status === 401) {
       if (await tryAutoLogin()) {
         return fetch(url, applyAuthorization(init));

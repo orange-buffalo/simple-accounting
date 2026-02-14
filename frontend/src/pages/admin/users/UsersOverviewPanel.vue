@@ -40,17 +40,18 @@
 </template>
 
 <script lang="ts" setup>
-  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
-  import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
-  import SaActionLink from '@/components/SaActionLink.vue';
-  import { $t } from '@/services/i18n';
-  import useNavigation from '@/services/use-navigation';
-  import type { PlatformUserDto } from '@/services/api';
+import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+import SaActionLink from '@/components/SaActionLink.vue';
+import type { PlatformUserDto } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
 
-  const props = defineProps<{ user: PlatformUserDto }>();
+const props = defineProps<{ user: PlatformUserDto }>();
 
-  const { navigateToView } = useNavigation();
-  const navigateToUserEdit = () => navigateToView({
+const { navigateToView } = useNavigation();
+const navigateToUserEdit = () =>
+  navigateToView({
     name: 'edit-user',
     params: { id: props.user.id },
   });

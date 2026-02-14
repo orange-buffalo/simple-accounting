@@ -19,14 +19,14 @@
 </template>
 
 <script setup lang="ts">
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
+import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
 
-  defineProps<{
-    modelValue?: string,
-    placeholder?: string,
-  }>();
+defineProps<{
+  modelValue?: string;
+  placeholder?: string;
+}>();
 
-  const emit = defineEmits<{(e: 'update:modelValue', value?: string): void }>();
+const emit = defineEmits<{ (e: 'update:modelValue', value?: string): void }>();
 </script>
 
 <style lang="scss">

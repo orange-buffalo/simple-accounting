@@ -155,124 +155,114 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
-  import SaMoneyInput from '@/components/SaMoneyInput.vue';
-  import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
-  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
-  import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import SaCategoryInput from '@/components/category/SaCategoryInput.vue';
-  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { $t } from '@/services/i18n';
-  import SaInvoiceSelect from '@/components/entity-select/SaInvoiceSelect.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { EditIncomeDto } from '@/services/api';
-  import { incomesApi, invoicesApi } from '@/services/api';
-  import type { PartialBy } from '@/services/utils';
-  import { ensureDefined } from '@/services/utils';
-  import { useFormWithDocumentsUpload } from '@/components/form/use-form';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+import { computed, ref } from 'vue';
+import SaCategoryInput from '@/components/category/SaCategoryInput.vue';
+import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
+import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
+import SaInvoiceSelect from '@/components/entity-select/SaInvoiceSelect.vue';
+import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
+import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
+import SaMoneyInput from '@/components/SaMoneyInput.vue';
+import type { EditIncomeDto } from '@/services/api';
+import { incomesApi, invoicesApi } from '@/services/api';
+import { formatDateToLocalISOString } from '@/services/date-utils';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import type { PartialBy } from '@/services/utils';
+import { ensureDefined } from '@/services/utils';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    id?: number,
-    sourceInvoiceId?: string,
-  }>();
+const props = defineProps<{
+  id?: number;
+  sourceInvoiceId?: string;
+}>();
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToIncomesOverview = async () => {
-    await navigateByViewName('incomes-overview');
-  };
+const { navigateByViewName } = useNavigation();
+const navigateToIncomesOverview = async () => {
+  await navigateByViewName('incomes-overview');
+};
 
-  const incomeValidationRules = {
-    currency: {
-      required: true,
-      message: $t.value.editIncome.validations.currency(),
-    },
-    title: {
-      required: true,
-      message: $t.value.editIncome.validations.title(),
-    },
-    dateReceived: {
-      required: true,
-      message: $t.value.editIncome.validations.dateReceived(),
-    },
-    originalAmount: {
-      required: true,
-      message: $t.value.editIncome.validations.originalAmount(),
-    },
-  };
+const incomeValidationRules = {
+  currency: {
+    required: true,
+    message: $t.value.editIncome.validations.currency(),
+  },
+  title: {
+    required: true,
+    message: $t.value.editIncome.validations.title(),
+  },
+  dateReceived: {
+    required: true,
+    message: $t.value.editIncome.validations.dateReceived(),
+  },
+  originalAmount: {
+    required: true,
+    message: $t.value.editIncome.validations.originalAmount(),
+  },
+};
 
-  const {
-    defaultCurrency,
-    currentWorkspaceId,
-  } = useCurrentWorkspace();
+const { defaultCurrency, currentWorkspaceId } = useCurrentWorkspace();
 
-  type IncomeFormValues = PartialBy<EditIncomeDto, 'title' | 'originalAmount'> & {
-    attachments: Array<number>,
-  };
+type IncomeFormValues = PartialBy<EditIncomeDto, 'title' | 'originalAmount'> & {
+  attachments: Array<number>;
+};
 
-  const income = ref<IncomeFormValues>({
-    attachments: [],
-    dateReceived: formatDateToLocalISOString(new Date()),
-    currency: defaultCurrency,
-    useDifferentExchangeRateForIncomeTaxPurposes: false,
-    linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
-  });
+const income = ref<IncomeFormValues>({
+  attachments: [],
+  dateReceived: formatDateToLocalISOString(new Date()),
+  currency: defaultCurrency,
+  useDifferentExchangeRateForIncomeTaxPurposes: false,
+  linkedInvoice: props.sourceInvoiceId ? Number(props.sourceInvoiceId) : undefined,
+});
 
-  const loadIncome = async () => {
-    if (props.id !== undefined) {
-      const loadedIncome = await incomesApi.getIncome({
-        incomeId: props.id,
-        workspaceId: currentWorkspaceId,
-      });
-      income.value = {
-        ...loadedIncome,
-        convertedAmountInDefaultCurrency: loadedIncome.convertedAmounts.originalAmountInDefaultCurrency,
-        incomeTaxableAmountInDefaultCurrency: loadedIncome.incomeTaxableAmounts.originalAmountInDefaultCurrency,
-      };
-    } else if (props.sourceInvoiceId !== undefined) {
-      const sourceInvoice = await invoicesApi.getInvoice({
-        invoiceId: Number(props.sourceInvoiceId),
-        workspaceId: currentWorkspaceId,
-      });
-      income.value.title = $t.value.editIncome.fromInvoice.title(sourceInvoice.title);
-      income.value.currency = sourceInvoice.currency;
-      income.value.originalAmount = sourceInvoice.amount;
-      income.value.generalTax = sourceInvoice.generalTax;
-    }
-  };
-
-  const saveIncome = async () => {
-    const request: EditIncomeDto = {
-      ...(income.value as EditIncomeDto),
+const loadIncome = async () => {
+  if (props.id !== undefined) {
+    const loadedIncome = await incomesApi.getIncome({
+      incomeId: props.id,
+      workspaceId: currentWorkspaceId,
+    });
+    income.value = {
+      ...loadedIncome,
+      convertedAmountInDefaultCurrency: loadedIncome.convertedAmounts.originalAmountInDefaultCurrency,
+      incomeTaxableAmountInDefaultCurrency: loadedIncome.incomeTaxableAmounts.originalAmountInDefaultCurrency,
     };
-    if (props.id) {
-      await incomesApi.updateIncome({
-        workspaceId: currentWorkspaceId,
-        editIncomeDto: request,
-        incomeId: ensureDefined(props.id),
-      });
-    } else {
-      await incomesApi.createIncome({
-        workspaceId: currentWorkspaceId,
-        editIncomeDto: request,
-      });
-    }
-    await navigateToIncomesOverview();
+  } else if (props.sourceInvoiceId !== undefined) {
+    const sourceInvoice = await invoicesApi.getInvoice({
+      invoiceId: Number(props.sourceInvoiceId),
+      workspaceId: currentWorkspaceId,
+    });
+    income.value.title = $t.value.editIncome.fromInvoice.title(sourceInvoice.title);
+    income.value.currency = sourceInvoice.currency;
+    income.value.originalAmount = sourceInvoice.amount;
+    income.value.generalTax = sourceInvoice.generalTax;
+  }
+};
+
+const saveIncome = async () => {
+  const request: EditIncomeDto = {
+    ...(income.value as EditIncomeDto),
   };
+  if (props.id) {
+    await incomesApi.updateIncome({
+      workspaceId: currentWorkspaceId,
+      editIncomeDto: request,
+      incomeId: ensureDefined(props.id),
+    });
+  } else {
+    await incomesApi.createIncome({
+      workspaceId: currentWorkspaceId,
+      editIncomeDto: request,
+    });
+  }
+  await navigateToIncomesOverview();
+};
 
-  const {
-    formRef,
-    submitForm,
-    documentsUploadRef,
-    onDocumentsUploadComplete,
-    onDocumentsUploadFailure,
-  } = useFormWithDocumentsUpload(loadIncome, saveIncome);
+const { formRef, submitForm, documentsUploadRef, onDocumentsUploadComplete, onDocumentsUploadFailure } =
+  useFormWithDocumentsUpload(loadIncome, saveIncome);
 
-  const isInForeignCurrency = computed(() => income.value.currency !== defaultCurrency);
+const isInForeignCurrency = computed(() => income.value.currency !== defaultCurrency);
 
-  const pageHeader = props.id
-    ? $t.value.editIncome.pageHeader.edit()
-    : $t.value.editIncome.pageHeader.create();
+const pageHeader = props.id ? $t.value.editIncome.pageHeader.edit() : $t.value.editIncome.pageHeader.create();
 </script>

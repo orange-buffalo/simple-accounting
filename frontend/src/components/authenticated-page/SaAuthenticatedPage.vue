@@ -21,9 +21,8 @@
 </template>
 
 <script lang="ts" setup>
-  import SaSideMenu from '@/components/side-menu/SaSideMenu.vue';
-  import SaAuthenticatedPageLoadingProgress
-    from '@/components/authenticated-page/SaAuthenticatedPageLoadingProgress.vue';
+import SaAuthenticatedPageLoadingProgress from '@/components/authenticated-page/SaAuthenticatedPageLoadingProgress.vue';
+import SaSideMenu from '@/components/side-menu/SaSideMenu.vue';
 </script>
 
 <style lang="scss">

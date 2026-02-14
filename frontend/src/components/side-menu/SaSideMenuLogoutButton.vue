@@ -8,16 +8,16 @@
 </template>
 
 <script setup lang="ts">
-  import { useRouter } from 'vue-router';
-  import { $t } from '@/services/i18n';
-  import SaIcon from '@/components/SaIcon.vue';
-  import { useAuth } from '@/services/api';
+import { useRouter } from 'vue-router';
+import SaIcon from '@/components/SaIcon.vue';
+import { useAuth } from '@/services/api';
+import { $t } from '@/services/i18n';
 
-  const router = useRouter();
+const router = useRouter();
 
-  const { logout } = useAuth();
-  const doLogout = async () => {
-    await logout();
-    await router.push('/login');
-  };
+const { logout } = useAuth();
+const doLogout = async () => {
+  await logout();
+  await router.push('/login');
+};
 </script>

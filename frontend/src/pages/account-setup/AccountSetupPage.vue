@@ -24,26 +24,26 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import { $t } from '@/services/i18n';
-  import { CreateWorkspaceDto, workspacesApi } from '@/services/api';
-  import useNavigation from '@/services/use-navigation';
-  import SaPageWithoutSideMenu from '@/components/page-without-side-menu/SaPageWithoutSideMenu.vue';
-  import SaFormInput from '@/components/form/SaFormInput.vue';
-  import SaForm from '@/components/form/SaForm.vue';
-  import { useWorkspaces } from '@/services/workspaces.ts';
+import { ref } from 'vue';
+import SaForm from '@/components/form/SaForm.vue';
+import SaFormInput from '@/components/form/SaFormInput.vue';
+import SaPageWithoutSideMenu from '@/components/page-without-side-menu/SaPageWithoutSideMenu.vue';
+import { CreateWorkspaceDto, workspacesApi } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { useWorkspaces } from '@/services/workspaces.ts';
 
-  const form = ref<CreateWorkspaceDto>({
-    name: '',
-    defaultCurrency: 'AUD',
+const form = ref<CreateWorkspaceDto>({
+  name: '',
+  defaultCurrency: 'AUD',
+});
+
+const navigation = useNavigation();
+const save = async () => {
+  await workspacesApi.createWorkspace({
+    createWorkspaceDto: form.value,
   });
-
-  const navigation = useNavigation();
-  const save = async () => {
-    await workspacesApi.createWorkspace({
-      createWorkspaceDto: form.value,
-    });
-    await useWorkspaces().loadWorkspaces();
-    await navigation.navigateByPath('/');
-  };
+  await useWorkspaces().loadWorkspaces();
+  await navigation.navigateByPath('/');
+};
 </script>

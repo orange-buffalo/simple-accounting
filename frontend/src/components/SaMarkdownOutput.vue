@@ -15,32 +15,35 @@
 </template>
 
 <script lang="ts" setup>
-  import DOMPurify from 'dompurify';
-  import { marked } from 'marked';
-  import { debounce } from 'lodash';
-  import { computed, ref, watch } from 'vue';
+import DOMPurify from 'dompurify';
+import { debounce } from 'lodash';
+import { marked } from 'marked';
+import { computed, ref, watch } from 'vue';
 
-  function renderMarkdown(source?: string) {
-    return source ? DOMPurify.sanitize(marked.parse(source) as string) : '';
-  }
+function renderMarkdown(source?: string) {
+  return source ? DOMPurify.sanitize(marked.parse(source) as string) : '';
+}
 
-  const props = withDefaults(defineProps<{
-    source?: string,
+const props = withDefaults(
+  defineProps<{
+    source?: string;
     preview?: boolean;
-  }>(), {
+  }>(),
+  {
     preview: false,
-  });
+  },
+);
 
-  const renderedMarkdown = ref<string | undefined>();
-  const updateMarkdown = debounce(() => {
-    renderedMarkdown.value = renderMarkdown(props.source);
-  }, 300);
+const renderedMarkdown = ref<string | undefined>();
+const updateMarkdown = debounce(() => {
+  renderedMarkdown.value = renderMarkdown(props.source);
+}, 300);
 
-  const panelClass = computed(() => ({
-    'markdown-output_preview': props.preview,
-  }));
+const panelClass = computed(() => ({
+  'markdown-output_preview': props.preview,
+}));
 
-  watch(() => props.source, updateMarkdown, { immediate: true });
+watch(() => props.source, updateMarkdown, { immediate: true });
 </script>
 
 <style lang="scss">

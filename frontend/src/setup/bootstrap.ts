@@ -1,39 +1,30 @@
-import { removeLoader } from '@/setup/loader';
-import { ANONYMOUS_PAGES_PATH_PREFIXES } from '@/setup/setup-router.ts';
 import { profileApi, useAuth } from '@/services/api';
 import { initWorkspace } from '@/services/workspaces.ts';
+import { removeLoader } from '@/setup/loader';
+import { ANONYMOUS_PAGES_PATH_PREFIXES } from '@/setup/setup-router.ts';
 
 export async function bootstrapApp() {
   const { tryAutoLogin } = useAuth();
   const targetRoute = window.location.pathname;
 
-  const {
-    setupApp,
-    mountApp,
-    setLocaleFromBrowser,
-    setLocaleFromProfile,
-    router,
-  } = await import('@/setup/setup-app');
+  const { setupApp, mountApp, setLocaleFromBrowser, setLocaleFromProfile, router } = await import('@/setup/setup-app');
 
   setupApp();
 
-  const isAnonymousPage = ANONYMOUS_PAGES_PATH_PREFIXES
-    .some((prefix) => targetRoute.startsWith(prefix));
+  const isAnonymousPage = ANONYMOUS_PAGES_PATH_PREFIXES.some((prefix) => targetRoute.startsWith(prefix));
   // todo #117: remove from the list of explicit checks
   if (targetRoute.includes('login-by-link') || isAnonymousPage) {
     await setLocaleFromBrowser();
 
     if (router().currentRoute.value.path !== targetRoute) {
-      await router()
-        .push(targetRoute);
+      await router().push(targetRoute);
     }
   } else if (await tryAutoLogin()) {
     const profile = await profileApi.getProfile();
     await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
 
     if (router().currentRoute.value.path !== targetRoute) {
-      await router()
-        .push(targetRoute);
+      await router().push(targetRoute);
     }
 
     await initWorkspace();
@@ -41,8 +32,7 @@ export async function bootstrapApp() {
     await setLocaleFromBrowser();
 
     if (router().currentRoute.value.path !== '/login') {
-      await router()
-        .push({ name: 'login' });
+      await router().push({ name: 'login' });
     }
   }
 

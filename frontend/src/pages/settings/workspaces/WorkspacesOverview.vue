@@ -40,32 +40,32 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { WorkspaceDto } from '@/services/api';
-  import { workspacesApi } from '@/services/api';
-  import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';
+import { computed, ref } from 'vue';
+import SaIcon from '@/components/SaIcon.vue';
+import WorkspacesOverviewItemPanel from '@/pages/settings/workspaces/WorkspacesOverviewItemPanel.vue';
+import type { WorkspaceDto } from '@/services/api';
+import { workspacesApi } from '@/services/api';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const sharedWorkspaces = ref<WorkspaceDto[]>([]);
-  const loadSharedWorkspaces = async () => {
-    sharedWorkspaces.value = await workspacesApi.getSharedWorkspaces();
-  };
-  loadSharedWorkspaces();
+const sharedWorkspaces = ref<WorkspaceDto[]>([]);
+const loadSharedWorkspaces = async () => {
+  sharedWorkspaces.value = await workspacesApi.getSharedWorkspaces();
+};
+loadSharedWorkspaces();
 
-  const workspaces = ref<WorkspaceDto[]>([]);
-  const loadWorkspaces = async () => {
-    workspaces.value = await workspacesApi.getWorkspaces();
-  };
-  loadWorkspaces();
+const workspaces = ref<WorkspaceDto[]>([]);
+const loadWorkspaces = async () => {
+  workspaces.value = await workspacesApi.getWorkspaces();
+};
+loadWorkspaces();
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateWorkspace = () => navigateByViewName('create-new-workspace');
+const { navigateByViewName } = useNavigation();
+const navigateToCreateWorkspace = () => navigateByViewName('create-new-workspace');
 
-  const hasSharedWorkspaces = computed(() => sharedWorkspaces.value.length);
+const hasSharedWorkspaces = computed(() => sharedWorkspaces.value.length);
 
-  const { currentWorkspace } = useCurrentWorkspace();
-  const ownOtherWorkspaces = computed(() => workspaces.value.filter((it) => it.id !== currentWorkspace.id));
-  const hasOtherOwnWorkspaces = computed(() => ownOtherWorkspaces.value.length);
+const { currentWorkspace } = useCurrentWorkspace();
+const ownOtherWorkspaces = computed(() => workspaces.value.filter((it) => it.id !== currentWorkspace.id));
+const hasOtherOwnWorkspaces = computed(() => ownOtherWorkspaces.value.length);
 </script>

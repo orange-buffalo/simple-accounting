@@ -88,34 +88,31 @@
 </template>
 
 <script lang="ts" setup>
-  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
-  import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
-  import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
-  import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
-  import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
-  import SaOverviewItemDetailsSectionAttribute
-    from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
-  import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
-  import SaActionLink from '@/components/SaActionLink.vue';
-  import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
-  import type { IncomeTaxPaymentDto } from '@/services/api';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import { $t } from '@/services/i18n';
+import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
+import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
+import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
+import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
+import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
+import SaOverviewItemDetailsSectionAttribute from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
+import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+import SaActionLink from '@/components/SaActionLink.vue';
+import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
+import type { IncomeTaxPaymentDto } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    taxPayment: IncomeTaxPaymentDto,
-  }>();
+const props = defineProps<{
+  taxPayment: IncomeTaxPaymentDto;
+}>();
 
-  const { navigateToView } = useNavigation();
-  const navigateToTaxPaymentEdit = () => navigateToView({
+const { navigateToView } = useNavigation();
+const navigateToTaxPaymentEdit = () =>
+  navigateToView({
     name: 'edit-income-tax-payment',
     params: { id: props.taxPayment.id },
   });
 
-  const {
-    currentWorkspace,
-    defaultCurrency,
-  } = useCurrentWorkspace();
+const { currentWorkspace, defaultCurrency } = useCurrentWorkspace();
 </script>

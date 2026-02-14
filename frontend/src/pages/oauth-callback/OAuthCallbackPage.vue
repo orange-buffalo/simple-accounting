@@ -31,47 +31,46 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import LogoLogin from '@/assets/logo-login.svg?component';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import { oAuth2CallbackApi } from '@/services/api';
-  import type { ErrorResponse } from '@/services/api';
-  import { ApiBusinessError } from '@/services/api/api-errors.ts';
+import { ref } from 'vue';
+import LogoLogin from '@/assets/logo-login.svg?component';
+import SaStatusLabel from '@/components/SaStatusLabel.vue';
+import type { ErrorResponse } from '@/services/api';
+import { oAuth2CallbackApi } from '@/services/api';
+import { ApiBusinessError } from '@/services/api/api-errors.ts';
 
-  const loading = ref(true);
-  const errorId = ref<string | undefined>();
-  const success = ref(false);
+const loading = ref(true);
+const errorId = ref<string | undefined>();
+const success = ref(false);
 
-  async function executeCallback() {
-    const params = new URLSearchParams(window.location.search);
+async function executeCallback() {
+  const params = new URLSearchParams(window.location.search);
 
-    const code: string | undefined = params.get('code') || undefined;
-    const error: string | undefined = params.get('error') || undefined;
-    const state: string | undefined = params.get('state') || '';
-    try {
-      await oAuth2CallbackApi.authCallback({
-        oAuth2AuthorizationCallbackRequest: {
-          code,
-          error,
-          state,
-        },
-      });
-      success.value = true;
-    } catch (e: unknown) {
-      if (e instanceof ApiBusinessError) {
-        // TODO #1209: proper typing here, use e.errorAs
-        const body = e.error as unknown as ErrorResponse;
-        errorId.value = body.errorId;
-      } else {
-        throw e;
-      }
-    } finally {
-      loading.value = false;
+  const code: string | undefined = params.get('code') || undefined;
+  const error: string | undefined = params.get('error') || undefined;
+  const state: string | undefined = params.get('state') || '';
+  try {
+    await oAuth2CallbackApi.authCallback({
+      oAuth2AuthorizationCallbackRequest: {
+        code,
+        error,
+        state,
+      },
+    });
+    success.value = true;
+  } catch (e: unknown) {
+    if (e instanceof ApiBusinessError) {
+      // TODO #1209: proper typing here, use e.errorAs
+      const body = e.error as unknown as ErrorResponse;
+      errorId.value = body.errorId;
+    } else {
+      throw e;
     }
+  } finally {
+    loading.value = false;
   }
+}
 
-  executeCallback();
-
+executeCallback();
 </script>
 
 <style lang="scss">

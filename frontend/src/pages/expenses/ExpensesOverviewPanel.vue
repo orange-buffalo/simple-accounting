@@ -258,82 +258,82 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
-  import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
-  import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
-  import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
-  import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
-  import SaOverviewItemDetailsSectionAttribute
-    from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
-  import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
-  import SaActionLink from '@/components/SaActionLink.vue';
-  import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
-  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
-  import type { ExpenseDto } from '@/services/api';
-  import { $t } from '@/services/i18n';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import useNavigation from '@/services/use-navigation';
+import { computed } from 'vue';
+import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
+import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
+import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
+import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
+import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
+import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
+import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
+import SaOverviewItemDetailsSectionAttribute from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
+import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+import SaActionLink from '@/components/SaActionLink.vue';
+import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import SaStatusLabel from '@/components/SaStatusLabel.vue';
+import type { ExpenseDto } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    expense: ExpenseDto
-  }>();
+const props = defineProps<{
+  expense: ExpenseDto;
+}>();
 
-  const {
-    defaultCurrency,
-    currentWorkspace,
-  } = useCurrentWorkspace();
-  const { navigateToView } = useNavigation();
+const { defaultCurrency, currentWorkspace } = useCurrentWorkspace();
+const { navigateToView } = useNavigation();
 
-  const status = computed(() => (props.expense.status === 'FINALIZED' ? 'success' : 'pending'));
+const status = computed(() => (props.expense.status === 'FINALIZED' ? 'success' : 'pending'));
 
-  const shortStatusText = computed(() => (props.expense.status === 'FINALIZED'
+const shortStatusText = computed(() =>
+  props.expense.status === 'FINALIZED'
     ? $t.value.expensesOverviewPanel.status.short.finalized()
-    : $t.value.expensesOverviewPanel.status.short.pending()));
+    : $t.value.expensesOverviewPanel.status.short.pending(),
+);
 
-  const fullStatusText = computed(() => {
-    if (props.expense.status === 'FINALIZED') {
-      return $t.value.expensesOverviewPanel.status.full.finalized();
-    }
-    if (props.expense.status === 'PENDING_CONVERSION') {
-      return $t.value.expensesOverviewPanel.status.full.pendingConversion(defaultCurrency);
-    }
-    return $t.value.expensesOverviewPanel.status.full.waitingExchangeRate();
-  });
+const fullStatusText = computed(() => {
+  if (props.expense.status === 'FINALIZED') {
+    return $t.value.expensesOverviewPanel.status.full.finalized();
+  }
+  if (props.expense.status === 'PENDING_CONVERSION') {
+    return $t.value.expensesOverviewPanel.status.full.pendingConversion(defaultCurrency);
+  }
+  return $t.value.expensesOverviewPanel.status.full.waitingExchangeRate();
+});
 
-  const totalAmount = computed(() => {
-    if (props.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
-      return {
-        value: props.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
-        currency: defaultCurrency,
-      };
-    }
-    if (props.expense.convertedAmounts.adjustedAmountInDefaultCurrency) {
-      return {
-        value: props.expense.convertedAmounts.adjustedAmountInDefaultCurrency,
-        currency: defaultCurrency,
-      };
-    }
+const totalAmount = computed(() => {
+  if (props.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
     return {
-      value: props.expense.originalAmount,
-      currency: props.expense.currency,
+      value: props.expense.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
+      currency: defaultCurrency,
     };
-  });
+  }
+  if (props.expense.convertedAmounts.adjustedAmountInDefaultCurrency) {
+    return {
+      value: props.expense.convertedAmounts.adjustedAmountInDefaultCurrency,
+      currency: defaultCurrency,
+    };
+  }
+  return {
+    value: props.expense.originalAmount,
+    currency: props.expense.currency,
+  };
+});
 
-  const isForeignCurrency = computed(() => (props.expense.currency !== defaultCurrency));
+const isForeignCurrency = computed(() => props.expense.currency !== defaultCurrency);
 
-  const isGeneralTaxApplicable = computed(() => (props.expense.generalTax != null));
+const isGeneralTaxApplicable = computed(() => props.expense.generalTax != null);
 
-  const navigateToExpenseEdit = () => navigateToView({
+const navigateToExpenseEdit = () =>
+  navigateToView({
     name: 'edit-expense',
     params: { id: props.expense.id },
   });
 
-  const navigateToExpenseCreateWithPrototype = () => navigateToView({
+const navigateToExpenseCreateWithPrototype = () =>
+  navigateToView({
     name: 'create-new-expense',
     params: { prototype: props.expense.id },
   });

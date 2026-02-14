@@ -18,21 +18,19 @@
 </template>
 
 <script lang="ts" setup>
-  /// <reference types="vite-svg-loader" />
-  import SaSideMenuLink from '@/components/side-menu/SaSideMenuLink.vue';
-  import SaSideMenuLogoutButton from '@/components/side-menu/SaSideMenuLogoutButton.vue';
-  import MenuLogo from '@/assets/logo-menu.svg?component';
-  import { useAuth } from '@/services/api';
-  import { $t } from '@/services/i18n';
-  import SaSideMenuUser from '@/components/side-menu/SaSideMenuUser.vue';
-  import SaSideMenuAdmin from '@/components/side-menu/SaSideMenuAdmin.vue';
+/// <reference types="vite-svg-loader" />
 
-  const {
-    isAdmin,
-    isCurrentUserRegular,
-  } = useAuth();
+import MenuLogo from '@/assets/logo-menu.svg?component';
+import SaSideMenuAdmin from '@/components/side-menu/SaSideMenuAdmin.vue';
+import SaSideMenuLink from '@/components/side-menu/SaSideMenuLink.vue';
+import SaSideMenuLogoutButton from '@/components/side-menu/SaSideMenuLogoutButton.vue';
+import SaSideMenuUser from '@/components/side-menu/SaSideMenuUser.vue';
+import { useAuth } from '@/services/api';
+import { $t } from '@/services/i18n';
 
-  const isUser = !isAdmin();
+const { isAdmin, isCurrentUserRegular } = useAuth();
+
+const isUser = !isAdmin();
 </script>
 
 <style lang="scss">

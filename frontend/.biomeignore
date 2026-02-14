@@ -1,0 +1,10 @@
+# Generated files  
+src/services/api/generated/
+components.d.ts
+
+# Build output
+dist/
+build/
+
+# Dependencies
+node_modules/

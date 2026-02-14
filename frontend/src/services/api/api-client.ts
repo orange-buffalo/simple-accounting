@@ -1,30 +1,30 @@
 import qs from 'qs';
+import type { ConfigurationParameters } from '@/services/api/generated';
 import {
   AuthenticationApiApi,
-  Configuration,
-  ProfileApiApi,
-  WorkspacesApiApi,
-  CustomersApiApi,
   CategoriesApiApi,
-  StatisticsApiApi,
-  InvoicesApiApi,
-  GeneralTaxesApiApi,
+  Configuration,
+  CustomersApiApi,
   DocumentsApiApi,
-  GoogleDriveStorageApiApi,
-  OAuth2CallbackApiApi,
   ExpensesApiApi,
+  GeneralTaxesApiApi,
+  GoogleDriveStorageApiApi,
   IncomesApiApi,
   IncomeTaxPaymentsApiApi,
+  InvoicesApiApi,
+  OAuth2CallbackApiApi,
+  ProfileApiApi,
   ReportingApiApi,
-  WorkspaceAccessTokensApiApi,
-  UsersApiApi,
+  StatisticsApiApi,
   UserActivationTokensApiApi,
+  UsersApiApi,
+  WorkspaceAccessTokensApiApi,
+  WorkspacesApiApi,
 } from '@/services/api/generated';
-import type { ConfigurationParameters } from '@/services/api/generated';
-import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
-import { loadingEventsInterceptor } from '@/services/api/interceptors/loading-interceptor';
 import { authorizationTokenInterceptor, expiredTokenInterceptor } from '@/services/api/interceptors/auth-interceptor';
 import { errorHandlingInterceptor } from '@/services/api/interceptors/error-handling-interceptor';
+import { loadingEventsInterceptor } from '@/services/api/interceptors/loading-interceptor';
+import { requestTimeoutInterceptor } from '@/services/api/interceptors/timeout-interceptor';
 
 const defaultConfigParameters: ConfigurationParameters = {
   basePath: '',
@@ -39,15 +39,17 @@ const defaultConfigParameters: ConfigurationParameters = {
 };
 const defaultConfig = new Configuration(defaultConfigParameters);
 
-export const authApi = new AuthenticationApiApi(new Configuration({
-  ...defaultConfigParameters,
-  middleware: [
-    requestTimeoutInterceptor,
-    loadingEventsInterceptor,
-    authorizationTokenInterceptor,
-    errorHandlingInterceptor,
-  ],
-}));
+export const authApi = new AuthenticationApiApi(
+  new Configuration({
+    ...defaultConfigParameters,
+    middleware: [
+      requestTimeoutInterceptor,
+      loadingEventsInterceptor,
+      authorizationTokenInterceptor,
+      errorHandlingInterceptor,
+    ],
+  }),
+);
 
 export const workspacesApi = new WorkspacesApiApi(defaultConfig);
 export const profileApi = new ProfileApiApi(defaultConfig);

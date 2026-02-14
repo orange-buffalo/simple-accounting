@@ -105,94 +105,86 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import { $t } from '@/services/i18n';
-  import SaMoneyInput from '@/components/SaMoneyInput.vue';
-  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
-  import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { EditIncomeTaxPaymentDto } from '@/services/api';
-  import type { PartialBy } from '@/services/utils';
-  import { useFormWithDocumentsUpload } from '@/components/form/use-form';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
-  import { incomeTaxPaymentsApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
+import { ref } from 'vue';
+import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
+import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
+import SaMoneyInput from '@/components/SaMoneyInput.vue';
+import type { EditIncomeTaxPaymentDto } from '@/services/api';
+import { incomeTaxPaymentsApi } from '@/services/api';
+import { formatDateToLocalISOString } from '@/services/date-utils';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import type { PartialBy } from '@/services/utils';
+import { ensureDefined } from '@/services/utils';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    id?: number,
-  }>();
+const props = defineProps<{
+  id?: number;
+}>();
 
-  const taxPaymentValidationRules = {
-    title: {
-      required: true,
-      message: $t.value.editIncomeTaxPayment.validations.title(),
-    },
-    datePaid: {
-      required: true,
-      message: $t.value.editIncomeTaxPayment.validations.datePaid(),
-    },
-    amount: {
-      required: true,
-      message: $t.value.editIncomeTaxPayment.validations.amount(),
-    },
+const taxPaymentValidationRules = {
+  title: {
+    required: true,
+    message: $t.value.editIncomeTaxPayment.validations.title(),
+  },
+  datePaid: {
+    required: true,
+    message: $t.value.editIncomeTaxPayment.validations.datePaid(),
+  },
+  amount: {
+    required: true,
+    message: $t.value.editIncomeTaxPayment.validations.amount(),
+  },
+};
+
+const { navigateByViewName } = useNavigation();
+const navigateToTaxPaymentsOverview = async () => navigateByViewName('income-tax-payments-overview');
+
+const { defaultCurrency, currentWorkspaceId } = useCurrentWorkspace();
+
+type TaxPaymentFormValues = PartialBy<EditIncomeTaxPaymentDto, 'amount' | 'title'> & {
+  attachments: Array<number>;
+};
+
+const taxPayment = ref<TaxPaymentFormValues>({
+  datePaid: formatDateToLocalISOString(new Date()),
+  attachments: [],
+});
+
+const loadTaxPayment = async () => {
+  if (props.id !== undefined) {
+    taxPayment.value = await incomeTaxPaymentsApi.getTaxPayment({
+      taxPaymentId: props.id,
+      workspaceId: currentWorkspaceId,
+    });
+  }
+};
+
+const saveTaxPayment = async () => {
+  const request: EditIncomeTaxPaymentDto = {
+    ...(taxPayment.value as EditIncomeTaxPaymentDto),
   };
+  if (props.id) {
+    await incomeTaxPaymentsApi.updateTaxPayment({
+      workspaceId: currentWorkspaceId,
+      editIncomeTaxPaymentDto: request,
+      taxPaymentId: ensureDefined(props.id),
+    });
+  } else {
+    await incomeTaxPaymentsApi.createTaxPayment({
+      workspaceId: currentWorkspaceId,
+      editIncomeTaxPaymentDto: request,
+    });
+  }
+  await navigateToTaxPaymentsOverview();
+};
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToTaxPaymentsOverview = async () => navigateByViewName('income-tax-payments-overview');
+const { formRef, submitForm, documentsUploadRef, onDocumentsUploadComplete, onDocumentsUploadFailure } =
+  useFormWithDocumentsUpload(loadTaxPayment, saveTaxPayment);
 
-  const {
-    defaultCurrency,
-    currentWorkspaceId,
-  } = useCurrentWorkspace();
-
-  type TaxPaymentFormValues = PartialBy<EditIncomeTaxPaymentDto, 'amount' | 'title'> & {
-    attachments: Array<number>,
-  };
-
-  const taxPayment = ref<TaxPaymentFormValues>({
-    datePaid: formatDateToLocalISOString(new Date()),
-    attachments: [],
-  });
-
-  const loadTaxPayment = async () => {
-    if (props.id !== undefined) {
-      taxPayment.value = await incomeTaxPaymentsApi.getTaxPayment({
-        taxPaymentId: props.id,
-        workspaceId: currentWorkspaceId,
-      });
-    }
-  };
-
-  const saveTaxPayment = async () => {
-    const request: EditIncomeTaxPaymentDto = {
-      ...(taxPayment.value as EditIncomeTaxPaymentDto),
-    };
-    if (props.id) {
-      await incomeTaxPaymentsApi.updateTaxPayment({
-        workspaceId: currentWorkspaceId,
-        editIncomeTaxPaymentDto: request,
-        taxPaymentId: ensureDefined(props.id),
-      });
-    } else {
-      await incomeTaxPaymentsApi.createTaxPayment({
-        workspaceId: currentWorkspaceId,
-        editIncomeTaxPaymentDto: request,
-      });
-    }
-    await navigateToTaxPaymentsOverview();
-  };
-
-  const {
-    formRef,
-    submitForm,
-    documentsUploadRef,
-    onDocumentsUploadComplete,
-    onDocumentsUploadFailure,
-  } = useFormWithDocumentsUpload(loadTaxPayment, saveTaxPayment);
-
-  const pageHeader = props.id
-    ? $t.value.editIncomeTaxPayment.header.edit()
-    : $t.value.editIncomeTaxPayment.header.create();
+const pageHeader = props.id
+  ? $t.value.editIncomeTaxPayment.header.edit()
+  : $t.value.editIncomeTaxPayment.header.create();
 </script>

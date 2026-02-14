@@ -10,10 +10,13 @@ export default {
       medium: (dateTime?: Date | string) => format('{0, saDateTime, medium}', [dateTime]),
     },
     amount: {
-      withCurrency: (amountInCents: number, currency: string) => format('{0, amount, withCurrency}', [{
-        currency,
-        amountInCents,
-      }]),
+      withCurrency: (amountInCents: number, currency: string) =>
+        format('{0, amount, withCurrency}', [
+          {
+            currency,
+            amountInCents,
+          },
+        ]),
     },
     yesNo: {
       yes: () => 'Yes',
@@ -39,8 +42,10 @@ export default {
     loginError: {
       underAttack: () => 'Looks like your account is under attack!',
       generalFailure: () => 'Login attempt failed. Please make sure login and password is correct',
-      accountLocked: (lockDurationInSec: number) => format('Account is temporary locked. It will be unlocked in {0, duration}', [lockDurationInSec]),
-      userNotActivated: () => 'Your account is not yet activated. Please use the token shared with you by the administrators. Contact them if you need to reset the token',
+      accountLocked: (lockDurationInSec: number) =>
+        format('Account is temporary locked. It will be unlocked in {0, duration}', [lockDurationInSec]),
+      userNotActivated: () =>
+        'Your account is not yet activated. Please use the token shared with you by the administrators. Contact them if you need to reset the token',
     },
   },
 
@@ -723,10 +728,7 @@ export default {
       recent: () => 'Recently Used Currencies',
       all: () => 'All Currencies',
     },
-    currencyLabel: ({
-      code,
-      displayName,
-    }: { code: string, displayName: string }) => `${code} - ${displayName}`,
+    currencyLabel: ({ code, displayName }: { code: string; displayName: string }) => `${code} - ${displayName}`,
   },
 
   el: {
@@ -851,7 +853,8 @@ export default {
   },
 
   errorHandler: {
-    fatalErrorMessage: () => 'We encountered a technical error. Please consider reporting the problem and refresh the page to try again.',
+    fatalErrorMessage: () =>
+      'We encountered a technical error. Please consider reporting the problem and refresh the page to try again.',
   },
 
   saBasicErrorMessage: {
@@ -894,20 +897,26 @@ export default {
   },
 
   formValidationMessages: {
-    sizeMinMax: (min: number, max: number) => format('The length of this value should be not shorter than {min, number} and no longer than {max, number} characters', {
-      min,
-      max,
-    }),
-    sizeMax: (max: number) => format('The length of this value should be no longer than {max, number} characters', {
-      max,
-    }),
+    sizeMinMax: (min: number, max: number) =>
+      format(
+        'The length of this value should be not shorter than {min, number} and no longer than {max, number} characters',
+        {
+          min,
+          max,
+        },
+      ),
+    sizeMax: (max: number) =>
+      format('The length of this value should be no longer than {max, number} characters', {
+        max,
+      }),
     notBlank: () => 'This value is required and should not be blank',
   },
 
   accountActivationPage: {
     loading: () => 'We are verifying your token...',
     badToken: () => 'Provided token is invalid or expired. Please request a new one.',
-    instructions: () => 'Please provide your new password. You will then need to login using your username and new password.',
+    instructions: () =>
+      'Please provide your new password. You will then need to login using your username and new password.',
     form: {
       password: {
         label: () => 'New Password',
@@ -949,7 +958,8 @@ export default {
         label: () => 'Activation status',
         activated: () => 'Activated',
         loading: () => 'Loading...',
-        notActivated: () => 'User account is not yet activated. Please share the link below with the user so they can setup their password.',
+        notActivated: () =>
+          'User account is not yet activated. Please share the link below with the user so they can setup their password.',
         copied: () => 'Link copied to clipboard',
       },
     },
@@ -957,11 +967,13 @@ export default {
   },
 
   saForm: {
-    inputValidationFailed: () => 'Some of the fields have not been filled correctly. Please check the form and try again.',
+    inputValidationFailed: () =>
+      'Some of the fields have not been filled correctly. Please check the form and try again.',
   },
 
   accountSetup: {
-    welcomeMessage: () => 'Welcome to simple-accounting! We now will create a new workspace for you - a place where the data of your business is stored. If you have multiple businesses, each of them can be represented as a separate workspace. You will be able to setup other workspaces, if needed, after the initial configuration.',
+    welcomeMessage: () =>
+      'Welcome to simple-accounting! We now will create a new workspace for you - a place where the data of your business is stored. If you have multiple businesses, each of them can be represented as a separate workspace. You will be able to setup other workspaces, if needed, after the initial configuration.',
     workspaceNameLabel: () => 'Workspace Name',
     workspaceNamePlaceholder: () => 'Provide a name for your workspace',
     defaultCurrencyLabel: () => 'Main (default) Currency',

@@ -12,12 +12,12 @@
 </template>
 
 <script lang="ts" setup>
-  import SaIcon from '@/components/SaIcon.vue';
+import SaIcon from '@/components/SaIcon.vue';
 
-  defineProps<{
-    icon: string,
-    tooltip?: string,
-  }>();
+defineProps<{
+  icon: string;
+  tooltip?: string;
+}>();
 </script>
 
 <style lang="scss">

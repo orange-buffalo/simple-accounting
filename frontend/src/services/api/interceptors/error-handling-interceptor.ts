@@ -1,20 +1,20 @@
-import type { InvalidInputErrorDto, Middleware, SaApiErrorDto } from '@/services/api/generated';
 import {
   ApiAuthError,
   ApiBusinessError,
-  ApiFieldLevelValidationError, ApiRequestCancelledError, ApiTimeoutError,
+  ApiFieldLevelValidationError,
+  ApiRequestCancelledError,
+  ApiTimeoutError,
   ClientApiError,
   FatalApiError,
   ResourceNotFoundError,
 } from '@/services/api/api-errors.ts';
+import type { InvalidInputErrorDto, Middleware, SaApiErrorDto } from '@/services/api/generated';
 
 /**
  * Processes responses according to RestApiControllerExceptionsHandler logic.
  */
 export const errorHandlingInterceptor: Middleware = {
-  async post({
-    response,
-  }): Promise<Response | void> {
+  async post({ response }): Promise<Response | void> {
     if (response.status === 404) {
       throw new ResourceNotFoundError(response);
     }
@@ -23,12 +23,10 @@ export const errorHandlingInterceptor: Middleware = {
       throw new ApiAuthError(response);
     }
 
-    const isJsonResponse = response.headers.get('content-type')
-      ?.includes('application/json');
+    const isJsonResponse = response.headers.get('content-type')?.includes('application/json');
 
     if (response.status === 400 && isJsonResponse) {
-      const responseBody = await response.clone()
-        .json();
+      const responseBody = await response.clone().json();
       if (responseBody.error === 'InvalidInput') {
         const invalidInputErrorDto = responseBody as InvalidInputErrorDto;
         throw new ApiFieldLevelValidationError(response, invalidInputErrorDto);
@@ -43,11 +41,7 @@ export const errorHandlingInterceptor: Middleware = {
     }
   },
 
-  async onError({
-    error,
-    response,
-    init,
-  }): Promise<Response | void> {
+  async onError({ error, response, init }): Promise<Response | void> {
     if (error instanceof DOMException) {
       if (error.name === 'AbortError') {
         const { reason } = init.signal;

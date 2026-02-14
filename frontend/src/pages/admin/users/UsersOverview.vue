@@ -41,22 +41,26 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
-  import type { ApiPageRequest, PlatformUserDto } from '@/services/api';
-  import { $t } from '@/services/i18n';
-  import UsersOverviewPanel from '@/pages/admin/users/UsersOverviewPanel.vue';
-  import { usersApi } from '@/services/api/api-client.ts';
+import { ref } from 'vue';
+import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import UsersOverviewPanel from '@/pages/admin/users/UsersOverviewPanel.vue';
+import type { ApiPageRequest, PlatformUserDto } from '@/services/api';
+import { usersApi } from '@/services/api/api-client.ts';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
 
-  const freeSearchText = ref<string | undefined>();
+const freeSearchText = ref<string | undefined>();
 
-  const usersProvider = async (request: ApiPageRequest, config: RequestInit) => usersApi.getUsers({
-    ...request,
-    freeSearchTextEq: freeSearchText.value,
-  }, config);
+const usersProvider = async (request: ApiPageRequest, config: RequestInit) =>
+  usersApi.getUsers(
+    {
+      ...request,
+      freeSearchTextEq: freeSearchText.value,
+    },
+    config,
+  );
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateUserView = () => navigateByViewName('create-new-user');
+const { navigateByViewName } = useNavigation();
+const navigateToCreateUserView = () => navigateByViewName('create-new-user');
 </script>

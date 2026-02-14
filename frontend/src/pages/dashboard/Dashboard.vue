@@ -41,33 +41,30 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, watch } from 'vue';
-  import { useStorage } from '@/services/storage';
-  import DashboardCardExpenses from '@/pages/dashboard/DashboardCardExpenses.vue';
-  import DashboardCardIncomes from '@/pages/dashboard/DashboardCardIncomes.vue';
-  import DashboardCardProfit from '@/pages/dashboard/DashboardCardProfit.vue';
-  import DashboardInvoices from '@/pages/dashboard/DashboardInvoices.vue';
-  import { $t } from '@/services/i18n';
+import { computed, ref, watch } from 'vue';
+import DashboardCardExpenses from '@/pages/dashboard/DashboardCardExpenses.vue';
+import DashboardCardIncomes from '@/pages/dashboard/DashboardCardIncomes.vue';
+import DashboardCardProfit from '@/pages/dashboard/DashboardCardProfit.vue';
+import DashboardInvoices from '@/pages/dashboard/DashboardInvoices.vue';
+import { $t } from '@/services/i18n';
+import { useStorage } from '@/services/storage';
 
-  const storage = useStorage<Array<Date>>('dashboard.selected-date-range');
+const storage = useStorage<Array<Date>>('dashboard.selected-date-range');
 
-  const selectedDateRange = ref<Array<Date>>(storage.getOrDefault([]));
-  if (!selectedDateRange.value.length) {
-    const now = new Date();
-    selectedDateRange.value = [
-      new Date(now.getFullYear(), 0, 1),
-      now,
-    ];
-  } else {
-    selectedDateRange.value = selectedDateRange.value.map((it) => new Date(it));
-  }
+const selectedDateRange = ref<Array<Date>>(storage.getOrDefault([]));
+if (!selectedDateRange.value.length) {
+  const now = new Date();
+  selectedDateRange.value = [new Date(now.getFullYear(), 0, 1), now];
+} else {
+  selectedDateRange.value = selectedDateRange.value.map((it) => new Date(it));
+}
 
-  watch(selectedDateRange, (newDatesRanges) => {
-    storage.set(newDatesRanges);
-  });
+watch(selectedDateRange, (newDatesRanges) => {
+  storage.set(newDatesRanges);
+});
 
-  const selectedFromDate = computed(() => (selectedDateRange.value[0]));
-  const selectedToDate = computed(() => (selectedDateRange.value[1]));
+const selectedFromDate = computed(() => selectedDateRange.value[0]);
+const selectedToDate = computed(() => selectedDateRange.value[1]);
 </script>
 
 <style lang="scss">

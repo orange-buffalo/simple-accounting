@@ -69,10 +69,7 @@ export class ApiFieldLevelValidationError extends ServerApiError {
 
   constructor(fieldErrors: Array<FieldError>, response?: Response);
   constructor(response: Response, responseBody: InvalidInputErrorDto);
-  constructor(
-    fieldErrorsOrResponse: Array<FieldError> | Response,
-    responseOrBody?: Response | InvalidInputErrorDto,
-  ) {
+  constructor(fieldErrorsOrResponse: Array<FieldError> | Response, responseOrBody?: Response | InvalidInputErrorDto) {
     if (Array.isArray(fieldErrorsOrResponse)) {
       super('Request failed with invalid input', responseOrBody as Response | undefined);
       this.fieldErrors = fieldErrorsOrResponse;
@@ -92,10 +89,7 @@ export class ApiBusinessError extends ServerApiError {
 
   constructor(error: SaApiErrorDto, response?: Response);
   constructor(response: Response, error: SaApiErrorDto);
-  constructor(
-    errorOrResponse: SaApiErrorDto | Response,
-    responseOrError?: Response | SaApiErrorDto,
-  ) {
+  constructor(errorOrResponse: SaApiErrorDto | Response, responseOrError?: Response | SaApiErrorDto) {
     if (errorOrResponse instanceof Response) {
       const error = responseOrError as SaApiErrorDto;
       super(`Business error: ${error.error}`, errorOrResponse);

@@ -1,9 +1,9 @@
-import { fileURLToPath, URL } from 'url';
-import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { vitePlugins } from './build-config/vite-plugins';
+import { fileURLToPath, URL } from 'url';
+import { defineConfig } from 'vite';
 import { resolveProxyPort } from './build-config/proxy-port-resolver';
+import { vitePlugins } from './build-config/vite-plugins';
 
 const apiProxyPort = resolveProxyPort();
 

@@ -42,165 +42,164 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    computed, onBeforeUnmount, onMounted, ref,
-  } from 'vue';
-  import type { DropzoneFile } from 'dropzone';
-  import Dropzone from 'dropzone';
-  import SaIcon from '@/components/SaIcon.vue';
-  import SaDocument from '@/components/documents/SaDocument.vue';
-  import type { DocumentDto } from '@/services/api';
-  import { useAuth } from '@/services/api';
-  import { $t } from '@/services/i18n';
-  import { useCurrentWorkspace } from '@/services/workspaces';
+import type { DropzoneFile } from 'dropzone';
+import Dropzone from 'dropzone';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import SaDocument from '@/components/documents/SaDocument.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import type { DocumentDto } from '@/services/api';
+import { useAuth } from '@/services/api';
+import { $t } from '@/services/i18n';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  Dropzone.autoDiscover = false;
+Dropzone.autoDiscover = false;
 
-  const props = defineProps<{
-    documentId?: number,
-    documentName?: string,
-    documentSizeInBytes?: number,
-  }>();
+const props = defineProps<{
+  documentId?: number;
+  documentName?: string;
+  documentSizeInBytes?: number;
+}>();
 
-  const emit = defineEmits<{(e: 'document-removed'): void,
-                            (e: 'document-selected'): void,
-                            (e: 'upload-failed', error: string | Error): void,
-                            (e: 'upload-completed', document: DocumentDto): void,
-  }>();
+const emit = defineEmits<{
+  (e: 'document-removed'): void;
+  (e: 'document-selected'): void;
+  (e: 'upload-failed', error: string | Error): void;
+  (e: 'upload-completed', document: DocumentDto): void;
+}>();
 
-  const document = ref<Partial<DocumentDto>>({
-    id: props.documentId,
-    name: props.documentName,
-    sizeInBytes: props.documentSizeInBytes,
-  });
-  const uploading = ref(false);
-  const uploadingProgress = ref(0);
-  const uploadingFailed = ref(false);
-  const selectedFile = ref<DropzoneFile | undefined>(undefined);
+const document = ref<Partial<DocumentDto>>({
+  id: props.documentId,
+  name: props.documentName,
+  sizeInBytes: props.documentSizeInBytes,
+});
+const uploading = ref(false);
+const uploadingProgress = ref(0);
+const uploadingFailed = ref(false);
+const selectedFile = ref<DropzoneFile | undefined>(undefined);
 
-  const { getToken } = useAuth();
+const { getToken } = useAuth();
 
-  const documentAvailable = computed(() => document.value.id !== undefined);
+const documentAvailable = computed(() => document.value.id !== undefined);
 
-  const fileSelectorAvailable = computed(() => !documentAvailable.value && selectedFile.value === undefined);
+const fileSelectorAvailable = computed(() => !documentAvailable.value && selectedFile.value === undefined);
 
-  const displayedSize = computed(() => (uploadingFailed.value ? undefined : document.value.sizeInBytes));
+const displayedSize = computed(() => (uploadingFailed.value ? undefined : document.value.sizeInBytes));
 
-  const status = computed<{
-    icon: string,
-    text: string,
-    failure?: boolean,
-  }>(() => {
-    if (uploadingFailed.value) {
-      return {
-        icon: 'error',
-        text: $t.value.saDocumentUpload.uploadStatusMessage.error(),
-        failure: true,
-      };
-    }
+const status = computed<{
+  icon: string;
+  text: string;
+  failure?: boolean;
+}>(() => {
+  if (uploadingFailed.value) {
+    return {
+      icon: 'error',
+      text: $t.value.saDocumentUpload.uploadStatusMessage.error(),
+      failure: true,
+    };
+  }
 
-    if (uploading.value) {
-      return {
-        icon: 'upload',
-        text: $t.value.saDocumentUpload.uploadStatusMessage.uploading(),
-      };
-    }
-
+  if (uploading.value) {
     return {
       icon: 'upload',
-      text: $t.value.saDocumentUpload.uploadStatusMessage.scheduled(),
+      text: $t.value.saDocumentUpload.uploadStatusMessage.uploading(),
     };
-  });
+  }
 
-  const maxFileSize = 50 * 1024 * 1024;
-  const dropPanel = ref<HTMLElement | undefined>(undefined);
-  let dropzone: Dropzone | undefined;
-  const dropzoneRequired = () => {
-    if (!dropzone) throw new Error('Not initialized yet');
-    return dropzone;
+  return {
+    icon: 'upload',
+    text: $t.value.saDocumentUpload.uploadStatusMessage.scheduled(),
   };
-  const { currentWorkspaceId } = useCurrentWorkspace();
-  onMounted(() => {
-    if (!dropzone && dropPanel.value) {
-      dropzone = new Dropzone(dropPanel.value as HTMLElement, {
-        url: `/api/workspaces/${currentWorkspaceId}/documents`,
-        paramName: 'file',
-        createImageThumbnails: false,
-        autoProcessQueue: false,
-        previewTemplate: '<span>',
-        accept: (file, done) => {
-          uploadingFailed.value = false;
-          if (file.size > maxFileSize) {
-            uploadingFailed.value = true;
-            done();
-            dropzoneRequired().removeAllFiles();
-          } else {
-            selectedFile.value = file;
-            document.value.id = undefined;
-            document.value.name = file.name;
-            document.value.sizeInBytes = file.size;
-            emit('document-selected');
-            done();
-          }
-        },
-      });
+});
 
-      dropzone.on('uploadprogress', (file, progress) => {
-        uploadingProgress.value = progress;
-      });
+const maxFileSize = 50 * 1024 * 1024;
+const dropPanel = ref<HTMLElement | undefined>(undefined);
+let dropzone: Dropzone | undefined;
+const dropzoneRequired = () => {
+  if (!dropzone) throw new Error('Not initialized yet');
+  return dropzone;
+};
+const { currentWorkspaceId } = useCurrentWorkspace();
+onMounted(() => {
+  if (!dropzone && dropPanel.value) {
+    dropzone = new Dropzone(dropPanel.value as HTMLElement, {
+      url: `/api/workspaces/${currentWorkspaceId}/documents`,
+      paramName: 'file',
+      createImageThumbnails: false,
+      autoProcessQueue: false,
+      previewTemplate: '<span>',
+      accept: (file, done) => {
+        uploadingFailed.value = false;
+        if (file.size > maxFileSize) {
+          uploadingFailed.value = true;
+          done();
+          dropzoneRequired().removeAllFiles();
+        } else {
+          selectedFile.value = file;
+          document.value.id = undefined;
+          document.value.name = file.name;
+          document.value.sizeInBytes = file.size;
+          emit('document-selected');
+          done();
+        }
+      },
+    });
 
-      dropzone.on('error', (file, error) => {
-        // todo #72: special processing for storage service config error
-        // todo #77: handle 401 by acquiring new token and restarting upload
-        uploading.value = false;
-        uploadingFailed.value = true;
-        dropzoneRequired().files[0].status = 'queued';
-        emit('upload-failed', error);
-      });
+    dropzone.on('uploadprogress', (file, progress) => {
+      uploadingProgress.value = progress;
+    });
 
-      dropzone.on('success', (file, response) => {
-        uploading.value = false;
-        document.value = response as DocumentDto;
-        emit('upload-completed', document.value as DocumentDto);
-      });
+    dropzone.on('error', (file, error) => {
+      // todo #72: special processing for storage service config error
+      // todo #77: handle 401 by acquiring new token and restarting upload
+      uploading.value = false;
+      uploadingFailed.value = true;
+      dropzoneRequired().files[0].status = 'queued';
+      emit('upload-failed', error);
+    });
 
-      dropzone.on('processing', () => {
-        dropzoneRequired().options.headers = {
-          Authorization: `Bearer ${getToken()}`,
-        };
-      });
-    }
-  });
+    dropzone.on('success', (file, response) => {
+      uploading.value = false;
+      document.value = response as DocumentDto;
+      emit('upload-completed', document.value as DocumentDto);
+    });
 
-  onBeforeUnmount(() => {
-    if (dropzone) {
-      dropzone.destroy();
-      dropzone = undefined;
-    }
-  });
+    dropzone.on('processing', () => {
+      dropzoneRequired().options.headers = {
+        Authorization: `Bearer ${getToken()}`,
+      };
+    });
+  }
+});
 
-  const onRemove = () => {
-    if (dropzone) {
-      dropzone.removeAllFiles();
-    }
-    document.value.id = undefined;
-    document.value.name = undefined;
-    document.value.sizeInBytes = undefined;
-    emit('document-removed');
-  };
+onBeforeUnmount(() => {
+  if (dropzone) {
+    dropzone.destroy();
+    dropzone = undefined;
+  }
+});
 
-  const submitUpload = () => {
-    if (selectedFile.value && !documentAvailable.value) {
-      uploading.value = true;
-      uploadingFailed.value = false;
-      uploadingProgress.value = 0;
-      dropzoneRequired().processQueue();
-    }
-  };
+const onRemove = () => {
+  if (dropzone) {
+    dropzone.removeAllFiles();
+  }
+  document.value.id = undefined;
+  document.value.name = undefined;
+  document.value.sizeInBytes = undefined;
+  emit('document-removed');
+};
 
-  defineExpose({
-    submitUpload,
-  });
+const submitUpload = () => {
+  if (selectedFile.value && !documentAvailable.value) {
+    uploading.value = true;
+    uploadingFailed.value = false;
+    uploadingProgress.value = 0;
+    dropzoneRequired().processQueue();
+  }
+};
+
+defineExpose({
+  submitUpload,
+});
 </script>
 
 <style lang="scss">

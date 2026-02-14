@@ -49,79 +49,75 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import { useWorkspaces } from '@/services/workspaces';
-  import useNavigation from '@/services/use-navigation';
-  import type { PartialBy } from '@/services/utils';
-  import type { CreateWorkspaceDto, EditWorkspaceDto } from '@/services/api';
-  import { workspacesApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
-  import { useForm } from '@/components/form/use-form';
+import { ref } from 'vue';
+import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
+import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+import { useForm } from '@/components/form/use-form';
+import type { CreateWorkspaceDto, EditWorkspaceDto } from '@/services/api';
+import { workspacesApi } from '@/services/api';
+import useNavigation from '@/services/use-navigation';
+import type { PartialBy } from '@/services/utils';
+import { ensureDefined } from '@/services/utils';
+import { useWorkspaces } from '@/services/workspaces';
 
-  type WorkspaceForm = PartialBy<CreateWorkspaceDto, 'name' | 'defaultCurrency'>;
+type WorkspaceForm = PartialBy<CreateWorkspaceDto, 'name' | 'defaultCurrency'>;
 
-  const props = defineProps<{
-    id?: number,
-  }>();
+const props = defineProps<{
+  id?: number;
+}>();
 
-  const isEditing = props.id !== undefined;
-  // todo #459: i18n
-  const pageHeader = isEditing ? 'Edit Workspace' : 'Create New Workspace';
+const isEditing = props.id !== undefined;
+// todo #459: i18n
+const pageHeader = isEditing ? 'Edit Workspace' : 'Create New Workspace';
 
-  const workspaceData = ref<WorkspaceForm>({});
+const workspaceData = ref<WorkspaceForm>({});
 
-  const loadWorkspace = async () => {
-    if (isEditing) {
-      // todo #462: get by id
-      const response = await workspacesApi.getWorkspaces();
-      const workspace = response.find((it) => it.id === props.id);
-      workspaceData.value = { ...workspace };
-    }
-  };
+const loadWorkspace = async () => {
+  if (isEditing) {
+    // todo #462: get by id
+    const response = await workspacesApi.getWorkspaces();
+    const workspace = response.find((it) => it.id === props.id);
+    workspaceData.value = { ...workspace };
+  }
+};
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToWorkspacesOverview = () => navigateByViewName('workspaces-overview');
+const { navigateByViewName } = useNavigation();
+const navigateToWorkspacesOverview = () => navigateByViewName('workspaces-overview');
 
-  // todo #459: i18n
-  const workspaceValidationRules = {
-    name: [
-      {
-        required: true,
-        message: 'Please provide the name',
-      },
-      {
-        max: 255,
-        message: 'Name is too long',
-      },
-    ],
-    defaultCurrency: {
+// todo #459: i18n
+const workspaceValidationRules = {
+  name: [
+    {
       required: true,
-      message: 'Please select a default currency',
+      message: 'Please provide the name',
     },
-  };
+    {
+      max: 255,
+      message: 'Name is too long',
+    },
+  ],
+  defaultCurrency: {
+    required: true,
+    message: 'Please select a default currency',
+  },
+};
 
-  const saveWorkspace = async () => {
-    if (props.id !== undefined) {
-      await workspacesApi.editWorkspace({
-        workspaceId: ensureDefined(props.id),
-        editWorkspaceDto: workspaceData.value as EditWorkspaceDto,
-      });
-    } else {
-      await workspacesApi.createWorkspace({
-        createWorkspaceDto: workspaceData.value as CreateWorkspaceDto,
-      });
-    }
+const saveWorkspace = async () => {
+  if (props.id !== undefined) {
+    await workspacesApi.editWorkspace({
+      workspaceId: ensureDefined(props.id),
+      editWorkspaceDto: workspaceData.value as EditWorkspaceDto,
+    });
+  } else {
+    await workspacesApi.createWorkspace({
+      createWorkspaceDto: workspaceData.value as CreateWorkspaceDto,
+    });
+  }
 
-    await useWorkspaces()
-      .loadWorkspaces();
+  await useWorkspaces().loadWorkspaces();
 
-    await navigateToWorkspacesOverview();
-  };
+  await navigateToWorkspacesOverview();
+};
 
-  const {
-    formRef,
-    submitForm,
-  } = useForm(loadWorkspace, saveWorkspace);
+const { formRef, submitForm } = useForm(loadWorkspace, saveWorkspace);
 </script>

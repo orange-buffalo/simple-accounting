@@ -168,131 +168,120 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
-  import SaMoneyInput from '@/components/SaMoneyInput.vue';
-  import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
-  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
-  import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import SaCategoryInput from '@/components/category/SaCategoryInput.vue';
-  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
-  import { $t } from '@/services/i18n';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { EditExpenseDto } from '@/services/api';
-  import type { PartialBy } from '@/services/utils';
-  import { expensesApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
-  import { useFormWithDocumentsUpload } from '@/components/form/use-form';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+import { computed, ref } from 'vue';
+import SaCategoryInput from '@/components/category/SaCategoryInput.vue';
+import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
+import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
+import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
+import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
+import SaMoneyInput from '@/components/SaMoneyInput.vue';
+import type { EditExpenseDto } from '@/services/api';
+import { expensesApi } from '@/services/api';
+import { formatDateToLocalISOString } from '@/services/date-utils';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import type { PartialBy } from '@/services/utils';
+import { ensureDefined } from '@/services/utils';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    id?: number,
-    prototype?: string,
-  }>();
+const props = defineProps<{
+  id?: number;
+  prototype?: string;
+}>();
 
-  const expenseValidationRules = {
-    currency: {
-      required: true,
-      message: $t.value.editExpense.validations.currency(),
-    },
-    title: {
-      required: true,
-      message: $t.value.editExpense.validations.title(),
-    },
-    datePaid: {
-      required: true,
-      message: $t.value.editExpense.validations.datePaid(),
-    },
-    originalAmount: {
-      required: true,
-      message: $t.value.editExpense.validations.originalAmount(),
-    },
-  };
+const expenseValidationRules = {
+  currency: {
+    required: true,
+    message: $t.value.editExpense.validations.currency(),
+  },
+  title: {
+    required: true,
+    message: $t.value.editExpense.validations.title(),
+  },
+  datePaid: {
+    required: true,
+    message: $t.value.editExpense.validations.datePaid(),
+  },
+  originalAmount: {
+    required: true,
+    message: $t.value.editExpense.validations.originalAmount(),
+  },
+};
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToExpensesOverview = async () => {
-    await navigateByViewName('expenses-overview');
-  };
+const { navigateByViewName } = useNavigation();
+const navigateToExpensesOverview = async () => {
+  await navigateByViewName('expenses-overview');
+};
 
-  const {
-    currentWorkspaceId,
-    defaultCurrency,
-  } = useCurrentWorkspace();
+const { currentWorkspaceId, defaultCurrency } = useCurrentWorkspace();
 
-  type ExpenseFormValues = PartialBy<EditExpenseDto, 'datePaid' | 'title' | 'originalAmount'> & {
-    attachments: Array<number>,
-  };
+type ExpenseFormValues = PartialBy<EditExpenseDto, 'datePaid' | 'title' | 'originalAmount'> & {
+  attachments: Array<number>;
+};
 
-  const expense = ref<ExpenseFormValues>({
-    attachments: [],
-    percentOnBusiness: 100,
-    datePaid: formatDateToLocalISOString(new Date()),
-    currency: defaultCurrency,
-    useDifferentExchangeRateForIncomeTaxPurposes: false,
-  });
+const expense = ref<ExpenseFormValues>({
+  attachments: [],
+  percentOnBusiness: 100,
+  datePaid: formatDateToLocalISOString(new Date()),
+  currency: defaultCurrency,
+  useDifferentExchangeRateForIncomeTaxPurposes: false,
+});
 
-  const uiState = ref<{
-    partialForBusiness: boolean,
-  }>({
-    partialForBusiness: false,
-  });
+const uiState = ref<{
+  partialForBusiness: boolean;
+}>({
+  partialForBusiness: false,
+});
 
-  const loadExpense = async () => {
-    if (props.id !== undefined) {
-      const fullExpense = await expensesApi.getExpense({
-        expenseId: props.id,
-        workspaceId: currentWorkspaceId,
-      });
-      expense.value = {
-        ...fullExpense,
-        convertedAmountInDefaultCurrency: fullExpense.convertedAmounts.originalAmountInDefaultCurrency,
-        incomeTaxableAmountInDefaultCurrency: fullExpense.incomeTaxableAmounts.originalAmountInDefaultCurrency,
-      };
-      uiState.value.partialForBusiness = fullExpense.percentOnBusiness !== 100;
-    } else if (props.prototype !== undefined) {
-      const prototypeExpense = await expensesApi.getExpense({
-        expenseId: Number(props.prototype),
-        workspaceId: currentWorkspaceId,
-      });
-      expense.value = prototypeExpense;
-      expense.value.datePaid = undefined;
-      uiState.value.partialForBusiness = prototypeExpense.percentOnBusiness !== 100;
-    }
-  };
-
-  const saveExpense = async () => {
-    const request: EditExpenseDto = {
-      ...(expense.value as EditExpenseDto),
-      percentOnBusiness: uiState.value.partialForBusiness ? expense.value.percentOnBusiness : undefined,
+const loadExpense = async () => {
+  if (props.id !== undefined) {
+    const fullExpense = await expensesApi.getExpense({
+      expenseId: props.id,
+      workspaceId: currentWorkspaceId,
+    });
+    expense.value = {
+      ...fullExpense,
+      convertedAmountInDefaultCurrency: fullExpense.convertedAmounts.originalAmountInDefaultCurrency,
+      incomeTaxableAmountInDefaultCurrency: fullExpense.incomeTaxableAmounts.originalAmountInDefaultCurrency,
     };
-    if (props.id) {
-      await expensesApi.updateExpense({
-        workspaceId: currentWorkspaceId,
-        editExpenseDto: request,
-        expenseId: ensureDefined(props.id),
-      });
-    } else {
-      await expensesApi.createExpense({
-        workspaceId: currentWorkspaceId,
-        editExpenseDto: request,
-      });
-    }
-    await navigateToExpensesOverview();
+    uiState.value.partialForBusiness = fullExpense.percentOnBusiness !== 100;
+  } else if (props.prototype !== undefined) {
+    const prototypeExpense = await expensesApi.getExpense({
+      expenseId: Number(props.prototype),
+      workspaceId: currentWorkspaceId,
+    });
+    expense.value = prototypeExpense;
+    expense.value.datePaid = undefined;
+    uiState.value.partialForBusiness = prototypeExpense.percentOnBusiness !== 100;
+  }
+};
+
+const saveExpense = async () => {
+  const request: EditExpenseDto = {
+    ...(expense.value as EditExpenseDto),
+    percentOnBusiness: uiState.value.partialForBusiness ? expense.value.percentOnBusiness : undefined,
   };
+  if (props.id) {
+    await expensesApi.updateExpense({
+      workspaceId: currentWorkspaceId,
+      editExpenseDto: request,
+      expenseId: ensureDefined(props.id),
+    });
+  } else {
+    await expensesApi.createExpense({
+      workspaceId: currentWorkspaceId,
+      editExpenseDto: request,
+    });
+  }
+  await navigateToExpensesOverview();
+};
 
-  const {
-    formRef,
-    submitForm,
-    documentsUploadRef,
-    onDocumentsUploadComplete,
-    onDocumentsUploadFailure,
-  } = useFormWithDocumentsUpload(loadExpense, saveExpense);
+const { formRef, submitForm, documentsUploadRef, onDocumentsUploadComplete, onDocumentsUploadFailure } =
+  useFormWithDocumentsUpload(loadExpense, saveExpense);
 
-  const isInForeignCurrency = computed(() => expense.value.currency !== defaultCurrency);
+const isInForeignCurrency = computed(() => expense.value.currency !== defaultCurrency);
 
-  const pageHeader = props.id
-    ? $t.value.editExpense.pageHeader.edit()
-    : $t.value.editExpense.pageHeader.create();
-
+const pageHeader = props.id ? $t.value.editExpense.pageHeader.edit() : $t.value.editExpense.pageHeader.create();
 </script>

@@ -42,26 +42,30 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import ExpensesOverviewPanel from '@/pages/expenses/ExpensesOverviewPanel.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { $t } from '@/services/i18n/i18n-services';
-  import type { ExpenseDto, ApiPageRequest } from '@/services/api';
-  import { expensesApi } from '@/services/api';
+import { ref } from 'vue';
+import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import ExpensesOverviewPanel from '@/pages/expenses/ExpensesOverviewPanel.vue';
+import type { ApiPageRequest, ExpenseDto } from '@/services/api';
+import { expensesApi } from '@/services/api';
+import { $t } from '@/services/i18n/i18n-services';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
+const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
-  const freeSearchText = ref<string | undefined>();
+const freeSearchText = ref<string | undefined>();
 
-  const expensesProvider = async (request: ApiPageRequest, config: RequestInit) => expensesApi.getExpenses({
-    ...request,
-    freeSearchTextEq: freeSearchText.value,
-    workspaceId: currentWorkspaceId,
-  }, config);
+const expensesProvider = async (request: ApiPageRequest, config: RequestInit) =>
+  expensesApi.getExpenses(
+    {
+      ...request,
+      freeSearchTextEq: freeSearchText.value,
+      workspaceId: currentWorkspaceId,
+    },
+    config,
+  );
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateExpenseView = () => navigateByViewName('create-new-expense');
+const { navigateByViewName } = useNavigation();
+const navigateToCreateExpenseView = () => navigateByViewName('create-new-expense');
 </script>

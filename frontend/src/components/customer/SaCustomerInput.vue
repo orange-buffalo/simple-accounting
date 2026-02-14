@@ -17,23 +17,24 @@
 </template>
 
 <script lang="ts" setup>
-  import SaInputLoader from '@/components/SaInputLoader.vue';
-  import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
-  import { consumeAllPages, customersApi } from '@/services/api';
+import SaInputLoader from '@/components/SaInputLoader.vue';
+import { consumeAllPages, customersApi } from '@/services/api';
+import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
 
-  defineProps<{
-    modelValue?: number,
-    placeholder?: string,
-    clearable?: boolean,
-  }>();
+defineProps<{
+  modelValue?: number;
+  placeholder?: string;
+  clearable?: boolean;
+}>();
 
-  const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
+const emit = defineEmits<{ (e: 'update:modelValue', value: number): void }>();
 
-  const {
-    value: customers,
-    loading,
-  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => customersApi.getCustomers({
-    ...pageRequest,
-    workspaceId,
-  })));
+const { value: customers, loading } = useValueLoadedByCurrentWorkspace((workspaceId) =>
+  consumeAllPages((pageRequest) =>
+    customersApi.getCustomers({
+      ...pageRequest,
+      workspaceId,
+    }),
+  ),
+);
 </script>

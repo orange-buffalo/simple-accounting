@@ -56,75 +56,78 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, ref } from 'vue';
-  import { $t } from '@/services/i18n';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import SaForm from '@/components/form/SaForm.vue';
-  import { ApiBusinessError, ResourceNotFoundError } from '@/services/api/api-errors.ts';
-  import SaFormInput from '@/components/form/SaFormInput.vue';
-  import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
-  import {
-    UserActivationRequestDto,
-    userActivationTokensApi, UserActivationTokensApiActivateUserErrors,
-  } from '@/services/api';
+import { onMounted, ref } from 'vue';
+import SaForm from '@/components/form/SaForm.vue';
+import SaFormInput from '@/components/form/SaFormInput.vue';
+import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
+import SaStatusLabel from '@/components/SaStatusLabel.vue';
+import {
+  UserActivationRequestDto,
+  UserActivationTokensApiActivateUserErrors,
+  userActivationTokensApi,
+} from '@/services/api';
+import { ApiBusinessError, ResourceNotFoundError } from '@/services/api/api-errors.ts';
+import { $t } from '@/services/i18n';
 
-  const props = defineProps<{
-    token: string,
-  }>();
+const props = defineProps<{
+  token: string;
+}>();
 
-  type Status = 'LOADING' | 'BAD_TOKEN' | 'TOKEN_VALIDATED' | 'ACCOUNT_ACTIVATED'
-  const status = ref<Status>('LOADING');
+type Status = 'LOADING' | 'BAD_TOKEN' | 'TOKEN_VALIDATED' | 'ACCOUNT_ACTIVATED';
+const status = ref<Status>('LOADING');
 
-  const executeTokenApiRequest = async (spec: () => Promise<void>) => {
-    try {
-      await spec();
-    } catch (e: unknown) {
-      if (e instanceof ResourceNotFoundError) {
+const executeTokenApiRequest = async (spec: () => Promise<void>) => {
+  try {
+    await spec();
+  } catch (e: unknown) {
+    if (e instanceof ResourceNotFoundError) {
+      status.value = 'BAD_TOKEN';
+    } else if (e instanceof ApiBusinessError) {
+      const { error } = e.errorAs<UserActivationTokensApiActivateUserErrors>();
+      if (error === 'TokenExpired') {
         status.value = 'BAD_TOKEN';
-      } else if (e instanceof ApiBusinessError) {
-        const { error } = e.errorAs<UserActivationTokensApiActivateUserErrors>();
-        if (error === 'TokenExpired') {
-          status.value = 'BAD_TOKEN';
-        } else {
-          throw e;
-        }
       } else {
         throw e;
       }
+    } else {
+      throw e;
     }
-  };
+  }
+};
 
-  onMounted(async () => {
-    await executeTokenApiRequest(async () => {
-      await userActivationTokensApi.getToken({
-        token: props.token,
-      });
-      status.value = 'TOKEN_VALIDATED';
+onMounted(async () => {
+  await executeTokenApiRequest(async () => {
+    await userActivationTokensApi.getToken({
+      token: props.token,
     });
+    status.value = 'TOKEN_VALIDATED';
   });
+});
 
-  type FormValues = Partial<{
-    password: string,
-    passwordConfirmation: string,
-  }>;
-  const form = ref<FormValues>({});
+type FormValues = Partial<{
+  password: string;
+  passwordConfirmation: string;
+}>;
+const form = ref<FormValues>({});
 
-  const activateAccount = async () => {
-    if (form.value.password !== form.value.passwordConfirmation) {
-      throw new ClientSideValidationError([{
+const activateAccount = async () => {
+  if (form.value.password !== form.value.passwordConfirmation) {
+    throw new ClientSideValidationError([
+      {
         field: 'passwordConfirmation',
         message: $t.value.accountActivationPage.form.passwordConfirmation.notMatchingError(),
-      }]);
-    }
+      },
+    ]);
+  }
 
-    await executeTokenApiRequest(async () => {
-      await userActivationTokensApi.activateUser({
-        token: props.token,
-        userActivationRequestDto: form.value as UserActivationRequestDto,
-      });
-      status.value = 'ACCOUNT_ACTIVATED';
+  await executeTokenApiRequest(async () => {
+    await userActivationTokensApi.activateUser({
+      token: props.token,
+      userActivationRequestDto: form.value as UserActivationRequestDto,
     });
-  };
+    status.value = 'ACCOUNT_ACTIVATED';
+  });
+};
 </script>
 
 <style lang="scss">

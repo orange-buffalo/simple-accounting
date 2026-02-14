@@ -11,28 +11,28 @@
 </template>
 
 <script lang="ts" setup>
-  /**
-   * This is and internal component for form implementation. All form components should be wrapped in this component
-   * in their implementation.
-   */
-  import { ElFormItem, FormItemContext } from 'element-plus';
-  import {
-    onMounted, onUnmounted, ref, watch,
-  } from 'vue';
-  import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
-  import { ensureDefined } from '@/services/utils.ts';
-  import { SaFormComponentProps } from '@/components/form/sa-form-api.ts';
-  import SaInputLoader from '@/components/SaInputLoader.vue';
+/**
+ * This is and internal component for form implementation. All form components should be wrapped in this component
+ * in their implementation.
+ */
+import { ElFormItem, FormItemContext } from 'element-plus';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { SaFormComponentProps } from '@/components/form/sa-form-api.ts';
+import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
+import SaInputLoader from '@/components/SaInputLoader.vue';
+import { ensureDefined } from '@/services/utils.ts';
 
-  const props = defineProps<SaFormComponentProps>();
+const props = defineProps<SaFormComponentProps>();
 
-  const formItemContext = ref<FormItemContext | null>(null);
-  const saFormApi = useSaFormComponentsApi();
+const formItemContext = ref<FormItemContext | null>(null);
+const saFormApi = useSaFormComponentsApi();
 
-  const formItemValue = defineModel<unknown | null>();
+const formItemValue = defineModel<unknown | null>();
 
-  // changes made by the wrapped components must be reflected in the form values
-  watch(() => formItemValue.value, (value) => {
+// changes made by the wrapped components must be reflected in the form values
+watch(
+  () => formItemValue.value,
+  (value) => {
     formItemContext.value?.clearValidate();
 
     const path = props.prop.split('.');
@@ -44,10 +44,13 @@
       current = current[path[i]] as Record<string, unknown>;
     }
     current[path[path.length - 1]] = value;
-  });
+  },
+);
 
-  // changes made to the form values must be reflected in the wrapped components
-  watch(() => saFormApi.formValues.value, (value) => {
+// changes made to the form values must be reflected in the wrapped components
+watch(
+  () => saFormApi.formValues.value,
+  (value) => {
     const path = props.prop.split('.');
     let current = value;
     for (let i = 0; i < path.length; i += 1) {
@@ -57,16 +60,18 @@
       current = current[path[i]] as Record<string, unknown>;
     }
     formItemValue.value = current;
-  }, {
+  },
+  {
     immediate: true,
     deep: true,
-  });
+  },
+);
 
-  onMounted(() => {
-    saFormApi.registerFormItem(props.prop, ensureDefined(formItemContext.value));
-  });
+onMounted(() => {
+  saFormApi.registerFormItem(props.prop, ensureDefined(formItemContext.value));
+});
 
-  onUnmounted(() => {
-    saFormApi.unregisterFormItem(props.prop);
-  });
+onUnmounted(() => {
+  saFormApi.unregisterFormItem(props.prop);
+});
 </script>

@@ -7,6 +7,6 @@
 </template>
 
 <script lang="ts" setup>
-  import SaSideMenuLink from '@/components/side-menu/SaSideMenuLink.vue';
-  import { $t } from '@/services/i18n';
+import SaSideMenuLink from '@/components/side-menu/SaSideMenuLink.vue';
+import { $t } from '@/services/i18n';
 </script>

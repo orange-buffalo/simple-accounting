@@ -257,121 +257,118 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
-  import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
-  import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
-  import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
-  import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
-  import SaOverviewItemDetailsSectionAttribute
-    from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
-  import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
-  import SaActionLink from '@/components/SaActionLink.vue';
-  import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
-  import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
-  import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
-  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
-  import { $t } from '@/services/i18n';
-  import useNavigation from '@/services/use-navigation';
-  import SaOutputLoader from '@/components/SaOutputLoader.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { IncomeDto } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
+import { computed, ref } from 'vue';
+import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
+import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
+import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
+import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
+import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
+import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
+import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
+import SaOverviewItemDetailsSectionAttribute from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
+import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+import SaActionLink from '@/components/SaActionLink.vue';
+import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import SaOutputLoader from '@/components/SaOutputLoader.vue';
+import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
+import type { IncomeDto } from '@/services/api';
+import { invoicesApi } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { ensureDefined } from '@/services/utils';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{ income: IncomeDto }>();
+const props = defineProps<{ income: IncomeDto }>();
 
-  const {
-    defaultCurrency,
-    currentWorkspace,
-  } = useCurrentWorkspace();
+const { defaultCurrency, currentWorkspace } = useCurrentWorkspace();
 
-  type IncomeStatus = {
-    isSuccess: boolean,
-    value: StatusLabelStatus,
-    shortText: string,
-    fullText: string
-  }
-  const incomeStatus = computed<IncomeStatus>(() => {
-    const statusProto: IncomeStatus = {
-      isSuccess: false,
-      value: 'pending',
-      shortText: $t.value.incomesOverviewPanel.status.short.pending(),
-      fullText: '',
-    };
-    if (props.income.status === 'FINALIZED') {
-      return {
-        ...statusProto,
-        isSuccess: true,
-        value: 'success',
-        shortText: $t.value.incomesOverviewPanel.status.short.finalized(),
-        fullText: $t.value.incomesOverviewPanel.status.full.finalized(),
-      };
-    }
-    if (props.income.status === 'PENDING_CONVERSION') {
-      return {
-        ...statusProto,
-        fullText: $t.value.incomesOverviewPanel.status.full.pendingConversion(defaultCurrency),
-      };
-    }
+type IncomeStatus = {
+  isSuccess: boolean;
+  value: StatusLabelStatus;
+  shortText: string;
+  fullText: string;
+};
+const incomeStatus = computed<IncomeStatus>(() => {
+  const statusProto: IncomeStatus = {
+    isSuccess: false,
+    value: 'pending',
+    shortText: $t.value.incomesOverviewPanel.status.short.pending(),
+    fullText: '',
+  };
+  if (props.income.status === 'FINALIZED') {
     return {
       ...statusProto,
-      fullText: $t.value.incomesOverviewPanel.status.full.waitingExchangeRate(),
+      isSuccess: true,
+      value: 'success',
+      shortText: $t.value.incomesOverviewPanel.status.short.finalized(),
+      fullText: $t.value.incomesOverviewPanel.status.full.finalized(),
     };
-  });
-
-  const totalAmount = computed(() => {
-    if (props.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
-      return {
-        value: props.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
-        currency: defaultCurrency,
-      };
-    }
-    if (props.income.convertedAmounts.adjustedAmountInDefaultCurrency) {
-      return {
-        value: props.income.convertedAmounts.adjustedAmountInDefaultCurrency,
-        currency: defaultCurrency,
-      };
-    }
+  }
+  if (props.income.status === 'PENDING_CONVERSION') {
     return {
-      value: props.income.originalAmount,
-      currency: props.income.currency,
+      ...statusProto,
+      fullText: $t.value.incomesOverviewPanel.status.full.pendingConversion(defaultCurrency),
     };
-  });
+  }
+  return {
+    ...statusProto,
+    fullText: $t.value.incomesOverviewPanel.status.full.waitingExchangeRate(),
+  };
+});
 
-  const isForeignCurrency = computed(() => props.income.currency !== defaultCurrency);
+const totalAmount = computed(() => {
+  if (props.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency) {
+    return {
+      value: props.income.incomeTaxableAmounts.adjustedAmountInDefaultCurrency,
+      currency: defaultCurrency,
+    };
+  }
+  if (props.income.convertedAmounts.adjustedAmountInDefaultCurrency) {
+    return {
+      value: props.income.convertedAmounts.adjustedAmountInDefaultCurrency,
+      currency: defaultCurrency,
+    };
+  }
+  return {
+    value: props.income.originalAmount,
+    currency: props.income.currency,
+  };
+});
 
-  const isGeneralTaxApplicable = computed(() => props.income.generalTax != null);
+const isForeignCurrency = computed(() => props.income.currency !== defaultCurrency);
 
-  const { navigateToView } = useNavigation();
-  const navigateToIncomeEdit = () => navigateToView({
+const isGeneralTaxApplicable = computed(() => props.income.generalTax != null);
+
+const { navigateToView } = useNavigation();
+const navigateToIncomeEdit = () =>
+  navigateToView({
     name: 'edit-income',
     params: { id: props.income.id },
   });
 
-  const linkedInvoice = ref({
-    loading: false,
-    exists: props.income.linkedInvoice != null,
-    title: null as string | null,
-  });
+const linkedInvoice = ref({
+  loading: false,
+  exists: props.income.linkedInvoice != null,
+  title: null as string | null,
+});
 
-  async function loadLinkedInvoice() {
-    if (props.income.linkedInvoice) {
-      linkedInvoice.value.loading = true;
-      try {
-        const { currentWorkspaceId } = useCurrentWorkspace();
-        const invoiceResponse = await invoicesApi.getInvoice({
-          invoiceId: props.income.linkedInvoice,
-          workspaceId: currentWorkspaceId,
-        });
-        linkedInvoice.value.title = invoiceResponse.title;
-      } finally {
-        linkedInvoice.value.loading = false;
-      }
+async function loadLinkedInvoice() {
+  if (props.income.linkedInvoice) {
+    linkedInvoice.value.loading = true;
+    try {
+      const { currentWorkspaceId } = useCurrentWorkspace();
+      const invoiceResponse = await invoicesApi.getInvoice({
+        invoiceId: props.income.linkedInvoice,
+        workspaceId: currentWorkspaceId,
+      });
+      linkedInvoice.value.title = invoiceResponse.title;
+    } finally {
+      linkedInvoice.value.loading = false;
     }
   }
+}
 
-  loadLinkedInvoice();
+loadLinkedInvoice();
 </script>

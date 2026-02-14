@@ -8,12 +8,12 @@
 </template>
 
 <script lang="ts" setup>
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
 
-  defineProps<{
-    currency: string,
-    amount: number,
-  }>();
+defineProps<{
+  currency: string;
+  amount: number;
+}>();
 </script>
 
 <style lang="scss">

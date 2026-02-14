@@ -52,16 +52,16 @@
 </template>
 
 <script lang="ts" setup>
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import { $t } from '@/services/i18n';
+import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import SaStatusLabel from '@/components/SaStatusLabel.vue';
+import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
+import { $t } from '@/services/i18n';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  defineProps<{
-    data: GeneralTaxReportItem[]
-  }>();
+defineProps<{
+  data: GeneralTaxReportItem[];
+}>();
 
-  const { defaultCurrency } = useCurrentWorkspace();
+const { defaultCurrency } = useCurrentWorkspace();
 </script>

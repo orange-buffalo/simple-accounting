@@ -1,5 +1,5 @@
-import * as yaml from 'js-yaml';
 import * as fs from 'fs';
+import * as yaml from 'js-yaml';
 
 export function resolveProxyPort(): number {
   const defaultPort = 9393;

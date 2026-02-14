@@ -10,42 +10,42 @@
 </template>
 
 <script lang="ts" setup>
-  import { throttle } from 'lodash';
-  import { onMounted, onUnmounted, ref } from 'vue';
-  import { LOADING_STARTED_EVENT, LOADING_FINISHED_EVENT } from '@/services/events';
+import { throttle } from 'lodash';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { LOADING_FINISHED_EVENT, LOADING_STARTED_EVENT } from '@/services/events';
 
-  const loading = ref(false);
-  let loadingRequestsCount = 0;
+const loading = ref(false);
+let loadingRequestsCount = 0;
 
-  const toggleProgress = throttle(
-    () => {
-      loading.value = loadingRequestsCount > 0;
-    },
-    400,
-    {
-      trailing: true,
-    },
-  );
+const toggleProgress = throttle(
+  () => {
+    loading.value = loadingRequestsCount > 0;
+  },
+  400,
+  {
+    trailing: true,
+  },
+);
 
-  const onLoadingStart = () => {
-    loadingRequestsCount += 1;
-    toggleProgress();
-  };
+const onLoadingStart = () => {
+  loadingRequestsCount += 1;
+  toggleProgress();
+};
 
-  const onLoadingFinished = () => {
-    loadingRequestsCount = Math.max(loadingRequestsCount - 1, 0);
-    toggleProgress();
-  };
+const onLoadingFinished = () => {
+  loadingRequestsCount = Math.max(loadingRequestsCount - 1, 0);
+  toggleProgress();
+};
 
-  onMounted(() => {
-    LOADING_STARTED_EVENT.subscribe(onLoadingStart);
-    LOADING_FINISHED_EVENT.subscribe(onLoadingFinished);
-  });
+onMounted(() => {
+  LOADING_STARTED_EVENT.subscribe(onLoadingStart);
+  LOADING_FINISHED_EVENT.subscribe(onLoadingFinished);
+});
 
-  onUnmounted(() => {
-    LOADING_STARTED_EVENT.unsubscribe(onLoadingStart);
-    LOADING_FINISHED_EVENT.unsubscribe(onLoadingFinished);
-  });
+onUnmounted(() => {
+  LOADING_STARTED_EVENT.unsubscribe(onLoadingStart);
+  LOADING_FINISHED_EVENT.unsubscribe(onLoadingFinished);
+});
 </script>
 
 <style lang="scss">

@@ -1,4 +1,4 @@
-type Formatter = (messageTemplate: string, values?: Record<string, unknown> | unknown[]) => string
+type Formatter = (messageTemplate: string, values?: Record<string, unknown> | unknown[]) => string;
 
 let formatter: Formatter;
 

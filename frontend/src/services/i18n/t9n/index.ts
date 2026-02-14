@@ -5,9 +5,8 @@ const translationDeferred: TranslationsDeferred = {};
 
 const asyncModules = import.meta.glob<Translations>(['./*.ts', '!./formatter.ts'], { import: 'default' });
 for (const path in asyncModules) {
-  if (Object.prototype.hasOwnProperty.call(asyncModules, path)) {
-    const language: Language = path.replace('./', '')
-      .replace('.ts', '');
+  if (Object.hasOwn(asyncModules, path)) {
+    const language: Language = path.replace('./', '').replace('.ts', '');
     translationDeferred[language] = asyncModules[path];
   }
 }

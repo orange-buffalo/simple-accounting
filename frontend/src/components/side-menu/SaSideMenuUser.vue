@@ -69,21 +69,21 @@
 </template>
 
 <script lang="ts" setup>
-  /// <reference types="vite-svg-loader" />
-  import { onUnmounted, ref } from 'vue';
-  import SaSideMenuLink from '@/components/side-menu/SaSideMenuLink.vue';
-  import { useAuth } from '@/services/api';
-  import type { WorkspaceDto } from '@/services/api';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
-  import { $t } from '@/services/i18n';
+/// <reference types="vite-svg-loader" />
+import { onUnmounted, ref } from 'vue';
+import SaSideMenuLink from '@/components/side-menu/SaSideMenuLink.vue';
+import type { WorkspaceDto } from '@/services/api';
+import { useAuth } from '@/services/api';
+import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
+import { $t } from '@/services/i18n';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const { isCurrentUserRegular } = useAuth();
+const { isCurrentUserRegular } = useAuth();
 
-  const currentWorkspace = ref(useCurrentWorkspace().currentWorkspace);
-  const onWorkspaceChange = (newWorkspace: WorkspaceDto) => {
-    currentWorkspace.value = newWorkspace;
-  };
-  WORKSPACE_CHANGED_EVENT.subscribe(onWorkspaceChange);
-  onUnmounted(() => WORKSPACE_CHANGED_EVENT.unsubscribe(onWorkspaceChange));
+const currentWorkspace = ref(useCurrentWorkspace().currentWorkspace);
+const onWorkspaceChange = (newWorkspace: WorkspaceDto) => {
+  currentWorkspace.value = newWorkspace;
+};
+WORKSPACE_CHANGED_EVENT.subscribe(onWorkspaceChange);
+onUnmounted(() => WORKSPACE_CHANGED_EVENT.unsubscribe(onWorkspaceChange));
 </script>

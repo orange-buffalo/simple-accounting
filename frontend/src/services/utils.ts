@@ -1,11 +1,10 @@
-import type { UnwrapRef, Ref, ComputedRef } from 'vue';
+import type { ComputedRef, Ref, UnwrapRef } from 'vue';
 import { computed, ref, watch } from 'vue';
 import type { HasOptionalId } from '@/services/api';
 import { useCurrentWorkspace } from '@/services/workspaces';
 
 export function findByIdOrEmpty<T extends HasOptionalId>(list: T[], targetItemId?: number): T | undefined {
-  return list
-    .find((it) => (it.id === targetItemId) || (!it.id && !targetItemId));
+  return list.find((it) => it.id === targetItemId || (!it.id && !targetItemId));
 }
 
 export function useValueLoadedByCurrentWorkspaceAndProp<T, P>(
@@ -16,12 +15,16 @@ export function useValueLoadedByCurrentWorkspaceAndProp<T, P>(
   const loading = ref(true);
   const { currentWorkspaceId } = useCurrentWorkspace();
 
-  watch(propGetter, async (propValue) => {
-    if (!propValue) return;
-    loading.value = true;
-    value.value = await valueLoader(propValue, currentWorkspaceId);
-    loading.value = false;
-  }, { immediate: true });
+  watch(
+    propGetter,
+    async (propValue) => {
+      if (!propValue) return;
+      loading.value = true;
+      value.value = await valueLoader(propValue, currentWorkspaceId);
+      loading.value = false;
+    },
+    { immediate: true },
+  );
 
   return {
     value,
@@ -62,7 +65,7 @@ export function ensureDefined<T>(value: T | undefined | null): T {
   return value;
 }
 
-export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 /**
  * Checks if provided value is not undefined and not null.

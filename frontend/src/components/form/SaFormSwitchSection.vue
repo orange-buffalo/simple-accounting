@@ -11,24 +11,26 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import { SaFormComponentProps } from '@/components/form/sa-form-api';
-  import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
-  import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
+import { ref } from 'vue';
+import SaFormItemInternal from '@/components/form/SaFormItemInternal.vue';
+import { SaFormComponentProps } from '@/components/form/sa-form-api';
+import { useSaFormComponentsApi } from '@/components/form/sa-form-components-api';
 
-  const props = defineProps<SaFormComponentProps & {
-    submitOnChange?: boolean,
-  }>();
+const props = defineProps<
+  SaFormComponentProps & {
+    submitOnChange?: boolean;
+  }
+>();
 
-  const switchValue = ref<boolean | null>();
+const switchValue = ref<boolean | null>();
 
-  const formApi = useSaFormComponentsApi();
+const formApi = useSaFormComponentsApi();
 
-  const onChange = async () => {
-    if (props.submitOnChange) {
-      await formApi.submitForm();
-    }
-  };
+const onChange = async () => {
+  if (props.submitOnChange) {
+    await formApi.submitForm();
+  }
+};
 </script>
 
 <style lang="scss">

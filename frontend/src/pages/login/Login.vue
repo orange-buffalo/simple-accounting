@@ -61,175 +61,167 @@
 </template>
 
 <script lang="ts" setup>
-  /// <reference types="vite-svg-loader" />
-  import type { Ref } from 'vue';
-  import {
-    computed,
-    reactive,
-    ref,
-    watch,
-  } from 'vue';
+/// <reference types="vite-svg-loader" />
+import type { Ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
+import LogoLogin from '@/assets/logo-login.svg?component';
+import SaIcon from '@/components/SaIcon.vue';
+import { profileApi, useAuth } from '@/services/api';
+import { ApiAuthError } from '@/services/api/api-errors.ts';
+import { $t, setLocaleFromProfile } from '@/services/i18n';
+import { useLastView } from '@/services/use-last-view';
+import useNavigation from '@/services/use-navigation';
+import { useWorkspaces } from '@/services/workspaces';
 
-  import { useWorkspaces } from '@/services/workspaces';
-  import { $t, setLocaleFromProfile } from '@/services/i18n';
-  import LogoLogin from '@/assets/logo-login.svg?component';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { useAuth, profileApi } from '@/services/api';
-  import { useLastView } from '@/services/use-last-view';
-  import { ApiAuthError } from '@/services/api/api-errors.ts';
+class AccountLockTimer {
+  private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
 
-  class AccountLockTimer {
-    private readonly $onTimerUpdate: (remainingDurationInSec: number) => void;
+  private $remainingDurationInSec: Ref<number | null>;
 
-    private $remainingDurationInSec: Ref<number | null>;
+  private $timerRef: ReturnType<typeof setTimeout> | null;
 
-    private $timerRef: ReturnType<typeof setTimeout> | null;
+  constructor(onTimerUpdate: (remainingDurationInSec: number) => void) {
+    this.$remainingDurationInSec = ref(null);
+    this.$onTimerUpdate = onTimerUpdate;
+    this.$timerRef = null;
+  }
 
-    constructor(onTimerUpdate: (remainingDurationInSec: number) => void) {
-      this.$remainingDurationInSec = ref(null);
-      this.$onTimerUpdate = onTimerUpdate;
-      this.$timerRef = null;
-    }
+  start(durationInSec: number) {
+    this.$onTimerUpdate(durationInSec);
+    this.$timerRef = setInterval(() => this.$handler(), 1000);
+    this.$remainingDurationInSec.value = durationInSec;
+  }
 
-    start(durationInSec: number) {
-      this.$onTimerUpdate(durationInSec);
-      this.$timerRef = setInterval(() => this.$handler(), 1000);
-      this.$remainingDurationInSec.value = durationInSec;
-    }
+  isActive() {
+    return this.$remainingDurationInSec.value != null;
+  }
 
-    isActive() {
-      return this.$remainingDurationInSec.value != null;
-    }
-
-    cancel() {
-      if (this.$timerRef) {
-        clearInterval(this.$timerRef);
-        this.$remainingDurationInSec.value = null;
-      }
-    }
-
-    // noinspection JSUnusedGlobalSymbols
-    $handler() {
-      if (this.$remainingDurationInSec.value == null) throw new Error('No active');
-      this.$remainingDurationInSec.value -= 1;
-      this.$onTimerUpdate(this.$remainingDurationInSec.value);
-      if (this.$remainingDurationInSec.value === 0) {
-        this.cancel();
-      }
+  cancel() {
+    if (this.$timerRef) {
+      clearInterval(this.$timerRef);
+      this.$remainingDurationInSec.value = null;
     }
   }
 
-  interface UiState {
-    loginError: string | null;
-    loginInProgress: boolean,
-  }
-
-  const form = reactive({
-    userName: '',
-    password: '',
-    rememberMe: true,
-  });
-
-  const uiState = reactive<UiState>({
-    loginError: '',
-    loginInProgress: false,
-  });
-
-  const accountLockTimer = new AccountLockTimer((lockDurationInSec) => {
-    if (lockDurationInSec === 0) {
-      uiState.loginError = null;
-    } else {
-      uiState.loginError = $t.value.loginPage.loginError.accountLocked(lockDurationInSec);
+  // noinspection JSUnusedGlobalSymbols
+  $handler() {
+    if (this.$remainingDurationInSec.value == null) throw new Error('No active');
+    this.$remainingDurationInSec.value -= 1;
+    this.$onTimerUpdate(this.$remainingDurationInSec.value);
+    if (this.$remainingDurationInSec.value === 0) {
+      this.cancel();
     }
-  });
+  }
+}
 
-  watch(() => [form.userName, form.password], () => {
+interface UiState {
+  loginError: string | null;
+  loginInProgress: boolean;
+}
+
+const form = reactive({
+  userName: '',
+  password: '',
+  rememberMe: true,
+});
+
+const uiState = reactive<UiState>({
+  loginError: '',
+  loginInProgress: false,
+});
+
+const accountLockTimer = new AccountLockTimer((lockDurationInSec) => {
+  if (lockDurationInSec === 0) {
+    uiState.loginError = null;
+  } else {
+    uiState.loginError = $t.value.loginPage.loginError.accountLocked(lockDurationInSec);
+  }
+});
+
+watch(
+  () => [form.userName, form.password],
+  () => {
     if (form.password || form.userName) {
       uiState.loginError = null;
     }
-  }, { immediate: true });
+  },
+  { immediate: true },
+);
 
-  const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
+const loginEnabled = computed(() => form.userName && form.password && !accountLockTimer.isActive());
 
-  interface LoginErrorResponse {
-    error?: string,
-    lockExpiresInSec?: number
+interface LoginErrorResponse {
+  error?: string;
+  lockExpiresInSec?: number;
+}
+
+const onLoginError = async (processingError: unknown) => {
+  if (!(processingError instanceof ApiAuthError)) {
+    throw processingError;
   }
-
-  const onLoginError = async (processingError: unknown) => {
-    if (!(processingError instanceof ApiAuthError)) {
-      throw processingError;
-    }
-    const body = await processingError.response.clone()
-      .json();
-    const apiResponse = body as unknown as LoginErrorResponse;
-    if (apiResponse?.error === 'AccountLocked' && apiResponse?.lockExpiresInSec !== undefined) {
-      accountLockTimer.start(apiResponse.lockExpiresInSec);
-    } else if (apiResponse?.error === 'LoginNotAvailable') {
-      uiState.loginError = $t.value.loginPage.loginError.underAttack();
-    } else if (apiResponse?.error === 'UserNotActivated') {
-      uiState.loginError = $t.value.loginPage.loginError.userNotActivated();
-    } else {
-      console.error('Login failure', processingError);
-      uiState.loginError = $t.value.loginPage.loginError.generalFailure();
-    }
-  };
-
-  const { navigateByViewName } = useNavigation();
-
-  const onAdminLogin = async () => {
-    await navigateByViewName('users-overview');
-  };
-
-  const onUserLogin = async () => {
-    const hasAnyWorkspaces = await useWorkspaces()
-      .loadWorkspaces();
-    if (hasAnyWorkspaces) {
-      const { lastView } = useLastView();
-      if (lastView) {
-        await navigateByViewName(lastView);
-      } else {
-        await navigateByViewName('dashboard');
-      }
-    } else {
-      await navigateByViewName('account-setup');
-    }
-  };
-
-  const emit = defineEmits<{
-    (e: 'login'): void;
-  }>();
-
-  const {
-    isLoggedIn,
-    login,
-    isAdmin,
-  } = useAuth();
-  if (isLoggedIn()) {
-    emit('login');
+  const body = await processingError.response.clone().json();
+  const apiResponse = body as unknown as LoginErrorResponse;
+  if (apiResponse?.error === 'AccountLocked' && apiResponse?.lockExpiresInSec !== undefined) {
+    accountLockTimer.start(apiResponse.lockExpiresInSec);
+  } else if (apiResponse?.error === 'LoginNotAvailable') {
+    uiState.loginError = $t.value.loginPage.loginError.underAttack();
+  } else if (apiResponse?.error === 'UserNotActivated') {
+    uiState.loginError = $t.value.loginPage.loginError.userNotActivated();
+  } else {
+    console.error('Login failure', processingError);
+    uiState.loginError = $t.value.loginPage.loginError.generalFailure();
   }
+};
 
-  const executeLogin = async () => {
-    uiState.loginError = null;
-    uiState.loginInProgress = true;
-    accountLockTimer.cancel();
-    try {
-      await login({ ...form });
-      const profile = await profileApi.getProfile();
-      await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
+const { navigateByViewName } = useNavigation();
 
-      if (isAdmin()) {
-        await onAdminLogin();
-      } else {
-        await onUserLogin();
-      }
-    } catch (e: unknown) {
-      await onLoginError(e);
-    } finally {
-      uiState.loginInProgress = false;
+const onAdminLogin = async () => {
+  await navigateByViewName('users-overview');
+};
+
+const onUserLogin = async () => {
+  const hasAnyWorkspaces = await useWorkspaces().loadWorkspaces();
+  if (hasAnyWorkspaces) {
+    const { lastView } = useLastView();
+    if (lastView) {
+      await navigateByViewName(lastView);
+    } else {
+      await navigateByViewName('dashboard');
     }
-  };
+  } else {
+    await navigateByViewName('account-setup');
+  }
+};
+
+const emit = defineEmits<{
+  (e: 'login'): void;
+}>();
+
+const { isLoggedIn, login, isAdmin } = useAuth();
+if (isLoggedIn()) {
+  emit('login');
+}
+
+const executeLogin = async () => {
+  uiState.loginError = null;
+  uiState.loginInProgress = true;
+  accountLockTimer.cancel();
+  try {
+    await login({ ...form });
+    const profile = await profileApi.getProfile();
+    await setLocaleFromProfile(profile.i18n.locale, profile.i18n.language);
+
+    if (isAdmin()) {
+      await onAdminLogin();
+    } else {
+      await onUserLogin();
+    }
+  } catch (e: unknown) {
+    await onLoginError(e);
+  } finally {
+    uiState.loginInProgress = false;
+  }
+};
 </script>
 
 <style lang="scss">

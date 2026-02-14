@@ -1,18 +1,18 @@
 import { jwtDecode } from 'jwt-decode';
-import { LOGIN_REQUIRED_EVENT } from '@/services/events';
-import type { LoginRequest } from '@/services/api/generated';
 import { authApi } from '@/services/api/api-client';
+import type { LoginRequest } from '@/services/api/generated';
+import { LOGIN_REQUIRED_EVENT } from '@/services/events';
 
 interface ApiToken {
-  jwtToken: string | null,
-  isAdmin: boolean,
-  isTransient: boolean,
+  jwtToken: string | null;
+  isAdmin: boolean;
+  isTransient: boolean;
 }
 
 interface JwtToken {
-  roles: string[],
-  transient: boolean,
-  exp: number,
+  roles: string[];
+  transient: boolean;
+  exp: number;
 }
 
 const apiToken: ApiToken = {
@@ -64,9 +64,12 @@ export async function tryAutoLogin() {
   cancelTokenRefresh();
 
   try {
-    const response = await authApi.refreshToken({}, {
-      credentials: 'include',
-    });
+    const response = await authApi.refreshToken(
+      {},
+      {
+        credentials: 'include',
+      },
+    );
 
     updateApiToken(response.token);
     scheduleTokenRefresh();
@@ -126,7 +129,7 @@ function isCurrentUserTransient() {
 export interface Auth {
   logout: () => Promise<void>;
 
-  getToken(): (string | null);
+  getToken(): string | null;
 
   isCurrentUserTransient: () => boolean;
 

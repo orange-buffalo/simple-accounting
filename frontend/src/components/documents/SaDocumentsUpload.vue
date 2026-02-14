@@ -34,177 +34,176 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, watch } from 'vue';
-  import SaDocumentUpload from '@/components/documents/SaDocumentUpload.vue';
-  import SaDocument from '@/components/documents/SaDocument.vue';
-  import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
-  import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { DocumentDto } from '@/services/api';
-  import { consumeAllPages, documentsApi } from '@/services/api';
+import { computed, ref, watch } from 'vue';
+import SaDocument from '@/components/documents/SaDocument.vue';
+import SaDocumentUpload from '@/components/documents/SaDocumentUpload.vue';
+import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
+import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
+import type { DocumentDto } from '@/services/api';
+import { consumeAllPages, documentsApi } from '@/services/api';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  type DocumentAggregateState = 'empty' | 'pending' | 'upload-failed' | 'upload-completed';
+type DocumentAggregateState = 'empty' | 'pending' | 'upload-failed' | 'upload-completed';
 
-  class DocumentAggregate {
-    public document!: Partial<DocumentDto>;
+class DocumentAggregate {
+  public document!: Partial<DocumentDto>;
 
-    public state!: DocumentAggregateState;
+  public state!: DocumentAggregateState;
 
-    public key: string;
+  public key: string;
 
-    private readonly onDocumentAggregateChange: () => void;
+  private readonly onDocumentAggregateChange: () => void;
 
-    constructor(
-      onChange: () => void,
-      document?: DocumentDto,
-    ) {
-      this.document = document || {};
-      this.key = document ? document.id.toString() : Math.random()
-        .toString(36)
-        .slice(2);
-      this.state = document ? 'upload-completed' : 'empty';
-      this.onDocumentAggregateChange = onChange;
-    }
-
-    onUploadComplete(document: DocumentDto) {
-      this.document = document;
-      this.state = 'upload-completed';
-      this.onDocumentAggregateChange();
-    }
-
-    onUploadFailure() {
-      this.state = 'upload-failed';
-      this.onDocumentAggregateChange();
-    }
-
-    onFileSelection() {
-      this.state = 'pending';
-      this.onDocumentAggregateChange();
-    }
+  constructor(onChange: () => void, document?: DocumentDto) {
+    this.document = document || {};
+    this.key = document ? document.id.toString() : Math.random().toString(36).slice(2);
+    this.state = document ? 'upload-completed' : 'empty';
+    this.onDocumentAggregateChange = onChange;
   }
 
-  const props = defineProps<{
-    documentsIds: number[],
-    loadingOnCreate?: boolean
-  }>();
+  onUploadComplete(document: DocumentDto) {
+    this.document = document;
+    this.state = 'upload-completed';
+    this.onDocumentAggregateChange();
+  }
 
-  const emit = defineEmits<{
-    (e: 'uploads-failed'): void,
-    (e: 'update:documentsIds', documentIds: number[]): void,
-    (e: 'uploads-completed'): void,
-  }>();
+  onUploadFailure() {
+    this.state = 'upload-failed';
+    this.onDocumentAggregateChange();
+  }
 
-  const { documentsStorageStatus } = useDocumentsStorageStatus();
+  onFileSelection() {
+    this.state = 'pending';
+    this.onDocumentAggregateChange();
+  }
+}
 
-  const documentsAggregates = ref<DocumentAggregate[]>([]);
+const props = defineProps<{
+  documentsIds: number[];
+  loadingOnCreate?: boolean;
+}>();
 
-  const addEmptyDocumentAggregateIfNecessary = () => {
-    const emptyUpload = documentsAggregates.value
-      .find((it) => it.state === 'empty');
-    if (!emptyUpload) {
-      // eslint-disable-next-line no-use-before-define
-      documentsAggregates.value.push(new DocumentAggregate(onDocumentAggregateChange));
-    }
-  };
+const emit = defineEmits<{
+  (e: 'uploads-failed'): void;
+  (e: 'update:documentsIds', documentIds: number[]): void;
+  (e: 'uploads-completed'): void;
+}>();
 
-  const onDocumentRemoval = (documentAggregateKey: string) => {
-    documentsAggregates.value = documentsAggregates.value.filter((it) => it.key !== documentAggregateKey);
-  };
+const { documentsStorageStatus } = useDocumentsStorageStatus();
 
-  const onDocumentAggregateChange = () => {
-    addEmptyDocumentAggregateIfNecessary();
+const documentsAggregates = ref<DocumentAggregate[]>([]);
 
-    const pendingUpload = documentsAggregates.value
-      .find((it) => it.state === 'pending');
-    if (pendingUpload) {
-      return;
-    }
+const addEmptyDocumentAggregateIfNecessary = () => {
+  const emptyUpload = documentsAggregates.value.find((it) => it.state === 'empty');
+  if (!emptyUpload) {
+    // eslint-disable-next-line no-use-before-define
+    documentsAggregates.value.push(new DocumentAggregate(onDocumentAggregateChange));
+  }
+};
 
-    const failedUpload = documentsAggregates.value
-      .find((it) => it.state === 'upload-failed');
-    if (failedUpload) {
-      emit('uploads-failed');
-      return;
-    }
+const onDocumentRemoval = (documentAggregateKey: string) => {
+  documentsAggregates.value = documentsAggregates.value.filter((it) => it.key !== documentAggregateKey);
+};
 
-    const documentsIds = documentsAggregates.value
-      .filter((it) => it.state === 'upload-completed')
-      .map((it) => {
-        if (it.document.id === undefined) throw new Error('Inconsistent state');
-        return it.document.id;
-      });
-    emit('update:documentsIds', documentsIds);
-    emit('uploads-completed');
-  };
+const onDocumentAggregateChange = () => {
+  addEmptyDocumentAggregateIfNecessary();
 
-  const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
-  const submitUploads = () => {
-    if (uploadControls.value !== undefined) {
-      uploadControls.value.forEach((upload) => upload.submitUpload());
-    }
-    onDocumentAggregateChange();
-  };
-  defineExpose({
-    submitUploads,
-  });
+  const pendingUpload = documentsAggregates.value.find((it) => it.state === 'pending');
+  if (pendingUpload) {
+    return;
+  }
 
-  const documentsLoading = ref(false);
-  const loadDocuments = async () => {
-    documentsLoading.value = true;
-    try {
-      const { currentWorkspaceId } = useCurrentWorkspace();
-      const documents = await consumeAllPages((pageRequest) => documentsApi.getDocuments({
+  const failedUpload = documentsAggregates.value.find((it) => it.state === 'upload-failed');
+  if (failedUpload) {
+    emit('uploads-failed');
+    return;
+  }
+
+  const documentsIds = documentsAggregates.value
+    .filter((it) => it.state === 'upload-completed')
+    .map((it) => {
+      if (it.document.id === undefined) throw new Error('Inconsistent state');
+      return it.document.id;
+    });
+  emit('update:documentsIds', documentsIds);
+  emit('uploads-completed');
+};
+
+const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
+const submitUploads = () => {
+  if (uploadControls.value !== undefined) {
+    uploadControls.value.forEach((upload) => upload.submitUpload());
+  }
+  onDocumentAggregateChange();
+};
+defineExpose({
+  submitUploads,
+});
+
+const documentsLoading = ref(false);
+const loadDocuments = async () => {
+  documentsLoading.value = true;
+  try {
+    const { currentWorkspaceId } = useCurrentWorkspace();
+    const documents = await consumeAllPages((pageRequest) =>
+      documentsApi.getDocuments({
         ...pageRequest,
         idIn: props.documentsIds,
         workspaceId: currentWorkspaceId,
-      }));
-      documentsAggregates.value = documents
-        .sort((a, b) => {
-          return a.name.localeCompare(b.name);
-        })
-        .map((document) => new DocumentAggregate(
-          onDocumentAggregateChange,
-          document,
-        ));
-      addEmptyDocumentAggregateIfNecessary();
-    } finally {
-      documentsLoading.value = false;
-    }
-  };
+      }),
+    );
+    documentsAggregates.value = documents
+      .sort((a, b) => {
+        return a.name.localeCompare(b.name);
+      })
+      .map((document) => new DocumentAggregate(onDocumentAggregateChange, document));
+    addEmptyDocumentAggregateIfNecessary();
+  } finally {
+    documentsLoading.value = false;
+  }
+};
 
-  watch(() => props.documentsIds, async () => {
+watch(
+  () => props.documentsIds,
+  async () => {
     if (props.documentsIds.length) {
       await loadDocuments();
     } else {
       documentsAggregates.value = [];
     }
     addEmptyDocumentAggregateIfNecessary();
-  }, { immediate: true });
+  },
+  { immediate: true },
+);
 
-  const documentsReassigned = ref(false);
-  watch(() => props.documentsIds, () => {
+const documentsReassigned = ref(false);
+watch(
+  () => props.documentsIds,
+  () => {
     documentsReassigned.value = true;
-  }, { immediate: false });
+  },
+  { immediate: false },
+);
 
-  const uiState = computed(() => {
-    const state = {
-      initialLoading: false,
-      documentsLoading: false,
-      storageActive: true,
-    };
+const uiState = computed(() => {
+  const state = {
+    initialLoading: false,
+    documentsLoading: false,
+    storageActive: true,
+  };
 
-    if (documentsStorageStatus.value.loading) {
-      state.initialLoading = true;
-    } else if (!documentsStorageStatus.value.active) {
-      state.storageActive = false;
-    } else if (props.loadingOnCreate && !props.documentsIds.length && !documentsReassigned.value) {
-      state.initialLoading = true;
-    } else if (documentsLoading.value) {
-      state.documentsLoading = true;
-    }
+  if (documentsStorageStatus.value.loading) {
+    state.initialLoading = true;
+  } else if (!documentsStorageStatus.value.active) {
+    state.storageActive = false;
+  } else if (props.loadingOnCreate && !props.documentsIds.length && !documentsReassigned.value) {
+    state.initialLoading = true;
+  } else if (documentsLoading.value) {
+    state.documentsLoading = true;
+  }
 
-    return state;
-  });
+  return state;
+});
 </script>
 
 <style lang="scss">

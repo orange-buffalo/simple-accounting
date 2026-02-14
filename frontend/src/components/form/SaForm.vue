@@ -27,144 +27,144 @@
 </template>
 
 <script lang="ts" setup>
-  import { ElForm, FormInstance, FormItemContext } from 'element-plus';
-  import { computed, nextTick, onMounted, ref } from 'vue';
-  import { $t } from '@/services/i18n';
-  import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
-  import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
-  import {
-    setFieldErrorsFromClientSideValidation,
-    setFieldsErrorsFromApiResponse,
-  } from '@/components/form/api-field-error-messages.ts';
-  import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
-  import useNotifications from '@/components/notifications/use-notifications.ts';
+import { ElForm, FormInstance, FormItemContext } from 'element-plus';
+import { computed, nextTick, onMounted, ref } from 'vue';
+import {
+  setFieldErrorsFromClientSideValidation,
+  setFieldsErrorsFromApiResponse,
+} from '@/components/form/api-field-error-messages.ts';
+import { ClientSideValidationError } from '@/components/form/sa-form-api.ts';
+import { FormValues, provideSaFormComponentsApi } from '@/components/form/sa-form-components-api.ts';
+import useNotifications from '@/components/notifications/use-notifications.ts';
+import { ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
+import { $t } from '@/services/i18n';
 
+/**
+ * Modern form component with declarative API.
+ *
+ * @example
+ * ```vue
+ * <SaForm v-model="formValues" :on-submit="saveData" :on-load="loadData" :on-cancel="cancel">
+ *   <SaFormInput prop="name" label="Name" />
+ *   <SaFormSelect prop="role" label="Role">
+ *     <ElOption label="User" value="user" />
+ *   </SaFormSelect>
+ * </SaForm>
+ * ```
+ *
+ * Key features:
+ * - Uses `v-model` for two-way binding of form values
+ * - Handles form submission via `:on-submit` callback
+ * - Supports optional `:on-load` callback for data loading
+ * - Supports optional `:on-cancel` callback for cancel action
+ * - Automatically renders submit and cancel buttons
+ * - Handles validation errors from API or client-side using `ClientSideValidationError`
+ * - Shows loading state during submit and load operations
+ *
+ * For legacy forms with manual button control and rules-based validation,
+ * use `SaLegacyForm` instead.
+ */
+type SaFormProps = {
   /**
-   * Modern form component with declarative API.
-   *
-   * @example
-   * ```vue
-   * <SaForm v-model="formValues" :on-submit="saveData" :on-load="loadData" :on-cancel="cancel">
-   *   <SaFormInput prop="name" label="Name" />
-   *   <SaFormSelect prop="role" label="Role">
-   *     <ElOption label="User" value="user" />
-   *   </SaFormSelect>
-   * </SaForm>
-   * ```
-   *
-   * Key features:
-   * - Uses `v-model` for two-way binding of form values
-   * - Handles form submission via `:on-submit` callback
-   * - Supports optional `:on-load` callback for data loading
-   * - Supports optional `:on-cancel` callback for cancel action
-   * - Automatically renders submit and cancel buttons
-   * - Handles validation errors from API or client-side using `ClientSideValidationError`
-   * - Shows loading state during submit and load operations
-   *
-   * For legacy forms with manual button control and rules-based validation,
-   * use `SaLegacyForm` instead.
+   * Callback for handling cancel action. If not provided, cancel button will not be shown.
    */
-  type SaFormProps = {
-    /**
-     * Callback for handling cancel action. If not provided, cancel button will not be shown.
-     */
-    onCancel?: () => Promise<unknown> | unknown,
-    /**
-     * Label for the cancel button. Defaults to "Cancel" from translations.
-     */
-    cancelButtonLabel?: string,
-    /**
-     * Label for the submit button. Defaults to "Save" from translations.
-     */
-    submitButtonLabel?: string,
-    /**
-     * Whether to disable the submit button.
-     */
-    submitButtonDisabled?: boolean,
-    /**
-     * Callback for loading data when the form is mounted.
-     * The form will show loading state until this completes.
-     */
-    onLoad?: () => Promise<unknown> | unknown,
-    /**
-     * Callback for handling form submission.
-     * Should throw `ApiFieldLevelValidationError` or `ClientSideValidationError`
-     * for field-level validation errors.
-     */
-    onSubmit: () => Promise<unknown> | unknown,
-    /**
-     * External loading state. When true, the form will show loading indicator.
-     * This is merged with the internal loading state from onLoad and onSubmit.
-     */
-    externalLoading?: boolean,
-    /**
-     * Whether to hide the buttons bar (submit and cancel buttons).
-     * Useful for forms that auto-submit on change.
-     */
-    hideButtons?: boolean,
-  };
+  onCancel?: () => Promise<unknown> | unknown;
+  /**
+   * Label for the cancel button. Defaults to "Cancel" from translations.
+   */
+  cancelButtonLabel?: string;
+  /**
+   * Label for the submit button. Defaults to "Save" from translations.
+   */
+  submitButtonLabel?: string;
+  /**
+   * Whether to disable the submit button.
+   */
+  submitButtonDisabled?: boolean;
+  /**
+   * Callback for loading data when the form is mounted.
+   * The form will show loading state until this completes.
+   */
+  onLoad?: () => Promise<unknown> | unknown;
+  /**
+   * Callback for handling form submission.
+   * Should throw `ApiFieldLevelValidationError` or `ClientSideValidationError`
+   * for field-level validation errors.
+   */
+  onSubmit: () => Promise<unknown> | unknown;
+  /**
+   * External loading state. When true, the form will show loading indicator.
+   * This is merged with the internal loading state from onLoad and onSubmit.
+   */
+  externalLoading?: boolean;
+  /**
+   * Whether to hide the buttons bar (submit and cancel buttons).
+   * Useful for forms that auto-submit on change.
+   */
+  hideButtons?: boolean;
+};
 
-  // Modern API uses v-model
-  const formValues = defineModel<FormValues>({ required: true });
+// Modern API uses v-model
+const formValues = defineModel<FormValues>({ required: true });
 
-  const props = withDefaults(defineProps<SaFormProps>(), {
-    submitButtonDisabled: false,
-    externalLoading: false,
-    hideButtons: false,
-  });
+const props = withDefaults(defineProps<SaFormProps>(), {
+  submitButtonDisabled: false,
+  externalLoading: false,
+  hideButtons: false,
+});
 
-  const elForm = ref<FormInstance | undefined>(undefined);
-  const internalLoading = ref(false);
-  const loading = computed(() => internalLoading.value || props.externalLoading);
+const elForm = ref<FormInstance | undefined>(undefined);
+const internalLoading = ref(false);
+const loading = computed(() => internalLoading.value || props.externalLoading);
 
-  const formItems = new Map<string, FormItemContext>();
+const formItems = new Map<string, FormItemContext>();
 
-  const { showWarningNotification } = useNotifications();
-  const submitForm = async () => {
+const { showWarningNotification } = useNotifications();
+const submitForm = async () => {
+  internalLoading.value = true;
+  try {
+    await props.onSubmit();
+  } catch (e: unknown) {
+    if (e instanceof ApiFieldLevelValidationError) {
+      setFieldsErrorsFromApiResponse(e.fieldErrors, formItems);
+      showWarningNotification($t.value.saForm.inputValidationFailed());
+    } else if (e instanceof ClientSideValidationError) {
+      setFieldErrorsFromClientSideValidation(e.fieldErrors, formItems);
+      showWarningNotification($t.value.saForm.inputValidationFailed());
+    } else {
+      throw e;
+    }
+  } finally {
+    internalLoading.value = false;
+  }
+};
+
+provideSaFormComponentsApi({
+  registerFormItem: (prop: string, formItem: FormItemContext) => {
+    formItems.set(prop, formItem);
+  },
+  unregisterFormItem: (prop: string) => {
+    formItems.delete(prop);
+  },
+  formValues,
+  submitForm: async () => {
+    // wait for Vue to propagate changes from form components
+    await nextTick();
+    await submitForm();
+  },
+  loading,
+});
+
+onMounted(async () => {
+  if (props.onLoad) {
     internalLoading.value = true;
     try {
-      await props.onSubmit();
-    } catch (e: unknown) {
-      if (e instanceof ApiFieldLevelValidationError) {
-        setFieldsErrorsFromApiResponse(e.fieldErrors, formItems);
-        showWarningNotification($t.value.saForm.inputValidationFailed());
-      } else if (e instanceof ClientSideValidationError) {
-        setFieldErrorsFromClientSideValidation(e.fieldErrors, formItems);
-        showWarningNotification($t.value.saForm.inputValidationFailed());
-      } else {
-        throw e;
-      }
+      await props.onLoad();
     } finally {
       internalLoading.value = false;
     }
-  };
-
-  provideSaFormComponentsApi({
-    registerFormItem: (prop: string, formItem: FormItemContext) => {
-      formItems.set(prop, formItem);
-    },
-    unregisterFormItem: (prop: string) => {
-      formItems.delete(prop);
-    },
-    formValues,
-    submitForm: async () => {
-      // wait for Vue to propagate changes from form components
-      await nextTick();
-      await submitForm();
-    },
-    loading,
-  });
-
-  onMounted(async () => {
-    if (props.onLoad) {
-      internalLoading.value = true;
-      try {
-        await props.onLoad();
-      } finally {
-        internalLoading.value = false;
-      }
-    }
-  });
+  }
+});
 </script>
 
 <style lang="scss">

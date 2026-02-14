@@ -3,4 +3,4 @@ export type GeneralTaxReportItem = {
   taxAmount: number;
   finalized: boolean;
   includedItemsAmount: number;
-}
+};

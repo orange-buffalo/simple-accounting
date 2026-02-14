@@ -194,152 +194,149 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import { $t } from '@/services/i18n';
-  import SaMoneyInput from '@/components/SaMoneyInput.vue';
-  import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
-  import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
-  import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import SaCustomerInput from '@/components/customer/SaCustomerInput.vue';
-  import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { useFormWithDocumentsUpload } from '@/components/form/use-form';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { EditInvoiceDto, InvoiceDtoStatusEnum } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
-  import { useConfirmation } from '@/components/confirmation/use-confirmation';
-  import type { PartialBy } from '@/services/utils';
-  import { ensureDefined } from '@/services/utils';
+import { ref } from 'vue';
+import { useConfirmation } from '@/components/confirmation/use-confirmation';
+import SaCurrencyInput from '@/components/currency-input/SaCurrencyInput.vue';
+import SaCustomerInput from '@/components/customer/SaCustomerInput.vue';
+import SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
+import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+import { useFormWithDocumentsUpload } from '@/components/form/use-form';
+import SaGeneralTaxInput from '@/components/general-tax/SaGeneralTaxInput.vue';
+import SaNotesInput from '@/components/notes-input/SaNotesInput.vue';
+import SaMoneyInput from '@/components/SaMoneyInput.vue';
+import SaStatusLabel from '@/components/SaStatusLabel.vue';
+import type { EditInvoiceDto, InvoiceDtoStatusEnum } from '@/services/api';
+import { invoicesApi } from '@/services/api';
+import { formatDateToLocalISOString } from '@/services/date-utils';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import type { PartialBy } from '@/services/utils';
+import { ensureDefined } from '@/services/utils';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    id?: number
-  }>();
+const props = defineProps<{
+  id?: number;
+}>();
 
-  const invoiceValidationRules = {
-    customer: {
-      required: true,
-      message: $t.value.editInvoice.validations.customer(),
-    },
-    currency: {
-      required: true,
-      message: $t.value.editInvoice.validations.currency(),
-    },
-    title: {
-      required: true,
-      message: $t.value.editInvoice.validations.title(),
-    },
-    amount: {
-      required: true,
-      message: $t.value.editInvoice.validations.amount(),
-    },
-    dateIssued: {
-      required: true,
-      message: $t.value.editInvoice.validations.dateIssued(),
-    },
-    dueDate: {
-      required: true,
-      message: $t.value.editInvoice.validations.dueDate(),
-    },
-    dateSent: {
-      required: true,
-      message: $t.value.editInvoice.validations.dateSent(),
-    },
-    datePaid: {
-      required: true,
-      message: $t.value.editInvoice.validations.datePaid(),
-    },
+const invoiceValidationRules = {
+  customer: {
+    required: true,
+    message: $t.value.editInvoice.validations.customer(),
+  },
+  currency: {
+    required: true,
+    message: $t.value.editInvoice.validations.currency(),
+  },
+  title: {
+    required: true,
+    message: $t.value.editInvoice.validations.title(),
+  },
+  amount: {
+    required: true,
+    message: $t.value.editInvoice.validations.amount(),
+  },
+  dateIssued: {
+    required: true,
+    message: $t.value.editInvoice.validations.dateIssued(),
+  },
+  dueDate: {
+    required: true,
+    message: $t.value.editInvoice.validations.dueDate(),
+  },
+  dateSent: {
+    required: true,
+    message: $t.value.editInvoice.validations.dateSent(),
+  },
+  datePaid: {
+    required: true,
+    message: $t.value.editInvoice.validations.datePaid(),
+  },
+};
+
+const { navigateByViewName } = useNavigation();
+const navigateToInvoicesOverview = async () => {
+  await navigateByViewName('invoices-overview');
+};
+
+const { currentWorkspaceId, defaultCurrency } = useCurrentWorkspace();
+
+type InvoiceFormValues = PartialBy<EditInvoiceDto, 'amount' | 'dueDate' | 'customer' | 'title'> & {
+  attachments: Array<number>;
+};
+
+const invoice = ref<InvoiceFormValues>({
+  attachments: [],
+  dateIssued: formatDateToLocalISOString(new Date()),
+  currency: defaultCurrency,
+});
+
+const uiState = ref<{
+  alreadySent: boolean;
+  alreadyPaid: boolean;
+  isEditing: boolean;
+  status?: InvoiceDtoStatusEnum;
+}>({
+  alreadySent: false,
+  alreadyPaid: false,
+  isEditing: props.id != null,
+});
+
+const loadInvoice = async () => {
+  if (props.id !== undefined) {
+    const fullInvoice = await invoicesApi.getInvoice({
+      invoiceId: props.id,
+      workspaceId: currentWorkspaceId,
+    });
+    invoice.value = fullInvoice;
+    uiState.value.alreadyPaid = invoice.value.datePaid !== undefined;
+    uiState.value.alreadySent = invoice.value.dateSent !== undefined;
+    uiState.value.status = fullInvoice.status;
+  }
+};
+
+const saveInvoice = async () => {
+  const request: EditInvoiceDto = {
+    ...(invoice.value as EditInvoiceDto),
+    datePaid: uiState.value.alreadyPaid ? invoice.value.datePaid : undefined,
+    dateSent: uiState.value.alreadySent ? invoice.value.dateSent : undefined,
   };
+  if (props.id) {
+    await invoicesApi.updateInvoice({
+      workspaceId: currentWorkspaceId,
+      editInvoiceDto: request,
+      invoiceId: ensureDefined(props.id),
+    });
+  } else {
+    await invoicesApi.createInvoice({
+      workspaceId: currentWorkspaceId,
+      editInvoiceDto: request,
+    });
+  }
+  await navigateToInvoicesOverview();
+};
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToInvoicesOverview = async () => {
-    await navigateByViewName('invoices-overview');
-  };
+const {
+  formRef,
+  submitForm,
+  documentsUploadRef,
+  onDocumentsUploadComplete,
+  onDocumentsUploadFailure,
+  executeWithFormBlocked,
+} = useFormWithDocumentsUpload(loadInvoice, saveInvoice);
 
-  const {
-    currentWorkspaceId,
-    defaultCurrency,
-  } = useCurrentWorkspace();
+const pageHeader =
+  props.id === undefined ? $t.value.editInvoice.pageHeader.create() : $t.value.editInvoice.pageHeader.edit();
 
-  type InvoiceFormValues = PartialBy<EditInvoiceDto, 'amount' | 'dueDate' | 'customer' | 'title'> & {
-    attachments: Array<number>,
-  };
-
-  const invoice = ref<InvoiceFormValues>({
-    attachments: [],
-    dateIssued: formatDateToLocalISOString(new Date()),
-    currency: defaultCurrency,
-  });
-
-  const uiState = ref<{
-    alreadySent: boolean,
-    alreadyPaid: boolean,
-    isEditing: boolean,
-    status?: InvoiceDtoStatusEnum
-  }>({
-    alreadySent: false,
-    alreadyPaid: false,
-    isEditing: props.id != null,
-  });
-
-  const loadInvoice = async () => {
-    if (props.id !== undefined) {
-      const fullInvoice = await invoicesApi.getInvoice({
-        invoiceId: props.id,
-        workspaceId: currentWorkspaceId,
-      });
-      invoice.value = fullInvoice;
-      uiState.value.alreadyPaid = invoice.value.datePaid !== undefined;
-      uiState.value.alreadySent = invoice.value.dateSent !== undefined;
-      uiState.value.status = fullInvoice.status;
-    }
-  };
-
-  const saveInvoice = async () => {
-    const request: EditInvoiceDto = {
-      ...(invoice.value as EditInvoiceDto),
-      datePaid: uiState.value.alreadyPaid ? invoice.value.datePaid : undefined,
-      dateSent: uiState.value.alreadySent ? invoice.value.dateSent : undefined,
-    };
-    if (props.id) {
-      await invoicesApi.updateInvoice({
-        workspaceId: currentWorkspaceId,
-        editInvoiceDto: request,
-        invoiceId: ensureDefined(props.id),
-      });
-    } else {
-      await invoicesApi.createInvoice({
-        workspaceId: currentWorkspaceId,
-        editInvoiceDto: request,
-      });
-    }
-    await navigateToInvoicesOverview();
-  };
-
-  const {
-    formRef,
-    submitForm,
-    documentsUploadRef,
-    onDocumentsUploadComplete,
-    onDocumentsUploadFailure,
-    executeWithFormBlocked,
-  } = useFormWithDocumentsUpload(loadInvoice, saveInvoice);
-
-  const pageHeader = props.id === undefined
-    ? $t.value.editInvoice.pageHeader.create()
-    : $t.value.editInvoice.pageHeader.edit();
-
-  const cancelInvoice = useConfirmation(
-    $t.value.editInvoice.cancelInvoice.confirm.message(),
-    {
-      title: 'Warning',
-      confirmButtonText: $t.value.editInvoice.cancelInvoice.confirm.yes(),
-      cancelButtonText: $t.value.editInvoice.cancelInvoice.confirm.no(),
-      type: 'warning',
-    },
-    async () => executeWithFormBlocked(async () => {
+const cancelInvoice = useConfirmation(
+  $t.value.editInvoice.cancelInvoice.confirm.message(),
+  {
+    title: 'Warning',
+    confirmButtonText: $t.value.editInvoice.cancelInvoice.confirm.yes(),
+    cancelButtonText: $t.value.editInvoice.cancelInvoice.confirm.no(),
+    type: 'warning',
+  },
+  async () =>
+    executeWithFormBlocked(async () => {
       const updatedInvoice = await invoicesApi.cancelInvoice({
         workspaceId: currentWorkspaceId,
         invoiceId: ensureDefined(props.id),
@@ -347,5 +344,5 @@
       invoice.value = updatedInvoice;
       uiState.value.status = updatedInvoice.status;
     }),
-  );
+);
 </script>

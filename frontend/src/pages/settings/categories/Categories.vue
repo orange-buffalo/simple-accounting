@@ -43,28 +43,29 @@
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import useNavigation from '@/services/use-navigation';
-  import type { ApiPageRequest, CategoryDto, HasOptionalId } from '@/services/api';
-  import { categoriesApi } from '@/services/api';
+import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import type { ApiPageRequest, CategoryDto, HasOptionalId } from '@/services/api';
+import { categoriesApi } from '@/services/api';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const {
-    currentWorkspace,
-    currentWorkspaceId,
-  } = useCurrentWorkspace();
-  const categoriesProvider = async (request: ApiPageRequest, config: RequestInit) => categoriesApi.getCategories({
-    ...request,
-    workspaceId: currentWorkspaceId,
-  }, config);
+const { currentWorkspace, currentWorkspaceId } = useCurrentWorkspace();
+const categoriesProvider = async (request: ApiPageRequest, config: RequestInit) =>
+  categoriesApi.getCategories(
+    {
+      ...request,
+      workspaceId: currentWorkspaceId,
+    },
+    config,
+  );
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToNewCategoryView = () => {
-    navigateByViewName('create-new-category');
-  };
+const { navigateByViewName } = useNavigation();
+const navigateToNewCategoryView = () => {
+  navigateByViewName('create-new-category');
+};
 
-  const category = (item: HasOptionalId) => item as CategoryDto;
+const category = (item: HasOptionalId) => item as CategoryDto;
 </script>
 
 <style lang="scss">

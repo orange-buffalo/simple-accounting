@@ -1,34 +1,28 @@
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import {
-  afterEach, describe, expect, vi, test,
-} from 'vitest';
-import {
+  $t,
   formatMessage,
-  parseMessage,
-  getSupportedLanguages,
-  getSupportedLocales,
   getCurrentLanguage,
   getCurrentLocale,
-  setLocaleFromProfile,
+  getSupportedLanguages,
+  getSupportedLocales,
+  parseMessage,
   setLocaleFromBrowser,
-  $t,
+  setLocaleFromProfile,
 } from '@/services/i18n';
 
 describe('i18n', () => {
   test('should provide supported languages', () => {
-    expect(getSupportedLanguages())
-      .toContainEqual({
-        languageCode: 'en',
-        displayName: 'English',
-      });
+    expect(getSupportedLanguages()).toContainEqual({
+      languageCode: 'en',
+      displayName: 'English',
+    });
   });
 
   test('should fail on supported locales if not initialized', () => {
-    expect(() => getSupportedLocales())
-      .toThrow('i18n has not been initialized');
-    expect(() => getCurrentLanguage())
-      .toThrow('i18n has not been initialized');
-    expect(() => getCurrentLocale())
-      .toThrow('i18n has not been initialized');
+    expect(() => getSupportedLocales()).toThrow('i18n has not been initialized');
+    expect(() => getCurrentLanguage()).toThrow('i18n has not been initialized');
+    expect(() => getCurrentLocale()).toThrow('i18n has not been initialized');
   });
 
   test('should setup up after initialization from browser', async () => {
@@ -39,36 +33,30 @@ describe('i18n', () => {
 
     await setLocaleFromBrowser();
 
-    expect(getSupportedLocales())
-      .toContainEqual({
-        locale: 'en',
-        displayName: 'English',
-      });
-    expect(getCurrentLanguage())
-      .toBe('en');
-    expect(getCurrentLocale())
-      .toBe('fr');
+    expect(getSupportedLocales()).toContainEqual({
+      locale: 'en',
+      displayName: 'English',
+    });
+    expect(getCurrentLanguage()).toBe('en');
+    expect(getCurrentLocale()).toBe('fr');
   });
 
   test('should render template without parameters', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('Test message'))
-      .toBe('Test message');
+    expect(formatMessage('Test message')).toBe('Test message');
   });
 
   test('should render named params', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{param}', { param: 'value' }))
-      .toBe('value');
+    expect(formatMessage('{param}', { param: 'value' })).toBe('value');
   });
 
   test('should render indexed params', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0}', ['value']))
-      .toBe('value');
+    expect(formatMessage('{0}', ['value'])).toBe('value');
   });
 
   test.each([
@@ -77,18 +65,20 @@ describe('i18n', () => {
   ])('should support yesNo format (%b -> %s)', async (value, expectedInterpolation) => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, yesNo}', [value]))
-      .toBe(expectedInterpolation);
+    expect(formatMessage('{0, yesNo}', [value])).toBe(expectedInterpolation);
   });
 
   test('should support amount format', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, amount, withCurrency}', [{
-      currency: 'AUD',
-      amountInCents: 1234,
-    }]))
-      .toBe('A$12.34');
+    expect(
+      formatMessage('{0, amount, withCurrency}', [
+        {
+          currency: 'AUD',
+          amountInCents: 1234,
+        },
+      ]),
+    ).toBe('A$12.34');
   });
 
   test.each([
@@ -106,29 +96,25 @@ describe('i18n', () => {
   ])('should support bps format (%i -> %s)', async (bps, expectedValue) => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, bps, percent}', [bps]))
-      .toBe(expectedValue);
+    expect(formatMessage('{0, bps, percent}', [bps])).toBe(expectedValue);
   });
 
   test('should support date format', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, date, medium}', [new Date('2021-10-21 14:23')]))
-      .toBe('Oct 21, 2021');
+    expect(formatMessage('{0, date, medium}', [new Date('2021-10-21 14:23')])).toBe('Oct 21, 2021');
   });
 
   test('should support date-time format', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, saDateTime, medium}', [new Date('2021-10-21 14:23')]))
-      .toBe('Oct 21, 2021, 2:23 PM');
+    expect(formatMessage('{0, saDateTime, medium}', [new Date('2021-10-21 14:23')])).toBe('Oct 21, 2021, 2:23 PM');
   });
 
   test('should support $t', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect($t.value.common.yesNo.yes())
-      .toBe('Yes');
+    expect($t.value.common.yesNo.yes()).toBe('Yes');
   });
 
   test.each([
@@ -150,24 +136,26 @@ describe('i18n', () => {
   ])('should support file size format (%i -> %s)', async (value, expectedInterpolation) => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(formatMessage('{0, fileSize, pretty}', [value]))
-      .toBe(expectedInterpolation);
+    expect(formatMessage('{0, fileSize, pretty}', [value])).toBe(expectedInterpolation);
   });
 
   test('should parse messages', async () => {
     await setLocaleFromProfile('en', 'en');
 
-    expect(parseMessage('Test then {0} and then done.'))
-      .toEqual([{
+    expect(parseMessage('Test then {0} and then done.')).toEqual([
+      {
         type: 'content',
         value: 'Test then ',
-      }, {
+      },
+      {
         type: 'arg',
         value: '0',
-      }, {
+      },
+      {
         type: 'content',
         value: ' and then done.',
-      }]);
+      },
+    ]);
   });
 
   afterEach(() => {

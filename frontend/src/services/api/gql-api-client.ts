@@ -1,12 +1,16 @@
-import { AnyVariables, Client, fetchExchange, DocumentInput, OperationContext, OperationResult } from '@urql/core';
-
-import { graphql } from '@/services/api/gql';
-import { updateApiToken, useAuth } from '@/services/api/auth.ts';
+import { AnyVariables, Client, DocumentInput, fetchExchange, OperationContext, OperationResult } from '@urql/core';
 import { authExchange } from '@urql/exchange-auth';
 import { jwtDecode } from 'jwt-decode';
 import {
-  ApiAuthError, ApiBusinessError, ApiError, ApiFieldLevelValidationError, ClientApiError, FieldError,
+  ApiAuthError,
+  ApiBusinessError,
+  ApiError,
+  ApiFieldLevelValidationError,
+  ClientApiError,
+  FieldError,
 } from '@/services/api/api-errors.ts';
+import { updateApiToken, useAuth } from '@/services/api/auth.ts';
+import { graphql } from '@/services/api/gql';
 import { SaGrapQlErrorType, ValidationErrorDetails } from '@/services/api/gql/graphql.ts';
 
 const refreshTokenMutation = graphql(/* GraphQL */ `
@@ -22,7 +26,7 @@ const getJwtToken = () => {
   return getToken();
 };
 
-const jwtAuthExchange = authExchange(async utils => {
+const jwtAuthExchange = authExchange(async (utils) => {
   // noinspection JSUnusedGlobalSymbols
   return {
     addAuthToOperation(operation) {
@@ -37,7 +41,7 @@ const jwtAuthExchange = authExchange(async utils => {
 
     didAuthError(error, _operation) {
       // see SaGrapQlException
-      return error.graphQLErrors.some(e => e.extensions?.errorType === SaGrapQlErrorType.NotAuthorized);
+      return error.graphQLErrors.some((e) => e.extensions?.errorType === SaGrapQlErrorType.NotAuthorized);
     },
 
     async refreshAuth() {
@@ -55,10 +59,10 @@ const jwtAuthExchange = authExchange(async utils => {
         return true;
       }
       const { exp } = jwtDecode(token) as {
-        exp: number,
+        exp: number;
       };
       // give some leeway of 20 seconds
-      return Date.now() >= (exp * 1000 - 20000);
+      return Date.now() >= exp * 1000 - 20000;
     },
   };
 });
@@ -89,9 +93,7 @@ export interface GrapQlClient {
   ): Promise<Data>;
 }
 
-function convertValidationErrorsToFieldErrors(
-  validationErrors: ValidationErrorDetails[],
-): FieldError[] {
+function convertValidationErrorsToFieldErrors(validationErrors: ValidationErrorDetails[]): FieldError[] {
   return validationErrors.map((validationError) => {
     const params: { [key: string]: string } | undefined = validationError.params
       ? Object.fromEntries(validationError.params.map((param) => [param.name, param.value]))
@@ -106,9 +108,7 @@ function convertValidationErrorsToFieldErrors(
   });
 }
 
-async function executeGqlRequestAndHandleErrors<Data>(
-  operation: () => Promise<OperationResult<Data>>,
-): Promise<Data> {
+async function executeGqlRequestAndHandleErrors<Data>(operation: () => Promise<OperationResult<Data>>): Promise<Data> {
   const result = await operation();
   if (result.error) {
     if (result.error.networkError) {
@@ -119,7 +119,8 @@ async function executeGqlRequestAndHandleErrors<Data>(
     }
     if (result.error.graphQLErrors.length > 1) {
       throw new ApiError(
-        `Multiple errors received, which is not supported: ${JSON.stringify(result.error.graphQLErrors)}`);
+        `Multiple errors received, which is not supported: ${JSON.stringify(result.error.graphQLErrors)}`,
+      );
     }
     if (result.error.graphQLErrors.length === 0) {
       throw new ApiError('Unknown error');
@@ -148,20 +149,17 @@ async function executeGqlRequestAndHandleErrors<Data>(
       });
     }
 
-    throw new ApiError(
-      `Unsupported error received: ${JSON.stringify(graphQLError)}`);
+    throw new ApiError(`Unsupported error received: ${JSON.stringify(graphQLError)}`);
   }
   return result.data;
 }
 
 export const gqlClient: GrapQlClient = {
   async query(query, variables, context) {
-    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.query(query, variables, context)
-      .toPromise());
+    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.query(query, variables, context).toPromise());
   },
 
   async mutation(query, variables, context) {
-    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.mutation(query, variables, context)
-      .toPromise());
+    return executeGqlRequestAndHandleErrors(() => gqlNativeClient.mutation(query, variables, context).toPromise());
   },
 };

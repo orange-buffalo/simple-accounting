@@ -12,12 +12,12 @@
 </template>
 
 <script lang="ts" setup>
-  import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
+import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
 
-  defineProps<{
-    loading: boolean,
-    error?: boolean,
-  }>();
+defineProps<{
+  loading: boolean;
+  error?: boolean;
+}>();
 </script>
 
 <style lang="scss">

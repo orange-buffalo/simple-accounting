@@ -56,65 +56,62 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { PartialBy } from '@/services/utils';
-  import type { CreateCategoryDto } from '@/services/api';
-  import { categoriesApi } from '@/services/api';
-  import useNavigation from '@/services/use-navigation';
-  import { useForm } from '@/components/form/use-form';
+import { ref } from 'vue';
+import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+import { useForm } from '@/components/form/use-form';
+import type { CreateCategoryDto } from '@/services/api';
+import { categoriesApi } from '@/services/api';
+import useNavigation from '@/services/use-navigation';
+import type { PartialBy } from '@/services/utils';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  type CategoryFormValues = PartialBy<CreateCategoryDto, 'name'>;
-  const category = ref<CategoryFormValues>({
-    income: false,
-    expense: false,
+type CategoryFormValues = PartialBy<CreateCategoryDto, 'name'>;
+const category = ref<CategoryFormValues>({
+  income: false,
+  expense: false,
+});
+
+const categoryValidationRules = {
+  name: [
+    {
+      required: true,
+      message: 'Please input name',
+      trigger: 'blur',
+    },
+  ],
+  defaultCurrency: [
+    {
+      required: true,
+      message: 'Please input currency',
+      trigger: 'blur',
+    },
+  ],
+  income: [
+    {
+      validator: (rule: unknown, value: unknown, callback: (error?: Error) => void) => {
+        if (!category.value.income && !category.value.expense) {
+          callback(new Error('At least one of income/expense must be selected'));
+        } else {
+          callback();
+        }
+      },
+    },
+  ],
+};
+
+const { navigateByViewName } = useNavigation();
+const navigateToCategoriesOverview = async () => navigateByViewName('/settings/categories');
+
+const { currentWorkspaceId } = useCurrentWorkspace();
+const saveCategory = async () => {
+  await categoriesApi.createCategory({
+    createCategoryDto: category.value as CreateCategoryDto,
+    workspaceId: currentWorkspaceId,
   });
+  await navigateToCategoriesOverview();
+};
 
-  const categoryValidationRules = {
-    name: [
-      {
-        required: true,
-        message: 'Please input name',
-        trigger: 'blur',
-      },
-    ],
-    defaultCurrency: [
-      {
-        required: true,
-        message: 'Please input currency',
-        trigger: 'blur',
-      },
-    ],
-    income: [
-      {
-        validator: (rule: unknown, value: unknown, callback: (error?: Error) => void) => {
-          if (!category.value.income && !category.value.expense) {
-            callback(new Error('At least one of income/expense must be selected'));
-          } else {
-            callback();
-          }
-        },
-      },
-    ],
-  };
-
-  const { navigateByViewName } = useNavigation();
-  const navigateToCategoriesOverview = async () => navigateByViewName('/settings/categories');
-
-  const { currentWorkspaceId } = useCurrentWorkspace();
-  const saveCategory = async () => {
-    await categoriesApi.createCategory({
-      createCategoryDto: category.value as CreateCategoryDto,
-      workspaceId: currentWorkspaceId,
-    });
-    await navigateToCategoriesOverview();
-  };
-
-  const {
-    formRef,
-    submitForm,
-  } = useForm(async () => {
-    // no op
-  }, saveCategory);
+const { formRef, submitForm } = useForm(async () => {
+  // no op
+}, saveCategory);
 </script>

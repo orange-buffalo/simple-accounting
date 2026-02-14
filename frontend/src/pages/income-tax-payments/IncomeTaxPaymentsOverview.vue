@@ -29,27 +29,25 @@
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import IncomeTaxPaymentsOverviewPanel from '@/pages/income-tax-payments/IncomeTaxPaymentsOverviewPanel.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { ApiPageRequest, IncomeTaxPaymentDto } from '@/services/api';
-  import { $t } from '@/services/i18n';
-  import { incomeTaxPaymentsApi } from '@/services/api';
+import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import IncomeTaxPaymentsOverviewPanel from '@/pages/income-tax-payments/IncomeTaxPaymentsOverviewPanel.vue';
+import type { ApiPageRequest, IncomeTaxPaymentDto } from '@/services/api';
+import { incomeTaxPaymentsApi } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateTaxPaymentView = () => navigateByViewName('create-new-income-tax-payment');
-  const {
-    currentWorkspace,
-    currentWorkspaceId,
-  } = useCurrentWorkspace();
+const { navigateByViewName } = useNavigation();
+const navigateToCreateTaxPaymentView = () => navigateByViewName('create-new-income-tax-payment');
+const { currentWorkspace, currentWorkspaceId } = useCurrentWorkspace();
 
-  const taxPaymentsProvider = async (
-    request: ApiPageRequest,
-    config: RequestInit,
-  ) => incomeTaxPaymentsApi.getTaxPayments({
-    ...request,
-    workspaceId: currentWorkspaceId,
-  }, config);
+const taxPaymentsProvider = async (request: ApiPageRequest, config: RequestInit) =>
+  incomeTaxPaymentsApi.getTaxPayments(
+    {
+      ...request,
+      workspaceId: currentWorkspaceId,
+    },
+    config,
+  );
 </script>

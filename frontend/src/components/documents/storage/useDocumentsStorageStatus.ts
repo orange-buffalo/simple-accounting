@@ -2,8 +2,8 @@ import { ref } from 'vue';
 import { profileApi } from '@/services/api';
 
 interface DocumentStorageStatusState {
-  readonly loading: boolean,
-  readonly active: boolean,
+  readonly loading: boolean;
+  readonly active: boolean;
 }
 
 export default function useDocumentsStorageStatus() {

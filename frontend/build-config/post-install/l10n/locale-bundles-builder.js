@@ -1,6 +1,6 @@
+import Cldr from 'cldrjs';
 import fs from 'fs';
 import path from 'path';
-import Cldr from 'cldrjs';
 
 function getMergedCldrJson(baseDir, jsonFiles) {
   const mergedJson = jsonFiles.reduce((totalJson, jsonFileName) => {
@@ -20,9 +20,7 @@ function mergeAndSaveCldrJsonFiles(baseDir, jsonFiles, outputFile) {
 }
 
 const baseCodeGenDir = 'src/services/i18n/l10n';
-const baseCldrDataDir = import.meta.resolve('cldr-data')
-  .replace('file://', '')
-  .replace('index.js', '');
+const baseCldrDataDir = import.meta.resolve('cldr-data').replace('file://', '').replace('index.js', '');
 
 function prepareCodeGenDir() {
   if (!fs.existsSync(baseCodeGenDir)) {
@@ -33,15 +31,7 @@ function prepareCodeGenDir() {
 function generateBaseLocalBundleJson() {
   mergeAndSaveCldrJsonFiles(
     `${baseCldrDataDir}/supplemental`,
-    [
-      'metaZones',
-      'timeData',
-      'weekData',
-      'numberingSystems',
-      'currencyData',
-      'likelySubtags',
-      'plurals',
-    ],
+    ['metaZones', 'timeData', 'weekData', 'numberingSystems', 'currencyData', 'likelySubtags', 'plurals'],
     `${baseCodeGenDir}/base.json`,
   );
 }
@@ -56,20 +46,11 @@ function getSupportedLocalesCodes() {
 }
 
 function generateLocalesBundlesJsons() {
-  const {
-    baseLocalesDir,
-    localesCodes,
-  } = getSupportedLocalesCodes();
+  const { baseLocalesDir, localesCodes } = getSupportedLocalesCodes();
   localesCodes.forEach((locale) => {
     mergeAndSaveCldrJsonFiles(
       `${baseLocalesDir}/${locale}`,
-      [
-        'ca-gregorian',
-        'timeZoneNames',
-        'numbers',
-        'currencies',
-        'units',
-      ],
+      ['ca-gregorian', 'timeZoneNames', 'numbers', 'currencies', 'units'],
       `${baseCodeGenDir}/locale-${locale}.json`,
     );
   });
@@ -77,7 +58,8 @@ function generateLocalesBundlesJsons() {
 
 function generateLocalesDisplayNames() {
   const messagesDir = 'src/services/i18n/t9n';
-  const messagesFiles = fs.readdirSync(messagesDir)
+  const messagesFiles = fs
+    .readdirSync(messagesDir)
     .filter((it) => it !== 'index.ts')
     .filter((it) => it !== 'formatter.ts');
 
@@ -123,20 +105,20 @@ function generateLocalesDisplayNames() {
           const localizedLanguage = cldr.main(`localeDisplayNames/languages/${languageTag}`);
           const displayName = localizedTags ? `${localizedLanguage} (${localizedTags})` : localizedLanguage;
 
-          return ({
+          return {
             ...supportedLocale,
             displayName,
-          });
+          };
         }
         return supportedLocale;
       })
       .map((supportedLocale) => {
         let { displayName } = supportedLocale;
         displayName = displayName[0].toLocaleUpperCase(language) + displayName.slice(1);
-        return ({
+        return {
           ...supportedLocale,
           displayName,
-        });
+        };
       });
 
     fs.writeFileSync(`${baseCodeGenDir}/locales-display-names-${language}.json`, JSON.stringify(localizedLocales));

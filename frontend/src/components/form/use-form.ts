@@ -1,8 +1,8 @@
-import { onMounted, ref } from 'vue';
-import { ElMessage } from 'element-plus';
 import type { FormItemContext } from 'element-plus';
-import type SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+import { ElMessage } from 'element-plus';
+import { onMounted, ref } from 'vue';
 import type SaDocumentsUpload from '@/components/documents/SaDocumentsUpload.vue';
+import type SaLegacyForm from '@/components/form/SaLegacyForm.vue';
 import { $t } from '@/services/i18n';
 
 function useFormInternal(
@@ -18,8 +18,7 @@ function useFormInternal(
   };
 
   const startLoading = () => {
-    form()
-      .startLoading();
+    form().startLoading();
   };
 
   const stopLoading = () => {
@@ -32,8 +31,7 @@ function useFormInternal(
   const submitForm = async () => {
     startLoading();
     try {
-      await form()
-        .validate();
+      await form().validate();
     } catch (_) {
       stopLoading();
       return;
@@ -74,15 +72,8 @@ function useFormInternal(
 /**
  * @deprecated Use new from API - onSubmit in SaForm. For legacy forms, use SaLegacyForm.
  */
-export function useForm(
-  loadFormData: () => Promise<void>,
-  saveFormData: () => Promise<void>,
-) {
-  const {
-    formRef,
-    submitForm,
-    executeWithFormBlocked,
-  } = useFormInternal(loadFormData, saveFormData, false);
+export function useForm(loadFormData: () => Promise<void>, saveFormData: () => Promise<void>) {
+  const { formRef, submitForm, executeWithFormBlocked } = useFormInternal(loadFormData, saveFormData, false);
   return {
     formRef,
     submitForm,
@@ -93,10 +84,7 @@ export function useForm(
 /**
  * @deprecated Use new from API - onSubmit in SaForm. For legacy forms, use SaLegacyForm.
  */
-export function useFormWithDocumentsUpload(
-  loadFormData: () => Promise<void>,
-  saveFormData: () => Promise<void>,
-) {
+export function useFormWithDocumentsUpload(loadFormData: () => Promise<void>, saveFormData: () => Promise<void>) {
   const documentsUploadRef = ref<typeof SaDocumentsUpload | undefined>();
 
   const documentsUpload = () => {
@@ -105,16 +93,14 @@ export function useFormWithDocumentsUpload(
   };
 
   const onFormSubmit = async () => {
-    documentsUpload()
-      .submitUploads();
+    documentsUpload().submitUploads();
   };
 
-  const {
-    formRef,
-    stopLoading,
-    submitForm,
-    executeWithFormBlocked,
-  } = useFormInternal(loadFormData, onFormSubmit, true);
+  const { formRef, stopLoading, submitForm, executeWithFormBlocked } = useFormInternal(
+    loadFormData,
+    onFormSubmit,
+    true,
+  );
 
   const onDocumentsUploadFailure = () => {
     stopLoading();

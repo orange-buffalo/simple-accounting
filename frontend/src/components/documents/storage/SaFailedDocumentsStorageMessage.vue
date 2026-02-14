@@ -21,14 +21,14 @@
 </template>
 
 <script lang="ts" setup>
-  import SaIcon from '@/components/SaIcon.vue';
-  import SaI18n from '@/components/SaI18n.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { $t } from '@/services/i18n';
+import SaI18n from '@/components/SaI18n.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
 
-  const { navigateByViewName } = useNavigation();
+const { navigateByViewName } = useNavigation();
 
-  const navigateToProfileSettings = () => {
-    navigateByViewName('my-profile');
-  };
+const navigateToProfileSettings = () => {
+  navigateByViewName('my-profile');
+};
 </script>

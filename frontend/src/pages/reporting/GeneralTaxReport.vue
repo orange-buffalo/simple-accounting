@@ -34,79 +34,73 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    computed, onMounted, ref, watch,
-  } from 'vue';
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import GeneralTaxReportTable from '@/pages/reporting/GeneralTaxReportTable.vue';
-  import type {
-    FinalizedTaxSummaryItemDto,
-    GeneralTaxReportDto,
-    PendingTaxSummaryItemDto,
-  } from '@/services/api';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
-  import { reportingApi } from '@/services/api';
-  import { $t } from '@/services/i18n';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+import { computed, onMounted, ref, watch } from 'vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import GeneralTaxReportTable from '@/pages/reporting/GeneralTaxReportTable.vue';
+import type { GeneralTaxReportItem } from '@/pages/reporting/general-tax-report';
+import type { FinalizedTaxSummaryItemDto, GeneralTaxReportDto, PendingTaxSummaryItemDto } from '@/services/api';
+import { reportingApi } from '@/services/api';
+import { formatDateToLocalISOString } from '@/services/date-utils';
+import { $t } from '@/services/i18n';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  function transformTaxes(finalizedTaxes: FinalizedTaxSummaryItemDto[], pendingTaxes: PendingTaxSummaryItemDto[]) {
-    let taxes: GeneralTaxReportItem[] = finalizedTaxes.map((tax) => ({
-      ...tax,
-      finalized: true,
-      taxId: tax.tax,
-    }));
+function transformTaxes(finalizedTaxes: FinalizedTaxSummaryItemDto[], pendingTaxes: PendingTaxSummaryItemDto[]) {
+  let taxes: GeneralTaxReportItem[] = finalizedTaxes.map((tax) => ({
+    ...tax,
+    finalized: true,
+    taxId: tax.tax,
+  }));
 
-    taxes = taxes.concat(pendingTaxes.map((tax) => ({
+  taxes = taxes.concat(
+    pendingTaxes.map((tax) => ({
       ...tax,
       taxAmount: 0,
       includedItemsAmount: 0,
       finalized: false,
       taxId: tax.tax,
-    })));
+    })),
+  );
 
-    return taxes;
-  }
+  return taxes;
+}
 
-  function getTotalAmount(taxes: GeneralTaxReportItem[]) {
-    return taxes.map((tax) => tax.taxAmount)
-      .reduce((it, sum) => sum + it, 0);
-  }
+function getTotalAmount(taxes: GeneralTaxReportItem[]) {
+  return taxes.map((tax) => tax.taxAmount).reduce((it, sum) => sum + it, 0);
+}
 
-  const props = defineProps<{
-    dateRange: Date[],
-  }>();
+const props = defineProps<{
+  dateRange: Date[];
+}>();
 
-  const emit = defineEmits<{(e: 'report-loaded'): void }>();
+const emit = defineEmits<{ (e: 'report-loaded'): void }>();
 
-  const report = ref<GeneralTaxReportDto | undefined>();
+const report = ref<GeneralTaxReportDto | undefined>();
 
-  const {
-    defaultCurrency,
-    currentWorkspaceId,
-  } = useCurrentWorkspace();
+const { defaultCurrency, currentWorkspaceId } = useCurrentWorkspace();
 
-  const reloadReport = async () => {
-    report.value = await reportingApi.getGeneralTaxReport({
-      workspaceId: currentWorkspaceId,
-      fromDate: formatDateToLocalISOString(props.dateRange[0]),
-      toDate: formatDateToLocalISOString(props.dateRange[1]),
-    });
-    emit('report-loaded');
-  };
+const reloadReport = async () => {
+  report.value = await reportingApi.getGeneralTaxReport({
+    workspaceId: currentWorkspaceId,
+    fromDate: formatDateToLocalISOString(props.dateRange[0]),
+    toDate: formatDateToLocalISOString(props.dateRange[1]),
+  });
+  emit('report-loaded');
+};
 
-  onMounted(reloadReport);
+onMounted(reloadReport);
 
-  watch(() => props.dateRange, reloadReport, { deep: true });
+watch(() => props.dateRange, reloadReport, { deep: true });
 
-  const collectedTaxes = computed(() => (report.value !== undefined
+const collectedTaxes = computed(() =>
+  report.value !== undefined
     ? transformTaxes(report.value.finalizedCollectedTaxes, report.value.pendingCollectedTaxes)
-    : []));
+    : [],
+);
 
-  const paidTaxes = computed(() => (report.value !== undefined
-    ? transformTaxes(report.value.finalizedPaidTaxes, report.value.pendingPaidTaxes)
-    : []));
+const paidTaxes = computed(() =>
+  report.value !== undefined ? transformTaxes(report.value.finalizedPaidTaxes, report.value.pendingPaidTaxes) : [],
+);
 
-  const totalCollectedAmount = computed(() => getTotalAmount(collectedTaxes.value));
-  const totalPaidAmount = computed(() => getTotalAmount(paidTaxes.value));
+const totalCollectedAmount = computed(() => getTotalAmount(collectedTaxes.value));
+const totalPaidAmount = computed(() => getTotalAmount(paidTaxes.value));
 </script>

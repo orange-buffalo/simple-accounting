@@ -60,65 +60,62 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
-  import useNavigation from '@/services/use-navigation';
-  import type { EditGeneralTaxDto } from '@/services/api';
-  import type { PartialBy } from '@/services/utils';
-  import { generalTaxesApi } from '@/services/api';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import { useForm } from '@/components/form/use-form';
+import { ref } from 'vue';
+import SaLegacyForm from '@/components/form/SaLegacyForm.vue';
+import { useForm } from '@/components/form/use-form';
+import type { EditGeneralTaxDto } from '@/services/api';
+import { generalTaxesApi } from '@/services/api';
+import useNavigation from '@/services/use-navigation';
+import type { PartialBy } from '@/services/utils';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    id?: number,
-  }>();
+const props = defineProps<{
+  id?: number;
+}>();
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToTaxesOverview = () => navigateByViewName('general-taxes-overview');
+const { navigateByViewName } = useNavigation();
+const navigateToTaxesOverview = () => navigateByViewName('general-taxes-overview');
 
-  type TaxFormValues = PartialBy<EditGeneralTaxDto, 'title' | 'rateInBps'>;
-  const tax = ref<TaxFormValues>({});
+type TaxFormValues = PartialBy<EditGeneralTaxDto, 'title' | 'rateInBps'>;
+const tax = ref<TaxFormValues>({});
 
-  const { currentWorkspaceId } = useCurrentWorkspace();
-  const loadTax = async () => {
-    if (props.id !== undefined) {
-      tax.value = await generalTaxesApi.getTax({
-        taxId: props.id,
-        workspaceId: currentWorkspaceId,
-      });
-    }
-  };
-  const saveTax = async () => {
-    if (props.id === undefined) {
-      await generalTaxesApi.createTax({
-        workspaceId: currentWorkspaceId,
-        editGeneralTaxDto: tax.value as EditGeneralTaxDto,
-      });
-    } else {
-      await generalTaxesApi.updateTax({
-        workspaceId: currentWorkspaceId,
-        editGeneralTaxDto: tax.value as EditGeneralTaxDto,
-        taxId: props.id,
-      });
-    }
-    await navigateToTaxesOverview();
-  };
+const { currentWorkspaceId } = useCurrentWorkspace();
+const loadTax = async () => {
+  if (props.id !== undefined) {
+    tax.value = await generalTaxesApi.getTax({
+      taxId: props.id,
+      workspaceId: currentWorkspaceId,
+    });
+  }
+};
+const saveTax = async () => {
+  if (props.id === undefined) {
+    await generalTaxesApi.createTax({
+      workspaceId: currentWorkspaceId,
+      editGeneralTaxDto: tax.value as EditGeneralTaxDto,
+    });
+  } else {
+    await generalTaxesApi.updateTax({
+      workspaceId: currentWorkspaceId,
+      editGeneralTaxDto: tax.value as EditGeneralTaxDto,
+      taxId: props.id,
+    });
+  }
+  await navigateToTaxesOverview();
+};
 
-  const taxValidationRules = {
-    title: {
-      required: true,
-      message: 'Please provide a title',
-    },
-    rateInBps: {
-      required: true,
-      message: 'Please provide the rate',
-    },
-  };
+const taxValidationRules = {
+  title: {
+    required: true,
+    message: 'Please provide a title',
+  },
+  rateInBps: {
+    required: true,
+    message: 'Please provide the rate',
+  },
+};
 
-  const {
-    formRef,
-    submitForm,
-  } = useForm(loadTax, saveTax);
+const { formRef, submitForm } = useForm(loadTax, saveTax);
 
-  const pageHeader = props.id ? 'Edit General Tax' : 'Create New General Tax';
+const pageHeader = props.id ? 'Edit General Tax' : 'Create New General Tax';
 </script>

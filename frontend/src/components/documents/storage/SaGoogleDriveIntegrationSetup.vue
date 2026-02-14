@@ -73,144 +73,134 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    computed, onMounted, onUnmounted, ref,
-  } from 'vue';
-  import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import SaI18n from '@/components/SaI18n.vue';
-  import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '@/services/push-notifications';
-  import { $t } from '@/services/i18n';
-  import { googleDriveStorageApi } from '@/services/api';
-  import type { GoogleDriveStorageIntegrationStatus } from '@/services/api';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import SaI18n from '@/components/SaI18n.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
+import type { GoogleDriveStorageIntegrationStatus } from '@/services/api';
+import { googleDriveStorageApi } from '@/services/api';
+import { $t } from '@/services/i18n';
+import { subscribeToPushNotifications, unsubscribeFromPushNotifications } from '@/services/push-notifications';
 
-  class IntegrationStatus {
-    status: 'unknown' | 'authorizationInProgress' | 'authorizationRequired'
-      | 'authorizationFailed' | 'successful' = 'unknown';
+class IntegrationStatus {
+  status: 'unknown' | 'authorizationInProgress' | 'authorizationRequired' | 'authorizationFailed' | 'successful' =
+    'unknown';
 
-    folderId?: string;
+  folderId?: string;
 
-    folderName?: string;
+  folderName?: string;
 
-    authorizationUrl?: string;
+  authorizationUrl?: string;
 
-    get loading() {
-      return this.status === 'unknown' || this.status === 'authorizationInProgress';
-    }
-
-    onAuthorizationRequired(authorizationUrl?: string) {
-      this.status = 'authorizationRequired';
-      this.authorizationUrl = authorizationUrl;
-    }
-
-    onAuthorizationSuccess(folderId?: string, folderName?: string) {
-      this.status = 'successful';
-      this.folderId = folderId;
-      this.folderName = folderName;
-    }
-
-    onAuthorizationStarted() {
-      this.status = 'authorizationInProgress';
-    }
-
-    onAuthorizationFailed(authorizationUrl?: string) {
-      this.status = 'authorizationFailed';
-      this.authorizationUrl = authorizationUrl;
-    }
+  get loading() {
+    return this.status === 'unknown' || this.status === 'authorizationInProgress';
   }
 
-  const integrationStatus = ref(new IntegrationStatus());
+  onAuthorizationRequired(authorizationUrl?: string) {
+    this.status = 'authorizationRequired';
+    this.authorizationUrl = authorizationUrl;
+  }
 
-  async function loadIntegrationStatus() {
-    const {
-      folderId,
-      folderName,
-      authorizationRequired,
-      authorizationUrl,
-    } = await googleDriveStorageApi.getIntegrationStatus();
+  onAuthorizationSuccess(folderId?: string, folderName?: string) {
+    this.status = 'successful';
+    this.folderId = folderId;
+    this.folderName = folderName;
+  }
+
+  onAuthorizationStarted() {
+    this.status = 'authorizationInProgress';
+  }
+
+  onAuthorizationFailed(authorizationUrl?: string) {
+    this.status = 'authorizationFailed';
+    this.authorizationUrl = authorizationUrl;
+  }
+}
+
+const integrationStatus = ref(new IntegrationStatus());
+
+async function loadIntegrationStatus() {
+  const { folderId, folderName, authorizationRequired, authorizationUrl } =
+    await googleDriveStorageApi.getIntegrationStatus();
+  if (authorizationRequired) {
+    integrationStatus.value.onAuthorizationRequired(authorizationUrl);
+  } else {
+    integrationStatus.value.onAuthorizationSuccess(folderId, folderName);
+  }
+}
+
+loadIntegrationStatus();
+
+const uiState = computed(() => {
+  let statusType: StatusLabelStatus = 'regular';
+  let statusText = null;
+  let statusCustomIcon;
+  let iconName = null;
+  if (integrationStatus.value.status === 'successful') {
+    statusType = 'success';
+    statusText = $t.value.saGoogleDriveIntegrationSetup.successful.status();
+    iconName = 'success';
+  } else if (integrationStatus.value.status === 'unknown') {
+    statusText = $t.value.saGoogleDriveIntegrationSetup.unknown.status();
+    statusCustomIcon = 'loading';
+  } else if (integrationStatus.value.status === 'authorizationRequired') {
+    statusText = $t.value.saGoogleDriveIntegrationSetup.authorizationRequired.status();
+    statusType = 'pending';
+    iconName = 'warning-circle';
+  } else if (integrationStatus.value.status === 'authorizationInProgress') {
+    statusText = $t.value.saGoogleDriveIntegrationSetup.authorizationInProgress.status();
+    statusCustomIcon = 'loading';
+  } else if (integrationStatus.value.status === 'authorizationFailed') {
+    statusText = $t.value.saGoogleDriveIntegrationSetup.authorizationFailed.status();
+    statusType = 'failure';
+    iconName = 'warning-circle';
+  }
+  return {
+    statusType,
+    statusText,
+    statusCustomIcon,
+    iconName,
+  };
+});
+
+function useDriveAuthorization() {
+  let gdrivePopup: Window | null;
+
+  const startAuthorization = () => {
+    const popupWidth = Math.max(screen.width / 2, 600);
+    const params = [`height=${screen.height - 100}`, `width=${popupWidth}`].join(',');
+    gdrivePopup = window.open(integrationStatus.value.authorizationUrl, 'popup_window', params);
+    if (!gdrivePopup) throw new Error('Failed to open popup');
+    gdrivePopup.moveTo((screen.width - popupWidth) / 2, 50);
+
+    integrationStatus.value.onAuthorizationStarted();
+  };
+
+  const onGoogleDriveAuthorization = ({
+    folderId,
+    folderName,
+    authorizationRequired,
+    authorizationUrl,
+  }: GoogleDriveStorageIntegrationStatus) => {
     if (authorizationRequired) {
-      integrationStatus.value.onAuthorizationRequired(authorizationUrl);
+      integrationStatus.value.onAuthorizationFailed(authorizationUrl);
     } else {
       integrationStatus.value.onAuthorizationSuccess(folderId, folderName);
-    }
-  }
-
-  loadIntegrationStatus();
-
-  const uiState = computed(() => {
-    let statusType: StatusLabelStatus = 'regular';
-    let statusText = null;
-    let statusCustomIcon;
-    let iconName = null;
-    if (integrationStatus.value.status === 'successful') {
-      statusType = 'success';
-      statusText = $t.value.saGoogleDriveIntegrationSetup.successful.status();
-      iconName = 'success';
-    } else if (integrationStatus.value.status === 'unknown') {
-      statusText = $t.value.saGoogleDriveIntegrationSetup.unknown.status();
-      statusCustomIcon = 'loading';
-    } else if (integrationStatus.value.status === 'authorizationRequired') {
-      statusText = $t.value.saGoogleDriveIntegrationSetup.authorizationRequired.status();
-      statusType = 'pending';
-      iconName = 'warning-circle';
-    } else if (integrationStatus.value.status === 'authorizationInProgress') {
-      statusText = $t.value.saGoogleDriveIntegrationSetup.authorizationInProgress.status();
-      statusCustomIcon = 'loading';
-    } else if (integrationStatus.value.status === 'authorizationFailed') {
-      statusText = $t.value.saGoogleDriveIntegrationSetup.authorizationFailed.status();
-      statusType = 'failure';
-      iconName = 'warning-circle';
-    }
-    return {
-      statusType,
-      statusText,
-      statusCustomIcon,
-      iconName,
-    };
-  });
-
-  function useDriveAuthorization() {
-    let gdrivePopup: Window | null;
-
-    const startAuthorization = () => {
-      const popupWidth = Math.max(screen.width / 2, 600);
-      const params = [
-        `height=${screen.height - 100}`,
-        `width=${popupWidth}`,
-      ].join(',');
-      gdrivePopup = window.open(integrationStatus.value.authorizationUrl, 'popup_window', params);
-      if (!gdrivePopup) throw new Error('Failed to open popup');
-      gdrivePopup.moveTo((screen.width - popupWidth) / 2, 50);
-
-      integrationStatus.value.onAuthorizationStarted();
-    };
-
-    const onGoogleDriveAuthorization = ({
-      folderId,
-      folderName,
-      authorizationRequired,
-      authorizationUrl,
-    }: GoogleDriveStorageIntegrationStatus) => {
-      if (authorizationRequired) {
-        integrationStatus.value.onAuthorizationFailed(authorizationUrl);
-      } else {
-        integrationStatus.value.onAuthorizationSuccess(folderId, folderName);
-        if (gdrivePopup) {
-          gdrivePopup.close();
-        }
+      if (gdrivePopup) {
+        gdrivePopup.close();
       }
-    };
+    }
+  };
 
-    onMounted(() => subscribeToPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization));
-    onUnmounted(() => unsubscribeFromPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization));
+  onMounted(() => subscribeToPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization));
+  onUnmounted(() => unsubscribeFromPushNotifications('storage.google-drive.auth', onGoogleDriveAuthorization));
 
-    return {
-      startAuthorization,
-    };
-  }
+  return {
+    startAuthorization,
+  };
+}
 
-  const { startAuthorization } = useDriveAuthorization();
-
+const { startAuthorization } = useDriveAuthorization();
 </script>
 
 <style lang="scss">

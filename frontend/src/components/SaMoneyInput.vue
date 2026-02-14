@@ -19,69 +19,67 @@
 </template>
 
 <script lang="ts" setup>
-  import IMask from 'imask';
-  import {
-    computed, onBeforeUnmount, onMounted, ref, watch,
-  } from 'vue';
-  import { getCurrencyInfo, getNumbersInfo } from '@/services/i18n';
+import IMask from 'imask';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { getCurrencyInfo, getNumbersInfo } from '@/services/i18n';
 
-  const props = defineProps<{
-    modelValue?: number,
-    currency: string
-  }>();
-  const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
+const props = defineProps<{
+  modelValue?: number;
+  currency: string;
+}>();
+const emit = defineEmits<{ (e: 'update:modelValue', value?: number): void }>();
 
-  const currencyInfo = getCurrencyInfo(props.currency);
-  const digitsMultiplier = 10 ** currencyInfo.digits;
+const currencyInfo = getCurrencyInfo(props.currency);
+const digitsMultiplier = 10 ** currencyInfo.digits;
 
-  const inputEl = ref<HTMLElement | undefined>(undefined);
-  // The library is not TS-friendly at all, we need to get rid of it
-  // @ts-ignore
-  let mask: IMask.InputMask<IMask.AnyMaskedOptions> | undefined;
+const inputEl = ref<HTMLElement | undefined>(undefined);
+// The library is not TS-friendly at all, we need to get rid of it
+// @ts-ignore
+let mask: IMask.InputMask<IMask.AnyMaskedOptions> | undefined;
 
-  const setMaskValue = () => {
-    if (mask) {
-      if (props.modelValue === undefined) {
-        mask.value = '';
-      } else {
-        mask.typedValue = props.modelValue / digitsMultiplier;
-      }
+const setMaskValue = () => {
+  if (mask) {
+    if (props.modelValue === undefined) {
+      mask.value = '';
+    } else {
+      mask.typedValue = props.modelValue / digitsMultiplier;
     }
-  };
+  }
+};
 
-  onMounted(() => {
-    if (!inputEl.value) throw new Error('Could not mount input');
-    mask = IMask(inputEl.value as HTMLElement, {
-      mask: Number,
-      scale: currencyInfo.digits,
-      signed: false,
-      thousandsSeparator: getNumbersInfo().thousandsSeparator,
-      padFractionalZeros: true,
-      radix: getNumbersInfo().decimalSymbol,
-      overwrite: 'shift',
-    });
-    setMaskValue();
-
-    mask.on('accept', () => {
-      let value: number | undefined;
-      if (mask?.value) {
-        value = Math.round((mask.typedValue as number) * digitsMultiplier);
-      }
-      emit('update:modelValue', value);
-    });
+onMounted(() => {
+  if (!inputEl.value) throw new Error('Could not mount input');
+  mask = IMask(inputEl.value as HTMLElement, {
+    mask: Number,
+    scale: currencyInfo.digits,
+    signed: false,
+    thousandsSeparator: getNumbersInfo().thousandsSeparator,
+    padFractionalZeros: true,
+    radix: getNumbersInfo().decimalSymbol,
+    overwrite: 'shift',
   });
+  setMaskValue();
 
-  onBeforeUnmount(() => {
-    if (mask) {
-      mask.destroy();
-      mask = undefined;
+  mask.on('accept', () => {
+    let value: number | undefined;
+    if (mask?.value) {
+      value = Math.round((mask.typedValue as number) * digitsMultiplier);
     }
+    emit('update:modelValue', value);
   });
+});
 
-  const inputElInFocus = ref(false);
-  const inputElWrapperClass = computed(() => (inputElInFocus.value ? 'is-focus' : ''));
+onBeforeUnmount(() => {
+  if (mask) {
+    mask.destroy();
+    mask = undefined;
+  }
+});
 
-  watch(() => props.modelValue, setMaskValue);
+const inputElInFocus = ref(false);
+const inputElWrapperClass = computed(() => (inputElInFocus.value ? 'is-focus' : ''));
+
+watch(() => props.modelValue, setMaskValue);
 </script>
 
 <style lang="scss">

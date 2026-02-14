@@ -12,9 +12,12 @@ class StorageAccessor<T> {
 
   set(value: T): void {
     this.value = value;
-    localStorage.setItem(prefix + this.key, JSON.stringify({
-      data: value,
-    }));
+    localStorage.setItem(
+      prefix + this.key,
+      JSON.stringify({
+        data: value,
+      }),
+    );
   }
 
   clear(): void {

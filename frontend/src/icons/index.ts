@@ -11,10 +11,9 @@ const iconComponents = import.meta.glob<FunctionalComponent<SVGAttributes>>('./s
 const icons: Index = {};
 
 for (const path in iconComponents) {
-  if (Object.prototype.hasOwnProperty.call(iconComponents, path)) {
+  if (Object.hasOwn(iconComponents, path)) {
     const iconComponent = iconComponents[path];
-    const iconName = path.replace('./svg/', '')
-      .replace('.svg', '');
+    const iconName = path.replace('./svg/', '').replace('.svg', '');
     icons[iconName] = iconComponent;
   }
 }

@@ -9,7 +9,8 @@
     "test:unit": "vitest --run",
     "test:unit:watch": "vitest",
     "typecheck": "bun run vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
-    "lint": "bun run --bun eslint . --fix",
+    "lint": "bun run --bun biome check --write .",
+    "lint:check": "bun run --bun biome check .",
     "graphql-codegen": "graphql-codegen"
   },
   "dependencies": {
@@ -35,6 +36,7 @@
     "vue-router": "5.0.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.15",
     "@eslint/js": "10.0.1",
     "@graphql-codegen/cli": "^6.0.0",
     "@graphql-codegen/client-preset": "^5.0.0",

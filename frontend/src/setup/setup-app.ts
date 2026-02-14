@@ -1,8 +1,27 @@
 import {
-  ElButton, ElDatePicker, ElInput, ElFormItem, ElCheckbox, ElForm, ElPagination,
-  ElTooltip, ElMain, ElContainer, ElAside, ElOption, ElOptionGroup, ElSelect,
-  ElProgress, ElLoadingDirective, ElAlert, ElSwitch, ElInputNumber, ElTable,
-  ElTableColumn, ElSteps, ElStep,
+  ElAlert,
+  ElAside,
+  ElButton,
+  ElCheckbox,
+  ElContainer,
+  ElDatePicker,
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElInputNumber,
+  ElLoadingDirective,
+  ElMain,
+  ElOption,
+  ElOptionGroup,
+  ElPagination,
+  ElProgress,
+  ElSelect,
+  ElStep,
+  ElSteps,
+  ElSwitch,
+  ElTable,
+  ElTableColumn,
+  ElTooltip,
 } from 'element-plus';
 import type { App } from 'vue';
 import { createApp } from 'vue';
@@ -12,7 +31,7 @@ import setupRouter from '@/setup/setup-router';
 import '@/styles/main.scss';
 import setupErrorHandler from '@/setup/setup-error-handler';
 
-export { setLocaleFromProfile, setLocaleFromBrowser } from '@/services/i18n';
+export { setLocaleFromBrowser, setLocaleFromProfile } from '@/services/i18n';
 
 let vueApp: App | null = null;
 

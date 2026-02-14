@@ -9,13 +9,13 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import { $t } from '@/services/i18n';
-  import SaStatusLabel from '@/components/SaStatusLabel.vue';
+import { computed } from 'vue';
+import SaStatusLabel from '@/components/SaStatusLabel.vue';
+import { $t } from '@/services/i18n';
 
-  const props = defineProps<{ message?: string }>();
+const props = defineProps<{ message?: string }>();
 
-  const errorMessage = computed(() => props.message || $t.value.saBasicErrorMessage.defaultMessage());
+const errorMessage = computed(() => props.message || $t.value.saBasicErrorMessage.defaultMessage());
 </script>
 
 <style lang="scss">

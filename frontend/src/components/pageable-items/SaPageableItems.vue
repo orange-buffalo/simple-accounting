@@ -56,64 +56,59 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    computed, ref, watch,
-  } from 'vue';
-  import { throttle } from 'lodash';
-  import type { HasOptionalId, ApiPageRequest, ApiPage } from '@/services/api';
-  import SaIcon from '@/components/SaIcon.vue';
-  import { $t } from '@/services/i18n';
+import { throttle } from 'lodash';
+import { computed, ref, watch } from 'vue';
+import SaIcon from '@/components/SaIcon.vue';
+import type { ApiPage, ApiPageRequest, HasOptionalId } from '@/services/api';
+import { $t } from '@/services/i18n';
 
-  function useLoading() {
-    let loadingRequestsCount = 0;
-    const loading = ref(true);
-    const updateLoading = throttle(
-      () => {
-        loading.value = loadingRequestsCount > 0;
-      },
-      200,
-      {
-        leading: false,
-        trailing: true,
-      },
-    );
+function useLoading() {
+  let loadingRequestsCount = 0;
+  const loading = ref(true);
+  const updateLoading = throttle(
+    () => {
+      loading.value = loadingRequestsCount > 0;
+    },
+    200,
+    {
+      leading: false,
+      trailing: true,
+    },
+  );
 
-    const startLoading = () => {
-      loadingRequestsCount += 1;
-      updateLoading();
-    };
+  const startLoading = () => {
+    loadingRequestsCount += 1;
+    updateLoading();
+  };
 
-    const stopLoading = () => {
-      loadingRequestsCount = Math.max(0, loadingRequestsCount - 1);
-      updateLoading();
-    };
+  const stopLoading = () => {
+    loadingRequestsCount = Math.max(0, loadingRequestsCount - 1);
+    updateLoading();
+  };
 
-    return {
-      loading,
-      startLoading,
-      stopLoading,
-    };
-  }
-
-  const props = defineProps<{
-    reloadOn?: Array<unknown>,
-    pageProvider:(request: ApiPageRequest, config: RequestInit) => Promise<ApiPage<HasOptionalId>>,
-  }>();
-
-  const pageNumber = ref(1);
-  const totalElements = ref(0);
-  const pageSize = ref(10);
-  const data = ref<HasOptionalId[]>([]);
-
-  const {
+  return {
     loading,
-    stopLoading,
     startLoading,
-  } = useLoading();
+    stopLoading,
+  };
+}
 
-  let abortController: AbortController | null;
+const props = defineProps<{
+  reloadOn?: Array<unknown>;
+  pageProvider: (request: ApiPageRequest, config: RequestInit) => Promise<ApiPage<HasOptionalId>>;
+}>();
 
-  const reloadData = throttle(async () => {
+const pageNumber = ref(1);
+const totalElements = ref(0);
+const pageSize = ref(10);
+const data = ref<HasOptionalId[]>([]);
+
+const { loading, stopLoading, startLoading } = useLoading();
+
+let abortController: AbortController | null;
+
+const reloadData = throttle(
+  async () => {
     startLoading();
 
     if (abortController) {
@@ -138,24 +133,30 @@
       stopLoading();
       throw e;
     }
-  }, 300, {
+  },
+  300,
+  {
     trailing: true,
     leading: false,
-  });
+  },
+);
 
-  watch(() => [pageNumber, ...(props.reloadOn || [])], () => {
+watch(
+  () => [pageNumber, ...(props.reloadOn || [])],
+  () => {
     reloadData();
-  }, {
+  },
+  {
     immediate: true,
     deep: true,
-  });
+  },
+);
 
-  const paginatorVisible = computed(() => totalElements.value > 0 && !loading.value);
+const paginatorVisible = computed(() => totalElements.value > 0 && !loading.value);
 
-  defineExpose({
-    reload: reloadData,
-  });
-
+defineExpose({
+  reload: reloadData,
+});
 </script>
 
 <style lang="scss">

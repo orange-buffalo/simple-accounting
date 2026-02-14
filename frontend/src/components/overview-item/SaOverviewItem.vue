@@ -45,34 +45,32 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, ref, useSlots } from 'vue';
-  import { ArrowDown } from '@element-plus/icons-vue';
+import { ArrowDown } from '@element-plus/icons-vue';
+import { onMounted, ref, useSlots } from 'vue';
 
-  defineProps<{
-    title: string
-  }>();
+defineProps<{
+  title: string;
+}>();
 
-  const detailsAvailable = ref(false);
-  const detailsVisible = ref(false);
+const detailsAvailable = ref(false);
+const detailsVisible = ref(false);
 
-  const slots = useSlots();
+const slots = useSlots();
 
-  onMounted(() => {
-    detailsAvailable.value = slots.details !== undefined;
-  });
+onMounted(() => {
+  detailsAvailable.value = slots.details !== undefined;
+});
 
-  const emit = defineEmits<{(e: 'details-shown'): void;
-                            (e: 'details-closed'): void;
-  }>();
+const emit = defineEmits<{ (e: 'details-shown'): void; (e: 'details-closed'): void }>();
 
-  const toggleDetailsVisibility = () => {
-    detailsVisible.value = !detailsVisible.value;
-    if (detailsVisible.value) {
-      emit('details-shown');
-    } else {
-      emit('details-closed');
-    }
-  };
+const toggleDetailsVisibility = () => {
+  detailsVisible.value = !detailsVisible.value;
+  if (detailsVisible.value) {
+    emit('details-shown');
+  } else {
+    emit('details-closed');
+  }
+};
 </script>
 
 <style lang="scss">

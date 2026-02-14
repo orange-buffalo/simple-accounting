@@ -2,10 +2,6 @@ import type { MessageFunction } from '@messageformat/core';
 import MessageFormat from '@messageformat/core';
 import { parse } from '@messageformat/parser';
 import { computed, ref } from 'vue';
-import { lookupClosestLocale } from '@/services/i18n/locale-utils';
-import supportedLocaleCodesJson from '@/services/i18n/l10n/supported-locales.json?raw';
-import type { Translations } from '@/services/i18n/t9n';
-import translationFilesDeferred from '@/services/i18n/t9n';
 import { updateLocale } from '@/services/i18n/cldr-data';
 import {
   amountFormatter,
@@ -15,6 +11,10 @@ import {
   fileSizeFormatter,
   yesNoFormatter,
 } from '@/services/i18n/formatters';
+import supportedLocaleCodesJson from '@/services/i18n/l10n/supported-locales.json?raw';
+import { lookupClosestLocale } from '@/services/i18n/locale-utils';
+import type { Translations } from '@/services/i18n/t9n';
+import translationFilesDeferred from '@/services/i18n/t9n';
 
 import { setTranslationsFormatter } from '@/services/i18n/t9n/formatter';
 
@@ -22,39 +22,46 @@ import { setTranslationsFormatter } from '@/services/i18n/t9n/formatter';
 const supportedLocaleCodes = JSON.parse(supportedLocaleCodesJson);
 
 export interface SupportedLocale {
-  locale: string,
-  displayName: string,
+  locale: string;
+  displayName: string;
 }
 
 export interface SupportedLanguage {
-  languageCode: string,
-  displayName: string,
+  languageCode: string;
+  displayName: string;
 }
 
 interface ParsedToken {
-  type: 'content' | 'arg',
-  value: string,
+  type: 'content' | 'arg';
+  value: string;
 }
 
-const supportedLanguages: SupportedLanguage[] = [{
-  languageCode: 'en',
-  displayName: 'English',
-}, {
-  languageCode: 'uk',
-  displayName: 'Українська',
-}];
+const supportedLanguages: SupportedLanguage[] = [
+  {
+    languageCode: 'en',
+    displayName: 'English',
+  },
+  {
+    languageCode: 'uk',
+    displayName: 'Українська',
+  },
+];
 
 function getValidLocale(requestedLocales: readonly string[]) {
-  return requestedLocales
-    .map((requestedLocale) => lookupClosestLocale(requestedLocale, supportedLocaleCodes))
-    .find((closestSupportedLocale) => closestSupportedLocale != null) || 'en';
+  return (
+    requestedLocales
+      .map((requestedLocale) => lookupClosestLocale(requestedLocale, supportedLocaleCodes))
+      .find((closestSupportedLocale) => closestSupportedLocale != null) || 'en'
+  );
 }
 
 function getValidLanguage(requestedLocales: readonly string[]) {
   const supportedLanguageCodes = supportedLanguages.map((it) => it.languageCode);
-  return requestedLocales
-    .map((requestedLocale) => lookupClosestLocale(requestedLocale, supportedLanguageCodes))
-    .find((closestSupportedLocale) => closestSupportedLocale != null) || 'en';
+  return (
+    requestedLocales
+      .map((requestedLocale) => lookupClosestLocale(requestedLocale, supportedLanguageCodes))
+      .find((closestSupportedLocale) => closestSupportedLocale != null) || 'en'
+  );
 }
 
 let currentLocale: string | null = null;
@@ -128,17 +135,11 @@ export function getSupportedLanguages(): SupportedLanguage[] {
 }
 
 export async function setLocaleFromBrowser(): Promise<void> {
-  await setupI18n(
-    getValidLocale(navigator.languages),
-    getValidLanguage(navigator.languages),
-  );
+  await setupI18n(getValidLocale(navigator.languages), getValidLanguage(navigator.languages));
 }
 
 export async function setLocaleFromProfile(locale: string, language: string): Promise<void> {
-  await setupI18n(
-    getValidLocale([localeIdToLanguageTag(locale)]),
-    getValidLanguage([localeIdToLanguageTag(language)]),
-  );
+  await setupI18n(getValidLocale([localeIdToLanguageTag(locale)]), getValidLanguage([localeIdToLanguageTag(language)]));
 }
 
 export function getCurrentLocale(): string {
@@ -175,22 +176,21 @@ export const $t = computed<Translations>(() => {
 export function parseMessage(messageTemplate: string): ParsedToken[] {
   let parsedMessage = parsedMessagesCache[messageTemplate];
   if (!parsedMessage) {
-    parsedMessage = parse(messageTemplate)
-      .map((it) => {
-        if (it.type === 'content') {
-          return {
-            type: 'content',
-            value: it.value,
-          };
-        }
-        if (it.type === 'argument') {
-          return {
-            type: 'arg',
-            value: it.arg,
-          };
-        }
-        throw new Error(`Not supported token ${it}`);
-      });
+    parsedMessage = parse(messageTemplate).map((it) => {
+      if (it.type === 'content') {
+        return {
+          type: 'content',
+          value: it.value,
+        };
+      }
+      if (it.type === 'argument') {
+        return {
+          type: 'arg',
+          value: it.arg,
+        };
+      }
+      throw new Error(`Not supported token ${it}`);
+    });
     parsedMessagesCache[messageTemplate] = parsedMessage;
   }
   return parsedMessage;

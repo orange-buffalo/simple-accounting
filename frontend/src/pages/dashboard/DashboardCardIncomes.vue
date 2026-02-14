@@ -42,36 +42,33 @@
 </template>
 
 <script lang="ts" setup>
-  import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
-  import { useValueLoadedByCurrentWorkspaceAndProp, wrapNullable } from '@/services/utils';
-  import { statisticsApi } from '@/services/api';
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import { $t } from '@/services/i18n';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
+import SaCategoryOutput from '@/components/category/SaCategoryOutput.vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
+import { statisticsApi } from '@/services/api';
+import { formatDateToLocalISOString } from '@/services/date-utils';
+import { $t } from '@/services/i18n';
+import { useValueLoadedByCurrentWorkspaceAndProp, wrapNullable } from '@/services/utils';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    fromDate: Date,
-    toDate: Date,
-  }>();
+const props = defineProps<{
+  fromDate: Date;
+  toDate: Date;
+}>();
 
-  const { defaultCurrency } = useCurrentWorkspace();
+const { defaultCurrency } = useCurrentWorkspace();
 
-  const {
-    loading,
-    value: maybeIncomes,
-  } = useValueLoadedByCurrentWorkspaceAndProp(
-    () => props.fromDate && props.toDate,
-    async (_, workspaceId) => {
-      const response = await statisticsApi.getIncomesStatistics({
-        workspaceId,
-        fromDate: formatDateToLocalISOString(props.fromDate),
-        toDate: formatDateToLocalISOString(props.toDate),
-      });
-      response.items.sort((a, b) => b.totalAmount - a.totalAmount);
-      return response;
-    },
-  );
-  const incomes = wrapNullable(maybeIncomes);
+const { loading, value: maybeIncomes } = useValueLoadedByCurrentWorkspaceAndProp(
+  () => props.fromDate && props.toDate,
+  async (_, workspaceId) => {
+    const response = await statisticsApi.getIncomesStatistics({
+      workspaceId,
+      fromDate: formatDateToLocalISOString(props.fromDate),
+      toDate: formatDateToLocalISOString(props.toDate),
+    });
+    response.items.sort((a, b) => b.totalAmount - a.totalAmount);
+    return response;
+  },
+);
+const incomes = wrapNullable(maybeIncomes);
 </script>

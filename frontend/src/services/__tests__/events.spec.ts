@@ -1,9 +1,7 @@
-import {
-  describe, it, beforeEach, vi, expect,
-} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('an event', () => {
-  let loginRequiredEvent : any;
+  let loginRequiredEvent: any;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -19,10 +17,8 @@ describe('an event', () => {
 
     loginRequiredEvent.emit();
 
-    expect(firstSubscriber.mock.calls.length)
-      .toBe(1);
-    expect(secondSubscriber.mock.calls.length)
-      .toBe(1);
+    expect(firstSubscriber.mock.calls.length).toBe(1);
+    expect(secondSubscriber.mock.calls.length).toBe(1);
   });
 
   it('should pass event data to the subscriber', () => {
@@ -32,10 +28,8 @@ describe('an event', () => {
 
     loginRequiredEvent.emit('data');
 
-    expect(subscriber.mock.calls.length)
-      .toBe(1);
-    expect(subscriber.mock.calls[0][0])
-      .toBe('data');
+    expect(subscriber.mock.calls.length).toBe(1);
+    expect(subscriber.mock.calls[0][0]).toBe('data');
   });
 
   it('should not invoke unsubscribed subscriber', () => {
@@ -46,7 +40,6 @@ describe('an event', () => {
 
     loginRequiredEvent.emit();
 
-    expect(subscriber.mock.calls.length)
-      .toBe(0);
+    expect(subscriber.mock.calls.length).toBe(0);
   });
 });

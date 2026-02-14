@@ -1,7 +1,7 @@
 import { getCldr, getCurrencyInfo } from '@/services/i18n/cldr-data';
 
 interface CurrencyAmount {
-  currency: string,
+  currency: string;
   amountInCents: number;
 }
 
@@ -12,18 +12,14 @@ export function amountFormatter() {
     if (arg !== 'withCurrency') {
       throw Error(`${arg} is not supported for amount formatter`);
     }
-    const {
-      currency,
-      amountInCents,
-    } = value as CurrencyAmount;
+    const { currency, amountInCents } = value as CurrencyAmount;
 
     let currencyFormatter = currencyFormatters[currency];
     if (currencyFormatter == null) {
-      currencyFormatter = getCldr()
-        .currencyFormatter(currency);
+      currencyFormatter = getCldr().currencyFormatter(currency);
       currencyFormatters[currency] = currencyFormatter;
     }
 
-    return currencyFormatter(amountInCents / (10 ** getCurrencyInfo(currency).digits));
+    return currencyFormatter(amountInCents / 10 ** getCurrencyInfo(currency).digits);
   };
 }

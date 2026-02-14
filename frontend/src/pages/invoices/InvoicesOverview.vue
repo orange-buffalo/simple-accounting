@@ -46,37 +46,38 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import { Search } from '@element-plus/icons-vue';
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
-  import type { ApiPageRequest, InvoiceDto } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import { $t } from '@/services/i18n';
+import { Search } from '@element-plus/icons-vue';
+import { ref } from 'vue';
+import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import InvoicesOverviewPanel from '@/pages/invoices/InvoicesOverviewPanel.vue';
+import type { ApiPageRequest, InvoiceDto } from '@/services/api';
+import { invoicesApi } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const invoicesFilter = ref<string | undefined>(undefined);
-  const {
-    currentWorkspaceId,
-    currentWorkspace,
-  } = useCurrentWorkspace();
+const invoicesFilter = ref<string | undefined>(undefined);
+const { currentWorkspaceId, currentWorkspace } = useCurrentWorkspace();
 
-  const invoicesProvider = async (request: ApiPageRequest, config: RequestInit) => invoicesApi.getInvoices({
-    ...request,
-    freeSearchTextEq: invoicesFilter.value,
-    workspaceId: currentWorkspaceId,
-  }, config);
+const invoicesProvider = async (request: ApiPageRequest, config: RequestInit) =>
+  invoicesApi.getInvoices(
+    {
+      ...request,
+      freeSearchTextEq: invoicesFilter.value,
+      workspaceId: currentWorkspaceId,
+    },
+    config,
+  );
 
-  const { navigateByViewName } = useNavigation();
+const { navigateByViewName } = useNavigation();
 
-  const navigateToCreateInvoiceView = () => {
-    navigateByViewName('create-new-invoice');
-  };
+const navigateToCreateInvoiceView = () => {
+  navigateByViewName('create-new-invoice');
+};
 
-  const invoiceUpdateTrigger = ref(true);
-  const onInvoiceUpdate = () => {
-    invoiceUpdateTrigger.value = !invoiceUpdateTrigger.value;
-  };
+const invoiceUpdateTrigger = ref(true);
+const onInvoiceUpdate = () => {
+  invoiceUpdateTrigger.value = !invoiceUpdateTrigger.value;
+};
 </script>

@@ -1,16 +1,18 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import fetchMock from 'fetch-mock';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import 'whatwg-fetch';
 import type { Auth } from '@/services/api';
-import { GrapQlClient } from '@/services/api/gql-api-client.ts';
 import { ApiAuthError, ApiBusinessError, ApiFieldLevelValidationError } from '@/services/api/api-errors.ts';
 import { SaGrapQlErrorType, ValidationErrorCode } from '@/services/api/gql/graphql.ts';
+import { GrapQlClient } from '@/services/api/gql-api-client.ts';
 
 // eslint-disable-next-line vue/max-len
-const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
+const TOKEN =
+  'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
 const TOKEN_EXP_EPOCH_SECONDS = 1578116455;
 // eslint-disable-next-line vue/max-len
-const NEW_TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY5NTV9.new-token-signature';
+const NEW_TOKEN =
+  'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY5NTV9.new-token-signature';
 const API_TIME = new Date(0);
 API_TIME.setUTCSeconds(TOKEN_EXP_EPOCH_SECONDS - 3 * 60); // 3 minutes before token expiration
 
@@ -19,7 +21,7 @@ type MockedRequest = {
   requestAssertions: MockedRequestAssertions;
   responseBody: any;
   responseStatus?: number;
-}
+};
 
 fetchMock.mockGlobal();
 
@@ -52,7 +54,8 @@ describe('GraphQL API Client', () => {
 
   test('refreshes access token if close to expiration', async () => {
     // eslint-disable-next-line vue/max-len
-    const EXPIRING_TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTYyOTV9.mock-signature-for-expiring-token';
+    const EXPIRING_TOKEN =
+      'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTYyOTV9.mock-signature-for-expiring-token';
     await setApiToken(EXPIRING_TOKEN);
 
     mockRequest(refreshTokenAssertions(), refreshTokenResponse(TOKEN));
@@ -114,27 +117,29 @@ describe('GraphQL API Client', () => {
   });
 
   test('throws ApiAuthError on 401 responses', async () => {
-      await setApiToken(null);
+    await setApiToken(null);
 
-      mockRequest(refreshTokenAssertions(), refreshTokenResponse(null));
-      mockRequest(apiQueryAssertions(null), {}, 401);
+    mockRequest(refreshTokenAssertions(), refreshTokenResponse(null));
+    mockRequest(apiQueryAssertions(null), {}, 401);
 
-      await expectToFailWith<ApiAuthError>(async () => {
-        await executeApiCall();
-      }, 'ApiAuthError');
-    },
-  );
+    await expectToFailWith<ApiAuthError>(async () => {
+      await executeApiCall();
+    }, 'ApiAuthError');
+  });
 
   test('throws ApiFieldLevelValidationError on validation failure', async () => {
     await setApiToken(TOKEN);
 
-    mockRequest(apiMutationAssertions(TOKEN), validationFailureResponse([
-      {
-        path: 'currentPassword',
-        error: ValidationErrorCode.MustNotBeBlank,
-        message: 'must not be blank',
-      },
-    ]));
+    mockRequest(
+      apiMutationAssertions(TOKEN),
+      validationFailureResponse([
+        {
+          path: 'currentPassword',
+          error: ValidationErrorCode.MustNotBeBlank,
+          message: 'must not be blank',
+        },
+      ]),
+    );
 
     const error = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
       await executeApiMutation();
@@ -152,17 +157,20 @@ describe('GraphQL API Client', () => {
   test('throws ApiFieldLevelValidationError with params on validation failure', async () => {
     await setApiToken(TOKEN);
 
-    mockRequest(apiMutationAssertions(TOKEN), validationFailureResponse([
-      {
-        path: 'password',
-        error: ValidationErrorCode.SizeConstraintViolated,
-        message: 'size must be between 6 and 100',
-        params: [
-          { name: 'min', value: '6' },
-          { name: 'max', value: '100' },
-        ],
-      },
-    ]));
+    mockRequest(
+      apiMutationAssertions(TOKEN),
+      validationFailureResponse([
+        {
+          path: 'password',
+          error: ValidationErrorCode.SizeConstraintViolated,
+          message: 'size must be between 6 and 100',
+          params: [
+            { name: 'min', value: '6' },
+            { name: 'max', value: '100' },
+          ],
+        },
+      ]),
+    );
 
     const error = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
       await executeApiMutation();
@@ -180,22 +188,25 @@ describe('GraphQL API Client', () => {
   test('throws ApiFieldLevelValidationError with multiple validation errors', async () => {
     await setApiToken(TOKEN);
 
-    mockRequest(apiMutationAssertions(TOKEN), validationFailureResponse([
-      {
-        path: 'currentPassword',
-        error: ValidationErrorCode.MustNotBeBlank,
-        message: 'must not be blank',
-      },
-      {
-        path: 'newPassword',
-        error: ValidationErrorCode.SizeConstraintViolated,
-        message: 'size must be between 6 and 100',
-        params: [
-          { name: 'min', value: '6' },
-          { name: 'max', value: '100' },
-        ],
-      },
-    ]));
+    mockRequest(
+      apiMutationAssertions(TOKEN),
+      validationFailureResponse([
+        {
+          path: 'currentPassword',
+          error: ValidationErrorCode.MustNotBeBlank,
+          message: 'must not be blank',
+        },
+        {
+          path: 'newPassword',
+          error: ValidationErrorCode.SizeConstraintViolated,
+          message: 'size must be between 6 and 100',
+          params: [
+            { name: 'min', value: '6' },
+            { name: 'max', value: '100' },
+          ],
+        },
+      ]),
+    );
 
     const error = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
       await executeApiMutation();
@@ -219,10 +230,13 @@ describe('GraphQL API Client', () => {
   test('throws ApiBusinessError on business error response', async () => {
     await setApiToken(TOKEN);
 
-    mockRequest(apiMutationAssertions(TOKEN), businessErrorResponse(
-      'CURRENT_PASSWORD_MISMATCH',
-      'The provided current password does not match the user\'s actual password.',
-    ));
+    mockRequest(
+      apiMutationAssertions(TOKEN),
+      businessErrorResponse(
+        'CURRENT_PASSWORD_MISMATCH',
+        "The provided current password does not match the user's actual password.",
+      ),
+    );
 
     const error = await expectToFailWith<ApiBusinessError>(async () => {
       await executeApiMutation();
@@ -230,21 +244,18 @@ describe('GraphQL API Client', () => {
 
     expect(error.error).toEqual({
       error: 'CURRENT_PASSWORD_MISMATCH',
-      message: 'The provided current password does not match the user\'s actual password.',
+      message: "The provided current password does not match the user's actual password.",
     });
     expect(error.errorAs<{ error: string; message: string }>()).toEqual({
       error: 'CURRENT_PASSWORD_MISMATCH',
-      message: 'The provided current password does not match the user\'s actual password.',
+      message: "The provided current password does not match the user's actual password.",
     });
   });
 
   test('throws ApiBusinessError with minimal message on business error response', async () => {
     await setApiToken(TOKEN);
 
-    mockRequest(apiMutationAssertions(TOKEN), businessErrorResponse(
-      'SOME_ERROR_CODE',
-      'Error message',
-    ));
+    mockRequest(apiMutationAssertions(TOKEN), businessErrorResponse('SOME_ERROR_CODE', 'Error message'));
 
     const error = await expectToFailWith<ApiBusinessError>(async () => {
       await executeApiMutation();
@@ -311,9 +322,7 @@ describe('GraphQL API Client', () => {
       },
     }));
 
-    ({
-      useAuth,
-    } = await import('@/services/api'));
+    ({ useAuth } = await import('@/services/api'));
     ({ gqlClient } = await import('@/services/api/gql-api-client'));
 
     mockedRequests = [];
@@ -322,7 +331,8 @@ describe('GraphQL API Client', () => {
       if (currentRequestIndex >= mockedRequests.length) {
         console.error(
           `[mockedRequests] Received more requests (${currentRequestIndex + 1}) than expected. Current request body`,
-          options.body);
+          options.body,
+        );
         throw new Error();
       }
       const mockedRequest = mockedRequests[currentRequestIndex];
@@ -350,30 +360,33 @@ describe('GraphQL API Client', () => {
 
   function assertAuthHasToken(token: string | null) {
     const auth = useAuth();
-    expect(auth.getToken())
-      .toBe(token);
+    expect(auth.getToken()).toBe(token);
   }
 
   async function executeApiCall() {
-    return await gqlClient
-      .query(`
+    return await gqlClient.query(
+      `
       query {
         fakeGetter {
           someProperty
         }
       }
-    `, {});
+    `,
+      {},
+    );
   }
 
   async function executeApiMutation() {
-    return await gqlClient
-      .mutation(`
+    return await gqlClient.mutation(
+      `
       mutation {
         fakeMutation {
           success
         }
       }
-    `, {});
+    `,
+      {},
+    );
   }
 
   function mockRequest(requestAssertions: MockedRequestAssertions, responseBody: any, responseStatus?: number) {
@@ -392,16 +405,13 @@ describe('GraphQL API Client', () => {
 
 function refreshTokenAssertions(): MockedRequestAssertions {
   return (options: RequestInit) => {
-    expect(options.body)
-      .toBeTypeOf('string');
+    expect(options.body).toBeTypeOf('string');
     const body = JSON.parse(options.body as string);
-    expect(body)
-      .toEqual(
-        {
-          'operationName': 'refreshAccessToken',
-          'query': 'mutation refreshAccessToken {\n  refreshAccessToken {\n    accessToken\n  }\n}',
-          'variables': {},
-        });
+    expect(body).toEqual({
+      operationName: 'refreshAccessToken',
+      query: 'mutation refreshAccessToken {\n  refreshAccessToken {\n    accessToken\n  }\n}',
+      variables: {},
+    });
   };
 }
 
@@ -417,19 +427,21 @@ function refreshTokenResponse(token: string | null): any {
 
 function unauthorizedApiQueryResponse(): any {
   return {
-    errors: [{
-      message: 'Unauthorized',
-      extensions: {
-        errorType: SaGrapQlErrorType.NotAuthorized,
+    errors: [
+      {
+        message: 'Unauthorized',
+        extensions: {
+          errorType: SaGrapQlErrorType.NotAuthorized,
+        },
       },
-    }],
+    ],
   };
 }
 
 function apiQueryAssertions(expectedToken: string | null): MockedRequestAssertions {
   return apiRequestAssertions(expectedToken, {
     query: '{\n  fakeGetter {\n    someProperty\n  }\n}',
-    'variables': {},
+    variables: {},
   });
 }
 
@@ -444,12 +456,11 @@ function successApiQueryResponse(): any {
 }
 
 function assertSuccessResponse(response: any) {
-  expect(response)
-    .toStrictEqual({
-      fakeGetter: {
-        someProperty: 'someValue',
-      },
-    });
+  expect(response).toStrictEqual({
+    fakeGetter: {
+      someProperty: 'someValue',
+    },
+  });
 }
 
 function apiMutationAssertions(expectedToken: string | null): MockedRequestAssertions {
@@ -461,21 +472,16 @@ function apiMutationAssertions(expectedToken: string | null): MockedRequestAsser
 
 function apiRequestAssertions(expectedToken: string | null, expectedBody: any): MockedRequestAssertions {
   return (options) => {
-    expect(options.body)
-      .toBeTypeOf('string');
+    expect(options.body).toBeTypeOf('string');
     const body = JSON.parse(options.body as string);
-    expect(body)
-      .toEqual(expectedBody);
+    expect(body).toEqual(expectedBody);
 
-    expect(options.headers)
-      .toBeDefined();
+    expect(options.headers).toBeDefined();
     const authHeader = new Headers(options.headers).get('Authorization');
     if (expectedToken) {
-      expect(authHeader)
-        .toBe(`Bearer ${expectedToken}`);
+      expect(authHeader).toBe(`Bearer ${expectedToken}`);
     } else {
-      expect(authHeader)
-        .toBeNull();
+      expect(authHeader).toBeNull();
     }
   };
 }
@@ -491,55 +497,55 @@ function successApiMutationResponse(): any {
 }
 
 function assertSuccessMutationResponse(response: any) {
-  expect(response)
-    .toStrictEqual({
-      fakeMutation: {
-        success: true,
-      },
-    });
+  expect(response).toStrictEqual({
+    fakeMutation: {
+      success: true,
+    },
+  });
 }
 
-async function expectToFailWith<T>(
-  executionSpec: () => Promise<void>,
-  expectedErrorName: string,
-): Promise<T> {
+async function expectToFailWith<T>(executionSpec: () => Promise<void>, expectedErrorName: string): Promise<T> {
   try {
     await executionSpec();
   } catch (e) {
     console.debug('Caught error, checking if it is expected', e);
-    expect(e)
-      .toHaveProperty('name', expectedErrorName);
+    expect(e).toHaveProperty('name', expectedErrorName);
     return e as T;
   }
-  expect('API call expected to fail', 'API call expected to fail')
-    .toBeDefined();
+  expect('API call expected to fail', 'API call expected to fail').toBeDefined();
 }
 
-function validationFailureResponse(validationErrors: Array<{
-  path: string;
-  error: ValidationErrorCode;
-  message: string;
-  params?: Array<{ name: string; value: string }>;
-}>): any {
+function validationFailureResponse(
+  validationErrors: Array<{
+    path: string;
+    error: ValidationErrorCode;
+    message: string;
+    params?: Array<{ name: string; value: string }>;
+  }>,
+): any {
   return {
-    errors: [{
-      message: 'Validation failed',
-      extensions: {
-        errorType: SaGrapQlErrorType.FieldValidationFailure,
-        validationErrors,
+    errors: [
+      {
+        message: 'Validation failed',
+        extensions: {
+          errorType: SaGrapQlErrorType.FieldValidationFailure,
+          validationErrors,
+        },
       },
-    }],
+    ],
   };
 }
 
 function businessErrorResponse(errorCode: string, message: string): any {
   return {
-    errors: [{
-      message,
-      extensions: {
-        errorType: SaGrapQlErrorType.BusinessError,
-        errorCode,
+    errors: [
+      {
+        message,
+        extensions: {
+          errorType: SaGrapQlErrorType.BusinessError,
+          errorCode,
+        },
       },
-    }],
+    ],
   };
 }

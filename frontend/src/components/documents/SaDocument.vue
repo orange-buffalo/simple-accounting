@@ -54,50 +54,53 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
-  import { $t } from '@/services/i18n';
+import { computed } from 'vue';
+import SaDocumentDownloadLink from '@/components/documents/SaDocumentDownloadLink.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import { $t } from '@/services/i18n';
 
-  function getDocumentTypeIcon(documentName: string) {
-    const fileName = documentName.toLowerCase();
-    if (fileName.endsWith('.pdf')) {
-      return 'pdf';
-    }
-    if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
-      return 'jpg';
-    }
-    if (fileName.endsWith('.zip') || fileName.endsWith('.gz') || fileName.endsWith('.rar')) {
-      return 'zip';
-    }
-    if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
-      return 'doc';
-    }
-    return 'file';
+function getDocumentTypeIcon(documentName: string) {
+  const fileName = documentName.toLowerCase();
+  if (fileName.endsWith('.pdf')) {
+    return 'pdf';
   }
+  if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+    return 'jpg';
+  }
+  if (fileName.endsWith('.zip') || fileName.endsWith('.gz') || fileName.endsWith('.rar')) {
+    return 'zip';
+  }
+  if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+    return 'doc';
+  }
+  return 'file';
+}
 
-  const props = withDefaults(defineProps<{
-    documentName?: string,
-    documentId?: number,
-    removable?: boolean,
-    inProgress?: boolean
-    progress?: number,
-    documentSizeInBytes?: number,
-    loading?: boolean
-  }>(), {
+const props = withDefaults(
+  defineProps<{
+    documentName?: string;
+    documentId?: number;
+    removable?: boolean;
+    inProgress?: boolean;
+    progress?: number;
+    documentSizeInBytes?: number;
+    loading?: boolean;
+  }>(),
+  {
     documentName: '',
     removable: false,
     inProgress: false,
     loading: false,
-  });
+  },
+);
 
-  const emit = defineEmits<{(e: 'removed'): void }>();
+const emit = defineEmits<{ (e: 'removed'): void }>();
 
-  const documentTypeIcon = computed(() => getDocumentTypeIcon(props.documentName));
+const documentTypeIcon = computed(() => getDocumentTypeIcon(props.documentName));
 
-  const onRemove = () => emit('removed');
+const onRemove = () => emit('removed');
 
-  const progressFormat = (percent: number) => $t.value.common.percent(percent / 100);
+const progressFormat = (percent: number) => $t.value.common.percent(percent / 100);
 </script>
 
 <style lang="scss">

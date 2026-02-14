@@ -1,9 +1,8 @@
-import {
-  afterEach, beforeEach, describe, expect, test, vi,
-} from 'vitest';
 import type { CallHistoryFilter, UserRouteConfig } from 'fetch-mock';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import 'whatwg-fetch';
 import fetchMock from 'fetch-mock';
+import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
 import {
   ApiAuthError,
   ApiBusinessError,
@@ -14,19 +13,19 @@ import {
   FatalApiError,
   ResourceNotFoundError,
 } from '@/services/api/api-errors';
-import type { Auth, InvalidInputErrorDto, SaApiErrorDto } from '@/services/api';
+import type { RequestConfigParams, RequestConfigReturn } from '@/services/api/api-utils';
 import type { ProfileApiApi } from '@/services/api/generated/apis/ProfileApiApi';
-import type { RequestConfigReturn, RequestConfigParams } from '@/services/api/api-utils';
 
 // eslint-disable-next-line vue/max-len
-const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
+const TOKEN =
+  'eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2Iiwicm9sZXMiOlsiVVNFUiJdLCJ0cmFuc2llbnQiOmZhbHNlLCJleHAiOjE1NzgxMTY0NTV9.Zd2q76NaV27zZxMYxSJbDjzCjf4eAD4_aa16iQ4C-ABXZDzNAQWHCoajHGY3-7aOQnSSPo1uZxskY9B8dcHlfkr_lsEQHJ6I4yBYueYDC_V6MZmi3tVwBAeftrIhXs900ioxo0D2cLl7MAcMNGlQjrTDz62SrIrz30JnBOGnHbcK088rkbw5nLbdyUT0PA0w6EgDntJjtJS0OS7EHLpixFtenQR7LPKj-c7KdZybjShFAuw9L8cW5onKZb3S7AOzxwPcSGM2uKo2nc0EQ3Zo48gTtfieSBDCgpi0rymmDPpiq1yNB0U21A8n59DA9YDFf2Kaaf5ZjFAxvZ_Ul9a3Wg';
 const API_TIME = new Date('2020-01-04T00:00:00');
 
 fetchMock.mockGlobal();
 
 type TestBusinessErrorDto = SaApiErrorDto & {
   someData: string;
-}
+};
 
 describe('API Client', () => {
   let loadingStartedEventMock: () => void;
@@ -37,12 +36,9 @@ describe('API Client', () => {
   let useRequestConfig: (params: RequestConfigParams) => RequestConfigReturn;
 
   const assertRegularRequestEvents = () => {
-    expect(loginRequiredEventMock)
-      .toHaveBeenCalledTimes(0);
-    expect(loadingStartedEventMock)
-      .toHaveBeenCalledOnce();
-    expect(loadingFinishedEventMock)
-      .toHaveBeenCalledOnce();
+    expect(loginRequiredEventMock).toHaveBeenCalledTimes(0);
+    expect(loadingStartedEventMock).toHaveBeenCalledOnce();
+    expect(loadingFinishedEventMock).toHaveBeenCalledOnce();
   };
 
   const apiCall = async (initOverrides?: RequestInit) => profileApi.getProfile(initOverrides);
@@ -54,8 +50,7 @@ describe('API Client', () => {
     await apiCall();
 
     const options = safeGetCallOptions();
-    expect(new Headers(options.headers).get('Authorization'))
-      .toBeNull();
+    expect(new Headers(options.headers).get('Authorization')).toBeNull();
   });
 
   test('adds a token to headers after successful autologin', async () => {
@@ -63,28 +58,26 @@ describe('API Client', () => {
       token: TOKEN,
     });
 
-    fetchMock.get(apiCallPath, {
-      userName: 'testUser',
-    }, {
-      headers: {
-        Authorization: `Bearer ${TOKEN}`,
+    fetchMock.get(
+      apiCallPath,
+      {
+        userName: 'testUser',
       },
-    });
+      {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+        },
+      },
+    );
 
-    const autologin = await useAuth()
-      .tryAutoLogin();
+    const autologin = await useAuth().tryAutoLogin();
 
-    expect(autologin)
-      .equal(true);
-    expect(useAuth()
-      .getToken())
-      .toBe(TOKEN);
+    expect(autologin).equal(true);
+    expect(useAuth().getToken()).toBe(TOKEN);
 
     const response = await apiCall();
-    expect(response)
-      .toBeDefined();
-    expect(response.userName)
-      .toEqual('testUser');
+    expect(response).toBeDefined();
+    expect(response.userName).toEqual('testUser');
   });
 
   test('tries autologin when 401 is received for a request', async () => {
@@ -92,13 +85,14 @@ describe('API Client', () => {
       if (!options || !options.headers) throw new Error();
       return new Headers(options.headers).get('Authorization')
         ? {
-          status: 200,
-          body: {
-            userName: 'someUser',
-          },
-        } : {
-          status: 401,
-        };
+            status: 200,
+            body: {
+              userName: 'someUser',
+            },
+          }
+        : {
+            status: 401,
+          };
     });
     fetchMock.post('/api/auth/token', {
       token: TOKEN,
@@ -106,16 +100,12 @@ describe('API Client', () => {
 
     const { userName } = await apiCall();
 
-    expect(userName)
-      .eq('someUser');
-    expect(loginRequiredEventMock)
-      .toHaveBeenCalledTimes(0);
+    expect(userName).eq('someUser');
+    expect(loginRequiredEventMock).toHaveBeenCalledTimes(0);
     const calls = fetchMock.callHistory.calls();
-    expect(calls)
-      .length(3);
+    expect(calls).length(3);
     const paths = calls.map((call) => call.args[0]);
-    expect(paths)
-      .toEqual([apiCallPath, '/api/auth/token', apiCallPath]);
+    expect(paths).toEqual([apiCallPath, '/api/auth/token', apiCallPath]);
   });
 
   test('throws ApiAuthError and triggers events when 401 is received', async () => {
@@ -129,15 +119,11 @@ describe('API Client', () => {
     const error = await expectToFailWith<ApiAuthError>(async () => {
       await apiCall();
     }, 'ApiAuthError');
-    expect(error.response.status)
-      .toBe(401);
+    expect(error.response.status).toBe(401);
 
-    expect(loginRequiredEventMock)
-      .toHaveBeenCalledOnce();
-    expect(loadingStartedEventMock)
-      .toHaveBeenCalledTimes(2);
-    expect(loadingFinishedEventMock)
-      .toHaveBeenCalledTimes(2);
+    expect(loginRequiredEventMock).toHaveBeenCalledOnce();
+    expect(loadingStartedEventMock).toHaveBeenCalledTimes(2);
+    expect(loadingFinishedEventMock).toHaveBeenCalledTimes(2);
   });
 
   test('fires events on successful responses', async () => {
@@ -156,8 +142,7 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<FatalApiError>(async () => {
       await apiCall();
     }, 'FatalApiError');
-    expect(apiError.response.status)
-      .toBe(500);
+    expect(apiError.response.status).toBe(500);
 
     assertRegularRequestEvents();
   });
@@ -170,8 +155,7 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<ResourceNotFoundError>(async () => {
       await apiCall();
     }, 'ResourceNotFoundError');
-    expect(apiError.response.status)
-      .toBe(404);
+    expect(apiError.response.status).toBe(404);
 
     assertRegularRequestEvents();
   });
@@ -193,15 +177,13 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<ApiFieldLevelValidationError>(async () => {
       await apiCall();
     }, 'ApiFieldLevelValidationError');
-    expect(apiError.response.status)
-      .toBe(400);
-    expect(apiError.fieldErrors)
-      .toEqual([
-        {
-          field: 'name',
-          message: 'Name is required',
-        },
-      ]);
+    expect(apiError.response.status).toBe(400);
+    expect(apiError.fieldErrors).toEqual([
+      {
+        field: 'name',
+        message: 'Name is required',
+      },
+    ]);
 
     assertRegularRequestEvents();
   });
@@ -218,13 +200,11 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<ApiBusinessError>(async () => {
       await apiCall();
     }, 'ApiBusinessError');
-    expect(apiError.response.status)
-      .toBe(400);
-    expect(apiError.errorAs<TestBusinessErrorDto>())
-      .toEqual({
-        error: 'TestBusinessErrorDto',
-        someData: 'server data',
-      });
+    expect(apiError.response.status).toBe(400);
+    expect(apiError.errorAs<TestBusinessErrorDto>()).toEqual({
+      error: 'TestBusinessErrorDto',
+      someData: 'server data',
+    });
 
     assertRegularRequestEvents();
   });
@@ -238,8 +218,7 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<FatalApiError>(async () => {
       await apiCall();
     }, 'FatalApiError');
-    expect(apiError.response.status)
-      .toBe(400);
+    expect(apiError.response.status).toBe(400);
 
     assertRegularRequestEvents();
   });
@@ -253,12 +232,9 @@ describe('API Client', () => {
     const apiError = await expectToFailWith<ClientApiError>(async () => {
       await apiCall();
     }, 'ClientApiError');
-    expect(apiError.message)
-      .toBe('Request failed with error: Error: Request failed');
-    expect(apiError.response)
-      .toBeUndefined();
-    expect(apiError.error)
-      .toBe(originalError);
+    expect(apiError.message).toBe('Request failed with error: Error: Request failed');
+    expect(apiError.response).toBeUndefined();
+    expect(apiError.error).toBe(originalError);
 
     assertRegularRequestEvents();
   });
@@ -277,8 +253,7 @@ describe('API Client', () => {
     const error = await expectToFailWith<ApiTimeoutError>(async () => {
       await apiCall(requestConfig);
     }, 'ApiTimeoutError');
-    expect(error.message)
-      .toBe('Request timed out');
+    expect(error.message).toBe('Request timed out');
 
     assertRegularRequestEvents();
   });
@@ -290,18 +265,14 @@ describe('API Client', () => {
       delay: 20000,
     });
 
-    const {
-      requestConfig,
-      cancelRequest,
-    } = useRequestConfig({});
+    const { requestConfig, cancelRequest } = useRequestConfig({});
 
     setTimeout(() => cancelRequest(), 500);
 
     const error = await expectToFailWith<ApiRequestCancelledError>(async () => {
       await apiCall(requestConfig);
     }, 'ApiRequestCancelledError');
-    expect(error.message)
-      .toBe('Request was cancelled before it was completed');
+    expect(error.message).toBe('Request was cancelled before it was completed');
 
     assertRegularRequestEvents();
   });
@@ -326,11 +297,7 @@ describe('API Client', () => {
     loadingStartedEventMock = events.LOADING_STARTED_EVENT.emit;
     loadingFinishedEventMock = events.LOADING_FINISHED_EVENT.emit;
     loginRequiredEventMock = events.LOGIN_REQUIRED_EVENT.emit;
-    ({
-      useAuth,
-      profileApi,
-      useRequestConfig,
-    } = await import('@/services/api'));
+    ({ useAuth, profileApi, useRequestConfig } = await import('@/services/api'));
   });
 
   afterEach(() => {
@@ -344,30 +311,20 @@ describe('API Client', () => {
 
 function safeGetCallOptions(filter?: CallHistoryFilter, options?: UserRouteConfig): RequestInit {
   const calls = fetchMock.callHistory.calls(filter, options);
-  expect(calls)
-    .to
-    .have
-    .length(1);
+  expect(calls).to.have.length(1);
   const call = calls[0];
-  expect(call)
-    .toBeDefined();
+  expect(call).toBeDefined();
   const callOptions = call.options;
-  expect(callOptions)
-    .toBeDefined();
+  expect(callOptions).toBeDefined();
   return callOptions!;
 }
 
-async function expectToFailWith<T>(
-  executionSpec: () => Promise<void>,
-  expectedErrorName: string,
-): Promise<T> {
+async function expectToFailWith<T>(executionSpec: () => Promise<void>, expectedErrorName: string): Promise<T> {
   try {
     await executionSpec();
   } catch (e) {
-    expect(e)
-      .toHaveProperty('name', expectedErrorName);
+    expect(e).toHaveProperty('name', expectedErrorName);
     return e as T;
   }
-  expect('API call expected to fail', 'API call expected to fail')
-      .toBeDefined();
+  expect('API call expected to fail', 'API call expected to fail').toBeDefined();
 }

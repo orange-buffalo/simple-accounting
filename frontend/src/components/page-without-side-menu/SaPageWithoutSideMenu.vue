@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-  import LogoLogin from '@/assets/logo-login.svg?component';
+import LogoLogin from '@/assets/logo-login.svg?component';
 </script>
 
 <style lang="scss">

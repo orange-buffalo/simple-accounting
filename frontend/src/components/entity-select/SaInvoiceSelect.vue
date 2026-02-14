@@ -29,43 +29,44 @@
 </template>
 
 <script lang="ts" setup>
-  import SaEntitySelect from '@/components/entity-select/SaEntitySelect.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import { $t } from '@/services/i18n';
-  import type { ApiPageRequest, HasOptionalId, InvoiceDto } from '@/services/api';
-  import { invoicesApi } from '@/services/api';
-  import { useCurrentWorkspace } from '@/services/workspaces';
+import SaEntitySelect from '@/components/entity-select/SaEntitySelect.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import type { ApiPageRequest, HasOptionalId, InvoiceDto } from '@/services/api';
+import { invoicesApi } from '@/services/api';
+import { $t } from '@/services/i18n';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  defineProps<{
-    modelValue?: number,
-  }>();
+defineProps<{
+  modelValue?: number;
+}>();
 
-  const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
+const emit = defineEmits<{ (e: 'update:modelValue', value?: number): void }>();
 
-  // case required as Vue does not support generic slots/props
-  const invoice = (entity: HasOptionalId) => entity as InvoiceDto;
-  const invoiceLabelProvider = (entity: HasOptionalId) => invoice(entity).title;
+// case required as Vue does not support generic slots/props
+const invoice = (entity: HasOptionalId) => entity as InvoiceDto;
+const invoiceLabelProvider = (entity: HasOptionalId) => invoice(entity).title;
 
-  const { currentWorkspaceId } = useCurrentWorkspace();
+const { currentWorkspaceId } = useCurrentWorkspace();
 
-  const optionsProvider = async (
-    pageRequest: ApiPageRequest,
-    query: string | undefined,
-    requestInit: RequestInit,
-  ) => invoicesApi.getInvoices({
-    workspaceId: currentWorkspaceId,
-    freeSearchTextEq: query,
-    ...pageRequest,
-  }, requestInit);
+const optionsProvider = async (pageRequest: ApiPageRequest, query: string | undefined, requestInit: RequestInit) =>
+  invoicesApi.getInvoices(
+    {
+      workspaceId: currentWorkspaceId,
+      freeSearchTextEq: query,
+      ...pageRequest,
+    },
+    requestInit,
+  );
 
-  const optionProvider = async (
-    id: number,
-    requestInit: RequestInit,
-  ) => invoicesApi.getInvoice({
-    workspaceId: currentWorkspaceId,
-    invoiceId: id,
-  }, requestInit);
+const optionProvider = async (id: number, requestInit: RequestInit) =>
+  invoicesApi.getInvoice(
+    {
+      workspaceId: currentWorkspaceId,
+      invoiceId: id,
+    },
+    requestInit,
+  );
 </script>
 
 <style lang="scss">

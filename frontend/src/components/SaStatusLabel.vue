@@ -13,28 +13,28 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import SaIcon from '@/components/SaIcon.vue';
+import { computed } from 'vue';
+import SaIcon from '@/components/SaIcon.vue';
 
-  export type StatusLabelStatus = 'success' | 'pending' | 'regular' | 'failure';
+export type StatusLabelStatus = 'success' | 'pending' | 'regular' | 'failure';
 
-  interface SaStatusLabelProps {
-    status: StatusLabelStatus,
-    simplified?: boolean,
-    customIcon?: string,
-    hideIcon?: boolean,
+interface SaStatusLabelProps {
+  status: StatusLabelStatus;
+  simplified?: boolean;
+  customIcon?: string;
+  hideIcon?: boolean;
+}
+
+const props = withDefaults(defineProps<SaStatusLabelProps>(), {
+  simplified: false,
+  hideIcon: false,
+});
+
+const statusIcon = computed(() => {
+  if (props.customIcon) {
+    return props.customIcon;
   }
-
-  const props = withDefaults(defineProps<SaStatusLabelProps>(), {
-    simplified: false,
-    hideIcon: false,
-  });
-
-  const statusIcon = computed(() => {
-    if (props.customIcon) {
-      return props.customIcon;
-    }
-    switch (props.status) {
+  switch (props.status) {
     case 'success':
       return 'success';
     case 'pending':
@@ -45,19 +45,19 @@
       return 'gear';
     default:
       throw new Error(`${props.status} is not supported yet`);
-    }
-  });
+  }
+});
 
-  const statusClass = computed(() => ({
-    'sa-status-label_success': !props.simplified && props.status === 'success',
-    'sa-status-label_pending': !props.simplified && props.status === 'pending',
-    'sa-status-label_regular': !props.simplified && props.status === 'regular',
-    'sa-status-label_failure': !props.simplified && props.status === 'failure',
-    'sa-status-label_success-simplified': props.simplified && props.status === 'success',
-    'sa-status-label_pending-simplified': props.simplified && props.status === 'pending',
-    'sa-status-label_regular-simplified': props.simplified && props.status === 'regular',
-    'sa-status-label_failure-simplified': props.simplified && props.status === 'failure',
-  }));
+const statusClass = computed(() => ({
+  'sa-status-label_success': !props.simplified && props.status === 'success',
+  'sa-status-label_pending': !props.simplified && props.status === 'pending',
+  'sa-status-label_regular': !props.simplified && props.status === 'regular',
+  'sa-status-label_failure': !props.simplified && props.status === 'failure',
+  'sa-status-label_success-simplified': props.simplified && props.status === 'success',
+  'sa-status-label_pending-simplified': props.simplified && props.status === 'pending',
+  'sa-status-label_regular-simplified': props.simplified && props.status === 'regular',
+  'sa-status-label_failure-simplified': props.simplified && props.status === 'failure',
+}));
 </script>
 
 <style lang="scss">

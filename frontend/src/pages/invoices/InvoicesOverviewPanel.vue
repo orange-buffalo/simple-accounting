@@ -211,81 +211,76 @@
 </template>
 
 <script lang="ts" setup>
-  import { watch, computed, ref } from 'vue';
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
-  import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
-  import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
-  import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
-  import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
-  import SaOverviewItemDetailsSectionAttribute
-    from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
-  import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
-  import SaActionLink from '@/components/SaActionLink.vue';
-  import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
-  import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
-  import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
-  import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
-  import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import { formatDateToLocalISOString } from '@/services/date-utils';
-  import type { InvoiceDto } from '@/services/api';
-  import { generalTaxesApi, invoicesApi } from '@/services/api';
-  import { $t } from '@/services/i18n';
+import { computed, ref, watch } from 'vue';
+import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
+import SaDocumentsList from '@/components/documents/SaDocumentsList.vue';
+import SaGeneralTaxOutput from '@/components/general-tax/SaGeneralTaxOutput.vue';
+import SaOverviewItem from '@/components/overview-item/SaOverviewItem.vue';
+import SaOverviewItemAmountPanel from '@/components/overview-item/SaOverviewItemAmountPanel.vue';
+import SaOverviewItemAttributePreviewIcon from '@/components/overview-item/SaOverviewItemAttributePreviewIcon.vue';
+import SaOverviewItemDetailsSection from '@/components/overview-item/SaOverviewItemDetailsSection.vue';
+import SaOverviewItemDetailsSectionActions from '@/components/overview-item/SaOverviewItemDetailsSectionActions.vue';
+import SaOverviewItemDetailsSectionAttribute from '@/components/overview-item/SaOverviewItemDetailsSectionAttribute.vue';
+import SaOverviewItemPrimaryAttribute from '@/components/overview-item/SaOverviewItemPrimaryAttribute.vue';
+import SaActionLink from '@/components/SaActionLink.vue';
+import SaMarkdownOutput from '@/components/SaMarkdownOutput.vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import SaStatusLabel, { type StatusLabelStatus } from '@/components/SaStatusLabel.vue';
+import type { InvoiceDto } from '@/services/api';
+import { generalTaxesApi, invoicesApi } from '@/services/api';
+import { formatDateToLocalISOString } from '@/services/date-utils';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{
-    invoice: InvoiceDto
-  }>();
+const props = defineProps<{
+  invoice: InvoiceDto;
+}>();
 
-  const emit = defineEmits<{(e: 'invoice-update'): void }>();
+const emit = defineEmits<{ (e: 'invoice-update'): void }>();
 
-  const {
-    currentWorkspace,
-    currentWorkspaceId,
-    defaultCurrency,
-  } = useCurrentWorkspace();
+const { currentWorkspace, currentWorkspaceId, defaultCurrency } = useCurrentWorkspace();
 
-  const markSent = async () => {
-    const invoiceRequest = {
-      ...props.invoice,
-      dateSent: formatDateToLocalISOString(new Date()),
-    };
-    await invoicesApi.updateInvoice({
-      invoiceId: props.invoice.id,
-      workspaceId: currentWorkspaceId,
-      editInvoiceDto: invoiceRequest,
-    });
-    emit('invoice-update');
+const markSent = async () => {
+  const invoiceRequest = {
+    ...props.invoice,
+    dateSent: formatDateToLocalISOString(new Date()),
   };
+  await invoicesApi.updateInvoice({
+    invoiceId: props.invoice.id,
+    workspaceId: currentWorkspaceId,
+    editInvoiceDto: invoiceRequest,
+  });
+  emit('invoice-update');
+};
 
-  const { navigateToView } = useNavigation();
+const { navigateToView } = useNavigation();
 
-  const navigateToInvoiceEdit = () => {
-    navigateToView({
-      name: 'edit-invoice',
-      params: { id: props.invoice.id },
-    });
-  };
+const navigateToInvoiceEdit = () => {
+  navigateToView({
+    name: 'edit-invoice',
+    params: { id: props.invoice.id },
+  });
+};
 
-  const markPaid = () => {
-    navigateToView({
-      name: 'create-new-income',
-      params: { sourceInvoiceId: props.invoice.id },
-    });
-  };
+const markPaid = () => {
+  navigateToView({
+    name: 'create-new-income',
+    params: { sourceInvoiceId: props.invoice.id },
+  });
+};
 
-  const statusInfo = computed<{
-    isDraft?: boolean,
-    isPaid?: boolean,
-    isCancelled?: boolean,
-    isSent?: boolean,
-    isOverdue?: boolean,
-    statusIcon?: string,
-    statusValue: StatusLabelStatus,
-    statusText?: string
-  }>(() => {
-    switch (props.invoice.status) {
+const statusInfo = computed<{
+  isDraft?: boolean;
+  isPaid?: boolean;
+  isCancelled?: boolean;
+  isSent?: boolean;
+  isOverdue?: boolean;
+  statusIcon?: string;
+  statusValue: StatusLabelStatus;
+  statusText?: string;
+}>(() => {
+  switch (props.invoice.status) {
     case 'DRAFT':
       return {
         isDraft: true,
@@ -320,14 +315,16 @@
       };
     default:
       throw new Error(`Unknown invoice status ${props.invoice.status}`);
-    }
-  });
+  }
+});
 
-  const isGeneralTaxApplicable = computed(() => props.invoice.generalTax != null);
-  const isForeignCurrency = computed(() => props.invoice.currency !== defaultCurrency);
+const isGeneralTaxApplicable = computed(() => props.invoice.generalTax != null);
+const isForeignCurrency = computed(() => props.invoice.currency !== defaultCurrency);
 
-  const generalTaxRate = ref(0);
-  watch(() => props.invoice.generalTax, async (taxId) => {
+const generalTaxRate = ref(0);
+watch(
+  () => props.invoice.generalTax,
+  async (taxId) => {
     if (taxId !== undefined) {
       const generalTax = await generalTaxesApi.getTax({
         workspaceId: currentWorkspaceId,
@@ -335,5 +332,7 @@
       });
       generalTaxRate.value = generalTax.rateInBps;
     }
-  }, { immediate: true });
+  },
+  { immediate: true },
+);
 </script>

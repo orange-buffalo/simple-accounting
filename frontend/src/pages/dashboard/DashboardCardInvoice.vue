@@ -40,21 +40,21 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
-  import type { InvoiceDto } from '@/services/api';
-  import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
-  import { $t } from '@/services/i18n';
-  import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
+import { computed } from 'vue';
+import SaCustomerOutput from '@/components/customer/SaCustomerOutput.vue';
+import SaMoneyOutput from '@/components/SaMoneyOutput.vue';
+import DashboardCard from '@/pages/dashboard/DashboardCard.vue';
+import type { InvoiceDto } from '@/services/api';
+import { $t } from '@/services/i18n';
 
-  const props = defineProps<{
-    invoice: InvoiceDto,
-  }>();
+const props = defineProps<{
+  invoice: InvoiceDto;
+}>();
 
-  const invoiceStatus = computed(() => {
-    if (props.invoice.status === 'OVERDUE') {
-      return $t.value.dashboard.cards.invoice.status.overdue();
-    }
-    return $t.value.dashboard.cards.invoice.status.pending();
-  });
+const invoiceStatus = computed(() => {
+  if (props.invoice.status === 'OVERDUE') {
+    return $t.value.dashboard.cards.invoice.status.overdue();
+  }
+  return $t.value.dashboard.cards.invoice.status.pending();
+});
 </script>

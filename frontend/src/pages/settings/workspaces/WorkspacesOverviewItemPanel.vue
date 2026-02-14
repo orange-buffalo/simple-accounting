@@ -72,67 +72,64 @@
 </template>
 
 <script lang="ts" setup>
-  import copy from 'copy-to-clipboard';
-  import { computed, ref } from 'vue';
-  import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
-  import type { WorkspaceAccessTokenDto, WorkspaceDto } from '@/services/api';
-  import useNavigation from '@/services/use-navigation';
-  import { workspaceAccessTokensApi } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
-  import { $t } from '@/services/i18n';
+import copy from 'copy-to-clipboard';
+import { computed, ref } from 'vue';
+import SaIcon from '@/components/SaIcon.vue';
+import WorkspacesAttributeValue from '@/pages/settings/workspaces/WorkspacesAttributeValue.vue';
+import type { WorkspaceAccessTokenDto, WorkspaceDto } from '@/services/api';
+import { workspaceAccessTokensApi } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { ensureDefined } from '@/services/utils';
+import { useCurrentWorkspace, useWorkspaces } from '@/services/workspaces';
 
-  const props = defineProps<{
-    workspace: WorkspaceDto,
-  }>();
+const props = defineProps<{
+  workspace: WorkspaceDto;
+}>();
 
-  const accessTokens = ref<WorkspaceAccessTokenDto[]>([]);
-  const newShareValidTill = ref(new Date());
+const accessTokens = ref<WorkspaceAccessTokenDto[]>([]);
+const newShareValidTill = ref(new Date());
 
-  const hasAccessTokens = computed(() => accessTokens.value.length);
+const hasAccessTokens = computed(() => accessTokens.value.length);
 
-  const { currentWorkspaceId } = useCurrentWorkspace();
-  const isCurrent = computed(() => props.workspace.id === currentWorkspaceId);
+const { currentWorkspaceId } = useCurrentWorkspace();
+const isCurrent = computed(() => props.workspace.id === currentWorkspaceId);
 
-  const reloadAccessTokens = async () => {
-    // TODO #463: consumeAllPages
-    const response = await workspaceAccessTokensApi.getAccessTokens({
-      workspaceId: ensureDefined(props.workspace.id),
-    });
-    accessTokens.value = response.data;
-  };
-  reloadAccessTokens();
+const reloadAccessTokens = async () => {
+  // TODO #463: consumeAllPages
+  const response = await workspaceAccessTokensApi.getAccessTokens({
+    workspaceId: ensureDefined(props.workspace.id),
+  });
+  accessTokens.value = response.data;
+};
+reloadAccessTokens();
 
-  const {
-    navigateToView,
-    navigateByPath,
-  } = useNavigation();
-  const navigateToWorkspaceEdit = () => navigateToView({
+const { navigateToView, navigateByPath } = useNavigation();
+const navigateToWorkspaceEdit = () =>
+  navigateToView({
     name: 'edit-workspace',
     params: { id: props.workspace.id },
   });
 
-  const switchToWorkspace = () => {
-    useWorkspaces()
-      .setCurrentWorkspace(props.workspace);
-    navigateByPath('/');
-  };
+const switchToWorkspace = () => {
+  useWorkspaces().setCurrentWorkspace(props.workspace);
+  navigateByPath('/');
+};
 
-  const shareWorkspace = async () => {
-    await workspaceAccessTokensApi.createAccessToken({
-      workspaceId: ensureDefined(props.workspace.id),
-      createWorkspaceAccessTokenDto: {
-        validTill: newShareValidTill.value.toISOString(),
-      },
-    });
-    await reloadAccessTokens();
-  };
+const shareWorkspace = async () => {
+  await workspaceAccessTokensApi.createAccessToken({
+    workspaceId: ensureDefined(props.workspace.id),
+    createWorkspaceAccessTokenDto: {
+      validTill: newShareValidTill.value.toISOString(),
+    },
+  });
+  await reloadAccessTokens();
+};
 
-  const copyShareLink = (token: string) => {
-    const shareLink = `${window.location.origin}/login-by-link/${token}`;
-    copy(shareLink);
-  };
+const copyShareLink = (token: string) => {
+  const shareLink = `${window.location.origin}/login-by-link/${token}`;
+  copy(shareLink);
+};
 </script>
 
 <style lang="scss">

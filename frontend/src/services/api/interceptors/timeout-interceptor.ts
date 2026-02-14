@@ -1,8 +1,5 @@
-import type {
-  Middleware,
-  RequestContext,
-} from '@/services/api/generated';
 import { getGlobalRequestTimeout } from '@/services/api';
+import type { Middleware, RequestContext } from '@/services/api/generated';
 
 export const requestTimeoutInterceptor: Middleware = {
   async pre(context: RequestContext) {

@@ -1,15 +1,15 @@
-import Globalize from 'globalize';
 import type { CldrStatic } from 'cldrjs';
+import Globalize from 'globalize';
 import baseCldrDataJson from '@/services/i18n/l10n/base.json?raw';
 
 // do not transpile runtime data
 const baseCldrData = JSON.parse(baseCldrDataJson);
 
 export interface CurrencyInfo {
-  code: string,
-  displayName: string,
-  symbol: string,
-  digits: number,
+  code: string;
+  displayName: string;
+  symbol: string;
+  digits: number;
 }
 
 let currenciesInfo: Record<string, CurrencyInfo>;
@@ -18,35 +18,30 @@ let defaultCurrencyDigits = 2;
 function buildCurrenciesInfo(cldr: CldrStatic) {
   const cldrCurrencies = cldr.get('/main/{bundle}/numbers/currencies');
   currenciesInfo = {};
-  Object.keys(cldrCurrencies)
-    .forEach((code) => {
-      const {
-        displayName,
-        symbol,
-      } = cldrCurrencies[code];
-      currenciesInfo[code] = {
-        code,
-        displayName,
-        symbol,
-        digits: 2,
-      };
-    });
+  Object.keys(cldrCurrencies).forEach((code) => {
+    const { displayName, symbol } = cldrCurrencies[code];
+    currenciesInfo[code] = {
+      code,
+      displayName,
+      symbol,
+      digits: 2,
+    };
+  });
 
   const cldrCurrenciesFractions = cldr.get('/supplemental/currencyData/fractions');
-  Object.keys(cldrCurrenciesFractions)
-    .forEach((code) => {
-      const { _digits: digits } = cldrCurrenciesFractions[code];
-      if (code === 'DEFAULT') {
-        defaultCurrencyDigits = digits;
-      } else {
-        const currencyInfo = currenciesInfo[code];
-        if (currencyInfo == null) {
-          console.warn(`${code} is not consistent`);
-        } else if (digits != null) {
-          currencyInfo.digits = digits;
-        }
+  Object.keys(cldrCurrenciesFractions).forEach((code) => {
+    const { _digits: digits } = cldrCurrenciesFractions[code];
+    if (code === 'DEFAULT') {
+      defaultCurrencyDigits = digits;
+    } else {
+      const currencyInfo = currenciesInfo[code];
+      if (currencyInfo == null) {
+        console.warn(`${code} is not consistent`);
+      } else if (digits != null) {
+        currencyInfo.digits = digits;
       }
-    });
+    }
+  });
 }
 
 function emptyCurrencyInfo(code: string): CurrencyInfo {
@@ -75,8 +70,8 @@ export function getCurrenciesInfo() {
 }
 
 interface NumbersInfo {
-  decimalSymbol: string,
-  thousandsSeparator: string,
+  decimalSymbol: string;
+  thousandsSeparator: string;
 }
 
 let numbersInfo: NumbersInfo;

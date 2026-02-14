@@ -26,18 +26,19 @@
 </template>
 
 <script lang="ts" setup>
-  import MyProfileDocumentsStorageConfig from '@/pages/my-profile/MyProfileDocumentsStorageConfig.vue';
-  import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
-  import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup.vue';
-  import { ProfileDto, useAuth } from '@/services/api';
-  import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
-  import { $t } from '@/services/i18n';
-  import { graphql } from '@/services/api/gql';
-  import { useQuery } from '@/services/api/use-gql-api.ts';
+import SaGoogleDriveIntegrationSetup from '@/components/documents/storage/SaGoogleDriveIntegrationSetup.vue';
+import MyProfileChangePassword from '@/pages/my-profile/MyProfileChangePassword.vue';
+import MyProfileDocumentsStorageConfig from '@/pages/my-profile/MyProfileDocumentsStorageConfig.vue';
+import MyProfileLanguagePreferences from '@/pages/my-profile/MyProfileLanguagePreferences.vue';
+import { ProfileDto, useAuth } from '@/services/api';
+import { graphql } from '@/services/api/gql';
+import { useQuery } from '@/services/api/use-gql-api.ts';
+import { $t } from '@/services/i18n';
 
-  const { isAdmin } = useAuth();
+const { isAdmin } = useAuth();
 
-  const [loading, profile] = useQuery(graphql(/* GraphQL */ `
+const [loading, profile] = useQuery(
+  graphql(/* GraphQL */ `
     query userProfile {
       userProfile {
         documentsStorage
@@ -48,9 +49,11 @@
         userName
       }
     }
-  `), 'userProfile');
+  `),
+  'userProfile',
+);
 
-  const onProfileUpdated = (updatedProfile: ProfileDto) => {
-    profile.value = updatedProfile;
-  };
+const onProfileUpdated = (updatedProfile: ProfileDto) => {
+  profile.value = updatedProfile;
+};
 </script>

@@ -17,23 +17,24 @@
 </template>
 
 <script lang="ts" setup>
-  import SaInputLoader from '@/components/SaInputLoader.vue';
-  import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
-  import { consumeAllPages, generalTaxesApi } from '@/services/api';
+import SaInputLoader from '@/components/SaInputLoader.vue';
+import { consumeAllPages, generalTaxesApi } from '@/services/api';
+import { useValueLoadedByCurrentWorkspace } from '@/services/utils';
 
-  defineProps<{
-    modelValue?: number,
-    placeholder?: string,
-    clearable?: boolean,
-  }>();
+defineProps<{
+  modelValue?: number;
+  placeholder?: string;
+  clearable?: boolean;
+}>();
 
-  const emit = defineEmits<{(e: 'update:modelValue', value: number): void }>();
+const emit = defineEmits<{ (e: 'update:modelValue', value: number): void }>();
 
-  const {
-    value: generalTaxes,
-    loading,
-  } = useValueLoadedByCurrentWorkspace((workspaceId) => consumeAllPages((pageRequest) => generalTaxesApi.getTaxes({
-    ...pageRequest,
-    workspaceId,
-  })));
+const { value: generalTaxes, loading } = useValueLoadedByCurrentWorkspace((workspaceId) =>
+  consumeAllPages((pageRequest) =>
+    generalTaxesApi.getTaxes({
+      ...pageRequest,
+      workspaceId,
+    }),
+  ),
+);
 </script>

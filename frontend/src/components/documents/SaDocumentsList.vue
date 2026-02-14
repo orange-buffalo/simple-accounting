@@ -30,48 +30,55 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch } from 'vue';
-  import SaDocument from '@/components/documents/SaDocument.vue';
-  import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
-  import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import type { DocumentDto } from '@/services/api';
-  import { consumeAllPages, documentsApi, useRequestConfig } from '@/services/api';
+import { ref, watch } from 'vue';
+import SaDocument from '@/components/documents/SaDocument.vue';
+import SaFailedDocumentsStorageMessage from '@/components/documents/storage/SaFailedDocumentsStorageMessage.vue';
+import useDocumentsStorageStatus from '@/components/documents/storage/useDocumentsStorageStatus';
+import type { DocumentDto } from '@/services/api';
+import { consumeAllPages, documentsApi, useRequestConfig } from '@/services/api';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const props = defineProps<{ documentsIds: number[] }>();
+const props = defineProps<{ documentsIds: number[] }>();
 
-  const documents = ref<DocumentDto[]>([]);
-  const documentsLoading = ref(false);
-  const { documentsStorageStatus } = useDocumentsStorageStatus();
+const documents = ref<DocumentDto[]>([]);
+const documentsLoading = ref(false);
+const { documentsStorageStatus } = useDocumentsStorageStatus();
 
-  watch(() => [props.documentsIds, documentsStorageStatus.value], async (_, __, onCleanup) => {
+watch(
+  () => [props.documentsIds, documentsStorageStatus.value],
+  async (_, __, onCleanup) => {
     if (documentsStorageStatus.value.loading || !documentsStorageStatus.value.active) {
       return;
     }
     if (props.documentsIds.length) {
       documentsLoading.value = true;
 
-      const {
-        requestConfig,
-        cancelRequest,
-      } = useRequestConfig({});
+      const { requestConfig, cancelRequest } = useRequestConfig({});
 
       onCleanup(cancelRequest);
 
       const { currentWorkspaceId } = useCurrentWorkspace();
 
       try {
-        documents.value = (await consumeAllPages((pageRequest) => documentsApi.getDocuments({
-          workspaceId: currentWorkspaceId,
-          ...pageRequest,
-          idIn: props.documentsIds,
-        }, requestConfig)))
-          .sort((a, b) => a.name.localeCompare(b.name));
+        documents.value = (
+          await consumeAllPages((pageRequest) =>
+            documentsApi.getDocuments(
+              {
+                workspaceId: currentWorkspaceId,
+                ...pageRequest,
+                idIn: props.documentsIds,
+              },
+              requestConfig,
+            ),
+          )
+        ).sort((a, b) => a.name.localeCompare(b.name));
       } finally {
         documentsLoading.value = false;
       }
     }
-  }, { immediate: true });
+  },
+  { immediate: true },
+);
 </script>
 
 <style lang="scss">

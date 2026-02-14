@@ -22,13 +22,11 @@ function createFormatter(mediumFormatter: (date: Date) => string) {
 }
 
 export function dateTimeFormatter() {
-  const mediumFormatter = getCldr()
-    .dateFormatter({ skeleton: 'yMMMdhm' });
+  const mediumFormatter = getCldr().dateFormatter({ skeleton: 'yMMMdhm' });
   return createFormatter(mediumFormatter);
 }
 
 export function dateFormatter() {
-  const mediumFormatter = getCldr()
-    .dateFormatter({ date: 'medium' });
+  const mediumFormatter = getCldr().dateFormatter({ date: 'medium' });
   return createFormatter(mediumFormatter);
 }

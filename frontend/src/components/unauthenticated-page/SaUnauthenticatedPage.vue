@@ -5,5 +5,5 @@
 </template>
 
 <script lang="ts" setup>
-  import SaPageWithoutSideMenu from '@/components/page-without-side-menu/SaPageWithoutSideMenu.vue';
+import SaPageWithoutSideMenu from '@/components/page-without-side-menu/SaPageWithoutSideMenu.vue';
 </script>

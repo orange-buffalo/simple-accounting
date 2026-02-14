@@ -1,36 +1,36 @@
-import type { RouteLocation, Router, RouteRecordSingleView } from 'vue-router';
+import type { RouteLocation, RouteRecordSingleView, Router } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '@/pages/login/Login.vue';
 import SaAuthenticatedPage from '@/components/authenticated-page/SaAuthenticatedPage.vue';
+import SaUnauthenticatedPage from '@/components/unauthenticated-page/SaUnauthenticatedPage.vue';
+import AccountActivationPage from '@/pages/account-activation/AccountActivationPage.vue';
+import AccountSetupPage from '@/pages/account-setup/AccountSetupPage.vue';
+import EditUser from '@/pages/admin/users/EditUser.vue';
+import UsersOverview from '@/pages/admin/users/UsersOverview.vue';
 import Dashboard from '@/pages/dashboard/Dashboard.vue';
-import InvoicesOverview from '@/pages/invoices/InvoicesOverview.vue';
-import EditInvoice from '@/pages/invoices/EditInvoice.vue';
 import EditExpense from '@/pages/expenses/EditExpense.vue';
 import ExpensesOverview from '@/pages/expenses/ExpensesOverview.vue';
+import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayment.vue';
+import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaymentsOverview.vue';
+import EditIncome from '@/pages/incomes/EditIncome.vue';
+import IncomesOverview from '@/pages/incomes/IncomesOverview.vue';
+import EditInvoice from '@/pages/invoices/EditInvoice.vue';
+import InvoicesOverview from '@/pages/invoices/InvoicesOverview.vue';
+import LoginByLink from '@/pages/LoginByLink.vue';
+import Login from '@/pages/login/Login.vue';
 import MyProfile from '@/pages/my-profile/MyProfile.vue';
 import OAuthCallbackPage from '@/pages/oauth-callback/OAuthCallbackPage.vue';
-import IncomesOverview from '@/pages/incomes/IncomesOverview.vue';
-import EditIncome from '@/pages/incomes/EditIncome.vue';
-import IncomeTaxPaymentsOverview from '@/pages/income-tax-payments/IncomeTaxPaymentsOverview.vue';
-import EditIncomeTaxPayment from '@/pages/income-tax-payments/EditIncomeTaxPayment.vue';
 import Reporting from '@/pages/reporting/Reporting.vue';
 import Categories from '@/pages/settings/categories/Categories.vue';
 import CreateCategory from '@/pages/settings/categories/CreateCategory.vue';
 import CustomersOverview from '@/pages/settings/customers/CustomersOverview.vue';
 import EditCustomer from '@/pages/settings/customers/EditCustomer.vue';
-import GeneralTaxesOverview from '@/pages/settings/general-taxes/GeneralTaxesOverview.vue';
 import EditGeneralTax from '@/pages/settings/general-taxes/EditGeneralTax.vue';
-import WorkspacesOverview from '@/pages/settings/workspaces/WorkspacesOverview.vue';
+import GeneralTaxesOverview from '@/pages/settings/general-taxes/GeneralTaxesOverview.vue';
 import WorkspaceEditor from '@/pages/settings/workspaces/WorkspaceEditor.vue';
-import LoginByLink from '@/pages/LoginByLink.vue';
+import WorkspacesOverview from '@/pages/settings/workspaces/WorkspacesOverview.vue';
 import { useAuth } from '@/services/api';
-import { useLastView } from '@/services/use-last-view';
 import { LOGIN_REQUIRED_EVENT, SUCCESSFUL_LOGIN_EVENT } from '@/services/events';
-import UsersOverview from '@/pages/admin/users/UsersOverview.vue';
-import AccountActivationPage from '@/pages/account-activation/AccountActivationPage.vue';
-import SaUnauthenticatedPage from '@/components/unauthenticated-page/SaUnauthenticatedPage.vue';
-import EditUser from '@/pages/admin/users/EditUser.vue';
-import AccountSetupPage from '@/pages/account-setup/AccountSetupPage.vue';
+import { useLastView } from '@/services/use-last-view';
 
 const ID_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => ({ id: Number(route.params.id) });
 const PROTOTYPE_ROUTER_PARAM_PROCESSOR = (route: RouteLocation) => {
@@ -50,26 +50,26 @@ const ANONYMOUS_PAGES: Array<RouteRecordSingleView> = [
     meta: {
       pathPrefix: '/activate-account',
     },
-  }];
+  },
+];
 
 const ANONYMOUS_PAGES_NAMES = ANONYMOUS_PAGES.map((page) => page.name);
-export const ANONYMOUS_PAGES_PATH_PREFIXES = ANONYMOUS_PAGES
-  .map((page) => page.meta?.pathPrefix)
-  .filter((prefix) => prefix) as string[];
+export const ANONYMOUS_PAGES_PATH_PREFIXES = ANONYMOUS_PAGES.map((page) => page.meta?.pathPrefix).filter(
+  (prefix) => prefix,
+) as string[];
 
 function setupAuthenticationHooks(router: Router) {
-  const {
-    isLoggedIn,
-    tryAutoLogin,
-  } = useAuth();
+  const { isLoggedIn, tryAutoLogin } = useAuth();
   router.beforeEach(async (to, _, next) => {
     const { setLastView } = useLastView();
     // todo #117: remove from the list of explicit checks
-    if (to.name !== 'login'
-      && to.name !== 'login-by-link'
-      && to.name !== 'oauth-callback'
-      && !ANONYMOUS_PAGES_NAMES.includes(to.name)
-      && !isLoggedIn()) {
+    if (
+      to.name !== 'login' &&
+      to.name !== 'login-by-link' &&
+      to.name !== 'oauth-callback' &&
+      !ANONYMOUS_PAGES_NAMES.includes(to.name) &&
+      !isLoggedIn()
+    ) {
       if (await tryAutoLogin()) {
         SUCCESSFUL_LOGIN_EVENT.emit();
         next();
@@ -275,9 +275,7 @@ export default function setupRouter() {
       {
         path: '/',
         component: SaUnauthenticatedPage,
-        children: [
-          ...ANONYMOUS_PAGES,
-        ],
+        children: [...ANONYMOUS_PAGES],
       },
 
       {

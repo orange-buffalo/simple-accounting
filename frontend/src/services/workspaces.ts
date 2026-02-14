@@ -1,7 +1,7 @@
 import type { WorkspaceDto } from '@/services/api';
 import { workspacesApi } from '@/services/api';
-import { useStorage } from '@/services/storage';
 import { WORKSPACE_CHANGED_EVENT } from '@/services/events';
+import { useStorage } from '@/services/storage';
 
 let currentWorkspace: WorkspaceDto | null;
 let workspaces: WorkspaceDto[];
@@ -75,6 +75,5 @@ export function useCurrentWorkspace() {
  * use loadWorkspaces instead
  */
 export async function initWorkspace(): Promise<boolean> {
-  return useWorkspaces()
-    .loadWorkspaces();
+  return useWorkspaces().loadWorkspaces();
 }

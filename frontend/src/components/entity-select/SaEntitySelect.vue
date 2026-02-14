@@ -50,122 +50,133 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch } from 'vue';
-  import SaInputLoader from '@/components/SaInputLoader.vue';
-  import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
-  import { $t } from '@/services/i18n';
-  import type {
-    ApiPage, ApiPageRequest, HasOptionalId, RequestConfigReturn,
-  } from '@/services/api';
-  import { useRequestConfig } from '@/services/api';
-  import { ensureDefined } from '@/services/utils';
+import { ref, watch } from 'vue';
+import SaBasicErrorMessage from '@/components/SaBasicErrorMessage.vue';
+import SaInputLoader from '@/components/SaInputLoader.vue';
+import type { ApiPage, ApiPageRequest, HasOptionalId, RequestConfigReturn } from '@/services/api';
+import { useRequestConfig } from '@/services/api';
+import { $t } from '@/services/i18n';
+import { ensureDefined } from '@/services/utils';
 
-  const itemsToDisplay = 10;
+const itemsToDisplay = 10;
 
-  const props = defineProps<{
-    labelProvider:(option: HasOptionalId) => string,
-    modelValue?: number,
-    placeholder?: string,
-    optionsProvider: (pageRequest: ApiPageRequest,
-                      query: string | undefined,
-                      requestInit: RequestInit) => Promise<ApiPage<HasOptionalId>>,
-    optionProvider: (id: number,
-                     requestInit: RequestInit) => Promise<HasOptionalId>,
-    clearable?: boolean
-  }>();
+const props = defineProps<{
+  labelProvider: (option: HasOptionalId) => string;
+  modelValue?: number;
+  placeholder?: string;
+  optionsProvider: (
+    pageRequest: ApiPageRequest,
+    query: string | undefined,
+    requestInit: RequestInit,
+  ) => Promise<ApiPage<HasOptionalId>>;
+  optionProvider: (id: number, requestInit: RequestInit) => Promise<HasOptionalId>;
+  clearable?: boolean;
+}>();
 
-  const emit = defineEmits<{(e: 'update:modelValue', value?: number): void }>();
+const emit = defineEmits<{ (e: 'update:modelValue', value?: number): void }>();
 
-  let requestConfigData: RequestConfigReturn | undefined;
+let requestConfigData: RequestConfigReturn | undefined;
 
-  const loading = ref(false);
+const loading = ref(false);
 
-  interface ListItem {
-    label?: string,
-    isInfo?: boolean,
-    error?: boolean,
-    key: number | string,
-    entity?: HasOptionalId,
+interface ListItem {
+  label?: string;
+  isInfo?: boolean;
+  error?: boolean;
+  key: number | string;
+  entity?: HasOptionalId;
+}
+
+const availableValues = ref<Array<ListItem>>([]);
+
+const executeSearch = async (query?: string) => {
+  if (requestConfigData) {
+    requestConfigData.cancelRequest();
   }
-
-  const availableValues = ref<Array<ListItem>>([]);
-
-  const executeSearch = async (query?: string) => {
-    if (requestConfigData) {
-      requestConfigData.cancelRequest();
-    }
-    loading.value = true;
-    requestConfigData = useRequestConfig({});
-    try {
-      const providerData = await props.optionsProvider({
+  loading.value = true;
+  requestConfigData = useRequestConfig({});
+  try {
+    const providerData = await props.optionsProvider(
+      {
         pageSize: itemsToDisplay,
-      }, query, requestConfigData.requestConfig);
+      },
+      query,
+      requestConfigData.requestConfig,
+    );
 
-      availableValues.value = providerData.data.map((entity) => ({
-        entity,
-        key: ensureDefined(entity.id),
-        label: props.labelProvider(entity),
-      }));
-      if (providerData.totalElements > itemsToDisplay) {
-        availableValues.value.push({
-          key: 'overflow',
-          isInfo: true,
-          label: $t.value.saEntitySelect.moreElements.text(providerData.totalElements - itemsToDisplay),
-        });
-      }
-    } catch (_) {
-      // TODO #458 cancellation
-      // if (!api.isCancel(thrown)) {
-      //   availableValues.value = [];
-      //   searchRequestState.value.error = true;
-      // }
-      availableValues.value = [{
+    availableValues.value = providerData.data.map((entity) => ({
+      entity,
+      key: ensureDefined(entity.id),
+      label: props.labelProvider(entity),
+    }));
+    if (providerData.totalElements > itemsToDisplay) {
+      availableValues.value.push({
+        key: 'overflow',
+        isInfo: true,
+        label: $t.value.saEntitySelect.moreElements.text(providerData.totalElements - itemsToDisplay),
+      });
+    }
+  } catch (_) {
+    // TODO #458 cancellation
+    // if (!api.isCancel(thrown)) {
+    //   availableValues.value = [];
+    //   searchRequestState.value.error = true;
+    // }
+    availableValues.value = [
+      {
         key: 'loadingError',
         error: true,
         isInfo: true,
-      }];
+      },
+    ];
+  } finally {
+    requestConfigData = undefined;
+    loading.value = false;
+  }
+};
+
+const selectedValue = ref<number | string | undefined>();
+const selectedValueLoadingState = ref({
+  loading: false,
+  error: false,
+});
+
+// optimization to avoid API lookups if we loaded the value previously
+const knownSelectedValues: Array<HasOptionalId> = [];
+
+async function loadSelectedValue(entityId: number) {
+  selectedValueLoadingState.value.error = false;
+  const knownValue = knownSelectedValues.find((it) => it.id === entityId);
+  if (knownValue) {
+    selectedValue.value = props.labelProvider(knownValue);
+  } else {
+    selectedValueLoadingState.value.loading = true;
+    try {
+      const initialEntity = await props.optionProvider(entityId, {});
+      selectedValue.value = props.labelProvider(initialEntity);
+    } catch (_) {
+      selectedValueLoadingState.value.error = true;
     } finally {
-      requestConfigData = undefined;
-      loading.value = false;
-    }
-  };
-
-  const selectedValue = ref<number | string | undefined>();
-  const selectedValueLoadingState = ref({
-    loading: false,
-    error: false,
-  });
-
-  // optimization to avoid API lookups if we loaded the value previously
-  const knownSelectedValues: Array<HasOptionalId> = [];
-
-  async function loadSelectedValue(entityId: number) {
-    selectedValueLoadingState.value.error = false;
-    const knownValue = knownSelectedValues.find((it) => it.id === entityId);
-    if (knownValue) {
-      selectedValue.value = props.labelProvider(knownValue);
-    } else {
-      selectedValueLoadingState.value.loading = true;
-      try {
-        const initialEntity = await props.optionProvider(entityId, {});
-        selectedValue.value = props.labelProvider(initialEntity);
-      } catch (_) {
-        selectedValueLoadingState.value.error = true;
-      } finally {
-        selectedValueLoadingState.value.loading = false;
-      }
+      selectedValueLoadingState.value.loading = false;
     }
   }
+}
 
-  watch(() => props.modelValue, (newValue) => {
+watch(
+  () => props.modelValue,
+  (newValue) => {
     if (newValue === undefined) {
       selectedValue.value = undefined;
     } else {
       loadSelectedValue(newValue);
     }
-  }, { immediate: true });
+  },
+  { immediate: true },
+);
 
-  watch(() => selectedValue.value, (entityIdOrLabel) => {
+watch(
+  () => selectedValue.value,
+  (entityIdOrLabel) => {
     if (entityIdOrLabel === undefined) {
       emit('update:modelValue', undefined);
     } else if (typeof entityIdOrLabel === 'number') {
@@ -175,7 +186,8 @@
         emit('update:modelValue', selectedOption.entity?.id);
       }
     }
-  });
+  },
+);
 </script>
 
 <style lang="scss">

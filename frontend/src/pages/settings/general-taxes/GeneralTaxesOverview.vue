@@ -28,20 +28,24 @@
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import GeneralTaxOverviewPanel from '@/pages/settings/general-taxes/GeneralTaxOverviewPanel.vue';
-  import type { ApiPageRequest, GeneralTaxDto } from '@/services/api';
-  import { generalTaxesApi } from '@/services/api';
+import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import GeneralTaxOverviewPanel from '@/pages/settings/general-taxes/GeneralTaxOverviewPanel.vue';
+import type { ApiPageRequest, GeneralTaxDto } from '@/services/api';
+import { generalTaxesApi } from '@/services/api';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateTaxView = () => navigateByViewName('create-new-general-tax');
+const { navigateByViewName } = useNavigation();
+const navigateToCreateTaxView = () => navigateByViewName('create-new-general-tax');
 
-  const { currentWorkspaceId } = useCurrentWorkspace();
-  const taxesProvider = async (request: ApiPageRequest, config: RequestInit) => generalTaxesApi.getTaxes({
-    ...request,
-    workspaceId: currentWorkspaceId,
-  }, config);
+const { currentWorkspaceId } = useCurrentWorkspace();
+const taxesProvider = async (request: ApiPageRequest, config: RequestInit) =>
+  generalTaxesApi.getTaxes(
+    {
+      ...request,
+      workspaceId: currentWorkspaceId,
+    },
+    config,
+  );
 </script>

@@ -1,7 +1,7 @@
 import { App } from 'vue';
 import useNotifications from '@/components/notifications/use-notifications';
-import { $t } from '@/services/i18n';
 import { ApiAuthError, ApiRequestCancelledError } from '@/services/api/api-errors.ts';
+import { $t } from '@/services/i18n';
 
 export default function setupErrorHandler(app: App) {
   const { showErrorNotification } = useNotifications();

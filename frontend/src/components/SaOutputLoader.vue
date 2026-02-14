@@ -10,12 +10,12 @@
 </template>
 
 <script lang="ts" setup>
-  defineProps({
-    loading: {
-      type: Boolean,
-      required: true,
-    },
-  });
+defineProps({
+  loading: {
+    type: Boolean,
+    required: true,
+  },
+});
 </script>
 
 <style lang="scss">

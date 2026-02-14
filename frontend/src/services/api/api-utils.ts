@@ -1,5 +1,5 @@
-import type { ApiPage, ApiPageRequest, SaApiErrorDto } from '@/services/api/api-types';
 import { ApiBusinessError, ApiRequestCancelledError } from '@/services/api/api-errors.ts';
+import type { ApiPage, ApiPageRequest, SaApiErrorDto } from '@/services/api/api-types';
 
 const DEFAULT_TIMEOUT_MS = 10000;
 
@@ -17,9 +17,7 @@ export function getGlobalRequestTimeout() {
 }
 
 export function apiDateString(date: Date) {
-  return `${date.getFullYear()}-${
-    (`0${date.getMonth() + 1}`).slice(-2)}-${
-    (`0${date.getDate()}`).slice(-2)}`;
+  return `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${(`0${date.getDate()}`).slice(-2)}`;
 }
 
 export async function consumeAllPages<T>(
@@ -95,9 +93,13 @@ export interface RequestConfigReturn {
 function anyAbortSignal(...signals: AbortSignal[]) {
   const controller = new AbortController();
   signals.forEach((signal) => {
-    signal.addEventListener('abort', function onAbord() {
-      controller.abort(this.reason);
-    }, { once: true });
+    signal.addEventListener(
+      'abort',
+      function onAbord() {
+        controller.abort(this.reason);
+      },
+      { once: true },
+    );
   });
   return controller.signal;
 }
@@ -109,13 +111,8 @@ export function useRequestConfig(params: RequestConfigParams): RequestConfigRetu
   const abortController = new AbortController();
   return {
     requestConfig: {
-      signal: anyAbortSignal(
-        abortController.signal,
-        AbortSignal.timeout(params.timeoutMs || currentGlobalTimeoutMs),
-      ),
+      signal: anyAbortSignal(abortController.signal, AbortSignal.timeout(params.timeoutMs || currentGlobalTimeoutMs)),
     },
-    cancelRequest: () => abortController.abort(
-      new ApiRequestCancelledError(),
-    ),
+    cancelRequest: () => abortController.abort(new ApiRequestCancelledError()),
   };
 }

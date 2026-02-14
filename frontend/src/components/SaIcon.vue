@@ -5,23 +5,25 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
-  import { iconByName } from '@/icons';
+import { computed } from 'vue';
+import { iconByName } from '@/icons';
 
-  const props = withDefaults(defineProps<{
-    icon: string,
-    size?: number,
-  }>(), {
+const props = withDefaults(
+  defineProps<{
+    icon: string;
+    size?: number;
+  }>(),
+  {
     size: 16,
-  });
+  },
+);
 
-  const style = {
-    width: `${props.size}px`,
-    height: `${props.size}px`,
-  };
+const style = {
+  width: `${props.size}px`,
+  height: `${props.size}px`,
+};
 
-  const loadedIcon = computed(() => iconByName(props.icon));
-
+const loadedIcon = computed(() => iconByName(props.icon));
 </script>
 
 <style lang="scss">

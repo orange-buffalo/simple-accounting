@@ -15,17 +15,17 @@
 </template>
 
 <script lang="ts" setup>
-  import SaIcon from '@/components/SaIcon.vue';
+import SaIcon from '@/components/SaIcon.vue';
 
-  defineProps<{
-    icon: string
-  }>();
+defineProps<{
+  icon: string;
+}>();
 
-  const emit = defineEmits<{(e: 'click'): void}>();
+const emit = defineEmits<{ (e: 'click'): void }>();
 
-  const click = () => {
-    emit('click');
-  };
+const click = () => {
+  emit('click');
+};
 </script>
 
 <style lang="scss">

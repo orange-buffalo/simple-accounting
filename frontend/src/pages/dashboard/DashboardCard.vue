@@ -25,12 +25,12 @@
 </template>
 
 <script lang="ts" setup>
-  import SaIcon from '@/components/SaIcon.vue';
+import SaIcon from '@/components/SaIcon.vue';
 
-  defineProps<{
-    loaded: boolean,
-    headerIcon: string
-  }>();
+defineProps<{
+  loaded: boolean;
+  headerIcon: string;
+}>();
 </script>
 
 <style lang="scss">

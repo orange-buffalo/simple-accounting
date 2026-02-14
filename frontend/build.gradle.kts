@@ -1,5 +1,5 @@
 val prodConfigs = arrayOf(
-    ".eslintignore", ".eslintrc.cjs", "package.json",
+    "biome.json", "package.json",
     "bun.lock", "build-config/vite-plugins.ts", "vite.config.ts",
 )
 

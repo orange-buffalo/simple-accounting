@@ -28,21 +28,25 @@
 </template>
 
 <script lang="ts" setup>
-  import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
-  import SaIcon from '@/components/SaIcon.vue';
-  import useNavigation from '@/services/use-navigation';
-  import { useCurrentWorkspace } from '@/services/workspaces';
-  import CustomersOverviewPanel from '@/pages/settings/customers/CustomersOverviewPanel.vue';
-  import type { ApiPageRequest, CustomerDto } from '@/services/api';
-  import { customersApi } from '@/services/api';
-  import { $t } from '@/services/i18n';
+import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
+import SaIcon from '@/components/SaIcon.vue';
+import CustomersOverviewPanel from '@/pages/settings/customers/CustomersOverviewPanel.vue';
+import type { ApiPageRequest, CustomerDto } from '@/services/api';
+import { customersApi } from '@/services/api';
+import { $t } from '@/services/i18n';
+import useNavigation from '@/services/use-navigation';
+import { useCurrentWorkspace } from '@/services/workspaces';
 
-  const { navigateByViewName } = useNavigation();
-  const navigateToCreateCustomerView = () => navigateByViewName('create-new-customer');
+const { navigateByViewName } = useNavigation();
+const navigateToCreateCustomerView = () => navigateByViewName('create-new-customer');
 
-  const { currentWorkspaceId } = useCurrentWorkspace();
-  const customersProvider = async (request: ApiPageRequest, config: RequestInit) => customersApi.getCustomers({
-    workspaceId: currentWorkspaceId,
-    ...request,
-  }, config);
+const { currentWorkspaceId } = useCurrentWorkspace();
+const customersProvider = async (request: ApiPageRequest, config: RequestInit) =>
+  customersApi.getCustomers(
+    {
+      workspaceId: currentWorkspaceId,
+      ...request,
+    },
+    config,
+  );
 </script>

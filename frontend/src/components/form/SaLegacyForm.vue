@@ -19,42 +19,40 @@
 </template>
 
 <script lang="ts" setup>
-  import {
-    ElForm, FormInstance, FormRules,
-  } from 'element-plus';
-  import { ref } from 'vue';
-  import { FormValues } from '@/components/form/sa-form-components-api.ts';
+import { ElForm, FormInstance, FormRules } from 'element-plus';
+import { ref } from 'vue';
+import { FormValues } from '@/components/form/sa-form-components-api.ts';
 
-  type SaLegacyFormProps = {
-    model: FormValues,
-    rules?: FormRules,
-    initiallyLoading?: boolean,
-  };
+type SaLegacyFormProps = {
+  model: FormValues;
+  rules?: FormRules;
+  initiallyLoading?: boolean;
+};
 
-  const props = withDefaults(defineProps<SaLegacyFormProps>(), {
-    initiallyLoading: true,
-  });
+const props = withDefaults(defineProps<SaLegacyFormProps>(), {
+  initiallyLoading: true,
+});
 
-  const elForm = ref<FormInstance | undefined>(undefined);
-  const loading = ref(props.initiallyLoading);
+const elForm = ref<FormInstance | undefined>(undefined);
+const loading = ref(props.initiallyLoading);
 
-  const validate = async (): Promise<boolean> => {
-    if (elForm.value) {
-      return elForm.value.validate();
-    }
-    return false;
-  };
-  const startLoading = () => {
-    loading.value = true;
-  };
-  const stopLoading = () => {
-    loading.value = false;
-  };
-  defineExpose({
-    validate,
-    startLoading,
-    stopLoading,
-  });
+const validate = async (): Promise<boolean> => {
+  if (elForm.value) {
+    return elForm.value.validate();
+  }
+  return false;
+};
+const startLoading = () => {
+  loading.value = true;
+};
+const stopLoading = () => {
+  loading.value = false;
+};
+defineExpose({
+  validate,
+  startLoading,
+  stopLoading,
+});
 </script>
 
 <style lang="scss">

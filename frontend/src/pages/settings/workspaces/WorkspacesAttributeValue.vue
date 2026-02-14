@@ -10,9 +10,9 @@
 </template>
 
 <script lang="ts" setup>
-  defineProps<{
-    label: string
-  }>();
+defineProps<{
+  label: string;
+}>();
 </script>
 
 <style lang="scss">
