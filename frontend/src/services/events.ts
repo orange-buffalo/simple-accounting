@@ -18,7 +18,9 @@ class EventImpl<T> implements Event<T> {
   }
 
   emit(data: T) {
-    this.listeners.forEach((listener) => listener(data));
+    this.listeners.forEach((listener) => {
+      listener(data);
+    });
   }
 
   subscribe(listener: Listener<T>) {

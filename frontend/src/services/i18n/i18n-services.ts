@@ -110,12 +110,12 @@ function initializeFormatter() {
 }
 
 async function setupI18n(locale: string, language: string) {
-  let loadLocaleDeferred;
+  let loadLocaleDeferred: Promise<void> | undefined;
   if (currentLocale !== locale) {
     loadLocaleDeferred = loadLocale(locale);
   }
 
-  let loadLanguageDeferred;
+  let loadLanguageDeferred: Promise<void> | undefined;
   if (currentLanguage !== language) {
     loadLanguageDeferred = loadLanguage(language);
   }

@@ -10,7 +10,7 @@ function createFormatter(mediumFormatter: (date: Date) => string) {
       throw Error(`${arg} is not supported for date formatters`);
     }
 
-    let date;
+    let date: Date;
     if (typeof dateInput === 'string') {
       date = new Date(dateInput);
     } else {

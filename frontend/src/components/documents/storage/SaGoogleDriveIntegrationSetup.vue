@@ -134,7 +134,7 @@ loadIntegrationStatus();
 const uiState = computed(() => {
   let statusType: StatusLabelStatus = 'regular';
   let statusText = null;
-  let statusCustomIcon;
+  let statusCustomIcon: string | undefined;
   let iconName = null;
   if (integrationStatus.value.status === 'successful') {
     statusType = 'success';

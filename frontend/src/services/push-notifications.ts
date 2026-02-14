@@ -13,7 +13,11 @@ let eventSource: EventSourcePolyfill | undefined;
 let eventListeners: Array<PushNotificationListener<unknown>> = [];
 
 function notifyListeners(eventName: string, data: unknown) {
-  eventListeners.filter((it) => it.eventName === eventName).forEach((it) => it.callback(data));
+  eventListeners
+    .filter((it) => it.eventName === eventName)
+    .forEach((it) => {
+      it.callback(data);
+    });
 }
 
 const { getToken, tryAutoLogin } = useAuth();

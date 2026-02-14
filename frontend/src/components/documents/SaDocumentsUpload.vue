@@ -132,7 +132,9 @@ const onDocumentAggregateChange = () => {
 const uploadControls = ref<Array<typeof SaDocumentUpload> | undefined>(undefined);
 const submitUploads = () => {
   if (uploadControls.value !== undefined) {
-    uploadControls.value.forEach((upload) => upload.submitUpload());
+    uploadControls.value.forEach((upload) => {
+      upload.submitUpload();
+    });
   }
   onDocumentAggregateChange();
 };

@@ -17,23 +17,23 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
-      "correctness": {
-        "noUnusedVariables": "warn"
-      },
-      "suspicious": {
-        "noConsole": "off",
-        "noDebugger": "off",
-        "noImplicitAnyLet": "off",
-        "useIterableCallbackReturn": "off"
-      }
+      "recommended": true
     }
   },
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
       "semicolons": "always"
-    }
+    },
+    "globals": [
+      "defineProps",
+      "defineEmits",
+      "defineExpose",
+      "defineOptions",
+      "defineSlots",
+      "defineModel",
+      "withDefaults"
+    ]
   },
   "overrides": [
     {
