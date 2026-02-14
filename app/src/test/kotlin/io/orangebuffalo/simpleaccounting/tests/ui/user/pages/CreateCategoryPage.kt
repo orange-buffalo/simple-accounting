@@ -1,24 +1,21 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user.pages
 
-import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
-import com.microsoft.playwright.options.AriaRole
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Button.Companion.buttonByText
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem
+import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.Checkbox.Companion.checkboxByOwnLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.FormItem.Companion.formItemTextInputByLabel
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.TextInput
-import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponent
 
 class CreateCategoryPage private constructor(page: Page) : SaPageBase(page) {
     private val header = components.pageHeader("Create New Category")
 
     val name = components.formItemTextInputByLabel("Name")
     val description = components.formItemByLabel("Description") { TextInput.byContainer(it) }
-    val income = components.formItemByLabel("Income") { SimpleCheckbox(it) }
-    val expense = components.formItemByLabel("Expense") { SimpleCheckbox(it) }
+    val income = components.checkboxByOwnLabel("Income")
+    val expense = components.checkboxByOwnLabel("Expense")
 
     val saveButton = components.buttonByText("Save")
     val cancelButton = components.buttonByText("Cancel")
@@ -40,10 +37,4 @@ class CreateCategoryPage private constructor(page: Page) : SaPageBase(page) {
             shouldBeCreateCategoryPage(spec)
         }
     }
-}
-
-@io.orangebuffalo.simpleaccounting.tests.infra.ui.components.UiComponentMarker
-class SimpleCheckbox(private val container: Locator) : UiComponent<SimpleCheckbox>() {
-    private val checkbox = container.locator(".el-checkbox__original")
-    fun check() = checkbox.check()
 }

@@ -18,32 +18,32 @@ class Checkbox private constructor(
     fun shouldBeDisabled() = locator.shouldBeDisabled()
     fun shouldBeVisible() = locator.shouldBeVisible()
     fun shouldBeHidden() = locator.shouldBeHidden()
-    
-    fun check() = locator.check()
-    
+
     fun click() {
-        // Element Plus renders checkboxes in different ways:
-        // 1. With text: wrapped in label.el-checkbox
-        // 2. Without text: just a bare input[type='checkbox']
-        // Try to find the parent label first, fallback to clicking the input directly
-        try {
-            val checkboxContainer = locator.locator("xpath=ancestor::label[contains(@class, 'el-checkbox')]").first()
-            checkboxContainer.scrollIntoViewIfNeeded()
-            checkboxContainer.click()
-        } catch (e: com.microsoft.playwright.TimeoutError) {
-            // No .el-checkbox container found, click the input directly
-            locator.scrollIntoViewIfNeeded()
-            locator.click()
-        }
+        // Element Plus renders the <input> outside viewport for accessibility
+        // Click the parent .el-checkbox container instead which is visually in the correct position
+        val checkboxContainer = locator.locator("xpath=ancestor::label[contains(@class, 'el-checkbox')]").first()
+        checkboxContainer.scrollIntoViewIfNeeded()
+        checkboxContainer.click()
     }
 
     companion object {
         fun ComponentsAccessors.checkboxByOwnLabel(label: String) =
             // Find the checkbox by its visible label text, not the hidden input
-            Checkbox(page.getByRole(com.microsoft.playwright.options.AriaRole.CHECKBOX, Page.GetByRoleOptions().setName(label)))
+            Checkbox(
+                page.getByRole(
+                    com.microsoft.playwright.options.AriaRole.CHECKBOX,
+                    Page.GetByRoleOptions().setName(label)
+                )
+            )
 
         fun checkboxByOwnLabel(container: Locator, label: String) =
-            Checkbox(container.getByRole(com.microsoft.playwright.options.AriaRole.CHECKBOX, Locator.GetByRoleOptions().setName(label)))
+            Checkbox(
+                container.getByRole(
+                    com.microsoft.playwright.options.AriaRole.CHECKBOX,
+                    Locator.GetByRoleOptions().setName(label)
+                )
+            )
 
         fun byContainer(container: Locator) =
             Checkbox(container.locator(".el-checkbox__input input, input[type='checkbox']").first())

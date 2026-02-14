@@ -26,17 +26,11 @@
             type="textarea"
           />
         </ElFormItem>
-        <ElFormItem
-          label="Income"
-          prop="income"
-        >
-          <ElCheckbox v-model="category.income" />
+        <ElFormItem prop="income">
+          <ElCheckbox v-model="category.income">Income</ElCheckbox>
         </ElFormItem>
-        <ElFormItem
-          label="Expense"
-          prop="expense"
-        >
-          <ElCheckbox v-model="category.expense" />
+        <ElFormItem prop="expense">
+          <ElCheckbox v-model="category.expense">Expense</ElCheckbox>
         </ElFormItem>
       </template>
 

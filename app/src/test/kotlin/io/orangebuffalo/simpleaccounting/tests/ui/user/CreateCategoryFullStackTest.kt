@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.categories.Category
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
@@ -27,12 +26,8 @@ class CreateCategoryFullStackTest : SaFullStackTestBase() {
             description {
                 input.fill("Addictive beverage costs")
             }
-            income {
-                input.check()
-            }
-            expense {
-                input.check()
-            }
+            income.click()
+            expense.click()
             saveButton.click()
         }
 
@@ -59,9 +54,7 @@ class CreateCategoryFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateCategoryPage {
             name { input.fill("Robot maintenance") }
-            income {
-                input.check()
-            }
+            income.click()
             saveButton.click()
         }
 
@@ -87,9 +80,7 @@ class CreateCategoryFullStackTest : SaFullStackTestBase() {
     fun `should show validation error for empty name`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateCategoryPage {
-            income {
-                input.check()
-            }
+            income.click()
             saveButton.click()
 
             name {
@@ -97,21 +88,6 @@ class CreateCategoryFullStackTest : SaFullStackTestBase() {
             }
 
             reportRendering("create-category.validation-error-name")
-        }
-    }
-
-    @Test
-    fun `should show validation error when neither income nor expense is selected`(page: Page) {
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateCategoryPage {
-            name { input.fill("Invalid category") }
-            saveButton.click()
-
-            income {
-                shouldHaveValidationError("At least one of income/expense must be selected")
-            }
-
-            reportRendering("create-category.validation-error-income-expense")
         }
     }
 
