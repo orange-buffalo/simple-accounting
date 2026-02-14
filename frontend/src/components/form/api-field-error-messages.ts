@@ -30,7 +30,6 @@ export function setFieldErrorsFromClientSideValidation(
     const formItem = formItems.get(fieldError.field);
     if (formItem) {
       formItem.validateState = 'error';
-      // @ts-expect-error
       formItem.validateMessage = fieldError.message;
     } else {
       throw new Error(`Form item not found for field ${fieldError.field}`);

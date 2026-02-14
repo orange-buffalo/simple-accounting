@@ -148,7 +148,6 @@ export function useFormItemValidation() {
   const resetErrors = () => {
     if (formItem.value && formItem.value.validateState === 'error') {
       formItem.value.validateState = '';
-      // @ts-expect-error
       formItem.value.validateMessage = '';
     }
   };
@@ -156,7 +155,6 @@ export function useFormItemValidation() {
   const setValidationError = (validationMessage: string) => {
     if (formItem.value) {
       formItem.value.validateState = 'error';
-      // @ts-expect-error
       formItem.value.validateMessage = validationMessage;
     }
   };
