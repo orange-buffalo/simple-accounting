@@ -200,7 +200,8 @@ class EntitySelect private constructor(
 
     /**
      * Executes the given specification with the dropdown open.
-     * Opens the dropdown if not already open.
+     * Uses Popper.openOrLocateByTrigger which handles already-open dropdowns by locating the existing popper.
+     * Follows the same pattern as Select component - dropdown is not forcibly closed after use.
      *
      * @param spec The specification to execute while the dropdown is open. The spec receives the popper's root locator.
      */
