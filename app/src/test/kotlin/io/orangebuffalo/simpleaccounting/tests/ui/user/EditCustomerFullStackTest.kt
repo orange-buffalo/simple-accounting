@@ -46,7 +46,10 @@ class EditCustomerFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/settings/customers/${testData.customer.id}/edit")
         page.shouldBeEditCustomerPage {
-            name { input.fill("Mom's Friendly Robot Company") }
+            name {
+                input.shouldHaveValue("Slurm Corp")
+                input.fill("Mom's Friendly Robot Company")
+            }
             saveButton.click()
         }
 

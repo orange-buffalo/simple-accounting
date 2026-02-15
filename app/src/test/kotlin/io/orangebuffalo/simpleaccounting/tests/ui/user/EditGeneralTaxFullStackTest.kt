@@ -62,9 +62,18 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/settings/general-taxes/${testData.tax.id}/edit")
         page.shouldBeEditGeneralTaxPage {
-            title { input.fill("Sales Tax") }
-            rate { input.fill("1500") }
-            description { input.fill("State Sales Tax") }
+            title {
+                input.shouldHaveValue("VAT")
+                input.fill("Sales Tax")
+            }
+            rate {
+                input.shouldHaveValue("2000")
+                input.fill("1500")
+            }
+            description {
+                input.shouldHaveValue("Value Added Tax")
+                input.fill("State Sales Tax")
+            }
             saveButton.click()
         }
 

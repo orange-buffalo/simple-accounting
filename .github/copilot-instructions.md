@@ -379,7 +379,53 @@ When full stack tests fail, extensive debugging information is automatically cap
 - **Browser console**: All console messages logged at DEBUG level
 - **Trace and screenshot paths**: Logged at INFO level when tests fail
 
-Use this information to diagnose issues before making changes to the code.
+#### Troubleshooting Workflow
+
+When tests fail, **ALWAYS** follow this systematic approach:
+
+1. **Check the screenshot** (`app/build/playwright-traces/*.png`):
+   - Blank/white page → Frontend failed to load (check network trace for failed API calls)
+   - Loading spinner stuck → API call hanging or failing (check network trace)
+   - Wrong page displayed → Navigation issue (check route configuration)
+   - Element not visible → Page rendered but element missing (check component logic)
+
+2. **Extract and analyze network trace**:
+   ```bash
+   # List all API calls made during test
+   unzip -p "app/build/playwright-traces/TestName.zip" trace.network | grep -o '"url":"[^"]*"'
+   
+   # Look for specific patterns
+   unzip -p "app/build/playwright-traces/TestName.zip" trace.network | grep -E "workspaces|categories|invoices"
+   ```
+   
+   Common issues revealed by network trace:
+   - Invalid API endpoint (e.g., `/api/workspaces/1/invoices/0`) → Route param processor issue
+   - 404 errors → Missing data in test preconditions
+   - 401/403 errors → Authentication not properly set up
+   - No API calls → Page didn't load at all (check console for JavaScript errors)
+
+3. **Check browser console** (in test output with DEBUG logging):
+   - JavaScript errors → Frontend code issues
+   - Vue warnings → Component configuration problems
+   - Network errors → Backend not reachable
+
+4. **View Playwright trace** (visual timeline):
+   ```bash
+   npx playwright show-trace app/build/playwright-traces/TestName.zip
+   ```
+   - Shows complete timeline of actions, network requests, DOM snapshots
+   - Useful for understanding sequence of events leading to failure
+   - Can replay test execution step-by-step
+
+5. **Common root causes and solutions**:
+   - **Route configuration bugs**: Optional route params passed as empty strings → Use custom param processors (see `SOURCE_INVOICE_ID_ROUTER_PARAM_PROCESSOR` pattern)
+   - **Missing workspace selection**: Frontend components using `useCurrentWorkspace()` before workspace loaded → Check that route properly initializes workspace
+   - **Async data loading**: Component trying to use data before it's loaded → Add proper loading state checks in component wrapper
+   - **Element timing**: Clicking before element is ready → Playwright handles this automatically, don't add `waitFor()` unless explicitly needed
+
+6. **Document findings**: If you discover a new pattern or root cause, add it to this troubleshooting section for future reference.
+
+Use this information to diagnose issues **before** making changes to the code.
 
 #### Troubleshooting Workflow
 
