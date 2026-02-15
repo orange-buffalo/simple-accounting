@@ -10,12 +10,14 @@ This directory contains the Qodana baseline SARIF file used for static code anal
 
 To regenerate the baseline (useful when you want to accept current issues as the new baseline):
 
-1. Temporarily remove or rename the existing baseline file
-2. Modify `qodana.yaml` to comment out the `baseline` configuration
-3. Run `./gradlew qodanaScan`
-4. Copy the generated SARIF file from `build/reports/qodana/result-allProblems.sarif.json` to `.ci/qodana-baseline.sarif.json`
-5. Restore the `baseline` configuration in `qodana.yaml`
-6. Commit the new baseline file
+```bash
+./gradlew qodanaRebaseline
+```
+
+This will:
+1. Run Qodana scan
+2. Copy the results to `.ci/qodana-baseline.sarif.json`
+3. Remind you to commit the new baseline file
 
 ## Zero Tolerance Policy
 

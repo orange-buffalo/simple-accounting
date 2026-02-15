@@ -6,7 +6,7 @@
       "tool": {
         "driver": {
           "name": "Qodana",
-          "version": "2024.3"
+          "version": "2025.3"
         }
       },
       "results": []

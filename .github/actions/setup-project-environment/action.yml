@@ -1,5 +1,9 @@
 name: 'Setup Project Environment'
 description: 'Sets up the development environment for Simple Accounting project'
+inputs:
+  qodana-token:
+    description: 'Qodana Cloud token for analysis uploads'
+    required: false
 runs:
   using: 'composite'
   steps:
@@ -29,4 +33,9 @@ runs:
 
     - name: "Setup Playwright"
       run: ./gradlew installPlaywrightDependencies --console=plain --build-cache
+      shell: bash
+    
+    - name: "Set Qodana Token"
+      if: inputs.qodana-token != ''
+      run: echo "QODANA_TOKEN=${{ inputs.qodana-token }}" >> $GITHUB_ENV
       shell: bash

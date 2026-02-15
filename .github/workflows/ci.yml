@@ -22,6 +22,8 @@ jobs:
 
       - name: "Setup Project Environment"
         uses: ./.github/actions/setup-project-environment
+        with:
+          qodana-token: ${{ secrets.QODANA_TOKEN }}
 
       - name: "Build"
         env:

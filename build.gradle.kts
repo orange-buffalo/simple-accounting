@@ -45,10 +45,8 @@ subprojects {
                 showStandardStreams = true
             }
         }
-    }
-    
-    plugins.withType<JavaBasePlugin> {
-        tasks.named("check") {
+        
+        named("check") {
             dependsOn(rootProject.tasks.named("qodanaScan"))
         }
     }
@@ -61,5 +59,25 @@ develocity {
         publishing {
             onlyIf { System.getenv("CI") == "true" }
         }
+    }
+}
+
+tasks.register("qodanaRebaseline") {
+    group = "qodana"
+    description = "Regenerates the Qodana baseline by running a scan and copying the results"
+    
+    dependsOn("qodanaScan")
+    
+    doLast {
+        val sourceFile = file("build/reports/qodana/result-allProblems.sarif.json")
+        val targetFile = file(".ci/qodana-baseline.sarif.json")
+        
+        if (!sourceFile.exists()) {
+            throw GradleException("Qodana results not found at ${sourceFile.absolutePath}. Make sure qodanaScan completed successfully.")
+        }
+        
+        sourceFile.copyTo(targetFile, overwrite = true)
+        println("✓ Baseline updated at ${targetFile.absolutePath}")
+        println("  Don't forget to commit the new baseline file!")
     }
 }
