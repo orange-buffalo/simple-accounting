@@ -22,7 +22,7 @@ class CurrencyInput private constructor(
         // The innerText concatenates them without separator
         popper.rootLocator
             .locator("xpath=//*[${XPath.hasClass("el-select-dropdown__item")}][normalize-space(.)='$currencyInnerText']")
-            .click(Locator.ClickOptions().setForce(true))
+            .click()
         popper.shouldBeClosed()
     }
 
@@ -41,7 +41,7 @@ class CurrencyInput private constructor(
         // Use .first() here because we're already scoped to a specific group
         targetGroup
             .locator("xpath=.//*[${XPath.hasClass("el-select-dropdown__item")}][normalize-space(.)='$currencyInnerText']")
-            .click(Locator.ClickOptions().setForce(true))
+            .click()
         popper.shouldBeClosed()
     }
 
