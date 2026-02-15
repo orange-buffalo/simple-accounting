@@ -19,25 +19,7 @@
       :api-path="`/workspaces/${currentWorkspace.id}/categories`"
       #default="{ item }"
     >
-      <div class="sa-item-info-panel">
-        <div class="sa-item-title-panel">
-          <h3>{{ category(item).name }}</h3>
-
-          <span class="sa-item-edit-link">
-            <!--<pencil-solid-icon/>-->
-            <ElButton link>Edit</ElButton>
-          </span>
-        </div>
-        <p>
-          {{ category(item).description }}
-        </p>
-        <p>
-          Income: {{ category(item).income }}
-        </p>
-        <p>
-          Expense: {{ category(item).expense }}
-        </p>
-      </div>
+      <CategoriesOverviewPanel :category="item as CategoryDto" />
     </SaPageableItems>
   </div>
 </template>
@@ -45,9 +27,10 @@
 <script lang="ts" setup>
   import SaPageableItems from '@/components/pageable-items/SaPageableItems.vue';
   import SaIcon from '@/components/SaIcon.vue';
+  import CategoriesOverviewPanel from '@/pages/settings/categories/CategoriesOverviewPanel.vue';
   import { useCurrentWorkspace } from '@/services/workspaces';
   import useNavigation from '@/services/use-navigation';
-  import type { ApiPageRequest, CategoryDto, HasOptionalId } from '@/services/api';
+  import type { ApiPageRequest, CategoryDto } from '@/services/api';
   import { categoriesApi } from '@/services/api';
 
   const {
@@ -63,19 +46,13 @@
   const navigateToNewCategoryView = () => {
     navigateByViewName('create-new-category');
   };
-
-  const category = (item: HasOptionalId) => item as CategoryDto;
 </script>
 
 <style lang="scss">
   .categories-overview {
-    .sa-item-info-panel {
-      margin-bottom: 20px;
+    .top-buttons-bar {
+      margin-bottom: 30px;
+      margin-top: -10px;
     }
-  }
-
-  .top-buttons-bar {
-    margin-bottom: 30px;
-    margin-top: -10px;
   }
 </style>
