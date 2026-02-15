@@ -3,19 +3,9 @@ version: "1.0"
 profile:
   name: qodana.recommended
 
-linter: jetbrains/qodana-jvm:2024.3
+linter: jetbrains/qodana-jvm:latest
 
 projectJDK: "21"
-
-# Disable cloud integration
-cloud:
-  enabled: false
-
-# Fail on any new issues
-failThreshold: 0
-
-# Use baseline for comparison
-baseline: .ci/qodana-baseline.sarif.json
 
 include:
   - name: "Kotlin"

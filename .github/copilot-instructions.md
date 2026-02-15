@@ -66,6 +66,12 @@ After making changes, ALWAYS run this validation sequence:
    ```bash
    ./gradlew check --console=plain --build-cache
    ```
+   
+   Note: The `check` task includes Qodana static analysis, which runs automatically and must pass with zero new issues.
+
+3. **Before each push**:
+   - Ensure Qodana analysis passes (automatically run as part of `check` task)
+   - Zero tolerance for new issues - all new problems must be resolved
 
 ## GraphQL API Development
 

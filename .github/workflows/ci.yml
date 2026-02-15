@@ -52,6 +52,12 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: ./gradlew e2eTest --scan --console=plain --build-cache
 
+      - name: "Upload Qodana SARIF"
+        uses: github/codeql-action/upload-sarif@v3
+        if: success() || failure()
+        with:
+          sarif_file: build/reports/qodana/result-allProblems.sarif.json
+
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
         if: success() || failure()
