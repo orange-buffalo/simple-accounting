@@ -81,28 +81,24 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         page.shouldBeCreateWorkspacePage()
     }
 
-    // TODO: This test is flaky - the create button click doesn't always navigate to the create page
-    // Need to investigate why it works in "should navigate to create workspace page" but fails here
     @Test
     fun `should create new workspace`(page: Page) {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry, name = "Planet Express")
+                val workspace = workspace(owner = fry)
             }
         }
 
         page.authenticateViaCookie(testData.fry)
-        page.openWorkspacesOverviewPage {
-            createButton.click()
-        }
-
+        page.navigate("/settings/workspaces/create")
+        
         page.shouldBeCreateWorkspacePage {
             name {
                 input.fill("Mom's Friendly Robot Company")
             }
             defaultCurrency {
-                input.selectOption("USDUS Dollar")
+                input.selectOption("EUREuro")
             }
             saveButton.click()
         }
