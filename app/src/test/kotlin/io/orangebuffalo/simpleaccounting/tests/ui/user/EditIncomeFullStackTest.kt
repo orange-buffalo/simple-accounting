@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.incomes.Income
@@ -26,19 +26,20 @@ class EditIncomeFullStackTest : SaFullStackTestBase() {
                 val fry = fry()
                 val workspace = workspace(owner = fry, defaultCurrency = "USD")
                 val category = category(workspace = workspace, name = "Delivery")
-                val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
+                val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company").also {
+                    invoice(
+                        customer = it,
+                        title = "Delivery to Omicron Persei 8",
+                        amount = 25000,
+                        dateIssued = LocalDate.of(3025, 1, 12),
+                        status = InvoiceStatus.SENT
+                    )
+                }
                 val invoice1 = invoice(
                     customer = customer,
                     title = "Delivery to Mars",
                     amount = 15000,
                     dateIssued = LocalDate.of(3025, 1, 10),
-                    status = InvoiceStatus.SENT
-                )
-                val invoice2 = invoice(
-                    customer = customer,
-                    title = "Delivery to Omicron Persei 8",
-                    amount = 25000,
-                    dateIssued = LocalDate.of(3025, 1, 12),
                     status = InvoiceStatus.SENT
                 )
                 val income = income(
@@ -75,24 +76,26 @@ class EditIncomeFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
+                val workspace = workspace(owner = fry, defaultCurrency = "USD").also {
+
+                    val customer1 = customer(workspace = it, name = "Mom's Friendly Robot Company")
+                    val customer2 = customer(workspace = it, name = "Slurm Corp")
+                    invoice(
+                        customer = customer1,
+                        title = "Delivery to Mars",
+                        amount = 15000,
+                        dateIssued = LocalDate.of(3025, 1, 10),
+                        status = InvoiceStatus.SENT
+                    )
+                    invoice(
+                        customer = customer2,
+                        title = "Slurm supplies",
+                        amount = 25000,
+                        dateIssued = LocalDate.of(3025, 1, 12),
+                        status = InvoiceStatus.SENT
+                    )
+                }
                 val category = category(workspace = workspace, name = "Delivery")
-                val customer1 = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
-                val customer2 = customer(workspace = workspace, name = "Slurm Corp")
-                val invoice1 = invoice(
-                    customer = customer1,
-                    title = "Delivery to Mars",
-                    amount = 15000,
-                    dateIssued = LocalDate.of(3025, 1, 10),
-                    status = InvoiceStatus.SENT
-                )
-                val invoice2 = invoice(
-                    customer = customer2,
-                    title = "Slurm supplies",
-                    amount = 25000,
-                    dateIssued = LocalDate.of(3025, 1, 12),
-                    status = InvoiceStatus.SENT
-                )
                 val income = income(
                     workspace = workspace,
                     category = category,
@@ -110,8 +113,7 @@ class EditIncomeFullStackTest : SaFullStackTestBase() {
                 // Search for "Slurm" should only match one invoice
                 input.search("Slurm")
                 input.shouldHaveInvoiceOptions { options ->
-                    options.shouldHaveSize(1)
-                    options[0].shouldBe(
+                    options.shouldContainExactly(
                         InvoiceOption(
                             title = "Slurm supplies",
                             date = "12 Jan 3025",
@@ -128,18 +130,19 @@ class EditIncomeFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val workspace = workspace(owner = fry, defaultCurrency = "USD")
-                val category = category(workspace = workspace, name = "Delivery")
-                val customer = customer(workspace = workspace, name = "Mom's Friendly Robot Company")
-                val invoices = (1..15).map { idx ->
-                    invoice(
-                        customer = customer,
-                        title = "Invoice $idx",
-                        amount = (10000 + idx * 1000).toLong(),
-                        dateIssued = LocalDate.of(3025, 1, idx),
-                        status = InvoiceStatus.SENT
-                    )
+                val workspace = workspace(owner = fry, defaultCurrency = "USD").also {
+                    val customer = customer(workspace = it, name = "Mom's Friendly Robot Company")
+                    (1..15).forEach { idx ->
+                        invoice(
+                            customer = customer,
+                            title = "Invoice $idx",
+                            amount = (10000 + idx * 1000).toLong(),
+                            dateIssued = LocalDate.of(3025, 1, idx),
+                            status = InvoiceStatus.SENT
+                        )
+                    }
                 }
+                val category = category(workspace = workspace, name = "Delivery")
                 val income = income(
                     workspace = workspace,
                     category = category,
