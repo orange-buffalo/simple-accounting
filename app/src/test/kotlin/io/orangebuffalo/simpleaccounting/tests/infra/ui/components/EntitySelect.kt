@@ -199,21 +199,15 @@ class EntitySelect private constructor(
     }
 
     /**
-     * Executes the given specification with the dropdown open and ensures it's properly closed afterward.
-     * This prevents flakiness from leaving dropdowns open between interactions.
+     * Executes the given specification with the dropdown open.
+     * Opens the dropdown if not already open.
      *
      * @param spec The specification to execute while the dropdown is open. The spec receives the popper's root locator.
      */
     private fun withDropdownOpen(spec: Locator.() -> Unit) {
         val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator.shouldBeVisible()
-        try {
-            popper.rootLocator.spec()
-        } finally {
-            // Ensure dropdown is closed by pressing Escape
-            input.press("Escape")
-            popper.shouldBeClosed()
-        }
+        popper.rootLocator.spec()
     }
 
     companion object {

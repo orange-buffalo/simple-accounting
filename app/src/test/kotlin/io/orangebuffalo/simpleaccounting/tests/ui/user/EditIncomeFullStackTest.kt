@@ -9,6 +9,7 @@ import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.EditIncomePage.Companion.shouldBeEditIncomePage
+import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -61,6 +62,8 @@ class EditIncomeFullStackTest : SaFullStackTestBase() {
             saveButton.click()
         }
 
+        page.shouldBeIncomesOverviewPage()
+
         aggregateTemplate.findSingle<Income>(testData.income.id!!)
             .should {
                 it.linkedInvoiceId.shouldBe(testData.invoice1.id)
@@ -112,7 +115,7 @@ class EditIncomeFullStackTest : SaFullStackTestBase() {
                         InvoiceOption(
                             title = "Slurm supplies",
                             date = "12 Jan 3025",
-                            amount = "$250.00"
+                            amount = "USD\u00a0250.00"  // \u00a0 is non-breaking space
                         )
                     )
                 }
@@ -195,6 +198,8 @@ class EditIncomeFullStackTest : SaFullStackTestBase() {
 
             saveButton.click()
         }
+
+        page.shouldBeIncomesOverviewPage()
 
         aggregateTemplate.findSingle<Income>(testData.income.id!!)
             .should {
