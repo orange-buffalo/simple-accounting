@@ -1,7 +1,6 @@
 package io.orangebuffalo.simpleaccounting.tests.ui.user
 
 import com.microsoft.playwright.Page
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.business.common.data.AmountsInDefaultCurrency
@@ -9,7 +8,10 @@ import io.orangebuffalo.simpleaccounting.business.incomes.Income
 import io.orangebuffalo.simpleaccounting.business.incomes.IncomeStatus
 import io.orangebuffalo.simpleaccounting.business.invoices.InvoiceStatus
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.SaFullStackTestBase
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateIncomePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.CreateIncomePage.Companion.openCreateIncomePage
 import io.orangebuffalo.simpleaccounting.tests.ui.user.pages.IncomesOverviewPage.Companion.shouldBeIncomesOverviewPage
@@ -25,7 +27,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
     @Test
     fun `should create income with basic fields`(page: Page) {
         page.setupPreconditionsAndNavigateToCreatePage {
-            
+
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery services") }
             originalAmount { input.fill("100.00") }
@@ -87,7 +89,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            
+
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery services") }
             originalAmount { input.fill("150.00") }
@@ -138,7 +140,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            
+
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
             originalAmount { input.fill("250.00") }
@@ -203,7 +205,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            
+
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
             originalAmount { input.fill("100.00") }
@@ -238,7 +240,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            
+
             category { input.selectOption("Delivery") }
             title { input.fill("Payment for delivery") }
             originalAmount { input.fill("100.00") }
@@ -288,7 +290,7 @@ class CreateIncomeFullStackTest : SaFullStackTestBase() {
 
         page.authenticateViaCookie(testPreconditions.fry)
         page.openCreateIncomePage {
-            
+
             category { input.selectOption("Delivery") }
             title { input.fill("Payment received") }
             originalAmount { input.fill("500.00") }

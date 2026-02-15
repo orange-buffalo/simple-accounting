@@ -1,14 +1,11 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
 import com.microsoft.playwright.Locator
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeHidden
 import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.XPath
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
 
@@ -32,11 +29,11 @@ class EntitySelect private constructor(
     fun search(query: String) {
         // Click to open the dropdown
         input.click()
-        
+
         // Locate the input and fill it - this should trigger Vue's input handler
         val searchInput = rootLocator.locator("input.el-select__input")
         searchInput.fill(query)
-        
+
         // Trigger input event manually via JavaScript
         searchInput.evaluate("el => el.dispatchEvent(new Event('input', { bubbles: true }))")
     }
@@ -48,10 +45,10 @@ class EntitySelect private constructor(
     fun selectOption(optionText: String) {
         // Ensure the select is visible and ready
         rootLocator.shouldBeVisible()
-        
+
         // For remote selects, search for the option to load results
         search(optionText)
-        
+
         // Click on the matching option
         val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator
@@ -59,7 +56,7 @@ class EntitySelect private constructor(
             .filter(Locator.FilterOptions().setHasText(optionText))
             .first()
             .click()
-            
+
         popper.shouldBeClosed()
         shouldHaveSelectedValue(optionText)
     }
@@ -98,7 +95,7 @@ class EntitySelect private constructor(
         val searchInput = input.locator("input.el-select__input")
         searchInput.pressSequentially("a")
         searchInput.press("Backspace")
-        
+
         val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator.shouldSatisfy {
             // Get all non-info items (exclude pagination/error messages)
@@ -195,6 +192,6 @@ class EntitySelect private constructor(
     }
 
     companion object {
-        fun byContainer(container: Locator) = EntitySelect(container.locator(".sa-entity-select"))
+        fun byContainer(container: Locator) = EntitySelect(container)
     }
 }

@@ -31,10 +31,6 @@ class FormItem<I : UiComponent<*>> private constructor(
         rootLocator.locator(".sa-input-loader__indicator").shouldBeVisible()
     }
 
-    fun shouldNotBeLoading() {
-        rootLocator.locator(".sa-input-loader__indicator").shouldBeHidden()
-    }
-
     companion object {
         fun <I : UiComponent<*>> ComponentsAccessors.formItemByLabel(
             label: String,
@@ -70,12 +66,6 @@ class FormItem<I : UiComponent<*>> private constructor(
 
         fun ComponentsAccessors.formItemMarkdownByLabel(label: String) =
             formItemByLabel(label) { Markdown.byContainer(it) }
-
-        fun ComponentsAccessors.formItemDocumentsUploadByLabel(label: String) =
-            formItemByLabel(label) { DocumentsUpload.byContainer(it) }
-
-        fun ComponentsAccessors.formItemCheckboxByLabel(label: String) =
-            formItemByLabel(label) { Checkbox.checkboxByOwnLabel(it, label) }
 
         fun ComponentsAccessors.formItemEntitySelectByLabel(label: String) =
             formItemByLabel(label) { EntitySelect.byContainer(it) }
