@@ -1,0 +1,25 @@
+version: "1.0"
+
+profile:
+  name: qodana.recommended
+
+linter: jetbrains/qodana-jvm:latest
+
+projectJDK: "21"
+
+failThreshold: 0
+
+baseline: .ci/qodana-baseline.sarif.json
+
+include:
+  - name: "Kotlin"
+
+exclude:
+  - name: "All"
+    paths:
+      - ".gradle"
+      - "build"
+      - "frontend/node_modules"
+      - "frontend/build"
+      - "frontend/dist"
+      - "frontend/src/services/api/generated"

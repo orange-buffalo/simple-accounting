@@ -25,6 +25,7 @@ mockito = "5.21.0"
 mockitoKotlin = "6.2.3"
 mockOoauth2Server = "3.0.1"
 playwright = "1.58.0"
+qodana = "2024.3.3"
 snakeYaml = "2.5"
 springBoot = "3.5.7"
 springDependencyManagement = "1.1.7"
@@ -84,5 +85,6 @@ jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationPlugin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
 spring-dependencyManagement = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
 springBoot = { id = "org.springframework.boot", version.ref = "springBoot" }

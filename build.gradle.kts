@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.gitSemverPlugin)
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.spring.dependencyManagement) apply false
+    alias(libs.plugins.qodana)
 }
 
 semver {
@@ -43,6 +44,12 @@ subprojects {
             testLogging {
                 showStandardStreams = true
             }
+        }
+    }
+    
+    plugins.withType<JavaBasePlugin> {
+        tasks.named("check") {
+            dependsOn(rootProject.tasks.named("qodanaScan"))
         }
     }
 }
