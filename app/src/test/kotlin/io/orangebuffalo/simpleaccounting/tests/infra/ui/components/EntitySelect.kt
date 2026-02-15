@@ -128,7 +128,7 @@ class EntitySelect private constructor(
         withDropdownOpen {
             val indicator = locator(".el-select-dropdown__item.is-disabled .sa-entity-select__list-footer--dimmed")
             indicator.shouldBeVisible()
-            indicator.shouldHaveText("$remainingCount more elements...")
+            indicator.shouldHaveText("$remainingCount more items..")
         }
     }
 
