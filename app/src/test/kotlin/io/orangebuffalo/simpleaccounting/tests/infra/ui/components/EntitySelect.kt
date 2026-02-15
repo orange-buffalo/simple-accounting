@@ -1,5 +1,7 @@
 package io.orangebuffalo.simpleaccounting.tests.infra.ui.components
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.microsoft.playwright.Locator
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.should
@@ -8,6 +10,7 @@ import io.orangebuffalo.kotestplaywrightassertions.shouldBeVisible
 import io.orangebuffalo.kotestplaywrightassertions.shouldHaveText
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldSatisfy
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldWithClue
+import io.orangebuffalo.simpleaccounting.tests.ui.user.InvoiceOption
 
 /**
  * Component wrapper for SaEntitySelect.vue - a remote select component that
@@ -27,29 +30,19 @@ class EntitySelect private constructor(
      * This triggers the remote search functionality.
      */
     fun search(query: String) {
-        // Click to open the dropdown
         input.click()
-
-        // Locate the input and fill it - this should trigger Vue's input handler
         val searchInput = rootLocator.locator("input.el-select__input")
         searchInput.fill(query)
-
-        // Trigger input event manually via JavaScript
-        searchInput.evaluate("el => el.dispatchEvent(new Event('input', { bubbles: true }))")
     }
 
     /**
      * Selects an option from the dropdown by its text.
-     * For remote selects, this searches for the option text first.
+     * For remote selects, searches for the option text first.
      */
     fun selectOption(optionText: String) {
-        // Ensure the select is visible and ready
         rootLocator.shouldBeVisible()
-
-        // For remote selects, search for the option to load results
         search(optionText)
-
-        // Click on the matching option
+        
         val popper = Popper.openOrLocateByTrigger(input)
         popper.rootLocator
             .locator(".el-select-dropdown__item")
@@ -71,7 +64,6 @@ class EntitySelect private constructor(
     }
 
     fun shouldHaveSelectedValue(value: String) {
-        // EntitySelect stores the label as the selected value after initial load
         input.locator(".el-select__selected-item span:not([aria-hidden])")
             .shouldHaveText(value)
     }
@@ -79,7 +71,6 @@ class EntitySelect private constructor(
     /**
      * Verifies that options are displayed in the dropdown.
      * Opens dropdown if needed.
-     * @param options Expected option texts (can be partial text matches due to custom templates)
      */
     fun shouldHaveOptions(vararg options: String) {
         shouldHaveOptions { actualOptions ->
@@ -90,18 +81,42 @@ class EntitySelect private constructor(
     }
 
     fun shouldHaveOptions(spec: (actualOptions: List<String>) -> Unit) {
-        // Open dropdown and trigger search with empty query by typing and deleting
-        input.click()
-        val searchInput = input.locator("input.el-select__input")
-        searchInput.pressSequentially("a")
-        searchInput.press("Backspace")
+        withDropdownOpen {
+            shouldSatisfy {
+                locator(".el-select-dropdown__item:not([disabled])")
+                    .allInnerTexts()
+                    .should(spec)
+            }
+        }
+    }
 
-        val popper = Popper.openOrLocateByTrigger(input)
-        popper.rootLocator.shouldSatisfy {
-            // Get all non-info items (exclude pagination/error messages)
-            locator(".el-select-dropdown__item:not([disabled])")
-                .allInnerTexts()
-                .should(spec)
+    /**
+     * Verifies invoice options with rich content (title, date, amount).
+     * Parses the invoice option structure and validates against expected data.
+     */
+    fun shouldHaveInvoiceOptions(spec: (actualOptions: List<InvoiceOption>) -> Unit) {
+        withDropdownOpen {
+            shouldSatisfy {
+                // language=javascript
+                val actualOptionsJson = evaluate(
+                    """
+                    (popper) => JSON.stringify(Array.from(popper
+                        .querySelectorAll('.el-select-dropdown__item:not([disabled])'))
+                        .map(item => {
+                            const option = item.querySelector('.sa-invoice-select__option');
+                            if (!option) return null;
+                            return {
+                                title: option.querySelector('.sa-invoice-select__option__title')?.innerText || '',
+                                date: option.querySelector('.sa-invoice-select__option__date')?.innerText || '',
+                                amount: option.querySelector('.sa-invoice-select__option__amount')?.innerText || ''
+                            };
+                        })
+                        .filter(opt => opt !== null))
+                    """
+                ) as String
+                val actualOptions = Gson().fromJson(actualOptionsJson, object : TypeToken<List<InvoiceOption>>() {})
+                spec(actualOptions)
+            }
         }
     }
 
@@ -110,21 +125,21 @@ class EntitySelect private constructor(
      * This appears when there are more results than the page size.
      */
     fun shouldShowMoreElementsIndicator(remainingCount: Int) {
-        val popper = Popper.openOrLocateByTrigger(input)
-        val indicator = popper.rootLocator
-            .locator(".el-select-dropdown__item.is-disabled .sa-entity-select__list-footer--dimmed")
-        indicator.shouldBeVisible()
-        indicator.shouldHaveText("$remainingCount more elements...")
+        withDropdownOpen {
+            val indicator = locator(".el-select-dropdown__item.is-disabled .sa-entity-select__list-footer--dimmed")
+            indicator.shouldBeVisible()
+            indicator.shouldHaveText("$remainingCount more elements...")
+        }
     }
 
     /**
      * Verifies that the "more elements" indicator is not shown.
      */
     fun shouldNotShowMoreElementsIndicator() {
-        val popper = Popper.openOrLocateByTrigger(input)
-        popper.rootLocator
-            .locator(".el-select-dropdown__item.is-disabled .sa-entity-select__list-footer--dimmed")
-            .shouldBeHidden()
+        withDropdownOpen {
+            locator(".el-select-dropdown__item.is-disabled .sa-entity-select__list-footer--dimmed")
+                .shouldBeHidden()
+        }
     }
 
     /**
@@ -145,10 +160,10 @@ class EntitySelect private constructor(
      * Verifies that an error state is displayed in the dropdown.
      */
     fun shouldShowError() {
-        val popper = Popper.openOrLocateByTrigger(input)
-        popper.rootLocator
-            .locator(".el-select-dropdown__item.is-disabled .sa-basic-error-message")
-            .shouldBeVisible()
+        withDropdownOpen {
+            locator(".el-select-dropdown__item.is-disabled .sa-basic-error-message")
+                .shouldBeVisible()
+        }
     }
 
     /**
@@ -156,7 +171,6 @@ class EntitySelect private constructor(
      * Only works when clearable=true is set on the component.
      */
     fun clearSelection() {
-        // Hover to make clear button visible
         input.hover()
         val clearIcon = input.locator(".el-select__clear")
         clearIcon.click()
@@ -185,10 +199,21 @@ class EntitySelect private constructor(
     }
 
     /**
-     * Opens the dropdown to trigger the initial remote search.
+     * Executes the given specification with the dropdown open and ensures it's properly closed afterward.
+     * This prevents flakiness from leaving dropdowns open between interactions.
+     *
+     * @param spec The specification to execute while the dropdown is open. The spec receives the popper's root locator.
      */
-    fun openDropdown() {
-        input.click()
+    private fun withDropdownOpen(spec: Locator.() -> Unit) {
+        val popper = Popper.openOrLocateByTrigger(input)
+        popper.rootLocator.shouldBeVisible()
+        try {
+            popper.rootLocator.spec()
+        } finally {
+            // Ensure dropdown is closed by pressing Escape
+            input.press("Escape")
+            popper.shouldBeClosed()
+        }
     }
 
     companion object {
