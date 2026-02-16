@@ -503,6 +503,30 @@ class MyFeatureFullStackTest : SaFullStackTestBase() {
 }
 ```
 
+### Test Organization Guidelines
+
+Full stack tests are expensive to run. Follow these guidelines to balance test coverage with execution time:
+
+**Combine Logically Related Tests**:
+- Combine tests that are part of the same user workflow or feature area
+- Example: Combine "navigate to create page" and "create item" into one test that verifies both navigation and creation
+- Example: Combine "switch workspace" and "verify data isolation" into one test that switches and checks isolation
+
+**When to Keep Tests Separate**:
+- Different independent business scenarios (e.g., displaying single workspace vs. multiple workspaces)
+- Tests that validate entirely different features or use cases
+- Tests with significantly different preconditions or data setup
+
+**Assertion Quality**:
+- Always use meaningful content assertions, not just counts
+- Instead of `shouldHaveOtherWorkspaces(2)`, verify actual workspace titles and attributes
+- Example: `getOtherWorkspaceByName("Workspace A").shouldHaveTitle("Workspace A")`
+- Verify all displayed data that users see (titles, currencies, dates, amounts, etc.)
+
+**Test Naming**:
+- Use descriptive names that reflect the combined scenario: `should switch workspace and verify data isolation`
+- Avoid generic names like `test1`, `test2`, or overly specific names like `should click button`
+
 ### Page Object Pattern
 
 #### Page Object Structure

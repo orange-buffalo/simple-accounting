@@ -44,9 +44,9 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         val testData = preconditions {
             object {
                 val fry = fry()
-                val planetExpress = workspace(owner = fry, name = "Planet Express")
-                val moms = workspace(owner = fry, name = "Mom's Friendly Robot Company")
-                val slurm = workspace(owner = fry, name = "Slurm Corp")
+                val planetExpress = workspace(owner = fry, name = "Planet Express", defaultCurrency = "USD")
+                val moms = workspace(owner = fry, name = "Mom's Friendly Robot Company", defaultCurrency = "EUR")
+                val slurm = workspace(owner = fry, name = "Slurm Corp", defaultCurrency = "GBP")
             }
         }
 
@@ -56,29 +56,20 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
                 shouldHaveTitle("Planet Express")
                 shouldNotHaveSwitchButton()
             }
-            shouldHaveOtherWorkspaces(2) {
-                it.shouldHaveSwitchButton()
+            
+            // Verify both other workspaces with their actual titles and that they have switch buttons
+            getOtherWorkspaceByName("Mom's Friendly Robot Company").apply {
+                shouldHaveTitle("Mom's Friendly Robot Company")
+                shouldHaveSwitchButton()
+            }
+            
+            getOtherWorkspaceByName("Slurm Corp").apply {
+                shouldHaveTitle("Slurm Corp")
+                shouldHaveSwitchButton()
             }
             
             reportRendering("workspaces-overview.multiple-workspaces")
         }
-    }
-
-    @Test
-    fun `should navigate to create workspace page`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry)
-            }
-        }
-
-        page.authenticateViaCookie(testData.fry)
-        page.openWorkspacesOverviewPage {
-            createButton.click()
-        }
-
-        page.shouldBeCreateWorkspacePage()
     }
 
     @Test
@@ -91,8 +82,16 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
         }
 
         page.authenticateViaCookie(testData.fry)
-        page.navigate("/settings/workspaces/create")
         
+        // Navigate to create page via button click
+        page.openWorkspacesOverviewPage {
+            createButton.click()
+        }
+
+        // Verify navigation to create page
+        page.shouldBeCreateWorkspacePage()
+        
+        // Fill and save the form
         page.shouldBeCreateWorkspacePage {
             name {
                 input.fill("Mom's Friendly Robot Company")
@@ -103,35 +102,22 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             saveButton.click()
         }
 
+        // Verify navigation back to overview and new workspace appears
         page.shouldBeWorkspacesOverviewPage {
             shouldHaveCurrentWorkspace {
                 shouldHaveTitle("Planet Express")
             }
-            shouldHaveOtherWorkspaces(1)
-        }
-    }
-
-    @Test
-    fun `should switch workspace and verify navigation menu updated`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry()
-                val planetExpress = workspace(owner = fry, name = "Planet Express")
-                val moms = workspace(owner = fry, name = "Mom's Friendly Robot Company")
+            
+            // Verify the newly created workspace appears in other workspaces
+            getOtherWorkspaceByName("Mom's Friendly Robot Company").apply {
+                shouldHaveTitle("Mom's Friendly Robot Company")
+                shouldHaveSwitchButton()
             }
         }
-
-        page.authenticateViaCookie(testData.fry)
-        page.openWorkspacesOverviewPage {
-            getOtherWorkspaceByName("Mom's Friendly Robot Company").clickSwitchButton()
-        }
-
-        // Should navigate to dashboard after switching
-        page.shouldHaveSideMenu().shouldHaveWorkspaceName("Mom's Friendly Robot Company")
     }
 
     @Test
-    fun `should display empty expenses list after switching workspace`(page: Page) {
+    fun `should switch workspace and verify data isolation`(page: Page) {
         val testData = preconditions {
             object {
                 val fry = fry()
@@ -166,10 +152,13 @@ class WorkspacesOverviewFullStackTest : SaFullStackTestBase() {
             getOtherWorkspaceByName("Mom's Friendly Robot Company").clickSwitchButton()
         }
 
-        // Navigate to expenses in new workspace
+        // Verify navigation menu updated with new workspace name
+        page.shouldHaveSideMenu().shouldHaveWorkspaceName("Mom's Friendly Robot Company")
+
+        // Navigate to expenses in switched workspace
         page.shouldHaveSideMenu().clickExpenses()
 
-        // Verify expenses list is empty
+        // Verify expenses list is empty - data isolation works
         page.shouldBeExpensesOverviewPage {
             pageItems.shouldHaveTitles()
             this.reportRendering("workspaces.switched-workspace-expenses-empty")
