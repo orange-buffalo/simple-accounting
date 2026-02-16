@@ -111,7 +111,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/settings/general-taxes/${testData.tax.id}/edit")
         page.shouldBeEditGeneralTaxPage {
-            // Clear all fields and verify validation errors
+            // Test empty state - clear all fields
             title { input.fill("") }
             rate { input.fill("") }
             saveButton.click()
@@ -125,7 +125,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
 
             reportRendering("edit-general-tax.validation-errors")
 
-            // Fill title and verify only rate error remains
+            // Test with only title filled - rate should still have error
             title { input.fill("Sales Tax") }
             saveButton.click()
 
@@ -136,7 +136,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
                 shouldHaveValidationError("Please provide the rate")
             }
 
-            // Fill rate and verify only title error remains
+            // Clear title and fill rate - title should have error
             title { input.fill("") }
             rate { input.fill("1500") }
             saveButton.click()
