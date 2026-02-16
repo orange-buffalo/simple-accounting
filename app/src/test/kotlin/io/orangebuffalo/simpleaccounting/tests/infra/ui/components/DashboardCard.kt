@@ -16,6 +16,8 @@ class DashboardCard private constructor(
     private val detailsItems = card.locator(".sa-dashboard__card__details__item")
 
     fun shouldBeLoading() {
+        // Ensure the card itself is rendered before checking for the loader
+        card.shouldBeVisible()
         loader.shouldBeVisible()
     }
 
