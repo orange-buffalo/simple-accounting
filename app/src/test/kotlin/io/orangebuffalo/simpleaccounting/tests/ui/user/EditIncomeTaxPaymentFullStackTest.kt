@@ -132,10 +132,22 @@ class EditIncomeTaxPaymentFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/income-tax-payments/${testData.payment.id}/edit")
         page.shouldBeEditIncomeTaxPaymentPage {
-            title { input.fill("Q1 Corporate Tax") }
-            amount { input.fill("2500.00") }
-            datePaid { input.fill("3025-01-20") }
-            reportingDate { input.fill("3025-01-18") }
+            title {
+                input.shouldHaveValue("Q1 Tax")
+                input.fill("Q1 Corporate Tax")
+            }
+            amount {
+                input.shouldHaveValue("1,000.00")
+                input.fill("2500.00")
+            }
+            datePaid {
+                input.shouldHaveValue("3025-01-15")
+                input.fill("3025-01-20")
+            }
+            reportingDate {
+                input.shouldHaveValue("3025-01-15")
+                input.fill("3025-01-18")
+            }
 
             saveButton.click()
         }
