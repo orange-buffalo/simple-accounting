@@ -25,6 +25,15 @@ class DashboardCard private constructor(
         headerAmount.shouldBeVisible()
     }
 
+    /**
+     * Ensures the card structure is rendered in the DOM.
+     * This is useful in the initiator of withBlockedApiResponse to guarantee
+     * the API request has been initiated before the route handler runs.
+     */
+    fun shouldBePresent() {
+        card.shouldBeVisible()
+    }
+
     fun shouldHaveAmount(expectedAmount: String) {
         headerAmount.shouldHaveText(expectedAmount)
     }

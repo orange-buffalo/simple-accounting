@@ -227,9 +227,14 @@ class DashboardFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(preconditionsWithFinalized.fry)
         
         page.withBlockedApiResponse(
-            "workspaces/${preconditionsWithFinalized.workspace.id!!}/statistics/expenses*",
+            "workspaces/${preconditionsWithFinalized.workspace.id!!}/statistics/expenses**",
             initiator = {
-                page.openDashboard()
+                page.openDashboard {
+                    // Ensure the expenses card is rendered to guarantee the API request has been initiated
+                    expensesCard {
+                        shouldBePresent()
+                    }
+                }
             },
             blockedRequestSpec = {
                 page.shouldBeDashboardPage {
@@ -238,8 +243,12 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                     }
                     reportRendering("dashboard.loading-state")
                 }
-            }
+            },
+            resetOnCompletion = false
         )
+        
+        // Unroute to allow subsequent requests to complete
+        page.context().unroute("/api/workspaces/${preconditionsWithFinalized.workspace.id!!}/statistics/expenses**")
         
         page.shouldBeDashboardPage {
             expensesCard {
