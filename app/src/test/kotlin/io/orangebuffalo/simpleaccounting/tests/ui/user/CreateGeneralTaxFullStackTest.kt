@@ -46,32 +46,44 @@ class CreateGeneralTaxFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should show validation error for empty title`(page: Page) {
+    fun `should validate required fields`(page: Page) {
         page.authenticateViaCookie(preconditions.fry)
         page.openCreateGeneralTaxPage {
+            // Click save without filling any fields
+            saveButton.click()
+
+            // Verify all required fields show validation errors
+            title {
+                shouldHaveValidationError("Please provide a title")
+            }
+            rate {
+                shouldHaveValidationError("Please provide the rate")
+            }
+
+            reportRendering("create-general-tax.validation-errors")
+
+            // Fill title and verify only rate error remains
+            title { input.fill("VAT") }
+            saveButton.click()
+
+            title {
+                shouldNotHaveValidationErrors()
+            }
+            rate {
+                shouldHaveValidationError("Please provide the rate")
+            }
+
+            // Fill rate and verify only title error remains
+            title { input.fill("") }
             rate { input.fill("2000") }
             saveButton.click()
 
             title {
                 shouldHaveValidationError("Please provide a title")
             }
-
-            reportRendering("create-general-tax.validation-error-title")
-        }
-    }
-
-    @Test
-    fun `should show validation error for empty rate`(page: Page) {
-        page.authenticateViaCookie(preconditions.fry)
-        page.openCreateGeneralTaxPage {
-            title { input.fill("VAT") }
-            saveButton.click()
-
             rate {
-                shouldHaveValidationError("Please provide the rate")
+                shouldNotHaveValidationErrors()
             }
-
-            reportRendering("create-general-tax.validation-error-rate")
         }
     }
 
