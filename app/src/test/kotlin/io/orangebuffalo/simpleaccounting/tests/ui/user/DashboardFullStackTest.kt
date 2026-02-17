@@ -226,10 +226,16 @@ class DashboardFullStackTest : SaFullStackTestBase() {
     fun `should display loading state during API calls`(page: Page) {
         page.authenticateViaCookie(preconditionsWithFinalized.fry)
         
+        val expensesStatsPath = "workspaces/${preconditionsWithFinalized.workspace.id!!}/statistics/expenses*"
         page.withBlockedApiResponse(
-            "workspaces/${preconditionsWithFinalized.workspace.id!!}/statistics/expenses*",
+            expensesStatsPath,
             initiator = {
-                page.openDashboard()
+                page.openDashboard {
+                    // Ensure the expenses card is rendered to guarantee the API request has been initiated
+                    expensesCard {
+                        shouldBePresent()
+                    }
+                }
             },
             blockedRequestSpec = {
                 page.shouldBeDashboardPage {
@@ -238,8 +244,12 @@ class DashboardFullStackTest : SaFullStackTestBase() {
                     }
                     reportRendering("dashboard.loading-state")
                 }
-            }
+            },
+            resetOnCompletion = false
         )
+        
+        // Unroute to allow subsequent requests to complete
+        page.context().unroute("/api/$expensesStatsPath")
         
         page.shouldBeDashboardPage {
             expensesCard {

@@ -16,11 +16,22 @@ class DashboardCard private constructor(
     private val detailsItems = card.locator(".sa-dashboard__card__details__item")
 
     fun shouldBeLoading() {
+        // Ensure the card itself is rendered before checking for the loader
+        card.shouldBeVisible()
         loader.shouldBeVisible()
     }
 
     fun shouldBeLoaded() {
         headerAmount.shouldBeVisible()
+    }
+
+    /**
+     * Ensures the card structure is rendered in the DOM.
+     * This is useful in the initiator of withBlockedApiResponse to guarantee
+     * the API request has been initiated before the route handler runs.
+     */
+    fun shouldBePresent() {
+        card.shouldBeVisible()
     }
 
     fun shouldHaveAmount(expectedAmount: String) {
