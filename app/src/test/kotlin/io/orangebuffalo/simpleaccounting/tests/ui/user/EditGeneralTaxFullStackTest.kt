@@ -95,7 +95,7 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
     }
 
     @Test
-    fun `should show validation error for empty title`(page: Page) {
+    fun `should validate required fields`(page: Page) {
         val testData = preconditions {
             object {
                 val fry = fry()
@@ -111,42 +111,42 @@ class EditGeneralTaxFullStackTest : SaFullStackTestBase() {
         page.authenticateViaCookie(testData.fry)
         page.navigate("/settings/general-taxes/${testData.tax.id}/edit")
         page.shouldBeEditGeneralTaxPage {
+            // Test empty state - clear all fields
             title { input.fill("") }
+            rate { input.fill("") }
             saveButton.click()
 
             title {
                 shouldHaveValidationError("Please provide a title")
             }
-
-            reportRendering("edit-general-tax.validation-error-title")
-        }
-    }
-
-    @Test
-    fun `should show validation error for empty rate`(page: Page) {
-        val testData = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry)
-                val tax = generalTax(
-                    workspace = workspace,
-                    title = "VAT",
-                    rateInBps = 2000
-                )
-            }
-        }
-
-        page.authenticateViaCookie(testData.fry)
-        page.navigate("/settings/general-taxes/${testData.tax.id}/edit")
-        page.shouldBeEditGeneralTaxPage {
-            rate { input.fill("") }
-            saveButton.click()
-
             rate {
                 shouldHaveValidationError("Please provide the rate")
             }
 
-            reportRendering("edit-general-tax.validation-error-rate")
+            reportRendering("edit-general-tax.validation-errors")
+
+            // Test with only title filled - rate should still have error
+            title { input.fill("Sales Tax") }
+            saveButton.click()
+
+            title {
+                shouldNotHaveValidationErrors()
+            }
+            rate {
+                shouldHaveValidationError("Please provide the rate")
+            }
+
+            // Clear title and fill rate - title should have error
+            title { input.fill("") }
+            rate { input.fill("1500") }
+            saveButton.click()
+
+            title {
+                shouldHaveValidationError("Please provide a title")
+            }
+            rate {
+                shouldNotHaveValidationErrors()
+            }
         }
     }
 
