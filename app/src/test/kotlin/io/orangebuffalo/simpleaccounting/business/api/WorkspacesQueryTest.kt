@@ -26,8 +26,7 @@ class WorkspacesQueryTest(
                 expense(title = "Robot oil", workspace = it, category = maintenance)
                 expense(title = "Spaceship parts", workspace = it, category = null)
             }
-            val zoidberg = zoidberg()
-            val zoidbergWorkspace = workspace(owner = zoidberg, name = "Nimbus Crew")
+            val zoidberg = zoidberg().withWorkspace()
             val workspaceToken = workspaceAccessToken(
                 workspace = fryWorkspace,
                 validTill = MOCK_TIME.plusSeconds(10000),

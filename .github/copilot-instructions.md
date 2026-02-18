@@ -247,6 +247,17 @@ val preconditions = preconditions {
 // Only `fry` is exposed; workspace and category are created but not accessible
 ```
 
+For users that need a workspace but the workspace itself is not used in tests, use the `withWorkspace()` extension method:
+
+```kotlin
+val preconditions = preconditions {
+    object {
+        val fry = fry().withWorkspace()  // Creates workspace without exposing it
+        val zoidberg = zoidberg().withWorkspace()
+    }
+}
+```
+
 This keeps preconditions clean and makes it clear what data the test actually depends on.
 
 ## Test Data Conventions
