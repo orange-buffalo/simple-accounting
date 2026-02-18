@@ -1,8 +1,10 @@
 package io.orangebuffalo.simpleaccounting.business.api
 
+import io.orangebuffalo.simpleaccounting.infra.graphql.DgsConstants
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphql
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -14,21 +16,78 @@ class WorkspacesQueryTest(
     @param:Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
 
+    private val preconditions by lazyPreconditions {
+        object {
+            val fry = fry()
+            val fryWorkspace = workspace(owner = fry, name = "Planet Express").also {
+                val delivery = category(name = "Delivery", workspace = it)
+                val maintenance = category(name = "Robot maintenance", workspace = it)
+                expense(title = "Slurm supplies", workspace = it, category = delivery)
+                expense(title = "Robot oil", workspace = it, category = maintenance)
+                expense(title = "Spaceship parts", workspace = it, category = null)
+            }
+            val zoidberg = zoidberg()
+            val zoidbergWorkspace = workspace(owner = zoidberg, name = "Nimbus Crew")
+            val workspaceToken = workspaceAccessToken(
+                workspace = fryWorkspace,
+                validTill = MOCK_TIME.plusSeconds(10000),
+            )
+        }
+    }
+
     @Test
-    fun `should return workspaces with categories and expenses with categories`() {
-        val preconditions = preconditions {
-            object {
-                val fry = fry()
-                val workspace = workspace(owner = fry, name = "Planet Express").also {
-                    val delivery = category(name = "Delivery", workspace = it)
-                    val maintenance = category(name = "Robot maintenance", workspace = it)
-                    expense(title = "Slurm supplies", workspace = it, category = delivery)
-                    expense(title = "Robot oil", workspace = it, category = maintenance)
-                    expense(title = "Spaceship parts", workspace = it, category = null)
-                }
+    fun `should return error when accessed anonymously`() {
+        client.graphql {
+            workspaces {
+                name
             }
         }
+            .fromAnonymous()
+            .executeAndVerifySingleError(
+                message = "User is not authenticated",
+                errorType = "NOT_AUTHORIZED",
+                locationLine = 2,
+                locationColumn = 3,
+                path = DgsConstants.QUERY.Workspaces,
+            )
+    }
 
+    @Test
+    fun `should prohibit access with workspace token`() {
+        client.graphql {
+            workspaces {
+                name
+            }
+        }
+            .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
+            .executeAndVerifySingleError(
+                message = "User is not authenticated",
+                errorType = "NOT_AUTHORIZED",
+                locationLine = 2,
+                locationColumn = 3,
+                path = DgsConstants.QUERY.Workspaces,
+            )
+    }
+
+    @Test
+    fun `should return only current user workspaces`() {
+        client.graphql {
+            workspaces {
+                name
+            }
+        }
+            .from(preconditions.fry)
+            .executeAndVerifyResponse(
+                "workspaces" to buildJsonArray {
+                    add(buildJsonObject {
+                        put("name", "Planet Express")
+                    })
+                }
+            )
+    }
+
+    @Test
+    fun `should return workspaces with categories and expenses with categories`() {
         client.graphql {
             workspaces {
                 name
