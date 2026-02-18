@@ -4,4 +4,5 @@ import io.orangebuffalo.simpleaccounting.business.common.pesistence.AbstractEnti
 
 interface CategoriesRepository : AbstractEntityRepository<Category> {
     fun existsByIdAndWorkspaceId(id: Long, workspaceId: Long): Boolean
+    fun findAllByWorkspaceIdIn(workspaceIds: Set<Long>): List<Category>
 }

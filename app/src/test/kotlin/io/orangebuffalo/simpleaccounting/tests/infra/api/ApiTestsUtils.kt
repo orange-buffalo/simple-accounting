@@ -195,6 +195,21 @@ class GraphqlClientRequestExecutor(
             }
     }
 
+    fun executeAndVerifyResponse(
+        vararg dataItems: Pair<String, JsonElement>,
+    ) {
+        requestSpec
+            .exchange()
+            .expectStatus().isOk
+            .expectThatJsonBodyEqualTo {
+                putJsonObject("data") {
+                    dataItems.forEach { (key, value) ->
+                        put(key, value)
+                    }
+                }
+            }
+    }
+
     fun executeAndVerifySingleError(
         message: String,
         errorType: String,
