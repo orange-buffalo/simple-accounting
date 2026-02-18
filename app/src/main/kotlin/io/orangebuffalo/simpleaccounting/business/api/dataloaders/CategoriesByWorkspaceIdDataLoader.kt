@@ -2,11 +2,13 @@ package io.orangebuffalo.simpleaccounting.business.api.dataloaders
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoader
 import graphql.GraphQLContext
+import graphql.schema.DataFetchingEnvironment
 import io.orangebuffalo.simpleaccounting.business.api.CategoryGqlDto
 import io.orangebuffalo.simpleaccounting.business.categories.CategoriesRepository
 import io.orangebuffalo.simpleaccounting.infra.graphql.newAsyncMappedDataLoader
 import org.dataloader.DataLoader
 import org.springframework.stereotype.Component
+import java.util.concurrent.CompletableFuture
 
 private const val NAME = "categoriesByWorkspaceId"
 
@@ -26,3 +28,7 @@ class CategoriesByWorkspaceIdDataLoader(
             }
         }
 }
+
+fun DataFetchingEnvironment.loadCategoriesByWorkspaceId(
+    workspaceId: Long,
+): CompletableFuture<List<CategoryGqlDto>> = getDataLoader<Long, List<CategoryGqlDto>>(NAME)!!.load(workspaceId)
