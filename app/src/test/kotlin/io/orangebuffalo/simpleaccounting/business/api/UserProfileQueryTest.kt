@@ -49,11 +49,7 @@ class UserProfileQueryTest(
         client
             .graphql { fullUserProfile() }
             .fromAnonymous()
-            .executeAndVerifySingleError(
-                message = "User is not authenticated",
-                errorType = "NOT_AUTHORIZED",
-                locationLine = 2,
-                locationColumn = 3,
+            .executeAndVerifyNotAuthorized(
                 path = DgsConstants.QUERY.UserProfile,
             )
     }
@@ -114,11 +110,7 @@ class UserProfileQueryTest(
         client
             .graphql { fullUserProfile() }
             .usingSharedWorkspaceToken(preconditions.workspaceToken.token)
-            .executeAndVerifySingleError(
-                message = "User is not authenticated",
-                errorType = "NOT_AUTHORIZED",
-                locationLine = 2,
-                locationColumn = 3,
+            .executeAndVerifyNotAuthorized(
                 path = DgsConstants.QUERY.UserProfile,
             )
     }
