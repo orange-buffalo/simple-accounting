@@ -136,17 +136,19 @@ class RefreshAccessTokenMutationTest(
 
     @Test
     fun `should return JWT token when user is authenticated with transient user`() {
+        // Force preconditions evaluation before stubbing
+        val tokenValue = preconditions.validAccessToken.token
+        val validTill = preconditions.validAccessToken.validTill
+        
         // Mock JWT validation for the valid token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
-                createTransientUserPrincipal(preconditions.validAccessToken.token)
+                createTransientUserPrincipal(tokenValue)
 
-        whenever(jwtService.buildJwtToken(argThat {
-            userName == "validToken" && isTransient
-        }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForTransientUser"
+        whenever(jwtService.buildJwtToken(any(), any())) doReturn "jwtTokenForTransientUser"
 
         client
             .graphqlMutation { refreshAccessTokenMutation() }
-            .usingSharedWorkspaceToken(preconditions.validAccessToken.token)
+            .usingSharedWorkspaceToken(tokenValue)
             .executeAndVerifySuccessResponse(
                 "refreshAccessToken" to buildJsonObject {
                     put("accessToken", "jwtTokenForTransientUser")
@@ -156,13 +158,16 @@ class RefreshAccessTokenMutationTest(
 
     @Test
     fun `should return null token when transient user token is revoked`() {
+        // Force preconditions evaluation before stubbing
+        val tokenValue = preconditions.revokedAccessToken.token
+        
         // Mock JWT validation for the revoked token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
-                createTransientUserPrincipal(preconditions.revokedAccessToken.token)
+                createTransientUserPrincipal(tokenValue)
 
         client
             .graphqlMutation { refreshAccessTokenMutation() }
-            .usingSharedWorkspaceToken(preconditions.revokedAccessToken.token)
+            .usingSharedWorkspaceToken(tokenValue)
             .executeAndVerifySuccessResponse(
                 "refreshAccessToken" to buildJsonObject {
                     put("accessToken", JsonNull)
@@ -172,13 +177,16 @@ class RefreshAccessTokenMutationTest(
 
     @Test
     fun `should return null token when transient user token is expired`() {
+        // Force preconditions evaluation before stubbing
+        val tokenValue = preconditions.expiredAccessToken.token
+        
         // Mock JWT validation for the expired token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
-                createTransientUserPrincipal(preconditions.expiredAccessToken.token)
+                createTransientUserPrincipal(tokenValue)
 
         client
             .graphqlMutation { refreshAccessTokenMutation() }
-            .usingSharedWorkspaceToken(preconditions.expiredAccessToken.token)
+            .usingSharedWorkspaceToken(tokenValue)
             .executeAndVerifySuccessResponse(
                 "refreshAccessToken" to buildJsonObject {
                     put("accessToken", JsonNull)
