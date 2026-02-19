@@ -322,4 +322,18 @@ class GraphqlClientRequestExecutor(
                 }
             }
     }
+
+    fun executeAndVerifyNotAuthorized(
+        path: String,
+        locationColumn: Int = 3,
+        locationLine: Int = 2
+    ) {
+        executeAndVerifySingleError(
+            message = "User is not authenticated",
+            errorType = "NOT_AUTHORIZED",
+            locationColumn = locationColumn,
+            locationLine = locationLine,
+            path = path,
+        )
+    }
 }

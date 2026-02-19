@@ -43,11 +43,7 @@ class ChangePasswordMutationTest(
         client
             .graphqlMutation { changePasswordMutation("current-password", "new-password") }
             .fromAnonymous()
-            .executeAndVerifySingleError(
-                message = "User is not authenticated",
-                errorType = "NOT_AUTHORIZED",
-                locationColumn = 3,
-                locationLine = 2,
+            .executeAndVerifyNotAuthorized(
                 path = "changePassword"
             )
     }
@@ -57,11 +53,7 @@ class ChangePasswordMutationTest(
         client
             .graphqlMutation { changePasswordMutation("current-password", "new-password") }
             .usingSharedWorkspaceToken(preconditions.workspaceAccessToken.token)
-            .executeAndVerifySingleError(
-                message = "User is not authenticated",
-                errorType = "NOT_AUTHORIZED",
-                locationColumn = 3,
-                locationLine = 2,
+            .executeAndVerifyNotAuthorized(
                 path = "changePassword"
             )
     }
