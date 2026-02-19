@@ -7,9 +7,6 @@ import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksContextInitializer
 import io.orangebuffalo.simpleaccounting.tests.infra.thirdparty.ThirdPartyApisMocksListener
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -39,12 +36,6 @@ abstract class SaFullStackTestBase : SaIntegrationTestBase() {
 
     @Autowired
     protected lateinit var testDocumentsStorage: TestDocumentsStorage
-
-    @BeforeEach
-    fun setupFullStackTest() {
-        // Set the backend time to match the UI time, e.g. for proper token expiration handling
-        mockCurrentTime(timeService)
-    }
 
     protected fun Page.authenticateViaCookie(user: PlatformUser) {
         val tokenValue = "test-refresh-token:${user.userName}"

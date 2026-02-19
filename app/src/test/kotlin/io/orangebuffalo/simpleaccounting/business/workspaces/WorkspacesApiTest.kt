@@ -12,7 +12,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockZoidbergUs
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.put
@@ -76,8 +75,6 @@ internal class WorkspacesApiTest(
     fun `should return shared workspace for transient user on GET workspaces`() {
         // trigger preconditions to be prepared - should be removed when JWT token client is used
         preconditions.fry
-
-        mockCurrentTime(timeService)
 
         client.get()
             .uri("/api/workspaces")
@@ -193,8 +190,6 @@ internal class WorkspacesApiTest(
         // trigger preconditions to be prepared - should be removed when JWT token client is used
         preconditions.fry
 
-        mockCurrentTime(timeService)
-
         client.get()
             .uri("/api/shared-workspaces")
             .verifyOkAndJsonBody {
@@ -207,8 +202,6 @@ internal class WorkspacesApiTest(
     fun `should return shared workspaces of current user`() {
         // trigger preconditions to be prepared - should be removed when JWT token client is used
         preconditions.fry
-
-        mockCurrentTime(timeService)
 
         client.get()
             .uri("/api/shared-workspaces")
@@ -228,8 +221,6 @@ internal class WorkspacesApiTest(
     @Test
     @WithMockFarnsworthUser
     fun `should save shared workspace by valid access token`() {
-        mockCurrentTime(timeService)
-
         client.post()
             .uri("/api/shared-workspaces")
             .sendJson(
@@ -251,8 +242,6 @@ internal class WorkspacesApiTest(
     @Test
     @WithMockFarnsworthUser
     fun `should fail on attempt to save shared workspace by expired token`() {
-        mockCurrentTime(timeService)
-
         client.post()
             .uri("/api/shared-workspaces")
             .sendJson(

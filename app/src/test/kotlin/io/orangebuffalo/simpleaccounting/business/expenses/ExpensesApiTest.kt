@@ -8,9 +8,7 @@ import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE_VALUE
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.serialization.json.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,11 +18,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 internal class ExpensesApiTest(
     @Autowired private val client: WebTestClient,
 ) : SaIntegrationTestBase() {
-
-    @BeforeEach
-    fun setup() {
-        mockCurrentTime(timeService)
-    }
 
     @Test
     fun `should allow GET access only for logged in users`() {

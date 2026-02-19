@@ -5,7 +5,14 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.ApiRequestsBodyConfiguration
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.ApiRequestsValidationsTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeEntityWithFields
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.shouldBeSingle
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findAll
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.findSingle
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -219,8 +226,6 @@ internal class UsersApiTest(
 
         @Test
         fun `should create a new user`() {
-            mockCurrentTime(timeService)
-
             request()
                 .from(preconditions.farnsworth)
                 .verifyCreatedAndJsonBodyEqualTo {

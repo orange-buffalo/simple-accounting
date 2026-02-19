@@ -4,12 +4,14 @@ import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFarnsworthUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_DATE_VALUE
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME_VALUE
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,11 +21,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 internal class IncomeTaxPaymentsApiTest(
     @Autowired private val client: WebTestClient,
 ) : SaIntegrationTestBase() {
-
-    @BeforeEach
-    fun setup() {
-        mockCurrentTime(timeService)
-    }
 
     @Test
     fun `should allow GET access only for logged in users`() {

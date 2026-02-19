@@ -9,7 +9,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -137,8 +136,6 @@ class RefreshAccessTokenMutationTest(
 
     @Test
     fun `should return JWT token when user is authenticated with transient user`() {
-        mockCurrentTime(timeService)
-
         // Mock JWT validation for the valid token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
                 createTransientUserPrincipal(preconditions.validAccessToken.token)
@@ -159,8 +156,6 @@ class RefreshAccessTokenMutationTest(
 
     @Test
     fun `should return null token when transient user token is revoked`() {
-        mockCurrentTime(timeService)
-
         // Mock JWT validation for the revoked token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
                 createTransientUserPrincipal(preconditions.revokedAccessToken.token)
@@ -177,8 +172,6 @@ class RefreshAccessTokenMutationTest(
 
     @Test
     fun `should return null token when transient user token is expired`() {
-        mockCurrentTime(timeService)
-
         // Mock JWT validation for the expired token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
                 createTransientUserPrincipal(preconditions.expiredAccessToken.token)
