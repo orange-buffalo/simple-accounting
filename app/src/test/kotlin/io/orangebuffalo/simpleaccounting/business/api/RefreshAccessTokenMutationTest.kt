@@ -144,7 +144,9 @@ class RefreshAccessTokenMutationTest(
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
                 createTransientUserPrincipal(tokenValue)
 
-        whenever(jwtService.buildJwtToken(any(), any())) doReturn "jwtTokenForTransientUser"
+        whenever(jwtService.buildJwtToken(argThat {
+            userName == "validToken" && isTransient
+        }, eq(validTill))) doReturn "jwtTokenForTransientUser"
 
         client
             .graphqlMutation { refreshAccessTokenMutation() }
