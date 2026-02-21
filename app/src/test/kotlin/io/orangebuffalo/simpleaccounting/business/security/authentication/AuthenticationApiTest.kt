@@ -337,9 +337,12 @@ class AuthenticationApiTest(
     @WithSaMockUser(transient = true, workspaceAccessToken = "validToken")
     fun `should return a JWT token when token endpoint is hit and user is authenticated with transient user`() {
         runBlocking {
+            // Force preconditions evaluation before stubbing
+            val validTill = preconditions.validAccessToken.validTill
+            
             whenever(jwtService.buildJwtToken(argThat {
                 userName == "validToken"
-            }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForTransientUser"
+            }, eq(validTill))) doReturn "jwtTokenForTransientUser"
 
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
@@ -400,14 +403,18 @@ class AuthenticationApiTest(
 
     @Test
     fun `should return a JWT token for valid workspace access token`() {
+        // Force preconditions evaluation before stubbing
+        val tokenValue = preconditions.validAccessToken.token
+        val validTill = preconditions.validAccessToken.validTill
+        
         whenever(jwtService.buildJwtToken(argThat {
-            userName == preconditions.validAccessToken.token
+            userName == tokenValue
                     && isTransient
                     && roles.size == 1
                     && roles.contains(SaUserRoles.USER)
-        }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForSharedWorkspace"
+        }, eq(validTill))) doReturn "jwtTokenForSharedWorkspace"
 
-        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.validAccessToken.token}")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=$tokenValue")
             .exchange()
             .expectStatus().isOk
             .expectHeader().doesNotExist(HttpHeaders.SET_COOKIE)
