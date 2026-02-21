@@ -9,8 +9,8 @@ import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.DateRangePick
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.PageHeader.Companion.pageHeader
 import io.orangebuffalo.simpleaccounting.tests.infra.ui.components.SaPageBase
 
-class DashboardPage private constructor(page: Page) : SaPageBase(page) {
-    private val header = components.pageHeader("Dashboard")
+class DashboardPage private constructor(page: Page, headerText: String = "Dashboard") : SaPageBase(page) {
+    private val header = components.pageHeader(headerText)
     private val invoiceCardsLocator = page.locator(".sa-dashboard__card:has(.sa-icon[data-icon=\"invoices-overview\"])")
 
     val expensesCard = components.dashboardCardByIcon("expense")
@@ -45,6 +45,13 @@ class DashboardPage private constructor(page: Page) : SaPageBase(page) {
     companion object {
         fun Page.shouldBeDashboardPage(spec: DashboardPage.() -> Unit = {}) {
             DashboardPage(this).apply {
+                shouldBeOpen()
+                spec()
+            }
+        }
+
+        fun Page.shouldBeDashboardPageUk(spec: DashboardPage.() -> Unit = {}) {
+            DashboardPage(this, "Кокпіт").apply {
                 shouldBeOpen()
                 spec()
             }
