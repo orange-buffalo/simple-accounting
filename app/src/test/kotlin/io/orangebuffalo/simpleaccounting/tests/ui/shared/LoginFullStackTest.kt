@@ -27,11 +27,6 @@ import java.time.Instant
 
 class LoginFullStackTest : SaFullStackTestBase() {
 
-    @BeforeEach
-    fun setupCurrentTime() {
-        mockCurrentTime(timeService)
-    }
-
     @Test
     fun `should login as regular user and verify remember me cookie`(page: Page) {
         page.openLoginPage {

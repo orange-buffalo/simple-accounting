@@ -74,6 +74,9 @@ abstract class SaIntegrationTestBase {
         // TODO remove from base class when full stack tests use JWT token test auth
         whenever(passwordEncoder.matches(any(), any())) doReturn true
         whenever(passwordEncoder.encode(any())) doAnswer { it.arguments[0] as String }
+
+        // Mock the time service to return a consistent time for tests
+        io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime(timeService)
     }
 
     /**

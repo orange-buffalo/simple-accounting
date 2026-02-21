@@ -32,6 +32,6 @@ inline fun <reified T : Any> JdbcAggregateTemplate.findAll(): List<T> = this.fin
  */
 fun <T : AbstractEntity> T.shouldBeEntityWithFields(entity: T, vararg ignoredProperties: KProperty<*>) {
     this.shouldBeEqualToIgnoringFields(
-        other = entity, AbstractEntity::id, AbstractEntity::version, *ignoredProperties
+        other = entity, AbstractEntity::id, AbstractEntity::version, AbstractEntity::createdAt, *ignoredProperties
     )
 }

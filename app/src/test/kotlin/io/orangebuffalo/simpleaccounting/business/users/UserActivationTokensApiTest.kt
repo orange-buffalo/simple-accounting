@@ -6,12 +6,15 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.ApiRequestsBodyConfiguration
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.ApiRequestsValidationsTestBase
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.JsonValues
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
+import io.orangebuffalo.simpleaccounting.tests.infra.utils.withHint
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import net.javacrumbs.jsonunit.kotest.configuration
 import org.assertj.core.matcher.AssertionMatcher
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -25,11 +28,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 class UserActivationTokensApiTest(
     @Autowired private val client: ApiTestClient,
 ) : SaIntegrationTestBase() {
-
-    @BeforeEach
-    fun setup() {
-        mockCurrentTime(timeService)
-    }
 
     /**
      * [UserActivationTokensApi.getTokenByUser]

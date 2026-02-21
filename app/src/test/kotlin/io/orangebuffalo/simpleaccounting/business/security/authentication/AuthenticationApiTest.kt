@@ -11,7 +11,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.api.expectThatJsonBodyEqual
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithMockFryUser
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
-import io.orangebuffalo.simpleaccounting.tests.infra.utils.mockCurrentTime
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.put
@@ -338,11 +337,12 @@ class AuthenticationApiTest(
     @WithSaMockUser(transient = true, workspaceAccessToken = "validToken")
     fun `should return a JWT token when token endpoint is hit and user is authenticated with transient user`() {
         runBlocking {
-            mockCurrentTime(timeService)
-
+            // Force preconditions evaluation before stubbing
+            val validTill = preconditions.validAccessToken.validTill
+            
             whenever(jwtService.buildJwtToken(argThat {
                 userName == "validToken"
-            }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForTransientUser"
+            }, eq(validTill))) doReturn "jwtTokenForTransientUser"
 
             client.post().uri(TOKEN_PATH)
                 .contentType(APPLICATION_JSON)
@@ -382,8 +382,6 @@ class AuthenticationApiTest(
 
     @Test
     fun `should return 401 on shared workspaces token login if token is not known`() {
-        mockCurrentTime(timeService)
-
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=42")
             .exchange()
             .expectStatus().isUnauthorized
@@ -391,8 +389,6 @@ class AuthenticationApiTest(
 
     @Test
     fun `should return 401 on shared workspaces token login if token is revoked`() {
-        mockCurrentTime(timeService)
-
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.revokedAccessToken.token}")
             .exchange()
             .expectStatus().isUnauthorized
@@ -400,8 +396,6 @@ class AuthenticationApiTest(
 
     @Test
     fun `should return 401 on shared workspaces token login if token is expired`() {
-        mockCurrentTime(timeService)
-
         client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.expiredAccessToken.token}")
             .exchange()
             .expectStatus().isUnauthorized
@@ -409,16 +403,18 @@ class AuthenticationApiTest(
 
     @Test
     fun `should return a JWT token for valid workspace access token`() {
-        mockCurrentTime(timeService)
-
+        // Force preconditions evaluation before stubbing
+        val tokenValue = preconditions.validAccessToken.token
+        val validTill = preconditions.validAccessToken.validTill
+        
         whenever(jwtService.buildJwtToken(argThat {
-            userName == preconditions.validAccessToken.token
+            userName == tokenValue
                     && isTransient
                     && roles.size == 1
                     && roles.contains(SaUserRoles.USER)
-        }, eq(preconditions.validAccessToken.validTill))) doReturn "jwtTokenForSharedWorkspace"
+        }, eq(validTill))) doReturn "jwtTokenForSharedWorkspace"
 
-        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=${preconditions.validAccessToken.token}")
+        client.post().uri("$LOGIN_BY_TOKEN_PATH?sharedWorkspaceToken=$tokenValue")
             .exchange()
             .expectStatus().isOk
             .expectHeader().doesNotExist(HttpHeaders.SET_COOKIE)
