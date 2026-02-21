@@ -17,7 +17,6 @@ import io.orangebuffalo.simpleaccounting.tests.infra.utils.*
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.Companion.openMyProfilePage
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.DocumentStorageSection.DocumentStorageConfig
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.MyProfilePage.DocumentStorageSection.GoogleDriveSettings
-import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.OAuthAuthorizationPopup.Companion.setupErrorIdForOAuthAuthorizationFailure
 import io.orangebuffalo.simpleaccounting.tests.ui.shared.pages.OAuthAuthorizationPopup.Companion.shouldHaveAuthorizationPopupOpenBy
 import org.junit.jupiter.api.Test
 
@@ -96,7 +95,6 @@ class UserProfileGoogleDriveDocumentStorageFullStackTest : SaFullStackTestBase()
         assertAuthorizationRequiredStatus()
 
         // we do not configure GDrive mock, so request fails with 404
-        tokenGenerator.setupErrorIdForOAuthAuthorizationFailure()
         val oauthPopup = withHint("Should initiate authorization flow when requested") {
             page.shouldHaveAuthorizationPopupOpenBy {
                 settings.startAuthorizationButton.click()

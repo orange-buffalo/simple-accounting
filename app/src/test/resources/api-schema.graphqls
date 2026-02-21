@@ -73,6 +73,11 @@ type ChangePasswordResponse {
   success: Boolean!
 }
 
+"Response for the completeOAuth2Flow mutation. Always succeeds if no error is returned by standard GraphQL error response structure."
+type CompleteOAuth2FlowResponse {
+  success: Boolean!
+}
+
 "Business expense."
 type ExpenseGqlDto {
   "Category of the expense."
@@ -97,6 +102,15 @@ type Mutation {
     "The new password to set for the user."
     newPassword: String! @notBlank @size(max : 100, min : 0)
   ): ChangePasswordResponse! @auth(type : AUTHENTICATED_USER) @businessError(description : "The provided current password does not match the user's actual password.", errorCode : "CURRENT_PASSWORD_MISMATCH")
+  "Completes the OAuth2 authorization flow by processing the authorization server callback."
+  completeOAuth2Flow(
+    "The authorization code returned by the authorization server."
+    code: String,
+    "The error code returned by the authorization server if authorization failed."
+    error: String,
+    "The state token that was included in the authorization request."
+    state: String!
+  ): CompleteOAuth2FlowResponse! @auth(type : ANONYMOUS) @businessError(description : "The OAuth2 authorization flow failed. This can happen due to an invalid state, an error response from the authorization server, or a failure to exchange the code for a token.", errorCode : "AUTHORIZATION_FAILED")
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
 }
@@ -172,6 +186,12 @@ enum AuthType {
 enum ChangePasswordErrorCodes {
   "The provided current password does not match the user's actual password."
   CURRENT_PASSWORD_MISMATCH
+}
+
+"Possible business error codes for the completeOAuth2Flow operation."
+enum CompleteOAuth2FlowErrorCodes {
+  "The OAuth2 authorization flow failed. This can happen due to an invalid state, an error response from the authorization server, or a failure to exchange the code for a token."
+  AUTHORIZATION_FAILED
 }
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."

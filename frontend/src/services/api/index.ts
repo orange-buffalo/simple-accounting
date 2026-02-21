@@ -9,7 +9,6 @@ export {
   documentsApi,
   generalTaxesApi,
   googleDriveStorageApi,
-  oAuth2CallbackApi,
   expensesApi,
   incomesApi,
   incomeTaxPaymentsApi,

@@ -47,7 +47,7 @@ class OAuth2ClientAuthorizationProvider(
      * Creates a URL for initialization of OAuth2 authorization code grant flow.
      * User can be redirected to this URL to provide their consent and allow resources access.
      *
-     * After authorization, user will be redirected to the callback URL handled by [OAuth2CallbackApi].
+     * After authorization, user will be redirected to the callback URL handled by [CompleteOAuth2FlowMutation].
      */
     suspend fun buildAuthorizationUrl(
         clientRegistrationId: String,
