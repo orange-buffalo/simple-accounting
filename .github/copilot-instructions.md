@@ -72,7 +72,7 @@ After making changes, ALWAYS run this validation sequence:
 **Code-first GraphQL** with schema generation:
 - After GraphQL changes, run: `./gradlew :app:updateGraphqlSchema`
 - Regenerates `app/src/test/resources/api-schema.graphqls`
-- Frontend TypeScript types are generated as the first step of every build via the `generateGqlTypes` Gradle task
+- Frontend TypeScript types are generated as the first step of every build via the `build` script in `package.json`
 - To regenerate frontend TypeScript types manually during development, run: `cd frontend && bun run graphql-codegen`
 
 ## File Locations
