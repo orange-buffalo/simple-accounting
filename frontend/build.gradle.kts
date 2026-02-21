@@ -14,7 +14,6 @@ val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
         readTsConfig(file("tsconfig.app.json")).applyIncludesExcludes(this)
         include("public/**")
         include("index.html")
-        include("src/services/api/gql/**")
     }
     outputDirectories.set(files("dist"))
     dependsOn(installFrontendDependencies)
