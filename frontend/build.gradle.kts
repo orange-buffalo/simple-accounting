@@ -7,6 +7,20 @@ val installFrontendDependencies by tasks.register<SaFrontendTask>("installFronte
     args.set("install --frozen-lockfile")
 }
 
+val generateGqlTypes by tasks.register<SaCacheableFrontendTask>("generateGqlTypes") {
+    args.set("run graphql-codegen")
+    inputFiles {
+        include("codegen.ts")
+        include("package.json")
+        include("src/**/*.vue")
+        include("src/**/*.ts")
+        exclude("src/services/api/gql/**")
+    }
+    inputs.file(rootProject.file("app/src/test/resources/api-schema.graphqls"))
+    outputDirectories.set(files("src/services/api/gql"))
+    dependsOn(installFrontendDependencies)
+}
+
 val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
     args.set("run build")
     inputFiles {
@@ -16,7 +30,7 @@ val buildFrontend by tasks.register<SaCacheableFrontendTask>("buildFrontend") {
         include("index.html")
     }
     outputDirectories.set(files("dist"))
-    dependsOn(installFrontendDependencies)
+    dependsOn(generateGqlTypes)
 }
 
 val testFrontend by tasks.register<SaCacheableFrontendTask>("testFrontend") {
@@ -25,7 +39,7 @@ val testFrontend by tasks.register<SaCacheableFrontendTask>("testFrontend") {
         prodConfigs.forEach { include(it) }
         readTsConfig(file("tsconfig.vitest.json")).applyIncludesExcludes(this)
     }
-    dependsOn(installFrontendDependencies)
+    dependsOn(generateGqlTypes)
 }
 
 val lint by tasks.register<SaCacheableFrontendTask>("lint") {
@@ -34,7 +48,7 @@ val lint by tasks.register<SaCacheableFrontendTask>("lint") {
         prodConfigs.forEach { include(it) }
         readTsConfig(file("tsconfig.vitest.json")).applyIncludesExcludes(this)
     }
-    dependsOn(installFrontendDependencies)
+    dependsOn(generateGqlTypes)
 }
 
 tasks.register("check") {
@@ -46,6 +60,7 @@ val cleanFrontend by tasks.register("cleanFrontend") {
     group = "Frontend"
     doLast {
         delete(files("src/services/i18n/l10n"))
+        delete(files("src/services/api/gql"))
         delete(files("dist"))
     }
 }
