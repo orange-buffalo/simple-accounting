@@ -73,8 +73,11 @@ type ChangePasswordResponse {
   success: Boolean!
 }
 
-"Response for the completeOAuth2Flow mutation. Always succeeds if no error is returned by standard GraphQL error response structure."
+"Response for the completeOAuth2Flow mutation."
 type CompleteOAuth2FlowResponse {
+  "An error reference ID that can be used to identify the specific failure in the logs. Present only when the flow failed."
+  errorId: String
+  "Whether the OAuth2 authorization flow was completed successfully."
   success: Boolean!
 }
 
@@ -110,7 +113,7 @@ type Mutation {
     error: String,
     "The state token that was included in the authorization request."
     state: String!
-  ): CompleteOAuth2FlowResponse! @auth(type : ANONYMOUS) @businessError(description : "The OAuth2 authorization flow failed. This can happen due to an invalid state, an error response from the authorization server, or a failure to exchange the code for a token.", errorCode : "AUTHORIZATION_FAILED")
+  ): CompleteOAuth2FlowResponse! @auth(type : ANONYMOUS)
   "Refreshes the access token using the refresh token from cookies or current authentication. Returns a response with either a valid access token or null if authentication fails."
   refreshAccessToken: RefreshAccessTokenResponse! @auth(type : ANONYMOUS)
 }
@@ -186,12 +189,6 @@ enum AuthType {
 enum ChangePasswordErrorCodes {
   "The provided current password does not match the user's actual password."
   CURRENT_PASSWORD_MISMATCH
-}
-
-"Possible business error codes for the completeOAuth2Flow operation."
-enum CompleteOAuth2FlowErrorCodes {
-  "The OAuth2 authorization flow failed. This can happen due to an invalid state, an error response from the authorization server, or a failure to exchange the code for a token."
-  AUTHORIZATION_FAILED
 }
 
 "Defines the error types that can be returned in GraphQL errors. These error types are included in the `extensions.errorType` field of GraphQL errors."

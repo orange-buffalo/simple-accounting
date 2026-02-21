@@ -23,6 +23,8 @@
     >
       <div>
         <b>Authorization failed. Please try again or contact us.</b>
+        <br />
+        <span v-if="errorId">Error reference is '{{ errorId }}'</span>
       </div>
     </SaStatusLabel>
   </div>
@@ -32,18 +34,18 @@
   import { ref } from 'vue';
   import LogoLogin from '@/assets/logo-login.svg?component';
   import SaStatusLabel from '@/components/SaStatusLabel.vue';
-  import { handleGqlApiBusinessError } from '@/services/api';
   import { graphql } from '@/services/api/gql';
   import { useMutation } from '@/services/api/use-gql-api.ts';
-  import { CompleteOAuth2FlowErrorCodes } from '@/services/api/gql/graphql.ts';
 
   const loading = ref(true);
   const success = ref(false);
+  const errorId = ref<string | undefined>();
 
   const completeOAuth2FlowMutation = useMutation(graphql(/* GraphQL */ `
     mutation completeOAuth2Flow($code: String, $error: String, $state: String!) {
       completeOAuth2Flow(code: $code, error: $error, state: $state) {
         success
+        errorId
       }
     }
   `), 'completeOAuth2Flow');
@@ -54,14 +56,13 @@
     const code: string | undefined = params.get('code') || undefined;
     const error: string | undefined = params.get('error') || undefined;
     const state: string = params.get('state') || '';
-    try {
-      await completeOAuth2FlowMutation({ code, error, state });
+    const result = await completeOAuth2FlowMutation({ code, error, state });
+    if (result.success) {
       success.value = true;
-    } catch (e: unknown) {
-      handleGqlApiBusinessError<CompleteOAuth2FlowErrorCodes>(e);
-    } finally {
-      loading.value = false;
+    } else {
+      errorId.value = result.errorId ?? undefined;
     }
+    loading.value = false;
   }
 
   executeCallback();

@@ -3,8 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.api
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.server.operations.Mutation
 import io.orangebuffalo.simpleaccounting.business.api.directives.RequiredAuth
-import io.orangebuffalo.simpleaccounting.business.api.errors.BusinessError
-import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2AuthorizationFlowException
+import io.orangebuffalo.simpleaccounting.infra.TokenGenerator
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2AuthorizationCallbackRequest
 import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2ClientAuthorizationProvider
 import mu.KotlinLogging
@@ -15,17 +14,12 @@ private val logger = KotlinLogging.logger {}
 @Component
 class CompleteOAuth2FlowMutation(
     private val clientAuthorizationProvider: OAuth2ClientAuthorizationProvider,
+    private val tokenGenerator: TokenGenerator,
 ) : Mutation {
 
     @Suppress("unused")
     @GraphQLDescription("Completes the OAuth2 authorization flow by processing the authorization server callback.")
     @RequiredAuth(RequiredAuth.AuthType.ANONYMOUS)
-    @BusinessError(
-        exceptionClass = OAuth2AuthorizationFlowException::class,
-        errorCode = "AUTHORIZATION_FAILED",
-        description = "The OAuth2 authorization flow failed. This can happen due to an invalid state, " +
-                "an error response from the authorization server, or a failure to exchange the code for a token.",
-    )
     suspend fun completeOAuth2Flow(
         @GraphQLDescription("The authorization code returned by the authorization server.")
         code: String?,
@@ -36,7 +30,7 @@ class CompleteOAuth2FlowMutation(
     ): CompleteOAuth2FlowResponse {
         logger.debug { "Received new OAuth2 authorization callback" }
 
-        try {
+        return try {
             clientAuthorizationProvider.handleAuthorizationResponse(
                 OAuth2AuthorizationCallbackRequest(
                     code = code,
@@ -44,19 +38,23 @@ class CompleteOAuth2FlowMutation(
                     state = state,
                 )
             )
+            logger.debug { "OAuth2 authorization callback successfully processed" }
+            CompleteOAuth2FlowResponse(success = true)
         } catch (e: Exception) {
-            throw OAuth2AuthorizationFlowException("OAuth2 authorization flow failed", e)
+            val errorId = tokenGenerator.generateUuid()
+            logger.error(e) { "Failure to process OAuth2 authorization callback. Error ID is $errorId" }
+            CompleteOAuth2FlowResponse(success = false, errorId = errorId)
         }
-
-        logger.debug { "OAuth2 authorization callback successfully processed" }
-        return CompleteOAuth2FlowResponse()
     }
 
-    @GraphQLDescription(
-        "Response for the completeOAuth2Flow mutation. " +
-                "Always succeeds if no error is returned by standard GraphQL error response structure."
-    )
+    @GraphQLDescription("Response for the completeOAuth2Flow mutation.")
     data class CompleteOAuth2FlowResponse(
-        val success: Boolean = true,
+        @GraphQLDescription("Whether the OAuth2 authorization flow was completed successfully.")
+        val success: Boolean,
+        @GraphQLDescription(
+            "An error reference ID that can be used to identify the specific failure in the logs. " +
+                    "Present only when the flow failed."
+        )
+        val errorId: String? = null,
     )
 }

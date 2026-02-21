@@ -6,6 +6,7 @@ import io.orangebuffalo.simpleaccounting.infra.oauth2.OAuth2ClientAuthorizationP
 import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.Test
@@ -23,7 +24,6 @@ class CompleteOAuth2FlowMutationTest(
     private val preconditions by lazyPreconditions {
         object {
             val fry = fry().withWorkspace()
-            val workspaceAccessToken = workspaceAccessToken()
         }
     }
 
@@ -35,6 +35,7 @@ class CompleteOAuth2FlowMutationTest(
             .executeAndVerifySuccessResponse(
                 "completeOAuth2Flow" to buildJsonObject {
                     put("success", true)
+                    put("errorId", JsonNull)
                 }
             )
 
@@ -57,12 +58,14 @@ class CompleteOAuth2FlowMutationTest(
             .executeAndVerifySuccessResponse(
                 "completeOAuth2Flow" to buildJsonObject {
                     put("success", true)
+                    put("errorId", JsonNull)
                 }
             )
     }
 
     @Test
-    fun `should return BUSINESS_ERROR with AUTHORIZATION_FAILED when provider throws exception`() {
+    fun `should return failure response with errorId when provider throws exception`() {
+        whenever(tokenGenerator.generateUuid()) doReturn "test-error-id"
         authorizationProvider.stub {
             onBlocking { handleAuthorizationResponse(any()) } doThrow IllegalStateException("State is not known")
         }
@@ -70,15 +73,17 @@ class CompleteOAuth2FlowMutationTest(
         client
             .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "unknown-state") }
             .fromAnonymous()
-            .executeAndVerifyBusinessError(
-                message = "OAuth2 authorization flow failed",
-                errorCode = "AUTHORIZATION_FAILED",
-                path = "completeOAuth2Flow"
+            .executeAndVerifySuccessResponse(
+                "completeOAuth2Flow" to buildJsonObject {
+                    put("success", false)
+                    put("errorId", "test-error-id")
+                }
             )
     }
 
     @Test
-    fun `should return BUSINESS_ERROR with AUTHORIZATION_FAILED when provider receives error response`() {
+    fun `should return failure response with errorId when provider receives error response`() {
+        whenever(tokenGenerator.generateUuid()) doReturn "test-error-id"
         authorizationProvider.stub {
             onBlocking { handleAuthorizationResponse(any()) } doThrow RuntimeException("Authorization failed with error access_denied")
         }
@@ -86,10 +91,11 @@ class CompleteOAuth2FlowMutationTest(
         client
             .graphqlMutation { completeOAuth2FlowMutation(code = null, error = "access_denied", state = "state") }
             .fromAnonymous()
-            .executeAndVerifyBusinessError(
-                message = "OAuth2 authorization flow failed",
-                errorCode = "AUTHORIZATION_FAILED",
-                path = "completeOAuth2Flow"
+            .executeAndVerifySuccessResponse(
+                "completeOAuth2Flow" to buildJsonObject {
+                    put("success", false)
+                    put("errorId", "test-error-id")
+                }
             )
     }
 
@@ -99,5 +105,6 @@ class CompleteOAuth2FlowMutationTest(
         state: String
     ): MutationProjection = completeOAuth2Flow(code = code, error = error, state = state) {
         success
+        errorId
     }
 }

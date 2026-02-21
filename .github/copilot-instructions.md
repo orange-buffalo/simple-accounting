@@ -188,6 +188,44 @@ Key point about the GraphQL API setup:
    - Generic exception handling should only be used in cross-cutting concerns infrastructure code
    - Let the framework's generic exception handling deal with unexpected errors rather than silently suppressing them
 
+## Migrating REST Endpoints to GraphQL
+
+When migrating a REST endpoint to GraphQL, follow these steps:
+
+1. **Create a GraphQL mutation** in `app/src/main/kotlin/.../business/api/` (not in `infra/`).
+   
+2. **Authentication**: Use `@RequiredAuth(RequiredAuth.AuthType.ANONYMOUS)` for publicly accessible endpoints
+   (no auth required). This replaces REST endpoints that have no security filter.
+
+3. **Error handling strategies**:
+   - For business errors that map to specific error codes: use `@BusinessError` annotation with a dedicated exception class
+   - For catch-all error handlers (REST `@ExceptionHandler` on generic `Exception`): **return the error in the response**
+     rather than throwing. Include an `errorId` field in the response for user reference:
+     ```kotlin
+     return try {
+         service.doWork(...)
+         MyResponse(success = true)
+     } catch (e: Exception) {
+         val errorId = tokenGenerator.generateUuid()
+         logger.error(e) { "Operation failed. Error ID is $errorId" }
+         MyResponse(success = false, errorId = errorId)
+     }
+     ```
+     This pattern mirrors the original REST behavior (returning error details in response body) while staying GraphQL-idiomatic.
+
+4. **Remove the REST controller** and its test after the GraphQL mutation is fully tested.
+
+5. **Update the OpenAPI spec** (`app/src/test/resources/api-spec.yaml`):
+   - Remove the REST endpoint path
+   - Remove any schemas used exclusively by that endpoint
+   - Also delete the corresponding generated TypeScript files in `frontend/src/services/api/generated/`
+   - Update `generated/apis/index.ts` and `generated/models/index.ts` to remove the deleted exports
+   - Run `ApiSpecTest` with `OVERRIDE_COMMITTED_FILES=true` to auto-regenerate, or update manually
+
+6. **Update the frontend**: Replace REST API calls with `useMutation` from `use-gql-api.ts`.
+   - For loading state tests, replace `withBlockedApiResponse("api/path")` with
+     `withBlockedGqlApiResponse("mutationName")` in Playwright full stack tests.
+
 # Testing
 
 ## Preconditions setup
