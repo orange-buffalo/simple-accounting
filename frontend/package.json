@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "bun build-config/post-install/post-install.js && bun graphql-codegen",
+    "postinstall": "bun build-config/post-install/post-install.js",
     "dev": "bun run --bun vite",
-    "build": "bun run typecheck && bun run --bun vite build",
+    "build": "bun run graphql-codegen && bun run typecheck && bun run --bun vite build",
     "test:unit": "vitest --run",
     "test:unit:watch": "vitest",
     "typecheck": "bun run vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
