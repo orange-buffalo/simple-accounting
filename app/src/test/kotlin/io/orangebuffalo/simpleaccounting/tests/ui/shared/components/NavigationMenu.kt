@@ -29,6 +29,26 @@ class NavigationMenu(private val page: Page) {
         return this
     }
 
+    fun clickWorkspaces(): NavigationMenu {
+        container.getByText("Workspaces").click()
+        return this
+    }
+
+    fun clickWorkspacesUk(): NavigationMenu {
+        container.getByText("Проекти").click()
+        return this
+    }
+
+    fun clickLogout(): NavigationMenu {
+        container.getByText("Logout").click()
+        return this
+    }
+
+    fun clickLogoutUk(): NavigationMenu {
+        container.getByText("Вихід").click()
+        return this
+    }
+
     fun clickUsersOverview(): NavigationMenu {
         container.getByText("Users").click()
         return this

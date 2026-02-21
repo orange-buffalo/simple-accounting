@@ -18,15 +18,30 @@ class LoginPage private constructor(page: Page) : SaPageBase(page, ".login-page"
     val rememberMeCheckbox = components.checkboxByOwnLabel("Remember me for 30 days")
     private val errorMessage: Locator = page.locator(".login-page__login-error")
 
+    val loginInputUk = components.textInputByPlaceholder("Логін")
+    val passwordInputUk = components.textInputByPlaceholder("Пароль")
+
     fun loginAs(user: PlatformUser) {
         loginInput.fill(user.userName)
         passwordInput.fill(user.passwordHash)
         loginButton.click()
     }
 
+    fun loginAsUk(user: PlatformUser) {
+        loginInputUk.fill(user.userName)
+        passwordInputUk.fill(user.passwordHash)
+        loginButton.click()
+    }
+
     private fun shouldBeOpen() {
         loginInput.shouldBeVisible()
         passwordInput.shouldBeVisible()
+        loginButton.shouldBeVisible()
+    }
+
+    private fun shouldBeOpenUk() {
+        loginInputUk.shouldBeVisible()
+        passwordInputUk.shouldBeVisible()
         loginButton.shouldBeVisible()
     }
 
@@ -51,6 +66,13 @@ class LoginPage private constructor(page: Page) : SaPageBase(page, ".login-page"
         fun Page.shouldBeLoginPage(spec: LoginPage.() -> Unit) {
             LoginPage(this).apply {
                 shouldBeOpen()
+                spec()
+            }
+        }
+
+        fun Page.shouldBeLoginPageUk(spec: LoginPage.() -> Unit) {
+            LoginPage(this).apply {
+                shouldBeOpenUk()
                 spec()
             }
         }
