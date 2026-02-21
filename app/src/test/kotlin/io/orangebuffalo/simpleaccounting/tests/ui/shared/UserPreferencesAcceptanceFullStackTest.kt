@@ -44,7 +44,13 @@ class UserPreferencesAcceptanceFullStackTest : SaFullStackTestBase() {
             loginAsUk(preconditions.fry)
         }
 
-        page.shouldBeDashboardPageUk()
+        page.shouldBeDashboardPageUk {
+            expensesCard {
+                shouldBeLoaded()
+                shouldHaveAmount("50,00\u00a0USD")
+                shouldHaveFinalizedText("Усього 1 витрат")
+            }
+        }
         page.shouldHaveSideMenu().shouldHaveWorkspaceName("Mom's Friendly Robot Company")
     }
 
