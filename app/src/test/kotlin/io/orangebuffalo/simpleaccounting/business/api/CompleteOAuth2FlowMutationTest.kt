@@ -31,7 +31,7 @@ class CompleteOAuth2FlowMutationTest(
     fun `should complete OAuth2 flow successfully for anonymous user`() {
         client
             .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "state") }
-            .fromAnonymous()
+            .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
                 "completeOAuth2Flow" to buildJsonObject {
                     put("success", true)
@@ -72,7 +72,7 @@ class CompleteOAuth2FlowMutationTest(
 
         client
             .graphqlMutation { completeOAuth2FlowMutation(code = "code", error = null, state = "unknown-state") }
-            .fromAnonymous()
+            .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
                 "completeOAuth2Flow" to buildJsonObject {
                     put("success", false)
@@ -90,7 +90,7 @@ class CompleteOAuth2FlowMutationTest(
 
         client
             .graphqlMutation { completeOAuth2FlowMutation(code = null, error = "access_denied", state = "state") }
-            .fromAnonymous()
+            .from(preconditions.fry)
             .executeAndVerifySuccessResponse(
                 "completeOAuth2Flow" to buildJsonObject {
                     put("success", false)
