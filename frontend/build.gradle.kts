@@ -37,9 +37,36 @@ val lint by tasks.register<SaCacheableFrontendTask>("lint") {
     dependsOn(installFrontendDependencies)
 }
 
+val verifyGqlTypesOutput = layout.buildDirectory.dir("verify-gql-types")
+val verifyGqlTypes by tasks.register<SaFrontendTask>("verifyGqlTypes") {
+    args.set("run verify-gql-types")
+    inputs.files(
+        project.fileTree(projectDir) {
+            include("src/services/api/gql/**")
+            include("src/**/*.vue")
+            include("src/**/*.ts")
+            include("codegen.ts")
+            include("package.json")
+            include("bun.lock")
+        },
+        "../app/src/test/resources/api-schema.graphqls",
+    )
+    outputs.dir(verifyGqlTypesOutput)
+    dependsOn(installFrontendDependencies)
+
+    doLast {
+        val outputDir = verifyGqlTypesOutput.get().asFile
+        outputDir.mkdirs()
+        // Sentinel file for Gradle UP-TO-DATE tracking: Gradle requires at least one output to
+        // determine whether the task is up-to-date and can be skipped on subsequent runs.
+        outputDir.resolve("result.txt").writeText("OK")
+    }
+}
+
 tasks.register("check") {
     dependsOn(testFrontend)
     dependsOn(lint)
+    dependsOn(verifyGqlTypes)
 }
 
 val cleanFrontend by tasks.register("cleanFrontend") {

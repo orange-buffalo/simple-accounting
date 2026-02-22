@@ -5,12 +5,13 @@
   "scripts": {
     "postinstall": "bun build-config/post-install/post-install.js",
     "dev": "bun run --bun vite",
-    "build": "bun run graphql-codegen && bun run typecheck && bun run --bun vite build",
+    "build": "bun run typecheck && bun run --bun vite build",
     "test:unit": "vitest --run",
     "test:unit:watch": "vitest",
     "typecheck": "bun run vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "bun run --bun eslint . --fix",
-    "graphql-codegen": "graphql-codegen"
+    "graphql-codegen": "graphql-codegen",
+    "verify-gql-types": "bun build-config/verify-gql-types.js"
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",

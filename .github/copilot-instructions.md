@@ -72,8 +72,8 @@ After making changes, ALWAYS run this validation sequence:
 **Code-first GraphQL** with schema generation:
 - After GraphQL changes, run: `./gradlew :app:updateGraphqlSchema`
 - Regenerates `app/src/test/resources/api-schema.graphqls`
-- Frontend TypeScript types are generated as the first step of every build via the `build` script in `package.json`
-- To regenerate frontend TypeScript types manually during development, run: `cd frontend && bun run graphql-codegen`
+- Frontend TypeScript types are committed to `frontend/src/services/api/gql/` and verified by the `verifyGqlTypes` Gradle task (part of `check`)
+- To regenerate frontend TypeScript types during development, run: `cd frontend && bun run graphql-codegen`
 
 ## File Locations
 
@@ -100,6 +100,7 @@ After making changes, ALWAYS run this validation sequence:
 ```bash
 ./gradlew :app:updateGraphqlSchema
 cd frontend && bun run graphql-codegen
+# commit the regenerated files in frontend/src/services/api/gql/
 ```
 
 ### Before committing changes:
@@ -160,12 +161,13 @@ Key point about the GraphQL API setup:
 4. On the testing side, we use DGS Gradle plugin to generate Kotlin type-safe query builders, and then only
   generate the queries strings using DGS. The execution of the requests in standard Spring test client with
   customization on top (see `ApiTestClient` and `ApiTestUtils.kt` for the extensions).
-5. We then generate TypeScript code from the schema as the first step of every build in `frontend` package. It is
-  leveraging `graphql-codegen` tool for type-safe queries on the frontend side.
+5. The frontend TypeScript types are committed to `frontend/src/services/api/gql/` and verified by the
+  `verifyGqlTypes` Gradle task (part of `check`). After changing GraphQL queries or the schema, regenerate
+  them with `cd frontend && bun run graphql-codegen` and commit the result.
 6. We use `uqrl` framework with its `graphql-codegen` and Vue 3 integration to call the API from the frontend.
   See `frontend/src/services/api/gql-api-client.ts` for the entry point.
   Whenever a query is wrapped into `grapql` for type-safe access to the API, execute `cd frontend && bun run graphql-codegen`
-  to regenerate the types.
+  to regenerate the types and commit the updated files in `frontend/src/services/api/gql/`.
 
 ## GraphQL API Implementation Guidelines
 1. **Structure Pattern**: Follow the pattern established by `UserProfileApi.kt`:
