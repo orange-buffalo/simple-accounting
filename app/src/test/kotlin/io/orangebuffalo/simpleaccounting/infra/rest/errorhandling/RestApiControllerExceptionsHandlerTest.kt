@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.infra.rest.errorhandling
 
 import io.orangebuffalo.simpleaccounting.business.common.exceptions.EntityNotFoundException
 import io.orangebuffalo.simpleaccounting.business.security.InsufficientUserType
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.verifyNotFound
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

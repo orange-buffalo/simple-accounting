@@ -5,7 +5,7 @@ import io.orangebuffalo.simpleaccounting.business.security.jwt.JwtService
 import io.orangebuffalo.simpleaccounting.business.security.remeberme.RefreshTokensService
 import io.orangebuffalo.simpleaccounting.business.security.toSecurityPrincipal
 import io.orangebuffalo.simpleaccounting.infra.graphql.client.MutationProjection
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.ApiTestClient
 import io.orangebuffalo.simpleaccounting.tests.infra.api.graphqlMutation
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
@@ -139,7 +139,7 @@ class RefreshAccessTokenMutationTest(
         // Force preconditions evaluation before stubbing
         val tokenValue = preconditions.validAccessToken.token
         val validTill = preconditions.validAccessToken.validTill
-        
+
         // Mock JWT validation for the valid token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
                 createTransientUserPrincipal(tokenValue)
@@ -162,7 +162,7 @@ class RefreshAccessTokenMutationTest(
     fun `should return null token when transient user token is revoked`() {
         // Force preconditions evaluation before stubbing
         val tokenValue = preconditions.revokedAccessToken.token
-        
+
         // Mock JWT validation for the revoked token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
                 createTransientUserPrincipal(tokenValue)
@@ -181,7 +181,7 @@ class RefreshAccessTokenMutationTest(
     fun `should return null token when transient user token is expired`() {
         // Force preconditions evaluation before stubbing
         val tokenValue = preconditions.expiredAccessToken.token
-        
+
         // Mock JWT validation for the expired token
         whenever(jwtService.validateTokenAndBuildUserDetails(any())) doReturn
                 createTransientUserPrincipal(tokenValue)

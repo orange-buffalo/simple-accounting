@@ -1,7 +1,7 @@
 package io.orangebuffalo.simpleaccounting.business.common.pesistence
 
 import io.orangebuffalo.simpleaccounting.business.documents.DocumentsRepository
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.MOCK_TIME
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

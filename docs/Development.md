@@ -145,7 +145,7 @@ committed schema file. Use the following Gradle task:
 This task:
 * Runs `GraphqlSchemaTest` with schema override enabled
 * Updates `app/src/test/resources/api-schema.graphqls` with the current schema
-* Should be run before frontend installation (for TypeScript regeneration) and before running tests (for DGS builders regeneration)
+* Should be run before running tests (for DGS builders regeneration) and before regenerating frontend TypeScript types
 
 **Important**: Always run this task after making GraphQL API changes to keep the schema file in sync.
 

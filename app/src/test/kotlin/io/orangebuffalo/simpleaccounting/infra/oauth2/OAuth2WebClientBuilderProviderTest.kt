@@ -2,7 +2,7 @@ package io.orangebuffalo.simpleaccounting.infra.oauth2
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import io.orangebuffalo.simpleaccounting.infra.oauth2.impl.PersistentOAuth2AuthorizedClient
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import org.assertj.core.api.Assertions.*

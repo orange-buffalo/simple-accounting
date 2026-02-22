@@ -8,7 +8,7 @@ import io.orangebuffalo.simpleaccounting.business.integration.pushnotifications.
 import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.workspaces.Workspace
 import io.orangebuffalo.simpleaccounting.infra.oauth2.*
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.security.WithSaMockUser
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.consumeToString
@@ -38,7 +38,7 @@ import java.util.function.Consumer
 private val bufferFactory = DefaultDataBufferFactory()
 
 /**
- * TODO: this test is mostly covered by [io.orangebuffalo.simpleaccounting.tests.ui.user.UserProfileGoogleDriveDocumentStorageFullStackTest].
+ * TODO: this test is mostly covered by [io.orangebuffalo.simpleaccounting.business.ui.user.profile.UserProfileGoogleDriveDocumentStorageFullStackTest].
  * The remaining parts to be covered by the pages that use upload / download functionality.
  */
 @Deprecated("Uses excessive mocking, should be replaced with a full stack test")

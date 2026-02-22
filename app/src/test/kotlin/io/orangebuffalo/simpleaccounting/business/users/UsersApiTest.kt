@@ -3,7 +3,7 @@ package io.orangebuffalo.simpleaccounting.business.users
 import io.kotest.matchers.comparables.shouldBeEqualComparingTo
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.orangebuffalo.simpleaccounting.tests.infra.SaIntegrationTestBase
+import io.orangebuffalo.simpleaccounting.SaIntegrationTestBase
 import io.orangebuffalo.simpleaccounting.tests.infra.api.*
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.ApiRequestsBodyConfiguration
 import io.orangebuffalo.simpleaccounting.tests.infra.utils.ApiRequestsValidationsTestBase
