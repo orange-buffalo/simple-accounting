@@ -832,3 +832,8 @@ The frontend uses a custom i18n framework for user-facing text translations.
 - Dates: `{0, date, medium}` for dates
 - File sizes: `{0, fileSize, pretty}` for file sizes
 - Currency: Use existing `amount.withCurrency` formatter
+
+# UI
+## GraphQL queries/mutations
+- Use `useQuery` and `useMutation` from `use-gql-api.ts`.
+- Never set `undefined` to the variables - always use `null`.

@@ -19,7 +19,7 @@ class CompleteOAuth2FlowMutation(
 
     @Suppress("unused")
     @GraphQLDescription("Completes the OAuth2 authorization flow by processing the authorization server callback.")
-    @RequiredAuth(RequiredAuth.AuthType.ANONYMOUS)
+    @RequiredAuth(RequiredAuth.AuthType.AUTHENTICATED_USER)
     suspend fun completeOAuth2Flow(
         @GraphQLDescription("The authorization code returned by the authorization server.")
         code: String?,
