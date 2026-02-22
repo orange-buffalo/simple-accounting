@@ -34,20 +34,20 @@ class SaDataFetcherExceptionHandler(
 
     private fun mapToResult(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult {
         val exception = unwrap(handlerParameters.exception)
-        
+
         // Handle Bean Validation exceptions
         if (exception is ConstraintViolationException) {
             return DataFetcherExceptionHandlerResult.newResult()
                 .error(ValidationErrorGraphQLError(exception, handlerParameters))
                 .build()
         }
-        
+
         if (exception is SaGrapQlException) {
             return DataFetcherExceptionHandlerResult.newResult()
                 .error(SaGrapQlError(exception, handlerParameters))
                 .build()
         }
-        
+
         // Handle business errors declared via @BusinessError annotation
         val operationName = handlerParameters.path.segmentName
         if (operationName != null) {
@@ -58,8 +58,8 @@ class SaDataFetcherExceptionHandler(
                     .build()
             }
         }
-        
-        log.error(handlerParameters.exception) { "Unexpected exception happened during GraphQL execution" }
+
+        log.error(handlerParameters.exception) { "Unexpected exception happened during GraphQL execution ($operationName)" }
         val sourceLocation = handlerParameters.sourceLocation
         val path = handlerParameters.path
         val error = ExceptionWhileDataFetching(path, exception, sourceLocation)
@@ -131,7 +131,7 @@ private class ValidationErrorGraphQLError(
         val validationErrors = exception.constraintViolations.map { violation ->
             buildValidationErrorDetails(violation)
         }
-        
+
         return mapOf(
             "errorType" to SaGrapQlErrorType.FIELD_VALIDATION_FAILURE,
             "validationErrors" to validationErrors
@@ -139,15 +139,15 @@ private class ValidationErrorGraphQLError(
     }
 
     override fun getPath(): List<Any> = handlerParameters.path.toList()
-    
+
     private fun buildValidationErrorDetails(violation: ConstraintViolation<*>): ValidationErrorDetails {
         val annotationClass = violation.constraintDescriptor.annotation.annotationClass
         val mapping = mappingsByAnnotationClass[annotationClass]
             ?: throw IllegalStateException("No mapping found for validation annotation ${annotationClass.simpleName}")
-        
+
         // Extract just the field name from the property path (skip method name)
         val fieldPath = violation.propertyPath.drop(1).joinToString(".") { it.name }
-        
+
         return ValidationErrorDetails(
             path = fieldPath,
             error = mapping.errorCode,

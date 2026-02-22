@@ -11,7 +11,6 @@ export * from './GoogleDriveStorageApiApi';
 export * from './IncomeTaxPaymentsApiApi';
 export * from './IncomesApiApi';
 export * from './InvoicesApiApi';
-export * from './OAuth2CallbackApiApi';
 export * from './ProfileApiApi';
 export * from './PushNotificationsApiApi';
 export * from './ReportingApiApi';

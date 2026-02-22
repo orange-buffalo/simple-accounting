@@ -3,11 +3,10 @@ package io.orangebuffalo.simpleaccounting.infra.oauth2
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
-import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
-import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import io.orangebuffalo.simpleaccounting.business.security.SecurityPrincipal
 import io.orangebuffalo.simpleaccounting.business.security.getCurrentPrincipal
-import kotlinx.coroutines.runBlocking
+import io.orangebuffalo.simpleaccounting.business.users.I18nSettings
+import io.orangebuffalo.simpleaccounting.business.users.PlatformUser
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -22,13 +21,9 @@ class OAuth2SucceededEventTest {
         )
 
         var principal: SecurityPrincipal? = null
-        val job = event.launchIfClientMatches("test-client") {
+        event.executeInSourceContext("test-client") {
             principal = getCurrentPrincipal()
         }
-
-        assertThat(job).isNotNull()
-
-        runBlocking { job!!.join() }
 
         assertThat(principal).isNotNull()
         assertThat(principal!!.userName).isEqualTo("Fry")

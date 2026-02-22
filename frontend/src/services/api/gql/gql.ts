@@ -16,11 +16,13 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
 type Documents = {
     "\n    query userProfile {\n      userProfile {\n        documentsStorage\n        i18n {\n          language\n          locale\n        }\n        userName\n      }\n    }\n  ": typeof types.UserProfileDocument,
     "\n    mutation changePassword($currentPassword: String!, $newPassword: String!) {\n      changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {\n        success\n      }\n    }\n  ": typeof types.ChangePasswordDocument,
+    "\n    mutation completeOAuth2Flow($code: String, $error: String, $state: String!) {\n      completeOAuth2Flow(code: $code, error: $error, state: $state) {\n        success\n        errorId\n      }\n    }\n  ": typeof types.CompleteOAuth2FlowDocument,
     "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n": typeof types.RefreshAccessTokenDocument,
 };
 const documents: Documents = {
     "\n    query userProfile {\n      userProfile {\n        documentsStorage\n        i18n {\n          language\n          locale\n        }\n        userName\n      }\n    }\n  ": types.UserProfileDocument,
     "\n    mutation changePassword($currentPassword: String!, $newPassword: String!) {\n      changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {\n        success\n      }\n    }\n  ": types.ChangePasswordDocument,
+    "\n    mutation completeOAuth2Flow($code: String, $error: String, $state: String!) {\n      completeOAuth2Flow(code: $code, error: $error, state: $state) {\n        success\n        errorId\n      }\n    }\n  ": types.CompleteOAuth2FlowDocument,
     "\n    mutation refreshAccessToken {\n        refreshAccessToken {\n            accessToken\n        }\n    }\n": types.RefreshAccessTokenDocument,
 };
 
@@ -46,6 +48,10 @@ export function graphql(source: "\n    query userProfile {\n      userProfile {\
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n    mutation changePassword($currentPassword: String!, $newPassword: String!) {\n      changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {\n        success\n      }\n    }\n  "): (typeof documents)["\n    mutation changePassword($currentPassword: String!, $newPassword: String!) {\n      changePassword(currentPassword: $currentPassword, newPassword: $newPassword) {\n        success\n      }\n    }\n  "];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    mutation completeOAuth2Flow($code: String, $error: String, $state: String!) {\n      completeOAuth2Flow(code: $code, error: $error, state: $state) {\n        success\n        errorId\n      }\n    }\n  "): (typeof documents)["\n    mutation completeOAuth2Flow($code: String, $error: String, $state: String!) {\n      completeOAuth2Flow(code: $code, error: $error, state: $state) {\n        success\n        errorId\n      }\n    }\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
